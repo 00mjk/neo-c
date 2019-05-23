@@ -189,6 +189,13 @@ sNodeType* create_node_type_with_class_name(char* class_name)
     return parse_class_name(&p, &p2, buf);
 }
 
+sNodeType* create_node_type_with_class_pointer(sCLClass* klass)
+{
+    sNodeType* result = alloc_node_type();
+    result->mClass = klass;
+    return result;
+}
+
 BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
 {
     return FALSE;

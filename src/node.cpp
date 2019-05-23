@@ -1068,6 +1068,206 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* sname, int sline)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeStruct;
+
+    gNodes[node].mSName = sname;
+    gNodes[node].mLine = sline;
+
+    gNodes[node].uValue.sStruct.mType = struct_type;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_struct(unsigned int node, sCompileInfo* info)
+{
+    sNodeType* struct_type = gNodes[node].uValue.sStruct.mType;
+
+    Type* llvm_struct_type = create_llvm_type_from_node_type(struct_type);
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_object(sNodeType* node_type, char* sname, int sline)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeObject;
+
+    gNodes[node].mSName = sname;
+    gNodes[node].mLine = sline;
+
+    gNodes[node].uValue.sObject.mType = node_type;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_object(unsigned int node, sCompileInfo* info)
+{
+    sNodeType* node_type = gNodes[node].uValue.sObject.mType;
+
+    Type* llvm_var_type = create_llvm_type_from_node_type(node_type);
+
+    node_type->mPointerNum = 1;
+
+    IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
+
+    LVALUE llvm_value;
+    llvm_value.value = builder.CreateAlloca(llvm_var_type, 0, "object");
+    llvm_value.type = node_type;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = node_type;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_store_field(char* var_name, unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeStoreField;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    xstrncpy(gNodes[node].uValue.sStoreField.mVarName, var_name, VAR_NAME_MAX);
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
+{
+    char* var_name = gNodes[node].uValue.sStoreField.mVarName;
+
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    sNodeType* generics_types = left_type;
+
+    /// compile right node ///
+    unsigned int rnode = gNodes[node].mRight;
+
+    if(!compile(rnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    int field_index = get_field_index(left_type->mClass, var_name);
+
+    if(field_index == -1) {
+        compile_err_msg(info, "The field(%s) is not found", var_name);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sNodeType* field_type = left_type->mClass->mFields[field_index];
+
+    LVALUE* lvalue = get_value_from_stack(-2);
+    LVALUE* rvalue = get_value_from_stack(-1);
+
+    int alignment = get_llvm_alignment_from_node_type(field_type);
+
+    Value* field_address = Builder.CreateStructGEP(lvalue->value, field_index);
+
+    Builder.CreateAlignedStore(rvalue->value, field_address, alignment);
+
+    info->type = right_type;
+
+    dec_stack_ptr(2, info);
+    push_value_to_stack_ptr(rvalue, info);
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_load_field(char* name, unsigned int left_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeLoadField;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    xstrncpy(gNodes[node].uValue.sLoadField.mVarName, name, VAR_NAME_MAX);
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
+{
+    char* var_name = gNodes[node].uValue.sStoreField.mVarName;
+
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    int field_index = get_field_index(left_type->mClass, var_name);
+
+    if(field_index == -1) {
+        compile_err_msg(info, "The field(%s) is not found", var_name);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sNodeType* field_type = left_type->mClass->mFields[field_index];
+
+    LVALUE* lvalue = get_value_from_stack(-1);
+
+    int alignment = get_llvm_alignment_from_node_type(field_type);
+
+    Value* field_address = Builder.CreateStructGEP(lvalue->value, field_index);
+
+    LVALUE llvm_value;
+    llvm_value.value = Builder.CreateAlignedLoad(field_address, alignment);
+    llvm_value.type = field_type;
+
+    info->type = field_type;
+
+    dec_stack_ptr(1, info);
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -1150,8 +1350,32 @@ BOOL compile(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
+
+        case kNodeTypeStruct:
+            if(!compile_struct(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeObject:
+            if(!compile_object(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeStoreField:
+            if(!compile_store_field(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeLoadField:
+            if(!compile_load_field(node, info)) {
+                return FALSE;
+            }
+            break;
     }
 
-    return TRUE;
+    return node;
 }
 

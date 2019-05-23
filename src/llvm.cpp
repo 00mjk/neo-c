@@ -353,22 +353,57 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
 Type* create_llvm_type_from_node_type(sNodeType* node_type)
 {
     Type* result_type = NULL;
+    sCLClass* klass = node_type->mClass;
 
-    if(type_identify_with_class_name(node_type, "int"))
+    if(klass->mFlags & CLASS_FLAGS_STRUCT) 
+    {
+        char* class_name = CLASS_NAME(klass);
+        
+        if(gLLVMStructType[class_name] == nullptr) 
+        {
+            StructType* struct_type = StructType::create(TheContext, CLASS_NAME(klass));;
+            std::vector<Type*> fields;
+
+            int i;
+            for(i=0; i<klass->mNumFields; i++) {
+                sNodeType* field = klass->mFields[i];
+
+                Type* field_type = create_llvm_type_from_node_type(field);
+                fields.push_back(field_type);
+            }
+
+            if(struct_type->isOpaque()) {
+                struct_type->setBody(fields, false);
+            }
+
+            gLLVMStructType[class_name] = struct_type;
+
+            result_type = struct_type;
+        }
+        else {
+            result_type = gLLVMStructType[class_name];
+        }
+    }
+    else if(type_identify_with_class_name(node_type, "int"))
     {
         result_type = IntegerType::get(TheContext, 32);
+    }
+    else if(type_identify_with_class_name(node_type, "char"))
+    {
+        result_type = IntegerType::get(TheContext, 8);
     }
     else if(type_identify_with_class_name(node_type, "bool"))
     {
         result_type = IntegerType::get(TheContext, 1);
     }
-    else if(type_identify_with_class_name(node_type, "char*"))
-    {
-        result_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
-    }
     else if(type_identify_with_class_name(node_type, "void"))
     {
         result_type = Type::getVoidTy(TheContext);
+    }
+
+    int i;
+    for(i=0; i<node_type->mPointerNum; i++) {
+        result_type = PointerType::get(result_type, 0);
     }
 
     return result_type;
@@ -378,7 +413,15 @@ int get_llvm_alignment_from_node_type(sNodeType* node_type)
 {
     int result = 0;
 
-    if(type_identify_with_class_name(node_type, "int"))
+    sCLClass* klass = node_type->mClass;
+
+    if(klass->mFlags & CLASS_FLAGS_STRUCT) {
+        result = 8;
+    }
+    else if(node_type->mPointerNum > 0) {
+        result = 8;
+    }
+    else if(type_identify_with_class_name(node_type, "int"))
     {
         result = 4;
     }
@@ -403,5 +446,6 @@ Value* llvm_create_string(char* str)
 
     return value;
 }
+
 
 }

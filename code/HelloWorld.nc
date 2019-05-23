@@ -33,3 +33,32 @@ elif(x == 5) {
 else {
     puts(c"FALSE");
 }
+
+struct TestStruct {
+    a: int;
+    b: int;
+}
+
+var data = TestStruct();
+
+data.a = 123;
+data.b = 234;
+
+def fun3(data:TestStruct*) {
+    puts(c"struct test...");
+
+    if(data.a == 123) {
+        if(data.b == 234) {
+            puts(c"TRUE");
+        }
+    }
+}
+
+fun3(data);
+
+def fun4(str:char*) {
+    puts(str);
+}
+
+c"aaa".fun4();
+

@@ -161,21 +161,23 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
 
     start_to_make_native_code(fname);
 
-    unsigned int nodes[SOURCE_EXPRESSION_MAX];
     int num_nodes = 0;
+    int size_nodes = 128;
+    unsigned int* nodes = xcalloc(1, sizeof(unsigned int)*size_nodes);
 
     while(*info.p) {
         unsigned int node = 0;
         if(!expression(&node, &info)) {
+            free(nodes);
             return FALSE;
         }
 
         nodes[num_nodes] = node;
         num_nodes++;
 
-        if(num_nodes >= SOURCE_EXPRESSION_MAX) {
-            fprintf(stderr, "overflow expression number in a source\n");
-            exit(2);
+        if(num_nodes >= size_nodes) {
+            size_nodes *= 2;
+            nodes = xrealloc(nodes, sizeof(unsigned int)*size_nodes);
         }
 
         if(*info.p == ';') {
@@ -195,6 +197,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
             if(gNodes[node].mNodeType == kNodeTypeFunction || gNodes[node].mNodeType == kNodeTypeExternalFunction)
             {
                 if(!compile(node, &cinfo)) {
+                    free(nodes);
                     return FALSE;
                 }
             }
@@ -208,6 +211,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
             if(gNodes[node].mNodeType != kNodeTypeFunction && gNodes[node].mNodeType != kNodeTypeExternalFunction)
             {
                 if(!compile(node, &cinfo)) {
+                    free(nodes);
                     return FALSE;
                 }
 
@@ -219,10 +223,13 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
 
     if(info.err_num > 0 || cinfo.err_num > 0) {
         fprintf(stderr, "Parser error number is %d. Compile error number is %d\n", info.err_num, cinfo.err_num);
+        free(nodes);
         return FALSE;
     }
 
     output_native_code(optimize, output_object_file);
+
+    free(nodes);
 
     return TRUE;
 }

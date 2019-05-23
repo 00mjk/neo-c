@@ -434,8 +434,6 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
 
 static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, sParserInfo* info)
 {
-    *num_params = 0;
-
     if(*info->p == '(') {
         info->p++;
         skip_spaces_and_lf(info);
@@ -598,6 +596,158 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_struct(unsigned int* node, sParserInfo* info) 
+{
+    char* sname = info->sname;
+    int sline = info->sline;
+
+    char struct_name[VAR_NAME_MAX];
+    int num_fields = 0;
+    char field_names[STRUCT_FIELD_MAX][VAR_NAME_MAX];
+    sNodeType* fields[STRUCT_FIELD_MAX];
+
+    char buf[VAR_NAME_MAX];
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+        return FALSE;
+    }
+
+    xstrncpy(struct_name, buf, VAR_NAME_MAX);
+
+    expect_next_character_with_one_forward("{", info);
+
+    int n = 0;
+    while(TRUE) {
+        char buf[VAR_NAME_MAX];
+
+        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+            return FALSE;
+        }
+
+        xstrncpy(field_names[num_fields], buf, VAR_NAME_MAX);
+
+        expect_next_character_with_one_forward(":", info);
+
+        sNodeType* field = NULL;
+        if(!parse_type(&field, info)) {
+            return FALSE;
+        }
+
+        fields[num_fields] = field;
+        num_fields++;
+
+        if(num_fields >= STRUCT_FIELD_MAX) {
+            parser_err_msg(info, "overflow struct field");
+            return FALSE;
+        }
+
+        if(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+
+        if(*info->p == '}') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+    }
+
+    if(*info->p == ';') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+
+    sCLClass* struct_class = alloc_struct(struct_name, num_fields, field_names, fields);
+
+    sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
+
+    *node = sNodeTree_struct(struct_type, info, sname, sline);
+
+    return TRUE;
+}
+
+static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
+{
+    if(*node == 0) {
+        return TRUE;
+    }
+
+    while(*info->p) {
+        /// call method or access field ///
+        if(*info->p == '.')
+        {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(isalpha(*info->p) || *info->p == '_') 
+            {
+                char buf[VAR_NAME_MAX];
+
+                if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                    return FALSE;
+                }
+                skip_spaces_and_lf(info);
+
+                /// call methods ///
+                if(*info->p == '(' || *info->p == '{') 
+                {
+                    char* func_name = buf;
+
+                    unsigned int params[PARAMS_MAX];
+                    int num_params = 0;
+
+                    params[0] = *node;
+                    num_params++;
+
+                    if(!parse_funcation_call_params(&num_params, params, info)) 
+                    {
+                        return FALSE;
+                    }
+
+                    *node = sNodeTree_create_function_call(func_name, params, num_params, info);
+                }
+                /// access fields ///
+                else {
+                    if(*info->p == '=' && *(info->p +1) != '=') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+
+                        unsigned int right_node = 0;
+
+                        if(!expression(&right_node, info)) {
+                            return FALSE;
+                        }
+
+                        if(right_node == 0) {
+                            parser_err_msg(info, "Require right value");
+                            info->err_num++;
+
+                            *node = 0;
+                        }
+                        else {
+                            *node = sNodeTree_create_store_field(buf, *node, right_node, info);
+                        }
+                    }
+                    else {
+                        *node = sNodeTree_create_load_field(buf, *node, info);
+                    }
+                }
+            }
+            else {
+                parser_err_msg(info, "require method name or field name after .");
+                info->err_num++;
+                *node = 0;
+                break;
+            }
+        }
+        else {
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
     /// number ///
@@ -703,8 +853,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
 
+        sCLClass* klass = get_class(buf);
+
         if(strcmp(buf, "var") == 0) {
             if(!parse_var(node, info, FALSE)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "struct") == 0) {
+            if(!parse_struct(node, info)) {
                 return FALSE;
             }
         }
@@ -722,6 +879,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             if(!if_expression(node, info)) {
                 return FALSE;
             }
+        }
+        else if(klass && klass->mFlags & CLASS_FLAGS_STRUCT)
+        {
+            expect_next_character_with_one_forward("(", info);
+            expect_next_character_with_one_forward(")", info);
+
+            sNodeType* node_type = create_node_type_with_class_pointer(klass);
+
+            *node = sNodeTree_create_object(node_type, info->sname, info->sline);
         }
         else {
             if(*info->p == '(') {
@@ -781,8 +947,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
     }
 
+    /// post position expression ///
+    if(!postposition_operator(node, info))
+    {
+        return FALSE;
+    }
+
     return TRUE;
 }
+
 
 // from left to right order
 static BOOL expression_add_sub(unsigned int* node, sParserInfo* info)

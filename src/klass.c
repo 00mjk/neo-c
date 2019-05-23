@@ -296,13 +296,13 @@ sCLClass* get_class(char* class_name)
     return load_class(class_name, 0);
 }
 
-sCLClass* alloc_class(char* class_name, BOOL primitive_)
+sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_)
 {
     sCLClass* klass = xcalloc(1, sizeof(sCLClass));
 
     sConst_init(&klass->mConst);
 
-    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0);
+    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (struct_ ? CLASS_FLAGS_STRUCT:0);
 
     klass->mClassNameOffset = append_str_to_constant_pool(&klass->mConst, class_name, FALSE);
 
@@ -314,16 +314,30 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_)
     return klass;
 }
 
+sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])
+{
+    sCLClass* klass = alloc_class(class_name, FALSE, TRUE);
+    klass->mNumFields = num_fields;
+
+    int i;
+    for(i=0; i<num_fields; i++) {
+        klass->mFieldNameOffsets[i] = append_str_to_constant_pool(&klass->mConst, field_name[i], FALSE);
+        klass->mFields[i] = fields[i];
+    }
+
+    return klass;
+}
+
 
 void class_init()
 {
     memset(gClassTable, 0, sizeof(sClassTable)*CLASS_NUM_MAX);
 
-    alloc_class("int", TRUE);
-    alloc_class("char", TRUE);
-    alloc_class("void", TRUE);
-    alloc_class("bool", TRUE);
-    alloc_class("any", TRUE);
+    alloc_class("int", TRUE, FALSE);
+    alloc_class("char", TRUE, FALSE);
+    alloc_class("void", TRUE, FALSE);
+    alloc_class("bool", TRUE, FALSE);
+    alloc_class("any", TRUE, FALSE);
 }
 
 void class_final()
@@ -347,5 +361,21 @@ void class_final()
         }
         p = p->mNextClass;
     }
+}
+
+int get_field_index(sCLClass* klass, char* var_name)
+{
+    if(klass->mFlags & CLASS_FLAGS_STRUCT) {
+        int i;
+        for(i=0; i<klass->mNumFields; i++) {
+            char* field_name = CONS_str(&klass->mConst, klass->mFieldNameOffsets[i]);
+
+            if(strcmp(field_name, var_name) == 0) {
+                return i;
+            }
+        }
+    }
+
+    return -1;
 }
 
