@@ -1487,7 +1487,11 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     int alignment = get_llvm_alignment_from_node_type(field_type);
 
+#if LLVM_VERSION_MAJOR >= 7
+    Value* field_address = Builder.CreateStructGEP(lvalue->value, field_index);
+#else
     Value* field_address = Builder.CreateStructGEP(llvm_field_type, lvalue->value, field_index);
+#endif
 
     Builder.CreateAlignedStore(rvalue->value, field_address, alignment);
 
@@ -1549,7 +1553,11 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
     int alignment = get_llvm_alignment_from_node_type(field_type);
 
+#if LLVM_VERSION_MAJOR >= 7
+    Value* field_address = Builder.CreateStructGEP(lvalue->value, field_index);
+#else
     Value* field_address = Builder.CreateStructGEP(llvm_field_type, lvalue->value, field_index);
+#endif
 
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateAlignedLoad(field_address, alignment);

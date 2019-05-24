@@ -1,5 +1,3 @@
-var n = 1+1;
-
 def puts(str:char*):int;
 def exit(rcode:int);
 
@@ -21,39 +19,48 @@ var a = fun();
 
 assert(c"function result test",a == 2);
 
-def fun(aaa:bool) {
-    assert(c"function param cast test", aaa);
+def fun(exp:bool) {
+    assert(c"function param cast test", exp);
 }
 
 var b = 1;
 
 fun(b);
 
-/*
+var n = 1+1;
+
+assert(c"local variable test", n == 2);
+
 n = 777
 
+assert(c"local variable test", n == 777);
+
 var m = n + 1;
+
+assert(c"local variable test", m == 778);
 
 def fun2(x:int, y:int):int {
     x + y;
 }
 
-fun2(1, 2)
+var l = fun2(1, 2)
+
+assert(c"function result test", l == 3);
 
 var x = 4;
 
 if(x == 3) {
-    puts(c"TRUE");
 }
 elif(x == 2) {
-    puts(c"TRUE2");
 }
-elif(x == 5) {
-    puts(c"TRUE3");
+elif(x == 4) {
+    x = 5
 }
 else {
-    puts(c"FALSE");
 }
+
+assert(c"if test", x == 5);
+
 
 struct TestStruct {
     a: int;
@@ -66,13 +73,7 @@ data.a = 123;
 data.b = 234;
 
 def fun3(data:TestStruct*) {
-    puts(c"struct test...");
-
-    if(data.a == 123) {
-        if(data.b == 234) {
-            puts(c"TRUE");
-        }
-    }
+//    assert(c"struct test", data.a == 123 && data.b == 234);
 }
 
 fun3(data);
@@ -85,9 +86,7 @@ c"aaa".fun4();
 
 var i = 1;
 
-if(i > 0) {
-}
-*/
+assert(c"operator test", i > 0);
 
 /*
 var i = 0;
