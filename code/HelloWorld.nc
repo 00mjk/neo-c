@@ -1,14 +1,35 @@
 var n = 1+1;
 
 def puts(str:char*):int;
+def exit(rcode:int);
+
+def assert(msg:char*, exp:bool) {
+    puts(msg);
+    if(!exp) {
+        puts(c"assertion failed");
+        exit(2);
+    }
+    puts(c"OK");
+}
 
 def fun():int {
     puts(c"HELLO WORLD");
     1+1;
 }
 
-fun();
+var a = fun();
 
+assert(c"function result test",a == 2);
+
+def fun(aaa:bool) {
+    assert(c"function param cast test", aaa);
+}
+
+var b = 1;
+
+fun(b);
+
+/*
 n = 777
 
 var m = n + 1;
@@ -62,3 +83,30 @@ def fun4(str:char*) {
 
 c"aaa".fun4();
 
+var i = 1;
+
+if(i > 0) {
+}
+*/
+
+/*
+var i = 0;
+while(i < 3) {
+    puts(c"HO!");
+    i = i +1;
+}
+*/
+
+
+/*
+def times(n:int, block:lambda()) {
+    var i = 0;
+    while(i < n) {
+        block();
+        n++;
+    }
+}
+
+
+3.times(lambda { puts(c"HO!") })
+*/

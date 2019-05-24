@@ -296,13 +296,13 @@ sCLClass* get_class(char* class_name)
     return load_class(class_name, 0);
 }
 
-sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_)
+sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_, BOOL number_type, BOOL unsigned_number)
 {
     sCLClass* klass = xcalloc(1, sizeof(sCLClass));
 
     sConst_init(&klass->mConst);
 
-    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (struct_ ? CLASS_FLAGS_STRUCT:0);
+    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (struct_ ? CLASS_FLAGS_STRUCT:0) | (number_type ? CLASS_FLAGS_NUMBER:0) | (unsigned_number ? CLASS_FLAGS_UNSIGNED_NUMBER:0);
 
     klass->mClassNameOffset = append_str_to_constant_pool(&klass->mConst, class_name, FALSE);
 
@@ -316,7 +316,7 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_)
 
 sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])
 {
-    sCLClass* klass = alloc_class(class_name, FALSE, TRUE);
+    sCLClass* klass = alloc_class(class_name, FALSE, TRUE, FALSE, FALSE);
     klass->mNumFields = num_fields;
 
     int i;
@@ -333,11 +333,17 @@ void class_init()
 {
     memset(gClassTable, 0, sizeof(sClassTable)*CLASS_NUM_MAX);
 
-    alloc_class("int", TRUE, FALSE);
-    alloc_class("char", TRUE, FALSE);
-    alloc_class("void", TRUE, FALSE);
-    alloc_class("bool", TRUE, FALSE);
-    alloc_class("any", TRUE, FALSE);
+    alloc_class("bool", TRUE, FALSE, TRUE, FALSE);
+    alloc_class("char", TRUE, FALSE, TRUE, FALSE);
+    alloc_class("short", TRUE, FALSE, TRUE, FALSE);
+    alloc_class("int", TRUE, FALSE, TRUE, FALSE);
+    alloc_class("long", TRUE, FALSE, TRUE, FALSE);
+    alloc_class("uchar", TRUE, FALSE, TRUE, TRUE);
+    alloc_class("ushort", TRUE, FALSE, TRUE, TRUE);
+    alloc_class("uint", TRUE, FALSE, TRUE, TRUE);
+    alloc_class("ulong", TRUE, FALSE, TRUE, TRUE);
+    alloc_class("void", TRUE, FALSE, FALSE, FALSE);
+    alloc_class("any", TRUE, FALSE, FALSE, FALSE);
 }
 
 void class_final()

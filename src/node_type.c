@@ -196,16 +196,22 @@ sNodeType* create_node_type_with_class_pointer(sCLClass* klass)
     return result;
 }
 
+BOOL is_number_type(sNodeType* node_type)
+{
+    return node_type->mClass->mFlags & CLASS_FLAGS_NUMBER;
+}
+
 BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
 {
+    if(is_number_type(left_type) && is_number_type(right_type))
+    {
+        return TRUE;
+    }
+
     return FALSE;
 }
 
-void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, struct sCompileInfoStruct* info)
-{
-}
-
-BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics)
+BOOL substitution_posibility(sNodeType* left, sNodeType* right)
 {
     return left->mClass == right->mClass;
 }

@@ -25,6 +25,7 @@
 #define SOURCE_EXPRESSION_MAX 4096*2
 #define ELIF_NUM_MAX 32
 #define STRUCT_FIELD_MAX 32
+#define REAL_FUN_NAME_MAX (VAR_NAME_MAX*PARAMS_MAX+32)
 
 #define clint64 long long      // for 32 bit cpu
 
@@ -65,6 +66,8 @@ unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_o
 //////////////////////////////
 #define CLASS_FLAGS_PRIMITIVE 0x01
 #define CLASS_FLAGS_STRUCT 0x02
+#define CLASS_FLAGS_NUMBER 0x04
+#define CLASS_FLAGS_UNSIGNED_NUMBER 0x08
 
 struct sCLClassStruct {
     clint64 mFlags;
@@ -104,7 +107,7 @@ void class_init();
 void class_final();
 
 sCLClass* get_class(char* class_name);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_, BOOL number_type, BOOL unsigned_number);
 sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
 unsigned int get_hash_key(char* name, unsigned int max);
 int get_field_index(sCLClass* klass, char* var_name);
@@ -134,9 +137,8 @@ sNodeType* create_node_type_with_class_pointer(sCLClass* klass);
 BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type);
 
 struct sCompileInfoStruct;
-void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, struct sCompileInfoStruct* info);
 void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_type2, struct sParserInfoStruct* info);
-BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics);
+BOOL substitution_posibility(sNodeType* left, sNodeType* right);
 BOOL type_identify(sNodeType* left, sNodeType* right);
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
   
@@ -262,7 +264,7 @@ struct sCompileInfoStruct
 
 typedef struct sCompileInfoStruct sCompileInfo;
 
-enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStoreField, kNodeTypeLoadField };
+enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse };
 
 struct sNodeTreeStruct 
 {
@@ -315,6 +317,11 @@ struct sNodeTreeStruct
         } sIf;
 
         struct {
+            unsigned int mExpressionNode;
+            MANAGED struct sNodeBlockStruct* mWhileNodeBlock;
+        } sWhile;
+
+        struct {
             sNodeType* mType;
         } sStruct;
 
@@ -360,6 +367,14 @@ unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* s
 unsigned int sNodeTree_create_object(sNodeType* node_type, char* sname, int sline);
 unsigned int sNodeTree_create_store_field(char* var_name, unsigned int left_node, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_load_field(char* name, unsigned int left_node, sParserInfo* info);
+unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED struct sNodeBlockStruct* while_node_block, sParserInfo* info);
+unsigned int sNodeTree_create_gteq(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
+unsigned int sNodeTree_create_leeq(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
+unsigned int sNodeTree_create_gt(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
+unsigned int sNodeTree_create_le(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
+unsigned int sNodeTree_create_logical_denial(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
+unsigned int sNodeTree_create_true(sParserInfo* info);
+unsigned int sNodeTree_create_false(sParserInfo* info);
 
 void show_node(unsigned int node);
 BOOL compile(unsigned int node, sCompileInfo* info);

@@ -83,6 +83,7 @@ typedef struct LVALUEStruct LVALUE;
 
 struct sFunctionStruct {
     char mName[VAR_NAME_MAX];
+    char mRealName[REAL_FUN_NAME_MAX];
 
     sNodeType* mResultType;
     sNodeType* mParamTypes[PARAMS_MAX];
@@ -107,6 +108,7 @@ Type* create_llvm_type_from_node_type(sNodeType* node_type);
 
 Type* create_llvm_type_from_node_type(sNodeType* node_type);
 Value* llvm_create_string(char* str);
+void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info);
 }
 
 #endif

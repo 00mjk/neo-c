@@ -499,7 +499,7 @@ static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, s
     return TRUE;
 }
 
-static BOOL if_expression(unsigned int* node, sParserInfo* info)
+static BOOL parse_if(unsigned int* node, sParserInfo* info)
 {
     char* sname = info->sname;
     int sline = info->sline;
@@ -748,10 +748,56 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_while(unsigned int* node, sParserInfo* info)
+{
+    expect_next_character_with_one_forward("(", info);
+
+    /// expression ///
+    unsigned int expression_node = 0;
+    if(!expression(&expression_node, info)) {
+        return FALSE;
+    }
+
+    if(expression_node == 0) {
+        parser_err_msg(info, "require expression for while");
+        info->err_num++;
+        return TRUE;
+    }
+
+    expect_next_character_with_one_forward(")", info);
+    expect_next_character_with_one_forward("{", info);
+
+    sNodeBlock* while_node_block = NULL;
+    if(!parse_block_easy(ALLOC &while_node_block, info))
+    {
+        return FALSE;
+    }
+
+
+    *node = sNodeTree_while_expression(expression_node, MANAGED while_node_block, info);
+
+    return TRUE;
+}
+
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
+    if(*info->p == '!') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!expression_node(node, info)) {
+            return FALSE;
+        }
+
+        if(*node == 0) {
+            parser_err_msg(info, "require value for !");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_logical_denial(*node, 0, 0, info);
+    }
     /// number ///
-    if((*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-' && *(info->p+1) != '>') || (*info->p == '+' && *(info->p+1) != '=' && *(info->p+1) != '+')) 
+    else if((*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-' && *(info->p+1) != '>') || (*info->p == '+' && *(info->p+1) != '=' && *(info->p+1) != '+')) 
     {
         if(*info->p =='+') {
             info->p++;
@@ -846,7 +892,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         *node = sNodeTree_create_c_string_value(MANAGED value.mBuf, value.mLen, info);
     }
-    else if(isalpha(*info->p)) {
+    else if(isalpha(*info->p) || *info->p == '_') {
         char buf[VAR_NAME_MAX+1];
         if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
         {
@@ -876,9 +922,20 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "if") == 0) {
-            if(!if_expression(node, info)) {
+            if(!parse_if(node, info)) {
                 return FALSE;
             }
+        }
+        else if(strcmp(buf, "while") == 0) {
+            if(!parse_while(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "true") == 0) {
+            *node = sNodeTree_create_true(info);
+        }
+        else if(strcmp(buf, "false") == 0) {
+            *node = sNodeTree_create_false(info);
         }
         else if(klass && klass->mFlags & CLASS_FLAGS_STRUCT)
         {
@@ -1011,9 +1068,92 @@ static BOOL expression_add_sub(unsigned int* node, sParserInfo* info)
 }
 
 // from left to right order
-static BOOL expression_equal(unsigned int* node, sParserInfo* info)
+static BOOL expression_comparison(unsigned int* node, sParserInfo* info)
 {
     if(!expression_add_sub(node, info)) {
+        return FALSE;
+    }
+    if(*node == 0) {
+        return TRUE;
+    }
+
+    while(*info->p) {
+        if(*info->p == '>' && *(info->p+1) == '=') {
+            info->p += 2;
+            skip_spaces_and_lf(info);
+
+            unsigned int right = 0;
+            if(!expression_add_sub(&right, info)) {
+                return FALSE;
+            }
+
+            if(right == 0) {
+                parser_err_msg(info, "require right value for >= operator");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_gteq(*node, right, 0, info);
+        }
+        else if(*info->p == '<' && *(info->p+1) == '=') {
+            info->p += 2;
+            skip_spaces_and_lf(info);
+
+            unsigned int right = 0;
+            if(!expression_add_sub(&right, info)) {
+                return FALSE;
+            }
+
+            if(right == 0) {
+                parser_err_msg(info, "require right value for <= operator");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_leeq(*node, right, 0, info);
+        }
+        else if(*info->p == '>' && *(info->p+1) != '>') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int right = 0;
+            if(!expression_add_sub(&right, info)) {
+                return FALSE;
+            }
+
+            if(right == 0) {
+                parser_err_msg(info, "require right value for > operator");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_gt(*node, right, 0, info);
+        }
+        else if(*info->p == '<' && *(info->p+1) != '<') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int right = 0;
+            if(!expression_add_sub(&right, info)) {
+                return FALSE;
+            }
+
+            if(right == 0) {
+                parser_err_msg(info, "require right value for < operator");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_le(*node, right, 0, info);
+        }
+        else {
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
+// from left to right order
+static BOOL expression_equal(unsigned int* node, sParserInfo* info)
+{
+    if(!expression_comparison(node, info)) {
         return FALSE;
     }
     if(*node == 0) {

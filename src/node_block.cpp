@@ -161,10 +161,18 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
                         info->type = llvm_value.type;
                     }
+                    else {
+                        LVALUE llvm_value = *get_value_from_stack(-1);
+                        dec_stack_ptr(1, info);
 
-                    if(cast_posibility(result_type, info->type)) 
-                    {
-                        cast_right_type_to_left_type(result_type, &info->type, info);
+                        info->type = llvm_value.type;
+
+                        if(cast_posibility(result_type, info->type)) 
+                        {
+                            cast_right_type_to_left_type(result_type, &info->type, &llvm_value, info);
+                        }
+
+                        push_value_to_stack_ptr(&llvm_value, info);
                     }
                 }
                 else {
