@@ -7,10 +7,13 @@ Module* TheModule;
 std::unique_ptr<FunctionPassManager> TheFPM;
 std::map<std::string, BasicBlock*> TheLabels;
 FunctionAnalysisManager TheFAM(false);
-LoopAnalysisManager loopAnalysisManager(false);
 CGSCCAnalysisManager cGSCCAnalysisManager(false);
 ModuleAnalysisManager moduleAnalysisManager(false);
 std::map<std::string, Type*> gLLVMStructType;
+
+#if LLVM_VERSION_MAJOR >= 7
+LoopAnalysisManager loopAnalysisManager(false);
+#endif
 
 LVALUE* gLLVMStack;
 char gSourceName[PATH_MAX];
@@ -222,6 +225,7 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
 
     create_main_function();
 
+#if LLVM_VERSION_MAJOR >= 7
     if(optimize) {
         puts("OPTIMIZATION PHASE");
 
@@ -234,6 +238,7 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
 
         passBuilder.buildModuleOptimizationPipeline(llvm::PassBuilder::OptimizationLevel::O3, false);
     }
+#endif
 
     char* sname2 = gSourceName;
 

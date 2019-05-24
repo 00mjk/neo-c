@@ -1483,9 +1483,11 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    Type* llvm_field_type = create_llvm_type_from_node_type(field_type);
+
     int alignment = get_llvm_alignment_from_node_type(field_type);
 
-    Value* field_address = Builder.CreateStructGEP(lvalue->value, field_index);
+    Value* field_address = Builder.CreateStructGEP(llvm_field_type, lvalue->value, field_index);
 
     Builder.CreateAlignedStore(rvalue->value, field_address, alignment);
 
@@ -1541,11 +1543,13 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
     sNodeType* field_type = left_type->mClass->mFields[field_index];
 
+    Type* llvm_field_type = create_llvm_type_from_node_type(field_type);
+
     LVALUE* lvalue = get_value_from_stack(-1);
 
     int alignment = get_llvm_alignment_from_node_type(field_type);
 
-    Value* field_address = Builder.CreateStructGEP(lvalue->value, field_index);
+    Value* field_address = Builder.CreateStructGEP(llvm_field_type, lvalue->value, field_index);
 
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateAlignedLoad(field_address, alignment);

@@ -2,6 +2,7 @@
 #define BUFFER_H 1
 
 #include <unistd.h>
+#include <stdlib.h>
 
 /// resizable buffer
 struct sBufStruct {
