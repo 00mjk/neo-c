@@ -308,6 +308,16 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
 
     sNodeType* right_type = info->type;
 
+    LVALUE* lvalue = get_value_from_stack(-2);
+    LVALUE* rvalue = get_value_from_stack(-1);
+
+    LVALUE llvm_value;
+    llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "addttmp", false, true);
+    llvm_value.type = create_node_type_with_class_name("int");
+
+    dec_stack_ptr(2, info);
+    push_value_to_stack_ptr(&llvm_value, info);
+
     return TRUE;
 }
 
@@ -576,7 +586,7 @@ static BOOL compile_le(unsigned int node, sCompileInfo* info)
     LVALUE* rvalue = get_value_from_stack(-1);
 
     LVALUE llvm_value;
-    llvm_value.value = Builder.CreateICmpSLE(lvalue->value, rvalue->value, "letmp");
+    llvm_value.value = Builder.CreateICmpSLT(lvalue->value, rvalue->value, "letmp");
     llvm_value.type = create_node_type_with_class_name("bool");
 
     dec_stack_ptr(2, info);
@@ -1523,7 +1533,7 @@ unsigned int sNodeTree_create_load_field(char* name, unsigned int left_node, sPa
 
 static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 {
-    char* var_name = gNodes[node].uValue.sStoreField.mVarName;
+    char* var_name = gNodes[node].uValue.sLoadField.mVarName;
 
     /// compile left node ///
     unsigned int lnode = gNodes[node].mLeft;
@@ -1592,8 +1602,14 @@ unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED st
 
 static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
 {
-/*
     sNodeBlock* while_node_block = gNodes[node].uValue.sWhile.mWhileNodeBlock;
+
+    BasicBlock* loop_top_block = BasicBlock::Create(TheContext, "loop_top_block", gFunction);
+
+    Builder.CreateBr(loop_top_block);
+
+    Builder.SetInsertPoint(loop_top_block);
+    info->current_block = loop_top_block;
 
     /// compile expression ///
     unsigned int expression_node = gNodes[node].uValue.sWhile.mExpressionNode;
@@ -1614,119 +1630,24 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     LVALUE* conditional_value = get_value_from_stack(-1);
     dec_stack_ptr(1, info);
 
-    BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_jump_then", gFunction);
-    BasicBlock* cond_else_block = NULL;
+    BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_then_block", gFunction);
 
-    BasicBlock* cond_elif_block[ELIF_NUM_MAX];
-    BasicBlock* cond_elif_then_block[ELIF_NUM_MAX];
-    if(elif_num > 0) {
-        int i;
-        for(i=0; i<elif_num; i++) {
-            char buf[128];
-            snprintf(buf, 128, "cond_jump_elif%d\n", i);
+    BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end_block", gFunction);
 
-            cond_elif_block[i] = BasicBlock::Create(TheContext, buf, gFunction);
-
-            snprintf(buf, 128, "cond_jump_elif_then%d\n", i);
-
-            cond_elif_then_block[i] = BasicBlock::Create(TheContext, buf, gFunction);
-        }
-    }
-
-    if(else_node_block) {
-        cond_else_block = BasicBlock::Create(TheContext, "cond_else_block", gFunction);
-    }
-    BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end", gFunction);
-
-    if(elif_num > 0) {
-        Builder.CreateCondBr(conditional_value->value, cond_then_block, cond_elif_block[0]);
-    }
-    else if(else_node_block) {
-        Builder.CreateCondBr(conditional_value->value, cond_then_block, cond_else_block);
-    }
-    else {
-        Builder.CreateCondBr(conditional_value->value, cond_then_block, cond_end_block);
-    }
+    Builder.CreateCondBr(conditional_value->value, cond_then_block, cond_end_block);
 
     Builder.SetInsertPoint(cond_then_block);
     info->current_block = cond_then_block;
 
-    sNodeBlock* if_block = gNodes[node].uValue.sIf.mIfNodeBlock;
     sNodeType* result_type = create_node_type_with_class_name("any");
-    if(!compile_block(if_block, info, result_type)) {
+    if(!compile_block(while_node_block, info, result_type)) {
         return FALSE;
     }
 
-    Builder.CreateBr(cond_end_block);
-
-    //// elif ///
-    if(elif_num > 0) {
-        int i;
-        for(i=0; i<elif_num; i++) {
-            Builder.SetInsertPoint(cond_elif_block[i]);
-            info->current_block = cond_elif_block[i];
-
-            unsigned int expression_node = gNodes[node].uValue.sIf.mElifExpressionNodes[i];
-
-            if(!compile(expression_node, info)) {
-                return FALSE;
-            }
-
-            if(!type_identify_with_class_name(info->type, "bool")) 
-            {
-                compile_err_msg(info, "This conditional type is not bool");
-                info->err_num++;
-
-                info->type = create_node_type_with_class_name("int"); // dummy
-
-                return TRUE;
-            }
-
-            LVALUE* conditional_value = get_value_from_stack(-1);
-            dec_stack_ptr(1, info);
-
-            if(i == elif_num-1) {
-                if(else_node_block) {
-                    Builder.CreateCondBr(conditional_value->value, cond_elif_then_block[i], cond_else_block);
-                }
-                else {
-                    Builder.CreateCondBr(conditional_value->value, cond_elif_then_block[i], cond_end_block);
-                }
-            }
-            else {
-                Builder.CreateCondBr(conditional_value->value, cond_elif_then_block[i], cond_elif_block[i+1]);
-            }
-
-            Builder.SetInsertPoint(cond_elif_then_block[i]);
-            info->current_block = cond_elif_then_block[i];
-            sNodeBlock* elif_node_block = gNodes[node].uValue.sIf.mElifNodeBlocks[i];
-
-            sNodeType* result_type = create_node_type_with_class_name("any");
-            if(!compile_block(elif_node_block, info, result_type)) 
-            {
-                return FALSE;
-            }
-
-            Builder.CreateBr(cond_end_block);
-        }
-    }
-
-    if(else_node_block) {
-        Builder.SetInsertPoint(cond_else_block);
-        info->current_block = cond_else_block;
-
-        sNodeType* result_type = create_node_type_with_class_name("any");
-        if(!compile_block(else_node_block, info, result_type)) 
-        {
-            return FALSE;
-        }
-
-        Builder.CreateBr(cond_end_block);
-    }
+    Builder.CreateBr(loop_top_block);
 
     Builder.SetInsertPoint(cond_end_block);
     info->current_block = cond_end_block;
-*/
 
     return TRUE;
 }
@@ -1780,6 +1701,192 @@ static BOOL compile_false(unsigned int node, sCompileInfo* info)
 {
     LVALUE llvm_value;
     llvm_value.value = ConstantInt::get(Type::getInt1Ty(TheContext), 0);
+    llvm_value.type = create_node_type_with_class_name("bool");
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("bool");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeAndAnd;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
+{
+    IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
+    Value* result_var = builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "andand_result_var");
+
+    /// compile expression ///
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    if(!type_identify_with_class_name(left_type, "bool")) {
+        compile_err_msg(info, "Left expression is not bool type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    LVALUE* conditional_value = get_value_from_stack(-1);
+    Builder.CreateAlignedStore(conditional_value->value, result_var, 1);
+
+    BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_jump_then", gFunction);
+
+    BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_jump_end", gFunction);;
+
+    Builder.CreateCondBr(conditional_value->value, cond_then_block, cond_end_block);
+
+    Builder.SetInsertPoint(cond_then_block);
+    info->current_block = cond_then_block;
+
+    /// compile right expression ///
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    if(!type_identify_with_class_name(right_type, "bool")) {
+        compile_err_msg(info, "Right expression is not bool type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    LVALUE* conditional_value2 = get_value_from_stack(-1);
+
+    Value* andand_value = Builder.CreateAnd(conditional_value->value, conditional_value2->value, "andand");
+
+    Builder.CreateAlignedStore(andand_value, result_var, 1);
+
+    Builder.CreateBr(cond_end_block);
+
+    Builder.SetInsertPoint(cond_end_block);
+    info->current_block = cond_end_block;
+
+    dec_stack_ptr(2, info);
+
+    LVALUE llvm_value;
+    llvm_value.value = Builder.CreateAlignedLoad(result_var, 1, "andand_result_value");
+    llvm_value.type = create_node_type_with_class_name("bool");
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("bool");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeOrOr;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
+{
+    IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
+    Value* result_var = builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "oror_result_var");
+
+    /// compile expression ///
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    if(!type_identify_with_class_name(left_type, "bool")) {
+        compile_err_msg(info, "Left expression is not bool type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    LVALUE* conditional_value = get_value_from_stack(-1);
+    Builder.CreateAlignedStore(conditional_value->value, result_var, 1);
+
+    BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_jump_then", gFunction);
+
+    BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_jump_end", gFunction);;
+
+    Builder.CreateCondBr(conditional_value->value, cond_end_block, cond_then_block);
+
+    Builder.SetInsertPoint(cond_then_block);
+    info->current_block = cond_then_block;
+
+    /// compile right expression ///
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    if(!type_identify_with_class_name(right_type, "bool")) {
+        compile_err_msg(info, "Right expression is not bool type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    LVALUE* conditional_value2 = get_value_from_stack(-1);
+
+    Value* oror_value = Builder.CreateOr(conditional_value->value, conditional_value2->value, "oror");
+
+    Builder.CreateAlignedStore(oror_value, result_var, 1);
+
+    Builder.CreateBr(cond_end_block);
+
+    Builder.SetInsertPoint(cond_end_block);
+    info->current_block = cond_end_block;
+
+    dec_stack_ptr(2, info);
+
+    LVALUE llvm_value;
+    llvm_value.value = Builder.CreateAlignedLoad(result_var, 1, "oror_result_value");
     llvm_value.type = create_node_type_with_class_name("bool");
 
     push_value_to_stack_ptr(&llvm_value, info);
@@ -1942,6 +2049,20 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeFalse:
             if(!compile_false(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeAndAnd:
+            if(!compile_and_and(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeOrOr:
+            if(!compile_or_or(node, info))
             {
                 return FALSE;
             }

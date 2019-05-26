@@ -73,7 +73,7 @@ data.a = 123;
 data.b = 234;
 
 def fun3(data:TestStruct*) {
-//    assert(c"struct test", data.a == 123 && data.b == 234);
+    assert(c"struct test", data.a == 123 && data.b == 234);
 }
 
 fun3(data);
@@ -88,13 +88,43 @@ var i = 1;
 
 assert(c"operator test", i > 0);
 
-/*
-var i = 0;
+i = 0;
 while(i < 3) {
     puts(c"HO!");
-    i = i +1;
+    i++;
 }
-*/
+
+i = 123;
+assert(c"operator test2", i++ == 123 && i == 124);
+
+i = 123;
+assert(c"operator test3", i-- == 123 && i == 122);
+
+i = 123;
+assert(c"operator test4", ++i == 124 && i == 124);
+
+i = 124;
+assert(c"operator test5", --i == 123 && i == 123);
+
+struct OpTest {
+    a:int;
+    b:int;
+}
+
+var obj = OpTest();
+
+obj.a = 123;
+assert(c"operator test6", obj.a++ == 123);
+
+obj.a = 123;
+assert(c"operator test7", obj.a-- == 123 && obj.a == 122);
+
+obj.a = 123;
+assert(c"operator test8", ++obj.a == 124 && obj.a == 124);
+
+obj.a = 124;
+assert(c"operator test9", --obj.a == 123 && obj.a == 123);
+
 
 
 /*

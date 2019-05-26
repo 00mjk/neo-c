@@ -1,3 +1,17 @@
 メソッドブロック
 
 while文
+
+printf
+
+native de C-FFI & pointer
+
+union
+
+GC or incrementak gc
+
+no segmentation fault
+
+kansuusengen native keyword de CFFI
+
+no GC
