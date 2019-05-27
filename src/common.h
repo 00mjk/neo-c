@@ -126,6 +126,10 @@ struct sNodeTypeStruct {
     int mArrayNum;
     BOOL mNullable;
     int mPointerNum;
+
+    struct sNodeTypeStruct* mParamTypes[PARAMS_MAX];
+    struct sNodeTypeStruct* mResultType;
+    int mNumParams;
 };
 
 typedef struct sNodeTypeStruct sNodeType;
@@ -211,6 +215,7 @@ struct sParserInfoStruct
     char* p;
     char* sname;
     char* source;
+    char* module_name;
     int sline;
     int err_num;
     int parse_phase;
@@ -266,7 +271,7 @@ struct sCompileInfoStruct
 
 typedef struct sCompileInfoStruct sCompileInfo;
 
-enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr };
+enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall };
 
 struct sNodeTreeStruct 
 {
@@ -301,6 +306,8 @@ struct sNodeTreeStruct
             int mNumParams;
             sNodeType* mResultType;
             struct sNodeBlockStruct* mNodeBlock;
+            void* mValue;
+            sNodeType* mLambdaType;
         } sFunction;
 
         struct {
@@ -338,12 +345,20 @@ struct sNodeTreeStruct
         struct {
             char mVarName[VAR_NAME_MAX];
         } sLoadField;
+
+        struct {
+            unsigned int mExpressionNode;
+            unsigned int mExpressionNode2;
+            unsigned int mExpressionNode3;
+            MANAGED struct sNodeBlockStruct* mForNodeBlock;
+        } sFor;
     } uValue;
 };
 
 typedef struct sNodeTreeStruct sNodeTree;
 
 extern sNodeTree* gNodes;
+extern int gUsedNodes;
 
 void init_nodes();
 void free_nodes();
@@ -379,9 +394,13 @@ unsigned int sNodeTree_create_true(sParserInfo* info);
 unsigned int sNodeTree_create_false(sParserInfo* info);
 unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node, sParserInfo* info);
+unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED struct sNodeBlockStruct* for_node_block, sParserInfo* info);
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, sParserInfo* info);
+unsigned int sNodeTree_create_lambda_call(unsigned int lambda_node, unsigned int* params, int num_params, sParserInfo* info);
 
 void show_node(unsigned int node);
 BOOL compile(unsigned int node, sCompileInfo* info);
+BOOL pre_compile(unsigned int node, sCompileInfo* info);
 
 //////////////////////////////
 /// node_block.c

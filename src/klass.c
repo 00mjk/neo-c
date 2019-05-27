@@ -344,6 +344,7 @@ void class_init()
     alloc_class("ulong", TRUE, FALSE, TRUE, TRUE);
     alloc_class("void", TRUE, FALSE, FALSE, FALSE);
     alloc_class("any", TRUE, FALSE, FALSE, FALSE);
+    alloc_class("lambda", TRUE, FALSE, FALSE, FALSE);
 }
 
 void class_final()

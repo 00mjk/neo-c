@@ -3,7 +3,7 @@
 sNodeTree* gNodes;
 
 static int gSizeNodes = 0;
-static int gUsedNodes = 0;
+int gUsedNodes = 0;
 
 std::map<std::string, sFunction> gFuncs;
 
@@ -58,6 +58,12 @@ void free_nodes()
                     }
                     break;
 
+                case kNodeTypeFor:
+                    if(gNodes[i].uValue.sFor.mForNodeBlock) 
+                    {
+                        sNodeBlock_free(gNodes[i].uValue.sFor.mForNodeBlock);
+                    }
+                    break;
 
                 default:
                     break;
@@ -251,6 +257,8 @@ unsigned int sNodeTree_create_add(unsigned int left, unsigned int right, unsigne
 
 static BOOL compile_add(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -295,6 +303,8 @@ unsigned int sNodeTree_create_sub(unsigned int left, unsigned int right, unsigne
 
 static BOOL compile_sub(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -339,6 +349,8 @@ unsigned int sNodeTree_create_equals(unsigned int left, unsigned int right, unsi
 
 static BOOL compile_equals(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -385,6 +397,8 @@ unsigned int sNodeTree_create_not_equals(unsigned int left, unsigned int right, 
 
 static BOOL compile_not_equals(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -431,6 +445,8 @@ unsigned int sNodeTree_create_gteq(unsigned int left, unsigned int right, unsign
 
 static BOOL compile_gteq(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -477,6 +493,8 @@ unsigned int sNodeTree_create_leeq(unsigned int left, unsigned int right, unsign
 
 static BOOL compile_leeq(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -523,6 +541,8 @@ unsigned int sNodeTree_create_gt(unsigned int left, unsigned int right, unsigned
 
 static BOOL compile_gt(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -569,6 +589,8 @@ unsigned int sNodeTree_create_le(unsigned int left, unsigned int right, unsigned
 
 static BOOL compile_le(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -615,6 +637,8 @@ unsigned int sNodeTree_create_logical_denial(unsigned int left, unsigned int rig
 
 static BOOL compile_logical_denial(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -659,6 +683,8 @@ unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL all
 
 static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     char* var_name = gNodes[node].uValue.sStoreVariable.mVarName;
     BOOL alloc = gNodes[node].uValue.sStoreVariable.mAlloc;
 
@@ -709,8 +735,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     int alignment = get_llvm_alignment_from_node_type(left_type);
 
     if(alloc) {
-        IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
-        var->mLLVMValue = builder.CreateAlloca(llvm_var_type, 0, var_name);
+        var->mLLVMValue = Builder.CreateAlloca(llvm_var_type, 0, var_name);
     }
 
     Builder.CreateAlignedStore(rvalue->value, (Value*)var->mLLVMValue, alignment);
@@ -799,7 +824,7 @@ static void create_real_fun_name(char* real_fun_name, size_t size_real_fun_name,
     }
 }
 
-BOOL compile_external_function(unsigned int node, sCompileInfo* info)
+BOOL pre_compile_external_function(unsigned int node, sCompileInfo* info)
 {
     /// rename variables ///
     char* func_name = gNodes[node].uValue.sFunction.mName;
@@ -861,6 +886,8 @@ unsigned int sNodeTree_create_function_call(char* func_name, unsigned int* param
 
 BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     /// rename variables ///
     char* func_name = gNodes[node].uValue.sFunctionCall.mName;
     int num_params = gNodes[node].uValue.sFunctionCall.mNumParams;
@@ -994,7 +1021,7 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
     return node;
 }
 
-BOOL compile_function(unsigned int node, sCompileInfo* info)
+BOOL pre_compile_function(unsigned int node, sCompileInfo* info)
 {
     /// rename variables ///
     char* func_name = gNodes[node].uValue.sFunction.mName;
@@ -1054,6 +1081,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         var->mLLVMValue = llvm_params[i];
     }
 
+    Function* function_before = gFunction;
     gFunction = fun;
 
     info->current_block = BasicBlock::Create(TheContext, "entry", fun);
@@ -1069,6 +1097,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         xstrncpy(info->func_name, func_name_before, VAR_NAME_MAX);
         return FALSE;
     }
+
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
 
     xstrncpy(info->func_name, func_name_before, VAR_NAME_MAX);
 
@@ -1089,8 +1119,38 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     // Run the optimizer on the function.
     //TheFPM->run(*fun, TheFAM);
+    
+    sNodeType* lambda_type = create_node_type_with_class_name("lambda");
 
-    info->type = create_node_type_with_class_name("void");
+    for(i=0; i<num_params; i++) {
+        sNodeType* param_type = params[i]->mType;
+
+        lambda_type->mParamTypes[i] = param_type;
+    }
+
+    lambda_type->mResultType = result_type;
+    lambda_type->mNumParams = num_params;
+
+    gNodes[node].uValue.sFunction.mValue = fun;
+    gNodes[node].uValue.sFunction.mLambdaType = lambda_type;
+
+    gFunction = function_before;
+
+    return TRUE;
+}
+
+BOOL compile_function(unsigned int node, sCompileInfo* info)
+{
+    Value* fun = (Value*)gNodes[node].uValue.sFunction.mValue;
+    sNodeType* lambda_type = gNodes[node].uValue.sFunction.mLambdaType;
+
+    LVALUE llvm_value;
+    llvm_value.value = fun;
+    llvm_value.type = lambda_type;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = lambda_type;
 
     return TRUE;
 }
@@ -1116,6 +1176,8 @@ unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info)
 
 static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     char* var_name = gNodes[node].uValue.sLoadVariable.mVarName;
 
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
@@ -1220,6 +1282,8 @@ static void create_label_name(char* fun_name, char* prefix, char* result, size_t
 
 static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     sNodeBlock* else_node_block = gNodes[node].uValue.sIf.mElseNodeBlock;
     int elif_num = gNodes[node].uValue.sIf.mElifNum;
 
@@ -1376,7 +1440,7 @@ unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* s
     return node;
 }
 
-static BOOL compile_struct(unsigned int node, sCompileInfo* info)
+static BOOL pre_compile_struct(unsigned int node, sCompileInfo* info)
 {
     sNodeType* struct_type = gNodes[node].uValue.sStruct.mType;
 
@@ -1405,16 +1469,17 @@ unsigned int sNodeTree_create_object(sNodeType* node_type, char* sname, int slin
 
 static BOOL compile_object(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     sNodeType* node_type = gNodes[node].uValue.sObject.mType;
 
     Type* llvm_var_type = create_llvm_type_from_node_type(node_type);
 
     node_type->mPointerNum = 1;
 
-    IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
 
     LVALUE llvm_value;
-    llvm_value.value = builder.CreateAlloca(llvm_var_type, 0, "object");
+    llvm_value.value = Builder.CreateAlloca(llvm_var_type, 0, "object");
     llvm_value.type = node_type;
 
     push_value_to_stack_ptr(&llvm_value, info);
@@ -1444,6 +1509,8 @@ unsigned int sNodeTree_create_store_field(char* var_name, unsigned int left_node
 
 static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     char* var_name = gNodes[node].uValue.sStoreField.mVarName;
 
     /// compile left node ///
@@ -1533,6 +1600,8 @@ unsigned int sNodeTree_create_load_field(char* name, unsigned int left_node, sPa
 
 static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     char* var_name = gNodes[node].uValue.sLoadField.mVarName;
 
     /// compile left node ///
@@ -1602,6 +1671,7 @@ unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED st
 
 static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
 {
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
     sNodeBlock* while_node_block = gNodes[node].uValue.sWhile.mWhileNodeBlock;
 
     BasicBlock* loop_top_block = BasicBlock::Create(TheContext, "loop_top_block", gFunction);
@@ -1728,8 +1798,9 @@ unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right
 
 static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 {
-    IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
-    Value* result_var = builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "andand_result_var");
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
+    Value* result_var = Builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "andand_result_var");
 
     /// compile expression ///
     unsigned int left_node = gNodes[node].mLeft;
@@ -1821,8 +1892,9 @@ unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_n
 
 static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
 {
-    IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
-    Value* result_var = builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "oror_result_var");
+//    IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
+
+    Value* result_var = Builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "oror_result_var");
 
     /// compile expression ///
     unsigned int left_node = gNodes[node].mLeft;
@@ -1896,6 +1968,228 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED sNodeBlock* for_node_block, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeFor;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.sFor.mExpressionNode = expression_node1;
+    gNodes[node].uValue.sFor.mExpressionNode2 = expression_node2;
+    gNodes[node].uValue.sFor.mExpressionNode3 = expression_node3;
+    gNodes[node].uValue.sFor.mForNodeBlock = MANAGED for_node_block;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
+{
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+    /// compile expression ///
+    unsigned int expression_node = gNodes[node].uValue.sFor.mExpressionNode;
+
+    if(!compile(expression_node, info)) {
+        return FALSE;
+    }
+
+    arrange_stack(info);
+
+    /// compile expression ///
+    BasicBlock* loop_top_block = BasicBlock::Create(TheContext, "loop_top_block", gFunction);
+
+    Builder.CreateBr(loop_top_block);
+
+    Builder.SetInsertPoint(loop_top_block);
+    info->current_block = loop_top_block;
+
+    unsigned int expression_node2 = gNodes[node].uValue.sFor.mExpressionNode2;
+
+    if(!compile(expression_node2, info)) {
+        return FALSE;
+    }
+
+    if(!type_identify_with_class_name(info->type, "bool")) {
+        compile_err_msg(info, "This conditional type is not bool");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    LVALUE* conditional_value = get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_then_block", gFunction);
+
+    BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end_block", gFunction);
+
+    Builder.CreateCondBr(conditional_value->value, cond_then_block, cond_end_block);
+
+    Builder.SetInsertPoint(cond_then_block);
+    info->current_block = cond_then_block;
+
+    /// block of for expression ///
+    sNodeBlock* for_block = gNodes[node].uValue.sFor.mForNodeBlock;
+    sNodeType* result_type = create_node_type_with_class_name("any");
+    if(!compile_block(for_block, info, result_type)) 
+    {
+        return FALSE;
+    }
+
+    /// expression 3 ///
+    unsigned int expression_node3 = gNodes[node].uValue.sFor.mExpressionNode3;
+
+    if(!compile(expression_node3, info)) {
+        return FALSE;
+    }
+
+    arrange_stack(info);
+
+    Builder.CreateBr(loop_top_block);
+
+    Builder.SetInsertPoint(cond_end_block);
+    info->current_block = cond_end_block;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_lambda_call(unsigned int lambda_node, unsigned int* params, int num_params, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].uValue.sFunctionCall.mNumParams = num_params;
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        gNodes[node].uValue.sFunctionCall.mParams[i] = params[i];
+    }
+    
+    gNodes[node].mNodeType = kNodeTypeLambdaCall;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = lambda_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
+{
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
+    /// rename variables ///
+    int num_params = gNodes[node].uValue.sFunctionCall.mNumParams;
+    unsigned int params[PARAMS_MAX];
+
+    unsigned int lambda_node = gNodes[node].mLeft;
+
+    /// go ///
+    if(!compile(lambda_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* lambda_type = info->type;
+
+    LVALUE lambda_value = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    sNodeType* param_types[PARAMS_MAX];
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        params[i] = gNodes[node].uValue.sFunctionCall.mParams[i];
+        
+        if(!compile(params[i], info)) {
+            return FALSE;
+        }
+
+        param_types[i] = info->type;
+    }
+
+    /// convert param type ///
+    std::vector<Value*> llvm_params;
+    LVALUE* lvalue_params[PARAMS_MAX];
+
+    for(i=0; i<num_params; i++) {
+        sNodeType* left_type = lambda_type->mParamTypes[i];
+        sNodeType* right_type = param_types[i];
+
+        LVALUE* param = get_value_from_stack(-num_params+i);
+
+        lvalue_params[i] = param;
+
+        if(cast_posibility(left_type, right_type)) 
+        {
+            cast_right_type_to_left_type(left_type, &right_type, param, info);
+        }
+
+        llvm_params.push_back(param->value);
+    }
+
+    dec_stack_ptr(num_params, info);
+
+    if(type_identify_with_class_name(lambda_type->mResultType, "void"))
+    {
+        Builder.CreateCall(lambda_value.value, llvm_params);
+
+        info->type = lambda_type->mResultType;
+    }
+    else {
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateCall(lambda_value.value, llvm_params);
+        llvm_value.type = lambda_type->mResultType;
+
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type = lambda_type->mResultType;
+    }
+
+    return TRUE;
+}
+
+BOOL pre_compile(unsigned int node, sCompileInfo* info)
+{
+    if(node == 0) {
+        return TRUE;
+    }
+
+    info->sname = gNodes[node].mSName;
+    info->sline = gNodes[node].mLine;
+
+    switch(gNodes[node].mNodeType) {
+        case kNodeTypeFunction:
+            if(!pre_compile_function(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeExternalFunction:
+            if(!pre_compile_external_function(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeStruct:
+            if(!pre_compile_struct(node, info)) {
+                return FALSE;
+            }
+            break;
+    }
+
+    return node;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -1906,6 +2200,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
     info->sline = gNodes[node].mLine;
 
     switch(gNodes[node].mNodeType) {
+        case kNodeTypeFunction:
+            if(!compile_function(node, info)) {
+                return FALSE;
+            }
+            break;
+
         case kNodeTypeIntValue:
             if(!compile_int_value(node, info)) {
                 return FALSE;
@@ -1949,20 +2249,8 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
-        case kNodeTypeExternalFunction:
-            if(!compile_external_function(node, info)) {
-                return FALSE;
-            }
-            break;
-
         case kNodeTypeFunctionCall:
             if(!compile_function_call(node, info)) {
-                return FALSE;
-            }
-            break;
-
-        case kNodeTypeFunction:
-            if(!compile_function(node, info)) {
                 return FALSE;
             }
             break;
@@ -1975,12 +2263,6 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeIf:
             if(!compile_if_expression(node, info)) {
-                return FALSE;
-            }
-            break;
-
-        case kNodeTypeStruct:
-            if(!compile_struct(node, info)) {
                 return FALSE;
             }
             break;
@@ -2063,6 +2345,20 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeOrOr:
             if(!compile_or_or(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeFor:
+            if(!compile_for_expression(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeLambdaCall:
+            if(!compile_lambda_call(node, info))
             {
                 return FALSE;
             }

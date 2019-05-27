@@ -15,6 +15,13 @@ def fun():int {
     1+1;
 }
 
+if(1 == 1) {
+    puts(c"TRUE");
+}
+else {
+    puts(c"FALSE");
+}
+
 var a = fun();
 
 assert(c"function result test",a == 2);
@@ -122,20 +129,39 @@ assert(c"operator test7", obj.a-- == 123 && obj.a == 122);
 obj.a = 123;
 assert(c"operator test8", ++obj.a == 124 && obj.a == 124);
 
-obj.a = 124;
 assert(c"operator test9", --obj.a == 123 && obj.a == 123);
 
+i = 2;
+i += 2;
+
+assert(c"operator test10", i == 4);
+
+for(var i=0; i<3; i++) {
+    puts(c"HO!");
+}
+
+for(var i=0; i<3; i++) {
+    puts(c"HE!");
+}
+
+var fun = lambda(x:int, y:int):int {
+    x + y;
+}
+
+def fun2(block:lambda(int,int):int):int {
+    block(1,2)
+}
+
+var xxx = fun2(fun);
+
+assert(c"lambda test", xxx == 3);
 
 
-/*
 def times(n:int, block:lambda()) {
-    var i = 0;
-    while(i < n) {
+    for(var i=0; i<n; i++) {
         block();
-        n++;
     }
 }
 
+3.times(lambda() { puts(c"HO!"); });
 
-3.times(lambda { puts(c"HO!") })
-*/

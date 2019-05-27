@@ -79,6 +79,18 @@ sNodeType* clone_node_type(sNodeType* node_type)
     node_type2->mNullable = node_type->mNullable;
     node_type2->mPointerNum = node_type->mPointerNum;
 
+    if(node_type->mResultType) {
+        node_type2->mResultType = clone_node_type(node_type->mResultType);
+    }
+    else {
+        node_type2->mResultType = NULL;
+    }
+        ;
+    node_type2->mNumParams = node_type->mNumParams;
+    for(i=0; i<node_type->mNumParams; i++) {
+        node_type2->mParamTypes[i] = clone_node_type(node_type->mParamTypes[i]);
+    }
+
     return node_type2;
 }
 

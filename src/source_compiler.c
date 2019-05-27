@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <libgen.h>
 
 BOOL read_source(char* fname, sBuf* source)
 {
@@ -155,6 +156,27 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
     info.lv_table = init_var_table();
     info.sline = 1;
 
+    char module_name[PATH_MAX];
+    xstrncpy(module_name, fname, PATH_MAX);
+
+    char* module_name2 = basename(module_name);
+
+    char module_name3[PATH_MAX];
+    xstrncpy(module_name3, module_name2, PATH_MAX);
+
+    char* p = module_name3 + strlen(module_name3);
+    while(p >= module_name3) {
+        if(*p == '.') {
+            *p = '\0';
+            break;
+        }
+        else {
+            p--;
+        }
+    }
+
+    info.module_name = module_name3;
+
     sCompileInfo cinfo;
     memset(&cinfo, 0, sizeof(sCompileInfo));
 
@@ -192,17 +214,12 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
     if(info.err_num == 0) {
         int i;
         /// other functions ///
-        for(i = 0; i<num_nodes; i++) {
-            unsigned int node = nodes[i];
+        for(i = 0; i<gUsedNodes; i++) {
+            unsigned int node = i;
 
-//show_node(node);
-
-            if(gNodes[node].mNodeType == kNodeTypeFunction || gNodes[node].mNodeType == kNodeTypeExternalFunction)
-            {
-                if(!compile(node, &cinfo)) {
-                    free(nodes);
-                    return FALSE;
-                }
+            if(!pre_compile(node, &cinfo)) {
+                free(nodes);
+                return FALSE;
             }
         }
 
@@ -211,15 +228,14 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
         for(i = 0; i<num_nodes; i++) {
             unsigned int node = nodes[i];
 
-            if(gNodes[node].mNodeType != kNodeTypeFunction && gNodes[node].mNodeType != kNodeTypeExternalFunction)
-            {
-                if(!compile(node, &cinfo)) {
-                    free(nodes);
-                    return FALSE;
-                }
+//show_node(node);
 
-                arrange_stack(&cinfo);
+            if(!compile(node, &cinfo)) {
+                free(nodes);
+                return FALSE;
             }
+
+            arrange_stack(&cinfo);
         }
         finish_neo_c_main_function();
     }

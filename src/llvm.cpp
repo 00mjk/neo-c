@@ -174,6 +174,10 @@ void start_neo_c_main_function()
 
 void finish_neo_c_main_function()
 {
+    gFunction = gNeoCMainFunction;
+
+//    IRBuilder<> builder(&gFunction->getEntryBlock());
+
     // Finish off the function.
     Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
 
@@ -274,6 +278,8 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
             p--;
         }
     }
+
+    TheModule->print(llvm::errs(), nullptr);
 
 #if LLVM_VERSION_MAJOR >= 7
     char path[PATH_MAX];
@@ -405,6 +411,26 @@ Type* create_llvm_type_from_node_type(sNodeType* node_type)
     {
         result_type = Type::getVoidTy(TheContext);
     }
+    else if(type_identify_with_class_name(node_type, "lambda"))
+    {
+        int num_params = node_type->mNumParams;
+        sNodeType* fun_result_type = node_type->mResultType;
+
+        Type* llvm_result_type = create_llvm_type_from_node_type(fun_result_type);
+        std::vector<Type *> llvm_param_types;
+
+        int i;
+        for(i=0; i<num_params; i++) {
+            sNodeType* param_type = node_type->mParamTypes[i];
+
+            Type* llvm_param_type = create_llvm_type_from_node_type(param_type);
+            llvm_param_types.push_back(llvm_param_type);
+        }
+
+        result_type = FunctionType::get(llvm_result_type, llvm_param_types, false);
+
+        result_type = PointerType::get(result_type, 0);
+    }
 
     int i;
     for(i=0; i<node_type->mPointerNum; i++) {
@@ -433,6 +459,10 @@ int get_llvm_alignment_from_node_type(sNodeType* node_type)
     else if(type_identify_with_class_name(node_type, "bool"))
     {
         result = 1;
+    }
+    else if(type_identify_with_class_name(node_type, "lambda"))
+    {
+        result = 8;
     }
 
     return result;
