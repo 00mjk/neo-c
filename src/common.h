@@ -401,6 +401,7 @@ unsigned int sNodeTree_create_lambda_call(unsigned int lambda_node, unsigned int
 void show_node(unsigned int node);
 BOOL compile(unsigned int node, sCompileInfo* info);
 BOOL pre_compile(unsigned int node, sCompileInfo* info);
+BOOL pre_pre_compile(unsigned int node, sCompileInfo* info);
 
 //////////////////////////////
 /// node_block.c

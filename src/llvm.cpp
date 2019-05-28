@@ -17,7 +17,7 @@ LoopAnalysisManager loopAnalysisManager(false);
 
 LVALUE* gLLVMStack;
 char gSourceName[PATH_MAX];
-Function* gNeoCMainFunction;
+//Function* gNeoCMainFunction;
 Function* gFunction;
 
 extern "C"
@@ -86,6 +86,7 @@ void create_internal_functions()
     Type* param15_type;
     FunctionType* function_type;
 
+/*
     /// exit ///
     type_params.clear();
     
@@ -96,6 +97,7 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "exit", TheModule);
+*/
 }
 
 Function* create_llvm_function(const std::string& name)
@@ -142,6 +144,7 @@ void start_to_make_native_code(char* sname)
     gLLVMStack = (LVALUE*)xcalloc(1, sizeof(LVALUE)*NEO_C_STACK_SIZE);
 }
 
+/*
 void start_neo_c_main_function()
 {
     char* sname = gSourceName;
@@ -220,6 +223,7 @@ void create_main_function()
 
     verifyFunction(*main_function);
 }
+*/
 
 int gResultCode = 0;
 
@@ -227,7 +231,7 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
 {
     free(gLLVMStack);
 
-    create_main_function();
+    //create_main_function();
 
 #if LLVM_VERSION_MAJOR >= 7
     if(optimize) {

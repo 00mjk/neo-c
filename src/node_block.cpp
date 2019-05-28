@@ -1,5 +1,8 @@
 #include "llvm_common.hpp"
 
+extern "C"
+{
+
 sNodeBlock* sNodeBlock_alloc()
 {
     sNodeBlock* block = (sNodeBlock*)xcalloc(1, sizeof(sNodeBlock));
@@ -22,9 +25,9 @@ void sNodeBlock_free(sNodeBlock* block)
 void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)
 {
     if(node_block->mSizeNodes <= node_block->mNumNodes) {
-        int new_size = node_block->mSizeNodes * 2;
+        unsigned int new_size = node_block->mSizeNodes * 2;
         node_block->mNodes = (unsigned int*)xrealloc(node_block->mNodes, sizeof(unsigned int)*new_size);
-        memset(node_block->mNodes + node_block->mSizeNodes, 0, sizeof(unsigned int)*(new_size-node_block->mSizeNodes));
+//        memset(node_block->mNodes + node_block->mSizeNodes, 0, sizeof(unsigned int)*(new_size-node_block->mSizeNodes));
     }
 
     node_block->mNodes[node_block->mNumNodes] = node;
@@ -192,3 +195,4 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
     return TRUE;
 }
 
+}

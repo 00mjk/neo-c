@@ -824,7 +824,7 @@ static void create_real_fun_name(char* real_fun_name, size_t size_real_fun_name,
     }
 }
 
-BOOL pre_compile_external_function(unsigned int node, sCompileInfo* info)
+static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
 {
     /// rename variables ///
     char* func_name = gNodes[node].uValue.sFunction.mName;
@@ -1021,7 +1021,7 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
     return node;
 }
 
-BOOL pre_compile_function(unsigned int node, sCompileInfo* info)
+BOOL compile_function(unsigned int node, sCompileInfo* info)
 {
     /// rename variables ///
     char* func_name = gNodes[node].uValue.sFunction.mName;
@@ -1081,6 +1081,7 @@ BOOL pre_compile_function(unsigned int node, sCompileInfo* info)
         var->mLLVMValue = llvm_params[i];
     }
 
+    BasicBlock* current_block_before = (BasicBlock*)info->current_block;
     Function* function_before = gFunction;
     gFunction = fun;
 
@@ -1131,19 +1132,6 @@ BOOL pre_compile_function(unsigned int node, sCompileInfo* info)
     lambda_type->mResultType = result_type;
     lambda_type->mNumParams = num_params;
 
-    gNodes[node].uValue.sFunction.mValue = fun;
-    gNodes[node].uValue.sFunction.mLambdaType = lambda_type;
-
-    gFunction = function_before;
-
-    return TRUE;
-}
-
-BOOL compile_function(unsigned int node, sCompileInfo* info)
-{
-    Value* fun = (Value*)gNodes[node].uValue.sFunction.mValue;
-    sNodeType* lambda_type = gNodes[node].uValue.sFunction.mLambdaType;
-
     LVALUE llvm_value;
     llvm_value.value = fun;
     llvm_value.type = lambda_type;
@@ -1151,6 +1139,12 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     push_value_to_stack_ptr(&llvm_value, info);
 
     info->type = lambda_type;
+
+    gFunction = function_before;
+
+    info->current_block = current_block_before;
+
+    Builder.SetInsertPoint((BasicBlock*)info->current_block);
 
     return TRUE;
 }
@@ -1440,7 +1434,7 @@ unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* s
     return node;
 }
 
-static BOOL pre_compile_struct(unsigned int node, sCompileInfo* info)
+static BOOL compile_struct(unsigned int node, sCompileInfo* info)
 {
     sNodeType* struct_type = gNodes[node].uValue.sStruct.mType;
 
@@ -2168,23 +2162,6 @@ BOOL pre_compile(unsigned int node, sCompileInfo* info)
     info->sline = gNodes[node].mLine;
 
     switch(gNodes[node].mNodeType) {
-        case kNodeTypeFunction:
-            if(!pre_compile_function(node, info)) {
-                return FALSE;
-            }
-            break;
-
-        case kNodeTypeExternalFunction:
-            if(!pre_compile_external_function(node, info)) {
-                return FALSE;
-            }
-            break;
-
-        case kNodeTypeStruct:
-            if(!pre_compile_struct(node, info)) {
-                return FALSE;
-            }
-            break;
     }
 
     return node;
@@ -2202,6 +2179,18 @@ BOOL compile(unsigned int node, sCompileInfo* info)
     switch(gNodes[node].mNodeType) {
         case kNodeTypeFunction:
             if(!compile_function(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeExternalFunction:
+            if(!compile_external_function(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeStruct:
+            if(!compile_struct(node, info)) {
                 return FALSE;
             }
             break;
