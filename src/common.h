@@ -189,7 +189,7 @@ void restore_var_table(sVarTable* left, sVarTable* right);
 
 void set_max_block_var_num(sVarTable* new_table, sVarTable* lv_table);
 
-int get_variable_index(sVarTable* table, char* name);
+int get_variable_index(sVarTable* table, char* name, BOOL* parent);
 
 void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info);
 
@@ -306,8 +306,7 @@ struct sNodeTreeStruct
             int mNumParams;
             sNodeType* mResultType;
             struct sNodeBlockStruct* mNodeBlock;
-            void* mValue;
-            sNodeType* mLambdaType;
+            BOOL mLambda;
         } sFunction;
 
         struct {
@@ -375,7 +374,7 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
 
 unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, sParserInfo* info);
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, sParserInfo* info);
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sParserInfo* info);
 
 unsigned int sNodeTree_create_function_call(char* func_name, unsigned int* params, int num_params, sParserInfo* info);
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
@@ -400,8 +399,6 @@ unsigned int sNodeTree_create_lambda_call(unsigned int lambda_node, unsigned int
 
 void show_node(unsigned int node);
 BOOL compile(unsigned int node, sCompileInfo* info);
-BOOL pre_compile(unsigned int node, sCompileInfo* info);
-BOOL pre_pre_compile(unsigned int node, sCompileInfo* info);
 
 //////////////////////////////
 /// node_block.c

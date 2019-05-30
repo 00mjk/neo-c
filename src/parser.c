@@ -483,7 +483,8 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
         expect_next_character_with_one_forward("}", info);
         info->lv_table = old_table;
 
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, info);
+        BOOL lambda = FALSE;
+        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, info);
     }
 
     return TRUE;
@@ -1081,7 +1082,8 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     create_lambda_name(func_name, VAR_NAME_MAX, info->module_name, num_lambda);
     num_lambda++;
 
-    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, info);
+    BOOL lambda = TRUE;
+    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, info);
 
     return TRUE;
 }

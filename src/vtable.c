@@ -269,7 +269,7 @@ static int get_sum_of_parent_var_num(sVarTable* table)
     return n;
 }
 
-int get_variable_index(sVarTable* table, char* name)
+int get_variable_index(sVarTable* table, char* name, BOOL* parent)
 {
     sVarTable* it = table;
 
@@ -281,6 +281,7 @@ int get_variable_index(sVarTable* table, char* name)
         }
 
         it = it->mParent;
+        *parent = TRUE;
     }
 
     return -1;

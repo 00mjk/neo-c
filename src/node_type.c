@@ -147,6 +147,24 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf)
                 }
             }
         }
+        else if(**p == '[') {
+            (*p)++;
+
+            int n = 0;
+            while(isdigit(**p)) {
+                n = n * 10 + (**p - '0');
+                (*p)++;
+            }
+
+            node_type->mArrayNum = n;
+
+            if(**p == ']') {
+                (*p)++;
+            }
+            else {
+                return NULL;
+            }
+        }
         else if(**p == '?') {
             (*p)++;
             skip_spaces_for_parse_class_name(p);

@@ -735,7 +735,12 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     int alignment = get_llvm_alignment_from_node_type(left_type);
 
     if(alloc) {
-        var->mLLVMValue = Builder.CreateAlloca(llvm_var_type, 0, var_name);
+        Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
+        var->mLLVMValue = address;
+
+        BOOL parent = FALSE;
+        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+        store_address_to_lvtable(index, address);
     }
 
     Builder.CreateAlignedStore(rvalue->value, (Value*)var->mLLVMValue, alignment);
@@ -994,7 +999,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, sParserInfo* info)
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -1017,6 +1022,7 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
     gNodes[node].uValue.sFunction.mNumParams = num_params;
     gNodes[node].uValue.sFunction.mResultType = result_type;
     gNodes[node].uValue.sFunction.mNodeBlock = MANAGED node_block;
+    gNodes[node].uValue.sFunction.mLambda = lambda;
 
     return node;
 }
@@ -1027,6 +1033,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     char* func_name = gNodes[node].uValue.sFunction.mName;
     int num_params = gNodes[node].uValue.sFunction.mNumParams;
     sParserParam* params[PARAMS_MAX];
+    BOOL lambda = gNodes[node].uValue.sFunction.mLambda;
 
     int i;
     for(i=0; i<num_params; i++) {
@@ -1124,7 +1131,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     sNodeType* lambda_type = create_node_type_with_class_name("lambda");
 
     for(i=0; i<num_params; i++) {
-        sNodeType* param_type = params[i]->mType;
+        sNodeType* param_type = param_types[i];
 
         lambda_type->mParamTypes[i] = param_type;
     }
@@ -1205,15 +1212,27 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
         push_value_to_stack_ptr(&llvm_value, info);
     }
     else {
-        int align = get_llvm_alignment_from_node_type(var_type);
+        BOOL parent = FALSE;
+        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
 
-        Value* var_address = (Value*)var->mLLVMValue;
+        if(parent) {
+            LVALUE llvm_value;
+            llvm_value.value = load_address_to_lvtable(index, var_type);
+            llvm_value.type = var_type;
 
-        LVALUE llvm_value;
-        llvm_value.value = Builder.CreateAlignedLoad(var_address, align, var_name);
-        llvm_value.type = var_type;
+            push_value_to_stack_ptr(&llvm_value, info);
+        }
+        else {
+            int align = get_llvm_alignment_from_node_type(var_type);
 
-        push_value_to_stack_ptr(&llvm_value, info);
+            Value* var_address = (Value*)var->mLLVMValue;
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateAlignedLoad(var_address, align, var_name);
+            llvm_value.type = var_type;
+
+            push_value_to_stack_ptr(&llvm_value, info);
+        }
     }
 
     sNodeType* result_type = var->mType;
@@ -2131,6 +2150,12 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
         llvm_params.push_back(param->value);
     }
 
+    /// lvar table ///
+    Type* lvar_table_type = ArrayType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), LOCAL_VARIABLE_MAX);
+
+    Value* lvar_table_value = Builder.CreateAlloca(lvar_table_type, 0, "lvar_table_array");
+    llvm_params.push_back(lvar_table_value);
+
     dec_stack_ptr(num_params, info);
 
     if(type_identify_with_class_name(lambda_type->mResultType, "void"))
@@ -2150,21 +2175,6 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
     }
 
     return TRUE;
-}
-
-BOOL pre_compile(unsigned int node, sCompileInfo* info)
-{
-    if(node == 0) {
-        return TRUE;
-    }
-
-    info->sname = gNodes[node].mSName;
-    info->sline = gNodes[node].mLine;
-
-    switch(gNodes[node].mNodeType) {
-    }
-
-    return node;
 }
 
 BOOL compile(unsigned int node, sCompileInfo* info)

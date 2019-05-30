@@ -11,6 +11,8 @@ CGSCCAnalysisManager cGSCCAnalysisManager(false);
 ModuleAnalysisManager moduleAnalysisManager(false);
 std::map<std::string, Type*> gLLVMStructType;
 
+GlobalVariable* gLVTableValue;
+
 #if LLVM_VERSION_MAJOR >= 7
 LoopAnalysisManager loopAnalysisManager(false);
 #endif
@@ -65,6 +67,19 @@ LVALUE* get_value_from_stack(int offset)
     return gLLVMStack + offset;
 }
 
+static Type* get_lvtable_type()
+{
+    char buf[128];
+
+    snprintf(buf, 128, "char*[%d]", LOCAL_VARIABLE_MAX);
+
+    sNodeType* lvtable_node_type = create_node_type_with_class_name(buf);
+
+    Type* lvtable_type = create_llvm_type_from_node_type(lvtable_node_type);
+
+    return lvtable_type;
+}
+
 void create_internal_functions()
 {
     Type* result_type;
@@ -98,6 +113,49 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "exit", TheModule);
 */
+
+    Type* lvtable_type = get_lvtable_type();
+
+    gLVTableValue = new GlobalVariable(*TheModule, lvtable_type, false, GlobalValue::InternalLinkage, 0, "gLVTable");
+    gLVTableValue->setAlignment(8);
+
+    ConstantAggregateZero* initializer = ConstantAggregateZero::get(lvtable_type);
+
+    gLVTableValue->setInitializer(initializer);
+
+}
+
+void store_address_to_lvtable(int index, Value* address)
+{
+    Value* lvtable_value2 = Builder.CreateCast(Instruction::BitCast, gLVTableValue, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
+
+    Value* lvalue = lvtable_value2;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, index));
+    Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
+    Value* address2 = Builder.CreateCast(Instruction::BitCast, address, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+    Builder.CreateAlignedStore(address2, element_address_value, 8);
+}
+
+Value* load_address_to_lvtable(int index, sNodeType* var_type)
+{
+    Value* lvtable_value2 = Builder.CreateCast(Instruction::BitCast, gLVTableValue, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
+
+    Value* lvalue = lvtable_value2;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, index));
+    Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
+
+    Value* pointer_value = Builder.CreateAlignedLoad(element_address_value, 8);
+
+    int alignment = get_llvm_alignment_from_node_type(var_type);
+
+    Type* llvm_type = create_llvm_type_from_node_type(var_type);
+
+    Value* pointer_value2 = Builder.CreateCast(Instruction::BitCast, pointer_value, PointerType::get(llvm_type, 0));
+
+    Value* value = Builder.CreateAlignedLoad(pointer_value2, alignment);
+
+    return value;
 }
 
 Function* create_llvm_function(const std::string& name)
@@ -439,6 +497,10 @@ Type* create_llvm_type_from_node_type(sNodeType* node_type)
     int i;
     for(i=0; i<node_type->mPointerNum; i++) {
         result_type = PointerType::get(result_type, 0);
+    }
+
+    if(node_type->mArrayNum > 0) {
+        result_type = ArrayType::get(result_type, node_type->mArrayNum);
     }
 
     return result_type;

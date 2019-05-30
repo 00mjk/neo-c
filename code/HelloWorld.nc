@@ -11,7 +11,6 @@ def assert(msg:char*, exp:bool)
     puts(c"OK");
 }
 
-/*
 def fun():int 
 {
     puts(c"HELLO WORLD");
@@ -49,7 +48,6 @@ struct OpTest
     a:int;
     b:int;
 }
-*/
 
 def fun2(block:lambda(int,int):int):int 
 {
@@ -58,7 +56,6 @@ def fun2(block:lambda(int,int):int):int
 
 def main():int 
 {
-/*
     if(1 == 1) {
         puts(c"TRUE");
     }
@@ -160,12 +157,11 @@ def main():int
     for(var i=0; i<3; i++) {
         puts(c"HE!");
     }
-*/
 
-    var a = 4;
+    var aa = 4;
 
     var fun = lambda(x:int, y:int):int {
-        x + y + a;
+        x + y + aa;
     }
 
     var xxx = fun2(fun);
