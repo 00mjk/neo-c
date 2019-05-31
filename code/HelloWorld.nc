@@ -14,7 +14,7 @@ def assert(msg:char*, exp:bool)
 def fun():int 
 {
     puts(c"HELLO WORLD");
-    1+1;
+    1+1
 }
 
 def fun(exp:bool) 
@@ -24,7 +24,7 @@ def fun(exp:bool)
 
 def fun2(x:int, y:int):int 
 {
-    x + y;
+    x + y
 }
 
 struct TestStruct 
@@ -52,6 +52,13 @@ struct OpTest
 def fun2(block:lambda(int,int):int):int 
 {
     block(1,2)
+}
+
+def times(n:int, block:lambda()) 
+{
+    for(var i=0; i<n; i++) {
+        block();
+    };
 }
 
 def main():int 
@@ -163,13 +170,32 @@ def main():int
 
     var fun = lambda(x:int, y:int):int {
         bb = 222;
-        x + y + aa;
+        x + y + aa
     }
 
     var xxx = fun2(fun);
 
     assert(c"lambda test", xxx == 7);
     assert(c"lambda test2", bb == 222);
+
+    var xa = if(false) {
+        111
+    }
+    else {
+        222
+    }
+
+    assert(c"if test", xa == 222);
+
+    3.times(lambda() {
+        puts(c"HO!");
+    })
+
+/*
+    3.times {
+        puts(c"HE!");
+    }
+*/
 
     0
 }

@@ -197,7 +197,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
                 return FALSE;
             }
 
-            arrange_stack(&cinfo);
+            arrange_stack(&cinfo, 0);
         }
 
         if(*info.p == ';') {

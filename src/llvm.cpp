@@ -51,13 +51,13 @@ void dec_stack_ptr(int value, sCompileInfo* info)
     info->stack_num -= value;
 }
 
-void arrange_stack(sCompileInfo* info)
+void arrange_stack(sCompileInfo* info, int top)
 {
-    if(info->stack_num > 0) {
-        dec_stack_ptr(info->stack_num, info);
+    if(info->stack_num > top) {
+        dec_stack_ptr(info->stack_num-top, info);
     }
-    if(info->stack_num < 0) {
-        fprintf(stderr, "unexpected stack value\n");
+    if(info->stack_num < top) {
+        fprintf(stderr, "%s %d: unexpected stack value. The stack num is %d\n", info->sname, info->sline, info->stack_num);
         exit(2);
     }
 }

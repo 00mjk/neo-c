@@ -59,6 +59,7 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
     node_block->mSLine = info->sline;
     
     char* source_head = info->p;
+    BOOL has_result = FALSE;
 
     while(1) {
         if(*info->p == '}') {
@@ -87,6 +88,10 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
         if(*info->p == ';') {
             info->p++;
             skip_spaces_and_lf(info);
+            has_result = FALSE;
+        }
+        else {
+            has_result = TRUE;
         }
 
         if(*info->p == '}') {
@@ -105,6 +110,7 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
     sBuf_append_char(&(node_block)->mSource, '\0');
 
     node_block->mLVTable = info->lv_table;
+    node_block->mHasResult = has_result;
 
     return TRUE;
 }
@@ -113,6 +119,10 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 {
     sVarTable* old_table = info->pinfo->lv_table;
     info->pinfo->lv_table = block->mLVTable;
+
+    BOOL has_result = block->mHasResult;
+
+    int stack_num_before = info->stack_num;
 
     if(block->mNumNodes == 0) {
         info->type = create_node_type_with_class_name("void");
@@ -132,60 +142,34 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
             if(i == block->mNumNodes -1)
             {
-                if(result_type && type_identify_with_class_name(result_type, "any"))
+                if(result_type && type_identify_with_class_name(result_type, "void"))
                 {
-                    if(info->stack_num > 1) {
-                        LVALUE llvm_value = *get_value_from_stack(-1);
+                    arrange_stack(info, stack_num_before);
 
-                        dec_stack_ptr(info->stack_num, info);
-
-                        push_value_to_stack_ptr(&llvm_value, info);
-
-                        info->type = llvm_value.type;
-                    }
-                    else {
-                        LVALUE llvm_value = *get_value_from_stack(-1);
-
-                        dec_stack_ptr(info->stack_num, info);
-
-                        push_value_to_stack_ptr(&llvm_value, info);
-
-                        info->type = llvm_value.type;
-                    }
+                    info->type = create_node_type_with_class_name("void");
                 }
-                else if(result_type && !type_identify_with_class_name(result_type, "void"))
-                {
-                    if(info->stack_num > 1) {
-                        LVALUE llvm_value = *get_value_from_stack(-1);
+                else if(has_result) {
+                    LVALUE llvm_value = *get_value_from_stack(-1);
+                    arrange_stack(info, stack_num_before);
 
-                        dec_stack_ptr(info->stack_num, info);
 
-                        push_value_to_stack_ptr(&llvm_value, info);
-
-                        info->type = llvm_value.type;
+                    if(cast_posibility(result_type, llvm_value.type))
+                    {
+                        cast_right_type_to_left_type(result_type, &llvm_value.type, &llvm_value, info);
                     }
-                    else {
-                        LVALUE llvm_value = *get_value_from_stack(-1);
-                        dec_stack_ptr(1, info);
 
-                        info->type = llvm_value.type;
+                    push_value_to_stack_ptr(&llvm_value, info);
 
-                        if(cast_posibility(result_type, info->type)) 
-                        {
-                            cast_right_type_to_left_type(result_type, &info->type, &llvm_value, info);
-                        }
-
-                        push_value_to_stack_ptr(&llvm_value, info);
-                    }
+                    info->type = llvm_value.type;
                 }
                 else {
-                    arrange_stack(info);
+                    arrange_stack(info, stack_num_before);
 
                     info->type = create_node_type_with_class_name("void");
                 }
             }
             else {
-                arrange_stack(info);
+                arrange_stack(info, stack_num_before);
             }
         }
     }

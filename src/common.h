@@ -241,6 +241,7 @@ void skip_spaces_and_lf(sParserInfo* info);
 BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf);
 void expect_next_character_with_one_forward(char* characters, sParserInfo* info);
 BOOL expression(unsigned int* node, sParserInfo* info);
+void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name, int num_lambda);
 
 //////////////////////////////
 /// source compiler 
@@ -271,7 +272,7 @@ struct sCompileInfoStruct
 
 typedef struct sCompileInfoStruct sCompileInfo;
 
-enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall };
+enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam };
 
 struct sNodeTreeStruct 
 {
@@ -351,6 +352,10 @@ struct sNodeTreeStruct
             unsigned int mExpressionNode3;
             MANAGED struct sNodeBlockStruct* mForNodeBlock;
         } sFor;
+
+        struct {
+            char* mBuf;
+        } sSimpleLambdaParam;
     } uValue;
 };
 
@@ -396,6 +401,7 @@ unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_n
 unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED struct sNodeBlockStruct* for_node_block, sParserInfo* info);
 unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, sParserInfo* info);
 unsigned int sNodeTree_create_lambda_call(unsigned int lambda_node, unsigned int* params, int num_params, sParserInfo* info);
+unsigned int sNodeTree_create_simple_lambda_param(char* buf, sParserInfo* info);
 
 void show_node(unsigned int node);
 BOOL compile(unsigned int node, sCompileInfo* info);
@@ -414,6 +420,8 @@ struct sNodeBlockStruct
     sBuf mSource;
     char* mSName;
     int mSLine;
+    
+    BOOL mHasResult;
 };
 
 typedef struct sNodeBlockStruct sNodeBlock;
@@ -438,7 +446,7 @@ void start_to_make_native_code(char* sname);
 void output_native_code(BOOL optimize, BOOL output_object_file);
 extern int gResultCode;
 
-void arrange_stack(sCompileInfo* info);
+void arrange_stack(sCompileInfo* info, int top);
 void start_neo_c_main_function();
 void finish_neo_c_main_function();
 

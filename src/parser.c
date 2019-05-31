@@ -364,6 +364,47 @@ static BOOL parse_param(sParserParam* param, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
+{
+    sBuf buf;
+    sBuf_init(&buf);
+
+    sBuf_append_str(&buf, "{ ");
+
+    int nest = 0;
+    while(TRUE) {
+        if(*info->p == '{') {
+            sBuf_append_char(&buf, *info->p);
+            info->p++;
+
+            nest++;
+        }
+        else if(*info->p == '}') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(nest == 0) {
+                break;
+            }
+
+            nest--;
+        }
+        else if(*info->p == '\0') {
+            parser_err_msg(info, "require } before the source end");
+            free(buf.mBuf);
+            return FALSE;
+        }
+        else {
+            sBuf_append_char(&buf, *info->p);
+            info->p++;
+        }
+    }
+
+    *node = sNodeTree_create_simple_lambda_param(MANAGED buf.mBuf, info);
+
+    return TRUE;
+}
+
 /// character_type --> 0: () 1: ||
 static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int character_type)
 {
@@ -463,6 +504,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
         sVarTable* old_table = info->lv_table;
 
         info->lv_table = init_block_vtable(old_table);
+
         int i;
         for(i=0; i<num_params; i++) {
             sParserParam* param = params + i;
@@ -552,7 +594,33 @@ static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, s
         }
     }
 
+/*
     /// simple lambda params ///
+    if(*info->p == '{') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        unsigned int node = 0;
+        if(!parse_simple_lambda_params(&node, info))
+        {
+            return FALSE;
+        }
+
+        if(node == 0) {
+            parser_err_msg(info, "require expression");
+            info->err_num++;
+            return TRUE;
+        }
+
+        params[*num_params] = node;
+        (*num_params)++;
+
+        if(*num_params >= PARAMS_MAX) {
+            parser_err_msg(info, "overflow parametor number for function call");
+            return FALSE;
+        }
+    }
+*/
 
     return TRUE;
 }
@@ -1012,7 +1080,7 @@ static BOOL parse_for(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name, int num_lambda)
+void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name, int num_lambda)
 {
     xstrncpy(lambda_name, module_name, size_lambda_name);
     xstrncat(lambda_name, "_", size_lambda_name);
@@ -1176,16 +1244,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             xstrncpy(var_name, gNodes[exp].uValue.sLoadVariable.mVarName, VAR_NAME_MAX);
 
             unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
-            sVar* var = get_variable_from_table(info->lv_table, var_name);
-
-            if(var && var->mReadOnly) {
-                parser_err_msg(info, "This is readonly variable.");
-                info->err_num++;
-
-                *node = 0;
-                return TRUE;
-            }
-
             unsigned int right_node = sNodeTree_create_int_value(1, info);
 
             *node = sNodeTree_create_sub(left_node, right_node, 0, info);

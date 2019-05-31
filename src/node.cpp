@@ -65,6 +65,13 @@ void free_nodes()
                     }
                     break;
 
+                case kNodeTypeSimpleLambdaParam:
+                    if(gNodes[i].uValue.sSimpleLambdaParam.mBuf) 
+                    {
+                        free(gNodes[i].uValue.sSimpleLambdaParam.mBuf);
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -706,6 +713,16 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
     sNodeType* right_type = info->type;
 
+    if(type_identify_with_class_name(right_type, "void"))
+    {
+        compile_err_msg(info, "Right value is void");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
     /// type inference ///
     sNodeType* left_type = NULL;
     if(var->mType == NULL) {
@@ -897,10 +914,73 @@ unsigned int sNodeTree_create_function_call(char* func_name, unsigned int* param
     return node;
 }
 
+static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, sParserInfo* info)
+{
+    /// params ///
+    sParserParam params[PARAMS_MAX];
+    memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+    int num_params = fun->mNumParams;
+    int i;
+    for(i=0; i<num_params; i++) {
+        sParserParam* param = params + i;
+
+        char param_name[VAR_NAME_MAX];
+        snprintf(param_name, VAR_NAME_MAX, "it%d", i);
+
+        xstrncpy(param->mName, param_name, VAR_NAME_MAX);
+
+        param->mType = fun->mParamTypes[i];
+    }
+
+    sParserInfo info2;
+
+    info2.p = buf;
+    info2.sname = info->sname;
+    info2.source = buf;
+    info2.module_name = info->module_name;
+    info2.sline = info->sline;
+    info2.parse_phase = info->parse_phase;
+    info2.lv_table = info->lv_table;
+
+    sNodeType* result_type = fun->mResultType;
+
+    sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
+    expect_next_character_with_one_forward("{", &info2);
+    sVarTable* old_table = info2.lv_table;
+
+    info2.lv_table = init_block_vtable(old_table);
+    for(i=0; i<num_params; i++) {
+        sParserParam* param = params + i;
+
+        BOOL readonly = TRUE;
+        BOOL param_var = TRUE;
+        if(!add_variable_to_table(info2.lv_table, param->mName, param->mType, readonly, param_var))
+        {
+            return FALSE;
+        }
+    }
+
+    if(!parse_block(node_block, &info2)) {
+        sNodeBlock_free(node_block);
+        return FALSE;
+    }
+
+    expect_next_character_with_one_forward("}", &info2);
+    info2.lv_table = old_table;
+
+    static int num_lambda = 0;
+    char func_name[VAR_NAME_MAX];
+    create_lambda_name(func_name, VAR_NAME_MAX, info2.module_name, num_lambda);
+    num_lambda++;
+
+    BOOL lambda = TRUE;
+    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, &info2);
+
+    return TRUE;
+}
+
 BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     /// rename variables ///
     char* func_name = gNodes[node].uValue.sFunctionCall.mName;
     int num_params = gNodes[node].uValue.sFunctionCall.mNumParams;
@@ -908,9 +988,28 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
     /// go ///
     sNodeType* param_types[PARAMS_MAX];
+    BOOL simple_lambda_param = FALSE;
+
+/*
+    if(num_params > 0) {
+        unsigned int param = gNodes[node].uValue.sFunctionCall.mParams[num_params-1];
+        simple_lambda_param = gNodes[param].mNodeType == kNodeTypeSimpleLambdaParam;
+    }
+*/
+
+    int num_params2;
+
+    /*
+    if(simple_lambda_param) {
+        num_params2 = num_params-1;
+    }
+    else {
+*/
+        num_params2 = num_params;
+//    }
 
     int i;
-    for(i=0; i<num_params; i++) {
+    for(i=0; i<num_params2; i++) {
         params[i] = gNodes[node].uValue.sFunctionCall.mParams[i];
         
         if(!compile(params[i], info)) {
@@ -930,7 +1029,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             if(fun.mNumParams == num_params) {
                 BOOL found = TRUE;
                 int i;
-                for(i=0; i<num_params; i++) {
+                for(i=0; i<num_params2; i++) {
                     sNodeType* left_type = fun.mParamTypes[i];
                     sNodeType* right_type = param_types[i];
 
@@ -944,7 +1043,17 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 }
 
                 if(found) {
-                    real_fun_name = fun.mRealName;
+/*
+                    if(simple_lambda_param) {
+                        if(fun.mParamTypes[num_params2]->mClass == get_class("lambda")) 
+                        {
+                            real_fun_name = fun.mRealName;
+                        }
+                    }
+                    else {
+*/
+                        real_fun_name = fun.mRealName;
+//                    }
                     break;
                 }
             }
@@ -966,7 +1075,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     std::vector<Value*> llvm_params;
     LVALUE* lvalue_params[PARAMS_MAX];
 
-    for(i=0; i<num_params; i++) {
+    for(i=0; i<num_params2; i++) {
         sNodeType* left_type = fun.mParamTypes[i];
         sNodeType* right_type = param_types[i];
 
@@ -981,6 +1090,29 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         llvm_params.push_back(param->value);
     }
+
+    /// compile simple lambda param ///
+/*
+    if(simple_lambda_param) {
+        params[num_params2] = gNodes[node].uValue.sFunctionCall.mParams[num_params2];
+
+        char* buf = gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mBuf;
+
+        unsigned node = 0;
+        if(!parse_simple_lambda_param(&node, buf, &fun, info->pinfo))
+        {
+            return FALSE;
+        }
+
+        if(!compile(node, info)) {
+            return FALSE;
+        }
+
+        LVALUE* param = get_value_from_stack(-1);
+
+        llvm_params.push_back(param->value);
+    }
+*/
 
     dec_stack_ptr(num_params, info);
 
@@ -1303,8 +1435,6 @@ static void create_label_name(char* fun_name, char* prefix, char* result, size_t
 
 static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     sNodeBlock* else_node_block = gNodes[node].uValue.sIf.mElseNodeBlock;
     int elif_num = gNodes[node].uValue.sIf.mElifNum;
 
@@ -1366,8 +1496,32 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
     sNodeBlock* if_block = gNodes[node].uValue.sIf.mIfNodeBlock;
     sNodeType* result_type = create_node_type_with_class_name("any");
+
     if(!compile_block(if_block, info, result_type)) {
         return FALSE;
+    }
+
+    Value* result_value;
+    int result_value_alignment;
+    sNodeType* result_value_type = info->type;
+
+    if(type_identify_with_class_name(info->type, "void"))
+    {
+        result_value = nullptr;
+        result_value_alignment = 0;
+    }
+    else {
+        LVALUE llvm_value = *get_value_from_stack(-1);
+
+        Type* llvm_result_type = create_llvm_type_from_node_type(result_value_type);
+
+        IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
+
+        result_value = builder.CreateAlloca(llvm_result_type, 0, "if_result_value");
+
+        result_value_alignment = get_llvm_alignment_from_node_type(info->type);
+
+        Builder.CreateAlignedStore(llvm_value.value, result_value, result_value_alignment);
     }
 
     Builder.CreateBr(cond_end_block);
@@ -1420,6 +1574,22 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
+            if(result_value) {
+                if(!type_identify(info->type, result_value_type))
+                {
+                    compile_err_msg(info, "Different result type for if/else block. If you avoid this and don't need result value for if expression, append ; at the end of block");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    return TRUE;
+                }
+
+                LVALUE llvm_value = *get_value_from_stack(-1);
+
+                Builder.CreateAlignedStore(llvm_value.value, result_value, result_value_alignment);
+            }
+
             Builder.CreateBr(cond_end_block);
         }
     }
@@ -1434,11 +1604,40 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
+        if(result_value) {
+            if(!type_identify(info->type, result_value_type))
+            {
+                compile_err_msg(info, "Different result type for if/else block. If you avoid this and don't need result value for if expression, append ; at the end of block");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            LVALUE llvm_value = *get_value_from_stack(-1);
+
+            Builder.CreateAlignedStore(llvm_value.value, result_value, result_value_alignment);
+        }
+
         Builder.CreateBr(cond_end_block);
     }
 
     Builder.SetInsertPoint(cond_end_block);
     info->current_block = cond_end_block;
+
+    if(result_value) {
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateAlignedLoad(result_value, result_value_alignment);
+
+        info->type = result_value_type;
+
+        dec_stack_ptr(1, info);
+        push_value_to_stack_ptr(&llvm_value, info);
+    }
+    else {
+        info->type = create_node_type_with_class_name("void");
+    }
 
     return TRUE;
 }
@@ -1551,6 +1750,16 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     }
 
     sNodeType* right_type = info->type;
+
+    if(type_identify_with_class_name(right_type, "void"))
+    {
+        compile_err_msg(info, "Right value is void");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
 
     int field_index = get_field_index(left_type->mClass, var_name);
 
@@ -1730,7 +1939,7 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     Builder.SetInsertPoint(cond_then_block);
     info->current_block = cond_then_block;
 
-    sNodeType* result_type = create_node_type_with_class_name("any");
+    sNodeType* result_type = create_node_type_with_class_name("void");
     if(!compile_block(while_node_block, info, result_type)) {
         return FALSE;
     }
@@ -2012,15 +2221,18 @@ unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned in
 
 static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
+    sNodeBlock* for_block = gNodes[node].uValue.sFor.mForNodeBlock;
+
+    sVarTable* lv_table_before = info->pinfo->lv_table;
+    info->pinfo->lv_table = for_block->mLVTable;
+
     /// compile expression ///
     unsigned int expression_node = gNodes[node].uValue.sFor.mExpressionNode;
 
     if(!compile(expression_node, info)) {
+        info->pinfo->lv_table = lv_table_before;
         return FALSE;
     }
-
-    arrange_stack(info);
 
     /// compile expression ///
     BasicBlock* loop_top_block = BasicBlock::Create(TheContext, "loop_top_block", gFunction);
@@ -2033,6 +2245,7 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     unsigned int expression_node2 = gNodes[node].uValue.sFor.mExpressionNode2;
 
     if(!compile(expression_node2, info)) {
+        info->pinfo->lv_table = lv_table_before;
         return FALSE;
     }
 
@@ -2042,6 +2255,7 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("int"); // dummy
 
+        info->pinfo->lv_table = lv_table_before;
         return TRUE;
     }
 
@@ -2058,10 +2272,10 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     info->current_block = cond_then_block;
 
     /// block of for expression ///
-    sNodeBlock* for_block = gNodes[node].uValue.sFor.mForNodeBlock;
-    sNodeType* result_type = create_node_type_with_class_name("any");
+    sNodeType* result_type = create_node_type_with_class_name("void");
     if(!compile_block(for_block, info, result_type)) 
     {
+        info->pinfo->lv_table = lv_table_before;
         return FALSE;
     }
 
@@ -2069,15 +2283,16 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     unsigned int expression_node3 = gNodes[node].uValue.sFor.mExpressionNode3;
 
     if(!compile(expression_node3, info)) {
+        info->pinfo->lv_table = lv_table_before;
         return FALSE;
     }
-
-    arrange_stack(info);
 
     Builder.CreateBr(loop_top_block);
 
     Builder.SetInsertPoint(cond_end_block);
     info->current_block = cond_end_block;
+
+    info->pinfo->lv_table = lv_table_before;
 
     return TRUE;
 }
@@ -2164,6 +2379,7 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
     Value* lvar_table_value = Builder.CreateAlloca(lvar_table_type, 0, "lvar_table_array");
     llvm_params.push_back(lvar_table_value);
 
+
     dec_stack_ptr(num_params, info);
 
     if(type_identify_with_class_name(lambda_type->mResultType, "void"))
@@ -2182,6 +2398,29 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
         info->type = lambda_type->mResultType;
     }
 
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_simple_lambda_param(char* buf, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].uValue.sSimpleLambdaParam.mBuf = MANAGED buf;
+    
+    gNodes[node].mNodeType = kNodeTypeSimpleLambdaParam;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_simple_lambda_param(unsigned int node, sCompileInfo* info)
+{
     return TRUE;
 }
 
@@ -2366,6 +2605,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeLambdaCall:
             if(!compile_lambda_call(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeSimpleLambdaParam:
+            if(!compile_simple_lambda_param(node, info))
             {
                 return FALSE;
             }
