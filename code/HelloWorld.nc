@@ -159,14 +159,17 @@ def main():int
     }
 
     var aa = 4;
+    var bb = 1;
 
     var fun = lambda(x:int, y:int):int {
+        bb = 222;
         x + y + aa;
     }
 
     var xxx = fun2(fun);
 
     assert(c"lambda test", xxx == 7);
+    assert(c"lambda test2", bb == 222);
 
     0
 }

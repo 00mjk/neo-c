@@ -111,6 +111,7 @@ Value* llvm_create_string(char* str);
 void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info);
 void store_address_to_lvtable(int index, Value* address);
 Value* load_address_to_lvtable(int index, sNodeType* var_type);
+void store_value_to_lvtable(Value* value, int index, sNodeType* var_type);
 }
 
 #endif

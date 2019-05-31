@@ -158,6 +158,25 @@ Value* load_address_to_lvtable(int index, sNodeType* var_type)
     return value;
 }
 
+void store_value_to_lvtable(Value* value, int index, sNodeType* var_type)
+{
+    Value* lvtable_value2 = Builder.CreateCast(Instruction::BitCast, gLVTableValue, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
+
+    Value* lvalue = lvtable_value2;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, index));
+    Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
+
+    Value* pointer_value = Builder.CreateAlignedLoad(element_address_value, 8);
+
+    int alignment = get_llvm_alignment_from_node_type(var_type);
+
+    Type* llvm_type = create_llvm_type_from_node_type(var_type);
+
+    Value* pointer_value2 = Builder.CreateCast(Instruction::BitCast, pointer_value, PointerType::get(llvm_type, 0));
+
+    Builder.CreateAlignedStore(value, pointer_value2, alignment);
+}
+
 Function* create_llvm_function(const std::string& name)
 {
     std::vector<Type *> params;

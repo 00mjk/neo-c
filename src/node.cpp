@@ -743,7 +743,15 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         store_address_to_lvtable(index, address);
     }
 
-    Builder.CreateAlignedStore(rvalue->value, (Value*)var->mLLVMValue, alignment);
+    BOOL parent = FALSE;
+    int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+    if(parent) {
+        store_value_to_lvtable(rvalue->value, index, left_type);
+    }
+    else {
+        Builder.CreateAlignedStore(rvalue->value, (Value*)var->mLLVMValue, alignment);
+    }
 
     info->type = left_type;
 
