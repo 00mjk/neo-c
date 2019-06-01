@@ -191,11 +191,26 @@ def main():int
         puts(c"HO!");
     })
 
-/*
+    var nn = 0;
     3.times {
         puts(c"HE!");
+        nn++;
     }
-*/
+
+    assert(c"simple lambda param test", nn == 3);
+
+    def funX(block:lambda(int,int):int):int
+    {
+        block(2,2)
+    }
+
+    var xb = 3;
+
+    var mm = funX() {
+        it + it2 + xb
+    }
+
+    assert(c"simple lambda param test2", mm == 7);
 
     0
 }

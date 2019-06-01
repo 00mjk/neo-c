@@ -916,20 +916,27 @@ unsigned int sNodeTree_create_function_call(char* func_name, unsigned int* param
 
 static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, sParserInfo* info)
 {
+    sNodeType* lambda_type = fun->mParamTypes[fun->mNumParams-1];
+
     /// params ///
     sParserParam params[PARAMS_MAX];
     memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
-    int num_params = fun->mNumParams;
+    int num_params = lambda_type->mNumParams;
     int i;
     for(i=0; i<num_params; i++) {
         sParserParam* param = params + i;
 
         char param_name[VAR_NAME_MAX];
-        snprintf(param_name, VAR_NAME_MAX, "it%d", i);
+        if(i == 0) {
+            snprintf(param_name, VAR_NAME_MAX, "it");
+        }
+        else {
+            snprintf(param_name, VAR_NAME_MAX, "it%d", i+1);
+        }
 
         xstrncpy(param->mName, param_name, VAR_NAME_MAX);
 
-        param->mType = fun->mParamTypes[i];
+        param->mType = lambda_type->mParamTypes[i];
     }
 
     sParserInfo info2;
@@ -942,7 +949,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     info2.parse_phase = info->parse_phase;
     info2.lv_table = info->lv_table;
 
-    sNodeType* result_type = fun->mResultType;
+    sNodeType* result_type = lambda_type->mResultType;
 
     sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
     expect_next_character_with_one_forward("{", &info2);
@@ -990,23 +997,18 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     sNodeType* param_types[PARAMS_MAX];
     BOOL simple_lambda_param = FALSE;
 
-/*
     if(num_params > 0) {
         unsigned int param = gNodes[node].uValue.sFunctionCall.mParams[num_params-1];
         simple_lambda_param = gNodes[param].mNodeType == kNodeTypeSimpleLambdaParam;
     }
-*/
 
     int num_params2;
-
-    /*
     if(simple_lambda_param) {
         num_params2 = num_params-1;
     }
     else {
-*/
         num_params2 = num_params;
-//    }
+    }
 
     int i;
     for(i=0; i<num_params2; i++) {
@@ -1043,7 +1045,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 }
 
                 if(found) {
-/*
                     if(simple_lambda_param) {
                         if(fun.mParamTypes[num_params2]->mClass == get_class("lambda")) 
                         {
@@ -1051,9 +1052,8 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                         }
                     }
                     else {
-*/
                         real_fun_name = fun.mRealName;
-//                    }
+                    }
                     break;
                 }
             }
@@ -1079,7 +1079,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         sNodeType* left_type = fun.mParamTypes[i];
         sNodeType* right_type = param_types[i];
 
-        LVALUE* param = get_value_from_stack(-num_params+i);
+        LVALUE* param = get_value_from_stack(-num_params2+i);
 
         lvalue_params[i] = param;
 
@@ -1092,13 +1092,12 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     }
 
     /// compile simple lambda param ///
-/*
     if(simple_lambda_param) {
         params[num_params2] = gNodes[node].uValue.sFunctionCall.mParams[num_params2];
 
         char* buf = gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mBuf;
 
-        unsigned node = 0;
+        unsigned int node = 0;
         if(!parse_simple_lambda_param(&node, buf, &fun, info->pinfo))
         {
             return FALSE;
@@ -1112,7 +1111,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         llvm_params.push_back(param->value);
     }
-*/
 
     dec_stack_ptr(num_params, info);
 

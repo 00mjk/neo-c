@@ -380,6 +380,7 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
             nest++;
         }
         else if(*info->p == '}') {
+            sBuf_append_char(&buf, *info->p);
             info->p++;
             skip_spaces_and_lf(info);
 
@@ -594,7 +595,6 @@ static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, s
         }
     }
 
-/*
     /// simple lambda params ///
     if(*info->p == '{') {
         info->p++;
@@ -620,7 +620,6 @@ static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, s
             return FALSE;
         }
     }
-*/
 
     return TRUE;
 }
