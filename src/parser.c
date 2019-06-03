@@ -506,6 +506,8 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
 
         info->lv_table = init_block_vtable(old_table);
 
+        sVarTable* block_var_table = info->lv_table;
+
         int i;
         for(i=0; i<num_params; i++) {
             sParserParam* param = params + i;
@@ -527,7 +529,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
         info->lv_table = old_table;
 
         BOOL lambda = FALSE;
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, info);
+        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, info);
     }
 
     return TRUE;
@@ -1138,6 +1140,8 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     sVarTable* old_table = info->lv_table;
 
     info->lv_table = init_block_vtable(old_table);
+    sVarTable* block_var_table = info->lv_table;
+
     int i;
     for(i=0; i<num_params; i++) {
         sParserParam* param = params + i;
@@ -1164,7 +1168,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     num_lambda++;
 
     BOOL lambda = TRUE;
-    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, info);
+    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, info);
 
     return TRUE;
 }

@@ -13,60 +13,6 @@ def assert(msg:char*, exp:bool)
     puts(c"OK");
 }
 
-def fun():int 
-{
-    puts(c"HELLO WORLD");
-    1+1
-}
-
-def fun(exp:bool) 
-{
-    assert(c"function param cast test", exp);
-}
-
-def fun2(x:int, y:int):int 
-{
-    x + y
-}
-
-def fun4(str:char*) 
-{
-    puts(str);
-}
-
-def fun2(block:lambda(int,int):int):int 
-{
-    block(1,2)
-}
-
-def times(n:int, block:lambda()) 
-{
-    for(var i=0; i<n; i++) {
-        block();
-    };
-}
-
-def funX(block:lambda(int,int):int):int
-{
-    block(2,2)
-}
-
-struct TestData 
-{
-    a:int;
-    b:int;
-}
-
-def fun3(data:TestData) 
-{
-    assert(c"struct test2", data.a == 123 && data.b == 234);
-}
-
-def fun3(value:int*) 
-{
-    assert(c"reffernce test", value-> == 111);
-}
-
 def main():int 
 {
     if(1 == 1) {
@@ -76,11 +22,22 @@ def main():int
         puts(c"FALSE");
     }
 
+    def fun():int 
+    {
+        puts(c"HELLO WORLD");
+        1+1
+    }
+
     var a = fun();
 
     assert(c"function result test",a == 2);
 
     var b = 1;
+
+    def fun(exp:bool) 
+    {
+        assert(c"function param cast test", exp);
+    }
 
     fun(b);
 
@@ -95,6 +52,11 @@ def main():int
     var m = n + 1;
 
     assert(c"local variable test", m == 778);
+
+    def fun2(x:int, y:int):int 
+    {
+        x + y
+    }
 
     var l = fun2(1, 2)
 
@@ -113,6 +75,11 @@ def main():int
     }
 
     assert(c"if test", x == 5);
+
+    def fun4(str:char*) 
+    {
+        puts(str);
+    }
 
     c"aaa".fun4();
 
@@ -137,7 +104,6 @@ def main():int
 
     i = 124;
     assert(c"operator test5", --i == 123 && i == 123);
-
 
     struct OpTest 
     {
@@ -179,6 +145,11 @@ def main():int
         x + y + aa
     }
 
+    def fun2(block:lambda(int,int):int):int 
+    {
+        block(1,2)
+    }
+
     var xxx = fun2(fun);
 
     assert(c"lambda test", xxx == 7);
@@ -193,6 +164,11 @@ def main():int
 
     assert(c"if test", xa == 222);
 
+    struct TestData 
+    {
+        a:int;
+        b:int;
+    }
 
     var test11 = TestData();
 
@@ -201,13 +177,31 @@ def main():int
 
     assert(c"struct test", test11.a == 123 && test11.b == 234);
 
+    def fun3(data:TestData) 
+    {
+        assert(c"struct test2", data.a == 123 && data.b == 234);
+    }
+
     fun3(test11->);
 
     var iii = 111;
 
     var p = iii<-;
 
+    def fun3(value:int*) 
+    {
+        assert(c"reffernce test", value-> == 111);
+    }
+
     fun3(p);
+
+    def times(n:int, block:lambda()) 
+    {
+        for(var i=0; i<n; i++) {
+            block();
+        };
+    }
+
 
     3.times(lambda() {
         puts(c"HO!");
@@ -223,6 +217,11 @@ def main():int
 
     var xb = 3;
 
+    def funX(block:lambda(int,int):int):int
+    {
+        block(2,2)
+    }
+
     var mm = funX() {
         it + it2 + xb
     }
@@ -231,5 +230,4 @@ def main():int
 
     0
 }
-
 

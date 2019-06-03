@@ -973,6 +973,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     sVarTable* old_table = info2.lv_table;
 
     info2.lv_table = init_block_vtable(old_table);
+    sVarTable* block_var_table = info2.lv_table;
     for(i=0; i<num_params; i++) {
         sParserParam* param = params + i;
 
@@ -998,7 +999,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     num_lambda++;
 
     BOOL lambda = TRUE;
-    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, &info2);
+    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, &info2);
 
     return TRUE;
 }
@@ -1155,7 +1156,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sParserInfo* info)
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -1179,6 +1180,7 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
     gNodes[node].uValue.sFunction.mResultType = result_type;
     gNodes[node].uValue.sFunction.mNodeBlock = MANAGED node_block;
     gNodes[node].uValue.sFunction.mLambda = lambda;
+    gNodes[node].uValue.sFunction.mVarTable = block_var_table;
 
     return node;
 }
@@ -1190,6 +1192,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     int num_params = gNodes[node].uValue.sFunction.mNumParams;
     sParserParam* params[PARAMS_MAX];
     BOOL lambda = gNodes[node].uValue.sFunction.mLambda;
+    sVarTable* block_var_table = gNodes[node].uValue.sFunction.mVarTable;
 
     int i;
     for(i=0; i<num_params; i++) {
@@ -1258,10 +1261,11 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         var->mLLVMValue = address;
 
         BOOL parent = FALSE;
-        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+        int index = get_variable_index(block_var_table, var_name, &parent);
+
         store_address_to_lvtable(index, address);
 
-        Builder.CreateAlignedStore(llvm_params[i], (Value*)var->mLLVMValue, alignment);
+        Builder.CreateAlignedStore(llvm_params[i], address, alignment);
     }
 
     char func_name_before[VAR_NAME_MAX];
@@ -1347,8 +1351,6 @@ unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info)
 
 static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     char* var_name = gNodes[node].uValue.sLoadVariable.mVarName;
 
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
