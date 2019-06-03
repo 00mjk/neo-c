@@ -957,6 +957,20 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_lambda_call(*node, params, num_params, info);
         }
+        else if(*info->p == '-' && *(info->p+1) == '>')
+        {
+            info->p += 2;
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_dereffernce(*node, info);
+        }
+        else if(*info->p == '<' && *(info->p+1) == '-')
+        {
+            info->p += 2;
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_reffernce(*node, info);
+        }
         else {
             break;
         }
@@ -1151,6 +1165,33 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
 
     BOOL lambda = TRUE;
     *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, info);
+
+    return TRUE;
+}
+
+static BOOL parse_new(unsigned int* node, sParserInfo* info)
+{
+    char buf[VAR_NAME_MAX+1];
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
+    {
+        return FALSE;
+    }
+
+    sCLClass* klass = get_class(buf);
+
+    if(klass && klass->mFlags & CLASS_FLAGS_STRUCT)
+    {
+        expect_next_character_with_one_forward("(", info);
+        expect_next_character_with_one_forward(")", info);
+
+        sNodeType* node_type = create_node_type_with_class_pointer(klass);
+
+        *node = sNodeTree_create_object(node_type, info->sname, info->sline);
+    }
+    else {
+        parser_err_msg(info, "Invalid type name");
+        info->err_num++;
+    }
 
     return TRUE;
 }
@@ -1423,6 +1464,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         else if(strcmp(buf, "false") == 0) {
             *node = sNodeTree_create_false(info);
         }
+        else if(strcmp(buf, "new") == 0) {
+            if(!parse_new(node, info)) {
+                return FALSE;
+            }
+        }
         else if(klass && klass->mFlags & CLASS_FLAGS_STRUCT)
         {
             expect_next_character_with_one_forward("(", info);
@@ -1430,7 +1476,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             sNodeType* node_type = create_node_type_with_class_pointer(klass);
 
-            *node = sNodeTree_create_object(node_type, info->sname, info->sline);
+            *node = sNodeTree_create_struct_object(node_type, info->sname, info->sline);
         }
         else {
             /// local variable ///

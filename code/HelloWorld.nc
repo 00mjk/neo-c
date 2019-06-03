@@ -1,5 +1,7 @@
 def puts(str:char*):int;
 def exit(rcode:int);
+def malloc(size:long):char*;
+def free(mem:char*);
 
 def assert(msg:char*, exp:bool) 
 {
@@ -27,26 +29,9 @@ def fun2(x:int, y:int):int
     x + y
 }
 
-struct TestStruct 
-{
-    a: int;
-    b: int;
-}
-
-def fun3(data:TestStruct*) 
-{
-    assert(c"struct test", data.a == 123 && data.b == 234);
-}
-
 def fun4(str:char*) 
 {
     puts(str);
-}
-
-struct OpTest 
-{
-    a:int;
-    b:int;
 }
 
 def fun2(block:lambda(int,int):int):int 
@@ -59,6 +44,27 @@ def times(n:int, block:lambda())
     for(var i=0; i<n; i++) {
         block();
     };
+}
+
+def funX(block:lambda(int,int):int):int
+{
+    block(2,2)
+}
+
+struct TestData 
+{
+    a:int;
+    b:int;
+}
+
+def fun3(data:TestData) 
+{
+    assert(c"struct test2", data.a == 123 && data.b == 234);
+}
+
+def fun3(value:int*) 
+{
+    assert(c"reffernce test", value-> == 111);
 }
 
 def main():int 
@@ -108,13 +114,6 @@ def main():int
 
     assert(c"if test", x == 5);
 
-    var data = TestStruct();
-
-    data.a = 123;
-    data.b = 234;
-
-    fun3(data);
-
     c"aaa".fun4();
 
     var i = 1;
@@ -138,6 +137,13 @@ def main():int
 
     i = 124;
     assert(c"operator test5", --i == 123 && i == 123);
+
+
+    struct OpTest 
+    {
+        a:int;
+        b:int;
+    }
 
     var obj = OpTest();
 
@@ -187,6 +193,22 @@ def main():int
 
     assert(c"if test", xa == 222);
 
+
+    var test11 = TestData();
+
+    test11.a = 123;
+    test11.b = 234;
+
+    assert(c"struct test", test11.a == 123 && test11.b == 234);
+
+    fun3(test11->);
+
+    var iii = 111;
+
+    var p = iii<-;
+
+    fun3(p);
+
     3.times(lambda() {
         puts(c"HO!");
     })
@@ -198,11 +220,6 @@ def main():int
     }
 
     assert(c"simple lambda param test", nn == 3);
-
-    def funX(block:lambda(int,int):int):int
-    {
-        block(2,2)
-    }
 
     var xb = 3;
 

@@ -1,17 +1,13 @@
-メソッドブロック
-
-while文
-
 printf
 
-native de C-FFI & pointer
+native de C-FFI & pointer operator
 
 union
 
-GC or incrementak gc
-
 no segmentation fault
 
-kansuusengen native keyword de CFFI
+所有権と借用
 
-no GC
+LVALUE にアドレスを入れる
+
+フィールドのアクセスにポインターじゃない構造体も対応

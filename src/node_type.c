@@ -85,7 +85,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
     else {
         node_type2->mResultType = NULL;
     }
-        ;
+
     node_type2->mNumParams = node_type->mNumParams;
     for(i=0; i<node_type->mNumParams; i++) {
         node_type2->mParamTypes[i] = clone_node_type(node_type->mParamTypes[i]);
@@ -241,9 +241,19 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
     return FALSE;
 }
 
-BOOL substitution_posibility(sNodeType* left, sNodeType* right)
+BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type)
 {
-    return left->mClass == right->mClass;
+    sCLClass* left_class = left_type->mClass;
+    sCLClass* right_class = left_type->mClass; 
+
+    if(left_class == right_class) {
+        if(left_type->mPointerNum == right_type->mPointerNum) 
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
 }
 
 void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_type2, struct sParserInfoStruct* info)

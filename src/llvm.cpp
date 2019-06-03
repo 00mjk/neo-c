@@ -102,6 +102,32 @@ void create_internal_functions()
     FunctionType* function_type;
 
 /*
+    /// malloc ///
+    type_params.clear();
+    
+    result_type = PointerType::get(Type::getVoidTy(TheContext), 0);
+
+    param1_type = IntegerType::get(TheContext, 64);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "malloc", TheModule);
+*/
+
+/*
+    /// free ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(Type::getVoidTy(TheContext), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "free", TheModule);
+*/
+
+/*
     /// exit ///
     type_params.clear();
     
@@ -122,7 +148,6 @@ void create_internal_functions()
     ConstantAggregateZero* initializer = ConstantAggregateZero::get(lvtable_type);
 
     gLVTableValue->setInitializer(initializer);
-
 }
 
 void store_address_to_lvtable(int index, Value* address)
@@ -137,7 +162,7 @@ void store_address_to_lvtable(int index, Value* address)
     Builder.CreateAlignedStore(address2, element_address_value, 8);
 }
 
-Value* load_address_to_lvtable(int index, sNodeType* var_type)
+Value* load_address_to_lvtable(int index, sNodeType* var_type, Value** address)
 {
     Value* lvtable_value2 = Builder.CreateCast(Instruction::BitCast, gLVTableValue, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
 
@@ -152,6 +177,8 @@ Value* load_address_to_lvtable(int index, sNodeType* var_type)
     Type* llvm_type = create_llvm_type_from_node_type(var_type);
 
     Value* pointer_value2 = Builder.CreateCast(Instruction::BitCast, pointer_value, PointerType::get(llvm_type, 0));
+
+    *address = pointer_value2;
 
     Value* value = Builder.CreateAlignedLoad(pointer_value2, alignment);
 
@@ -450,7 +477,7 @@ Type* create_llvm_type_from_node_type(sNodeType* node_type)
     if(klass->mFlags & CLASS_FLAGS_STRUCT) 
     {
         char* class_name = CLASS_NAME(klass);
-        
+
         if(gLLVMStructType[class_name] == nullptr) 
         {
             StructType* struct_type = StructType::create(TheContext, CLASS_NAME(klass));;
@@ -476,13 +503,21 @@ Type* create_llvm_type_from_node_type(sNodeType* node_type)
             result_type = gLLVMStructType[class_name];
         }
     }
+    else if(type_identify_with_class_name(node_type, "char"))
+    {
+        result_type = IntegerType::get(TheContext, 8);
+    }
+    else if(type_identify_with_class_name(node_type, "short"))
+    {
+        result_type = IntegerType::get(TheContext, 16);
+    }
     else if(type_identify_with_class_name(node_type, "int"))
     {
         result_type = IntegerType::get(TheContext, 32);
     }
-    else if(type_identify_with_class_name(node_type, "char"))
+    else if(type_identify_with_class_name(node_type, "long"))
     {
-        result_type = IntegerType::get(TheContext, 8);
+        result_type = IntegerType::get(TheContext, 64);
     }
     else if(type_identify_with_class_name(node_type, "bool"))
     {
@@ -549,6 +584,17 @@ int get_llvm_alignment_from_node_type(sNodeType* node_type)
     {
         result = 8;
     }
+
+    return result;
+}
+
+uint64_t get_size_from_node_type(sNodeType* node_type)
+{
+    Type* llvm_type = create_llvm_type_from_node_type(node_type);
+
+    DataLayout data_layout(TheModule);
+
+    uint64_t result = data_layout.getTypeAllocSize(llvm_type);
 
     return result;
 }

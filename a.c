@@ -3,9 +3,15 @@
 
 static char* data[128];
 
+void func(int a)
+{
+    int* p = &a;
+    printf("%p\n", p);
+}
+
 int main()
 {
-    char c = 'a';
-    data[0] = &c;
+    int a = 111;
+    func(a);
     exit(0);
 }
