@@ -36,6 +36,7 @@
 //////////////////////////////
 struct sParserInfoStruct;
 struct sNodeBlockStruct;
+struct sCompileInfoStruct;
 
 //////////////////////////////
 /// constant.c 
@@ -161,6 +162,8 @@ struct sVarStruct {
     BOOL mReadOnly;
     void* mLLVMValue;
     BOOL mParam;
+
+    BOOL mMalloced;
 };
 
 typedef struct sVarStruct sVar;
@@ -194,7 +197,7 @@ int get_variable_index(sVarTable* table, char* name, BOOL* parent);
 void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info);
 
 // result: (true) success (false) overflow the table or a variable which has the same name exists
-BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, BOOL param);
+BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, BOOL param, void* llvm_value, BOOL malloced);
 
 // result: (null) not found (sVar*) found
 sVar* get_variable_from_table(sVarTable* table, char* name);
@@ -206,6 +209,8 @@ int get_var_num(sVarTable* table);
 void show_vtable(sVarTable* table);
 
 int get_parent_var_num_of_sum(sVarTable* table);
+
+void free_objects(sVarTable* table, struct sCompileInfoStruct* info);
 
 //////////////////////////////
 /// parser.c
@@ -453,6 +458,7 @@ extern int gResultCode;
 void arrange_stack(sCompileInfo* info, int top);
 void start_neo_c_main_function();
 void finish_neo_c_main_function();
+void free_object(sNodeType* node_type, void* address, sCompileInfo* info);
 
 #endif
 

@@ -2,6 +2,7 @@ def puts(str:char*):int;
 def exit(rcode:int);
 def malloc(size:long):char*;
 def free(mem:char*);
+def calloc(num:int, size:long):char*;
 
 def assert(msg:char*, exp:bool) 
 {
@@ -15,6 +16,7 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
+/*
     if(1 == 1) {
         puts(c"TRUE");
     }
@@ -222,11 +224,35 @@ def main():int
         block(2,2)
     }
 
+    var xmm = 1;
+
     var mm = funX() {
+        xmm = 9;
         it + it2 + xb
     }
 
-    assert(c"simple lambda param test2", mm == 7);
+    assert(c"simple lambda param test2", mm == 7 && xmm == 9);
+*/
+
+    struct Data {
+        a:int;
+        b:int;
+    }
+
+    def initialize(self:Data*):Data* {
+        self.a = 111;
+        self.b = 123;
+
+        self
+    }
+
+    var obj = new Data().initialize();
+
+    var obj2 = obj;
+
+    if(obj2.a == 111) {
+        puts(c"OK");
+    }
 
     0
 }

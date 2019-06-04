@@ -115,6 +115,7 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
     return TRUE;
 }
 
+
 BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type)
 {
     sVarTable* old_table = info->pinfo->lv_table;
@@ -152,13 +153,17 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                     LVALUE llvm_value = *get_value_from_stack(-1);
                     arrange_stack(info, stack_num_before);
 
-
                     if(cast_posibility(result_type, llvm_value.type))
                     {
                         cast_right_type_to_left_type(result_type, &llvm_value.type, &llvm_value, info);
                     }
 
                     push_value_to_stack_ptr(&llvm_value, info);
+
+                    if(llvm_value.var) {
+puts("AAA");
+                        zero_clear_variable(&llvm_value);
+                    }
 
                     info->type = llvm_value.type;
                 }
@@ -173,6 +178,8 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
             }
         }
     }
+
+    free_objects(block->mLVTable, info);
 
     info->pinfo->lv_table = old_table;
 

@@ -150,6 +150,25 @@ void create_internal_functions()
     gLVTableValue->setInitializer(initializer);
 }
 
+Value* load_address_to_lvtable(int index, sNodeType* var_type)
+{
+    Value* lvtable_value2 = Builder.CreateCast(Instruction::BitCast, gLVTableValue, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
+
+    Value* lvalue = lvtable_value2;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, index));
+    Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
+
+    Value* pointer_value = Builder.CreateAlignedLoad(element_address_value, 8);
+
+    int alignment = get_llvm_alignment_from_node_type(var_type);
+
+    Type* llvm_type = create_llvm_type_from_node_type(var_type);
+
+    Value* pointer_value2 = Builder.CreateCast(Instruction::BitCast, pointer_value, PointerType::get(llvm_type, 0));
+
+    return pointer_value2;
+}
+
 void store_address_to_lvtable(int index, Value* address)
 {
     Value* lvtable_value2 = Builder.CreateCast(Instruction::BitCast, gLVTableValue, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
@@ -160,48 +179,6 @@ void store_address_to_lvtable(int index, Value* address)
     Value* address2 = Builder.CreateCast(Instruction::BitCast, address, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
     Builder.CreateAlignedStore(address2, element_address_value, 8);
-}
-
-Value* load_address_to_lvtable(int index, sNodeType* var_type, Value** address)
-{
-    Value* lvtable_value2 = Builder.CreateCast(Instruction::BitCast, gLVTableValue, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
-
-    Value* lvalue = lvtable_value2;
-    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, index));
-    Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
-
-    Value* pointer_value = Builder.CreateAlignedLoad(element_address_value, 8);
-
-    int alignment = get_llvm_alignment_from_node_type(var_type);
-
-    Type* llvm_type = create_llvm_type_from_node_type(var_type);
-
-    Value* pointer_value2 = Builder.CreateCast(Instruction::BitCast, pointer_value, PointerType::get(llvm_type, 0));
-
-    *address = pointer_value2;
-
-    Value* value = Builder.CreateAlignedLoad(pointer_value2, alignment);
-
-    return value;
-}
-
-void store_value_to_lvtable(Value* value, int index, sNodeType* var_type)
-{
-    Value* lvtable_value2 = Builder.CreateCast(Instruction::BitCast, gLVTableValue, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
-
-    Value* lvalue = lvtable_value2;
-    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, index));
-    Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
-
-    Value* pointer_value = Builder.CreateAlignedLoad(element_address_value, 8);
-
-    int alignment = get_llvm_alignment_from_node_type(var_type);
-
-    Type* llvm_type = create_llvm_type_from_node_type(var_type);
-
-    Value* pointer_value2 = Builder.CreateCast(Instruction::BitCast, pointer_value, PointerType::get(llvm_type, 0));
-
-    Builder.CreateAlignedStore(value, pointer_value2, alignment);
 }
 
 Function* create_llvm_function(const std::string& name)
@@ -456,7 +433,7 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
         exit(2);
     }
 
-    snprintf(command, PATH_MAX+128, "clang++ -o %s %s.s", module_name3, sname3);
+    snprintf(command, PATH_MAX+128, "clang -o %s %s.s", module_name3, sname3);
     rc = system(command);
     if(rc != 0) {
         fprintf(stderr, "faield to compile\n");
@@ -644,6 +621,60 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
             rvalue->type = create_node_type_with_class_name("bool");
 
             *right_type = rvalue->type;
+        }
+    }
+}
+
+void zero_clear_variable(LVALUE* var_value)
+{
+    sVar* var = var_value->var;
+
+    var->mLLVMValue = NULL;
+/*
+    Value* value = ConstantInt::get(TheContext, llvm::APInt(64, 0));
+    Type* llvm_type = create_llvm_type_from_node_type(node_type);
+    Value* value2 = Builder.CreateCast(Instruction::BitCast, value, llvm_type);
+    Builder.CreateAlignedStore(value2, address, 8);
+*/
+}
+
+void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
+{
+    Value* address2 = (Value*)address;
+    sCLClass* klass = node_type->mClass;
+
+    if(address2 != nullptr) {
+        if((klass->mFlags & CLASS_FLAGS_STRUCT) && node_type->mPointerNum == 1) 
+        {
+/*
+            int i;
+            for(i=0; i<klass->mNumFields; i++) {
+                sNodeType* field_type = klass->mFields[i];
+                sCLClass* field_class = field_type->mClass;
+
+                Type* llvm_field_type = create_llvm_type_from_node_type(field_type);
+
+                if((field_class->mFlags & CLASS_FLAGS_STRUCT) && field_type->mPointerNum == 1)
+                {
+#if LLVM_VERSION_MAJOR >= 7
+                    Value* field_address = Builder.CreateStructGEP(address2, i);
+#else
+                    Value* field_address = Builder.CreateStructGEP(llvm_field_type, address2, i);
+#endif
+                    free_object(field_type, field_address, info);
+                }
+            }
+*/
+
+            /// free ///
+            Function* fun = TheModule->getFunction("free");
+
+            std::vector<Value*> params2;
+            Value* obj = Builder.CreateAlignedLoad(address2, 8);
+            Value* param = Builder.CreateCast(Instruction::BitCast, obj, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+            params2.push_back(param);
+            Builder.CreateCall(fun, params2);
         }
     }
 }
