@@ -114,7 +114,7 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 void store_address_to_lvtable(int index, Value* address);
 Value* load_address_to_lvtable(int index, sNodeType* var_type);
 uint64_t get_size_from_node_type(sNodeType* node_type);
-void zero_clear_variable(LVALUE* var_value);
+BOOL std_move(sNodeType* lvar_type, LVALUE* rvalue);
 }
 
 #endif

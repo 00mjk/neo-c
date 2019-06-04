@@ -160,10 +160,16 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
     *result_type = NULL;
 
+    BOOL borrow = FALSE;
+    if(*info->p == '&') {
+        borrow = TRUE;
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+
     if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
-
 
     if(*result_type == NULL) {
         *result_type = create_node_type_with_class_name(type_name);
@@ -173,6 +179,8 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         parser_err_msg(info, "%s is not defined class(2)", type_name);
         info->err_num++;
     }
+
+    (*result_type)->mBorrow = borrow;
 
     if(strcmp(type_name, "lambda") == 0) {
         if(*info->p == '(') {
@@ -282,15 +290,13 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
         }
         if(node_type) {
             check_already_added_variable(info->lv_table, buf, info);
-            BOOL param_var = FALSE;
-            add_variable_to_table(info->lv_table, buf, node_type, readonly, param_var, NULL, FALSE);
+            add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL);
         }
     }
     else {
         node_type = NULL;
         check_already_added_variable(info->lv_table, buf, info);
-        BOOL param_var = FALSE;
-        add_variable_to_table(info->lv_table, buf, node_type, readonly, param_var, NULL, FALSE);
+        add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL);
     }
 
     /// assign the value to a variable ///
@@ -513,8 +519,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
             sParserParam* param = params + i;
 
             BOOL readonly = TRUE;
-            BOOL param_var = TRUE;
-            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, param_var, NULL, FALSE))
+            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL))
             {
                 return FALSE;
             }
@@ -1147,8 +1152,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
         sParserParam* param = params + i;
 
         BOOL readonly = TRUE;
-        BOOL param_var = TRUE;
-        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, param_var, NULL, FALSE))
+        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL))
         {
             return FALSE;
         }

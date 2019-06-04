@@ -160,10 +160,17 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
                     push_value_to_stack_ptr(&llvm_value, info);
 
-                    if(llvm_value.var) {
-puts("AAA");
-                        zero_clear_variable(&llvm_value);
+
+                    if(!std_move(result_type, &llvm_value)) 
+                    {
+                        compile_err_msg(info, "Invalid assignment. The borrow flag of left type is %s. The borrow flag of right type is %s.", result_type->mBorrow?"true":"false", llvm_value.type->mBorrow?"true":"false");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
                     }
+
 
                     info->type = llvm_value.type;
                 }

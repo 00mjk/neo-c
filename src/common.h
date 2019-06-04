@@ -131,6 +131,8 @@ struct sNodeTypeStruct {
     struct sNodeTypeStruct* mParamTypes[PARAMS_MAX];
     struct sNodeTypeStruct* mResultType;
     int mNumParams;
+
+    BOOL mBorrow;
 };
 
 typedef struct sNodeTypeStruct sNodeType;
@@ -161,9 +163,6 @@ struct sVarStruct {
 
     BOOL mReadOnly;
     void* mLLVMValue;
-    BOOL mParam;
-
-    BOOL mMalloced;
 };
 
 typedef struct sVarStruct sVar;
@@ -197,7 +196,7 @@ int get_variable_index(sVarTable* table, char* name, BOOL* parent);
 void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info);
 
 // result: (true) success (false) overflow the table or a variable which has the same name exists
-BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, BOOL param, void* llvm_value, BOOL malloced);
+BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value);
 
 // result: (null) not found (sVar*) found
 sVar* get_variable_from_table(sVarTable* table, char* name);
@@ -233,6 +232,7 @@ struct sParserParamStruct
 {
     char mName[VAR_NAME_MAX];
     sNodeType* mType;
+    BOOL mManaged;
 
     char mDefaultValue[METHOD_DEFAULT_PARAM_MAX];
 };
@@ -372,6 +372,8 @@ extern int gUsedNodes;
 
 void init_nodes();
 void free_nodes();
+
+void compile_err_msg(sCompileInfo* info, const char* msg, ...);
 
 unsigned int sNodeTree_create_int_value(int value, sParserInfo* info);
 unsigned int sNodeTree_create_add(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);

@@ -78,6 +78,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
     node_type2->mArrayNum = node_type->mArrayNum;
     node_type2->mNullable = node_type->mNullable;
     node_type2->mPointerNum = node_type->mPointerNum;
+    node_type2->mBorrow = node_type->mBorrow;
 
     if(node_type->mResultType) {
         node_type2->mResultType = clone_node_type(node_type->mResultType);

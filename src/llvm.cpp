@@ -625,58 +625,58 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     }
 }
 
-void zero_clear_variable(LVALUE* var_value)
+BOOL std_move(sNodeType* lvar_type, LVALUE* rvalue)
 {
-    sVar* var = var_value->var;
+    sVar* rvar = rvalue->var;
+    sNodeType* rvar_type = rvalue->type;
 
-    var->mLLVMValue = NULL;
-/*
-    Value* value = ConstantInt::get(TheContext, llvm::APInt(64, 0));
-    Type* llvm_type = create_llvm_type_from_node_type(node_type);
-    Value* value2 = Builder.CreateCast(Instruction::BitCast, value, llvm_type);
-    Builder.CreateAlignedStore(value2, address, 8);
-*/
+    if(lvar_type->mBorrow != rvar_type->mBorrow)
+    {
+        return FALSE;
+    }
+
+    if(rvar && !rvar_type->mBorrow) {
+        rvar->mLLVMValue = NULL;
+    }
+
+    return TRUE;
 }
+
 
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 {
     Value* address2 = (Value*)address;
     sCLClass* klass = node_type->mClass;
 
-    if(address2 != nullptr) {
-        if((klass->mFlags & CLASS_FLAGS_STRUCT) && node_type->mPointerNum == 1) 
-        {
 /*
-            int i;
-            for(i=0; i<klass->mNumFields; i++) {
-                sNodeType* field_type = klass->mFields[i];
-                sCLClass* field_class = field_type->mClass;
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        sNodeType* field_type = klass->mFields[i];
+        sCLClass* field_class = field_type->mClass;
 
-                Type* llvm_field_type = create_llvm_type_from_node_type(field_type);
+        Type* llvm_field_type = create_llvm_type_from_node_type(field_type);
 
-                if((field_class->mFlags & CLASS_FLAGS_STRUCT) && field_type->mPointerNum == 1)
-                {
+        if((field_class->mFlags & CLASS_FLAGS_STRUCT) && field_type->mPointerNum == 1)
+        {
 #if LLVM_VERSION_MAJOR >= 7
-                    Value* field_address = Builder.CreateStructGEP(address2, i);
+            Value* field_address = Builder.CreateStructGEP(address2, i);
 #else
-                    Value* field_address = Builder.CreateStructGEP(llvm_field_type, address2, i);
+            Value* field_address = Builder.CreateStructGEP(llvm_field_type, address2, i);
 #endif
-                    free_object(field_type, field_address, info);
-                }
-            }
-*/
-
-            /// free ///
-            Function* fun = TheModule->getFunction("free");
-
-            std::vector<Value*> params2;
-            Value* obj = Builder.CreateAlignedLoad(address2, 8);
-            Value* param = Builder.CreateCast(Instruction::BitCast, obj, PointerType::get(IntegerType::get(TheContext, 8), 0));
-
-            params2.push_back(param);
-            Builder.CreateCall(fun, params2);
+            free_object(field_type, field_address, info);
         }
     }
+*/
+
+    /// free ///
+    Function* fun = TheModule->getFunction("free");
+
+    std::vector<Value*> params2;
+    Value* obj = Builder.CreateAlignedLoad(address2, 8);
+    Value* param = Builder.CreateCast(Instruction::BitCast, obj, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+    params2.push_back(param);
+    Builder.CreateCall(fun, params2);
 }
 
 

@@ -246,7 +246,9 @@ def main():int
         self
     }
 
-    var obj = new Data().initialize();
+    var a = new Data();
+
+    var obj = a.initialize();
 
     var obj2 = obj;
 

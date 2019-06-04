@@ -44,7 +44,7 @@ sVarTable* clone_var_table(sVarTable* lv_table)
 
     while(1) {
         if(p->mName[0] != 0) {
-            (void)add_variable_to_table(result, p->mName, p->mType, p->mReadOnly, p->mParam, p->mLLVMValue, p->mMalloced);
+            (void)add_variable_to_table(result, p->mName, p->mType, p->mReadOnly, p->mLLVMValue);
         }
 
         p++;
@@ -105,7 +105,7 @@ void restore_var_table(sVarTable* left, sVarTable* right)
 // local variable table
 //////////////////////////////////////////////////
 // result: (true) success (false) overflow the table or a variable which has the same name exists
-BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, BOOL param, void* llvm_value, BOOL malloced)
+BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value)
 {
     int hash_value;
     sVar* p;
@@ -126,8 +126,6 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL 
             p->mBlockLevel = table->mBlockLevel;
             p->mReadOnly = readonly;
             p->mLLVMValue = llvm_value;
-            p->mParam = param;
-            p->mMalloced = malloced;
 
             if(table->mVarNum >= LOCAL_VARIABLE_MAX) {
                 return FALSE;
@@ -150,8 +148,6 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL 
                     p->mBlockLevel = table->mBlockLevel;
                     p->mReadOnly = readonly;
                     p->mLLVMValue = llvm_value;
-                    p->mParam = param;
-                    p->mMalloced = malloced;
 
                     if(table->mVarNum >= LOCAL_VARIABLE_MAX) {
                         return FALSE;
@@ -355,9 +351,12 @@ void free_objects(sVarTable* table, sCompileInfo* info)
 
     while(1) {
         if(p->mName[0] != 0) {
-            if(p->mLLVMValue) {
-                sNodeType* node_type = p->mType;
-                if((node_type->mClass->mFlags & CLASS_FLAGS_STRUCT) && node_type->mPointerNum == 1)
+            sNodeType* node_type = p->mType;
+            sCLClass* klass = node_type->mClass;
+
+            if((klass->mFlags & CLASS_FLAGS_STRUCT) && node_type->mPointerNum == 1) 
+            {
+                if(p->mLLVMValue && !node_type->mBorrow) 
                 {
 printf("free %s\n", p->mName);
                     free_object(p->mType, p->mLLVMValue, info);

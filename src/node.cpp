@@ -181,7 +181,7 @@ void show_node(unsigned int node)
     }
 }
 
-static void compile_err_msg(sCompileInfo* info, const char* msg, ...)
+void compile_err_msg(sCompileInfo* info, const char* msg, ...)
 {
     char msg2[1024];
 
@@ -807,8 +807,13 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
     Builder.CreateAlignedStore(rvalue->value, var_address, alignment);
 
-    if(rvalue->var) {
-        zero_clear_variable(rvalue);
+    if(!std_move(var->mType, rvalue)) {
+        compile_err_msg(info, "Invalid assignment. The borrow flag of left type is %s. The borrow flag of right type is %s.", var->mType->mBorrow?"true":"false", rvalue->type->mBorrow?"true":"false");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
     }
 
     info->type = left_type;
@@ -1008,8 +1013,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
         sParserParam* param = params + i;
 
         BOOL readonly = TRUE;
-        BOOL param_var = TRUE;
-        if(!add_variable_to_table(info2.lv_table, param->mName, param->mType, readonly, param_var, NULL, FALSE))
+        if(!add_variable_to_table(info2.lv_table, param->mName, param->mType, readonly, NULL))
         {
             return FALSE;
         }
@@ -1129,15 +1133,20 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         LVALUE* param = get_value_from_stack(-num_params2+i);
 
+        if(!std_move(left_type, param)) {
+        compile_err_msg(info, "Invalid assignment. The borrow flag of left type is %s. The borrow flag of right type is %s.", left_type->mBorrow?"true":"false", param->type->mBorrow?"true":"false");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
         lvalue_params[i] = param;
 
         if(cast_posibility(left_type, right_type)) 
         {
             cast_right_type_to_left_type(left_type, &right_type, param, info);
-        }
-
-        if(lvalue_params[i]->var) {
-            zero_clear_variable(lvalue_params[i]);
         }
 
         llvm_params.push_back(param->value);
@@ -1409,8 +1418,6 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
         info->type = create_node_type_with_class_name("int"); // dummy
         return TRUE;
     }
-
-    BOOL param = var->mParam;
 
     BOOL parent = FALSE;
     int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
@@ -1821,6 +1828,7 @@ static BOOL compile_struct_object(unsigned int node, sCompileInfo* info)
     Type* llvm_var_type = create_llvm_type_from_node_type(node_type);
 
     node_type->mPointerNum = 1;
+    node_type->mBorrow = TRUE;
 
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateAlloca(llvm_var_type, 0, "object");
@@ -1932,8 +1940,13 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     info->type = right_type;
 
-    if(rvalue->var) {
-        zero_clear_variable(rvalue);
+    if(!std_move(field_type, rvalue)) {
+        compile_err_msg(info, "Invalid assignment. The borrow flag of left type is %s. The borrow flag of right type is %s.", field_type->mBorrow?"true":"false", rvalue->type->mBorrow?"true":"false");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
     }
 
     dec_stack_ptr(2, info);
