@@ -1211,6 +1211,23 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_clone(unsigned int* node, sParserInfo* info)
+{
+    if(!expression(node, info)) {
+        return FALSE;
+    }
+
+    if(*node == 0) {
+        parser_err_msg(info, "Require expression for clone");
+        info->err_num++;
+        return TRUE;
+    }
+
+    *node = sNodeTree_create_clone(*node, info);
+
+    return TRUE;
+}
+
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
     if(*info->p == '!') {
@@ -1480,6 +1497,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "new") == 0) {
             if(!parse_new(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "clone") == 0) {
+            if(!parse_clone(node, info)) {
                 return FALSE;
             }
         }

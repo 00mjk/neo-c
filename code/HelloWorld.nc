@@ -1,8 +1,9 @@
 def puts(str:char*):int;
 def exit(rcode:int);
-def malloc(size:long):char*;
-def free(mem:char*);
-def calloc(num:int, size:long):char*;
+def xmalloc(size:long):char*;
+def xfree(mem:char*);
+def xcalloc(num:int, size:long):char*;
+def xmemdup(mem:char*):char*;
 
 def assert(msg:char*, exp:bool) 
 {
@@ -16,7 +17,6 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
-/*
     if(1 == 1) {
         puts(c"TRUE");
     }
@@ -272,7 +272,6 @@ def main():int
     var yb = new Data2().initialize();
 
     assert(c"struct test", yb.b == 123 && yb.a.a == 123 && yb.a.b == 234);
-*/
 
     struct Data3 {
         a:int;
@@ -289,6 +288,44 @@ def main():int
     za.a.a = 123;
 
     assert(c"struct test X", za.a.a == 123);
+
+    struct Data5 {
+        a:int;
+        b:int;
+    }
+
+    def initialize(self:Data5*):Data5* {
+        self.a = 111;
+        self.b = 222;
+
+        self
+    }
+
+    var zz = new Data5().initialize();
+
+    var zz2 = clone zz;
+
+    assert(c"struct test X2", zz2.a == 111 && zz2.b == 222);
+
+    struct Data6 {
+        a:Data5*;
+        b:int;
+    }
+
+    def initialize(self:Data6*):Data6* {
+        self.a = new Data5();
+        self.a.a = 111;
+        self.a.b = 222;
+        self.b = 333;
+
+        self
+    }
+
+    var zz3 = new Data6().initialize();
+
+    var zz4 = clone zz3;
+
+    assert(c"struct test X3", zz4.a.a == 111 && zz4.a.b == 222 && zz4.b == 333);
 
     0
 }

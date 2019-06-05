@@ -238,10 +238,12 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
     {
         return TRUE;
     }
+/*
     else if(left_type->mPointerNum > 0 && right_type->mPointerNum > 0)
     {
         return TRUE;
     }
+*/
 
     return FALSE;
 }
@@ -249,7 +251,7 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
 BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type)
 {
     sCLClass* left_class = left_type->mClass;
-    sCLClass* right_class = left_type->mClass; 
+    sCLClass* right_class = right_type->mClass; 
 
     if(left_class == right_class) {
         if(left_type->mPointerNum == right_type->mPointerNum) 

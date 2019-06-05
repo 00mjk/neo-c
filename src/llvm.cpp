@@ -124,7 +124,7 @@ void create_internal_functions()
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "free", TheModule);
+    Function::Create(function_type, Function::ExternalLinkage, "xfree", TheModule);
 */
 
 /*
@@ -433,15 +433,17 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
         exit(2);
     }
 
-    snprintf(command, PATH_MAX+128, "clang -o %s %s.s", module_name3, sname3);
-    rc = system(command);
-    if(rc != 0) {
-        fprintf(stderr, "faield to compile\n");
-        exit(2);
-    }
+    if(!output_object_file) {
+        snprintf(command, PATH_MAX+128, "clang -o %s %s.s memalloc.o", module_name3, sname3);
+        rc = system(command);
+        if(rc != 0) {
+            fprintf(stderr, "faield to compile\n");
+            exit(2);
+        }
 
-    snprintf(command, PATH_MAX+128, "./%s", module_name3);
-    rc = system(command);
+        snprintf(command, PATH_MAX+128, "./%s", module_name3);
+        rc = system(command);
+    }
 
     gResultCode = WEXITSTATUS(rc);
 }
@@ -592,6 +594,7 @@ Value* llvm_create_string(char* str)
 
 void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info)
 {
+/*
     if(left_type->mPointerNum > 0 && (*right_type)->mPointerNum > 0)
     {
         Type* llvm_type = create_llvm_type_from_node_type(left_type);
@@ -601,7 +604,8 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
         *right_type = rvalue->type;
     }
-    else if(type_identify(left_type, *right_type)) {
+*/
+    if(type_identify(left_type, *right_type)) {
     }
     else if(type_identify_with_class_name(left_type, "int"))
     {
@@ -677,13 +681,61 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
     }
 
     /// free ///
-    Function* fun = TheModule->getFunction("free");
+    Function* fun = TheModule->getFunction("xfree");
 
     std::vector<Value*> params2;
     Value* param = Builder.CreateCast(Instruction::BitCast, obj, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
     params2.push_back(param);
     Builder.CreateCall(fun, params2);
+}
+
+Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
+{
+    sCLClass* klass = node_type->mClass;
+
+    Value* src_obj = Builder.CreateAlignedLoad(address, 8);
+
+    /// memdup ///
+    Function* fun = TheModule->getFunction("xmemdup");
+
+    std::vector<Value*> params2;
+    Value* param = Builder.CreateCast(Instruction::BitCast, src_obj, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+    params2.push_back(param);
+    Value* address2 = Builder.CreateCall(fun, params2);
+
+    Type* llvm_obj_type = create_llvm_type_from_node_type(node_type);
+
+    Value* address3 = Builder.CreateCast(Instruction::BitCast, address2, llvm_obj_type);
+
+/*
+    Value* dest_obj = Builder.CreateAlignedLoad(address3, 8);
+*/
+
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        sNodeType* field_type = klass->mFields[i];
+        sCLClass* field_class = field_type->mClass;
+
+        Type* llvm_field_type = create_llvm_type_from_node_type(field_type);
+
+        int alignment = get_llvm_alignment_from_node_type(field_type);
+
+        if((field_class->mFlags & CLASS_FLAGS_STRUCT) && field_type->mPointerNum == 1 && !field_type->mBorrow)
+        {
+#if LLVM_VERSION_MAJOR >= 7
+           Value* field_address = Builder.CreateStructGEP(address3, i);
+#else
+           Value* field_address = Builder.CreateStructGEP(llvm_field_type, address3, i);
+#endif
+           Value* field_value = clone_object(field_type, field_address, info);
+
+            Builder.CreateAlignedStore(field_value,  field_address, alignment);
+        }
+    }
+
+    return address3;
 }
 
 

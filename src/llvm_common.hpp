@@ -115,6 +115,7 @@ void store_address_to_lvtable(int index, Value* address);
 Value* load_address_to_lvtable(int index, sNodeType* var_type);
 uint64_t get_size_from_node_type(sNodeType* node_type);
 BOOL std_move(sNodeType* lvar_type, LVALUE* rvalue);
+Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info);
 }
 
 #endif

@@ -1115,6 +1115,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                     sNodeType* left_type = fun.mParamTypes[i];
                     sNodeType* right_type = param_types[i];
 
+
                     if(!substitution_posibility(left_type, right_type))
                     {
                         if(!cast_posibility(left_type, right_type)) 
@@ -1477,7 +1478,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 
     push_value_to_stack_ptr(&llvm_value, info);
 
-    sNodeType* result_type = var->mType;
+    sNodeType* result_type = var_type;
 
     info->type = result_type;
 
@@ -1801,7 +1802,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     /// calloc ///
     uint64_t size = get_size_from_node_type(node_type);
 
-    Function* fun = TheModule->getFunction("calloc");
+    Function* fun = TheModule->getFunction("xcalloc");
 
     std::vector<Value*> params2;
 
@@ -2790,6 +2791,67 @@ static BOOL compile_reffernce(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_clone(unsigned int left, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeClone;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_clone(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(lvalue.address == nullptr) {
+        compile_err_msg(info, "Can't get address of this value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    if(!((left_type->mClass->mFlags & CLASS_FLAGS_STRUCT) && left_type->mPointerNum == 1 && !left_type->mBorrow))
+    {
+        compile_err_msg(info, "Can't clone this value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    Value* obj = clone_object(left_type, lvalue.address, info);
+
+    LVALUE llvm_value;
+    llvm_value.value = obj;
+    llvm_value.type = left_type;
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = left_type;
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -3002,6 +3064,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeNull:
             if(!compile_null(node, info))
+            { 
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeClone:
+            if(!compile_clone(node, info))
             { 
                 return FALSE;
             }

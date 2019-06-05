@@ -333,7 +333,12 @@ void show_vtable(sVarTable* table)
 
         while(1) {
             if(p->mName[0] != 0) {
-                printf("name (%s)\n", p->mName);
+                if(p->mType && p->mType->mClass) {
+                    printf("name (%s) %s\n", p->mName, CLASS_NAME(p->mType->mClass));
+                }
+                else {
+                    printf("name (%s)\n", p->mName);
+                }
             }
 
             p++;
