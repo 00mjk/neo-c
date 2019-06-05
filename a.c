@@ -11,7 +11,6 @@ void func(int a)
 
 int main()
 {
-    int a = 111;
-    func(a);
+    free(0);
     exit(0);
 }

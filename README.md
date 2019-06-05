@@ -2,7 +2,7 @@
 
 version 0.0.1
 
-./configure
+./configure --with-optimize
 make
 make install
 

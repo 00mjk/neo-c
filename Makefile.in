@@ -35,13 +35,16 @@ COMMON_OBJS=@COMMON_OBJS@
 all: neo-c 
 	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
-neo-c: config.h src/compiler.o $(COMMON_OBJS) $(OBJS)
+neo-c: config.h src/compiler.o $(COMMON_OBJS) $(OBJS) memalloc.o
 	$(CXX) -o neo-c src/compiler.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS)
 
 libneo-c.so.1.0.0: $(COMMON_OBJ) $(RUNTIME_OBJS)
 	$(CC) -shared -o libneo-c.so.1.0.0 $(RUNTIME_OBJS) $(CFLAGS) $(LIBS)
 	ln -s -f libneo-c.so.1.0.0 libneo-c.so.1
 	ln -s -f libneo-c.so.1.0.0 libneo-c.so
+
+memalloc.o: memalloc/memalloc.c
+	$(CC) -c -o memalloc.o memalloc/memalloc.c
 
 ###################################################
 # Object files

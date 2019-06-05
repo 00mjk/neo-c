@@ -73,6 +73,9 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
 
         unsigned int node = 0;
 
+        int sline = info->sline;
+        char* sname = info->sname;
+
         if(!expression(&node, info)) {
             return FALSE;
         }
@@ -82,6 +85,9 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
             info->err_num++;
             break;
         }
+
+        gNodes[node].mLine = sline;
+        gNodes[node].mSName = sname;
 
         append_node_to_node_block(node_block, node);
 

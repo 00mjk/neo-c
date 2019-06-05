@@ -19,7 +19,8 @@
 #define GENERICS_TYPES_MAX 10
 #define VAR_NAME_MAX 32
 #define CLASS_NUM_MAX 512
-#define PARSER_ERR_MSG_MAX 8
+#define PARSER_ERR_MSG_MAX 5
+#define COMPILE_ERR_MSG_MAX 5
 #define NEO_C_STACK_SIZE 512
 #define LOCAL_VARIABLE_MAX 256
 #define PARAMS_MAX 32
@@ -277,7 +278,7 @@ struct sCompileInfoStruct
 
 typedef struct sCompileInfoStruct sCompileInfo;
 
-enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference };
+enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull };
 
 struct sNodeTreeStruct 
 {
@@ -413,6 +414,7 @@ unsigned int sNodeTree_create_simple_lambda_param(char* buf, sParserInfo* info);
 unsigned int sNodeTree_create_struct_object(sNodeType* node_type, char* sname, int sline);
 unsigned int sNodeTree_create_dereffernce(unsigned int left_node, sParserInfo* info);
 unsigned int sNodeTree_create_reffernce(unsigned int left_node, sParserInfo* info);
+unsigned int sNodeTree_create_null(sParserInfo* info);
 
 void show_node(unsigned int node);
 BOOL compile(unsigned int node, sCompileInfo* info);

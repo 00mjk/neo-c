@@ -396,6 +396,11 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
 
             nest--;
         }
+        else if(*info->p == '\n') {
+            info->sline++;
+            sBuf_append_char(&buf, *info->p);
+            info->p++;
+        }
         else if(*info->p == '\0') {
             parser_err_msg(info, "require } before the source end");
             free(buf.mBuf);
@@ -1472,6 +1477,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         else if(strcmp(buf, "false") == 0) {
             *node = sNodeTree_create_false(info);
         }
+        else if(strcmp(buf, "null") == 0) {
+            *node = sNodeTree_create_null(info);
+        }
         else if(strcmp(buf, "new") == 0) {
             if(!parse_new(node, info)) {
                 return FALSE;
@@ -1664,6 +1672,17 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 info->err_num++;
             }
         }
+    }
+    else {
+        parser_err_msg(info, "invalid character (character code %d) (%c)", *info->p, *info->p);
+
+        if(*info->p == '\n') info->sline++;
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        info->err_num++;
+
+        *node = 0;
     }
 
     /// post position expression ///

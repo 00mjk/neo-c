@@ -11,3 +11,10 @@ no segmentation fault
 LVALUE にアドレスを入れる
 
 フィールドのアクセスにポインターじゃない構造体も対応
+
+
+free
+malloc
+mdupe
+calloc
+

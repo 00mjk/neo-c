@@ -190,7 +190,12 @@ void compile_err_msg(sCompileInfo* info, const char* msg, ...)
     vsnprintf(msg2, 1024, msg, args);
     va_end(args);
 
-    fprintf(stderr, "%s:%d: %s\n", info->sname, info->sline, msg2);
+    static int output_num = 0;
+
+    if(output_num < COMPILE_ERR_MSG_MAX) {
+        fprintf(stderr, "%s:%d: %s\n", info->sname, info->sline, msg2);
+    }
+    output_num++;
 }
 
 static void add_function(char* name, char* real_fun_name, sNodeType** param_types, int num_params, sNodeType* result_type, BOOL c_ffi_function)
@@ -380,6 +385,10 @@ static BOOL compile_equals(unsigned int node, sCompileInfo* info)
     LVALUE* lvalue = get_value_from_stack(-2);
     LVALUE* rvalue = get_value_from_stack(-1);
 
+    if(cast_posibility(left_type, right_type)) {
+        cast_right_type_to_left_type(left_type, &right_type, rvalue, info);
+    }
+
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateICmpEQ(lvalue->value, rvalue->value, "eqtmp");
     llvm_value.type = create_node_type_with_class_name("bool");
@@ -429,6 +438,10 @@ static BOOL compile_not_equals(unsigned int node, sCompileInfo* info)
 
     LVALUE* lvalue = get_value_from_stack(-2);
     LVALUE* rvalue = get_value_from_stack(-1);
+
+    if(cast_posibility(left_type, right_type)) {
+        cast_right_type_to_left_type(left_type, &right_type, rvalue, info);
+    }
 
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue->value, "noteqtmp");
@@ -2158,6 +2171,37 @@ static BOOL compile_true(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_null(sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeNull;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_null(unsigned int node, sCompileInfo* info)
+{
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(Type::getInt1Ty(TheContext), 0);
+    llvm_value.type = create_node_type_with_class_name("void*");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("void*");
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_false(sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -2646,6 +2690,7 @@ static BOOL compile_dereffernce(unsigned int node, sCompileInfo* info)
     }
 
     derefference_type->mPointerNum--;
+    derefference_type->mBorrow = FALSE;
 
     int alignment = get_llvm_alignment_from_node_type(derefference_type);
 
@@ -2705,6 +2750,7 @@ static BOOL compile_reffernce(unsigned int node, sCompileInfo* info)
     sNodeType* refference_type = clone_node_type(left_type);
 
     refference_type->mPointerNum++;
+    refference_type->mBorrow = FALSE;
 
     LVALUE llvm_value;
     llvm_value.value = lvalue.address;
@@ -2928,6 +2974,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
         case kNodeTypeRefference:
             if(!compile_reffernce(node, info))
             {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeNull:
+            if(!compile_null(node, info))
+            { 
                 return FALSE;
             }
             break;

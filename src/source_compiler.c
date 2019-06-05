@@ -187,10 +187,22 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
     start_to_make_native_code(fname);
 
     while(*info.p) {
+        int sline = info.sline;
+        char* sname = info.sname;
+
         unsigned int node = 0;
         if(!expression(&node, &info)) {
             return FALSE;
         }
+
+        if(node == 0) {
+            parser_err_msg(&info, "require an expression");
+            info.err_num++;
+            break;
+        }
+
+        gNodes[node].mLine = sline;
+        gNodes[node].mSName = sname;
 
         if(info.err_num == 0) {
             if(!compile(node, &cinfo)) {

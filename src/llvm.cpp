@@ -592,7 +592,16 @@ Value* llvm_create_string(char* str)
 
 void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info)
 {
-    if(type_identify(left_type, *right_type)) {
+    if(left_type->mPointerNum > 0 && (*right_type)->mPointerNum > 0)
+    {
+        Type* llvm_type = create_llvm_type_from_node_type(left_type);
+
+        rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, llvm_type);
+        rvalue->type = clone_node_type(left_type);
+
+        *right_type = rvalue->type;
+    }
+    else if(type_identify(left_type, *right_type)) {
     }
     else if(type_identify_with_class_name(left_type, "int"))
     {
@@ -645,10 +654,10 @@ BOOL std_move(sNodeType* lvar_type, LVALUE* rvalue)
 
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 {
-    Value* address2 = (Value*)address;
     sCLClass* klass = node_type->mClass;
 
-/*
+    Value* obj = Builder.CreateAlignedLoad((Value*)address, 8);
+
     int i;
     for(i=0; i<klass->mNumFields; i++) {
         sNodeType* field_type = klass->mFields[i];
@@ -656,23 +665,21 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 
         Type* llvm_field_type = create_llvm_type_from_node_type(field_type);
 
-        if((field_class->mFlags & CLASS_FLAGS_STRUCT) && field_type->mPointerNum == 1)
+        if((field_class->mFlags & CLASS_FLAGS_STRUCT) && field_type->mPointerNum == 1 && !field_type->mBorrow)
         {
 #if LLVM_VERSION_MAJOR >= 7
-            Value* field_address = Builder.CreateStructGEP(address2, i);
+            Value* field_address = Builder.CreateStructGEP(obj, i);
 #else
-            Value* field_address = Builder.CreateStructGEP(llvm_field_type, address2, i);
+            Value* field_address = Builder.CreateStructGEP(llvm_field_type, obj, i);
 #endif
             free_object(field_type, field_address, info);
         }
     }
-*/
 
     /// free ///
     Function* fun = TheModule->getFunction("free");
 
     std::vector<Value*> params2;
-    Value* obj = Builder.CreateAlignedLoad(address2, 8);
     Value* param = Builder.CreateCast(Instruction::BitCast, obj, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
     params2.push_back(param);

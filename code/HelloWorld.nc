@@ -4,6 +4,13 @@ def malloc(size:long):char*;
 def free(mem:char*);
 def calloc(num:int, size:long):char*;
 
+def xfree(mem:char*) 
+{
+    if(mem != null) {
+        free(mem);
+    }
+}
+
 def assert(msg:char*, exp:bool) 
 {
     puts(msg);
@@ -16,7 +23,6 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
-/*
     if(1 == 1) {
         puts(c"TRUE");
     }
@@ -232,7 +238,6 @@ def main():int
     }
 
     assert(c"simple lambda param test2", mm == 7 && xmm == 9);
-*/
 
     struct Data {
         a:int;
@@ -246,15 +251,33 @@ def main():int
         self
     }
 
-    var a = new Data();
+    var ya = new Data();
 
-    var obj = a.initialize();
+    var xobj = ya.initialize();
 
-    var obj2 = obj;
+    var xobj2 = xobj;
 
-    if(obj2.a == 111) {
-        puts(c"OK");
+    assert(c"borrow test", xobj2.a == 111);
+
+    struct Data2 {
+        a:Data*;
+        b:int;
     }
+
+    def initialize(self:Data2*):Data2* {
+        self.a = new Data();
+
+        self.a.a = 123;
+        self.a.b = 234;
+
+        self.b = 123;
+
+        self
+    }
+
+    var yb = new Data2().initialize();
+
+    assert(c"struct test", yb.b == 123 && yb.a.a == 123 && yb.a.b == 234);
 
     0
 }

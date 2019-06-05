@@ -238,6 +238,10 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
     {
         return TRUE;
     }
+    else if(left_type->mPointerNum > 0 && right_type->mPointerNum > 0)
+    {
+        return TRUE;
+    }
 
     return FALSE;
 }
