@@ -163,6 +163,7 @@ struct sVarStruct {
     int mBlockLevel;
 
     BOOL mReadOnly;
+    BOOL mBorrow;
     void* mLLVMValue;
 };
 
@@ -197,7 +198,7 @@ int get_variable_index(sVarTable* table, char* name, BOOL* parent);
 void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info);
 
 // result: (true) success (false) overflow the table or a variable which has the same name exists
-BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value);
+BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, BOOL borrow, void* llvm_value);
 
 // result: (null) not found (sVar*) found
 sVar* get_variable_from_table(sVarTable* table, char* name);

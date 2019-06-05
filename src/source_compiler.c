@@ -205,6 +205,9 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
         gNodes[node].mSName = sname;
 
         if(info.err_num == 0) {
+            cinfo.sline = sline;
+            cinfo.sname = sname;
+
             if(!compile(node, &cinfo)) {
                 return FALSE;
             }

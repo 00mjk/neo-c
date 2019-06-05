@@ -6,15 +6,13 @@ union
 
 no segmentation fault
 
-所有権と借用
-
-LVALUE にアドレスを入れる
-
-フィールドのアクセスにポインターじゃない構造体も対応
-
-
 free
 malloc
 mdupe
 calloc
 
+cloneの実装
+
+モジュール。ヘッダーの出力とinclude.
+
+グローバル変数

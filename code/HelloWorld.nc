@@ -4,13 +4,6 @@ def malloc(size:long):char*;
 def free(mem:char*);
 def calloc(num:int, size:long):char*;
 
-def xfree(mem:char*) 
-{
-    if(mem != null) {
-        free(mem);
-    }
-}
-
 def assert(msg:char*, exp:bool) 
 {
     puts(msg);
@@ -23,6 +16,7 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
+/*
     if(1 == 1) {
         puts(c"TRUE");
     }
@@ -278,6 +272,23 @@ def main():int
     var yb = new Data2().initialize();
 
     assert(c"struct test", yb.b == 123 && yb.a.a == 123 && yb.a.b == 234);
+*/
+
+    struct Data3 {
+        a:int;
+        b:int;
+    }
+
+    struct Data4 {
+        a:Data3;
+        b:int;
+    }
+
+    var za = new Data4();
+
+    za.a.a = 123;
+
+    assert(c"struct test X", za.a.a == 123);
 
     0
 }

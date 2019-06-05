@@ -769,6 +769,10 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         left_type = var->mType;
     }
 
+    if(var->mBorrow && !left_type->mBorrow) {
+        left_type->mBorrow = TRUE;
+    }
+
     LVALUE* rvalue = get_value_from_stack(-1);
 
     if(cast_posibility(left_type, right_type)) {
@@ -794,6 +798,16 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         BOOL parent = FALSE;
         int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
         store_address_to_lvtable(index, address);
+    }
+    else {
+        if(var->mReadOnly) {
+            compile_err_msg(info, "Varible(%s) is readonly variable", var->mName);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
     }
 
     BOOL parent = FALSE;
@@ -1025,8 +1039,9 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     for(i=0; i<num_params; i++) {
         sParserParam* param = params + i;
 
-        BOOL readonly = TRUE;
-        if(!add_variable_to_table(info2.lv_table, param->mName, param->mType, readonly, NULL))
+        BOOL readonly = FALSE;
+        BOOL borrow = FALSE;
+        if(!add_variable_to_table(info2.lv_table, param->mName, param->mType, readonly, borrow, NULL))
         {
             return FALSE;
         }
@@ -1943,11 +1958,21 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     int alignment = get_llvm_alignment_from_node_type(field_type);
 
+    Value* field_address;
+    if(left_type->mPointerNum == 0) {
 #if LLVM_VERSION_MAJOR >= 7
-    Value* field_address = Builder.CreateStructGEP(lvalue->value, field_index);
+        field_address = Builder.CreateStructGEP(lvalue->address, field_index);
 #else
-    Value* field_address = Builder.CreateStructGEP(llvm_field_type, lvalue->value, field_index);
+        field_address = Builder.CreateStructGEP(llvm_field_type, lvalue->address, field_index);
 #endif
+    }
+    else {
+#if LLVM_VERSION_MAJOR >= 7
+        field_address = Builder.CreateStructGEP(lvalue->value, field_index);
+#else
+        field_address = Builder.CreateStructGEP(llvm_field_type, lvalue->value, field_index);
+#endif
+    }
 
     Builder.CreateAlignedStore(rvalue->value, field_address, alignment);
 
@@ -2770,9 +2795,6 @@ BOOL compile(unsigned int node, sCompileInfo* info)
     if(node == 0) {
         return TRUE;
     }
-
-    info->sname = gNodes[node].mSName;
-    info->sline = gNodes[node].mLine;
 
     switch(gNodes[node].mNodeType) {
         case kNodeTypeFunction:

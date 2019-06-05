@@ -265,7 +265,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
+static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly, BOOL borrow)
 {
     char buf[VAR_NAME_MAX];
 
@@ -290,13 +290,13 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
         }
         if(node_type) {
             check_already_added_variable(info->lv_table, buf, info);
-            add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL);
+            add_variable_to_table(info->lv_table, buf, node_type, readonly, borrow, NULL);
         }
     }
     else {
         node_type = NULL;
         check_already_added_variable(info->lv_table, buf, info);
-        add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL);
+        add_variable_to_table(info->lv_table, buf, node_type, readonly, borrow, NULL);
     }
 
     /// assign the value to a variable ///
@@ -523,8 +523,9 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
         for(i=0; i<num_params; i++) {
             sParserParam* param = params + i;
 
-            BOOL readonly = TRUE;
-            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL))
+            BOOL readonly = FALSE;
+            BOOL borrow = FALSE;
+            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, borrow, NULL))
             {
                 return FALSE;
             }
@@ -1157,7 +1158,8 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
         sParserParam* param = params + i;
 
         BOOL readonly = TRUE;
-        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL))
+        BOOL borrow = FALSE;
+        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, borrow, NULL))
         {
             return FALSE;
         }
@@ -1243,15 +1245,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             xstrncpy(var_name, gNodes[exp].uValue.sLoadVariable.mVarName, VAR_NAME_MAX);;
 
             unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
-            sVar* var = get_variable_from_table(info->lv_table, var_name);
-
-            if(var && var->mReadOnly) {
-                parser_err_msg(info, "This is readonly variable.");
-                info->err_num++;
-
-                *node = 0;
-                return TRUE;
-            }
 
             unsigned int right_node = sNodeTree_create_int_value(1, info);
 
@@ -1432,7 +1425,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         sCLClass* klass = get_class(buf);
 
         if(strcmp(buf, "var") == 0) {
-            if(!parse_var(node, info, FALSE)) {
+            if(!parse_var(node, info, FALSE, FALSE)) {
                 return FALSE;
             }
         }
@@ -1442,7 +1435,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "val") == 0) {
-            if(!parse_var(node, info, TRUE)) {
+            if(!parse_var(node, info, TRUE, FALSE)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "let") == 0) {
+            if(!parse_var(node, info, FALSE, TRUE)) {
                 return FALSE;
             }
         }
@@ -1515,17 +1513,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         *node = 0;
                     }
                     else {
-                        sVar* var = get_variable_from_table(info->lv_table, buf);
-
-                        if(var && var->mReadOnly) {
-                            parser_err_msg(info, "This is readonly variable.");
-                            info->err_num++;
-
-                            *node = 0;
-                        }
-                        else {
-                            *node = sNodeTree_create_store_variable(buf, right_node, FALSE, info);
-                        }
+                        *node = sNodeTree_create_store_variable(buf, right_node, FALSE, info);
                     }
                 }
                 else if(*info->p == '+' && *(info->p+1) == '+')
@@ -1538,15 +1526,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     xstrncpy(var_name, buf, VAR_NAME_MAX);
 
                     unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
-                    sVar* var = get_variable_from_table(info->lv_table, var_name);
-
-                    if(var && var->mReadOnly) {
-                        parser_err_msg(info, "This is readonly variable.");
-                        info->err_num++;
-
-                        *node = 0;
-                        return TRUE;
-                    }
 
                     unsigned int right_node = sNodeTree_create_int_value(1, info);
 
@@ -1603,15 +1582,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     xstrncpy(var_name, buf, VAR_NAME_MAX);;
 
                     unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
-                    sVar* var = get_variable_from_table(info->lv_table, var_name);
-
-                    if(var && var->mReadOnly) {
-                        parser_err_msg(info, "This is readonly variable.");
-                        info->err_num++;
-
-                        *node = 0;
-                        return TRUE;
-                    }
 
                     *node = sNodeTree_create_add(left_node, right_node, 0, info);
 
@@ -1634,15 +1604,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     xstrncpy(var_name, buf, VAR_NAME_MAX);
 
                     unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
-                    sVar* var = get_variable_from_table(info->lv_table, var_name);
-
-                    if(var && var->mReadOnly) {
-                        parser_err_msg(info, "This is readonly variable.");
-                        info->err_num++;
-
-                        *node = 0;
-                        return TRUE;
-                    }
 
                     *node = sNodeTree_create_sub(left_node, right_node, 0, info);
 
