@@ -79,6 +79,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
     node_type2->mNullable = node_type->mNullable;
     node_type2->mPointerNum = node_type->mPointerNum;
     node_type2->mBorrow = node_type->mBorrow;
+    node_type2->mHeap = node_type->mHeap;
 
     if(node_type->mResultType) {
         node_type2->mResultType = clone_node_type(node_type->mResultType);
@@ -256,7 +257,10 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type)
     if(left_class == right_class) {
         if(left_type->mPointerNum == right_type->mPointerNum) 
         {
-            return TRUE;
+            if(left_type->mHeap == right_type->mHeap)
+            {
+                return TRUE;
+            }
         }
     }
 

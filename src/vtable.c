@@ -44,7 +44,7 @@ sVarTable* clone_var_table(sVarTable* lv_table)
 
     while(1) {
         if(p->mName[0] != 0) {
-            (void)add_variable_to_table(result, p->mName, p->mType, p->mReadOnly, p->mBorrow, p->mLLVMValue);
+            (void)add_variable_to_table(result, p->mName, p->mType, p->mReadOnly, p->mLLVMValue);
         }
 
         p++;
@@ -105,7 +105,7 @@ void restore_var_table(sVarTable* left, sVarTable* right)
 // local variable table
 //////////////////////////////////////////////////
 // result: (true) success (false) overflow the table or a variable which has the same name exists
-BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, BOOL borrow, void* llvm_value)
+BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value)
 {
     int hash_value;
     sVar* p;
@@ -126,7 +126,6 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL 
             p->mBlockLevel = table->mBlockLevel;
             p->mReadOnly = readonly;
             p->mLLVMValue = llvm_value;
-            p->mBorrow = borrow;
 
             if(table->mVarNum >= LOCAL_VARIABLE_MAX) {
                 return FALSE;
@@ -148,7 +147,6 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL 
 
                     p->mBlockLevel = table->mBlockLevel;
                     p->mReadOnly = readonly;
-                    p->mBorrow = borrow;
                     p->mLLVMValue = llvm_value;
 
                     if(table->mVarNum >= LOCAL_VARIABLE_MAX) {
@@ -334,7 +332,7 @@ void show_vtable(sVarTable* table)
         while(1) {
             if(p->mName[0] != 0) {
                 if(p->mType && p->mType->mClass) {
-                    printf("name (%s) %s\n", p->mName, CLASS_NAME(p->mType->mClass));
+                    printf("name (%s) %s heap %d value %p\n", p->mName, CLASS_NAME(p->mType->mClass), p->mType->mHeap, p->mLLVMValue);
                 }
                 else {
                     printf("name (%s)\n", p->mName);
@@ -361,9 +359,9 @@ void free_objects(sVarTable* table, sCompileInfo* info)
             sNodeType* node_type = p->mType;
             sCLClass* klass = node_type->mClass;
 
-            if((klass->mFlags & CLASS_FLAGS_STRUCT) && node_type->mPointerNum == 1) 
+            if(!node_type->mBorrow && node_type->mHeap)
             {
-                if(p->mLLVMValue && !node_type->mBorrow) 
+                if(p->mLLVMValue)
                 {
 printf("free %s\n", p->mName);
                     free_object(p->mType, p->mLLVMValue, info);

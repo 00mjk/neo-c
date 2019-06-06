@@ -6,13 +6,8 @@ union
 
 no segmentation fault
 
-free
-malloc
-mdupe
-calloc
-
-cloneの実装
-
 モジュール。ヘッダーの出力とinclude.
 
 グローバル変数
+
+borrow演算子

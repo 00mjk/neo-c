@@ -638,21 +638,14 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     }
 }
 
-BOOL std_move(sNodeType* lvar_type, LVALUE* rvalue)
+void std_move(sNodeType* lvar_type, LVALUE* rvalue)
 {
     sVar* rvar = rvalue->var;
-    sNodeType* rvar_type = rvalue->type;
+    sNodeType* rvalue_type = rvalue->type;
 
-    if(lvar_type->mBorrow != rvar_type->mBorrow)
-    {
-        return FALSE;
-    }
-
-    if(rvar && !rvar_type->mBorrow) {
+    if(rvar && !rvalue_type->mBorrow) {
         rvar->mLLVMValue = NULL;
     }
-
-    return TRUE;
 }
 
 
@@ -669,7 +662,7 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 
         Type* llvm_field_type = create_llvm_type_from_node_type(field_type);
 
-        if((field_class->mFlags & CLASS_FLAGS_STRUCT) && field_type->mPointerNum == 1 && !field_type->mBorrow)
+        if(!field_type->mBorrow && field_type->mHeap)
         {
 #if LLVM_VERSION_MAJOR >= 7
             Value* field_address = Builder.CreateStructGEP(obj, i);
@@ -722,7 +715,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
 
         int alignment = get_llvm_alignment_from_node_type(field_type);
 
-        if((field_class->mFlags & CLASS_FLAGS_STRUCT) && field_type->mPointerNum == 1 && !field_type->mBorrow)
+        if(!field_type->mBorrow && field_type->mHeap)
         {
 #if LLVM_VERSION_MAJOR >= 7
            Value* field_address = Builder.CreateStructGEP(address3, i);

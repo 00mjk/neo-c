@@ -113,7 +113,7 @@ def main():int
         b:int;
     }
 
-    var obj = OpTest();
+    var obj = OpTest;
 
     obj.a = 123;
     assert(c"operator test6", obj.a++ == 123);
@@ -172,7 +172,7 @@ def main():int
         b:int;
     }
 
-    var test11 = TestData();
+    var test11 = TestData;
 
     test11.a = 123;
     test11.b = 234;
@@ -238,14 +238,14 @@ def main():int
         b:int;
     }
 
-    def initialize(self:Data*):Data* {
+    def initialize(self:%Data*):%Data* {
         self.a = 111;
         self.b = 123;
 
         self
     }
 
-    var ya = new Data();
+    var ya = new Data;
 
     var xobj = ya.initialize();
 
@@ -254,12 +254,12 @@ def main():int
     assert(c"borrow test", xobj2.a == 111);
 
     struct Data2 {
-        a:Data*;
+        a:%Data*;
         b:int;
     }
 
-    def initialize(self:Data2*):Data2* {
-        self.a = new Data();
+    def initialize(self:%Data2*):%Data2* {
+        self.a = new Data;
 
         self.a.a = 123;
         self.a.b = 234;
@@ -269,7 +269,7 @@ def main():int
         self
     }
 
-    var yb = new Data2().initialize();
+    var yb = new Data2.initialize();
 
     assert(c"struct test", yb.b == 123 && yb.a.a == 123 && yb.a.b == 234);
 
@@ -283,7 +283,7 @@ def main():int
         b:int;
     }
 
-    var za = new Data4();
+    var za = new Data4;
 
     za.a.a = 123;
 
@@ -294,38 +294,46 @@ def main():int
         b:int;
     }
 
-    def initialize(self:Data5*):Data5* {
+    def initialize(self:%Data5*):%Data5* {
         self.a = 111;
         self.b = 222;
 
         self
     }
 
-    var zz = new Data5().initialize();
+    var zz = new Data5.initialize();
 
     var zz2 = clone zz;
 
     assert(c"struct test X2", zz2.a == 111 && zz2.b == 222);
 
     struct Data6 {
-        a:Data5*;
+        a:%Data5*;
         b:int;
+        c:%char*;
     }
 
-    def initialize(self:Data6*):Data6* {
-        self.a = new Data5();
+    def initialize(self:%Data6*):%Data6* {
+        self.a = new Data5;
         self.a.a = 111;
         self.a.b = 222;
         self.b = 333;
+        self.c = new char[5];
 
         self
     }
 
-    var zz3 = new Data6().initialize();
+    var zz3 = new Data6.initialize();
 
     var zz4 = clone zz3;
 
     assert(c"struct test X3", zz4.a.a == 111 && zz4.a.b == 222 && zz4.b == 333);
+    assert(c"struct test X4", zz3.a.a == 111 && zz3.a.b == 222 && zz3.b == 333);
+
+    var zz5 = new char[5];
+    var zz6 = zz5;
+
+    var zz7 = borrow zz6;
 
     0
 }

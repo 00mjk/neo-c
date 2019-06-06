@@ -167,6 +167,13 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         skip_spaces_and_lf(info);
     }
 
+    BOOL heap = FALSE;
+    if(*info->p == '%') {
+        heap = TRUE;
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+
     if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
@@ -181,6 +188,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     }
 
     (*result_type)->mBorrow = borrow;
+    (*result_type)->mHeap = heap;
 
     if(strcmp(type_name, "lambda") == 0) {
         if(*info->p == '(') {
@@ -265,7 +273,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly, BOOL borrow)
+static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
 {
     char buf[VAR_NAME_MAX];
 
@@ -290,13 +298,13 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly, BOOL
         }
         if(node_type) {
             check_already_added_variable(info->lv_table, buf, info);
-            add_variable_to_table(info->lv_table, buf, node_type, readonly, borrow, NULL);
+            add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL);
         }
     }
     else {
         node_type = NULL;
         check_already_added_variable(info->lv_table, buf, info);
-        add_variable_to_table(info->lv_table, buf, node_type, readonly, borrow, NULL);
+        add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL);
     }
 
     /// assign the value to a variable ///
@@ -524,8 +532,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
             sParserParam* param = params + i;
 
             BOOL readonly = FALSE;
-            BOOL borrow = FALSE;
-            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, borrow, NULL))
+            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL))
             {
                 return FALSE;
             }
@@ -1158,8 +1165,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
         sParserParam* param = params + i;
 
         BOOL readonly = TRUE;
-        BOOL borrow = FALSE;
-        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, borrow, NULL))
+        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL))
         {
             return FALSE;
         }
@@ -1194,14 +1200,22 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
 
     sCLClass* klass = get_class(buf);
 
-    if(klass && klass->mFlags & CLASS_FLAGS_STRUCT)
-    {
-        expect_next_character_with_one_forward("(", info);
-        expect_next_character_with_one_forward(")", info);
+    if(klass) {
+        unsigned int object_num = 0;
+        if(*info->p == '[') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(!expression(&object_num, info)) {
+                return FALSE;
+            }
+
+            expect_next_character_with_one_forward("]", info);
+        }
 
         sNodeType* node_type = create_node_type_with_class_pointer(klass);
 
-        *node = sNodeTree_create_object(node_type, info->sname, info->sline);
+        *node = sNodeTree_create_object(node_type, object_num, info->sname, info->sline);
     }
     else {
         parser_err_msg(info, "Invalid type name");
@@ -1224,6 +1238,23 @@ static BOOL parse_clone(unsigned int* node, sParserInfo* info)
     }
 
     *node = sNodeTree_create_clone(*node, info);
+
+    return TRUE;
+}
+
+static BOOL parse_borrow(unsigned int* node, sParserInfo* info)
+{
+    if(!expression(node, info)) {
+        return FALSE;
+    }
+
+    if(*node == 0) {
+        parser_err_msg(info, "Require expression for borrow");
+        info->err_num++;
+        return TRUE;
+    }
+
+    *node = sNodeTree_create_borrow(*node, info);
 
     return TRUE;
 }
@@ -1442,7 +1473,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         sCLClass* klass = get_class(buf);
 
         if(strcmp(buf, "var") == 0) {
-            if(!parse_var(node, info, FALSE, FALSE)) {
+            if(!parse_var(node, info, FALSE)) {
                 return FALSE;
             }
         }
@@ -1452,12 +1483,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "val") == 0) {
-            if(!parse_var(node, info, TRUE, FALSE)) {
-                return FALSE;
-            }
-        }
-        else if(strcmp(buf, "let") == 0) {
-            if(!parse_var(node, info, FALSE, TRUE)) {
+            if(!parse_var(node, info, TRUE)) {
                 return FALSE;
             }
         }
@@ -1505,11 +1531,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "borrow") == 0) {
+            if(!parse_borrow(node, info)) {
+                return FALSE;
+            }
+        }
         else if(klass && klass->mFlags & CLASS_FLAGS_STRUCT)
         {
-            expect_next_character_with_one_forward("(", info);
-            expect_next_character_with_one_forward(")", info);
-
             sNodeType* node_type = create_node_type_with_class_pointer(klass);
 
             *node = sNodeTree_create_struct_object(node_type, info->sname, info->sline);

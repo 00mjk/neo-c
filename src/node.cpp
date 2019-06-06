@@ -769,10 +769,6 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         left_type = var->mType;
     }
 
-    if(var->mBorrow && !left_type->mBorrow) {
-        left_type->mBorrow = TRUE;
-    }
-
     LVALUE* rvalue = get_value_from_stack(-1);
 
     if(cast_posibility(left_type, right_type)) {
@@ -834,14 +830,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
     Builder.CreateAlignedStore(rvalue->value, var_address, alignment);
 
-    if(!std_move(var->mType, rvalue)) {
-        compile_err_msg(info, "Invalid assignment. The borrow flag of left type is %s. The borrow flag of right type is %s.", var->mType->mBorrow?"true":"false", rvalue->type->mBorrow?"true":"false");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
+    std_move(var->mType, rvalue);
 
     info->type = left_type;
 
@@ -1040,8 +1029,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
         sParserParam* param = params + i;
 
         BOOL readonly = FALSE;
-        BOOL borrow = FALSE;
-        if(!add_variable_to_table(info2.lv_table, param->mName, param->mType, readonly, borrow, NULL))
+        if(!add_variable_to_table(info2.lv_table, param->mName, param->mType, readonly, NULL))
         {
             return FALSE;
         }
@@ -1162,14 +1150,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         LVALUE* param = get_value_from_stack(-num_params2+i);
 
-        if(!std_move(left_type, param)) {
-        compile_err_msg(info, "Invalid assignment. The borrow flag of left type is %s. The borrow flag of right type is %s.", left_type->mBorrow?"true":"false", param->type->mBorrow?"true":"false");
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
+        std_move(left_type, param);
 
         lvalue_params[i] = param;
 
@@ -1775,7 +1756,7 @@ static BOOL compile_struct(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_object(sNodeType* node_type, char* sname, int sline)
+unsigned int sNodeTree_create_object(sNodeType* node_type, unsigned int object_num, char* sname, int sline)
 {
     unsigned node = alloc_node();
 
@@ -1786,7 +1767,7 @@ unsigned int sNodeTree_create_object(sNodeType* node_type, char* sname, int slin
 
     gNodes[node].uValue.sObject.mType = node_type;
 
-    gNodes[node].mLeft = 0;
+    gNodes[node].mLeft = object_num;
     gNodes[node].mRight = 0;
     gNodes[node].mMiddle = 0;
 
@@ -1796,8 +1777,37 @@ unsigned int sNodeTree_create_object(sNodeType* node_type, char* sname, int slin
 static BOOL compile_object(unsigned int node, sCompileInfo* info)
 {
     sNodeType* node_type = gNodes[node].uValue.sObject.mType;
+
     sNodeType* node_type2 = clone_node_type(node_type);
     node_type2->mPointerNum = 1;
+    node_type2->mHeap = TRUE;
+
+    unsigned int left_node = gNodes[node].mLeft;
+
+    Value* object_num;
+    if(left_node == 0) {
+        object_num = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)1);
+    }
+    else {
+        if(!compile(left_node, info)) {
+            return FALSE;
+        }
+
+        if(!type_identify_with_class_name(info->type, "int"))
+        {
+            compile_err_msg(info, "Require int value for []");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        LVALUE llvm_value = *get_value_from_stack(-1);
+        dec_stack_ptr(1, info);
+
+        object_num = llvm_value.value;
+    }
 
     /// calloc ///
     uint64_t size = get_size_from_node_type(node_type);
@@ -1806,7 +1816,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
     std::vector<Value*> params2;
 
-    Value* param = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)1);
+    Value* param = object_num;
     params2.push_back(param);
 
     Value* param2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)size);
@@ -1868,8 +1878,6 @@ static BOOL compile_struct_object(unsigned int node, sCompileInfo* info)
     push_value_to_stack_ptr(&llvm_value, info);
 
     info->type = node_type;
-
-    return TRUE;
 
     return TRUE;
 }
@@ -1979,14 +1987,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     info->type = right_type;
 
-    if(!std_move(field_type, rvalue)) {
-        compile_err_msg(info, "Invalid assignment. The borrow flag of left type is %s. The borrow flag of right type is %s.", field_type->mBorrow?"true":"false", rvalue->type->mBorrow?"true":"false");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
+    std_move(field_type, rvalue);
 
     dec_stack_ptr(2, info);
     push_value_to_stack_ptr(rvalue, info);
@@ -2828,8 +2829,7 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
 
     sNodeType* left_type = info->type;
 
-    if(!((left_type->mClass->mFlags & CLASS_FLAGS_STRUCT) && left_type->mPointerNum == 1 && !left_type->mBorrow))
-    {
+    if(!left_type->mHeap) {
         compile_err_msg(info, "Can't clone this value");
         info->err_num++;
 
@@ -2846,6 +2846,62 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
     llvm_value.var = nullptr;
 
     push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = left_type;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_borrow(unsigned int left, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeBorrow;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_borrow(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    sNodeType* left_type = clone_node_type(lvalue.type);
+
+    if(lvalue.address == nullptr) {
+        compile_err_msg(info, "Can't get address of this value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    if(!left_type->mHeap) {
+        compile_err_msg(info, "Can't borrow this value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    left_type->mBorrow = TRUE;
+
+    lvalue.type = left_type;
+
+    push_value_to_stack_ptr(&lvalue, info);
 
     info->type = left_type;
 
@@ -3072,6 +3128,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
         case kNodeTypeClone:
             if(!compile_clone(node, info))
             { 
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeBorrow:
+            if(!compile_borrow(node, info))
+            {
                 return FALSE;
             }
             break;
