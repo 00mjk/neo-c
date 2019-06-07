@@ -6,6 +6,7 @@ static int gSizeNodes = 0;
 int gUsedNodes = 0;
 
 std::map<std::string, sFunction> gFuncs;
+std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;
 
 void init_nodes()
 {
@@ -762,11 +763,11 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     /// type inference ///
     sNodeType* left_type = NULL;
     if(var->mType == NULL) {
-        left_type = right_type;
-        var->mType = right_type;
+        left_type = clone_node_type(right_type);
+        var->mType = clone_node_type(right_type);
     }
     else {
-        left_type = var->mType;
+        left_type = clone_node_type(var->mType);
     }
 
     LVALUE* rvalue = get_value_from_stack(-1);
@@ -1837,7 +1838,13 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
     push_value_to_stack_ptr(&llvm_value, info);
 
-    info->type = node_type2;
+    std::pair<sNodeType*, bool> pair_value;
+    pair_value.first = node_type2;
+    pair_value.second = true;
+
+    gHeapObjects[address] = pair_value;
+
+    info->type = clone_node_type(node_type2);
 
     return TRUE;
 }
@@ -1867,11 +1874,11 @@ static BOOL compile_struct_object(unsigned int node, sCompileInfo* info)
     Type* llvm_var_type = create_llvm_type_from_node_type(node_type);
 
     node_type->mPointerNum = 1;
-    node_type->mBorrow = TRUE;
+    node_type->mHeap = FALSE;
 
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateAlloca(llvm_var_type, 0, "object");
-    llvm_value.type = node_type;
+    llvm_value.type = clone_node_type(node_type);
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
 
@@ -2717,7 +2724,6 @@ static BOOL compile_dereffernce(unsigned int node, sCompileInfo* info)
     }
 
     derefference_type->mPointerNum--;
-    derefference_type->mBorrow = FALSE;
 
     int alignment = get_llvm_alignment_from_node_type(derefference_type);
 
@@ -2777,7 +2783,6 @@ static BOOL compile_reffernce(unsigned int node, sCompileInfo* info)
     sNodeType* refference_type = clone_node_type(left_type);
 
     refference_type->mPointerNum++;
-    refference_type->mBorrow = FALSE;
 
     LVALUE llvm_value;
     llvm_value.value = lvalue.address;
@@ -2846,62 +2851,6 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
     llvm_value.var = nullptr;
 
     push_value_to_stack_ptr(&llvm_value, info);
-
-    info->type = left_type;
-
-    return TRUE;
-}
-
-unsigned int sNodeTree_create_borrow(unsigned int left, sParserInfo* info)
-{
-    unsigned int node = alloc_node();
-
-    gNodes[node].mNodeType = kNodeTypeBorrow;
-
-    gNodes[node].mSName = info->sname;
-    gNodes[node].mLine = info->sline;
-
-    gNodes[node].mLeft = left;
-    gNodes[node].mRight = 0;
-    gNodes[node].mMiddle = 0;
-
-    return node;
-}
-
-static BOOL compile_borrow(unsigned int node, sCompileInfo* info)
-{
-    unsigned int left_node = gNodes[node].mLeft;
-
-    if(!compile(left_node, info)) {
-        return FALSE;
-    }
-
-    LVALUE lvalue = *get_value_from_stack(-1);
-    dec_stack_ptr(1, info);
-
-    sNodeType* left_type = clone_node_type(lvalue.type);
-
-    if(lvalue.address == nullptr) {
-        compile_err_msg(info, "Can't get address of this value");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-        return TRUE;
-    }
-
-    if(!left_type->mHeap) {
-        compile_err_msg(info, "Can't borrow this value");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-        return TRUE;
-    }
-
-    left_type->mBorrow = TRUE;
-
-    lvalue.type = left_type;
-
-    push_value_to_stack_ptr(&lvalue, info);
 
     info->type = left_type;
 
@@ -3128,13 +3077,6 @@ BOOL compile(unsigned int node, sCompileInfo* info)
         case kNodeTypeClone:
             if(!compile_clone(node, info))
             { 
-                return FALSE;
-            }
-            break;
-
-        case kNodeTypeBorrow:
-            if(!compile_borrow(node, info))
-            {
                 return FALSE;
             }
             break;

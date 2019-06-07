@@ -643,11 +643,67 @@ void std_move(sNodeType* lvar_type, LVALUE* rvalue)
     sVar* rvar = rvalue->var;
     sNodeType* rvalue_type = rvalue->type;
 
-    if(rvar && !rvalue_type->mBorrow) {
+    if(rvar && lvar_type->mHeap && rvalue_type->mHeap) {
         rvar->mLLVMValue = NULL;
+    }
+
+    if(gHeapObjects[rvalue->value].first != nullptr) {
+        gHeapObjects[rvalue->value].second = false;
     }
 }
 
+static void free_right_value_object(sNodeType* node_type, void* obj, sCompileInfo* info)
+{
+printf("free %p\n", obj);
+    Value* obj2 = (Value*)obj;
+    sCLClass* klass = node_type->mClass;
+
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        sNodeType* field_type = klass->mFields[i];
+        sCLClass* field_class = field_type->mClass;
+
+        Type* llvm_field_type = create_llvm_type_from_node_type(field_type);
+
+        if(field_type->mHeap)
+        {
+printf("field %d\n", i);
+#if LLVM_VERSION_MAJOR >= 7
+            Value* field_address = Builder.CreateStructGEP(obj2, i);
+#else
+            Value* field_address = Builder.CreateStructGEP(llvm_field_type, obj2, i);
+#endif
+
+            Value* field_obj = Builder.CreateAlignedLoad(field_address, 8);
+
+            free_right_value_object(field_type, field_address, info);
+        }
+    }
+
+    /// free ///
+    Function* fun = TheModule->getFunction("xfree");
+
+    std::vector<Value*> params2;
+    Value* param = Builder.CreateCast(Instruction::BitCast, obj2, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+    params2.push_back(param);
+    Builder.CreateCall(fun, params2);
+}
+
+void free_right_value_objects(sCompileInfo* info)
+{
+    for(std::pair<Value*, std::pair<sNodeType*, bool>> it: gHeapObjects) {
+        Value* address = it.first;
+        sNodeType* node_type = it.second.first; 
+        bool flag = it.second.second;
+
+        if(flag) {
+            free_right_value_object(node_type, address, info);
+        }
+    }
+
+    gHeapObjects.clear();
+}
 
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 {
@@ -662,7 +718,7 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 
         Type* llvm_field_type = create_llvm_type_from_node_type(field_type);
 
-        if(!field_type->mBorrow && field_type->mHeap)
+        if(field_type->mHeap)
         {
 #if LLVM_VERSION_MAJOR >= 7
             Value* field_address = Builder.CreateStructGEP(obj, i);
@@ -715,7 +771,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
 
         int alignment = get_llvm_alignment_from_node_type(field_type);
 
-        if(!field_type->mBorrow && field_type->mHeap)
+        if(field_type->mHeap)
         {
 #if LLVM_VERSION_MAJOR >= 7
            Value* field_address = Builder.CreateStructGEP(address3, i);

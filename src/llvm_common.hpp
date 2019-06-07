@@ -73,6 +73,7 @@ extern Function* gFunction;
 extern Module* TheModule;
 extern std::unique_ptr<FunctionPassManager> TheFPM;
 extern FunctionAnalysisManager TheFAM;
+extern std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;
 
 struct LVALUEStruct {
     sNodeType* type;
@@ -116,6 +117,7 @@ Value* load_address_to_lvtable(int index, sNodeType* var_type);
 uint64_t get_size_from_node_type(sNodeType* node_type);
 void std_move(sNodeType* lvar_type, LVALUE* rvalue);
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info);
+void free_right_value_objects(sCompileInfo* info);
 }
 
 #endif

@@ -359,7 +359,7 @@ void free_objects(sVarTable* table, sCompileInfo* info)
             sNodeType* node_type = p->mType;
             sCLClass* klass = node_type->mClass;
 
-            if(!node_type->mBorrow && node_type->mHeap)
+            if(node_type->mHeap)
             {
                 if(p->mLLVMValue)
                 {

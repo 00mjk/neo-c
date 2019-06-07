@@ -160,13 +160,6 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
     *result_type = NULL;
 
-    BOOL borrow = FALSE;
-    if(*info->p == '&') {
-        borrow = TRUE;
-        info->p++;
-        skip_spaces_and_lf(info);
-    }
-
     BOOL heap = FALSE;
     if(*info->p == '%') {
         heap = TRUE;
@@ -187,7 +180,6 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         info->err_num++;
     }
 
-    (*result_type)->mBorrow = borrow;
     (*result_type)->mHeap = heap;
 
     if(strcmp(type_name, "lambda") == 0) {
@@ -1242,23 +1234,6 @@ static BOOL parse_clone(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_borrow(unsigned int* node, sParserInfo* info)
-{
-    if(!expression(node, info)) {
-        return FALSE;
-    }
-
-    if(*node == 0) {
-        parser_err_msg(info, "Require expression for borrow");
-        info->err_num++;
-        return TRUE;
-    }
-
-    *node = sNodeTree_create_borrow(*node, info);
-
-    return TRUE;
-}
-
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
     if(*info->p == '!') {
@@ -1528,11 +1503,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "clone") == 0) {
             if(!parse_clone(node, info)) {
-                return FALSE;
-            }
-        }
-        else if(strcmp(buf, "borrow") == 0) {
-            if(!parse_borrow(node, info)) {
                 return FALSE;
             }
         }

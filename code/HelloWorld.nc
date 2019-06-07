@@ -17,6 +17,7 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
+/*
     if(1 == 1) {
         puts(c"TRUE");
     }
@@ -251,7 +252,7 @@ def main():int
 
     var xobj2 = xobj;
 
-    assert(c"borrow test", xobj2.a == 111);
+    assert(c"std::move test", xobj2.a == 111);
 
     struct Data2 {
         a:%Data*;
@@ -329,11 +330,32 @@ def main():int
 
     assert(c"struct test X3", zz4.a.a == 111 && zz4.a.b == 222 && zz4.b == 333);
     assert(c"struct test X4", zz3.a.a == 111 && zz3.a.b == 222 && zz3.b == 333);
+*/
 
     var zz5 = new char[5];
     var zz6 = zz5;
 
-    var zz7 = borrow zz6;
+    var zz7:char* = zz6;
+    
+    def fun_test_borrow(aaa:char*) 
+    {
+    }
+
+    fun_test_borrow(zz6);
+
+/*
+    struct Data10 {
+        a:int;
+        b:int;
+    }
+
+    struct Data11 {
+        a:%Data10*;
+        b:int;
+    }
+
+    new Data11.a = new Data10;
+*/
 
     0
 }
