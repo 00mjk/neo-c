@@ -20,6 +20,7 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
+/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -360,6 +361,9 @@ def main():int
     new Data11.a = new Data10;
     
     assert("string test", ("AAA" + "BBB").strcmp("AAABBB") == 0);
+*/
+
+    printf("1 + 1 == %d\n", 1 + 1);
 
     0
 }

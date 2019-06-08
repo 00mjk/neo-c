@@ -92,6 +92,8 @@ struct sFunctionStruct {
     sNodeType* mParamTypes[PARAMS_MAX];
     int mNumParams;
 
+    BOOL mVarArg;
+
     BOOL mCFFIFunction;
 };
 

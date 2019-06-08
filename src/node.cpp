@@ -199,7 +199,7 @@ void compile_err_msg(sCompileInfo* info, const char* msg, ...)
     output_num++;
 }
 
-static void add_function(char* name, char* real_fun_name, sNodeType** param_types, int num_params, sNodeType* result_type, BOOL c_ffi_function)
+static void add_function(char* name, char* real_fun_name, sNodeType** param_types, int num_params, sNodeType* result_type, BOOL c_ffi_function, BOOL var_arg)
 {
     sFunction fun;
     xstrncpy(fun.mName, name, VAR_NAME_MAX);
@@ -215,6 +215,8 @@ static void add_function(char* name, char* real_fun_name, sNodeType** param_type
     }
 
     fun.mCFFIFunction = c_ffi_function;
+
+    fun.mVarArg = var_arg;
 
     gFuncs[real_fun_name] = fun;
 }
@@ -1004,7 +1006,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
     FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
     Function::Create(function_type, Function::ExternalLinkage, func_name, TheModule);
 
-    add_function(func_name, func_name, param_types, num_params, result_type, TRUE);
+    add_function(func_name, func_name, param_types, num_params, result_type, TRUE, var_arg);
 
     return TRUE;
 }
@@ -1129,6 +1131,9 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         num_params2 = num_params;
     }
 
+
+printf("%s num_params2 %d\n", func_name, num_params2);
+
     int i;
     for(i=0; i<num_params2; i++) {
         params[i] = gNodes[node].uValue.sFunctionCall.mParams[i];
@@ -1147,10 +1152,19 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         sFunction fun = it.second;
 
         if(strcmp(fun.mName, func_name) == 0) {
-            if(fun.mNumParams == num_params) {
+            if(fun.mNumParams == num_params || fun.mVarArg) 
+            {
+                int check_param_num;
+                if(fun.mVarArg) {
+                    check_param_num = fun.mNumParams;
+                }
+                else {
+                    check_param_num = num_params;
+                }
+
                 BOOL found = TRUE;
                 int i;
-                for(i=0; i<num_params2; i++) {
+                for(i=0; i<check_param_num; i++) {
                     sNodeType* left_type = fun.mParamTypes[i];
                     sNodeType* right_type = param_types[i];
 
@@ -1198,16 +1212,17 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     for(i=0; i<num_params2; i++) {
         sNodeType* left_type = fun.mParamTypes[i];
         sNodeType* right_type = param_types[i];
-
         LVALUE* param = get_value_from_stack(-num_params2+i);
 
-        std_move(left_type, param);
+        if(i < fun.mNumParams) {
+            std_move(left_type, param);
 
-        lvalue_params[i] = param;
+            lvalue_params[i] = param;
 
-        if(cast_posibility(left_type, right_type)) 
-        {
-            cast_right_type_to_left_type(left_type, &right_type, param, info);
+            if(cast_posibility(left_type, right_type)) 
+            {
+                cast_right_type_to_left_type(left_type, &right_type, param, info);
+            }
         }
 
         llvm_params.push_back(param->value);
@@ -1326,7 +1341,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     char real_fun_name[REAL_FUN_NAME_MAX];
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, func_name, num_params, param_types);
 
-    add_function(func_name, real_fun_name, param_types, num_params, result_type, FALSE);
+    add_function(func_name, real_fun_name, param_types, num_params, result_type, FALSE, FALSE);
 
     FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, false);
     Function* fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
