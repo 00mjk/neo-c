@@ -1,60 +1,62 @@
 def puts(str:char*):int;
 def exit(rcode:int);
-def xmalloc(size:long):char*;
-def xfree(mem:char*);
-def xcalloc(num:int, size:long):char*;
-def xmemdup(mem:char*):char*;
+def xmalloc(size:long):%char*;
+def xfree(mem:%char*);
+def xcalloc(num:int, size:long):%char*;
+def xmemdup(mem:char*):%char*;
+def xstrapd(str1:char*, str2:char*):%char*;
+def strcmp(str1:char*, str2:char*):int;
 
 def assert(msg:char*, exp:bool) 
 {
     puts(msg);
     if(!exp) {
-        puts(c"assertion failed");
+        puts("assertion failed");
         exit(2);
     }
-    puts(c"OK");
+    puts("OK");
 }
 
 def main():int 
 {
 /*
     if(1 == 1) {
-        puts(c"TRUE");
+        puts("TRUE");
     }
     else {
-        puts(c"FALSE");
+        puts("FALSE");
     }
 
     def fun():int 
     {
-        puts(c"HELLO WORLD");
+        puts("HELLO WORLD");
         1+1
     }
 
     var a = fun();
 
-    assert(c"function result test",a == 2);
+    assert("function result test",a == 2);
 
     var b = 1;
 
     def fun(exp:bool) 
     {
-        assert(c"function param cast test", exp);
+        assert("function param cast test", exp);
     }
 
     fun(b);
 
     var n = 1+1;
 
-    assert(c"local variable test", n == 2);
+    assert("local variable test", n == 2);
 
     n = 777
 
-    assert(c"local variable test", n == 777);
+    assert("local variable test", n == 777);
 
     var m = n + 1;
 
-    assert(c"local variable test", m == 778);
+    assert("local variable test", m == 778);
 
     def fun2(x:int, y:int):int 
     {
@@ -63,7 +65,7 @@ def main():int
 
     var l = fun2(1, 2)
 
-    assert(c"function result test", l == 3);
+    assert("function result test", l == 3);
 
     var x = 4;
 
@@ -77,36 +79,36 @@ def main():int
     else {
     }
 
-    assert(c"if test", x == 5);
+    assert("if test", x == 5);
 
     def fun4(str:char*) 
     {
         puts(str);
     }
 
-    c"aaa".fun4();
+    "aaa".fun4();
 
     var i = 1;
 
-    assert(c"operator test", i > 0);
+    assert("operator test", i > 0);
 
     i = 0;
     while(i < 3) {
-        puts(c"HO!");
+        puts("HO!");
         i++;
     }
 
     i = 123;
-    assert(c"operator test2", i++ == 123 && i == 124);
+    assert("operator test2", i++ == 123 && i == 124);
 
     i = 123;
-    assert(c"operator test3", i-- == 123 && i == 122);
+    assert("operator test3", i-- == 123 && i == 122);
 
     i = 123;
-    assert(c"operator test4", ++i == 124 && i == 124);
+    assert("operator test4", ++i == 124 && i == 124);
 
     i = 124;
-    assert(c"operator test5", --i == 123 && i == 123);
+    assert("operator test5", --i == 123 && i == 123);
 
     struct OpTest 
     {
@@ -117,27 +119,27 @@ def main():int
     var obj = OpTest;
 
     obj.a = 123;
-    assert(c"operator test6", obj.a++ == 123);
+    assert("operator test6", obj.a++ == 123);
 
     obj.a = 123;
-    assert(c"operator test7", obj.a-- == 123 && obj.a == 122);
+    assert("operator test7", obj.a-- == 123 && obj.a == 122);
 
     obj.a = 123;
-    assert(c"operator test8", ++obj.a == 124 && obj.a == 124);
+    assert("operator test8", ++obj.a == 124 && obj.a == 124);
 
-    assert(c"operator test9", --obj.a == 123 && obj.a == 123);
+    assert("operator test9", --obj.a == 123 && obj.a == 123);
 
     i = 2;
     i += 2;
 
-    assert(c"operator test10", i == 4);
+    assert("operator test10", i == 4);
 
     for(var i=0; i<3; i++) {
-        puts(c"HO!");
+        puts("HO!");
     }
 
     for(var i=0; i<3; i++) {
-        puts(c"HE!");
+        puts("HE!");
     }
 
     var aa = 4;
@@ -155,8 +157,8 @@ def main():int
 
     var xxx = fun2(fun);
 
-    assert(c"lambda test", xxx == 7);
-    assert(c"lambda test2", bb == 222);
+    assert("lambda test", xxx == 7);
+    assert("lambda test2", bb == 222);
 
     var xa = if(false) {
         111
@@ -165,7 +167,7 @@ def main():int
         222
     }
 
-    assert(c"if test", xa == 222);
+    assert("if test", xa == 222);
 
     struct TestData 
     {
@@ -178,11 +180,11 @@ def main():int
     test11.a = 123;
     test11.b = 234;
 
-    assert(c"struct test", test11.a == 123 && test11.b == 234);
+    assert("struct test", test11.a == 123 && test11.b == 234);
 
     def fun3(data:TestData) 
     {
-        assert(c"struct test2", data.a == 123 && data.b == 234);
+        assert("struct test2", data.a == 123 && data.b == 234);
     }
 
     fun3(test11->);
@@ -193,7 +195,7 @@ def main():int
 
     def fun3(value:int*) 
     {
-        assert(c"reffernce test", value-> == 111);
+        assert("reffernce test", value-> == 111);
     }
 
     fun3(p);
@@ -207,16 +209,16 @@ def main():int
 
 
     3.times(lambda() {
-        puts(c"HO!");
+        puts("HO!");
     })
 
     var nn = 0;
     3.times {
-        puts(c"HE!");
+        puts("HE!");
         nn++;
     }
 
-    assert(c"simple lambda param test", nn == 3);
+    assert("simple lambda param test", nn == 3);
 
     var xb = 3;
 
@@ -232,7 +234,7 @@ def main():int
         it + it2 + xb
     }
 
-    assert(c"simple lambda param test2", mm == 7 && xmm == 9);
+    assert("simple lambda param test2", mm == 7 && xmm == 9);
 
     struct Data {
         a:int;
@@ -252,7 +254,7 @@ def main():int
 
     var xobj2 = xobj;
 
-    assert(c"std::move test", xobj2.a == 111);
+    assert("std::move test", xobj2.a == 111);
 
     struct Data2 {
         a:%Data*;
@@ -272,7 +274,7 @@ def main():int
 
     var yb = new Data2.initialize();
 
-    assert(c"struct test", yb.b == 123 && yb.a.a == 123 && yb.a.b == 234);
+    assert("struct test", yb.b == 123 && yb.a.a == 123 && yb.a.b == 234);
 
     struct Data3 {
         a:int;
@@ -288,7 +290,7 @@ def main():int
 
     za.a.a = 123;
 
-    assert(c"struct test X", za.a.a == 123);
+    assert("struct test X", za.a.a == 123);
 
     struct Data5 {
         a:int;
@@ -306,7 +308,7 @@ def main():int
 
     var zz2 = clone zz;
 
-    assert(c"struct test X2", zz2.a == 111 && zz2.b == 222);
+    assert("struct test X2", zz2.a == 111 && zz2.b == 222);
 
     struct Data6 {
         a:%Data5*;
@@ -328,9 +330,8 @@ def main():int
 
     var zz4 = clone zz3;
 
-    assert(c"struct test X3", zz4.a.a == 111 && zz4.a.b == 222 && zz4.b == 333);
-    assert(c"struct test X4", zz3.a.a == 111 && zz3.a.b == 222 && zz3.b == 333);
-*/
+    assert("struct test X3", zz4.a.a == 111 && zz4.a.b == 222 && zz4.b == 333);
+    assert("struct test X4", zz3.a.a == 111 && zz3.a.b == 222 && zz3.b == 333);
 
     var zz5 = new char[5];
     var zz6 = zz5;
@@ -342,6 +343,11 @@ def main():int
     }
 
     fun_test_borrow(zz6);
+
+    var zz8 = "AAA" + "BBB"
+
+    puts(zz8);
+*/
 
 /*
     struct Data10 {
@@ -356,6 +362,8 @@ def main():int
 
     new Data11.a = new Data10;
 */
+    
+    assert("string test", ("AAA" + "BBB").strcmp("AAABBB") == 0);
 
     0
 }

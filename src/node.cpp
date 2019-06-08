@@ -287,17 +287,67 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
 
     sNodeType* right_type = info->type;
 
-    LVALUE* lvalue = get_value_from_stack(-2);
-    LVALUE* rvalue = get_value_from_stack(-1);
+    if(is_number_type(left_type) && is_number_type(right_type))
+    {
+puts("bbb");
+        LVALUE* lvalue = get_value_from_stack(-2);
+        LVALUE* rvalue = get_value_from_stack(-1);
 
-    LVALUE llvm_value;
-    llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "addttmp", false, true);
-    llvm_value.type = create_node_type_with_class_name("int");
-    llvm_value.address = nullptr;
-    llvm_value.var = nullptr;
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "addttmp", false, true);
+        llvm_value.type = create_node_type_with_class_name("int");
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
 
-    dec_stack_ptr(2, info);
-    push_value_to_stack_ptr(&llvm_value, info);
+        dec_stack_ptr(2, info);
+        push_value_to_stack_ptr(&llvm_value, info);
+    }
+    else if(type_identify_with_class_name(left_type, "char*") && type_identify_with_class_name(right_type, "char*"))
+    {
+puts("aaa");
+        LVALUE* lvalue = get_value_from_stack(-2);
+        LVALUE* rvalue = get_value_from_stack(-1);
+
+        /// xstrapd ///
+        Function* fun = TheModule->getFunction("xstrapd");
+
+        std::vector<Value*> params2;
+
+        Value* param = lvalue->value;
+        params2.push_back(param);
+
+        Value* param2 = rvalue->value;
+        params2.push_back(param2);
+
+        Value* str = Builder.CreateCall(fun, params2);
+
+        /// result ///
+        LVALUE llvm_value;
+        llvm_value.value = str;
+        llvm_value.type = create_node_type_with_class_name("char*");
+        llvm_value.type->mHeap = TRUE;
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+
+        dec_stack_ptr(2, info);
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        std::pair<sNodeType*, bool> pair_value;
+        pair_value.first = create_node_type_with_class_name("char*");
+        pair_value.second = true;
+
+        gHeapObjects[str] = pair_value;
+
+        info->type = create_node_type_with_class_name("char*");
+        info->type->mHeap = TRUE;
+    }
+    else {
+        compile_err_msg(info, "Invalid type for +");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
 
     return TRUE;
 }

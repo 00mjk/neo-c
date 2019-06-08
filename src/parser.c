@@ -1371,9 +1371,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
     }
     /// c string ///
-    else if((*info->p == 'C' || *info->p == 'c') && *(info->p+1) == '"') 
+    else if(*info->p == '"') 
     {
-        info->p+=2;
+        info->p++;
 
         sBuf value;
         sBuf_init(&value);
@@ -1653,6 +1653,22 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 info->err_num++;
             }
         }
+    }
+    else if(*info->p == '(') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!expression(node, info)) {
+            return FALSE;
+        }
+        skip_spaces_and_lf(info);
+
+        if(*node == 0) {
+            parser_err_msg(info, "require expression as ( operand");
+            info->err_num++;
+        }
+
+        expect_next_character_with_one_forward(")", info);
     }
     else {
         parser_err_msg(info, "invalid character (character code %d) (%c)", *info->p, *info->p);

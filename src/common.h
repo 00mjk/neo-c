@@ -151,6 +151,7 @@ void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_
 BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type);
 BOOL type_identify(sNodeType* left, sNodeType* right);
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
+BOOL is_number_type(sNodeType* node_type);
   
 //////////////////////////////
 /// vtable.c

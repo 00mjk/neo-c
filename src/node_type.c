@@ -229,7 +229,7 @@ sNodeType* create_node_type_with_class_pointer(sCLClass* klass)
 
 BOOL is_number_type(sNodeType* node_type)
 {
-    return node_type->mClass->mFlags & CLASS_FLAGS_NUMBER;
+    return (node_type->mClass->mFlags & CLASS_FLAGS_NUMBER) && node_type->mPointerNum == 0;
 }
 
 BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)

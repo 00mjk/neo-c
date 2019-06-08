@@ -647,8 +647,10 @@ void std_move(sNodeType* lvar_type, LVALUE* rvalue)
         rvar->mLLVMValue = NULL;
     }
 
-    if(gHeapObjects[rvalue->value].first != nullptr) {
-        gHeapObjects[rvalue->value].second = false;
+    if(lvar_type->mHeap) {
+        if(gHeapObjects[rvalue->value].first != nullptr) {
+            gHeapObjects[rvalue->value].second = false;
+        }
     }
 }
 
