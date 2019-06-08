@@ -1,15 +1,16 @@
 def puts(str:char*):int;
 def exit(rcode:int);
-def xmalloc(size:long):%char*;
-def xfree(mem:%char*);
-def xcalloc(num:int, size:long):%char*;
-def xmemdup(mem:char*):%char*;
-def xstrapd(str1:char*, str2:char*):%char*;
+def xmalloc(size:long):heap char*;
+def xfree(mem:heap char*);
+def xcalloc(num:int, size:long):heap char*;
+def xmemdup(mem:char*):heap char*;
+def xstrapd(str1:char*, str2:char*):heap char*;
 def strcmp(str1:char*, str2:char*):int;
+def printf(str:char*, ...):int;
 
 def assert(msg:char*, exp:bool) 
 {
-    puts(msg);
+    printf(msg + "...");
     if(!exp) {
         puts("assertion failed");
         exit(2);
@@ -19,7 +20,6 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
-/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -207,7 +207,6 @@ def main():int
         };
     }
 
-
     3.times(lambda() {
         puts("HO!");
     })
@@ -241,7 +240,7 @@ def main():int
         b:int;
     }
 
-    def initialize(self:%Data*):%Data* {
+    def initialize(self:heap Data*):heap Data* {
         self.a = 111;
         self.b = 123;
 
@@ -257,11 +256,11 @@ def main():int
     assert("std::move test", xobj2.a == 111);
 
     struct Data2 {
-        a:%Data*;
+        a:heap Data*;
         b:int;
     }
 
-    def initialize(self:%Data2*):%Data2* {
+    def initialize(self:heap Data2*):heap Data2* {
         self.a = new Data;
 
         self.a.a = 123;
@@ -297,7 +296,7 @@ def main():int
         b:int;
     }
 
-    def initialize(self:%Data5*):%Data5* {
+    def initialize(self:heap Data5*):heap Data5* {
         self.a = 111;
         self.b = 222;
 
@@ -311,12 +310,12 @@ def main():int
     assert("struct test X2", zz2.a == 111 && zz2.b == 222);
 
     struct Data6 {
-        a:%Data5*;
+        a:heap Data5*;
         b:int;
-        c:%char*;
+        c:heap char*;
     }
 
-    def initialize(self:%Data6*):%Data6* {
+    def initialize(self:heap Data6*):heap Data6* {
         self.a = new Data5;
         self.a.a = 111;
         self.a.b = 222;
@@ -347,21 +346,18 @@ def main():int
     var zz8 = "AAA" + "BBB"
 
     puts(zz8);
-*/
 
-/*
     struct Data10 {
         a:int;
         b:int;
     }
 
     struct Data11 {
-        a:%Data10*;
+        a:heap Data10*;
         b:int;
     }
 
     new Data11.a = new Data10;
-*/
     
     assert("string test", ("AAA" + "BBB").strcmp("AAABBB") == 0);
 

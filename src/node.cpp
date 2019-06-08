@@ -289,7 +289,6 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
 
     if(is_number_type(left_type) && is_number_type(right_type))
     {
-puts("bbb");
         LVALUE* lvalue = get_value_from_stack(-2);
         LVALUE* rvalue = get_value_from_stack(-1);
 
@@ -304,7 +303,6 @@ puts("bbb");
     }
     else if(type_identify_with_class_name(left_type, "char*") && type_identify_with_class_name(right_type, "char*"))
     {
-puts("aaa");
         LVALUE* lvalue = get_value_from_stack(-2);
         LVALUE* rvalue = get_value_from_stack(-1);
 
@@ -923,7 +921,7 @@ BOOL compile_c_string_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, sParserInfo* info)
+unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -945,6 +943,7 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
 
     gNodes[node].uValue.sFunction.mNumParams = num_params;
     gNodes[node].uValue.sFunction.mResultType = result_type;
+    gNodes[node].uValue.sFunction.mVarArg = var_arg;
 
     return node;
 }
@@ -985,6 +984,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
     }
 
     sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
+    BOOL var_arg = gNodes[node].uValue.sFunction.mVarArg;
 
     /// go ///
     Type* llvm_result_type = create_llvm_type_from_node_type(result_type);
@@ -1001,7 +1001,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
         param_types[i] = param_type;
     }
 
-    FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, false);
+    FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
     Function::Create(function_type, Function::ExternalLinkage, func_name, TheModule);
 
     add_function(func_name, func_name, param_types, num_params, result_type, TRUE);

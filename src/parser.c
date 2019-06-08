@@ -161,10 +161,11 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     *result_type = NULL;
 
     BOOL heap = FALSE;
-    if(*info->p == '%') {
-        heap = TRUE;
-        info->p++;
+    if(memcmp(info->p, "heap", 4) == 0) {
+        info->p += 4;
         skip_spaces_and_lf(info);
+
+        heap = TRUE;
     }
 
     if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
@@ -418,7 +419,7 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
 }
 
 /// character_type --> 0: () 1: ||
-static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int character_type)
+static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int character_type, BOOL* var_arg)
 {
     if((character_type == 0 && *info->p == ')') || (character_type == 1 && *info->p == '|')) {
         info->p++;
@@ -428,8 +429,20 @@ static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* inf
 
         return TRUE;
     }
+     
+    *var_arg = FALSE;
 
     while(1) {
+        if(*info->p == '.' && *(info->p + 1) == '.' && *(info->p + 2) == '.') {
+            info->p += 3;
+            skip_spaces_and_lf(info);
+
+            expect_next_character_with_one_forward(")", info);
+
+            *var_arg = TRUE;
+            break;
+        }
+
         if(!parse_param(params + *num_params, info)) {
             return FALSE;
         }
@@ -486,7 +499,8 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
     int num_params = 0;
 
     /// parse_params ///
-    if(!parse_params(params, &num_params, info, 0))
+    BOOL var_arg = FALSE;
+    if(!parse_params(params, &num_params, info, 0, &var_arg))
     {
         return FALSE;
     }
@@ -508,7 +522,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
         info->p++;
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_external_function(fun_name, params, num_params, result_type, info);
+        *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, info);
     }
     else {
         sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
@@ -1127,7 +1141,8 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     int num_params = 0;
 
     /// parse_params ///
-    if(!parse_params(params, &num_params, info, 0))
+    BOOL var_arg = FALSE;
+    if(!parse_params(params, &num_params, info, 0, &var_arg))
     {
         return FALSE;
     }

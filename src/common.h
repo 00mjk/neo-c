@@ -316,6 +316,7 @@ struct sNodeTreeStruct
             struct sNodeBlockStruct* mNodeBlock;
             BOOL mLambda;
             sVarTable* mVarTable;
+            BOOL mVarArg;
         } sFunction;
 
         struct {
@@ -385,7 +386,7 @@ unsigned int sNodeTree_create_not_equals(unsigned int left, unsigned int right, 
 
 unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL alloc, sParserInfo* info);
 
-unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, sParserInfo* info);
+unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, sParserInfo* info);
 
 unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, sParserInfo* info);
 
