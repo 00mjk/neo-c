@@ -152,6 +152,7 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type);
 BOOL type_identify(sNodeType* left, sNodeType* right);
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
 BOOL is_number_type(sNodeType* node_type);
+void show_node_type(sNodeType* node_type);
   
 //////////////////////////////
 /// vtable.c
@@ -279,7 +280,7 @@ struct sCompileInfoStruct
 
 typedef struct sCompileInfoStruct sCompileInfo;
 
-enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone };
+enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar };
 
 struct sNodeTreeStruct 
 {
@@ -294,6 +295,7 @@ struct sNodeTreeStruct
 
     union {
         int mIntValue;
+        char mCharValue;
 
         struct {
             char mVarName[VAR_NAME_MAX];
@@ -365,6 +367,7 @@ struct sNodeTreeStruct
         struct {
             char* mBuf;
         } sSimpleLambdaParam;
+
     } uValue;
 };
 
@@ -419,6 +422,9 @@ unsigned int sNodeTree_create_reffernce(unsigned int left_node, sParserInfo* inf
 unsigned int sNodeTree_create_null(sParserInfo* info);
 unsigned int sNodeTree_create_clone(unsigned int left, sParserInfo* info);
 unsigned int sNodeTree_create_borrow(unsigned int left, sParserInfo* info);
+unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned int index_node, sParserInfo* info);
+unsigned int sNodeTree_create_store_element(unsigned int array, unsigned int index_node, unsigned int right_node, sParserInfo* info);
+unsigned int sNodeTree_create_character_value(char c, sParserInfo* info);
 
 void show_node(unsigned int node);
 BOOL compile(unsigned int node, sCompileInfo* info);

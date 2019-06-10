@@ -95,6 +95,28 @@ sNodeType* clone_node_type(sNodeType* node_type)
     return node_type2;
 }
 
+void show_node_type(sNodeType* node_type)
+{
+    printf("[%s] array num %d nullable %d pointer num %d heap %d\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap); 
+
+    printf("generics type num %d\n", node_type->mNumGenericsTypes);
+    int i;
+    for(i=0; i<node_type->mNumGenericsTypes; i++)
+    {
+        show_node_type(node_type->mGenericsTypes[i]);
+    }
+
+    printf("lambda type num %d ", node_type->mNumParams);
+    if(node_type->mResultType) {
+        show_node_type(node_type->mResultType);
+    }
+    puts("");
+    for(i=0; i<node_type->mNumParams; i++)
+    {
+        show_node_type(node_type->mParamTypes[i]);
+    }
+}
+
 static void skip_spaces_for_parse_class_name(char** p) 
 {
     while(**p == ' ' || **p == '\t') {

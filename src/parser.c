@@ -997,6 +997,51 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_reffernce(*node, info);
         }
+        /// access element ///
+        else if(*info->p == '[') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int index_node = 0;
+
+            if(!expression(&index_node, info)) {
+                return FALSE;
+            }
+
+            if(index_node == 0) {
+                parser_err_msg(info, "Require index value");
+                info->err_num++;
+
+                *node = 0;
+            }
+            else {
+                expect_next_character_with_one_forward("]", info);
+
+                if(*info->p == '=' && *(info->p+1) != '=') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+
+                    unsigned int right_node = 0;
+
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    if(right_node == 0) {
+                        parser_err_msg(info, "Require right value");
+                        info->err_num++;
+
+                        *node = 0;
+                    }
+                    else {
+                        *node = sNodeTree_create_store_element(*node, index_node, right_node, info);
+                    }
+                }
+                else {
+                    *node = sNodeTree_create_load_array_element(*node, index_node, info);
+                }
+            }
+        }
         else {
             break;
         }
@@ -1452,6 +1497,69 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         skip_spaces_and_lf(info);
 
         *node = sNodeTree_create_c_string_value(MANAGED value.mBuf, value.mLen, info);
+    }
+    /// chararacter ///
+    else if(*info->p == '\'') {
+        info->p++;
+
+        char c;
+
+        if(*info->p == '\\') {
+            info->p++;
+
+            switch(*info->p) {
+                case 'n':
+                    c = '\n';
+                    info->p++;
+                    break;
+
+                case 't':
+                    c = '\t';
+                    info->p++;
+                    break;
+
+                case 'r':
+                    c = '\r';
+                    info->p++;
+                    break;
+
+                case 'a':
+                    c = '\a';
+                    info->p++;
+                    break;
+
+                case '\\':
+                    c = '\\';
+                    info->p++;
+                    break;
+
+                case '0':
+                    c = '\0';
+                    info->p++;
+                    break;
+
+                default:
+                    c = *info->p;
+                    info->p++;
+                    break;
+            }
+        }
+        else {
+            c = *info->p;
+            info->p++;
+        }
+
+        if(*info->p != '\'') {
+            parser_err_msg(info, "close \' to make character value");
+            info->err_num++;
+        }
+        else {
+            info->p++;
+
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_character_value(c, info);
+        }
     }
     else if(isalpha(*info->p) || *info->p == '_') {
         char buf[VAR_NAME_MAX+1];

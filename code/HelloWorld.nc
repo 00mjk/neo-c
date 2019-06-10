@@ -7,6 +7,7 @@ def xmemdup(mem:char*):heap char*;
 def xstrapd(str1:char*, str2:char*):heap char*;
 def strcmp(str1:char*, str2:char*):int;
 def printf(str:char*, ...):int;
+def strcpy(mem:char*, mem2:char*):int;
 
 def assert(msg:char*, exp:bool) 
 {
@@ -20,7 +21,6 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
-/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -361,9 +361,21 @@ def main():int
     new Data11.a = new Data10;
     
     assert("string test", ("AAA" + "BBB").strcmp("AAABBB") == 0);
-*/
 
     printf("1 + 1 == %d\n", 1 + 1);
+    printf("(%s)\n", "AAA" + "BBB");
+
+    var axy = "xyz";
+    var str1 = new char[5];
+
+    strcpy(str1, axy);
+
+    printf("str1 %s\n", str1);
+
+    str1[0] = 'X';
+
+    printf("str[0] %c\n", str1[0]);
+
 
     0
 }

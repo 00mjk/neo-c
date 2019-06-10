@@ -827,7 +827,9 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     }
 
     if(!substitution_posibility(left_type, right_type)) {
-        compile_err_msg(info, "The different type between left type and right type. Left type is %s. Right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
+        compile_err_msg(info, "The different type between left type and right type.");
+        show_node_type(left_type);
+        show_node_type(right_type);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1131,9 +1133,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         num_params2 = num_params;
     }
 
-
-printf("%s num_params2 %d\n", func_name, num_params2);
-
     int i;
     for(i=0; i<num_params2; i++) {
         params[i] = gNodes[node].uValue.sFunctionCall.mParams[i];
@@ -1159,7 +1158,7 @@ printf("%s num_params2 %d\n", func_name, num_params2);
                     check_param_num = fun.mNumParams;
                 }
                 else {
-                    check_param_num = num_params;
+                    check_param_num = num_params2;
                 }
 
                 BOOL found = TRUE;
@@ -2027,7 +2026,9 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     }
 
     if(!substitution_posibility(field_type, right_type)) {
-        compile_err_msg(info, "The different type between left type and right type. Left type is %s. Right type is %s.", CLASS_NAME(field_type->mClass), CLASS_NAME(right_type->mClass));
+        compile_err_msg(info, "The different type between left type and right type.");
+        show_node_type(field_type);
+        show_node_type(right_type);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2922,6 +2923,266 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned int index_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeLoadElement;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = array;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = index_node;
+
+    return node;
+}
+
+static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
+{
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    if(left_type->mArrayNum == 0 && left_type->mPointerNum == 0) 
+    {
+        compile_err_msg(info, "neo-c can't get an element from this type.");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// compile middle node ///
+    unsigned int mnode = gNodes[node].mMiddle;
+
+    if(!compile(mnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* middle_type = info->type;
+
+    LVALUE* lvalue = get_value_from_stack(-2);
+    LVALUE* rvalue = get_value_from_stack(-1);
+
+    sNodeType* int_type = create_node_type_with_class_name("int");
+
+    cast_right_type_to_left_type(int_type, &middle_type, rvalue, info);
+
+    if(!type_identify_with_class_name(middle_type, "int")) {
+        compile_err_msg(info, "Type of index should be number");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// generate code ///
+    sNodeType* var_type = clone_node_type(left_type);
+
+    if(var_type->mArrayNum > 0) {
+        var_type->mArrayNum = 0;
+    }
+    else {
+        var_type->mPointerNum--;
+    }
+
+    /// go ///
+    int element_size = get_size_from_node_type(var_type);
+
+    Value* lvalue2 = lvalue->value;
+
+    Value* element_size_value = ConstantInt::get(TheContext, llvm::APInt(32, element_size, true)); 
+
+    Value* rvalue2 = Builder.CreateMul(rvalue->value, element_size_value, "multmp", false, true);
+
+    Value* load_element_addresss = Builder.CreateGEP(lvalue2, rvalue2, "element_address");
+
+    int alignment = get_llvm_alignment_from_node_type(var_type);
+
+    Value* element_value = Builder.CreateAlignedLoad(load_element_addresss, alignment, "element");
+
+    LVALUE llvm_value;
+    llvm_value.value = element_value;
+    llvm_value.type = clone_node_type(var_type);
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    dec_stack_ptr(2, info);
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = var_type;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_store_element(unsigned int array, unsigned int index_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeStoreElement;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = array;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = index_node;
+
+    return node;
+}
+
+BOOL compile_store_element(unsigned int node, sCompileInfo* info)
+{
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    if(left_type->mArrayNum == 0 && left_type->mPointerNum == 0) 
+    {
+        compile_err_msg(info, "neo-c can't get an element from this type.");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// compile middle node ///
+    unsigned int mnode = gNodes[node].mMiddle;
+
+    if(!compile(mnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* middle_type = info->type;
+
+    LVALUE* llvm_value = get_value_from_stack(-1);
+
+    sNodeType* int_type = create_node_type_with_class_name("int");
+
+    cast_right_type_to_left_type(int_type, &middle_type, llvm_value, info);
+
+    if(!type_identify_with_class_name(middle_type, "int")) {
+        compile_err_msg(info, "Type of index should be number");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// compile right node ///
+    unsigned int rnode = gNodes[node].mRight;
+
+    if(!compile(rnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE* lvalue = get_value_from_stack(-3);
+    LVALUE* mvalue = get_value_from_stack(-2);
+    LVALUE* rvalue = get_value_from_stack(-1);
+
+    sNodeType* var_type = clone_node_type(left_type);
+
+    if(var_type->mArrayNum > 0) {
+        var_type->mArrayNum = 0;
+    }
+    else {
+        var_type->mPointerNum--;
+    }
+    var_type->mHeap = right_type->mHeap;
+
+    if(cast_posibility(var_type, right_type)) {
+        cast_right_type_to_left_type(var_type, &right_type, rvalue, info);
+    }
+
+    if(!substitution_posibility(var_type, right_type)) 
+    {
+        compile_err_msg(info, "The different type between left type and right type");
+        show_node_type(var_type);
+        show_node_type(right_type);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// generate code ///
+    int element_size = get_size_from_node_type(var_type);
+
+    Value* lvalue2 = lvalue->value;
+
+    Value* element_size_value = ConstantInt::get(TheContext, llvm::APInt(32, element_size, true)); 
+
+    Value* rvalue2 = Builder.CreateMul(mvalue->value, element_size_value, "multmp", false, true);
+
+    Value* element_address = Builder.CreateGEP(lvalue2, rvalue2, "element_address");
+
+    int alignment = get_llvm_alignment_from_node_type(var_type);
+
+    Builder.CreateAlignedStore(rvalue->value, element_address, alignment);
+
+    dec_stack_ptr(3, info);
+    push_value_to_stack_ptr(rvalue, info);
+
+    info->type = clone_node_type(right_type);
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_character_value(char c, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeChar;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].uValue.mCharValue = c;
+
+    return node;
+}
+
+BOOL compile_char_value(unsigned int node, sCompileInfo* info)
+{
+    char c = gNodes[node].uValue.mCharValue;
+
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(8, c, false)); 
+    llvm_value.type = create_node_type_with_class_name("char");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("char");
+
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -3145,6 +3406,27 @@ BOOL compile(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
+
+        case kNodeTypeLoadElement:
+            if(!compile_load_element(node, info))
+            { 
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeStoreElement:
+            if(!compile_store_element(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeChar:
+            if(!compile_char_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
     }
 
     return node;
