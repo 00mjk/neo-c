@@ -197,13 +197,15 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         }
     }
 
-    for(i=0; i<info->mNumMethodGenerics; i++) {
-        if(strcmp(type_name, info->mMethodGenericsTypeNames[i]) == 0)
-        {
-            char buf[VAR_NAME_MAX+1];
-            snprintf(buf, VAR_NAME_MAX, "mgenerics%d", i);
+    if(*result_type == NULL) {
+        for(i=0; i<info->mNumMethodGenerics; i++) {
+            if(strcmp(type_name, info->mMethodGenericsTypeNames[i]) == 0)
+            {
+                char buf[VAR_NAME_MAX+1];
+                snprintf(buf, VAR_NAME_MAX, "mgenerics%d", i);
 
-            *result_type = create_node_type_with_class_name(buf);
+                *result_type = create_node_type_with_class_name(buf);
+            }
         }
     }
 
@@ -578,15 +580,6 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
 
             xstrncpy(info->mMethodGenericsTypeNames[num_generics], buf, VAR_NAME_MAX);
 
-            expect_next_character_with_one_forward(":", info);
-
-            sNodeType* node_type = NULL;
-            if(!parse_type(&node_type, info)) {
-                return FALSE;
-            }
-
-            info->mMethodGenericsTypes[num_generics] = node_type;
-
             num_generics++;
 
             if(num_generics >= GENERICS_TYPES_MAX)
@@ -594,6 +587,17 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
                 parser_err_msg(info, "overflow generics types");
                 return FALSE;
             }
+
+            info->mNumMethodGenerics = num_generics;
+
+            expect_next_character_with_one_forward(":", info);
+
+            sNodeType* node_type = NULL;
+            if(!parse_type(&node_type, info)) {
+                return FALSE;
+            }
+
+            info->mMethodGenericsTypes[num_generics-1] = node_type;
 
             if(*info->p == ',') {
                 info->p++;
@@ -610,8 +614,6 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
                 break;
             }
         }
-
-        info->mNumMethodGenerics = num_generics;
     }
 
     /// function name ///
@@ -700,6 +702,8 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
 
         *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, info->mNumMethodGenerics, info);
     }
+
+    info->mNumMethodGenerics = 0;
 
     return TRUE;
 }

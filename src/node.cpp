@@ -1902,9 +1902,8 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        if(!type_identify_with_class_name(info->type, "int"))
-        {
-            compile_err_msg(info, "Require int value for []");
+        if(!is_number_type(info->type)) {
+            compile_err_msg(info, "Require number value for []");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy

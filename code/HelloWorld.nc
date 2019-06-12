@@ -402,9 +402,9 @@ def main():int
         add:lambda(T,T):T;
     }
 
-    def <T:INumber<T>*> method_generics_fun(a:T, b:T):T 
+    def <I:INumber<I>*> method_generics_fun(a:I, b:I):I
     {
-        T.add->(a, b)
+        I.add->(a, b)
     }
 
     var inumber = new INumber<int>;
@@ -423,6 +423,24 @@ def main():int
     }
 
     assert("generics test3", method_generics_fun(inumber2, "AAA", "BBB").strcmp("AAABBB") == 0);
+
+/*
+    struct Vector<T> {
+        items:heap T*;
+        len:long;
+        size:long;
+    }
+
+    def initialize(self:heap Vector<T>*):heap Vector<T>* {
+        self.size = 16;
+        self.len = 0;
+        self.items = new T[self.size];
+
+        self
+    }
+
+    var v = new Vector<int>.initialize();
+*/
 
     0
 }
