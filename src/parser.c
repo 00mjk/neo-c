@@ -161,27 +161,109 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     *result_type = NULL;
 
     BOOL heap = FALSE;
-    if(memcmp(info->p, "heap", 4) == 0) {
-        info->p += 4;
-        skip_spaces_and_lf(info);
+    BOOL nullable = FALSE;
 
-        heap = TRUE;
+    while(1) {
+        if(memcmp(info->p, "heap", 4) == 0) {
+            info->p += 4;
+            skip_spaces_and_lf(info);
+
+            heap = TRUE;
+        }
+        /// nullable ///
+        else if(memcmp(info->p, "nullable", 8) == 0) {
+            info->p+=8;
+            skip_spaces_and_lf(info);
+
+            nullable = TRUE;
+        }
+        else {
+            break;
+        }
     }
 
     if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
 
+    int i;
+    for(i=0; i<info->mNumGenerics; i++) {
+        if(strcmp(type_name, info->mGenericsTypeNames[i]) == 0)
+        {
+            char buf[VAR_NAME_MAX+1];
+            snprintf(buf, VAR_NAME_MAX, "generics%d", i);
+
+            *result_type = create_node_type_with_class_name(buf);
+        }
+    }
+
+    for(i=0; i<info->mNumMethodGenerics; i++) {
+        if(strcmp(type_name, info->mMethodGenericsTypeNames[i]) == 0)
+        {
+            char buf[VAR_NAME_MAX+1];
+            snprintf(buf, VAR_NAME_MAX, "mgenerics%d", i);
+
+            *result_type = create_node_type_with_class_name(buf);
+        }
+    }
+
     if(*result_type == NULL) {
-        *result_type = create_node_type_with_class_name(type_name);
+        sCLClass* klass = get_class(type_name);
+
+        if(klass) {
+            if(klass->mFlags & CLASS_FLAGS_STRUCT)
+            {
+                *result_type = get_struct(type_name);
+            }
+            else {
+                *result_type = create_node_type_with_class_name(type_name);
+            }
+        }
     }
 
     if(*result_type == NULL || (*result_type)->mClass == NULL) {
         parser_err_msg(info, "%s is not defined class(2)", type_name);
         info->err_num++;
+        return TRUE;
     }
 
-    (*result_type)->mHeap = heap;
+    if(*info->p == '<' && *(info->p+1) != '<' && *(info->p+1) != '=') 
+    {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        int generics_num = 0;
+
+        while(1) {
+            if(!parse_type(&(*result_type)->mGenericsTypes[generics_num], info)) {
+                return FALSE;
+            }
+
+            generics_num++;
+
+            if(generics_num >= GENERICS_TYPES_MAX) {
+                parser_err_msg(info, "overflow generics parametor number");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '>') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else {
+                parser_err_msg(info, "invalid character(%c) in generics types", *info->p);
+                info->err_num++;
+                break;
+            }
+        }
+
+        (*result_type)->mNumGenericsTypes = generics_num;
+    }
 
     if(strcmp(type_name, "lambda") == 0) {
         if(*info->p == '(') {
@@ -241,14 +323,6 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         }
     }
 
-    /// nullable ///
-    if(*info->p == '?') {
-        info->p++;
-        skip_spaces_and_lf(info);
-
-        (*result_type)->mNullable = TRUE;
-    }
-
     /// pointer ///
     if(*info->p == '*') {
         int pointer_num = 0;
@@ -262,6 +336,9 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
         (*result_type)->mPointerNum = pointer_num;
     }
+
+    (*result_type)->mHeap = heap;
+    (*result_type)->mNullable = nullable;
 
     return TRUE;
 }
@@ -484,6 +561,59 @@ static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* inf
 
 static BOOL parse_function(unsigned int* node, sParserInfo* info)
 {
+    /// method generics ///
+    info->mNumMethodGenerics = 0;
+
+    if(*info->p == '<') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        int num_generics = 0;
+
+        while(TRUE) {
+            char buf[VAR_NAME_MAX];
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                return FALSE;
+            }
+
+            xstrncpy(info->mMethodGenericsTypeNames[num_generics], buf, VAR_NAME_MAX);
+
+            expect_next_character_with_one_forward(":", info);
+
+            sNodeType* node_type = NULL;
+            if(!parse_type(&node_type, info)) {
+                return FALSE;
+            }
+
+            info->mMethodGenericsTypes[num_generics] = node_type;
+
+            num_generics++;
+
+            if(num_generics >= GENERICS_TYPES_MAX)
+            {
+                parser_err_msg(info, "overflow generics types");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '>') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else {
+                parser_err_msg(info, "require , or > character");
+                info->err_num++;
+                break;
+            }
+        }
+
+        info->mNumMethodGenerics = num_generics;
+    }
+
     /// function name ///
     char fun_name[VAR_NAME_MAX];
 
@@ -497,6 +627,20 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
     sParserParam params[PARAMS_MAX];
     memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
     int num_params = 0;
+
+    /// method generics ///
+    int i;
+    for(i=0; i<info->mNumMethodGenerics; i++) {
+        xstrncpy(params[i].mName, info->mMethodGenericsTypeNames[i], VAR_NAME_MAX);
+        params[i].mType = info->mMethodGenericsTypes[i];
+
+        num_params++;
+
+        if(num_params >= PARAMS_MAX) {
+            parser_err_msg(info, "overflow params number");
+            return FALSE;
+        }
+    }
 
     /// parse_params ///
     BOOL var_arg = FALSE;
@@ -522,7 +666,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
         info->p++;
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, info);
+        *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, info->mNumMethodGenerics, info);
     }
     else {
         sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
@@ -553,7 +697,8 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
         info->lv_table = old_table;
 
         BOOL lambda = FALSE;
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, info);
+
+        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, info->mNumMethodGenerics, info);
     }
 
     return TRUE;
@@ -764,6 +909,49 @@ static BOOL parse_struct(unsigned int* node, sParserInfo* info)
 
     xstrncpy(struct_name, buf, VAR_NAME_MAX);
 
+    info->mNumGenerics = 0;
+
+    if(*info->p == '<') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        int num_generics = 0;
+
+        while(TRUE) {
+            char buf[VAR_NAME_MAX];
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                return FALSE;
+            }
+
+            xstrncpy(info->mGenericsTypeNames[num_generics], buf, VAR_NAME_MAX);
+
+            num_generics++;
+
+            if(num_generics >= GENERICS_TYPES_MAX)
+            {
+                parser_err_msg(info, "overflow generics types");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '>') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else {
+                parser_err_msg(info, "require , or > character");
+                info->err_num++;
+                break;
+            }
+        }
+
+        info->mNumGenerics = num_generics;
+    }
+
     expect_next_character_with_one_forward("{", info);
 
     int n = 0;
@@ -972,23 +1160,26 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                 break;
             }
         }
-        else if(*info->p == '(') {
-            unsigned int params[PARAMS_MAX];
-            int num_params = 0;
-
-            if(!parse_funcation_call_params(&num_params, params, info)) 
-            {
-                return FALSE;
-            }
-
-            *node = sNodeTree_create_lambda_call(*node, params, num_params, info);
-        }
         else if(*info->p == '-' && *(info->p+1) == '>')
         {
             info->p += 2;
             skip_spaces_and_lf(info);
 
-            *node = sNodeTree_create_dereffernce(*node, info);
+            if(*info->p == '(')
+            {
+                unsigned int params[PARAMS_MAX];
+                int num_params = 0;
+
+                if(!parse_funcation_call_params(&num_params, params, info)) 
+                {
+                    return FALSE;
+                }
+
+                *node = sNodeTree_create_lambda_call(*node, params, num_params, info);
+            }
+            else {
+                *node = sNodeTree_create_dereffernce(*node, info);
+            }
         }
         else if(*info->p == '<' && *(info->p+1) == '-')
         {
@@ -1237,20 +1428,20 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     num_lambda++;
 
     BOOL lambda = TRUE;
-    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, info);
+    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, 0, info);
 
     return TRUE;
 }
 
 static BOOL parse_new(unsigned int* node, sParserInfo* info)
 {
-    char buf[VAR_NAME_MAX+1];
-    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
-    {
+    sNodeType* node_type = NULL;
+
+    if(!parse_type(&node_type, info)) {
         return FALSE;
     }
 
-    sCLClass* klass = get_class(buf);
+    sCLClass* klass = node_type->mClass;
 
     if(klass) {
         unsigned int object_num = 0;
@@ -1264,8 +1455,6 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
 
             expect_next_character_with_one_forward("]", info);
         }
-
-        sNodeType* node_type = create_node_type_with_class_pointer(klass);
 
         *node = sNodeTree_create_object(node_type, object_num, info->sname, info->sline);
     }
@@ -1631,7 +1820,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(klass && klass->mFlags & CLASS_FLAGS_STRUCT)
         {
-            sNodeType* node_type = create_node_type_with_class_pointer(klass);
+            sNodeType* node_type = get_struct(buf);
 
             *node = sNodeTree_create_struct_object(node_type, info->sname, info->sline);
         }

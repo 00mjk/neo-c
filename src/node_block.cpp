@@ -183,7 +183,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
     }
 
     free_objects(block->mLVTable, info);
-    free_right_value_objects(info);
+    //free_right_value_objects(info);
 
     info->pinfo->lv_table = old_table;
 

@@ -153,7 +153,7 @@ def main():int
 
     def fun2(block:lambda(int,int):int):int 
     {
-        block(1,2)
+        block->(1,2)
     }
 
     var xxx = fun2(fun);
@@ -204,7 +204,7 @@ def main():int
     def times(n:int, block:lambda()) 
     {
         for(var i=0; i<n; i++) {
-            block();
+            block->();
         };
     }
 
@@ -224,7 +224,7 @@ def main():int
 
     def funX(block:lambda(int,int):int):int
     {
-        block(2,2)
+        block->(2,2)
     }
 
     var xmm = 1;
@@ -376,6 +376,53 @@ def main():int
 
     printf("str[0] %c\n", str1[0]);
 
+    var lll = lambda(a:int, b:int):int {
+        a + b
+    }
+
+    assert("lambda test X", lll->(1,2) == 3);
+
+    struct GenericsTest <T, T2> {
+        a:T;
+        b:T2;
+        c:lambda(T, T):T;
+    }
+
+    var gvar = new GenericsTest<int, char>;
+
+    gvar.a = 111;
+    gvar.b = 'c';
+    gvar.c = lambda(x:int, y:int):int {
+        x + y
+    }
+
+    assert("generics test", gvar.a == 111 && gvar.b == 'c' && gvar.c->(1, 2) == 3);
+
+    struct INumber <T> {
+        add:lambda(T,T):T;
+    }
+
+    def <T:INumber<T>*> method_generics_fun(a:T, b:T):T 
+    {
+        T.add->(a, b)
+    }
+
+    var inumber = new INumber<int>;
+
+    inumber.add = lambda(a:int, b:int):int {
+        a + b
+    }
+
+    assert("generics test2", method_generics_fun(inumber, 1, 2) == 3);
+
+    var inumber2 = new INumber<char*>;
+
+    inumber2.add = lambda(a:char*, b:char*):heap char* 
+    {
+        a + b
+    }
+
+    assert("generics test3", method_generics_fun(inumber2, "AAA", "BBB").strcmp("AAABBB") == 0);
 
     0
 }

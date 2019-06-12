@@ -9,7 +9,7 @@ std::map<std::string, BasicBlock*> TheLabels;
 FunctionAnalysisManager TheFAM(false);
 CGSCCAnalysisManager cGSCCAnalysisManager(false);
 ModuleAnalysisManager moduleAnalysisManager(false);
-std::map<std::string, Type*> gLLVMStructType;
+std::map<std::string, std::pair<Type*, sNodeType*>> gLLVMStructType;
 
 GlobalVariable* gLVTableValue;
 
@@ -448,6 +448,11 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
     gResultCode = WEXITSTATUS(rc);
 }
 
+sNodeType* get_struct(char* class_name)
+{
+    return clone_node_type(gLLVMStructType[class_name].second);
+}
+
 Type* create_llvm_type_from_node_type(sNodeType* node_type)
 {
     Type* result_type = NULL;
@@ -457,7 +462,7 @@ Type* create_llvm_type_from_node_type(sNodeType* node_type)
     {
         char* class_name = CLASS_NAME(klass);
 
-        if(gLLVMStructType[class_name] == nullptr) 
+        if(gLLVMStructType[class_name].first == nullptr) 
         {
             StructType* struct_type = StructType::create(TheContext, CLASS_NAME(klass));;
             std::vector<Type*> fields;
@@ -474,13 +479,25 @@ Type* create_llvm_type_from_node_type(sNodeType* node_type)
                 struct_type->setBody(fields, false);
             }
 
-            gLLVMStructType[class_name] = struct_type;
+            std::pair<Type*, sNodeType*> pair_value;
+            pair_value.first = struct_type;
+            pair_value.second = clone_node_type(node_type);
+
+            gLLVMStructType[class_name] = pair_value;
 
             result_type = struct_type;
         }
         else {
-            result_type = gLLVMStructType[class_name];
+            result_type = gLLVMStructType[class_name].first;
         }
+    }
+    else if(klass->mFlags & CLASS_FLAGS_GENERICS)
+    {
+        result_type = IntegerType::get(TheContext, 64);
+    }
+    else if(klass->mFlags & CLASS_FLAGS_METHOD_GENERICS)
+    {
+        result_type = IntegerType::get(TheContext, 64);
     }
     else if(type_identify_with_class_name(node_type, "char"))
     {
@@ -620,6 +637,41 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         {
             rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 32));
             rvalue->type = create_node_type_with_class_name("int");
+
+            *right_type = rvalue->type;
+        }
+    }
+    else if(type_identify_with_class_name(left_type, "long"))
+    {
+        if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong"))
+        {
+        }
+        else if(type_identify_with_class_name(*right_type, "short") || type_identify_with_class_name(*right_type, "ushort") || type_identify_with_class_name(*right_type, "char") || type_identify_with_class_name(*right_type, "uchar") || type_identify_with_class_name(*right_type, "bool") || type_identify_with_class_name(*right_type, "int") || type_identify_with_class_name(*right_type, "uint") )
+        {
+            rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 64));
+            rvalue->type = create_node_type_with_class_name("long");
+
+            *right_type = rvalue->type;
+        }
+        else if(left_type->mPointerNum > 0) {
+            rvalue->value = Builder.CreateCast(Instruction::PtrToInt, rvalue->value, IntegerType::get(TheContext, 64));
+            rvalue->type = create_node_type_with_class_name("long");
+
+            *right_type = rvalue->type;
+        }
+    }
+    else if(type_identify_with_class_name(left_type, "char*"))
+    {
+        if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong"))
+        {
+            rvalue->value = Builder.CreateCast(Instruction::IntToPtr, rvalue->value, PointerType::get(IntegerType::get(TheContext, 8),0));
+            rvalue->type = create_node_type_with_class_name("char*");
+
+            *right_type = rvalue->type;
+        }
+        else if((*right_type)->mPointerNum > 0) {
+            rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, PointerType::get(IntegerType::get(TheContext, 8),0));
+            rvalue->type = create_node_type_with_class_name("char*");
 
             *right_type = rvalue->type;
         }
@@ -787,6 +839,16 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
     }
 
     return address3;
+}
+
+void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info)
+{
+    free_right_value_objects(info);
+
+    *current_block_before = (BasicBlock*)info->current_block;
+
+    Builder.SetInsertPoint(current_block);
+    info->current_block = current_block;
 }
 
 

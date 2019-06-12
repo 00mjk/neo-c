@@ -72,6 +72,8 @@ unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_o
 #define CLASS_FLAGS_STRUCT 0x02
 #define CLASS_FLAGS_NUMBER 0x04
 #define CLASS_FLAGS_UNSIGNED_NUMBER 0x08
+#define CLASS_FLAGS_GENERICS 0x10
+#define CLASS_FLAGS_METHOD_GENERICS 0x20
 
 struct sCLClassStruct {
     clint64 mFlags;
@@ -82,6 +84,9 @@ struct sCLClassStruct {
     sConst mConst;
 
     int mClassNameOffset;
+
+    int mGenericsNum;
+    int mMethodGenericsNum;
     
     char mFieldNameOffsets[STRUCT_FIELD_MAX];
     struct sNodeTypeStruct* mFields[STRUCT_FIELD_MAX];
@@ -111,7 +116,6 @@ void class_init();
 void class_final();
 
 sCLClass* get_class(char* class_name);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_, BOOL number_type, BOOL unsigned_number);
 sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
 unsigned int get_hash_key(char* name, unsigned int max);
 int get_field_index(sCLClass* klass, char* var_name);
@@ -153,6 +157,7 @@ BOOL type_identify(sNodeType* left, sNodeType* right);
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
 BOOL is_number_type(sNodeType* node_type);
 void show_node_type(sNodeType* node_type);
+BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type);
   
 //////////////////////////////
 /// vtable.c
@@ -227,6 +232,12 @@ struct sParserInfoStruct
     int err_num;
     int parse_phase;
     sVarTable* lv_table;
+    int mNumGenerics;
+    char mGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+
+    int mNumMethodGenerics;
+    char mMethodGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+    sNodeType* mMethodGenericsTypes[GENERICS_TYPES_MAX];
 };
 
 typedef struct sParserInfoStruct sParserInfo;
@@ -235,7 +246,6 @@ struct sParserParamStruct
 {
     char mName[VAR_NAME_MAX];
     sNodeType* mType;
-    BOOL mManaged;
 
     char mDefaultValue[METHOD_DEFAULT_PARAM_MAX];
 };
@@ -319,6 +329,7 @@ struct sNodeTreeStruct
             BOOL mLambda;
             sVarTable* mVarTable;
             BOOL mVarArg;
+            int mNumMethodGenerics;
         } sFunction;
 
         struct {
@@ -389,11 +400,11 @@ unsigned int sNodeTree_create_not_equals(unsigned int left, unsigned int right, 
 
 unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL alloc, sParserInfo* info);
 
-unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, sParserInfo* info);
+unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, int num_method_generics, sParserInfo* info);
 
 unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, sParserInfo* info);
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, sParserInfo* info);
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, int num_method_generics, sParserInfo* info);
 
 unsigned int sNodeTree_create_function_call(char* func_name, unsigned int* params, int num_params, sParserInfo* info);
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
@@ -473,6 +484,7 @@ void arrange_stack(sCompileInfo* info, int top);
 void start_neo_c_main_function();
 void finish_neo_c_main_function();
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info);
+sNodeType* get_struct(char* class_name);
 
 #endif
 

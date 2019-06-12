@@ -95,6 +95,8 @@ struct sFunctionStruct {
     BOOL mVarArg;
 
     BOOL mCFFIFunction;
+
+    int mNumMethodGenerics;
 };
 
 typedef struct sFunctionStruct sFunction;
@@ -120,6 +122,7 @@ uint64_t get_size_from_node_type(sNodeType* node_type);
 void std_move(sNodeType* lvar_type, LVALUE* rvalue);
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info);
 void free_right_value_objects(sCompileInfo* info);
+void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info);
 }
 
 #endif

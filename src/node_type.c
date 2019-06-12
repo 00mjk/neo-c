@@ -97,20 +97,21 @@ sNodeType* clone_node_type(sNodeType* node_type)
 
 void show_node_type(sNodeType* node_type)
 {
-    printf("[%s] array num %d nullable %d pointer num %d heap %d\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap); 
+    printf("-+- [%s] array num %d nullable %d pointer num %d heap %d -+-\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap); 
 
-    printf("generics type num %d\n", node_type->mNumGenericsTypes);
+    printf(">>generics type num %d\n>>generics types\n", node_type->mNumGenericsTypes);
     int i;
     for(i=0; i<node_type->mNumGenericsTypes; i++)
     {
         show_node_type(node_type->mGenericsTypes[i]);
     }
 
-    printf("lambda type num %d ", node_type->mNumParams);
+    printf(">>lambda type num %d\n", node_type->mNumParams);
+    printf(">>lambda result type\n");
     if(node_type->mResultType) {
         show_node_type(node_type->mResultType);
     }
-    puts("");
+    printf(">>lambda param types\n");
     for(i=0; i<node_type->mNumParams; i++)
     {
         show_node_type(node_type->mParamTypes[i]);
@@ -275,7 +276,10 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type)
     sCLClass* left_class = left_type->mClass;
     sCLClass* right_class = right_type->mClass; 
 
-    if(left_class == right_class) {
+    if(type_identify_with_class_name(right_type, "void*")) {
+        return left_type->mNullable;
+    }
+    else if(left_class == right_class) {
         if(left_type->mPointerNum == right_type->mPointerNum) 
         {
             if(left_type->mHeap) {
@@ -312,4 +316,48 @@ BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)
     }
 
     return type_identify(left, right);
+}
+
+BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
+{
+    sCLClass* klass = (*node_type)->mClass;
+
+    if(type_identify_with_class_name(*node_type, "lambda")) 
+    {
+        if(!solve_generics(&(*node_type)->mResultType, generics_type))
+        {
+            return FALSE;
+        }
+
+        int i;
+        for(i=0; i<(*node_type)->mNumParams; i++)
+        {
+            if(!solve_generics(&(*node_type)->mParamTypes[i], generics_type))
+            {
+                return FALSE;
+            }
+        }
+    }
+    else if(klass->mFlags & CLASS_FLAGS_GENERICS) {
+        int generics_number = klass->mGenericsNum;
+
+        if(generics_number >= generics_type->mNumGenericsTypes)
+        {
+            return FALSE;
+        }
+
+        (*node_type) = generics_type->mGenericsTypes[generics_number];
+    }
+    else {
+        int i;
+        for(i=0; i<(*node_type)->mNumGenericsTypes; i++)
+        {
+            if(!solve_generics(&(*node_type)->mGenericsTypes[i], generics_type))
+            {
+                return FALSE;
+            }
+        }
+    }
+
+    return TRUE;
 }

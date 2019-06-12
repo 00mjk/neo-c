@@ -13,3 +13,9 @@ no segmentation fault
 return
 
 コンテナライブラリ
+
+lamdaの構造体
+
+インターフェース
+
+lvalue,rvalue -1でstruct copy で受け取る:
