@@ -1,103 +1,7 @@
 #include "llvm_common.hpp"
 
-sNodeTree* gNodes;
-
-static int gSizeNodes = 0;
-int gUsedNodes = 0;
-
 std::map<std::string, sFunction> gFuncs;
 std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;
-
-void init_nodes()
-{
-    const int node_size = 32;
-
-    if(gUsedNodes == 0) {
-        gNodes = (sNodeTree*)xcalloc(1, sizeof(sNodeTree)*node_size);
-        gSizeNodes = node_size;
-        gUsedNodes = 1;   // 0 of index means null
-    }
-}
-
-void free_nodes()
-{
-    if(gUsedNodes > 0) {
-        int i;
-        for(i=1; i<gUsedNodes; i++) {
-            switch(gNodes[i].mNodeType) {
-                case kNodeTypeCString:
-                    free(gNodes[i].uValue.sString.mString);
-                    break;
-
-                case kNodeTypeFunction:
-                    sNodeBlock_free(gNodes[i].uValue.sFunction.mNodeBlock);
-                    break;
-
-                case kNodeTypeIf:
-                    {
-                    if(gNodes[i].uValue.sIf.mIfNodeBlock) {
-                        sNodeBlock_free(gNodes[i].uValue.sIf.mIfNodeBlock);
-                    }
-                    int j;
-                    for(j=0; j<gNodes[i].uValue.sIf.mElifNum; j++) {
-                        sNodeBlock* node_block = gNodes[i].uValue.sIf.mElifNodeBlocks[j];
-                        if(node_block) {
-                            sNodeBlock_free(node_block);
-                        }
-                    }
-                    if(gNodes[i].uValue.sIf.mElseNodeBlock) {
-                        sNodeBlock_free(gNodes[i].uValue.sIf.mElseNodeBlock);
-                    }
-                    }
-                    break;
-
-                case kNodeTypeWhile:
-                    {
-                    if(gNodes[i].uValue.sWhile.mWhileNodeBlock) {
-                        sNodeBlock_free(gNodes[i].uValue.sWhile.mWhileNodeBlock);
-                    }
-                    }
-                    break;
-
-                case kNodeTypeFor:
-                    if(gNodes[i].uValue.sFor.mForNodeBlock) 
-                    {
-                        sNodeBlock_free(gNodes[i].uValue.sFor.mForNodeBlock);
-                    }
-                    break;
-
-                case kNodeTypeSimpleLambdaParam:
-                    if(gNodes[i].uValue.sSimpleLambdaParam.mBuf) 
-                    {
-                        free(gNodes[i].uValue.sSimpleLambdaParam.mBuf);
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        free(gNodes);
-
-        gSizeNodes = 0;
-        gUsedNodes = 0;
-    }
-}
-
-// return node index
-static unsigned int alloc_node()
-{
-    if(gSizeNodes == gUsedNodes) {
-        int new_size = (gSizeNodes+1) * 2;
-        gNodes = (sNodeTree*)xrealloc(gNodes, sizeof(sNodeTree)*new_size);
-        memset(gNodes + gSizeNodes, 0, sizeof(sNodeTree)*(new_size - gSizeNodes));
-
-        gSizeNodes = new_size;
-    }
-
-    return gUsedNodes++;
-}
 
 void show_node(unsigned int node)
 {
@@ -244,6 +148,61 @@ static BOOL compile_int_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+static void create_real_fun_name(char* real_fun_name, size_t size_real_fun_name, char* fun_name, char* struct_name)
+{
+    if(strcmp(struct_name, "") == 0) {
+        xstrncpy(real_fun_name, fun_name, size_real_fun_name);
+    }
+    else {
+        xstrncpy(real_fun_name, struct_name, size_real_fun_name);
+        xstrncat(real_fun_name, "_", size_real_fun_name);
+        xstrncat(real_fun_name, fun_name, size_real_fun_name);
+    }
+}
+
+static BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, sCompileInfo* info)
+{
+    char real_fun_name[REAL_FUN_NAME_MAX];
+    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
+
+    sFunction fun = gFuncs[real_fun_name];
+
+    if(fun.mResultType == nullptr) {
+        return FALSE;
+    }
+
+    Function* llvm_fun = TheModule->getFunction(real_fun_name);
+
+    std::vector<Value*> llvm_params;
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        Value* param = params[i];
+        llvm_params.push_back(param);
+    }
+    dec_stack_ptr(num_params, info);
+
+    if(type_identify_with_class_name(fun.mResultType, "void"))
+    {
+        Builder.CreateCall(llvm_fun, llvm_params);
+
+        info->type = fun.mResultType;
+    }
+    else {
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateCall(llvm_fun, llvm_params);
+        llvm_value.type = fun.mResultType;
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type = fun.mResultType;
+    }
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_add(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -262,8 +221,6 @@ unsigned int sNodeTree_create_add(unsigned int left, unsigned int right, unsigne
 
 static BOOL compile_add(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -284,7 +241,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
     if(is_number_type(left_type) && is_number_type(right_type))
     {
         LVALUE llvm_value;
-        llvm_value.value = Builder.CreateAdd(lvalue.value, rvalue.value, "addttmp", false, true);
+        llvm_value.value = Builder.CreateAdd(lvalue.value, rvalue.value, "addtmp", false, true);
         llvm_value.type = clone_node_type(right_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
@@ -294,47 +251,29 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
 
         info->type = llvm_value.type;
     }
-    else if(type_identify_with_class_name(left_type, "char*") && type_identify_with_class_name(right_type, "char*"))
-    {
-        /// xstrapd ///
-        Function* fun = TheModule->getFunction("xstrapd");
-
-        std::vector<Value*> params2;
-
-        Value* param = lvalue.value;
-        params2.push_back(param);
-
-        Value* param2 = rvalue.value;
-        params2.push_back(param2);
-
-        Value* str = Builder.CreateCall(fun, params2);
-
-        /// result ///
-        LVALUE llvm_value;
-        llvm_value.value = str;
-        llvm_value.type = create_node_type_with_class_name("char*");
-        llvm_value.type->mHeap = TRUE;
-        llvm_value.address = nullptr;
-        llvm_value.var = nullptr;
-
-        dec_stack_ptr(2, info);
-        push_value_to_stack_ptr(&llvm_value, info);
-
-        std::pair<sNodeType*, bool> pair_value;
-        pair_value.first = create_node_type_with_class_name("char*");
-        pair_value.second = true;
-
-        gHeapObjects[str] = pair_value;
-
-        info->type = create_node_type_with_class_name("char*");
-        info->type->mHeap = TRUE;
-    }
     else {
-        compile_err_msg(info, "Invalid type for +");
-        info->err_num++;
+        int num_params = 2;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
-        return TRUE;
+        Value* params[PARAMS_MAX];
+
+        params[0] = lvalue.value;
+        params[1] = rvalue.value;
+
+        char struct_name[VAR_NAME_MAX];
+        xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX);
+        xstrncat(struct_name, "_", VAR_NAME_MAX);
+        xstrncat(struct_name, CLASS_NAME(right_type->mClass), VAR_NAME_MAX);
+
+        if(!call_function("op_add", params, num_params, struct_name, info))
+        {
+            compile_err_msg(info, "Not found found operator + for\n");
+            show_node_type(left_type);
+            show_node_type(right_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+            return TRUE;
+        }
     }
 
     return TRUE;
@@ -358,8 +297,6 @@ unsigned int sNodeTree_create_sub(unsigned int left, unsigned int right, unsigne
 
 static BOOL compile_sub(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -377,16 +314,271 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
-    LVALUE llvm_value;
-    llvm_value.value = Builder.CreateSub(lvalue.value, rvalue.value, "subttmp", false, true);
-    llvm_value.type = clone_node_type(right_type);
-    llvm_value.address = nullptr;
-    llvm_value.var = nullptr;
+    if(is_number_type(left_type) && is_number_type(right_type))
+    {
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateSub(lvalue.value, rvalue.value, "subttmp", false, true);
+        llvm_value.type = clone_node_type(right_type);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
 
-    dec_stack_ptr(2, info);
-    push_value_to_stack_ptr(&llvm_value, info);
+        dec_stack_ptr(2, info);
+        push_value_to_stack_ptr(&llvm_value, info);
 
-    info->type = llvm_value.type;
+        info->type = llvm_value.type;
+    }
+    else {
+        int num_params = 2;
+
+        Value* params[PARAMS_MAX];
+
+        params[0] = lvalue.value;
+        params[1] = rvalue.value;
+
+        char struct_name[VAR_NAME_MAX];
+        xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX);
+        xstrncat(struct_name, "_", VAR_NAME_MAX);
+        xstrncat(struct_name, CLASS_NAME(right_type->mClass), VAR_NAME_MAX);
+
+        if(!call_function("op_sub", params, num_params, struct_name, info))
+        {
+            compile_err_msg(info, "Not found found operator + for\n");
+            show_node_type(left_type);
+            show_node_type(right_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+            return TRUE;
+        }
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_mult(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeMult;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    return node;
+}
+
+static BOOL compile_mult(unsigned int node, sCompileInfo* info)
+{
+    int left_node = gNodes[node].mLeft;
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+
+    int right_node = gNodes[node].mRight;
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+
+    if(is_number_type(left_type) && is_number_type(right_type))
+    {
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateMul(lvalue.value, rvalue.value, "multtmp", false, true);
+        llvm_value.type = clone_node_type(right_type);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+
+        dec_stack_ptr(2, info);
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type = llvm_value.type;
+    }
+    else {
+        int num_params = 2;
+
+        Value* params[PARAMS_MAX];
+
+        params[0] = lvalue.value;
+        params[1] = rvalue.value;
+
+        char struct_name[VAR_NAME_MAX];
+        xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX);
+        xstrncat(struct_name, "_", VAR_NAME_MAX);
+        xstrncat(struct_name, CLASS_NAME(right_type->mClass), VAR_NAME_MAX);
+
+        if(!call_function("op_mult", params, num_params, struct_name, info))
+        {
+            compile_err_msg(info, "Not found found operator + for\n");
+            show_node_type(left_type);
+            show_node_type(right_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+            return TRUE;
+        }
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_div(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeDiv;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    return node;
+}
+
+static BOOL compile_div(unsigned int node, sCompileInfo* info)
+{
+    int left_node = gNodes[node].mLeft;
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+
+    int right_node = gNodes[node].mRight;
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+
+    if(is_number_type(left_type) && is_number_type(right_type))
+    {
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateSDiv(lvalue.value, rvalue.value, "divtmp");
+        llvm_value.type = clone_node_type(right_type);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+
+        dec_stack_ptr(2, info);
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type = llvm_value.type;
+    }
+    else {
+        int num_params = 2;
+
+        Value* params[PARAMS_MAX];
+
+        params[0] = lvalue.value;
+        params[1] = rvalue.value;
+
+        char struct_name[VAR_NAME_MAX];
+        xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX);
+        xstrncat(struct_name, "_", VAR_NAME_MAX);
+        xstrncat(struct_name, CLASS_NAME(right_type->mClass), VAR_NAME_MAX);
+
+        if(!call_function("op_div", params, num_params, struct_name, info))
+        {
+            compile_err_msg(info, "Not found found operator + for\n");
+            show_node_type(left_type);
+            show_node_type(right_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+            return TRUE;
+        }
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_mod(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeMod;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    return node;
+}
+
+static BOOL compile_mod(unsigned int node, sCompileInfo* info)
+{
+    int left_node = gNodes[node].mLeft;
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+
+    int right_node = gNodes[node].mRight;
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+
+    if(is_number_type(left_type) && is_number_type(right_type))
+    {
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateSRem(lvalue.value, rvalue.value, "remtmp");
+        llvm_value.type = clone_node_type(right_type);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+
+        dec_stack_ptr(2, info);
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type = llvm_value.type;
+    }
+    else {
+        int num_params = 2;
+
+        Value* params[PARAMS_MAX];
+
+        params[0] = lvalue.value;
+        params[1] = rvalue.value;
+
+        char struct_name[VAR_NAME_MAX];
+        xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX);
+        xstrncat(struct_name, "_", VAR_NAME_MAX);
+        xstrncat(struct_name, CLASS_NAME(right_type->mClass), VAR_NAME_MAX);
+
+        if(!call_function("op_mod", params, num_params, struct_name, info))
+        {
+            compile_err_msg(info, "Not found found operator + for\n");
+            show_node_type(left_type);
+            show_node_type(right_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+            return TRUE;
+        }
+    }
 
     return TRUE;
 }
@@ -814,7 +1006,8 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         cast_right_type_to_left_type(left_type, &right_type, &rvalue, info);
     }
 
-    if(!substitution_posibility(left_type, right_type)) {
+    if(!substitution_posibility(left_type, right_type)) 
+    {
         compile_err_msg(info, "The different type between left type and right type.");
         show_node_type(left_type);
         show_node_type(right_type);
@@ -915,29 +1108,6 @@ BOOL compile_c_string_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-static void create_real_fun_name(char* real_fun_name, size_t size_real_fun_name, char* fun_name, int num_params, sNodeType** param_types)
-{
-    xstrncpy(real_fun_name, fun_name, size_real_fun_name);
-
-    if(num_params > 0) {
-        xstrncat(real_fun_name, "_", size_real_fun_name);
-    }
-
-    int i;
-    for(i=0; i<num_params; i++) {
-        sNodeType* param_type = param_types[i];
-
-        xstrncat(real_fun_name, CLASS_NAME(param_type->mClass), size_real_fun_name);
-        int j;
-        for(j=0; j<param_type->mPointerNum; j++) {
-            xstrncat(real_fun_name, "p", size_real_fun_name);
-        }
-
-        if(i != num_params-1) {
-            xstrncat(real_fun_name, "_", size_real_fun_name);
-        }
-    }
-}
 
 unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, int num_method_generics, sParserInfo* info)
 {
@@ -1033,6 +1203,8 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
 
     sParserInfo info2;
 
+    memset(&info2, 0, sizeof(sParserInfo));
+
     info2.p = buf;
     info2.sname = info->sname;
     info2.source = buf;
@@ -1067,18 +1239,16 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     expect_next_character_with_one_forward("}", &info2);
     info2.lv_table = old_table;
 
-    static int num_lambda = 0;
     char func_name[VAR_NAME_MAX];
-    create_lambda_name(func_name, VAR_NAME_MAX, info2.module_name, num_lambda);
-    num_lambda++;
+    create_lambda_name(func_name, VAR_NAME_MAX, info2.module_name);
 
     BOOL lambda = TRUE;
-    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, 0, &info2);
+    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, 0, NULL, &info2);
 
     return TRUE;
 }
 
-unsigned int sNodeTree_create_function_call(char* func_name, unsigned int* params, int num_params, sParserInfo* info)
+unsigned int sNodeTree_create_function_call(char* func_name, unsigned int* params, int num_params, BOOL method, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -1089,6 +1259,8 @@ unsigned int sNodeTree_create_function_call(char* func_name, unsigned int* param
     for(i=0; i<num_params; i++) {
         gNodes[node].uValue.sFunctionCall.mParams[i] = params[i];
     }
+
+    gNodes[node].uValue.sFunctionCall.mMethod = method;
     
     gNodes[node].mNodeType = kNodeTypeFunctionCall;
 
@@ -1108,6 +1280,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     char* func_name = gNodes[node].uValue.sFunctionCall.mName;
     int num_params = gNodes[node].uValue.sFunctionCall.mNumParams;
     unsigned int params[PARAMS_MAX];
+    BOOL method = gNodes[node].uValue.sFunctionCall.mMethod;
 
     /// go ///
     sNodeType* param_types[PARAMS_MAX];
@@ -1126,6 +1299,9 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         num_params2 = num_params;
     }
 
+    /// compile parametors ///
+    sNodeType* generics_type = NULL;
+
     int i;
     for(i=0; i<num_params2; i++) {
         params[i] = gNodes[node].uValue.sFunctionCall.mParams[i];
@@ -1135,84 +1311,33 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         }
 
         param_types[i] = info->type;
-    }
 
-    /// get function ///
-    char* real_fun_name = NULL;
-    sNodeType* method_generics_types[GENERICS_TYPES_MAX];
-
-    for(std::pair<std::string, sFunction> it: gFuncs) {
-        sFunction fun = it.second;
-
-        if(strcmp(fun.mName, func_name) == 0) {
-            if(fun.mNumParams == num_params || fun.mVarArg) 
-            {
-                memset(method_generics_types, 0, sizeof(sNodeType*)*GENERICS_TYPES_MAX);
-
-                int check_param_num;
-                if(fun.mVarArg) {
-                    check_param_num = fun.mNumParams;
-                }
-                else {
-                    check_param_num = num_params2;
-                }
-
-                BOOL found = TRUE;
-                int i;
-                for(i=0; i<check_param_num; i++) {
-                    sNodeType* left_type = clone_node_type(fun.mParamTypes[i]);
-                    sNodeType* right_type = param_types[i];
-
-                    sCLClass* left_class = left_type->mClass;
-
-                    if(left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS)
-                    {
-                        int method_generics_num = left_class->mMethodGenericsNum;
-                        if(method_generics_types[method_generics_num])
-                        {
-                            if(type_identify(method_generics_types[method_generics_num], right_type))
-                            {
-                                left_type = right_type;
-                            }
-                            else 
-                            {
-                                found = FALSE;
-                            }
-                        }
-                        else {
-                            method_generics_types[method_generics_num] = right_type;
-
-                            left_type = right_type;
-                        }
-                    }
-
-                    if(!substitution_posibility(left_type, right_type))
-                    {
-                        if(!cast_posibility(left_type, right_type)) 
-                        {
-                            found = FALSE;
-                        }
-                    }
-                }
-
-                if(found) {
-                    if(simple_lambda_param) {
-                        if(fun.mParamTypes[num_params2]->mClass == get_class("lambda")) 
-                        {
-                            real_fun_name = fun.mRealName;
-                        }
-                    }
-                    else {
-                        real_fun_name = fun.mRealName;
-                    }
-                    break;
-                }
-            }
+        if(i == 0) {
+            generics_type = info->type;
         }
     }
 
-    if(real_fun_name == NULL) {
-        compile_err_msg(info, "function not found %s or parametor type error\n", func_name);
+    char real_fun_name[REAL_FUN_NAME_MAX];
+
+    if(num_params2 > 0) {
+        if(method) {
+            char* struct_name = CLASS_NAME(param_types[0]->mClass);
+
+            create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, func_name, struct_name);
+        }
+        else {
+            create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, func_name, "");
+        }
+    }
+    else {
+        create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, func_name, "");
+    }
+
+    /// get function ///
+    sFunction fun = gFuncs[real_fun_name];
+
+    if(fun.mResultType == nullptr) {
+        compile_err_msg(info, "function not found %s\n", real_fun_name);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1220,7 +1345,88 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    sFunction fun = gFuncs[real_fun_name];
+    /// check parametors ///
+    BOOL invalid_parametor = TRUE;
+
+    sNodeType* method_generics_types[GENERICS_TYPES_MAX];
+
+    if(fun.mNumParams == num_params || (fun.mVarArg && num_params >= fun.mNumParams)) 
+    {
+        memset(method_generics_types, 0, sizeof(sNodeType*)*GENERICS_TYPES_MAX);
+
+        int check_param_num;
+        if(fun.mVarArg) {
+            check_param_num = fun.mNumParams;
+        }
+        else {
+            check_param_num = num_params2;
+        }
+
+        BOOL found = TRUE;
+        int i;
+        for(i=0; i<check_param_num; i++) {
+            sNodeType* left_type = clone_node_type(fun.mParamTypes[i]);
+            sNodeType* right_type = param_types[i];
+
+            sCLClass* left_class = left_type->mClass;
+
+            if(left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS)
+            {
+                int method_generics_num = left_class->mMethodGenericsNum;
+                if(method_generics_types[method_generics_num])
+                {
+                    if(type_identify(method_generics_types[method_generics_num], right_type))
+                    {
+                        left_type = right_type;
+                    }
+                    else 
+                    {
+                        found = FALSE;
+                    }
+                }
+                else {
+                    method_generics_types[method_generics_num] = right_type;
+
+                    left_type = right_type;
+                }
+            }
+
+            if(!substitution_posibility(left_type, right_type))
+            {
+                if(!cast_posibility(left_type, right_type)) 
+                {
+                    found = FALSE;
+                }
+            }
+        }
+
+        if(found) {
+            if(simple_lambda_param) {
+                if(fun.mParamTypes[num_params2]->mClass == get_class("lambda")) 
+                {
+                    invalid_parametor = FALSE;
+                }
+            }
+            else {
+                invalid_parametor = FALSE;
+            }
+        }
+    }
+
+    if(invalid_parametor) {
+        compile_err_msg(info, "function parametor type error\n", real_fun_name);
+        info->err_num++;
+
+        int i;
+        for(i=0; i<num_params2; i++) {
+            printf("param #%d\n", i);
+            show_node_type(param_types[i]);
+        }
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
 
     /// convert param type ///
     std::vector<Value*> llvm_params;
@@ -1302,7 +1508,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     {
         Function* llvm_fun = TheModule->getFunction(real_fun_name);
 
-        sNodeType* result_type = method_generics_types[fun.mResultType->mClass->mMethodGenericsNum];
+        sNodeType* result_type = clone_node_type(method_generics_types[fun.mResultType->mClass->mMethodGenericsNum]);
 
         if((result_type->mClass->mFlags & CLASS_FLAGS_METHOD_GENERICS) || (result_type->mClass->mFlags & CLASS_FLAGS_GENERICS))
         {
@@ -1329,23 +1535,40 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         info->type = llvm_value.type;
     }
     else {
+        sNodeType* result_type = clone_node_type(fun.mResultType);
+
+        if(generics_type) {
+            if(!solve_generics(&result_type, generics_type))
+            {
+                compile_err_msg(info, "Can't solve generics types");
+                show_node_type(result_type);
+                show_node_type(generics_type);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        generics_type = info->type;
         Function* llvm_fun = TheModule->getFunction(real_fun_name);
 
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateCall(llvm_fun, llvm_params);
-        llvm_value.type = fun.mResultType;
+        llvm_value.type = result_type;
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
 
         push_value_to_stack_ptr(&llvm_value, info);
 
-        info->type = fun.mResultType;
+        info->type = result_type;
     }
 
     return TRUE;
 }
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, int num_method_generics, sParserInfo* info)
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, int num_method_generics, char* struct_name, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -1372,6 +1595,13 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
     gNodes[node].uValue.sFunction.mVarTable = block_var_table;
     gNodes[node].uValue.sFunction.mNumMethodGenerics = num_method_generics;
 
+    if(struct_name) {
+        xstrncpy(gNodes[node].uValue.sFunction.mStructName, struct_name, VAR_NAME_MAX);
+    }
+    else {
+        xstrncpy(gNodes[node].uValue.sFunction.mStructName, "", VAR_NAME_MAX);
+    }
+
     return node;
 }
 
@@ -1393,6 +1623,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     sNodeBlock* node_block = gNodes[node].uValue.sFunction.mNodeBlock;
     int num_method_generics = gNodes[node].uValue.sFunction.mNumMethodGenerics;
+    char* struct_name = gNodes[node].uValue.sFunction.mStructName;
 
     /// go ///
     std::vector<Type *> llvm_param_types;
@@ -1410,7 +1641,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     }
 
     char real_fun_name[REAL_FUN_NAME_MAX];
-    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, func_name, num_params, param_types);
+    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, func_name, struct_name);
 
     add_function(func_name, real_fun_name, param_types, num_params, result_type, num_method_generics, FALSE, FALSE);
 
@@ -1888,7 +2119,6 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     sNodeType* node_type = gNodes[node].uValue.sObject.mType;
 
     sNodeType* node_type2 = clone_node_type(node_type);
-    node_type2->mPointerNum = 1;
     node_type2->mHeap = TRUE;
 
     unsigned int left_node = gNodes[node].mLeft;
@@ -1896,6 +2126,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     Value* object_num;
     if(left_node == 0) {
         object_num = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)1);
+        node_type2->mPointerNum++;
     }
     else {
         if(!compile(left_node, info)) {
@@ -1915,6 +2146,8 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
         dec_stack_ptr(1, info);
 
         object_num = llvm_value.value;
+
+        node_type2->mPointerNum++;
     }
 
     /// calloc ///
@@ -3249,6 +3482,87 @@ BOOL compile_char_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_cast(sNodeType* left_type, unsigned int left_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCast;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].uValue.mType = left_type;
+
+    return node;
+}
+
+BOOL compile_cast(unsigned int node, sCompileInfo* info)
+{
+    sNodeType* right_type = gNodes[node].uValue.mType;
+
+    int left_node = gNodes[node].mLeft;
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(cast_posibility(left_type, right_type)) {
+        cast_right_type_to_left_type(right_type, &left_type, &lvalue, info);
+    }
+
+    push_value_to_stack_ptr(&lvalue, info);
+
+    info->type = clone_node_type(lvalue.type);
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_impl(unsigned int* nodes, int num_nodes, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeImpl;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    memcpy(gNodes[node].uValue.sImpl.mNodes, nodes, sizeof(unsigned int)*num_nodes);
+    gNodes[node].uValue.sImpl.mNumNodes = num_nodes;
+
+    return node;
+}
+
+static BOOL compile_impl(unsigned int node, sCompileInfo* info)
+{
+    unsigned int nodes[IMPL_DEF_MAX];
+    int num_nodes = gNodes[node].uValue.sImpl.mNumNodes;
+
+    memcpy(nodes, gNodes[node].uValue.sImpl.mNodes, sizeof(unsigned int)*num_nodes);
+
+    int i;
+    for(i=0; i<num_nodes; i++) {
+        int node = nodes[i];
+        if(!compile(node, info)) {
+            return FALSE;
+        }
+    }
+
+    info->type = create_node_type_with_class_name("void");
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -3288,6 +3602,24 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeSub:
             if(!compile_sub(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeMult:
+            if(!compile_mult(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeDiv:
+            if(!compile_div(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeMod:
+            if(!compile_mod(node, info)) {
                 return FALSE;
             }
             break;
@@ -3489,6 +3821,18 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeChar:
             if(!compile_char_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeCast:
+            if(!compile_cast(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeImpl:
+            if(!compile_impl(node, info)) {
                 return FALSE;
             }
             break;

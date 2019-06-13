@@ -3,37 +3,6 @@
 extern "C"
 {
 
-sNodeBlock* sNodeBlock_alloc()
-{
-    sNodeBlock* block = (sNodeBlock*)xcalloc(1, sizeof(sNodeBlock));
-
-    block->mSizeNodes = 32;
-    block->mNumNodes = 0;
-    block->mNodes = (unsigned int*)xcalloc(1, sizeof(unsigned int)*block->mSizeNodes);
-    block->mLVTable = NULL;
-
-    return block;
-}
-
-void sNodeBlock_free(sNodeBlock* block)
-{
-    if(block->mNodes) free(block->mNodes);
-    free(block->mSource.mBuf);
-    free(block);
-}
-
-void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)
-{
-    if(node_block->mSizeNodes <= node_block->mNumNodes) {
-        unsigned int new_size = node_block->mSizeNodes * 2;
-        node_block->mNodes = (unsigned int*)xrealloc(node_block->mNodes, sizeof(unsigned int)*new_size);
-//        memset(node_block->mNodes + node_block->mSizeNodes, 0, sizeof(unsigned int)*(new_size-node_block->mSizeNodes));
-    }
-
-    node_block->mNodes[node_block->mNumNodes] = node;
-    node_block->mNumNodes++;
-}
-
 BOOL parse_block_easy(ALLOC sNodeBlock** node_block, sParserInfo* info)
 {
     expect_next_character_with_one_forward("{", info);
@@ -83,13 +52,14 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
         if(node == 0) {
             parser_err_msg(info, "require an expression");
             info->err_num++;
-            break;
         }
 
         gNodes[node].mLine = sline;
         gNodes[node].mSName = sname;
 
-        append_node_to_node_block(node_block, node);
+        if(info->err_num == 0) {
+            append_node_to_node_block(node_block, node);
+        }
 
         if(*info->p == ';') {
             info->p++;

@@ -611,17 +611,9 @@ Value* llvm_create_string(char* str)
 
 void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info)
 {
-/*
-    if(left_type->mPointerNum > 0 && (*right_type)->mPointerNum > 0)
-    {
-        Type* llvm_type = create_llvm_type_from_node_type(left_type);
+    sCLClass* left_class = left_type->mClass;
+    sCLClass* right_class = (*right_type)->mClass;
 
-        rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, llvm_type);
-        rvalue->type = clone_node_type(left_type);
-
-        *right_type = rvalue->type;
-    }
-*/
     if(type_identify(left_type, *right_type)) {
     }
     else if(type_identify_with_class_name(left_type, "int"))
@@ -641,7 +633,14 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
             *right_type = rvalue->type;
         }
     }
-    else if(type_identify_with_class_name(left_type, "long"))
+    else if(type_identify_with_class_name(left_type, "bool"))
+    {
+        rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, IntegerType::get(TheContext, 1));
+        rvalue->type = create_node_type_with_class_name("bool");
+
+        *right_type = rvalue->type;
+    }
+    else if(type_identify_with_class_name(left_type, "long") || (left_class->mFlags & CLASS_FLAGS_GENERICS) || (left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS))
     {
         if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong"))
         {
@@ -660,30 +659,22 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
             *right_type = rvalue->type;
         }
     }
-    else if(type_identify_with_class_name(left_type, "char*"))
+    else if(left_type->mPointerNum > 0) 
     {
         if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong"))
         {
-            rvalue->value = Builder.CreateCast(Instruction::IntToPtr, rvalue->value, PointerType::get(IntegerType::get(TheContext, 8),0));
-            rvalue->type = create_node_type_with_class_name("char*");
+            Type* llvm_type = create_llvm_type_from_node_type(left_type);
+
+            rvalue->value = Builder.CreateCast(Instruction::IntToPtr, rvalue->value, llvm_type);
+            rvalue->type = clone_node_type(left_type);
 
             *right_type = rvalue->type;
         }
         else if((*right_type)->mPointerNum > 0) {
-            rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, PointerType::get(IntegerType::get(TheContext, 8),0));
-            rvalue->type = create_node_type_with_class_name("char*");
+            Type* llvm_type = create_llvm_type_from_node_type(left_type);
 
-            *right_type = rvalue->type;
-        }
-    }
-    else if(type_identify_with_class_name(left_type, "bool"))
-    {
-        if(type_identify_with_class_name(*right_type, "bool"))
-        {
-        }
-        else {
-            rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, IntegerType::get(TheContext, 1));
-            rvalue->type = create_node_type_with_class_name("bool");
+            rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, llvm_type);
+            rvalue->type = clone_node_type(left_type);
 
             *right_type = rvalue->type;
         }

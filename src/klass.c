@@ -332,7 +332,7 @@ sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_
     int i;
     for(i=0; i<num_fields; i++) {
         klass->mFieldNameOffsets[i] = append_str_to_constant_pool(&klass->mConst, field_name[i], FALSE);
-        klass->mFields[i] = fields[i];
+        klass->mFields[i] = clone_node_type(fields[i]);
     }
 
     return klass;

@@ -257,7 +257,18 @@ BOOL is_number_type(sNodeType* node_type)
 
 BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
 {
+    sCLClass* left_class = left_type->mClass;
+    sCLClass* right_class = right_type->mClass; 
+
     if(is_number_type(left_type) && is_number_type(right_type))
+    {
+        return TRUE;
+    }
+    else if((left_class->mFlags & CLASS_FLAGS_GENERICS) || (left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS))
+    {
+        return TRUE;
+    }
+    else if((right_class->mFlags & CLASS_FLAGS_GENERICS) || (right_class->mFlags & CLASS_FLAGS_METHOD_GENERICS))
     {
         return TRUE;
     }
@@ -279,6 +290,10 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type)
     if(type_identify_with_class_name(right_type, "void*")) {
         return left_type->mNullable;
     }
+    else if((left_class->mFlags & CLASS_FLAGS_GENERICS) || (left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS))
+    {
+        return TRUE;
+    }
     else if(left_class == right_class) {
         if(left_type->mPointerNum == right_type->mPointerNum) 
         {
@@ -295,11 +310,6 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type)
     }
 
     return FALSE;
-}
-
-void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_type2, struct sParserInfoStruct* info)
-{
-    *generics_type2 = generics_type;
 }
 
 BOOL type_identify(sNodeType* left, sNodeType* right)
@@ -346,7 +356,14 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
             return FALSE;
         }
 
-        (*node_type) = generics_type->mGenericsTypes[generics_number];
+        sCLClass* klass2 = generics_type->mGenericsTypes[generics_number]->mClass;
+
+        int generics_number2 = klass2->mGenericsNum;
+
+        if(generics_number != generics_number2) 
+        {
+            (*node_type) = generics_type->mGenericsTypes[generics_number];
+        }
     }
     else {
         int i;

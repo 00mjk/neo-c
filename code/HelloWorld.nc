@@ -1,13 +1,33 @@
-def puts(str:char*):int;
-def exit(rcode:int);
-def xmalloc(size:long):heap char*;
-def xfree(mem:heap char*);
 def xcalloc(num:int, size:long):heap char*;
+def xmalloc(size:long):heap char*;
 def xmemdup(mem:char*):heap char*;
 def xstrapd(str1:char*, str2:char*):heap char*;
+def xfree(mem:heap char*);
+
+def puts(str:char*):int;
+def exit(rcode:int);
 def strcmp(str1:char*, str2:char*):int;
 def printf(str:char*, ...):int;
 def strcpy(mem:char*, mem2:char*):int;
+def memcpy(mem:char*, mem2:char*, size:int):char*;
+def strcat(mem:char*, mem2:char*):char*;
+def strlen(mem:char*):int;
+
+impl char_char
+{
+    def operator+(left:char*, right:char*): heap char*
+    {
+        var len1 = strlen(left);
+        var len2 = strlen(right);
+
+        var result = new char[len1 + len2 + 1];
+
+        strcpy(result, left);
+        strcat(result, right);
+
+        result
+    }
+}
 
 def assert(msg:char*, exp:bool) 
 {
@@ -40,12 +60,12 @@ def main():int
 
     var b = 1;
 
-    def fun(exp:bool) 
+    def fun2(exp:bool) 
     {
         assert("function param cast test", exp);
     }
 
-    fun(b);
+    fun2(b);
 
     var n = 1+1;
 
@@ -59,12 +79,12 @@ def main():int
 
     assert("local variable test", m == 778);
 
-    def fun2(x:int, y:int):int 
+    def fun3(x:int, y:int):int 
     {
         x + y
     }
 
-    var l = fun2(1, 2)
+    var l = fun3(1, 2)
 
     assert("function result test", l == 3);
 
@@ -87,7 +107,7 @@ def main():int
         puts(str);
     }
 
-    "aaa".fun4();
+    fun4("aaa");
 
     var i = 1;
 
@@ -151,12 +171,12 @@ def main():int
         x + y + aa
     }
 
-    def fun2(block:lambda(int,int):int):int 
+    def fun5(block:lambda(int,int):int):int 
     {
         block->(1,2)
     }
 
-    var xxx = fun2(fun);
+    var xxx = fun5(fun);
 
     assert("lambda test", xxx == 7);
     assert("lambda test2", bb == 222);
@@ -177,42 +197,46 @@ def main():int
     }
 
     var test11 = TestData;
-
     test11.a = 123;
     test11.b = 234;
 
     assert("struct test", test11.a == 123 && test11.b == 234);
 
-    def fun3(data:TestData) 
+    def fun6(data:TestData) 
     {
         assert("struct test2", data.a == 123 && data.b == 234);
     }
 
-    fun3(test11->);
+    fun6(test11->*);
 
     var iii = 111;
 
     var p = iii<-;
 
-    def fun3(value:int*) 
+    def fun7(value:int*) 
     {
-        assert("reffernce test", value-> == 111);
+        assert("reffernce test", value->* == 111);
     }
 
-    fun3(p);
+    fun7(p);
 
-    def times(n:int, block:lambda()) 
-    {
-        for(var i=0; i<n; i++) {
-            block->();
-        };
+    impl int {
+        def times(n:int, block:lambda()) 
+        {
+            for(var i=0; i<n; i++) {
+                block->();
+            };
+        }
     }
-
-    3.times(lambda() {
-        puts("HO!");
-    })
 
     var nn = 0;
+    3.times(lambda() {
+        puts("HO!");
+        nn++;
+    })
+    assert("lambda test1", nn == 3);
+
+    nn = 0;
     3.times {
         puts("HE!");
         nn++;
@@ -222,14 +246,14 @@ def main():int
 
     var xb = 3;
 
-    def funX(block:lambda(int,int):int):int
+    def fun8(block:lambda(int,int):int):int
     {
         block->(2,2)
     }
 
     var xmm = 1;
 
-    var mm = funX() {
+    var mm = fun8() {
         xmm = 9;
         it + it2 + xb
     }
@@ -241,11 +265,13 @@ def main():int
         b:int;
     }
 
-    def initialize(self:heap Data*):heap Data* {
-        self.a = 111;
-        self.b = 123;
+    impl Data {
+        def initialize(self:heap Data*):heap Data* {
+            self.a = 111;
+            self.b = 123;
 
-        self
+            self
+        }
     }
 
     var ya = new Data;
@@ -261,15 +287,17 @@ def main():int
         b:int;
     }
 
-    def initialize(self:heap Data2*):heap Data2* {
-        self.a = new Data;
+    impl Data2 {
+        def initialize(self:heap Data2*):heap Data2* {
+            self.a = new Data;
 
-        self.a.a = 123;
-        self.a.b = 234;
+            self.a.a = 123;
+            self.a.b = 234;
 
-        self.b = 123;
+            self.b = 123;
 
-        self
+            self
+        }
     }
 
     var yb = new Data2.initialize();
@@ -297,11 +325,13 @@ def main():int
         b:int;
     }
 
-    def initialize(self:heap Data5*):heap Data5* {
-        self.a = 111;
-        self.b = 222;
+    impl Data5 {
+        def initialize(self:heap Data5*):heap Data5* {
+            self.a = 111;
+            self.b = 222;
 
-        self
+            self
+        }
     }
 
     var zz = new Data5.initialize();
@@ -316,14 +346,16 @@ def main():int
         c:heap char*;
     }
 
-    def initialize(self:heap Data6*):heap Data6* {
-        self.a = new Data5;
-        self.a.a = 111;
-        self.a.b = 222;
-        self.b = 333;
-        self.c = new char[5];
+    impl Data6 {
+        def initialize(self:heap Data6*):heap Data6* {
+            self.a = new Data5;
+            self.a.a = 111;
+            self.a.b = 222;
+            self.b = 333;
+            self.c = new char[5];
 
-        self
+            self
+        }
     }
 
     var zz3 = new Data6.initialize();
@@ -360,7 +392,7 @@ def main():int
 
     new Data11.a = new Data10;
     
-    assert("string test", ("AAA" + "BBB").strcmp("AAABBB") == 0);
+    assert("string test", strcmp("AAA" + "BBB", "AAABBB") == 0);
 
     printf("1 + 1 == %d\n", 1 + 1);
     printf("(%s)\n", "AAA" + "BBB");
@@ -422,25 +454,45 @@ def main():int
         a + b
     }
 
-    assert("generics test3", method_generics_fun(inumber2, "AAA", "BBB").strcmp("AAABBB") == 0);
+    assert("generics test3", strcmp(method_generics_fun(inumber2, "AAA", "BBB"), "AAABBB") == 0);
 
-/*
+    var aaaa = "AAA" + "BBB";
+
+    assert("operator test", strcmp(aaaa, "AAABBB") == 0);
+
     struct Vector<T> {
         items:heap T*;
-        len:long;
-        size:long;
+        len:int;
+        size:int;
     }
 
-    def initialize(self:heap Vector<T>*):heap Vector<T>* {
-        self.size = 16;
-        self.len = 0;
-        self.items = new T[self.size];
+    impl Vector<T> {
+        def initialize(self:heap Vector<T>*):heap Vector<T>* {
+            self.size = 16;
+            self.len = 0;
+            self.items = new T[self.size];
 
-        self
+            self
+        }
+        
+        def push_back(self: Vector<T>*, item:T) {
+            if(self.len == self.size) {
+                var new_size = self.size;
+                var items = self.items;
+
+                self.items = new T[new_size];
+                memcpy(self.items->char*, items->char*, 8*self.size);
+                self.size = new_size;
+            }
+
+            self.items[self.len] = item;
+            self.len++;
+        }
     }
 
     var v = new Vector<int>.initialize();
-*/
+
+    v.push_back(1);
 
     0
 }

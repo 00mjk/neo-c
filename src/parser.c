@@ -182,7 +182,8 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         }
     }
 
-    if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
+    if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+    {
         return FALSE;
     }
 
@@ -561,7 +562,7 @@ static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* inf
     return TRUE;
 }
 
-static BOOL parse_function(unsigned int* node, sParserInfo* info)
+static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* info)
 {
     /// method generics ///
     info->mNumMethodGenerics = 0;
@@ -621,6 +622,40 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
 
     if(!parse_word(fun_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
+    }
+
+    if(strcmp(fun_name, "operator") == 0) {
+        switch(*info->p) {
+            case '+': 
+                info->p++;
+                skip_spaces_and_lf(info);
+                xstrncpy(fun_name, "op_add", VAR_NAME_MAX);
+                break;
+
+            case '-': 
+                info->p++;
+                skip_spaces_and_lf(info);
+                xstrncpy(fun_name, "op_sub", VAR_NAME_MAX);
+                break;
+
+            case '*': 
+                info->p++;
+                skip_spaces_and_lf(info);
+                xstrncpy(fun_name, "op_mult", VAR_NAME_MAX);
+                break;
+
+            case '/': 
+                info->p++;
+                skip_spaces_and_lf(info);
+                xstrncpy(fun_name, "op_div", VAR_NAME_MAX);
+                break;
+
+            case '%': 
+                info->p++;
+                skip_spaces_and_lf(info);
+                xstrncpy(fun_name, "op_mod", VAR_NAME_MAX);
+                break;
+        }
     }
 
     expect_next_character_with_one_forward("(", info);
@@ -700,7 +735,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info)
 
         BOOL lambda = FALSE;
 
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, info->mNumMethodGenerics, info);
+        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, info->mNumMethodGenerics, struct_name, info);
     }
 
     info->mNumMethodGenerics = 0;
@@ -1047,7 +1082,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                         return FALSE;
                     }
 
-                    *node = sNodeTree_create_function_call(func_name, params, num_params, info);
+                    *node = sNodeTree_create_function_call(func_name, params, num_params, TRUE, info);
                 }
                 /// access fields ///
                 else {
@@ -1181,8 +1216,19 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 
                 *node = sNodeTree_create_lambda_call(*node, params, num_params, info);
             }
-            else {
+            else if(*info->p == '*') {
+                info->p++;
+                skip_spaces_and_lf(info);
+
                 *node = sNodeTree_create_dereffernce(*node, info);
+            }
+            else {
+                sNodeType* node_type = NULL;
+                if(!parse_type(&node_type, info)) {
+                    return FALSE;
+                }
+
+                *node = sNodeTree_create_cast(node_type, *node, info);
             }
         }
         else if(*info->p == '<' && *(info->p+1) == '-')
@@ -1359,8 +1405,9 @@ static BOOL parse_for(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name, int num_lambda)
+void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name)
 {
+    static int num_lambda = 0;
     xstrncpy(lambda_name, module_name, size_lambda_name);
     xstrncat(lambda_name, "_", size_lambda_name);
     xstrncat(lambda_name, "lambda", size_lambda_name);
@@ -1369,6 +1416,8 @@ void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module
     snprintf(buf, 128, "%d", num_lambda);
 
     xstrncat(lambda_name, buf, size_lambda_name);
+
+    num_lambda++;
 }
 
 static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
@@ -1426,13 +1475,11 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward("}", info);
     info->lv_table = old_table;
 
-    static int num_lambda = 0;
     char func_name[VAR_NAME_MAX];
-    create_lambda_name(func_name, VAR_NAME_MAX, info->module_name, num_lambda);
-    num_lambda++;
+    create_lambda_name(func_name, VAR_NAME_MAX, info->module_name);
 
     BOOL lambda = TRUE;
-    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, 0, info);
+    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, 0, NULL, info);
 
     return TRUE;
 }
@@ -1483,6 +1530,111 @@ static BOOL parse_clone(unsigned int* node, sParserInfo* info)
     }
 
     *node = sNodeTree_create_clone(*node, info);
+
+    return TRUE;
+}
+
+static BOOL parse_impl(unsigned int* node, sParserInfo* info)
+{
+    char* sname = info->sname;
+    int sline = info->sline;
+
+    char struct_name[VAR_NAME_MAX];
+
+    char buf[VAR_NAME_MAX];
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+        return FALSE;
+    }
+
+    xstrncpy(struct_name, buf, VAR_NAME_MAX);
+
+    info->mNumGenerics = 0;
+
+    if(*info->p == '<') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        int num_generics = 0;
+
+        while(TRUE) {
+            char buf[VAR_NAME_MAX];
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                return FALSE;
+            }
+
+            xstrncpy(info->mGenericsTypeNames[num_generics], buf, VAR_NAME_MAX);
+
+            num_generics++;
+
+            if(num_generics >= GENERICS_TYPES_MAX)
+            {
+                parser_err_msg(info, "overflow generics types");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '>') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else {
+                parser_err_msg(info, "require , or > character");
+                info->err_num++;
+                break;
+            }
+        }
+
+        info->mNumGenerics = num_generics;
+    }
+
+    expect_next_character_with_one_forward("{", info);
+
+    unsigned int nodes[IMPL_DEF_MAX];
+    memset(nodes, 0, sizeof(unsigned int)*IMPL_DEF_MAX);
+    int num_nodes = 0;
+
+    while(TRUE) {
+        if(*info->p == '}') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+
+        char buf[VAR_NAME_MAX];
+
+        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+            return FALSE;
+        }
+
+        if(strcmp(buf, "def") == 0) {
+            if(!parse_function(node, struct_name, info)) {
+                return FALSE;
+            }
+
+            nodes[num_nodes++] = *node;
+
+            if(num_nodes >= IMPL_DEF_MAX) {
+                fprintf(stderr, "overflow impl function max");
+                return FALSE;
+            }
+        }
+        else {
+            parser_err_msg(info, "require \"def\" keyword");
+            info->err_num++;
+            break;
+        }
+    }
+
+    if(*info->p == ';') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+
+    *node = sNodeTree_create_impl(nodes, num_nodes, info);
 
     return TRUE;
 }
@@ -1779,7 +1931,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "def") == 0) {
-            if(!parse_function(node, info)) {
+            if(!parse_function(node, NULL, info)) {
                 return FALSE;
             }
         }
@@ -1819,6 +1971,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "clone") == 0) {
             if(!parse_clone(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "impl") == 0) {
+            if(!parse_impl(node, info)) {
                 return FALSE;
             }
         }
@@ -1962,7 +2119,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
 
-                *node = sNodeTree_create_function_call(func_name, params, num_params, info);
+                *node = sNodeTree_create_function_call(func_name, params, num_params, FALSE, info);
             }
             else {
                 parser_err_msg(info, "undeclared %s\n", buf);
@@ -2007,11 +2164,78 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+// from left to right order
+static BOOL expression_mult_div(unsigned int* node, sParserInfo* info)
+{
+    if(!expression_node(node, info)) {
+        return FALSE;
+    }
+    if(*node == 0) {
+        return TRUE;
+    }
+
+    while(*info->p) {
+        if(*info->p == '*' && *(info->p+1) != '=') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int right = 0;
+            if(!expression_node(&right, info)) {
+                return FALSE;
+            }
+
+            if(right == 0) {
+                parser_err_msg(info, "require right value for operator *");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_mult(*node, right, 0, info);
+        }
+        else if(*info->p == '/' && *(info->p+1) != '=' && *(info->p+1) != '*') 
+        {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int right = 0;
+            if(!expression_node(&right, info)) {
+                return FALSE;
+            }
+
+            if(right == 0) {
+                parser_err_msg(info, "require right value for operator /");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_div(*node, right, 0, info);
+        }
+        else if(*info->p == '%' && *(info->p+1) != '=') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int right = 0;
+            if(!expression(&right, info)) {
+                return FALSE;
+            }
+
+            if(right == 0) {
+                parser_err_msg(info, "require right value for operator ^");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_mod(*node, right, 0, info);
+        }
+        else {
+            break;
+        }
+    }
+
+    return TRUE;
+}
 
 // from left to right order
 static BOOL expression_add_sub(unsigned int* node, sParserInfo* info)
 {
-    if(!expression_node(node, info)) {
+    if(!expression_mult_div(node, info)) {
         return FALSE;
     }
     if(*node == 0) {
@@ -2025,7 +2249,7 @@ static BOOL expression_add_sub(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_node(&right, info)) {
+            if(!expression_mult_div(&right, info)) {
                 return FALSE;
             }
 
@@ -2042,7 +2266,7 @@ static BOOL expression_add_sub(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_node(&right, info)) {
+            if(!expression_mult_div(&right, info)) {
                 return FALSE;
             }
 
