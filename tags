@@ -1,0 +1,602 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ALIGNMENT_H	src/alignment.h	2;"	d
+ALLOC	src/xfunc.h	4;"	d
+BOOL	src/xfunc.h	7;"	d
+BUFFER_H	src/buffer.h	2;"	d
+CC	Makefile	/^CC=ccache clang$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -g -DMDEBUG -Qunused-arguments$/;"	m
+CLASS_FLAGS_GENERICS	src/common.h	76;"	d
+CLASS_FLAGS_METHOD_GENERICS	src/common.h	77;"	d
+CLASS_FLAGS_NUMBER	src/common.h	74;"	d
+CLASS_FLAGS_PRIMITIVE	src/common.h	72;"	d
+CLASS_FLAGS_STRUCT	src/common.h	73;"	d
+CLASS_FLAGS_UNSIGNED_NUMBER	src/common.h	75;"	d
+CLASS_NAME	src/common.h	97;"	d
+CLASS_NUM_MAX	src/common.h	21;"	d
+COMMON_H	src/common.h	2;"	d
+COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/xfunc.o src\/alignment.o$/;"	m
+COMPILE_ERR_MSG_MAX	src/common.h	23;"	d
+CONS_str	src/common.h	55;"	d
+CXX	Makefile	/^CXX=ccache clang++$/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g -I . -I src -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
+DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
+ELIF_NUM_MAX	src/common.h	29;"	d
+FALSE	src/xfunc.h	9;"	d
+GENERICS_TYPES_MAX	src/common.h	19;"	d
+HAVE_ICONV_H	config.h	3;"	d
+HAVE_ICONV_H	config.h	5;"	d
+HAVE_MATH_H	config.h	2;"	d
+HAVE_PCRE_H	config.h	6;"	d
+HAVE_PTHREAD_H	config.h	11;"	d
+IMPL_DEF_MAX	src/common.h	32;"	d
+INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
+LIBS	Makefile	/^LIBS= -lutil -lpthread -ldl -lm -lpcre -lrt$/;"	m
+LLVM_COMMON_H	src/llvm_common.hpp	2;"	d
+LOCAL_VARIABLE_MAX	src/common.h	25;"	d
+LVALUE	src/llvm_common.hpp	/^typedef struct LVALUEStruct LVALUE;$/;"	t	typeref:struct:LVALUEStruct
+LVALUEStruct	src/llvm_common.hpp	/^struct LVALUEStruct {$/;"	s
+MANAGED	src/xfunc.h	5;"	d
+METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
+NEO_C_STACK_SIZE	src/common.h	24;"	d
+NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
+OBJS	Makefile	/^OBJS=src\/source_compiler.o src\/parser.o src\/node.o src\/klass.o src\/node_type.o src\/constant.o src\/llvm.o src\/vtable.o src\/node_block.o src\/node_alloc.o$/;"	m
+OS	Makefile	/^OS=LINUX$/;"	m
+PARAMS_MAX	src/common.h	26;"	d
+PARSER_ERR_MSG_MAX	src/common.h	22;"	d
+PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld.nc$/;"	m
+REAL_FUN_NAME_MAX	src/common.h	31;"	d
+RUNTIME_OBJS	Makefile	/^RUNTIME_OBJS=$/;"	m
+SOURCE_EXPRESSION_MAX	src/common.h	28;"	d
+STRUCT_FIELD_MAX	src/common.h	30;"	d
+TRUE	src/xfunc.h	8;"	d
+TheContext	src/llvm.cpp	/^LLVMContext TheContext;$/;"	v
+TheFPM	src/llvm.cpp	/^std::unique_ptr<FunctionPassManager> TheFPM;$/;"	v
+TheLabels	src/llvm.cpp	/^std::map<std::string, BasicBlock*> TheLabels;$/;"	v
+TheModule	src/llvm.cpp	/^Module* TheModule;$/;"	v
+VAR_NAME_MAX	src/common.h	20;"	d
+XFUNC_H	src/xfunc.h	2;"	d
+__64BIT_CPU__	config.h	18;"	d
+__LINUX__	config.h	16;"	d
+ac_fn_c_check_func	configure	/^ac_fn_c_check_func ()$/;"	f
+ac_fn_c_check_header_compile	configure	/^ac_fn_c_check_header_compile ()$/;"	f
+ac_fn_c_check_header_mongrel	configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
+ac_fn_c_try_compile	configure	/^ac_fn_c_try_compile ()$/;"	f
+ac_fn_c_try_cpp	configure	/^ac_fn_c_try_cpp ()$/;"	f
+ac_fn_c_try_link	configure	/^ac_fn_c_try_link ()$/;"	f
+ac_fn_c_try_run	configure	/^ac_fn_c_try_run ()$/;"	f
+add_function	src/node.cpp	/^static void add_function(char* name, char* real_fun_name, sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, BOOL c_ffi_function, BOOL var_arg)$/;"	f	file:
+add_variable_to_table	src/vtable.c	/^BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value)$/;"	f
+address	src/llvm_common.hpp	/^    Value* address;$/;"	m	struct:LVALUEStruct
+alignment	src/alignment.c	/^void alignment(unsigned int* size)$/;"	f
+alignment_pointer	src/alignment.c	/^void alignment_pointer(char** p, char* head)$/;"	f
+alloc_class	src/klass.c	/^static sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_, BOOL number_type, BOOL unsigned_number, int generics_number, int method_generics_number)$/;"	f	file:
+alloc_node	src/node_alloc.c	/^unsigned int alloc_node()$/;"	f
+alloc_node_type	src/node_type.c	/^static sNodeType* alloc_node_type()$/;"	f	file:
+alloc_struct	src/klass.c	/^sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
+append_double_value_to_constant_pool	src/constant.c	/^unsigned int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output)$/;"	f
+append_float_value_to_constant_pool	src/constant.c	/^unsigned int append_float_value_to_constant_pool(sConst* constant, float n, BOOL no_output)$/;"	f
+append_int_value_to_constant_pool	src/constant.c	/^unsigned int append_int_value_to_constant_pool(sConst* constant, int n, BOOL no_output)$/;"	f
+append_node_to_node_block	src/node_alloc.c	/^void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)$/;"	f
+append_str_to_constant_pool	src/constant.c	/^unsigned int append_str_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
+append_wstr_to_constant_pool	src/constant.c	/^unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
+arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
+arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
+as_fn_append	config.status	/^  as_fn_append ()$/;"	f
+as_fn_append	configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
+as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	config.status	/^as_fn_error ()$/;"	f
+as_fn_error	configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
+as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
+as_fn_exit	configure	/^as_fn_exit ()$/;"	f
+as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
+as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
+as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
+as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
+as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
+as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
+as_fn_unset	configure	/^as_fn_unset ()$/;"	f
+bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
+call_function	src/node.cpp	/^static BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, sCompileInfo* info)$/;"	f	file:
+cast_posibility	src/node_type.c	/^BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)$/;"	f
+cast_right_type_to_left_type	src/llvm.cpp	/^void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info)$/;"	f
+check_already_added_variable	src/vtable.c	/^void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info)$/;"	f
+class_final	src/klass.c	/^void class_final()$/;"	f
+class_init	src/klass.c	/^void class_init()$/;"	f
+clint64	src/common.h	34;"	d
+clone_node_type	src/node_type.c	/^sNodeType* clone_node_type(sNodeType* node_type)$/;"	f
+clone_object	src/llvm.cpp	/^Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)$/;"	f
+clone_var_table	src/vtable.c	/^sVarTable* clone_var_table(sVarTable* lv_table)$/;"	f
+compile	src/node.cpp	/^BOOL compile(unsigned int node, sCompileInfo* info)$/;"	f
+compile_add	src/node.cpp	/^static BOOL compile_add(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_and_and	src/node.cpp	/^static BOOL compile_and_and(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_block	src/node_block.cpp	/^BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type)$/;"	f
+compile_c_string_value	src/node.cpp	/^BOOL compile_c_string_value(unsigned int node, sCompileInfo* info)$/;"	f
+compile_cast	src/node.cpp	/^BOOL compile_cast(unsigned int node, sCompileInfo* info)$/;"	f
+compile_char_value	src/node.cpp	/^BOOL compile_char_value(unsigned int node, sCompileInfo* info)$/;"	f
+compile_clone	src/node.cpp	/^static BOOL compile_clone(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_dereffernce	src/node.cpp	/^static BOOL compile_dereffernce(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_div	src/node.cpp	/^static BOOL compile_div(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_equals	src/node.cpp	/^static BOOL compile_equals(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_err_msg	src/node.cpp	/^void compile_err_msg(sCompileInfo* info, const char* msg, ...)$/;"	f
+compile_external_function	src/node.cpp	/^static BOOL compile_external_function(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_false	src/node.cpp	/^static BOOL compile_false(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_for_expression	src/node.cpp	/^static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_function	src/node.cpp	/^BOOL compile_function(unsigned int node, sCompileInfo* info)$/;"	f
+compile_function_call	src/node.cpp	/^BOOL compile_function_call(unsigned int node, sCompileInfo* info)$/;"	f
+compile_gt	src/node.cpp	/^static BOOL compile_gt(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_gteq	src/node.cpp	/^static BOOL compile_gteq(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_if_expression	src/node.cpp	/^static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_impl	src/node.cpp	/^static BOOL compile_impl(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_int_value	src/node.cpp	/^static BOOL compile_int_value(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_lambda_call	src/node.cpp	/^BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)$/;"	f
+compile_le	src/node.cpp	/^static BOOL compile_le(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_leeq	src/node.cpp	/^static BOOL compile_leeq(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_load_element	src/node.cpp	/^static BOOL compile_load_element(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_load_field	src/node.cpp	/^static BOOL compile_load_field(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_load_variable	src/node.cpp	/^static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_logical_denial	src/node.cpp	/^static BOOL compile_logical_denial(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_mod	src/node.cpp	/^static BOOL compile_mod(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_mult	src/node.cpp	/^static BOOL compile_mult(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_not_equals	src/node.cpp	/^static BOOL compile_not_equals(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_null	src/node.cpp	/^static BOOL compile_null(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_object	src/node.cpp	/^static BOOL compile_object(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_or_or	src/node.cpp	/^static BOOL compile_or_or(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_reffernce	src/node.cpp	/^static BOOL compile_reffernce(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_simple_lambda_param	src/node.cpp	/^static BOOL compile_simple_lambda_param(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_source	src/source_compiler.c	/^BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object_file)$/;"	f
+compile_store_element	src/node.cpp	/^BOOL compile_store_element(unsigned int node, sCompileInfo* info)$/;"	f
+compile_store_field	src/node.cpp	/^static BOOL compile_store_field(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_store_variable	src/node.cpp	/^static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_struct	src/node.cpp	/^static BOOL compile_struct(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_struct_object	src/node.cpp	/^static BOOL compile_struct_object(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_sub	src/node.cpp	/^static BOOL compile_sub(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_true	src/node.cpp	/^static BOOL compile_true(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_while_expression	src/node.cpp	/^static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compiler	src/compiler.c	/^static BOOL compiler(char* fname, BOOL optimize, BOOL output_object_file)$/;"	f	file:
+compiler_final	src/compiler.c	/^static void compiler_final()$/;"	f	file:
+compiler_init	src/compiler.c	/^static void compiler_init()$/;"	f	file:
+create_internal_functions	src/llvm.cpp	/^void create_internal_functions()$/;"	f
+create_lambda_name	src/parser.c	/^void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name)$/;"	f
+create_llvm_function	src/llvm.cpp	/^Function* create_llvm_function(const std::string& name)$/;"	f
+create_llvm_type_from_node_type	src/llvm.cpp	/^Type* create_llvm_type_from_node_type(sNodeType* node_type)$/;"	f
+create_node_type_with_class_name	src/node_type.c	/^sNodeType* create_node_type_with_class_name(char* class_name)$/;"	f
+create_node_type_with_class_pointer	src/node_type.c	/^sNodeType* create_node_type_with_class_pointer(sCLClass* klass)$/;"	f
+create_real_fun_name	src/node.cpp	/^static void create_real_fun_name(char* real_fun_name, size_t size_real_fun_name, char* fun_name, char* struct_name)$/;"	f	file:
+current_block	src/common.h	/^    void* current_block;$/;"	m	struct:sCompileInfoStruct
+data	a.c	/^static char* data[128];$/;"	v	file:
+datadir	Makefile	/^datadir=${datarootdir}$/;"	m
+datarootdir	Makefile	/^datarootdir=${prefix}\/share\/clover2$/;"	m
+dec_stack_ptr	src/llvm.cpp	/^void dec_stack_ptr(int value, sCompileInfo* info)$/;"	f
+delete_comment	src/source_compiler.c	/^BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f
+docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
+eNodeType	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	g
+err_num	src/common.h	/^    int err_num;$/;"	m	struct:sCompileInfoStruct
+err_num	src/common.h	/^    int err_num;$/;"	m	struct:sParserInfoStruct
+exec_prefix	Makefile	/^exec_prefix=${prefix}$/;"	m
+expect_next_character_with_one_forward	src/parser.c	/^void expect_next_character_with_one_forward(char* characters, sParserInfo* info)$/;"	f
+expression	src/parser.c	/^BOOL expression(unsigned int* node, sParserInfo* info) $/;"	f
+expression_add_sub	src/parser.c	/^static BOOL expression_add_sub(unsigned int* node, sParserInfo* info)$/;"	f	file:
+expression_and_and_or_or	src/parser.c	/^static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)$/;"	f	file:
+expression_comparison	src/parser.c	/^static BOOL expression_comparison(unsigned int* node, sParserInfo* info)$/;"	f	file:
+expression_equal	src/parser.c	/^static BOOL expression_equal(unsigned int* node, sParserInfo* info)$/;"	f	file:
+expression_mult_div	src/parser.c	/^static BOOL expression_mult_div(unsigned int* node, sParserInfo* info)$/;"	f	file:
+expression_node	src/parser.c	/^static BOOL expression_node(unsigned int* node, sParserInfo* info)$/;"	f	file:
+final_vtable	src/vtable.c	/^void final_vtable()$/;"	f
+free_class	src/klass.c	/^static void free_class(sCLClass* klass)$/;"	f	file:
+free_node_types	src/node_type.c	/^void free_node_types()$/;"	f
+free_nodes	src/node_alloc.c	/^void free_nodes()$/;"	f
+free_object	src/llvm.cpp	/^void free_object(sNodeType* node_type, void* address, sCompileInfo* info)$/;"	f
+free_objects	src/vtable.c	/^void free_objects(sVarTable* table, sCompileInfo* info)$/;"	f
+free_right_value_object	src/llvm.cpp	/^static void free_right_value_object(sNodeType* node_type, void* obj, sCompileInfo* info)$/;"	f	file:
+free_right_value_objects	src/llvm.cpp	/^void free_right_value_objects(sCompileInfo* info)$/;"	f
+func	a.c	/^void func(int a)$/;"	f
+func_name	src/common.h	/^    char func_name[VAR_NAME_MAX];$/;"	m	struct:sCompileInfoStruct
+gARGC	src/compiler.c	/^int gARGC;$/;"	v
+gARGV	src/compiler.c	/^char** gARGV;$/;"	v
+gClassTable	src/klass.c	/^static sClassTable gClassTable[CLASS_NUM_MAX];$/;"	v	file:
+gFuncs	src/node.cpp	/^std::map<std::string, sFunction> gFuncs;$/;"	v
+gFunction	src/llvm.cpp	/^Function* gFunction;$/;"	v
+gHeadClassTable	src/klass.c	/^sClassTable* gHeadClassTable = NULL;$/;"	v
+gHeadVTable	src/vtable.c	/^sVarTable* gHeadVTable;$/;"	v
+gHeapObjects	src/node.cpp	/^std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;$/;"	v
+gLLVMStack	src/llvm.cpp	/^LVALUE* gLLVMStack;$/;"	v
+gLLVMStructType	src/llvm.cpp	/^std::map<std::string, std::pair<Type*, sNodeType*>> gLLVMStructType;$/;"	v
+gLVTableValue	src/llvm.cpp	/^GlobalVariable* gLVTableValue;$/;"	v
+gNodeTypes	src/node_type.c	/^static sNodeType** gNodeTypes = NULL;$/;"	v	file:
+gNodes	src/node_alloc.c	/^sNodeTree* gNodes;$/;"	v
+gResultCode	src/llvm.cpp	/^int gResultCode = 0;$/;"	v
+gSizeNodes	src/node_alloc.c	/^int gSizeNodes = 0;$/;"	v
+gSizePageNodeTypes	src/node_type.c	/^static int gSizePageNodeTypes = 0;$/;"	v	file:
+gSourceName	src/llvm.cpp	/^char gSourceName[PATH_MAX];$/;"	v
+gUsedNodeTypes	src/node_type.c	/^static int gUsedNodeTypes = 0;$/;"	v	file:
+gUsedNodes	src/node_alloc.c	/^int gUsedNodes = 0;$/;"	v
+gUsedPageNodeTypes	src/node_type.c	/^static int gUsedPageNodeTypes = 0;$/;"	v	file:
+gVersion	src/compiler.c	/^char* gVersion = "0.0.1";$/;"	v
+get_class	src/klass.c	/^sCLClass* get_class(char* class_name)$/;"	f
+get_field_index	src/klass.c	/^int get_field_index(sCLClass* klass, char* var_name)$/;"	f
+get_free_block	src/memalloc.c	/^struct header_t *get_free_block(size_t size)$/;"	f
+get_hash_key	src/klass.c	/^unsigned int get_hash_key(char* name, unsigned int max)$/;"	f
+get_llvm_alignment_from_node_type	src/llvm.cpp	/^int get_llvm_alignment_from_node_type(sNodeType* node_type)$/;"	f
+get_lvtable_type	src/llvm.cpp	/^static Type* get_lvtable_type()$/;"	f	file:
+get_number	src/parser.c	/^static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)$/;"	f	file:
+get_parent_var_num_of_sum	src/vtable.c	/^int get_parent_var_num_of_sum(sVarTable* table)$/;"	f
+get_size_from_node_type	src/llvm.cpp	/^uint64_t get_size_from_node_type(sNodeType* node_type)$/;"	f
+get_struct	src/llvm.cpp	/^sNodeType* get_struct(char* class_name)$/;"	f
+get_sum_of_parent_var_num	src/vtable.c	/^static int get_sum_of_parent_var_num(sVarTable* table)$/;"	f	file:
+get_value_from_stack	src/llvm.cpp	/^LVALUE* get_value_from_stack(int offset)$/;"	f
+get_var_num	src/vtable.c	/^int get_var_num(sVarTable* table)$/;"	f
+get_variable_from_index	src/vtable.c	/^sVar* get_variable_from_index(sVarTable* table, int index)$/;"	f
+get_variable_from_table	src/vtable.c	/^sVar* get_variable_from_table(sVarTable* table, char* name)$/;"	f
+get_variable_from_this_table_only	src/vtable.c	/^static sVar* get_variable_from_this_table_only(sVarTable* table, char* name)$/;"	f	file:
+get_variable_index	src/vtable.c	/^int get_variable_index(sVarTable* table, char* name, BOOL* parent)$/;"	f
+global_malloc_lock	src/memalloc.c	/^pthread_mutex_t global_malloc_lock;$/;"	v
+head	src/memalloc.c	/^struct header_t *head = NULL, *tail = NULL;$/;"	v	typeref:struct:header_t
+header_t	src/memalloc.c	/^struct header_t {$/;"	s	file:
+includedir	Makefile	/^includedir=${prefix}\/include\/clover2$/;"	m
+init_block_vtable	src/vtable.c	/^sVarTable* init_block_vtable(sVarTable* lv_table)$/;"	f
+init_node_types	src/node_type.c	/^void init_node_types()$/;"	f
+init_nodes	src/node_alloc.c	/^void init_nodes()$/;"	f
+init_var_table	src/vtable.c	/^sVarTable* init_var_table()$/;"	f
+init_vtable	src/vtable.c	/^void init_vtable()$/;"	f
+is_free	src/memalloc.c	/^    unsigned is_free;$/;"	m	struct:header_t	file:
+is_number_type	src/node_type.c	/^BOOL is_number_type(sNodeType* node_type)$/;"	f
+kNodeTypeAdd	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeAndAnd	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeCString	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeCast	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeChar	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeClone	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeDerefference	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeDiv	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeEquals	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeExternalFunction	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeFalse	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeFor	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeFunction	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeFunctionCall	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeGt	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeGteq	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeIf	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeImpl	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeIntValue	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeLambdaCall	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeLe	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeLeeq	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeLoadElement	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeLoadField	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeLoadVariable	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeLogicalDenial	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeMod	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeMult	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeNotEquals	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeNull	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeObject	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeOrOr	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeRefference	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeSimpleLambdaParam	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeStoreElement	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeStoreField	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeStoreVariable	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeStruct	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeStructObject	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeSub	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeTrue	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+kNodeTypeWhile	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl };$/;"	e	enum:eNodeType
+libdir	Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
+llvm_change_block	src/llvm.cpp	/^void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info)$/;"	f
+llvm_create_string	src/llvm.cpp	/^Value* llvm_create_string(char* str)$/;"	f
+llvm_final	src/llvm.cpp	/^void llvm_final()$/;"	f
+llvm_init	src/llvm.cpp	/^void llvm_init()$/;"	f
+load_address_to_lvtable	src/llvm.cpp	/^Value* load_address_to_lvtable(int index, sNodeType* var_type)$/;"	f
+load_class	src/klass.c	/^static sCLClass* load_class(char* class_name, int version)$/;"	f	file:
+load_class_from_class_file	src/klass.c	/^static sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)$/;"	f	file:
+lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sParserInfoStruct
+mAlloc	src/common.h	/^            BOOL mAlloc;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon2
+mArrayNum	src/common.h	/^    int mArrayNum;$/;"	m	struct:sNodeTypeStruct
+mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarStruct
+mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarTableStruct
+mBuf	src/buffer.h	/^    char* mBuf;$/;"	m	struct:sBufStruct
+mBuf	src/common.h	/^            char* mBuf;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon14
+mCFFIFunction	src/llvm_common.hpp	/^    BOOL mCFFIFunction;$/;"	m	struct:sFunctionStruct
+mCharValue	src/common.h	/^        char mCharValue;$/;"	m	union:sNodeTreeStruct::__anon1
+mClass	src/common.h	/^    sCLClass* mClass;$/;"	m	struct:sNodeTypeStruct
+mClassNameOffset	src/common.h	/^    int mClassNameOffset;$/;"	m	struct:sCLClassStruct
+mConst	src/common.h	/^    char* mConst;$/;"	m	struct:sConstStruct
+mConst	src/common.h	/^    sConst mConst;$/;"	m	struct:sCLClassStruct
+mDefaultValue	src/common.h	/^    char mDefaultValue[METHOD_DEFAULT_PARAM_MAX];$/;"	m	struct:sParserParamStruct
+mElifExpressionNodes	src/common.h	/^            unsigned int mElifExpressionNodes[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon7
+mElifNodeBlocks	src/common.h	/^            MANAGED struct sNodeBlockStruct* mElifNodeBlocks[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon7	typeref:struct:sNodeTreeStruct::__anon1::__anon7::sNodeBlockStruct
+mElifNum	src/common.h	/^            int mElifNum;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon7
+mElseNodeBlock	src/common.h	/^            MANAGED struct sNodeBlockStruct* mElseNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon7	typeref:struct:sNodeTreeStruct::__anon1::__anon7::sNodeBlockStruct
+mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon13
+mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon7
+mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon8
+mExpressionNode2	src/common.h	/^            unsigned int mExpressionNode2;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon13
+mExpressionNode3	src/common.h	/^            unsigned int mExpressionNode3;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon13
+mFieldNameOffsets	src/common.h	/^    char mFieldNameOffsets[STRUCT_FIELD_MAX];$/;"	m	struct:sCLClassStruct
+mFields	src/common.h	/^    struct sNodeTypeStruct* mFields[STRUCT_FIELD_MAX];$/;"	m	struct:sCLClassStruct	typeref:struct:sCLClassStruct::sNodeTypeStruct
+mFlags	src/common.h	/^    clint64 mFlags;$/;"	m	struct:sCLClassStruct
+mForNodeBlock	src/common.h	/^            MANAGED struct sNodeBlockStruct* mForNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon13	typeref:struct:sNodeTreeStruct::__anon1::__anon13::sNodeBlockStruct
+mFreed	src/common.h	/^    BOOL mFreed;$/;"	m	struct:sClassTableStruct
+mGenericsNum	src/common.h	/^    int mGenericsNum;$/;"	m	struct:sCLClassStruct
+mGenericsParamNameOffsets	src/common.h	/^    unsigned int mGenericsParamNameOffsets[GENERICS_TYPES_MAX];$/;"	m	struct:sCLClassStruct
+mGenericsParamTypeOffsets	src/common.h	/^    unsigned int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];$/;"	m	struct:sCLClassStruct
+mGenericsTypeNames	src/common.h	/^    char mGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];$/;"	m	struct:sParserInfoStruct
+mGenericsTypes	src/common.h	/^    struct sNodeTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeTypeStruct
+mHasResult	src/common.h	/^    BOOL mHasResult;$/;"	m	struct:sNodeBlockStruct
+mHeap	src/common.h	/^    BOOL mHeap;$/;"	m	struct:sNodeTypeStruct
+mIfNodeBlock	src/common.h	/^            MANAGED struct sNodeBlockStruct* mIfNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon7	typeref:struct:sNodeTreeStruct::__anon1::__anon7::sNodeBlockStruct
+mIndex	src/common.h	/^    int mIndex;$/;"	m	struct:sVarStruct
+mInitialized	src/common.h	/^    BOOL mInitialized;$/;"	m	struct:sClassTableStruct
+mIntValue	src/common.h	/^        int mIntValue;$/;"	m	union:sNodeTreeStruct::__anon1
+mItem	src/common.h	/^    sCLClass* mItem;$/;"	m	struct:sClassTableStruct
+mLLVMValue	src/common.h	/^    void* mLLVMValue;$/;"	m	struct:sVarStruct
+mLVTable	src/common.h	/^    sVarTable* mLVTable;$/;"	m	struct:sNodeBlockStruct
+mLambda	src/common.h	/^            BOOL mLambda;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon5
+mLeft	src/common.h	/^    unsigned int mLeft;$/;"	m	struct:sNodeTreeStruct
+mLen	src/buffer.h	/^    int mLen;$/;"	m	struct:sBufStruct
+mLen	src/common.h	/^    unsigned int mLen;$/;"	m	struct:sConstStruct
+mLine	src/common.h	/^    int mLine;$/;"	m	struct:sNodeTreeStruct
+mLocalVariables	src/common.h	/^    sVar mLocalVariables[LOCAL_VARIABLE_MAX];  \/\/ open address hash$/;"	m	struct:sVarTableStruct
+mMaxBlockVarNum	src/common.h	/^    int mMaxBlockVarNum;$/;"	m	struct:sVarTableStruct
+mMethod	src/common.h	/^            BOOL mMethod;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon6
+mMethodGenericsNum	src/common.h	/^    int mMethodGenericsNum;$/;"	m	struct:sCLClassStruct
+mMethodGenericsTypeNames	src/common.h	/^    char mMethodGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];$/;"	m	struct:sParserInfoStruct
+mMethodGenericsTypes	src/common.h	/^    sNodeType* mMethodGenericsTypes[GENERICS_TYPES_MAX];$/;"	m	struct:sParserInfoStruct
+mMiddle	src/common.h	/^    unsigned int mMiddle;$/;"	m	struct:sNodeTreeStruct
+mName	src/common.h	/^            char mName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon5
+mName	src/common.h	/^            char mName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon6
+mName	src/common.h	/^    char mName[VAR_NAME_MAX];$/;"	m	struct:sParserParamStruct
+mName	src/common.h	/^    char mName[VAR_NAME_MAX];$/;"	m	struct:sVarStruct
+mName	src/common.h	/^    char* mName;$/;"	m	struct:sClassTableStruct
+mName	src/llvm_common.hpp	/^    char mName[VAR_NAME_MAX];$/;"	m	struct:sFunctionStruct
+mNext	src/common.h	/^    struct sVarTableStruct* mNext;              \/\/ for free var table$/;"	m	struct:sVarTableStruct	typeref:struct:sVarTableStruct::sVarTableStruct
+mNextClass	src/common.h	/^    struct sClassTableStruct* mNextClass;$/;"	m	struct:sClassTableStruct	typeref:struct:sClassTableStruct::sClassTableStruct
+mNodeBlock	src/common.h	/^            struct sNodeBlockStruct* mNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon5	typeref:struct:sNodeTreeStruct::__anon1::__anon5::sNodeBlockStruct
+mNodeType	src/common.h	/^    enum eNodeType mNodeType;$/;"	m	struct:sNodeTreeStruct	typeref:enum:sNodeTreeStruct::eNodeType
+mNodes	src/common.h	/^            unsigned int* mNodes[IMPL_DEF_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon15
+mNodes	src/common.h	/^    unsigned int* mNodes;$/;"	m	struct:sNodeBlockStruct
+mNullable	src/common.h	/^    BOOL mNullable;$/;"	m	struct:sNodeTypeStruct
+mNumFields	src/common.h	/^    int mNumFields;$/;"	m	struct:sCLClassStruct
+mNumGenerics	src/common.h	/^    int mNumGenerics;$/;"	m	struct:sParserInfoStruct
+mNumGenericsTypes	src/common.h	/^    int mNumGenericsTypes;$/;"	m	struct:sNodeTypeStruct
+mNumMethodGenerics	src/common.h	/^            int mNumMethodGenerics;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon5
+mNumMethodGenerics	src/common.h	/^    int mNumMethodGenerics;$/;"	m	struct:sParserInfoStruct
+mNumMethodGenerics	src/llvm_common.hpp	/^    int mNumMethodGenerics;$/;"	m	struct:sFunctionStruct
+mNumNodes	src/common.h	/^            int mNumNodes;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon15
+mNumNodes	src/common.h	/^    unsigned int mNumNodes;$/;"	m	struct:sNodeBlockStruct
+mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon5
+mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon6
+mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sNodeTypeStruct
+mNumParams	src/llvm_common.hpp	/^    int mNumParams;$/;"	m	struct:sFunctionStruct
+mParamTypes	src/common.h	/^    struct sNodeTypeStruct* mParamTypes[PARAMS_MAX];$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeTypeStruct
+mParamTypes	src/llvm_common.hpp	/^    sNodeType* mParamTypes[PARAMS_MAX];$/;"	m	struct:sFunctionStruct
+mParams	src/common.h	/^            sParserParam mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon5
+mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon6
+mParent	src/common.h	/^    struct sVarTableStruct* mParent;            \/\/ make linked list$/;"	m	struct:sVarTableStruct	typeref:struct:sVarTableStruct::sVarTableStruct
+mPointerNum	src/common.h	/^    int mPointerNum;$/;"	m	struct:sNodeTypeStruct
+mReadOnly	src/common.h	/^    BOOL mReadOnly;$/;"	m	struct:sVarStruct
+mRealName	src/llvm_common.hpp	/^    char mRealName[REAL_FUN_NAME_MAX];$/;"	m	struct:sFunctionStruct
+mResultType	src/common.h	/^            sNodeType* mResultType;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon5
+mResultType	src/common.h	/^    struct sNodeTypeStruct* mResultType;$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeTypeStruct
+mResultType	src/llvm_common.hpp	/^    sNodeType* mResultType;$/;"	m	struct:sFunctionStruct
+mRight	src/common.h	/^    unsigned int mRight;$/;"	m	struct:sNodeTreeStruct
+mSLine	src/common.h	/^    int mSLine;$/;"	m	struct:sNodeBlockStruct
+mSName	src/common.h	/^    char* mSName;$/;"	m	struct:sNodeBlockStruct
+mSName	src/common.h	/^    char* mSName;$/;"	m	struct:sNodeTreeStruct
+mSize	src/buffer.h	/^    int mSize;$/;"	m	struct:sBufStruct
+mSize	src/common.h	/^    unsigned int mSize;$/;"	m	struct:sConstStruct
+mSizeNodes	src/common.h	/^    unsigned int mSizeNodes;$/;"	m	struct:sNodeBlockStruct
+mSource	src/common.h	/^    sBuf mSource;$/;"	m	struct:sNodeBlockStruct
+mString	src/common.h	/^            char* mString;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon4
+mStructName	src/common.h	/^            char mStructName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon5
+mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon10
+mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon9
+mType	src/common.h	/^        sNodeType* mType;$/;"	m	union:sNodeTreeStruct::__anon1
+mType	src/common.h	/^    sNodeType* mType;$/;"	m	struct:sParserParamStruct
+mType	src/common.h	/^    sNodeType* mType;$/;"	m	struct:sVarStruct
+mVarArg	src/common.h	/^            BOOL mVarArg;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon5
+mVarArg	src/llvm_common.hpp	/^    BOOL mVarArg;$/;"	m	struct:sFunctionStruct
+mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon11
+mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon12
+mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon2
+mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon3
+mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sVarTableStruct
+mVarTable	src/common.h	/^            sVarTable* mVarTable;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon5
+mWhileNodeBlock	src/common.h	/^            MANAGED struct sNodeBlockStruct* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon8	typeref:struct:sNodeTreeStruct::__anon1::__anon8::sNodeBlockStruct
+main	a.c	/^int main()$/;"	f
+main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
+mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
+module_name	src/common.h	/^    char* module_name;$/;"	m	struct:sParserInfoStruct
+next	src/memalloc.c	/^    struct header_t *next;$/;"	m	struct:header_t	typeref:struct:header_t::header_t	file:
+no_output	src/common.h	/^    BOOL no_output;$/;"	m	struct:sCompileInfoStruct
+output_native_code	src/llvm.cpp	/^void output_native_code(BOOL optimize, BOOL output_object_file)$/;"	f
+p	src/common.h	/^    char* p;$/;"	m	struct:sParserInfoStruct
+parse_block	src/node_block.cpp	/^BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)$/;"	f
+parse_block_easy	src/node_block.cpp	/^BOOL parse_block_easy(ALLOC sNodeBlock** node_block, sParserInfo* info)$/;"	f
+parse_class_name	src/node_type.c	/^static sNodeType* parse_class_name(char** p, char** p2, char* buf)$/;"	f	file:
+parse_clone	src/parser.c	/^static BOOL parse_clone(unsigned int* node, sParserInfo* info)$/;"	f	file:
+parse_for	src/parser.c	/^static BOOL parse_for(unsigned int* node, sParserInfo* info)$/;"	f	file:
+parse_funcation_call_params	src/parser.c	/^static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, sParserInfo* info)$/;"	f	file:
+parse_function	src/parser.c	/^static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* info)$/;"	f	file:
+parse_if	src/parser.c	/^static BOOL parse_if(unsigned int* node, sParserInfo* info)$/;"	f	file:
+parse_impl	src/parser.c	/^static BOOL parse_impl(unsigned int* node, sParserInfo* info)$/;"	f	file:
+parse_lambda	src/parser.c	/^static BOOL parse_lambda(unsigned int* node, sParserInfo* info)$/;"	f	file:
+parse_new	src/parser.c	/^static BOOL parse_new(unsigned int* node, sParserInfo* info)$/;"	f	file:
+parse_param	src/parser.c	/^static BOOL parse_param(sParserParam* param, sParserInfo* info)$/;"	f	file:
+parse_params	src/parser.c	/^static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int character_type, BOOL* var_arg)$/;"	f	file:
+parse_phase	src/common.h	/^    int parse_phase;$/;"	m	struct:sParserInfoStruct
+parse_simple_lambda_param	src/node.cpp	/^static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, sParserInfo* info)$/;"	f	file:
+parse_simple_lambda_params	src/parser.c	/^static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)$/;"	f	file:
+parse_struct	src/parser.c	/^static BOOL parse_struct(unsigned int* node, sParserInfo* info) $/;"	f	file:
+parse_type	src/parser.c	/^BOOL parse_type(sNodeType** result_type, sParserInfo* info)$/;"	f
+parse_var	src/parser.c	/^static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)$/;"	f	file:
+parse_while	src/parser.c	/^static BOOL parse_while(unsigned int* node, sParserInfo* info)$/;"	f	file:
+parse_word	src/parser.c	/^BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf)$/;"	f
+parser_err_msg	src/parser.c	/^void parser_err_msg(sParserInfo* info, const char* msg, ...)$/;"	f
+parser_final	src/parser.c	/^void parser_final()$/;"	f
+parser_init	src/parser.c	/^void parser_init()$/;"	f
+pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sParserInfoStruct
+postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
+prefix	Makefile	/^prefix=\/usr\/local$/;"	m
+print_mem_list	src/memalloc.c	/^void print_mem_list()$/;"	f
+prototypes	configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
+push_value_to_stack_ptr	src/llvm.cpp	/^void push_value_to_stack_ptr(LVALUE* value, sCompileInfo* info)$/;"	f
+put_class_to_table	src/klass.c	/^static BOOL put_class_to_table(char* class_name, sCLClass* klass)$/;"	f	file:
+read_char_from_file	src/klass.c	/^void read_char_from_file(char** p, char* c)$/;"	f
+read_class_from_file	src/klass.c	/^static sCLClass* read_class_from_file(char* class_name, char** p, char* head)$/;"	f	file:
+read_const_from_file	src/klass.c	/^void read_const_from_file(char** p, sConst* constant, char* head)$/;"	f
+read_from_file	src/klass.c	/^void read_from_file(char** p, void* buf, size_t size, char* head)$/;"	f
+read_int_from_file	src/klass.c	/^void read_int_from_file(char** p, int* n)$/;"	f
+read_long_from_file	src/klass.c	/^void read_long_from_file(char** p, clint64* n)$/;"	f
+read_source	src/source_compiler.c	/^BOOL read_source(char* fname, sBuf* source)$/;"	f
+remove_class	src/klass.c	/^static void remove_class(char* class_name)$/;"	f	file:
+restore_var_table	src/vtable.c	/^void restore_var_table(sVarTable* left, sVarTable* right)$/;"	f
+sBuf	src/buffer.h	/^typedef struct sBufStruct sBuf;$/;"	t	typeref:struct:sBufStruct
+sBufStruct	src/buffer.h	/^struct sBufStruct {$/;"	s
+sBuf_append	src/buffer.c	/^void sBuf_append(sBuf* self, void* str, size_t size)$/;"	f
+sBuf_append_char	src/buffer.c	/^void sBuf_append_char(sBuf* self, char c)$/;"	f
+sBuf_append_int	src/buffer.c	/^void sBuf_append_int(sBuf* self, int value)$/;"	f
+sBuf_append_long	src/buffer.c	/^void sBuf_append_long(sBuf* self, long long value)$/;"	f
+sBuf_append_str	src/buffer.c	/^void sBuf_append_str(sBuf* self, char* str)$/;"	f
+sBuf_clone	src/buffer.c	/^void sBuf_clone(sBuf* self, sBuf* buf)$/;"	f
+sBuf_init	src/buffer.c	/^void sBuf_init(sBuf* self)$/;"	f
+sCLClass	src/common.h	/^typedef struct sCLClassStruct sCLClass;$/;"	t	typeref:struct:sCLClassStruct
+sCLClassStruct	src/common.h	/^struct sCLClassStruct {$/;"	s
+sClassTable	src/common.h	/^typedef struct sClassTableStruct sClassTable;$/;"	t	typeref:struct:sClassTableStruct
+sClassTableStruct	src/common.h	/^struct sClassTableStruct$/;"	s
+sCompileInfo	src/common.h	/^typedef struct sCompileInfoStruct sCompileInfo;$/;"	t	typeref:struct:sCompileInfoStruct
+sCompileInfoStruct	src/common.h	/^struct sCompileInfoStruct$/;"	s
+sConst	src/common.h	/^typedef struct sConstStruct sConst;$/;"	t	typeref:struct:sConstStruct
+sConstStruct	src/common.h	/^struct sConstStruct$/;"	s
+sConst_append	src/constant.c	/^unsigned int sConst_append(sConst* self, void* data, int size, BOOL no_output)$/;"	f
+sConst_clone	src/constant.c	/^void sConst_clone(sConst* self, sConst* constant)$/;"	f
+sConst_free	src/constant.c	/^void sConst_free(sConst* self)$/;"	f
+sConst_init	src/constant.c	/^void sConst_init(sConst* self)$/;"	f
+sConst_init_with_size	src/constant.c	/^void sConst_init_with_size(sConst* self, unsigned int size)$/;"	f
+sFor	src/common.h	/^        } sFor;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon13
+sFunction	src/common.h	/^        } sFunction;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon5
+sFunction	src/llvm_common.hpp	/^typedef struct sFunctionStruct sFunction;$/;"	t	typeref:struct:sFunctionStruct
+sFunctionCall	src/common.h	/^        } sFunctionCall;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon6
+sFunctionStruct	src/llvm_common.hpp	/^struct sFunctionStruct {$/;"	s
+sIf	src/common.h	/^        } sIf;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon7
+sImpl	src/common.h	/^        } sImpl;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon15
+sLoadField	src/common.h	/^        } sLoadField;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon12
+sLoadVariable	src/common.h	/^        } sLoadVariable;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon3
+sNodeBlock	src/common.h	/^typedef struct sNodeBlockStruct sNodeBlock;$/;"	t	typeref:struct:sNodeBlockStruct
+sNodeBlockStruct	src/common.h	/^struct sNodeBlockStruct$/;"	s
+sNodeBlock_alloc	src/node_alloc.c	/^sNodeBlock* sNodeBlock_alloc()$/;"	f
+sNodeBlock_free	src/node_alloc.c	/^void sNodeBlock_free(sNodeBlock* block)$/;"	f
+sNodeTree	src/common.h	/^typedef struct sNodeTreeStruct sNodeTree;$/;"	t	typeref:struct:sNodeTreeStruct
+sNodeTreeStruct	src/common.h	/^struct sNodeTreeStruct $/;"	s
+sNodeTree_create_add	src/node.cpp	/^unsigned int sNodeTree_create_add(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
+sNodeTree_create_and_and	src/node.cpp	/^unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right_node, sParserInfo* info)$/;"	f
+sNodeTree_create_c_string_value	src/node.cpp	/^unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, sParserInfo* info)$/;"	f
+sNodeTree_create_cast	src/node.cpp	/^unsigned int sNodeTree_create_cast(sNodeType* left_type, unsigned int left_node, sParserInfo* info)$/;"	f
+sNodeTree_create_character_value	src/node.cpp	/^unsigned int sNodeTree_create_character_value(char c, sParserInfo* info)$/;"	f
+sNodeTree_create_clone	src/node.cpp	/^unsigned int sNodeTree_create_clone(unsigned int left, sParserInfo* info)$/;"	f
+sNodeTree_create_dereffernce	src/node.cpp	/^unsigned int sNodeTree_create_dereffernce(unsigned int left_node, sParserInfo* info)$/;"	f
+sNodeTree_create_div	src/node.cpp	/^unsigned int sNodeTree_create_div(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
+sNodeTree_create_equals	src/node.cpp	/^unsigned int sNodeTree_create_equals(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
+sNodeTree_create_external_function	src/node.cpp	/^unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, int num_method_generics, sParserInfo* info)$/;"	f
+sNodeTree_create_false	src/node.cpp	/^unsigned int sNodeTree_create_false(sParserInfo* info)$/;"	f
+sNodeTree_create_function	src/node.cpp	/^unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, int num_method_generics, char* struct_name, sParserInfo* info)$/;"	f
+sNodeTree_create_function_call	src/node.cpp	/^unsigned int sNodeTree_create_function_call(char* func_name, unsigned int* params, int num_params, BOOL method, sParserInfo* info)$/;"	f
+sNodeTree_create_gt	src/node.cpp	/^unsigned int sNodeTree_create_gt(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
+sNodeTree_create_gteq	src/node.cpp	/^unsigned int sNodeTree_create_gteq(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
+sNodeTree_create_impl	src/node.cpp	/^unsigned int sNodeTree_create_impl(unsigned int* nodes, int num_nodes, sParserInfo* info)$/;"	f
+sNodeTree_create_int_value	src/node.cpp	/^unsigned int sNodeTree_create_int_value(int value, sParserInfo* info)$/;"	f
+sNodeTree_create_lambda_call	src/node.cpp	/^unsigned int sNodeTree_create_lambda_call(unsigned int lambda_node, unsigned int* params, int num_params, sParserInfo* info)$/;"	f
+sNodeTree_create_le	src/node.cpp	/^unsigned int sNodeTree_create_le(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
+sNodeTree_create_leeq	src/node.cpp	/^unsigned int sNodeTree_create_leeq(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
+sNodeTree_create_load_array_element	src/node.cpp	/^unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned int index_node, sParserInfo* info)$/;"	f
+sNodeTree_create_load_field	src/node.cpp	/^unsigned int sNodeTree_create_load_field(char* name, unsigned int left_node, sParserInfo* info)$/;"	f
+sNodeTree_create_load_variable	src/node.cpp	/^unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info)$/;"	f
+sNodeTree_create_logical_denial	src/node.cpp	/^unsigned int sNodeTree_create_logical_denial(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
+sNodeTree_create_mod	src/node.cpp	/^unsigned int sNodeTree_create_mod(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
+sNodeTree_create_mult	src/node.cpp	/^unsigned int sNodeTree_create_mult(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
+sNodeTree_create_not_equals	src/node.cpp	/^unsigned int sNodeTree_create_not_equals(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
+sNodeTree_create_null	src/node.cpp	/^unsigned int sNodeTree_create_null(sParserInfo* info)$/;"	f
+sNodeTree_create_object	src/node.cpp	/^unsigned int sNodeTree_create_object(sNodeType* node_type, unsigned int object_num, char* sname, int sline)$/;"	f
+sNodeTree_create_or_or	src/node.cpp	/^unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node, sParserInfo* info)$/;"	f
+sNodeTree_create_reffernce	src/node.cpp	/^unsigned int sNodeTree_create_reffernce(unsigned int left_node, sParserInfo* info)$/;"	f
+sNodeTree_create_simple_lambda_param	src/node.cpp	/^unsigned int sNodeTree_create_simple_lambda_param(char* buf, sParserInfo* info)$/;"	f
+sNodeTree_create_store_element	src/node.cpp	/^unsigned int sNodeTree_create_store_element(unsigned int array, unsigned int index_node, unsigned int right_node, sParserInfo* info)$/;"	f
+sNodeTree_create_store_field	src/node.cpp	/^unsigned int sNodeTree_create_store_field(char* var_name, unsigned int left_node, unsigned int right_node, sParserInfo* info)$/;"	f
+sNodeTree_create_store_variable	src/node.cpp	/^unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL alloc, sParserInfo* info)$/;"	f
+sNodeTree_create_struct_object	src/node.cpp	/^unsigned int sNodeTree_create_struct_object(sNodeType* node_type, char* sname, int sline)$/;"	f
+sNodeTree_create_sub	src/node.cpp	/^unsigned int sNodeTree_create_sub(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
+sNodeTree_create_true	src/node.cpp	/^unsigned int sNodeTree_create_true(sParserInfo* info)$/;"	f
+sNodeTree_for_expression	src/node.cpp	/^unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED sNodeBlock* for_node_block, sParserInfo* info)$/;"	f
+sNodeTree_if_expression	src/node.cpp	/^unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED struct sNodeBlockStruct* if_node_block, unsigned int* elif_expression_nodes, MANAGED struct sNodeBlockStruct** elif_node_blocks, int elif_num, MANAGED struct sNodeBlockStruct* else_node_block, sParserInfo* info, char* sname, int sline)$/;"	f
+sNodeTree_struct	src/node.cpp	/^unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* sname, int sline)$/;"	f
+sNodeTree_while_expression	src/node.cpp	/^unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED struct sNodeBlockStruct* while_node_block, sParserInfo* info)$/;"	f
+sNodeType	src/common.h	/^typedef struct sNodeTypeStruct sNodeType;$/;"	t	typeref:struct:sNodeTypeStruct
+sNodeTypeStruct	src/common.h	/^struct sNodeTypeStruct {$/;"	s
+sObject	src/common.h	/^        } sObject;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon10
+sParserInfo	src/common.h	/^typedef struct sParserInfoStruct sParserInfo;$/;"	t	typeref:struct:sParserInfoStruct
+sParserInfoStruct	src/common.h	/^struct sParserInfoStruct$/;"	s
+sParserParam	src/common.h	/^typedef struct sParserParamStruct sParserParam;$/;"	t	typeref:struct:sParserParamStruct
+sParserParamStruct	src/common.h	/^struct sParserParamStruct $/;"	s
+sSimpleLambdaParam	src/common.h	/^        } sSimpleLambdaParam;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon14
+sStoreField	src/common.h	/^        } sStoreField;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon11
+sStoreVariable	src/common.h	/^        } sStoreVariable;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon2
+sString	src/common.h	/^        } sString;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon4
+sStruct	src/common.h	/^        } sStruct;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon9
+sVar	src/common.h	/^typedef struct sVarStruct sVar;$/;"	t	typeref:struct:sVarStruct
+sVarStruct	src/common.h	/^struct sVarStruct {$/;"	s
+sVarTable	src/common.h	/^typedef struct sVarTableStruct sVarTable;$/;"	t	typeref:struct:sVarTableStruct
+sVarTableStruct	src/common.h	/^struct sVarTableStruct {$/;"	s
+sWhile	src/common.h	/^        } sWhile;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon8
+search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size, int version)$/;"	f	file:
+set_max_block_var_num	src/vtable.c	/^void set_max_block_var_num(sVarTable* lv_table, sVarTable* old_table)$/;"	f
+sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
+show_node	src/node.cpp	/^void show_node(unsigned int node)$/;"	f
+show_node_type	src/node_type.c	/^void show_node_type(sNodeType* node_type)$/;"	f
+show_vtable	src/vtable.c	/^void show_vtable(sVarTable* table)$/;"	f
+size	src/memalloc.c	/^    size_t size;$/;"	m	struct:header_t	file:
+skip_spaces	src/parser.c	/^static void skip_spaces(sParserInfo* info)$/;"	f	file:
+skip_spaces_and_lf	src/parser.c	/^void skip_spaces_and_lf(sParserInfo* info)$/;"	f
+skip_spaces_for_parse_class_name	src/node_type.c	/^static void skip_spaces_for_parse_class_name(char** p) $/;"	f	file:
+sline	src/common.h	/^    int sline;$/;"	m	struct:sCompileInfoStruct
+sline	src/common.h	/^    int sline;$/;"	m	struct:sParserInfoStruct
+sname	src/common.h	/^    char* sname;$/;"	m	struct:sCompileInfoStruct
+sname	src/common.h	/^    char* sname;$/;"	m	struct:sParserInfoStruct
+solve_generics	src/node_type.c	/^BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)$/;"	f
+source	src/common.h	/^    char* source;$/;"	m	struct:sParserInfoStruct
+stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
+start_to_make_native_code	src/llvm.cpp	/^void start_to_make_native_code(char* sname)$/;"	f
+std_move	src/llvm.cpp	/^void std_move(sNodeType* lvar_type, LVALUE* rvalue)$/;"	f
+store_address_to_lvtable	src/llvm.cpp	/^void store_address_to_lvtable(int index, Value* address)$/;"	f
+substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type)$/;"	f
+sysconfdir	Makefile	/^sysconfdir=${prefix}\/etc\/clover2$/;"	m
+tail	src/memalloc.c	/^struct header_t *head = NULL, *tail = NULL;$/;"	v	typeref:struct:
+type	src/common.h	/^    sNodeType* type;$/;"	m	struct:sCompileInfoStruct
+type	src/llvm_common.hpp	/^    sNodeType* type;$/;"	m	struct:LVALUEStruct
+type_identify	src/node_type.c	/^BOOL type_identify(sNodeType* left, sNodeType* right)$/;"	f
+type_identify_with_class_name	src/node_type.c	/^BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
+uValue	src/common.h	/^    } uValue;$/;"	m	struct:sNodeTreeStruct	typeref:union:sNodeTreeStruct::__anon1
+value	src/llvm_common.hpp	/^    Value* value;$/;"	m	struct:LVALUEStruct
+var	src/llvm_common.hpp	/^    sVar* var;$/;"	m	struct:LVALUEStruct
+xcalloc	src/memalloc.c	/^void *xcalloc(size_t num, size_t nsize)$/;"	f
+xcalloc	src/xfunc.c	/^ALLOC void* xcalloc(size_t count, size_t size)$/;"	f
+xfree	src/memalloc.c	/^void xfree(void *block)$/;"	f
+xmalloc	src/memalloc.c	/^void *xmalloc(size_t size)$/;"	f
+xmalloc	src/xfunc.c	/^ALLOC void* xmalloc(size_t size)$/;"	f
+xmemdup	src/memalloc.c	/^void *xmemdup(void *block)$/;"	f
+xrealloc	src/memalloc.c	/^void *xrealloc(void *block, size_t size)$/;"	f
+xrealloc	src/xfunc.c	/^ALLOC void* xrealloc(void* ptr, size_t size)$/;"	f
+xstrdup	src/xfunc.c	/^ALLOC char* xstrdup(char* str)$/;"	f
+xstrncat	src/xfunc.c	/^char* xstrncat(char* des, char* str, int size)$/;"	f
+xstrncpy	src/xfunc.c	/^char* xstrncpy(char* des, char* src, int size)$/;"	f

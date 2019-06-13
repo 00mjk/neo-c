@@ -204,14 +204,7 @@ AC_SUBST(CFFI)
 
 AC_SUBST(LIBS)
 
-if which clang-7 > /dev/null
-then
-    CC=clang-7
-    if which ccache > /dev/null
-    then
-        CC="ccache clang-7"
-    fi
-elif which clang > /dev/null
+if which clang > /dev/null
 then
     CC=clang
     if which ccache > /dev/null
@@ -237,14 +230,7 @@ CXXFLAGS='-DPREFIX="\"${DESTDIR}/\""'
 CXXFLAGS="-I . -I src $CXXFLAGS"
 #CXXFLAGS="-fPIC -rdynamic $CXXFLAGS"
 
-if which clang++-7 > /dev/null
-then
-    CXX=clang++-7
-    if which ccache > /dev/null
-    then
-        CXX="ccache clang++-7"
-    fi
-elif which clang++ > /dev/null
+if which clang++ > /dev/null
 then
     CXX=clang++
     if which ccache > /dev/null
@@ -259,57 +245,22 @@ else
     fi
 fi
 
-if which llvm-config-7 > /dev/null
+if test $DEBUGGING = 1
 then
-    if test $DEBUGGING = 1
-    then
-        CXXFLAGS='`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
-    else
-        CXXFLAGS='`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
+    CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
+else
+    CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
     fi
-else
-    if test $DEBUGGING = 1
-    then
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
-    else
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
-    fi
-fi
 
-if which clang-7
-then
-    CLANG=clang-7
-else
-    CLANG=clang
-fi
+CLANG=clang
 
-if which llvm-dis-7
-then
-    LLVM_DIS=llvm-dis-7
-else
-    LLVM_DIS=llvm-dis
-fi
+LLVM_DIS=llvm-dis
 
-if which llc-7
-then
-    LLC=llc-7
-else
-    LLC=llc
-fi
+LLC=llc
 
-if which clang++-7
-then
-    CLANGPLUSPLUS=clang++-7
-else
-    CLANGPLUSPLUS=clang++
-fi
+CLANGPLUSPLUS=clang++
 
-if which llvm-config-7
-then
-    LLVM_CONFIG=llvm-config-7
-else
-    LLVM_CONFIG=llvm-config
-fi
+LLVM_CONFIG=llvm-config
 
 LIBS="$LIBS"
 

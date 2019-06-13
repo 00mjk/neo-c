@@ -2314,19 +2314,24 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    sNodeType* left_type2 = clone_node_type(left_type);
+    left_type2->mPointerNum = 0;
+
+    Type* llvm_struct_type = create_llvm_type_from_node_type(left_type2);
+
     Value* field_address;
     if(left_type->mPointerNum == 0) {
 #if LLVM_VERSION_MAJOR >= 7
         field_address = Builder.CreateStructGEP(lvalue.address, field_index);
 #else
-        field_address = Builder.CreateStructGEP(llvm_field_type, lvalue.address, field_index);
+        field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, field_index);
 #endif
     }
     else {
 #if LLVM_VERSION_MAJOR >= 7
         field_address = Builder.CreateStructGEP(lvalue.value, field_index);
 #else
-        field_address = Builder.CreateStructGEP(llvm_field_type, lvalue.value, field_index);
+        field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, field_index);
 #endif
     }
 
@@ -2431,19 +2436,24 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
+    sNodeType* left_type2 = clone_node_type(left_type);
+    left_type2->mPointerNum = 0;
+
+    Type* llvm_struct_type = create_llvm_type_from_node_type(left_type2);
+
     Value* field_address;
     if(left_type->mPointerNum == 0) {
 #if LLVM_VERSION_MAJOR >= 7
         field_address = Builder.CreateStructGEP(lvalue.address, field_index);
 #else
-        field_address = Builder.CreateStructGEP(llvm_field_type, lvalue.address, field_index);
+        field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, field_index);
 #endif
     }
     else {
 #if LLVM_VERSION_MAJOR >= 7
         field_address = Builder.CreateStructGEP(lvalue.value, field_index);
 #else
-        field_address = Builder.CreateStructGEP(llvm_field_type, lvalue.value, field_index);
+        field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, field_index);
 #endif
     }
 

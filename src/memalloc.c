@@ -185,7 +185,6 @@ char *xstrapd(char *block, char *block2)
 
     ret = (char*)xmalloc(size);
     if (ret) {
-        /* Relocate contents to the new bigger block */
         memcpy(ret, block, str_size);
         memcpy(ret + str_size, block2, str_size2);
         ret[str_size + str_size2] = '\0';

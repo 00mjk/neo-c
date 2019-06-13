@@ -703,6 +703,11 @@ printf("free %p\n", obj);
     Value* obj2 = (Value*)obj;
     sCLClass* klass = node_type->mClass;
 
+    sNodeType* node_type2 = clone_node_type(node_type);
+    node_type2->mPointerNum = 0;
+
+    Type* llvm_struct_type = create_llvm_type_from_node_type(node_type2);
+
     int i;
     for(i=0; i<klass->mNumFields; i++) {
         sNodeType* field_type = klass->mFields[i];
@@ -716,7 +721,7 @@ printf("field %d\n", i);
 #if LLVM_VERSION_MAJOR >= 7
             Value* field_address = Builder.CreateStructGEP(obj2, i);
 #else
-            Value* field_address = Builder.CreateStructGEP(llvm_field_type, obj2, i);
+            Value* field_address = Builder.CreateStructGEP(llvm_struct_type, obj2, i);
 #endif
 
             Value* field_obj = Builder.CreateAlignedLoad(field_address, 8);
@@ -756,6 +761,11 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 
     Value* obj = Builder.CreateAlignedLoad((Value*)address, 8);
 
+    sNodeType* node_type2 = clone_node_type(node_type);
+    node_type2->mPointerNum = 0;
+
+    Type* llvm_struct_type = create_llvm_type_from_node_type(node_type2);
+
     int i;
     for(i=0; i<klass->mNumFields; i++) {
         sNodeType* field_type = klass->mFields[i];
@@ -768,7 +778,7 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 #if LLVM_VERSION_MAJOR >= 7
             Value* field_address = Builder.CreateStructGEP(obj, i);
 #else
-            Value* field_address = Builder.CreateStructGEP(llvm_field_type, obj, i);
+            Value* field_address = Builder.CreateStructGEP(llvm_struct_type, obj, i);
 #endif
             free_object(field_type, field_address, info);
         }
@@ -803,6 +813,11 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
 
     Value* address3 = Builder.CreateCast(Instruction::BitCast, address2, llvm_obj_type);
 
+    sNodeType* node_type2 = clone_node_type(node_type);
+    node_type2->mPointerNum = 0;
+
+    Type* llvm_struct_type = create_llvm_type_from_node_type(node_type2);
+
 /*
     Value* dest_obj = Builder.CreateAlignedLoad(address3, 8);
 */
@@ -821,7 +836,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
 #if LLVM_VERSION_MAJOR >= 7
            Value* field_address = Builder.CreateStructGEP(address3, i);
 #else
-           Value* field_address = Builder.CreateStructGEP(llvm_field_type, address3, i);
+           Value* field_address = Builder.CreateStructGEP(llvm_struct_type, address3, i);
 #endif
            Value* field_value = clone_object(field_type, field_address, info);
 
