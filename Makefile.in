@@ -43,8 +43,8 @@ libneo-c.so.1.0.0: $(COMMON_OBJ) $(RUNTIME_OBJS)
 	ln -s -f libneo-c.so.1.0.0 libneo-c.so.1
 	ln -s -f libneo-c.so.1.0.0 libneo-c.so
 
-memalloc.o: memalloc/memalloc.c
-	$(CC) -c -o memalloc.o memalloc/memalloc.c
+memalloc.o: src/memalloc.c
+	$(CC) -c -o memalloc.o src/memalloc.c
 
 ###################################################
 # Object files

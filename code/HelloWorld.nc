@@ -1,7 +1,6 @@
 def xcalloc(num:int, size:long):heap char*;
 def xmalloc(size:long):heap char*;
 def xmemdup(mem:char*):heap char*;
-def xstrapd(str1:char*, str2:char*):heap char*;
 def xfree(mem:heap char*);
 
 def puts(str:char*):int;
