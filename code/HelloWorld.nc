@@ -12,20 +12,17 @@ def memcpy(mem:char*, mem2:char*, size:int):char*;
 def strcat(mem:char*, mem2:char*):char*;
 def strlen(mem:char*):int;
 
-impl char_char
+def operator+(left:char*, right:char*): heap char*
 {
-    def operator+(left:char*, right:char*): heap char*
-    {
-        var len1 = strlen(left);
-        var len2 = strlen(right);
+    var len1 = strlen(left);
+    var len2 = strlen(right);
 
-        var result = new char[len1 + len2 + 1];
+    var result = new char[len1 + len2 + 1];
 
-        strcpy(result, left);
-        strcat(result, right);
+    strcpy(result, left);
+    strcat(result, right);
 
-        result
-    }
+    result
 }
 
 def assert(msg:char*, exp:bool) 

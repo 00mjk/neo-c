@@ -160,6 +160,26 @@ static void create_real_fun_name(char* real_fun_name, size_t size_real_fun_name,
     }
 }
 
+static void create_operator_fun_name(char* real_fun_name, size_t size_real_fun_name, char* fun_name, sNodeType** param_types, int num_params)
+{
+    xstrncpy(real_fun_name, fun_name, size_real_fun_name);
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        sNodeType* param_type = param_types[i];
+
+        char* class_name = CLASS_NAME(param_type->mClass);
+
+        xstrncat(real_fun_name, "_", size_real_fun_name);
+        xstrncat(real_fun_name, class_name, size_real_fun_name);
+
+        int j;
+        for(j=0; j<param_type->mPointerNum; j++) {
+            xstrncat(real_fun_name, "p", size_real_fun_name);
+        }
+    }
+}
+
 static BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, sCompileInfo* info)
 {
     char real_fun_name[REAL_FUN_NAME_MAX];
@@ -254,17 +274,21 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
     else {
         int num_params = 2;
 
+        sNodeType* param_types[PARAMS_MAX];
+
+        param_types[0] = left_type;
+        param_types[1] = right_type;
+
         Value* params[PARAMS_MAX];
 
         params[0] = lvalue.value;
         params[1] = rvalue.value;
 
-        char struct_name[VAR_NAME_MAX];
-        xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX);
-        xstrncat(struct_name, "_", VAR_NAME_MAX);
-        xstrncat(struct_name, CLASS_NAME(right_type->mClass), VAR_NAME_MAX);
+        char real_fun_name[REAL_FUN_NAME_MAX];
 
-        if(!call_function("op_add", params, num_params, struct_name, info))
+        create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_add", param_types, num_params);
+
+        if(!call_function(real_fun_name, params, num_params, "", info))
         {
             compile_err_msg(info, "Not found found operator + for\n");
             show_node_type(left_type);
@@ -330,17 +354,21 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
     else {
         int num_params = 2;
 
+        sNodeType* param_types[PARAMS_MAX];
+
+        param_types[0] = left_type;
+        param_types[1] = right_type;
+
         Value* params[PARAMS_MAX];
 
         params[0] = lvalue.value;
         params[1] = rvalue.value;
 
-        char struct_name[VAR_NAME_MAX];
-        xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX);
-        xstrncat(struct_name, "_", VAR_NAME_MAX);
-        xstrncat(struct_name, CLASS_NAME(right_type->mClass), VAR_NAME_MAX);
+        char real_fun_name[REAL_FUN_NAME_MAX];
 
-        if(!call_function("op_sub", params, num_params, struct_name, info))
+        create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_sub", param_types, num_params);
+
+        if(!call_function(real_fun_name, params, num_params, "", info))
         {
             compile_err_msg(info, "Not found found operator + for\n");
             show_node_type(left_type);
@@ -406,17 +434,21 @@ static BOOL compile_mult(unsigned int node, sCompileInfo* info)
     else {
         int num_params = 2;
 
+        sNodeType* param_types[PARAMS_MAX];
+
+        param_types[0] = left_type;
+        param_types[1] = right_type;
+
         Value* params[PARAMS_MAX];
 
         params[0] = lvalue.value;
         params[1] = rvalue.value;
 
-        char struct_name[VAR_NAME_MAX];
-        xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX);
-        xstrncat(struct_name, "_", VAR_NAME_MAX);
-        xstrncat(struct_name, CLASS_NAME(right_type->mClass), VAR_NAME_MAX);
+        char real_fun_name[REAL_FUN_NAME_MAX];
 
-        if(!call_function("op_mult", params, num_params, struct_name, info))
+        create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_mult", param_types, num_params);
+
+        if(!call_function(real_fun_name, params, num_params, "", info))
         {
             compile_err_msg(info, "Not found found operator + for\n");
             show_node_type(left_type);
@@ -482,17 +514,21 @@ static BOOL compile_div(unsigned int node, sCompileInfo* info)
     else {
         int num_params = 2;
 
+        sNodeType* param_types[PARAMS_MAX];
+
+        param_types[0] = left_type;
+        param_types[1] = right_type;
+
         Value* params[PARAMS_MAX];
 
         params[0] = lvalue.value;
         params[1] = rvalue.value;
 
-        char struct_name[VAR_NAME_MAX];
-        xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX);
-        xstrncat(struct_name, "_", VAR_NAME_MAX);
-        xstrncat(struct_name, CLASS_NAME(right_type->mClass), VAR_NAME_MAX);
+        char real_fun_name[REAL_FUN_NAME_MAX];
 
-        if(!call_function("op_div", params, num_params, struct_name, info))
+        create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_div", param_types, num_params);
+
+        if(!call_function(real_fun_name, params, num_params, "", info))
         {
             compile_err_msg(info, "Not found found operator + for\n");
             show_node_type(left_type);
@@ -558,17 +594,21 @@ static BOOL compile_mod(unsigned int node, sCompileInfo* info)
     else {
         int num_params = 2;
 
+        sNodeType* param_types[PARAMS_MAX];
+
+        param_types[0] = left_type;
+        param_types[1] = right_type;
+
         Value* params[PARAMS_MAX];
 
         params[0] = lvalue.value;
         params[1] = rvalue.value;
 
-        char struct_name[VAR_NAME_MAX];
-        xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX);
-        xstrncat(struct_name, "_", VAR_NAME_MAX);
-        xstrncat(struct_name, CLASS_NAME(right_type->mClass), VAR_NAME_MAX);
+        char real_fun_name[REAL_FUN_NAME_MAX];
 
-        if(!call_function("op_mod", params, num_params, struct_name, info))
+        create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_mod", param_types, num_params);
+
+        if(!call_function(real_fun_name, params, num_params, "", info))
         {
             compile_err_msg(info, "Not found found operator + for\n");
             show_node_type(left_type);
@@ -1109,7 +1149,7 @@ BOOL compile_c_string_value(unsigned int node, sCompileInfo* info)
 }
 
 
-unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, int num_method_generics, sParserInfo* info)
+unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, int num_method_generics, char* struct_name, BOOL operator_fun, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -1133,6 +1173,14 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
     gNodes[node].uValue.sFunction.mResultType = result_type;
     gNodes[node].uValue.sFunction.mVarArg = var_arg;
     gNodes[node].uValue.sFunction.mNumMethodGenerics = num_method_generics;
+    gNodes[node].uValue.sFunction.mOperatorFun = operator_fun;
+
+    if(struct_name) {
+        xstrncpy(gNodes[node].uValue.sFunction.mStructName, struct_name, VAR_NAME_MAX);
+    }
+    else {
+        xstrncpy(gNodes[node].uValue.sFunction.mStructName, "", VAR_NAME_MAX);
+    }
 
     return node;
 }
@@ -1152,6 +1200,8 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
     sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
     BOOL var_arg = gNodes[node].uValue.sFunction.mVarArg;
     int num_method_generics = gNodes[node].uValue.sFunction.mNumMethodGenerics;
+    char* struct_name = gNodes[node].uValue.sFunction.mStructName;
+    BOOL operator_fun = gNodes[node].uValue.sFunction.mOperatorFun;
 
     /// go ///
     Type* llvm_result_type = create_llvm_type_from_node_type(result_type);
@@ -1168,10 +1218,18 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
         param_types[i] = param_type;
     }
 
-    FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
-    Function::Create(function_type, Function::ExternalLinkage, func_name, TheModule);
+    char real_fun_name[REAL_FUN_NAME_MAX];
+    if(operator_fun) {
+        create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, func_name, param_types, num_params);
+    }
+    else {
+        create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, func_name, struct_name);
+    }
 
-    add_function(func_name, func_name, param_types, num_params, result_type, num_method_generics, TRUE, var_arg);
+    FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
+    Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
+
+    add_function(real_fun_name, func_name, param_types, num_params, result_type, num_method_generics, TRUE, var_arg);
 
     return TRUE;
 }
@@ -1243,7 +1301,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     create_lambda_name(func_name, VAR_NAME_MAX, info2.module_name);
 
     BOOL lambda = TRUE;
-    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, 0, NULL, &info2);
+    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, 0, NULL, FALSE, &info2);
 
     return TRUE;
 }
@@ -1568,7 +1626,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, int num_method_generics, char* struct_name, sParserInfo* info)
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, int num_method_generics, char* struct_name, BOOL operator_fun, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -1602,6 +1660,8 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
         xstrncpy(gNodes[node].uValue.sFunction.mStructName, "", VAR_NAME_MAX);
     }
 
+    gNodes[node].uValue.sFunction.mOperatorFun = operator_fun;
+
     return node;
 }
 
@@ -1625,6 +1685,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     int num_method_generics = gNodes[node].uValue.sFunction.mNumMethodGenerics;
     char* struct_name = gNodes[node].uValue.sFunction.mStructName;
 
+    BOOL operator_fun = gNodes[node].uValue.sFunction.mOperatorFun;
+
     /// go ///
     std::vector<Type *> llvm_param_types;
     sNodeType* param_types[PARAMS_MAX];
@@ -1641,7 +1703,12 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     }
 
     char real_fun_name[REAL_FUN_NAME_MAX];
-    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, func_name, struct_name);
+    if(operator_fun) {
+        create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, func_name, param_types, num_params);
+    }
+    else {
+        create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, func_name, struct_name);
+    }
 
     add_function(func_name, real_fun_name, param_types, num_params, result_type, num_method_generics, FALSE, FALSE);
 

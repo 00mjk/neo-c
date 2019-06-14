@@ -624,7 +624,11 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
         return FALSE;
     }
 
+    BOOL operator_fun = FALSE;
+
     if(strcmp(fun_name, "operator") == 0) {
+        operator_fun = TRUE;
+
         switch(*info->p) {
             case '+': 
                 info->p++;
@@ -703,7 +707,7 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
         info->p++;
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, info->mNumMethodGenerics, info);
+        *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, info->mNumMethodGenerics, struct_name, operator_fun, info);
     }
     else {
         sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
@@ -735,7 +739,7 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
 
         BOOL lambda = FALSE;
 
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, info->mNumMethodGenerics, struct_name, info);
+        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, info->mNumMethodGenerics, struct_name, operator_fun, info);
     }
 
     info->mNumMethodGenerics = 0;
@@ -1479,7 +1483,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     create_lambda_name(func_name, VAR_NAME_MAX, info->module_name);
 
     BOOL lambda = TRUE;
-    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, 0, NULL, info);
+    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, 0, NULL, FALSE, info);
 
     return TRUE;
 }

@@ -332,6 +332,7 @@ struct sNodeTreeStruct
             BOOL mVarArg;
             int mNumMethodGenerics;
             char mStructName[VAR_NAME_MAX];
+            BOOL mOperatorFun;
         } sFunction;
 
         struct {
@@ -404,11 +405,11 @@ unsigned int sNodeTree_create_not_equals(unsigned int left, unsigned int right, 
 
 unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL alloc, sParserInfo* info);
 
-unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, int num_method_generics, sParserInfo* info);
+unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, int num_method_generics, char* struct_name, BOOL operator_fun, sParserInfo* info);
 
 unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, sParserInfo* info);
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, int num_method_generics, char* struct_name, sParserInfo* info);
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, int num_method_generics, char* struct_name, BOOL operator_fun, sParserInfo* info);
 
 unsigned int sNodeTree_create_function_call(char* func_name, unsigned int* params, int num_params, BOOL method, sParserInfo* info);
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
@@ -445,6 +446,7 @@ unsigned int sNodeTree_create_div(unsigned int left, unsigned int right, unsigne
 unsigned int sNodeTree_create_mod(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_cast(sNodeType* left_type, unsigned int left_node, sParserInfo* info);
 unsigned int sNodeTree_create_impl(unsigned int* nodes, int num_nodes, sParserInfo* info);
+void create_operator_fun_name(char* fun_name, char* real_fun_name, size_t size_real_fun_name, sNodeType** param_types, int num_params);
 
 void show_node(unsigned int node);
 BOOL compile(unsigned int node, sCompileInfo* info);
