@@ -118,6 +118,7 @@ void *xcalloc(size_t num, size_t nsize)
     if (!num || !nsize)
         return NULL;
     size = num * nsize;
+
     /* check mul overflow */
     if (nsize != size / num)
         return NULL;

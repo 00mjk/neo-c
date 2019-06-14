@@ -123,6 +123,8 @@ void std_move(sNodeType* lvar_type, LVALUE* rvalue);
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info);
 void free_right_value_objects(sCompileInfo* info);
 void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info);
+Value* store_lvtable();
+void restore_lvtable(Value* lvtable);
 }
 
 #endif

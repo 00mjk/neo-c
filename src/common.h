@@ -407,7 +407,7 @@ unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL all
 
 unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, int num_method_generics, char* struct_name, BOOL operator_fun, sParserInfo* info);
 
-unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, sParserInfo* info);
+unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, int sline, sParserInfo* info);
 
 unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, int num_method_generics, char* struct_name, BOOL operator_fun, sParserInfo* info);
 

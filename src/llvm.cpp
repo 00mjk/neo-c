@@ -169,6 +169,52 @@ Value* load_address_to_lvtable(int index, sNodeType* var_type)
     return pointer_value2;
 }
 
+Value* store_lvtable()
+{
+    Type* lvtable_type = get_lvtable_type();
+
+    Value* lvtable = Builder.CreateAlloca(lvtable_type, 0, "lvtable");
+
+    Function* fun = TheModule->getFunction("memcpy");
+
+    std::vector<Value*> params2;
+
+    Value* param = lvtable;
+    param = Builder.CreateCast(Instruction::BitCast, param, PointerType::get(IntegerType::get(TheContext, 8), 0));
+    params2.push_back(param);
+
+    Value* param2 = gLVTableValue;
+    param2 = Builder.CreateCast(Instruction::BitCast, param2, PointerType::get(IntegerType::get(TheContext, 8), 0));
+    params2.push_back(param2);
+
+    Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, 8*LOCAL_VARIABLE_MAX, true));
+    params2.push_back(param3);
+
+    Builder.CreateCall(fun, params2);
+
+    return lvtable;
+}
+
+void restore_lvtable(Value* lvtable)
+{
+    Function* fun = TheModule->getFunction("memcpy");
+
+    std::vector<Value*> params2;
+
+    Value* param = gLVTableValue;
+    param = Builder.CreateCast(Instruction::BitCast, param, PointerType::get(IntegerType::get(TheContext, 8), 0));
+    params2.push_back(param);
+
+    Value* param2 = lvtable;
+    param2 = Builder.CreateCast(Instruction::BitCast, param2, PointerType::get(IntegerType::get(TheContext, 8), 0));
+    params2.push_back(param2);
+
+    Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, 8*LOCAL_VARIABLE_MAX, true));
+    params2.push_back(param3);
+
+    Builder.CreateCall(fun, params2);
+}
+
 void store_address_to_lvtable(int index, Value* address)
 {
     Value* lvtable_value2 = Builder.CreateCast(Instruction::BitCast, gLVTableValue, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
@@ -856,6 +902,5 @@ void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_bef
     Builder.SetInsertPoint(current_block);
     info->current_block = current_block;
 }
-
 
 }

@@ -1521,6 +1521,19 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_alloca(unsigned int* node, sParserInfo* info)
+{
+    sNodeType* node_type = NULL;
+
+    if(!parse_type(&node_type, info)) {
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_struct_object(node_type, info->sname, info->sline);
+
+    return TRUE;
+}
+
 static BOOL parse_clone(unsigned int* node, sParserInfo* info)
 {
     if(!expression(node, info)) {
@@ -1784,6 +1797,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
     {
         info->p++;
 
+        int sline = info->sline;
+
         sBuf value;
         sBuf_init(&value);
 
@@ -1845,7 +1860,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_c_string_value(MANAGED value.mBuf, value.mLen, info);
+        *node = sNodeTree_create_c_string_value(MANAGED value.mBuf, value.mLen, sline, info);
     }
     /// chararacter ///
     else if(*info->p == '\'') {
@@ -1917,8 +1932,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
 
-        sCLClass* klass = get_class(buf);
-
         if(strcmp(buf, "var") == 0) {
             if(!parse_var(node, info, FALSE)) {
                 return FALSE;
@@ -1973,6 +1986,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "alloca") == 0) {
+            if(!parse_alloca(node, info)) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "clone") == 0) {
             if(!parse_clone(node, info)) {
                 return FALSE;
@@ -1982,12 +2000,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             if(!parse_impl(node, info)) {
                 return FALSE;
             }
-        }
-        else if(klass && klass->mFlags & CLASS_FLAGS_STRUCT)
-        {
-            sNodeType* node_type = get_struct(buf);
-
-            *node = sNodeTree_create_struct_object(node_type, info->sname, info->sline);
         }
         else {
             /// local variable ///

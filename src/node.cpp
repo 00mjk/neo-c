@@ -1007,8 +1007,6 @@ unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL all
 
 static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     char* var_name = gNodes[node].uValue.sStoreVariable.mVarName;
     BOOL alloc = gNodes[node].uValue.sStoreVariable.mAlloc;
 
@@ -1067,6 +1065,8 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
         BOOL parent = FALSE;
         int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+printf("%s index %d\n", var_name, index);
         store_address_to_lvtable(index, address);
     }
     else {
@@ -1113,14 +1113,14 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, sParserInfo* info)
+unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, int sline, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeCString;
 
     gNodes[node].mSName = info->sname;
-    gNodes[node].mLine = info->sline;
+    gNodes[node].mLine = sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -1734,6 +1734,9 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     BasicBlock* current_block = BasicBlock::Create(TheContext, "entry", fun);
     llvm_change_block(current_block, &current_block_before, info);
 
+    /// copy lvtable for other function ///
+    Value* lvtable = store_lvtable();
+
     for(i=0; i<num_params; i++) {
         sParserParam* param = params[i];
         char* var_name = param->mName;
@@ -1749,12 +1752,14 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         Value* address = Builder.CreateAlloca(llvm_type, 0, var_name);
         var->mLLVMValue = address;
 
+        Builder.CreateAlignedStore(llvm_params[i], address, alignment);
+
         BOOL parent = FALSE;
         int index = get_variable_index(block_var_table, var_name, &parent);
 
-        store_address_to_lvtable(index, address);
+printf("!!! var_name %s index %d\n", var_name, index);
 
-        Builder.CreateAlignedStore(llvm_params[i], address, alignment);
+        store_address_to_lvtable(index, address);
     }
 
     char func_name_before[VAR_NAME_MAX];
@@ -1769,6 +1774,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     }
 
 //    IRBuilder<> builder(&gFunction->getEntryBlock());
+
+    restore_lvtable(lvtable);
 
     xstrncpy(info->func_name, func_name_before, VAR_NAME_MAX);
 
@@ -1866,11 +1873,15 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     BOOL parent = FALSE;
     int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
 
+printf("var_name %s\n", var_name);
     Value* var_address;
     if(parent) {
+puts("AAA");
+printf("index %d\n", index);
         var_address = load_address_to_lvtable(index, var_type);
     }
     else {
+puts("BBB");
         var_address = (Value*)var->mLLVMValue;
     }
 
@@ -2278,20 +2289,21 @@ static BOOL compile_struct_object(unsigned int node, sCompileInfo* info)
 {
     sNodeType* node_type = gNodes[node].uValue.sObject.mType;
 
+    sNodeType* node_type2 = clone_node_type(node_type);
+    node_type2->mPointerNum++;
+    node_type2->mHeap = FALSE;
+
     Type* llvm_var_type = create_llvm_type_from_node_type(node_type);
 
-    node_type->mPointerNum = 1;
-    node_type->mHeap = FALSE;
-
     LVALUE llvm_value;
-    llvm_value.value = Builder.CreateAlloca(llvm_var_type, 0, "object");
-    llvm_value.type = clone_node_type(node_type);
+    llvm_value.value = Builder.CreateAlloca(llvm_var_type, 0, "struct_object");
+    llvm_value.type = node_type2;
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
-    info->type = node_type;
+    info->type = node_type2;
 
     return TRUE;
 }
@@ -3072,11 +3084,13 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
         llvm_params.push_back(param->value);
     }
 
+/*
     /// lvar table ///
     Type* lvar_table_type = ArrayType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), LOCAL_VARIABLE_MAX);
 
     Value* lvar_table_value = Builder.CreateAlloca(lvar_table_type, 0, "lvar_table_array");
     llvm_params.push_back(lvar_table_value);
+*/
 
 
     dec_stack_ptr(num_params, info);
@@ -3370,15 +3384,18 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
     }
 
     /// go ///
-    int element_size = get_size_from_node_type(var_type);
+//    int element_size = get_size_from_node_type(var_type);
 
     Value* lvalue2 = lvalue.value;
 
+/*
     Value* element_size_value = ConstantInt::get(TheContext, llvm::APInt(32, element_size, true)); 
 
     Value* rvalue2 = Builder.CreateMul(rvalue.value, element_size_value, "multmp", false, true);
 
     Value* load_element_addresss = Builder.CreateGEP(lvalue2, rvalue2, "element_address");
+*/
+    Value* load_element_addresss = Builder.CreateGEP(lvalue2, rvalue.value, "element_address");
 
     int alignment = get_llvm_alignment_from_node_type(var_type);
 
@@ -3501,15 +3518,17 @@ BOOL compile_store_element(unsigned int node, sCompileInfo* info)
     }
 
     /// generate code ///
-    int element_size = get_size_from_node_type(var_type);
+//    int element_size = get_size_from_node_type(var_type);
 
     Value* lvalue2 = lvalue.value;
 
-    Value* element_size_value = ConstantInt::get(TheContext, llvm::APInt(32, element_size, true)); 
+//    Value* element_size_value = ConstantInt::get(TheContext, llvm::APInt(32, element_size, true)); 
 
-    Value* rvalue2 = Builder.CreateMul(mvalue.value, element_size_value, "multmp", false, true);
+//    Value* rvalue2 = Builder.CreateMul(mvalue.value, element_size_value, "multmp", false, true);
 
-    Value* element_address = Builder.CreateGEP(lvalue2, rvalue2, "element_address");
+//    Value* element_address = Builder.CreateGEP(lvalue2, rvalue2, "element_address");
+
+    Value* element_address = Builder.CreateGEP(lvalue2, mvalue.value, "element_address");
 
     int alignment = get_llvm_alignment_from_node_type(var_type);
 
