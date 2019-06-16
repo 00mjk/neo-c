@@ -37,7 +37,6 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
-/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -134,7 +133,7 @@ def main():int
         b:int;
     }
 
-    var obj = OpTest;
+    var obj = alloca OpTest;
 
     obj.a = 123;
     assert("operator test6", obj.a++ == 123);
@@ -193,7 +192,7 @@ def main():int
         b:int;
     }
 
-    var test11 = TestData;
+    var test11 = alloca TestData;
     test11.a = 123;
     test11.b = 234;
 
@@ -456,24 +455,26 @@ def main():int
     var aaaa = "AAA" + "BBB";
 
     assert("operator test", strcmp(aaaa, "AAABBB") == 0);
-*/
 
-    struct Vector<T> {
+/*
+    struct vector<T> {
         items:heap T*;
         len:int;
         size:int;
     }
 
-    impl Vector<T> {
-        def initialize(self:heap Vector<T>*):heap Vector<T>* {
+    impl vector<T> {
+        def initialize(self:heap vector<T>*, block:nullable lambda(vector<T>*)):heap vector<T>* {
             self.size = 16;
             self.len = 0;
             self.items = new T[self.size];
 
+            block->(self);
+
             self
         }
         
-        def push_back(self: Vector<T>*, item:T) {
+        def push_back(self: vector<T>*, item:T) {
             if(self.len == self.size) {
                 var new_size = self.size;
                 var items = self.items;
@@ -487,20 +488,21 @@ def main():int
             self.len++;
         }
 
-        def item(self:Vector<T>*, index:int):T {
+        def item(self:vector<T>*, index:int):T {
             self.items[index]
         }
-        def each(self:Vector<T>*, block:lambda(T,int)) {
+        def each(self:vector<T>*, block:lambda(T,int)) {
             var a = alloca T;
             for(var i=0; i<self.len; i++) {
                 block->(self.items[i], i);
             }
         }
     }
+    var v = new vector<int>.initialize(null);
 
-    var v = new Vector<int>.initialize();
-
-    v.push_back(1);
+    v.push_back("AAA");
+*/
+/*
     v.push_back(2);
     v.push_back(3);
 
@@ -511,6 +513,19 @@ def main():int
     v.each {
         printf("%d --> %ld\n", it2, it);
     }
+*/
+
+/*
+    var v2 = new vector<int>.initialize {
+        it.push_back("AAA");
+        it.push_back(222);
+        it.push_back(333);
+    }
+
+    v2.each {
+        printf("%d --> %d\n", it2, it);
+    }
+*/
 
     0
 }

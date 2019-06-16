@@ -19,3 +19,5 @@ lamdaの構造体
 インターフェース
 
 lvalue,rvalue -1でstruct copy で受け取る:
+
+if文の条件判断式

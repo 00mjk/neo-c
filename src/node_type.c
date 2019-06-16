@@ -272,12 +272,9 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
     {
         return TRUE;
     }
-/*
-    else if(left_type->mPointerNum > 0 && right_type->mPointerNum > 0)
-    {
+    else if(left_type->mNullable && left_type->mPointerNum > 0 && type_identify_with_class_name(right_type, "void*")) {
         return TRUE;
     }
-*/
 
     return FALSE;
 }
@@ -287,11 +284,7 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type)
     sCLClass* left_class = left_type->mClass;
     sCLClass* right_class = right_type->mClass; 
 
-    if(type_identify_with_class_name(right_type, "void*")) {
-        return left_type->mNullable;
-    }
-    else if((left_class->mFlags & CLASS_FLAGS_GENERICS) || (left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS))
-    {
+    if(type_identify_with_class_name(left_type, "any")) {
         return TRUE;
     }
     else if(left_class == right_class) {

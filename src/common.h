@@ -286,6 +286,8 @@ struct sCompileInfoStruct
     char func_name[VAR_NAME_MAX];
 
     void* current_block;
+
+    sNodeType* generics_type;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;

@@ -258,6 +258,10 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
+    if(cast_posibility(left_type, right_type)) {
+        cast_right_type_to_left_type(left_type, &right_type, &rvalue, info);
+    }
+
     if(is_number_type(left_type) && is_number_type(right_type))
     {
         LVALUE llvm_value;
@@ -337,6 +341,10 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
     sNodeType* right_type = info->type;
 
     LVALUE rvalue = *get_value_from_stack(-1);
+
+    if(cast_posibility(left_type, right_type)) {
+        cast_right_type_to_left_type(left_type, &right_type, &rvalue, info);
+    }
 
     if(is_number_type(left_type) && is_number_type(right_type))
     {
@@ -418,6 +426,10 @@ static BOOL compile_mult(unsigned int node, sCompileInfo* info)
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
+    if(cast_posibility(left_type, right_type)) {
+        cast_right_type_to_left_type(left_type, &right_type, &rvalue, info);
+    }
+
     if(is_number_type(left_type) && is_number_type(right_type))
     {
         LVALUE llvm_value;
@@ -498,6 +510,10 @@ static BOOL compile_div(unsigned int node, sCompileInfo* info)
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
+    if(cast_posibility(left_type, right_type)) {
+        cast_right_type_to_left_type(left_type, &right_type, &rvalue, info);
+    }
+
     if(is_number_type(left_type) && is_number_type(right_type))
     {
         LVALUE llvm_value;
@@ -577,6 +593,10 @@ static BOOL compile_mod(unsigned int node, sCompileInfo* info)
     sNodeType* right_type = info->type;
 
     LVALUE rvalue = *get_value_from_stack(-1);
+
+    if(cast_posibility(left_type, right_type)) {
+        cast_right_type_to_left_type(left_type, &right_type, &rvalue, info);
+    }
 
     if(is_number_type(left_type) && is_number_type(right_type))
     {
@@ -770,6 +790,10 @@ static BOOL compile_gteq(unsigned int node, sCompileInfo* info)
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
+    if(cast_posibility(left_type, right_type)) {
+        cast_right_type_to_left_type(left_type, &right_type, &rvalue, info);
+    }
+
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateICmpSGE(lvalue.value, rvalue.value, "getmp");
     llvm_value.type = create_node_type_with_class_name("bool");
@@ -820,6 +844,10 @@ static BOOL compile_leeq(unsigned int node, sCompileInfo* info)
     sNodeType* right_type = info->type;
 
     LVALUE rvalue = *get_value_from_stack(-1);
+
+    if(cast_posibility(left_type, right_type)) {
+        cast_right_type_to_left_type(left_type, &right_type, &rvalue, info);
+    }
 
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateICmpSLE(lvalue.value, rvalue.value, "letmp");
@@ -872,6 +900,10 @@ static BOOL compile_gt(unsigned int node, sCompileInfo* info)
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
+    if(cast_posibility(left_type, right_type)) {
+        cast_right_type_to_left_type(left_type, &right_type, &rvalue, info);
+    }
+
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateICmpSGT(lvalue.value, rvalue.value, "gttmp");
     llvm_value.type = create_node_type_with_class_name("bool");
@@ -923,6 +955,10 @@ static BOOL compile_le(unsigned int node, sCompileInfo* info)
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
+    if(cast_posibility(left_type, right_type)) {
+        cast_right_type_to_left_type(left_type, &right_type, &rvalue, info);
+    }
+
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateICmpSLT(lvalue.value, rvalue.value, "letmp");
     llvm_value.type = create_node_type_with_class_name("bool");
@@ -964,6 +1000,21 @@ static BOOL compile_logical_denial(unsigned int node, sCompileInfo* info)
     sNodeType* left_type = info->type;
 
     LVALUE lvalue = *get_value_from_stack(-1);
+
+    sNodeType* bool_type = create_node_type_with_class_name("bool");
+
+    if(cast_posibility(bool_type, left_type)) {
+        cast_right_type_to_left_type(bool_type, &left_type, &lvalue, info);
+    }
+
+    if(!type_identify_with_class_name(left_type, "bool")) {
+        compile_err_msg(info, "Left expression is not bool type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
 
     LVALUE rvalue;
     rvalue.value = ConstantInt::get(Type::getInt1Ty(TheContext), 0);
@@ -1066,7 +1117,6 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         BOOL parent = FALSE;
         int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
 
-printf("%s index %d\n", var_name, index);
         store_address_to_lvtable(index, address);
     }
     else {
@@ -1375,6 +1425,8 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         }
     }
 
+    info->generics_type = generics_type;
+
     char real_fun_name[REAL_FUN_NAME_MAX];
 
     if(num_params2 > 0) {
@@ -1400,11 +1452,12 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("int"); // dummy
 
+        info->generics_type = NULL;
         return TRUE;
     }
 
     /// check parametors ///
-    BOOL invalid_parametor = TRUE;
+    BOOL valid_parametor = TRUE;
 
     sNodeType* method_generics_types[GENERICS_TYPES_MAX];
 
@@ -1424,7 +1477,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         int i;
         for(i=0; i<check_param_num; i++) {
             sNodeType* left_type = clone_node_type(fun.mParamTypes[i]);
-            sNodeType* right_type = param_types[i];
+            sNodeType* right_type = clone_node_type(param_types[i]);
 
             sCLClass* left_class = left_type->mClass;
 
@@ -1449,29 +1502,30 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 }
             }
 
+            if(cast_posibility(left_type, right_type)) 
+            {
+                cast_right_type_to_left_type(left_type, &right_type, NULL, info);
+            }
+
             if(!substitution_posibility(left_type, right_type))
             {
-                if(!cast_posibility(left_type, right_type)) 
-                {
-                    found = FALSE;
-                }
+                found = FALSE;
             }
         }
 
-        if(found) {
-            if(simple_lambda_param) {
-                if(fun.mParamTypes[num_params2]->mClass == get_class("lambda")) 
-                {
-                    invalid_parametor = FALSE;
-                }
-            }
-            else {
-                invalid_parametor = FALSE;
-            }
+        if(!found) {
+            valid_parametor = FALSE;
+        }
+    }
+    
+    if(simple_lambda_param) {
+        if(fun.mParamTypes[num_params2]->mClass != get_class("lambda")) 
+        {
+            valid_parametor = FALSE;
         }
     }
 
-    if(invalid_parametor) {
+    if(!valid_parametor) {
         compile_err_msg(info, "function parametor type error\n", real_fun_name);
         info->err_num++;
 
@@ -1483,6 +1537,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("int"); // dummy
 
+        info->generics_type = NULL;
         return TRUE;
     }
 
@@ -1504,7 +1559,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             {
                 cast_right_type_to_left_type(left_type, &right_type, &param, info);
             }
-
 
             sCLClass* left_class = left_type->mClass;
             if(left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS)
@@ -1540,10 +1594,12 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         unsigned int node = 0;
         if(!parse_simple_lambda_param(&node, buf, &fun, info->pinfo))
         {
+            info->generics_type = NULL;
             return FALSE;
         }
 
         if(!compile(node, info)) {
+            info->generics_type = NULL;
             return FALSE;
         }
 
@@ -1575,6 +1631,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             info->type = create_node_type_with_class_name("int"); // dummy
 
+            info->generics_type = NULL;
             return TRUE;
         }
 
@@ -1605,6 +1662,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
                 info->type = create_node_type_with_class_name("int"); // dummy
 
+                info->generics_type = NULL;
                 return TRUE;
             }
         }
@@ -1623,6 +1681,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         info->type = result_type;
     }
 
+    info->generics_type = NULL;
     return TRUE;
 }
 
@@ -1757,8 +1816,6 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         BOOL parent = FALSE;
         int index = get_variable_index(block_var_table, var_name, &parent);
 
-printf("!!! var_name %s index %d\n", var_name, index);
-
         store_address_to_lvtable(index, address);
     }
 
@@ -1873,15 +1930,11 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     BOOL parent = FALSE;
     int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
 
-printf("var_name %s\n", var_name);
     Value* var_address;
     if(parent) {
-puts("AAA");
-printf("index %d\n", index);
         var_address = load_address_to_lvtable(index, var_type);
     }
     else {
-puts("BBB");
         var_address = (Value*)var->mLLVMValue;
     }
 
@@ -1946,7 +1999,18 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    if(!type_identify_with_class_name(info->type, "bool")) {
+    sNodeType* conditional_type = info->type;
+
+    LVALUE conditional_value = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    sNodeType* bool_type = create_node_type_with_class_name("bool");
+
+    if(cast_posibility(bool_type, conditional_type)) {
+        cast_right_type_to_left_type(bool_type, &conditional_type, &conditional_value, info);
+    }
+
+    if(!type_identify_with_class_name(conditional_type, "bool")) {
         compile_err_msg(info, "This conditional type is not bool");
         info->err_num++;
 
@@ -1954,9 +2018,6 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
         return TRUE;
     }
-
-    LVALUE conditional_value = *get_value_from_stack(-1);
-    dec_stack_ptr(1, info);
 
     BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_jump_then", gFunction);
     BasicBlock* cond_else_block = NULL;
@@ -2004,7 +2065,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
     Value* result_value;
     int result_value_alignment;
-    sNodeType* result_value_type = info->type;
+    result_type = info->type;
 
     if(type_identify_with_class_name(info->type, "void"))
     {
@@ -2014,7 +2075,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     else {
         LVALUE llvm_value = *get_value_from_stack(-1);
 
-        Type* llvm_result_type = create_llvm_type_from_node_type(result_value_type);
+        Type* llvm_result_type = create_llvm_type_from_node_type(result_type);
 
         IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
 
@@ -2040,7 +2101,18 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
-            if(!type_identify_with_class_name(info->type, "bool")) 
+            sNodeType* conditional_type = info->type;
+
+            LVALUE conditional_value = *get_value_from_stack(-1);
+            dec_stack_ptr(1, info);
+
+            sNodeType* bool_type = create_node_type_with_class_name("bool");
+
+            if(cast_posibility(bool_type, conditional_type)) {
+                cast_right_type_to_left_type(bool_type, &conditional_type, &conditional_value, info);
+            }
+
+            if(!type_identify_with_class_name(conditional_type, "bool")) 
             {
                 compile_err_msg(info, "This conditional type is not bool");
                 info->err_num++;
@@ -2049,9 +2121,6 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
                 return TRUE;
             }
-
-            LVALUE conditional_value = *get_value_from_stack(-1);
-            dec_stack_ptr(1, info);
 
             if(i == elif_num-1) {
                 if(else_node_block) {
@@ -2070,14 +2139,13 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
             sNodeBlock* elif_node_block = gNodes[node].uValue.sIf.mElifNodeBlocks[i];
 
-            sNodeType* result_type = create_node_type_with_class_name("any");
             if(!compile_block(elif_node_block, info, result_type)) 
             {
                 return FALSE;
             }
 
             if(result_value) {
-                if(!type_identify(info->type, result_value_type))
+                if(!type_identify(info->type, result_type))
                 {
                     compile_err_msg(info, "Different result type for if/else block. If you avoid this and don't need result value for if expression, append ; at the end of block");
                     info->err_num++;
@@ -2100,14 +2168,13 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         BasicBlock* current_block_before;
         llvm_change_block(cond_else_block, &current_block_before, info);
 
-        sNodeType* result_type = create_node_type_with_class_name("any");
         if(!compile_block(else_node_block, info, result_type)) 
         {
             return FALSE;
         }
 
         if(result_value) {
-            if(!type_identify(info->type, result_value_type))
+            if(!type_identify(info->type, result_type))
             {
                 compile_err_msg(info, "Different result type for if/else block. If you avoid this and don't need result value for if expression, append ; at the end of block");
                 info->err_num++;
@@ -2131,11 +2198,11 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     if(result_value) {
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateAlignedLoad(result_value, result_value_alignment);
-        llvm_value.type = result_value_type;
+        llvm_value.type = result_type;
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
 
-        info->type = result_value_type;
+        info->type = result_type;
 
         dec_stack_ptr(1, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -2590,17 +2657,24 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    if(!type_identify_with_class_name(info->type, "bool")) {
+    sNodeType* conditional_type = info->type;
+
+    LVALUE conditional_value = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    sNodeType* bool_type = create_node_type_with_class_name("bool");
+
+    if(cast_posibility(bool_type, conditional_type)) {
+        cast_right_type_to_left_type(bool_type, &conditional_type, &conditional_value, info);
+    }
+
+    if(!type_identify_with_class_name(conditional_type, "bool")) {
         compile_err_msg(info, "This conditional type is not bool");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
-
         return TRUE;
     }
-
-    LVALUE conditional_value = *get_value_from_stack(-1);
-    dec_stack_ptr(1, info);
 
     BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_then_block", gFunction);
 
@@ -2748,6 +2822,14 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 
     sNodeType* left_type = info->type;
 
+    LVALUE conditional_value = *get_value_from_stack(-1);
+
+    sNodeType* bool_type = create_node_type_with_class_name("bool");
+
+    if(cast_posibility(bool_type, left_type)) {
+        cast_right_type_to_left_type(bool_type, &left_type, &conditional_value, info);
+    }
+
     if(!type_identify_with_class_name(left_type, "bool")) {
         compile_err_msg(info, "Left expression is not bool type");
         info->err_num++;
@@ -2757,7 +2839,6 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    LVALUE conditional_value = *get_value_from_stack(-1);
     Builder.CreateAlignedStore(conditional_value.value, result_var, 1);
 
     BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_jump_then", gFunction);
@@ -2778,6 +2859,12 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 
     sNodeType* right_type = info->type;
 
+    LVALUE conditional_value2 = *get_value_from_stack(-1);
+
+    if(cast_posibility(bool_type, right_type)) {
+        cast_right_type_to_left_type(bool_type, &right_type, &conditional_value2, info);
+    }
+
     if(!type_identify_with_class_name(right_type, "bool")) {
         compile_err_msg(info, "Right expression is not bool type");
         info->err_num++;
@@ -2786,8 +2873,6 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 
         return TRUE;
     }
-
-    LVALUE conditional_value2 = *get_value_from_stack(-1);
 
     Value* andand_value = Builder.CreateAnd(conditional_value.value, conditional_value2.value, "andand");
 
@@ -2844,8 +2929,16 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
 
     sNodeType* left_type = info->type;
 
+    LVALUE conditional_value = *get_value_from_stack(-1);
+
+    sNodeType* bool_type = create_node_type_with_class_name("bool");
+
+    if(cast_posibility(bool_type, left_type)) {
+        cast_right_type_to_left_type(bool_type, &left_type, &conditional_value, info);
+    }
+
     if(!type_identify_with_class_name(left_type, "bool")) {
-        compile_err_msg(info, "Left expression is not bool type");
+        compile_err_msg(info, "Right expression is not bool type");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2853,7 +2946,6 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    LVALUE conditional_value = *get_value_from_stack(-1);
     Builder.CreateAlignedStore(conditional_value.value, result_var, 1);
 
     BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_jump_then", gFunction);
@@ -2874,6 +2966,12 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
 
     sNodeType* right_type = info->type;
 
+    LVALUE conditional_value2 = *get_value_from_stack(-1);
+
+    if(cast_posibility(bool_type, right_type)) {
+        cast_right_type_to_left_type(bool_type, &right_type, &conditional_value2, info);
+    }
+
     if(!type_identify_with_class_name(right_type, "bool")) {
         compile_err_msg(info, "Right expression is not bool type");
         info->err_num++;
@@ -2882,8 +2980,6 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
 
         return TRUE;
     }
-
-    LVALUE conditional_value2 = *get_value_from_stack(-1);
 
     Value* oror_value = Builder.CreateOr(conditional_value.value, conditional_value2.value, "oror");
 
@@ -2960,7 +3056,18 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    if(!type_identify_with_class_name(info->type, "bool")) {
+    sNodeType* conditional_type = info->type;
+
+    LVALUE conditional_value = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    sNodeType* bool_type = create_node_type_with_class_name("bool");
+
+    if(cast_posibility(bool_type, conditional_type)) {
+        cast_right_type_to_left_type(bool_type, &conditional_type, &conditional_value, info);
+    }
+
+    if(!type_identify_with_class_name(conditional_type, "bool")) {
         compile_err_msg(info, "This conditional type is not bool");
         info->err_num++;
 
@@ -2969,9 +3076,6 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
         info->pinfo->lv_table = lv_table_before;
         return TRUE;
     }
-
-    LVALUE conditional_value = *get_value_from_stack(-1);
-    dec_stack_ptr(1, info);
 
     BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_then_block", gFunction);
 

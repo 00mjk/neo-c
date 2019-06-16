@@ -133,6 +133,17 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                         cast_right_type_to_left_type(result_type, &llvm_value.type, &llvm_value, info);
                     }
 
+                    if(!substitution_posibility(result_type, llvm_value.type)) {
+                        compile_err_msg(info, "The different type between left type and right type.");
+                        show_node_type(result_type);
+                        show_node_type(llvm_value.type);
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+
                     push_value_to_stack_ptr(&llvm_value, info);
 
 

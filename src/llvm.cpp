@@ -662,29 +662,69 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
     if(type_identify(left_type, *right_type)) {
     }
+    else if(left_type->mPointerNum > 0) 
+    {
+        if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong"))
+        {
+            if(rvalue) {
+                Type* llvm_type = create_llvm_type_from_node_type(left_type);
+
+                rvalue->value = Builder.CreateCast(Instruction::IntToPtr, rvalue->value, llvm_type);
+                rvalue->type = clone_node_type(left_type);
+            }
+
+            *right_type = clone_node_type(left_type);
+        }
+        else if((*right_type)->mPointerNum > 0) {
+            if(rvalue) {
+                Type* llvm_type = create_llvm_type_from_node_type(left_type);
+
+                rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, llvm_type);
+                rvalue->type = clone_node_type(left_type);
+            }
+
+            *right_type = clone_node_type(left_type);
+        }
+    }
+    else if(type_identify_with_class_name(*right_type, "void*")) {
+        if(rvalue) {
+            Type* llvm_type = create_llvm_type_from_node_type(left_type);
+
+            rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, llvm_type);
+            rvalue->type = left_type;
+        }
+
+        *right_type = clone_node_type(left_type);
+    }
+    else if(type_identify_with_class_name(left_type, "bool"))
+    {
+        if(rvalue) {
+            rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, IntegerType::get(TheContext, 1));
+            rvalue->type = create_node_type_with_class_name("bool");
+        }
+
+        *right_type = create_node_type_with_class_name("bool");
+    }
     else if(type_identify_with_class_name(left_type, "int"))
     {
         if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong"))
         {
-            rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, IntegerType::get(TheContext, 32));
-            rvalue->type = create_node_type_with_class_name("int");
+            if(rvalue) {
+                rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, IntegerType::get(TheContext, 32));
+                rvalue->type = create_node_type_with_class_name("int");
+            }
 
-            *right_type = rvalue->type;
+            *right_type = create_node_type_with_class_name("int");
         }
         else if(type_identify_with_class_name(*right_type, "short") || type_identify_with_class_name(*right_type, "ushort") || type_identify_with_class_name(*right_type, "char") || type_identify_with_class_name(*right_type, "uchar") || type_identify_with_class_name(*right_type, "bool"))
         {
-            rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 32));
-            rvalue->type = create_node_type_with_class_name("int");
+            if(rvalue) {
+                rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 32));
+                rvalue->type = create_node_type_with_class_name("int");
+            }
 
-            *right_type = rvalue->type;
+            *right_type = create_node_type_with_class_name("int");
         }
-    }
-    else if(type_identify_with_class_name(left_type, "bool"))
-    {
-        rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, IntegerType::get(TheContext, 1));
-        rvalue->type = create_node_type_with_class_name("bool");
-
-        *right_type = rvalue->type;
     }
     else if(type_identify_with_class_name(left_type, "long") || (left_class->mFlags & CLASS_FLAGS_GENERICS) || (left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS))
     {
@@ -693,36 +733,20 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         }
         else if(type_identify_with_class_name(*right_type, "short") || type_identify_with_class_name(*right_type, "ushort") || type_identify_with_class_name(*right_type, "char") || type_identify_with_class_name(*right_type, "uchar") || type_identify_with_class_name(*right_type, "bool") || type_identify_with_class_name(*right_type, "int") || type_identify_with_class_name(*right_type, "uint") )
         {
-            rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 64));
-            rvalue->type = create_node_type_with_class_name("long");
+            if(rvalue) {
+                rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 64));
+                rvalue->type = create_node_type_with_class_name("long");
+            }
 
-            *right_type = rvalue->type;
+            *right_type = create_node_type_with_class_name("long");
         }
         else if(left_type->mPointerNum > 0) {
-            rvalue->value = Builder.CreateCast(Instruction::PtrToInt, rvalue->value, IntegerType::get(TheContext, 64));
-            rvalue->type = create_node_type_with_class_name("long");
+            if(rvalue) {
+                rvalue->value = Builder.CreateCast(Instruction::PtrToInt, rvalue->value, IntegerType::get(TheContext, 64));
+                rvalue->type = create_node_type_with_class_name("long");
+            }
 
-            *right_type = rvalue->type;
-        }
-    }
-    else if(left_type->mPointerNum > 0) 
-    {
-        if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong"))
-        {
-            Type* llvm_type = create_llvm_type_from_node_type(left_type);
-
-            rvalue->value = Builder.CreateCast(Instruction::IntToPtr, rvalue->value, llvm_type);
-            rvalue->type = clone_node_type(left_type);
-
-            *right_type = rvalue->type;
-        }
-        else if((*right_type)->mPointerNum > 0) {
-            Type* llvm_type = create_llvm_type_from_node_type(left_type);
-
-            rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, llvm_type);
-            rvalue->type = clone_node_type(left_type);
-
-            *right_type = rvalue->type;
+            *right_type = create_node_type_with_class_name("long");
         }
     }
 }
