@@ -456,6 +456,9 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
     sBuf buf;
     sBuf_init(&buf);
 
+    char* sname = info->sname;
+    int sline = info->sline;
+
     sBuf_append_str(&buf, "{ ");
 
     int nest = 0;
@@ -493,7 +496,7 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
         }
     }
 
-    *node = sNodeTree_create_simple_lambda_param(MANAGED buf.mBuf, info);
+    *node = sNodeTree_create_simple_lambda_param(MANAGED buf.mBuf, sname, sline, info);
 
     return TRUE;
 }

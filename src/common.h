@@ -383,6 +383,8 @@ struct sNodeTreeStruct
 
         struct {
             char* mBuf;
+            char* mSName;
+            int mSLine;
         } sSimpleLambdaParam;
 
         struct {
@@ -433,7 +435,7 @@ unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_n
 unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED struct sNodeBlockStruct* for_node_block, sParserInfo* info);
 unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, sParserInfo* info);
 unsigned int sNodeTree_create_lambda_call(unsigned int lambda_node, unsigned int* params, int num_params, sParserInfo* info);
-unsigned int sNodeTree_create_simple_lambda_param(char* buf, sParserInfo* info);
+unsigned int sNodeTree_create_simple_lambda_param(char* buf, char* sname, int sline, sParserInfo* info);
 unsigned int sNodeTree_create_struct_object(sNodeType* node_type, char* sname, int sline);
 unsigned int sNodeTree_create_dereffernce(unsigned int left_node, sParserInfo* info);
 unsigned int sNodeTree_create_reffernce(unsigned int left_node, sParserInfo* info);

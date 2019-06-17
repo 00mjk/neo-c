@@ -1284,7 +1284,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, sParserInfo* info)
+static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, sNodeType* generics_type, sParserInfo* info, sCompileInfo* cinfo)
 {
     sNodeType* lambda_type = fun->mParamTypes[fun->mNumParams-1];
 
@@ -1307,6 +1307,20 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
         xstrncpy(param->mName, param_name, VAR_NAME_MAX);
 
         param->mType = lambda_type->mParamTypes[i];
+
+/*
+        if(generics_type) {
+            if(!solve_generics(&param->mType, generics_type)) 
+            {
+                compile_err_msg(cinfo, "Can't solve generics types");
+                show_node_type(param->mType);
+                show_node_type(generics_type);
+                info->err_num++;
+
+                return FALSE;
+            }
+        }
+*/
     }
 
     sParserInfo info2;
@@ -1314,14 +1328,28 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     memset(&info2, 0, sizeof(sParserInfo));
 
     info2.p = buf;
-    info2.sname = info->sname;
+    info2.sname = sname;
     info2.source = buf;
     info2.module_name = info->module_name;
-    info2.sline = info->sline;
+    info2.sline = sline;
     info2.parse_phase = info->parse_phase;
     info2.lv_table = info->lv_table;
 
     sNodeType* result_type = lambda_type->mResultType;
+
+/*
+    if(generics_type) {
+        if(!solve_generics(&result_type, generics_type)) 
+        {
+            compile_err_msg(cinfo, "Can't solve generics types");
+            show_node_type(result_type);
+            show_node_type(generics_type);
+            info->err_num++;
+
+            return FALSE;
+        }
+    }
+*/
 
     sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
     expect_next_character_with_one_forward("{", &info2);
@@ -1407,26 +1435,24 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         num_params2 = num_params;
     }
 
-    /// compile parametors ///
+    /// compile first parametor for determing to the class name ///
     sNodeType* generics_type = NULL;
 
-    int i;
-    for(i=0; i<num_params2; i++) {
-        params[i] = gNodes[node].uValue.sFunctionCall.mParams[i];
+    if(num_params2 > 0) {
+        params[0] = gNodes[node].uValue.sFunctionCall.mParams[0];
         
-        if(!compile(params[i], info)) {
+        if(!compile(params[0], info)) {
             return FALSE;
         }
 
-        param_types[i] = info->type;
-
-        if(i == 0) {
-            generics_type = info->type;
-        }
+        param_types[0] = info->type;
+        generics_type = info->type;
     }
 
+    sNodeType* generics_type_before = info->generics_type;
     info->generics_type = generics_type;
 
+    /// get real fun name ///
     char real_fun_name[REAL_FUN_NAME_MAX];
 
     if(num_params2 > 0) {
@@ -1452,8 +1478,66 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("int"); // dummy
 
-        info->generics_type = NULL;
+        info->generics_type = generics_type_before;
         return TRUE;
+    }
+
+    /// std move first parametor ///
+    if(num_params2 > 0) {
+        LVALUE param = *get_value_from_stack(-1);
+
+        if(fun.mNumParams > 0) {
+            sNodeType* left_type = clone_node_type(fun.mParamTypes[0]);
+
+            std_move(left_type, &param);
+        }
+    }
+
+    /// compile parametors ///
+    int i;
+    for(i=1; i<num_params2; i++) {
+        params[i] = gNodes[node].uValue.sFunctionCall.mParams[i];
+        
+        if(!compile(params[i], info)) {
+            info->generics_type = generics_type_before;
+            return FALSE;
+        }
+
+        param_types[i] = info->type;
+
+        LVALUE param = *get_value_from_stack(-1);
+
+        if(i < fun.mNumParams) {
+            sNodeType* left_type = clone_node_type(fun.mParamTypes[i]);
+            std_move(left_type, &param);
+        }
+    }
+
+    /// compile simple lambda param ///
+    if(simple_lambda_param) {
+        params[num_params2] = gNodes[node].uValue.sFunctionCall.mParams[num_params2];
+
+        char* buf = gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mBuf;
+
+        char* sname = gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mSName;
+        int sline = gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mSLine;
+
+        unsigned int node = 0;
+        if(!parse_simple_lambda_param(&node, buf, &fun, sname, sline, generics_type, info->pinfo, info))
+        {
+            info->generics_type = generics_type_before;
+            return FALSE;
+        }
+
+        gNodes[node].mLine = info->pinfo->sline;
+        gNodes[node].mSName = info->pinfo->sname;
+
+        if(!compile(node, info)) {
+            info->generics_type = generics_type_before;
+            return FALSE;
+        }
+
+        param_types[num_params2] = info->type;
     }
 
     /// check parametors ///
@@ -1471,7 +1555,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             check_param_num = fun.mNumParams;
         }
         else {
-            check_param_num = num_params2;
+            check_param_num = num_params;
         }
 
         BOOL found = TRUE;
@@ -1524,13 +1608,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             valid_parametor = FALSE;
         }
     }
-    
-    if(simple_lambda_param) {
-        if(fun.mParamTypes[num_params2]->mClass != get_class("lambda")) 
-        {
-            valid_parametor = FALSE;
-        }
-    }
 
     if(!valid_parametor) {
         compile_err_msg(info, "function parametor type error\n", real_fun_name);
@@ -1539,21 +1616,21 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         fprintf(stderr, "\nfunction parametor\n\n");
 
         int i;
-        for(i=0; i<num_params2; i++) {
+        for(i=0; i<num_params; i++) {
             printf("param #%d\n", i);
             show_node_type(fun_params[i]);
         }
 
         fprintf(stderr, "\nparams parametor\n\n");
 
-        for(i=0; i<num_params2; i++) {
+        for(i=0; i<num_params; i++) {
             printf("param #%d\n", i);
             show_node_type(param_types[i]);
         }
 
         info->type = create_node_type_with_class_name("int"); // dummy
 
-        info->generics_type = NULL;
+        info->generics_type = generics_type_before;
         return TRUE;
     }
 
@@ -1561,13 +1638,11 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     std::vector<Value*> llvm_params;
     LVALUE* lvalue_params[PARAMS_MAX];
 
-    for(i=0; i<num_params2; i++) {
+    for(i=0; i<num_params; i++) {
         if(i < fun.mNumParams) {
             sNodeType* left_type = clone_node_type(fun.mParamTypes[i]);
             sNodeType* right_type = clone_node_type(param_types[i]);
-            LVALUE param = *get_value_from_stack(-num_params2+i);
-
-            std_move(left_type, &param);
+            LVALUE param = *get_value_from_stack(-num_params+i);
 
             lvalue_params[i] = &param;
 
@@ -1596,32 +1671,9 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             llvm_params.push_back(param.value);
         }
         else {
-            LVALUE param = *get_value_from_stack(-num_params2+i);
+            LVALUE param = *get_value_from_stack(-num_params+i);
             llvm_params.push_back(param.value);
         }
-    }
-
-    /// compile simple lambda param ///
-    if(simple_lambda_param) {
-        params[num_params2] = gNodes[node].uValue.sFunctionCall.mParams[num_params2];
-
-        char* buf = gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mBuf;
-
-        unsigned int node = 0;
-        if(!parse_simple_lambda_param(&node, buf, &fun, info->pinfo))
-        {
-            info->generics_type = NULL;
-            return FALSE;
-        }
-
-        if(!compile(node, info)) {
-            info->generics_type = NULL;
-            return FALSE;
-        }
-
-        LVALUE param = *get_value_from_stack(-1);
-
-        llvm_params.push_back(param.value);
     }
 
     dec_stack_ptr(num_params, info);
@@ -1647,7 +1699,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             info->type = create_node_type_with_class_name("int"); // dummy
 
-            info->generics_type = NULL;
+            info->generics_type = generics_type_before;
             return TRUE;
         }
 
@@ -1678,7 +1730,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
                 info->type = create_node_type_with_class_name("int"); // dummy
 
-                info->generics_type = NULL;
+                info->generics_type = generics_type_before;
                 return TRUE;
             }
         }
@@ -1697,7 +1749,8 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         info->type = result_type;
     }
 
-    info->generics_type = NULL;
+    info->generics_type = generics_type_before;
+
     return TRUE;
 }
 
@@ -3168,6 +3221,22 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
 
     sNodeType* lambda_type = info->type;
 
+/*
+    if(info->generics_type) {
+        if(!solve_generics(&lambda_type, info->generics_type))
+        {
+            compile_err_msg(info, "Can't solve generics types");
+            show_node_type(lambda_type);
+            show_node_type(info->generics_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+    }
+*/
+
     LVALUE lambda_value = *get_value_from_stack(-1);
     dec_stack_ptr(1, info);
 
@@ -3236,11 +3305,13 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_simple_lambda_param(char* buf, sParserInfo* info)
+unsigned int sNodeTree_create_simple_lambda_param(char* buf, char* sname, int sline, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].uValue.sSimpleLambdaParam.mBuf = MANAGED buf;
+    gNodes[node].uValue.sSimpleLambdaParam.mSName = sname;
+    gNodes[node].uValue.sSimpleLambdaParam.mSLine = sline;
     
     gNodes[node].mNodeType = kNodeTypeSimpleLambdaParam;
 
