@@ -1457,6 +1457,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     }
 
     /// check parametors ///
+    sNodeType* fun_params[PARAMS_MAX];
     BOOL valid_parametor = TRUE;
 
     sNodeType* method_generics_types[GENERICS_TYPES_MAX];
@@ -1502,6 +1503,10 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 }
             }
 
+            if(!solve_generics(&left_type, generics_type)) {
+                found = FALSE;
+            }
+
             if(cast_posibility(left_type, right_type)) 
             {
                 cast_right_type_to_left_type(left_type, &right_type, NULL, info);
@@ -1511,6 +1516,8 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             {
                 found = FALSE;
             }
+
+            fun_params[i] = left_type;
         }
 
         if(!found) {
@@ -1529,7 +1536,16 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "function parametor type error\n", real_fun_name);
         info->err_num++;
 
+        fprintf(stderr, "\nfunction parametor\n\n");
+
         int i;
+        for(i=0; i<num_params2; i++) {
+            printf("param #%d\n", i);
+            show_node_type(fun_params[i]);
+        }
+
+        fprintf(stderr, "\nparams parametor\n\n");
+
         for(i=0; i<num_params2; i++) {
             printf("param #%d\n", i);
             show_node_type(param_types[i]);

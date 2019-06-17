@@ -275,6 +275,10 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
     else if(left_type->mNullable && left_type->mPointerNum > 0 && type_identify_with_class_name(right_type, "void*")) {
         return TRUE;
     }
+    else if(left_type->mNullable && type_identify_with_class_name(left_type, "lambda") && type_identify_with_class_name(right_type, "void*")) 
+    {
+        return TRUE;
+    }
 
     return FALSE;
 }

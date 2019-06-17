@@ -37,6 +37,7 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
+/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -455,8 +456,8 @@ def main():int
     var aaaa = "AAA" + "BBB";
 
     assert("operator test", strcmp(aaaa, "AAABBB") == 0);
+*/
 
-/*
     struct vector<T> {
         items:heap T*;
         len:int;
@@ -469,7 +470,9 @@ def main():int
             self.len = 0;
             self.items = new T[self.size];
 
-            block->(self);
+            if(block != null) {
+                block->(self);
+            }
 
             self
         }
@@ -500,9 +503,7 @@ def main():int
     }
     var v = new vector<int>.initialize(null);
 
-    v.push_back("AAA");
-*/
-/*
+    v.push_back(1);
     v.push_back(2);
     v.push_back(3);
 
@@ -513,15 +514,14 @@ def main():int
     v.each {
         printf("%d --> %ld\n", it2, it);
     }
-*/
 
-/*
     var v2 = new vector<int>.initialize {
-        it.push_back("AAA");
+        it.push_back(111);
         it.push_back(222);
         it.push_back(333);
     }
 
+/*
     v2.each {
         printf("%d --> %d\n", it2, it);
     }
