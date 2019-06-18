@@ -255,12 +255,51 @@ BOOL is_number_type(sNodeType* node_type)
     return (node_type->mClass->mFlags & CLASS_FLAGS_NUMBER) && node_type->mPointerNum == 0;
 }
 
+static BOOL is_included_generics_types(sNodeType* left_type)
+{
+    sCLClass* left_class = left_type->mClass;
+    if((left_class->mFlags & CLASS_FLAGS_GENERICS) || (left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS))
+    {
+        return TRUE;
+    }
+    int i;
+    for(i=0; i<left_type->mNumGenericsTypes; i++) 
+    {
+        sNodeType* generics_type = left_type->mGenericsTypes[i];
+
+        if(is_included_generics_types(generics_type))
+        {
+            return TRUE;
+        }
+    }
+    for(i=0; i<left_type->mNumParams; i++) {
+        sNodeType* block_param = left_type->mParamTypes[i];
+
+        if(is_included_generics_types(block_param))
+        {
+            return TRUE;
+        }
+    }
+
+    if(left_type->mResultType) {
+        if(is_included_generics_types(left_type->mResultType))
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
 {
     sCLClass* left_class = left_type->mClass;
     sCLClass* right_class = right_type->mClass; 
 
-    if(is_number_type(left_type) && is_number_type(right_type))
+    if(is_included_generics_types(left_type)) {
+        return TRUE;
+    }
+    else if(is_number_type(left_type) && is_number_type(right_type))
     {
         return TRUE;
     }

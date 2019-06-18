@@ -510,7 +510,7 @@ def main():int
     printf("%d\n", v.item(2));
 
     v.each {
-        printf("%d --> %ld\n", it2, it);
+        printf("%d --> %d\n", it2, it);
     }
 
     var v2 = new vector<int>.initialize(
@@ -522,7 +522,17 @@ def main():int
     ) 
 
     v2.each {
-        printf("%d --> %ld\n", it2, it);
+        printf("%d --> %d\n", it2, it);
+    }
+
+    var v3 = new vector<int>.initialize {
+        it.push_back(111);
+        it.push_back(555);
+        it.push_back(666);
+    }
+
+    v3.each {
+        printf("%d --> %d\n", it2, it);
     }
 
     0

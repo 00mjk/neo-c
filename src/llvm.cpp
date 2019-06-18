@@ -660,9 +660,11 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     sCLClass* left_class = left_type->mClass;
     sCLClass* right_class = (*right_type)->mClass;
 
+/*
     if(type_identify(left_type, *right_type)) {
     }
-    else if(left_type->mPointerNum > 0) 
+*/
+    if(left_type->mPointerNum > 0) 
     {
         if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong"))
         {

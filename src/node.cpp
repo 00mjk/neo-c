@@ -1306,9 +1306,8 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
 
         xstrncpy(param->mName, param_name, VAR_NAME_MAX);
 
-        param->mType = lambda_type->mParamTypes[i];
+        param->mType = clone_node_type(lambda_type->mParamTypes[i]);
 
-/*
         if(generics_type) {
             if(!solve_generics(&param->mType, generics_type)) 
             {
@@ -1320,7 +1319,6 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
                 return FALSE;
             }
         }
-*/
     }
 
     sParserInfo info2;
@@ -1335,9 +1333,8 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     info2.parse_phase = info->parse_phase;
     info2.lv_table = info->lv_table;
 
-    sNodeType* result_type = lambda_type->mResultType;
+    sNodeType* result_type = clone_node_type(lambda_type->mResultType);
 
-/*
     if(generics_type) {
         if(!solve_generics(&result_type, generics_type)) 
         {
@@ -1349,7 +1346,6 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
             return FALSE;
         }
     }
-*/
 
     sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
     expect_next_character_with_one_forward("{", &info2);
