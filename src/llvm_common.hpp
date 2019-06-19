@@ -89,6 +89,7 @@ struct sFunctionStruct {
     char mRealName[REAL_FUN_NAME_MAX];
 
     sNodeType* mResultType;
+    char mParamNames[PARAMS_MAX][VAR_NAME_MAX];
     sNodeType* mParamTypes[PARAMS_MAX];
     int mNumParams;
 
@@ -97,6 +98,10 @@ struct sFunctionStruct {
     BOOL mCFFIFunction;
 
     int mNumMethodGenerics;
+
+    char* mBlockText;
+    char* mSName;
+    int mSLine;
 };
 
 typedef struct sFunctionStruct sFunction;

@@ -258,10 +258,11 @@ BOOL is_number_type(sNodeType* node_type)
 static BOOL is_included_generics_types(sNodeType* left_type)
 {
     sCLClass* left_class = left_type->mClass;
-    if((left_class->mFlags & CLASS_FLAGS_GENERICS) || (left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS))
+    if(left_class->mFlags & CLASS_FLAGS_GENERICS)
     {
         return TRUE;
     }
+
     int i;
     for(i=0; i<left_type->mNumGenericsTypes; i++) 
     {
@@ -303,11 +304,11 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
     {
         return TRUE;
     }
-    else if((left_class->mFlags & CLASS_FLAGS_GENERICS) || (left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS))
+    else if(left_class->mFlags & CLASS_FLAGS_GENERICS)
     {
         return TRUE;
     }
-    else if((right_class->mFlags & CLASS_FLAGS_GENERICS) || (right_class->mFlags & CLASS_FLAGS_METHOD_GENERICS))
+    else if(right_class->mFlags & CLASS_FLAGS_GENERICS)
     {
         return TRUE;
     }
@@ -409,6 +410,26 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
             {
                 return FALSE;
             }
+        }
+    }
+
+    return TRUE;
+}
+
+BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX])
+{
+    sCLClass* klass = (*node_type)->mClass;
+
+    if(klass->mFlags & CLASS_FLAGS_METHOD_GENERICS)
+    {
+        int method_generics_number = klass->mMethodGenericsNum;
+
+        if(method_generics_types[method_generics_number])
+        {
+            *node_type = clone_node_type(method_generics_types[method_generics_number]);
+        }
+        else {
+            return FALSE;
         }
     }
 

@@ -70,6 +70,9 @@ void free_nodes()
                     }
                     break;
 
+                case kNodeTypeMethodGenericsFunction:
+                    free(gNodes[i].uValue.sFunction.mBlockText);
+
                 default:
                     break;
             }

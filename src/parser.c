@@ -206,6 +206,16 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
                 snprintf(buf, VAR_NAME_MAX, "mgenerics%d", i);
 
                 *result_type = create_node_type_with_class_name(buf);
+
+                if(i < info->mNumMethodGenericsTypes) 
+                {
+                    if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))
+                    {
+                        parser_err_msg(info, "Can't solve method generics type");
+                        show_node_type(*result_type);
+                        info->err_num++;
+                    }
+                }
             }
         }
     }
@@ -451,26 +461,42 @@ static BOOL parse_param(sParserParam* param, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
+static BOOL get_block_text(sBuf* buf, sParserInfo* info)
 {
-    sBuf buf;
-    sBuf_init(&buf);
+    sBuf_append_str(buf, "{ ");
 
-    char* sname = info->sname;
-    int sline = info->sline;
-
-    sBuf_append_str(&buf, "{ ");
+    BOOL dquort = FALSE;
+    BOOL squort = FALSE;
 
     int nest = 0;
     while(TRUE) {
-        if(*info->p == '{') {
-            sBuf_append_char(&buf, *info->p);
+        if(*info->p == '"') {
+            sBuf_append_char(buf, *info->p);
+            info->p++;
+            dquort = !dquort;
+        }
+        else if(*info->p == '\'') {
+            sBuf_append_char(buf, *info->p);
+            info->p++;
+            sBuf_append_char(buf, *info->p);
+            squort = !squort;
+        }
+        else if(dquort || squort) {
+            if(*info->p == '\n') {
+                info->sline++;
+            }
+
+            sBuf_append_char(buf, *info->p);
+            info->p++;
+        }
+        else if(*info->p == '{') {
+            sBuf_append_char(buf, *info->p);
             info->p++;
 
             nest++;
         }
         else if(*info->p == '}') {
-            sBuf_append_char(&buf, *info->p);
+            sBuf_append_char(buf, *info->p);
             info->p++;
             skip_spaces_and_lf(info);
 
@@ -482,19 +508,36 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
         }
         else if(*info->p == '\n') {
             info->sline++;
-            sBuf_append_char(&buf, *info->p);
+            sBuf_append_char(buf, *info->p);
             info->p++;
         }
         else if(*info->p == '\0') {
             parser_err_msg(info, "require } before the source end");
-            free(buf.mBuf);
             return FALSE;
         }
         else {
-            sBuf_append_char(&buf, *info->p);
+            sBuf_append_char(buf, *info->p);
             info->p++;
         }
     }
+
+    return TRUE;
+}
+
+static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
+{
+    char* sname = info->sname;
+    int sline = info->sline;
+
+    sBuf buf;
+    sBuf_init(&buf);
+
+    if(!get_block_text(&buf, info)) {
+        free(buf.mBuf);
+        return FALSE;
+    }
+
+printf("(%s)\n", buf.mBuf);
 
     *node = sNodeTree_create_simple_lambda_param(MANAGED buf.mBuf, sname, sline, info);
 
@@ -565,7 +608,7 @@ static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* inf
     return TRUE;
 }
 
-static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* info)
+static BOOL parse_method_generics_function(unsigned int* node, char* struct_name, sParserInfo* info)
 {
     /// method generics ///
     info->mNumMethodGenerics = 0;
@@ -594,15 +637,6 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
 
             info->mNumMethodGenerics = num_generics;
 
-            expect_next_character_with_one_forward(":", info);
-
-            sNodeType* node_type = NULL;
-            if(!parse_type(&node_type, info)) {
-                return FALSE;
-            }
-
-            info->mMethodGenericsTypes[num_generics-1] = node_type;
-
             if(*info->p == ',') {
                 info->p++;
                 skip_spaces_and_lf(info);
@@ -619,6 +653,67 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
             }
         }
     }
+
+    /// function name ///
+    char fun_name[VAR_NAME_MAX];
+
+    if(!parse_word(fun_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
+        return FALSE;
+    }
+
+    BOOL operator_fun = FALSE;
+
+    expect_next_character_with_one_forward("(", info);
+
+    /// params ///
+    sParserParam params[PARAMS_MAX];
+    memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+    int num_params = 0;
+
+    /// parse_params ///
+    BOOL var_arg = FALSE;
+    if(!parse_params(params, &num_params, info, 0, &var_arg))
+    {
+        return FALSE;
+    }
+
+    sNodeType* result_type = NULL;
+    if(*info->p == ':') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!parse_type(&result_type, info)) {
+            return FALSE;
+        }
+    }
+    else {
+        result_type = create_node_type_with_class_name("void");
+    }
+
+    char* sname = info->sname;
+    int sline = info->sline;
+
+    expect_next_character_with_one_forward("{", info);
+
+    sBuf buf;
+    sBuf_init(&buf);
+
+    if(!get_block_text(&buf, info)) {
+        free(buf.mBuf);
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_method_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, info->mNumMethodGenerics, struct_name, sname, sline, info);
+
+    info->mNumMethodGenerics = 0;
+
+    return TRUE;
+}
+
+static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* info)
+{
+    /// method generics ///
+    info->mNumMethodGenerics = 0;
 
     /// function name ///
     char fun_name[VAR_NAME_MAX];
@@ -670,23 +765,9 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
     /// params ///
     sParserParam params[PARAMS_MAX];
     memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
-    int num_params = 0;
-
-    /// method generics ///
-    int i;
-    for(i=0; i<info->mNumMethodGenerics; i++) {
-        xstrncpy(params[i].mName, info->mMethodGenericsTypeNames[i], VAR_NAME_MAX);
-        params[i].mType = info->mMethodGenericsTypes[i];
-
-        num_params++;
-
-        if(num_params >= PARAMS_MAX) {
-            parser_err_msg(info, "overflow params number");
-            return FALSE;
-        }
-    }
 
     /// parse_params ///
+    int num_params = 0;
     BOOL var_arg = FALSE;
     if(!parse_params(params, &num_params, info, 0, &var_arg))
     {
@@ -1076,7 +1157,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                 /// call methods ///
                 if(*info->p == '(' || *info->p == '{') 
                 {
-                    char* func_name = buf;
+                    char* fun_name = buf;
 
                     unsigned int params[PARAMS_MAX];
                     int num_params = 0;
@@ -1089,7 +1170,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                         return FALSE;
                     }
 
-                    *node = sNodeTree_create_function_call(func_name, params, num_params, TRUE, info);
+                    *node = sNodeTree_create_function_call(fun_name, params, num_params, TRUE, info);
                 }
                 /// access fields ///
                 else {
@@ -1482,11 +1563,11 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward("}", info);
     info->lv_table = old_table;
 
-    char func_name[VAR_NAME_MAX];
-    create_lambda_name(func_name, VAR_NAME_MAX, info->module_name);
+    char fun_name[VAR_NAME_MAX];
+    create_lambda_name(fun_name, VAR_NAME_MAX, info->module_name);
 
     BOOL lambda = TRUE;
-    *node = sNodeTree_create_function(func_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, 0, NULL, FALSE, info);
+    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, 0, NULL, FALSE, info);
 
     return TRUE;
 }
@@ -1631,8 +1712,15 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
         }
 
         if(strcmp(buf, "def") == 0) {
-            if(!parse_function(node, struct_name, info)) {
-                return FALSE;
+            if(*info->p == '<') {
+                if(!parse_method_generics_function(node, struct_name, info)) {
+                    return FALSE;
+                }
+            }
+            else {
+                if(!parse_function(node, struct_name, info)) {
+                    return FALSE;
+                }
             }
 
             nodes[num_nodes++] = *node;
@@ -1951,8 +2039,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "def") == 0) {
-            if(!parse_function(node, NULL, info)) {
-                return FALSE;
+            if(*info->p == '<') {
+                if(!parse_method_generics_function(node, NULL, info)) {
+                    return FALSE;
+                }
+            }
+            else {
+                if(!parse_function(node, NULL, info)) {
+                    return FALSE;
+                }
             }
         }
         else if(strcmp(buf, "if") == 0) {
@@ -2128,7 +2223,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else if(*info->p == '(') {
-                char* func_name = buf;
+                char* fun_name = buf;
 
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
@@ -2138,7 +2233,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
 
-                *node = sNodeTree_create_function_call(func_name, params, num_params, FALSE, info);
+                *node = sNodeTree_create_function_call(fun_name, params, num_params, FALSE, info);
             }
             else {
                 parser_err_msg(info, "undeclared %s\n", buf);

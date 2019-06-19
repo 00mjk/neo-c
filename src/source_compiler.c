@@ -180,7 +180,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
     sCompileInfo cinfo;
     memset(&cinfo, 0, sizeof(sCompileInfo));
 
-    xstrncpy(cinfo.func_name, fname, VAR_NAME_MAX);
+    xstrncpy(cinfo.fun_name, fname, VAR_NAME_MAX);
 
     cinfo.pinfo = &info;
 

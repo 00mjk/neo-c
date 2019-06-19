@@ -37,6 +37,7 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
+/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -426,32 +427,6 @@ def main():int
 
     assert("generics test", gvar.a == 111 && gvar.b == 'c' && gvar.c->(1, 2) == 3);
 
-    struct INumber <T> {
-        add:lambda(T,T):T;
-    }
-
-    def <I:INumber<I>*> method_generics_fun(a:I, b:I):I
-    {
-        I.add->(a, b)
-    }
-
-    var inumber = new INumber<int>;
-
-    inumber.add = lambda(a:int, b:int):int {
-        a + b
-    }
-
-    assert("generics test2", method_generics_fun(inumber, 1, 2) == 3);
-
-    var inumber2 = new INumber<char*>;
-
-    inumber2.add = lambda(a:char*, b:char*):heap char* 
-    {
-        a + b
-    }
-
-    assert("generics test3", strcmp(method_generics_fun(inumber2, "AAA", "BBB"), "AAABBB") == 0);
-
     var aaaa = "AAA" + "BBB";
 
     assert("operator test", strcmp(aaaa, "AAABBB") == 0);
@@ -497,6 +472,14 @@ def main():int
                 block->(self.items[i], i);
             }
         }
+        def <R:any> map(self:vector<T>*, block:lambda(T):R): heap vector<R>
+        {
+            var result = new vector<R>;
+            self.each {
+                result.push_back(block(it));
+            }
+            return result;
+        }
     }
 
     var v = new vector<int>.initialize(null);
@@ -534,6 +517,28 @@ def main():int
     v3.each {
         printf("%d --> %d\n", it2, it);
     }
+
+    var v4 = new vector<int>;
+
+    v4.push_back(1);
+    v4.push_back(2);
+    v4.push_back(3);
+
+    var v5 = v4.map(lambda(it:int):heap char* {
+        var result = new char[256];
+        snprintf(result, 256, "%d", it);
+        result
+    });
+*/
+
+    def <I> method_generics_fun2(a:I, b:I):I
+    {
+        a + b
+    }
+
+    assert("method generics test", method_generics_fun2(1, 2) == 3);
+    assert("method generics test2", strcmp(method_generics_fun2("AAA", "BBB"), "AAABBB") == 0);
+    assert("method generics test3", method_generics_fun2(2, 3) == 5);
 
     0
 }
