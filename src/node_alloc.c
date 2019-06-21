@@ -70,7 +70,7 @@ void free_nodes()
                     }
                     break;
 
-                case kNodeTypeMethodGenericsFunction:
+                case kNodeTypeGenericsFunction:
                     free(gNodes[i].uValue.sFunction.mBlockText);
 
                 default:

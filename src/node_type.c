@@ -153,7 +153,8 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf)
                 node_type->mGenericsTypes[node_type->mNumGenericsTypes] = parse_class_name(p, p2, buf);
                 node_type->mNumGenericsTypes++;
 
-                if(node_type->mNumGenericsTypes >= GENERICS_TYPES_MAX) {
+                if(node_type->mNumGenericsTypes >= GENERICS_TYPES_MAX) 
+                {
                     return NULL;
                 }
 
@@ -255,60 +256,12 @@ BOOL is_number_type(sNodeType* node_type)
     return (node_type->mClass->mFlags & CLASS_FLAGS_NUMBER) && node_type->mPointerNum == 0;
 }
 
-static BOOL is_included_generics_types(sNodeType* left_type)
-{
-    sCLClass* left_class = left_type->mClass;
-    if(left_class->mFlags & CLASS_FLAGS_GENERICS)
-    {
-        return TRUE;
-    }
-
-    int i;
-    for(i=0; i<left_type->mNumGenericsTypes; i++) 
-    {
-        sNodeType* generics_type = left_type->mGenericsTypes[i];
-
-        if(is_included_generics_types(generics_type))
-        {
-            return TRUE;
-        }
-    }
-    for(i=0; i<left_type->mNumParams; i++) {
-        sNodeType* block_param = left_type->mParamTypes[i];
-
-        if(is_included_generics_types(block_param))
-        {
-            return TRUE;
-        }
-    }
-
-    if(left_type->mResultType) {
-        if(is_included_generics_types(left_type->mResultType))
-        {
-            return TRUE;
-        }
-    }
-
-    return FALSE;
-}
-
 BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
 {
     sCLClass* left_class = left_type->mClass;
     sCLClass* right_class = right_type->mClass; 
 
-    if(is_included_generics_types(left_type)) {
-        return TRUE;
-    }
-    else if(is_number_type(left_type) && is_number_type(right_type))
-    {
-        return TRUE;
-    }
-    else if(left_class->mFlags & CLASS_FLAGS_GENERICS)
-    {
-        return TRUE;
-    }
-    else if(right_class->mFlags & CLASS_FLAGS_GENERICS)
+    if(is_number_type(left_type) && is_number_type(right_type))
     {
         return TRUE;
     }
@@ -316,6 +269,10 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
         return TRUE;
     }
     else if(left_type->mNullable && type_identify_with_class_name(left_type, "lambda") && type_identify_with_class_name(right_type, "void*")) 
+    {
+        return TRUE;
+    }
+    else if(left_type->mPointerNum > 0 && right_type->mPointerNum)
     {
         return TRUE;
     }
@@ -399,7 +356,17 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
 
         if(generics_number != generics_number2) 
         {
+            int array_num = (*node_type)->mArrayNum;
+            BOOL nullable = (*node_type)->mNullable;
+            int pointer_num = (*node_type)->mPointerNum;
+            BOOL heap = (*node_type)->mHeap;
+
             (*node_type) = generics_type->mGenericsTypes[generics_number];
+
+            (*node_type)->mArrayNum = array_num;
+            (*node_type)->mNullable = nullable;
+            (*node_type)->mPointerNum = pointer_num;
+            (*node_type)->mHeap = heap;
         }
     }
     else {
@@ -434,4 +401,42 @@ BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types,
     }
 
     return TRUE;
+}
+
+BOOL included_generics_type(sNodeType* node_type)
+{
+    sCLClass* klass = node_type->mClass;
+
+    if(type_identify_with_class_name(node_type, "lambda")) 
+    {
+        if(included_generics_type(node_type->mResultType))
+        {
+            return TRUE;
+        }
+
+        int i;
+        for(i=0; i<node_type->mNumParams; i++)
+        {
+            if(included_generics_type(node_type->mParamTypes[i]))
+            {
+                return TRUE;
+            }
+        }
+    }
+    else if(klass->mFlags & CLASS_FLAGS_GENERICS || klass->mFlags & CLASS_FLAGS_METHOD_GENERICS) 
+    {
+        return TRUE;
+    }
+    else {
+        int i;
+        for(i=0; i<node_type->mNumGenericsTypes; i++)
+        {
+            if(included_generics_type(node_type->mGenericsTypes[i]))
+            {
+                return TRUE;
+            }
+        }
+    }
+
+    return FALSE;
 }

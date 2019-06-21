@@ -37,7 +37,6 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
-/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -450,7 +449,7 @@ def main():int
             self
         }
         
-        def push_back(self: vector<T>*, item:T) {
+        def push_back(self: vector<int>*, item:T) {
             if(self.len == self.size) {
                 var new_size = self.size;
                 var items = self.items;
@@ -471,14 +470,6 @@ def main():int
             for(var i=0; i<self.len; i++) {
                 block->(self.items[i], i);
             }
-        }
-        def <R:any> map(self:vector<T>*, block:lambda(T):R): heap vector<R>
-        {
-            var result = new vector<R>;
-            self.each {
-                result.push_back(block(it));
-            }
-            return result;
         }
     }
 
@@ -518,6 +509,7 @@ def main():int
         printf("%d --> %d\n", it2, it);
     }
 
+/*
     var v4 = new vector<int>;
 
     v4.push_back(1);
@@ -539,6 +531,21 @@ def main():int
     assert("method generics test", method_generics_fun2(1, 2) == 3);
     assert("method generics test2", strcmp(method_generics_fun2("AAA", "BBB"), "AAABBB") == 0);
     assert("method generics test3", method_generics_fun2(2, 3) == 5);
+
+    struct GenericsTest2<T> {
+        a:T;
+        b:T;
+    }
+
+    impl GenericsTest2<T> {
+        def add(self:GenericsTest2<T>*, a:T, b:T):T {
+            a + b
+        }
+    }
+
+    var generics_test = new GenericsTest2<int>;
+
+    assert("generics test", generics_test.add(1,2) == 3);
 
     0
 }

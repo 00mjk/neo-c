@@ -102,11 +102,16 @@ struct sFunctionStruct {
     char* mBlockText;
     char* mSName;
     int mSLine;
+
+    int mNumGenerics;
+    char mGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
 };
 
 typedef struct sFunctionStruct sFunction;
 
 typedef struct LVALUEStruct LVALUE;
+
+extern LVALUE* gLLVMStack;
 
 extern "C"
 {

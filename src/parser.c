@@ -195,6 +195,16 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
             snprintf(buf, VAR_NAME_MAX, "generics%d", i);
 
             *result_type = create_node_type_with_class_name(buf);
+
+            if(info->mGenericsType && i < info->mGenericsType->mNumGenericsTypes) 
+            {
+                if(!solve_generics(result_type, info->mGenericsType))
+                {
+                    parser_err_msg(info, "Can't solve generics type");
+                    show_node_type(*result_type);
+                    info->err_num++;
+                }
+            }
         }
     }
 
@@ -224,13 +234,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         sCLClass* klass = get_class(type_name);
 
         if(klass) {
-            if(klass->mFlags & CLASS_FLAGS_STRUCT)
-            {
-                *result_type = get_struct(type_name);
-            }
-            else {
-                *result_type = create_node_type_with_class_name(type_name);
-            }
+            *result_type = create_node_type_with_class_name(type_name);
         }
     }
 
@@ -352,6 +356,11 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
     (*result_type)->mHeap = heap;
     (*result_type)->mNullable = nullable;
+
+    if(((*result_type)->mClass->mFlags & CLASS_FLAGS_STRUCT) && !included_generics_type(*result_type))
+    {
+        create_llvm_struct_type((*result_type));
+    }
 
     return TRUE;
 }
@@ -537,8 +546,6 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
         return FALSE;
     }
 
-printf("(%s)\n", buf.mBuf);
-
     *node = sNodeTree_create_simple_lambda_param(MANAGED buf.mBuf, sname, sline, info);
 
     return TRUE;
@@ -608,7 +615,7 @@ static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* inf
     return TRUE;
 }
 
-static BOOL parse_method_generics_function(unsigned int* node, char* struct_name, sParserInfo* info)
+static BOOL parse_generics_function(unsigned int* node, char* struct_name, sParserInfo* info)
 {
     /// method generics ///
     info->mNumMethodGenerics = 0;
@@ -703,9 +710,9 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
         return FALSE;
     }
 
-    *node = sNodeTree_create_method_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, info->mNumMethodGenerics, struct_name, sname, sline, info);
+    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, info->mNumMethodGenerics, struct_name, sname, sline, info);
 
-    info->mNumMethodGenerics = 0;
+    //info->mNumMethodGenerics = 0;
 
     return TRUE;
 }
@@ -1574,6 +1581,19 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
 
 static BOOL parse_new(unsigned int* node, sParserInfo* info)
 {
+    sNodeType* generics_type = NULL;
+
+    char* p = info->p;
+    int sline = info->sline;
+
+    if(!parse_type(&generics_type, info)) {
+        return FALSE;
+    }
+
+    info->mGenericsType = generics_type;
+    info->p = p;
+    info->sline = sline;
+
     sNodeType* node_type = NULL;
 
     if(!parse_type(&node_type, info)) {
@@ -1607,6 +1627,19 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
 
 static BOOL parse_alloca(unsigned int* node, sParserInfo* info)
 {
+    sNodeType* generics_type = NULL;
+
+    char* p = info->p;
+    int sline = info->sline;
+
+    if(!parse_type(&generics_type, info)) {
+        return FALSE;
+    }
+
+    info->mGenericsType = generics_type;
+    info->p = p;
+    info->sline = sline;
+
     sNodeType* node_type = NULL;
 
     if(!parse_type(&node_type, info)) {
@@ -1713,7 +1746,12 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
         if(strcmp(buf, "def") == 0) {
             if(*info->p == '<') {
-                if(!parse_method_generics_function(node, struct_name, info)) {
+                if(!parse_generics_function(node, struct_name, info)) {
+                    return FALSE;
+                }
+            }
+            else if(info->mNumGenerics > 0) {
+                if(!parse_generics_function(node, struct_name, info)) {
                     return FALSE;
                 }
             }
@@ -2040,7 +2078,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "def") == 0) {
             if(*info->p == '<') {
-                if(!parse_method_generics_function(node, NULL, info)) {
+                if(!parse_generics_function(node, NULL, info)) {
                     return FALSE;
                 }
             }
