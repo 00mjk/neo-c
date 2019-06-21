@@ -98,6 +98,7 @@ struct sFunctionStruct {
     BOOL mCFFIFunction;
 
     int mNumMethodGenerics;
+    char mMethodGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
 
     char* mBlockText;
     char* mSName;
@@ -121,14 +122,13 @@ void dec_stack_ptr(int value, sCompileInfo* info);
 LVALUE* get_value_from_stack(int offset);
 
 int get_llvm_alignment_from_node_type(sNodeType* node_type);
-Type* create_llvm_type_from_node_type(sNodeType* node_type);
+BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type);
 
-Type* create_llvm_type_from_node_type(sNodeType* node_type);
 Value* llvm_create_string(char* str);
-void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info);
+BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info);
 void store_address_to_lvtable(int index, Value* address);
 Value* load_address_to_lvtable(int index, sNodeType* var_type);
-uint64_t get_size_from_node_type(sNodeType* node_type);
+BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type);
 void std_move(sNodeType* lvar_type, LVALUE* rvalue);
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info);
 void free_right_value_objects(sCompileInfo* info);

@@ -103,6 +103,7 @@ void show_node_type(sNodeType* node_type)
     int i;
     for(i=0; i<node_type->mNumGenericsTypes; i++)
     {
+        printf(">>generics type #%d\n", i);
         show_node_type(node_type->mGenericsTypes[i]);
     }
 
@@ -114,6 +115,7 @@ void show_node_type(sNodeType* node_type)
     printf(">>lambda param types\n");
     for(i=0; i<node_type->mNumParams; i++)
     {
+        printf(">>lambda param type #%d\n", i);
         show_node_type(node_type->mParamTypes[i]);
     }
 }
@@ -361,12 +363,20 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
             int pointer_num = (*node_type)->mPointerNum;
             BOOL heap = (*node_type)->mHeap;
 
-            (*node_type) = generics_type->mGenericsTypes[generics_number];
+            (*node_type) = clone_node_type(generics_type->mGenericsTypes[generics_number]);
 
-            (*node_type)->mArrayNum = array_num;
-            (*node_type)->mNullable = nullable;
-            (*node_type)->mPointerNum = pointer_num;
-            (*node_type)->mHeap = heap;
+            if(heap) {
+                (*node_type)->mHeap = heap;
+            }
+            if(nullable) {
+                (*node_type)->mNullable = nullable;
+            }
+            if(array_num > 0) {
+                (*node_type)->mArrayNum = array_num;
+            }
+            if(pointer_num > 0) {
+                (*node_type)->mPointerNum += pointer_num;
+            }
         }
     }
     else {
@@ -387,16 +397,60 @@ BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types,
 {
     sCLClass* klass = (*node_type)->mClass;
 
-    if(klass->mFlags & CLASS_FLAGS_METHOD_GENERICS)
+    if(type_identify_with_class_name(*node_type, "lambda")) 
+    {
+        if(!solve_method_generics(&(*node_type)->mResultType, num_method_generics_types, method_generics_types))
+        {
+            return FALSE;
+        }
+
+        int i;
+        for(i=0; i<(*node_type)->mNumParams; i++)
+        {
+            if(!solve_method_generics(&(*node_type)->mParamTypes[i], num_method_generics_types, method_generics_types))
+            {
+                return FALSE;
+            }
+        }
+    }
+    else if(klass->mFlags & CLASS_FLAGS_METHOD_GENERICS)
     {
         int method_generics_number = klass->mMethodGenericsNum;
 
         if(method_generics_types[method_generics_number])
         {
+            int array_num = (*node_type)->mArrayNum;
+            BOOL nullable = (*node_type)->mNullable;
+            int pointer_num = (*node_type)->mPointerNum;
+            BOOL heap = (*node_type)->mHeap;
+
             *node_type = clone_node_type(method_generics_types[method_generics_number]);
+
+            if(heap) {
+                (*node_type)->mHeap = heap;
+            }
+            if(nullable) {
+                (*node_type)->mNullable = nullable;
+            }
+            if(array_num > 0) {
+                (*node_type)->mArrayNum = array_num;
+            }
+            if(pointer_num > 0) {
+                (*node_type)->mPointerNum += pointer_num;
+            }
         }
         else {
             return FALSE;
+        }
+    }
+    else {
+        int i;
+        for(i=0; i<(*node_type)->mNumGenericsTypes; i++)
+        {
+            if(!solve_method_generics(&(*node_type)->mGenericsTypes[i], num_method_generics_types, method_generics_types))
+            {
+                return FALSE;
+            }
         }
     }
 

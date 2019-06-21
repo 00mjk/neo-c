@@ -7,6 +7,7 @@ def puts(str:char*):int;
 def exit(rcode:int);
 def strcmp(str1:char*, str2:char*):int;
 def printf(str:char*, ...):int;
+def snprintf(str:char*, size:int, ...):int;
 def strcpy(mem:char*, mem2:char*):int;
 def memcpy(mem:char*, mem2:char*, size:int):char*;
 def strcat(mem:char*, mem2:char*):char*;
@@ -37,6 +38,7 @@ def assert(msg:char*, exp:bool)
 
 def main():int 
 {
+/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -430,6 +432,31 @@ def main():int
 
     assert("operator test", strcmp(aaaa, "AAABBB") == 0);
 
+    def <I> method_generics_fun2(a:I, b:I):I
+    {
+        a + b
+    }
+
+    assert("method generics test", method_generics_fun2(1, 2) == 3);
+    assert("method generics test2", strcmp(method_generics_fun2("AAA", "BBB"), "AAABBB") == 0);
+    assert("method generics test3", method_generics_fun2(2, 3) == 5);
+
+    struct GenericsTest2<T> {
+        a:T;
+        b:T;
+    }
+
+    impl GenericsTest2<T> {
+        def add(self:GenericsTest2<T>*, a:T, b:T):T {
+            a + b
+        }
+    }
+
+    var generics_test = new GenericsTest2<int>;
+
+    assert("generics test", generics_test.add(1,2) == 3);
+*/
+
     struct vector<T> {
         items:heap T*;
         len:int;
@@ -471,6 +498,19 @@ def main():int
                 block->(self.items[i], i);
             }
         }
+
+        def <R> map(self:vector<T>*, block:lambda(T):R): int
+        {
+/*
+            var result = new vector<R>.initialize(null);
+            self.each {
+                result.push_back(block->(it));
+            }
+
+            result
+*/
+            1
+        }
     }
 
     var v = new vector<int>.initialize(null);
@@ -509,8 +549,32 @@ def main():int
         printf("%d --> %d\n", it2, it);
     }
 
-/*
-    var v4 = new vector<int>;
+    struct MapTest<T,T2> {
+        a:T;
+        b:T2;
+    }
+
+    struct MapTest2<T> {
+        a:T;
+    }
+
+    impl MapTest<T,T2> {
+        def <R> fun(self:MapTest<T,T2>*, a:R, b:int):heap MapTest2<R>*
+        {
+            var result = new MapTest2<R>;
+            result.a = 1;
+            result
+        }
+    }
+
+    var map_test = new MapTest<int, int>;
+
+    var aaa = map_test.fun(1,2);
+
+    assert("method generics test X", aaa.a == 1);
+
+
+    var v4 = new vector<int>.initialize(null);
 
     v4.push_back(1);
     v4.push_back(2);
@@ -521,31 +585,12 @@ def main():int
         snprintf(result, 256, "%d", it);
         result
     });
+
+/*
+    v5.each {
+        printf("(%s)\n", it);
+    }
 */
-
-    def <I> method_generics_fun2(a:I, b:I):I
-    {
-        a + b
-    }
-
-    assert("method generics test", method_generics_fun2(1, 2) == 3);
-    assert("method generics test2", strcmp(method_generics_fun2("AAA", "BBB"), "AAABBB") == 0);
-    assert("method generics test3", method_generics_fun2(2, 3) == 5);
-
-    struct GenericsTest2<T> {
-        a:T;
-        b:T;
-    }
-
-    impl GenericsTest2<T> {
-        def add(self:GenericsTest2<T>*, a:T, b:T):T {
-            a + b
-        }
-    }
-
-    var generics_test = new GenericsTest2<int>;
-
-    assert("generics test", generics_test.add(1,2) == 3);
 
     0
 }

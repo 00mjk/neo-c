@@ -339,12 +339,14 @@ struct sNodeTreeStruct
             BOOL mLambda;
             sVarTable* mVarTable;
             BOOL mVarArg;
-            int mNumMethodGenerics;
             char mStructName[VAR_NAME_MAX];
             BOOL mOperatorFun;
             char* mBlockText;
             int mNumGenerics;
             char mGenericsTypeNames[PARAMS_MAX][VAR_NAME_MAX];
+
+            int mNumMethodGenerics;
+            char mMethodGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
         } sFunction;
 
         struct {
@@ -419,11 +421,11 @@ unsigned int sNodeTree_create_not_equals(unsigned int left, unsigned int right, 
 
 unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL alloc, sParserInfo* info);
 
-unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, int num_method_generics, char* struct_name, BOOL operator_fun, sParserInfo* info);
+unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, char* struct_name, BOOL operator_fun, sParserInfo* info);
 
 unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, int sline, sParserInfo* info);
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, int num_method_generics, char* struct_name, BOOL operator_fun, sParserInfo* info);
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, sParserInfo* info);
 
 unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, sParserInfo* info);
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
@@ -459,7 +461,7 @@ unsigned int sNodeTree_create_mult(unsigned int left, unsigned int right, unsign
 unsigned int sNodeTree_create_div(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_mod(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_cast(sNodeType* left_type, unsigned int left_node, sParserInfo* info);
-unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, int num_method_generics, char* struct_name, char* sname, int sline, sParserInfo* info);
+unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, sParserInfo* info);
 unsigned int sNodeTree_create_impl(unsigned int* nodes, int num_nodes, sParserInfo* info);
 void create_operator_fun_name(char* fun_name, char* real_fun_name, size_t size_real_fun_name, sNodeType** param_types, int num_params);
 
@@ -517,7 +519,7 @@ void arrange_stack(sCompileInfo* info, int top);
 void start_neo_c_main_function();
 void finish_neo_c_main_function();
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info);
-void create_llvm_struct_type(sNodeType* node_type);
+BOOL create_llvm_struct_type(sNodeType* node_type);
 
 #endif
 

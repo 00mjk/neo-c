@@ -195,16 +195,6 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
             snprintf(buf, VAR_NAME_MAX, "generics%d", i);
 
             *result_type = create_node_type_with_class_name(buf);
-
-            if(info->mGenericsType && i < info->mGenericsType->mNumGenericsTypes) 
-            {
-                if(!solve_generics(result_type, info->mGenericsType))
-                {
-                    parser_err_msg(info, "Can't solve generics type");
-                    show_node_type(*result_type);
-                    info->err_num++;
-                }
-            }
         }
     }
 
@@ -216,16 +206,6 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
                 snprintf(buf, VAR_NAME_MAX, "mgenerics%d", i);
 
                 *result_type = create_node_type_with_class_name(buf);
-
-                if(i < info->mNumMethodGenericsTypes) 
-                {
-                    if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))
-                    {
-                        parser_err_msg(info, "Can't solve method generics type");
-                        show_node_type(*result_type);
-                        info->err_num++;
-                    }
-                }
             }
         }
     }
@@ -357,9 +337,34 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     (*result_type)->mHeap = heap;
     (*result_type)->mNullable = nullable;
 
+    if(info->mNumMethodGenericsTypes > 0) {
+        if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))
+        {
+            parser_err_msg(info, "Can't solve method generics type");
+            show_node_type(*result_type);
+            info->err_num++;
+        }
+    }
+
+    if(info->mGenericsType && info->mGenericsType->mNumGenericsTypes > 0)
+    {
+        if(!solve_generics(result_type, info->mGenericsType))
+        {
+            parser_err_msg(info, "Can't solve generics type");
+            show_node_type(*result_type);
+            show_node_type(info->mGenericsType);
+            info->err_num++;
+        }
+    }
+
     if(((*result_type)->mClass->mFlags & CLASS_FLAGS_STRUCT) && !included_generics_type(*result_type))
     {
-        create_llvm_struct_type((*result_type));
+        if(!create_llvm_struct_type((*result_type)))
+        {
+            parser_err_msg(info, "Can't create llvm struct from this node type");
+            show_node_type(*result_type);
+            info->err_num++;
+        }
     }
 
     return TRUE;
@@ -700,7 +705,11 @@ static BOOL parse_generics_function(unsigned int* node, char* struct_name, sPars
     char* sname = info->sname;
     int sline = info->sline;
 
-    expect_next_character_with_one_forward("{", info);
+    if(*info->p == '{') {
+        info->p++;
+    }
+
+    //expect_next_character_with_one_forward("{", info);
 
     sBuf buf;
     sBuf_init(&buf);
@@ -710,7 +719,7 @@ static BOOL parse_generics_function(unsigned int* node, char* struct_name, sPars
         return FALSE;
     }
 
-    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, info->mNumMethodGenerics, struct_name, sname, sline, info);
+    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, info);
 
     //info->mNumMethodGenerics = 0;
 
@@ -798,7 +807,7 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
         info->p++;
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, info->mNumMethodGenerics, struct_name, operator_fun, info);
+        *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, info);
     }
     else {
         sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
@@ -830,7 +839,7 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
 
         BOOL lambda = FALSE;
 
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, info->mNumMethodGenerics, struct_name, operator_fun, info);
+        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, info);
     }
 
     info->mNumMethodGenerics = 0;
@@ -1574,26 +1583,13 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     create_lambda_name(fun_name, VAR_NAME_MAX, info->module_name);
 
     BOOL lambda = TRUE;
-    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, 0, NULL, FALSE, info);
+    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, FALSE, info);
 
     return TRUE;
 }
 
 static BOOL parse_new(unsigned int* node, sParserInfo* info)
 {
-    sNodeType* generics_type = NULL;
-
-    char* p = info->p;
-    int sline = info->sline;
-
-    if(!parse_type(&generics_type, info)) {
-        return FALSE;
-    }
-
-    info->mGenericsType = generics_type;
-    info->p = p;
-    info->sline = sline;
-
     sNodeType* node_type = NULL;
 
     if(!parse_type(&node_type, info)) {
@@ -1627,19 +1623,6 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
 
 static BOOL parse_alloca(unsigned int* node, sParserInfo* info)
 {
-    sNodeType* generics_type = NULL;
-
-    char* p = info->p;
-    int sline = info->sline;
-
-    if(!parse_type(&generics_type, info)) {
-        return FALSE;
-    }
-
-    info->mGenericsType = generics_type;
-    info->p = p;
-    info->sline = sline;
-
     sNodeType* node_type = NULL;
 
     if(!parse_type(&node_type, info)) {
