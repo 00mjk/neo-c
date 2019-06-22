@@ -290,6 +290,10 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type)
     if(type_identify_with_class_name(left_type, "any")) {
         return TRUE;
     }
+    else if(left_type->mPointerNum == 0 && type_identify_with_class_name(left_type, "void")) 
+    {
+        return FALSE;
+    }
     else if(left_class == right_class) {
         if(left_type->mPointerNum == right_type->mPointerNum) 
         {
@@ -448,6 +452,53 @@ BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types,
         for(i=0; i<(*node_type)->mNumGenericsTypes; i++)
         {
             if(!solve_method_generics(&(*node_type)->mGenericsTypes[i], num_method_generics_types, method_generics_types))
+            {
+                return FALSE;
+            }
+        }
+    }
+
+    return TRUE;
+}
+
+BOOL get_type_of_method_generics(sNodeType* method_generics_types[GENERICS_TYPES_MAX], sNodeType* fun_param_type, sNodeType* param_type)
+{
+    sCLClass* klass = fun_param_type->mClass;
+
+    if(klass->mFlags & CLASS_FLAGS_METHOD_GENERICS)
+    {
+        int method_generics_number = klass->mMethodGenericsNum;
+
+        method_generics_types[method_generics_number] = clone_node_type(param_type);
+    }
+
+    if(fun_param_type->mNumGenericsTypes == param_type->mNumGenericsTypes) 
+    {
+        int i;
+        for(i=0; i<fun_param_type->mNumGenericsTypes; i++)
+        {
+            if(!get_type_of_method_generics(method_generics_types, fun_param_type->mGenericsTypes[i], param_type->mGenericsTypes[i]))
+            {
+                return FALSE;
+            }
+        }
+    }
+    else {
+        return FALSE;
+    }
+
+    if(type_identify_with_class_name(fun_param_type, "lambda") 
+        && type_identify_with_class_name(param_type, "lambda"))
+    {
+        if(!get_type_of_method_generics(method_generics_types, fun_param_type->mResultType, param_type->mResultType))
+        {
+            return FALSE;
+        }
+
+        int i;
+        for(i=0; i<fun_param_type->mNumParams; i++)
+        {
+            if(!get_type_of_method_generics(method_generics_types, fun_param_type->mParamTypes[i], param_type->mParamTypes[i]))
             {
                 return FALSE;
             }

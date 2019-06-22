@@ -1238,6 +1238,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
         return TRUE;
     }
+
     int alignment = get_llvm_alignment_from_node_type(left_type);
 
     if(alloc) {
@@ -1713,43 +1714,6 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
 
     BOOL lambda = FALSE;
     *node = sNodeTree_create_function(real_fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, FALSE, &info2);
-
-    return TRUE;
-}
-
-static BOOL get_type_of_method_generics(sNodeType* method_generics_types[GENERICS_TYPES_MAX], sNodeType* fun_param_type, sNodeType* param_type)
-{
-    sCLClass* klass = fun_param_type->mClass;
-
-    if(klass->mFlags & CLASS_FLAGS_METHOD_GENERICS)
-    {
-        int method_generics_number = klass->mMethodGenericsNum;
-
-        method_generics_types[method_generics_number] = clone_node_type(param_type);
-    }
-
-    int i;
-    for(i=0; i<fun_param_type->mNumGenericsTypes; i++)
-    {
-        if(!get_type_of_method_generics(method_generics_types, fun_param_type->mGenericsTypes[i], param_type))
-        {
-            return FALSE;
-        }
-    }
-
-    for(i=0; i<fun_param_type->mNumParams; i++) {
-        if(!get_type_of_method_generics(method_generics_types, fun_param_type->mParamTypes[i], param_type))
-        {
-            return FALSE;
-        }
-    }
-
-    if(fun_param_type->mResultType) {
-        if(!get_type_of_method_generics(method_generics_types, fun_param_type->mResultType, param_type))
-        {
-            return FALSE;
-        }
-    }
 
     return TRUE;
 }

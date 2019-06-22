@@ -457,6 +457,7 @@ def main():int
     assert("generics test", generics_test.add(1,2) == 3);
 */
 
+/*
     struct vector<T> {
         items:heap T*;
         len:int;
@@ -499,17 +500,14 @@ def main():int
             }
         }
 
-        def <R> map(self:vector<T>*, block:lambda(T):R): int
+        def <R> map(self:vector<T>*, block:lambda(T):R): heap vector<R>
         {
-/*
             var result = new vector<R>.initialize(null);
             self.each {
                 result.push_back(block->(it));
             }
 
             result
-*/
-            1
         }
     }
 
@@ -548,6 +546,7 @@ def main():int
     v3.each {
         printf("%d --> %d\n", it2, it);
     }
+*/
 
     struct MapTest<T,T2> {
         a:T;
@@ -565,15 +564,31 @@ def main():int
             result.a = 1;
             result
         }
+        
+        def <R> fun2(self:MapTest<T,T2>*, a:R, block:lambda(R)): R
+        {
+            puts("AAA");
+            1
+        }
     }
 
     var map_test = new MapTest<int, int>;
 
+    var aaa2 = map_test.fun2(1, lambda(a:int) {
+            puts("BBB");
+        }
+    );
+
+    //assert("method generics test X2", aaa2 == 1);
+
+/*
     var aaa = map_test.fun(1,2);
 
     assert("method generics test X", aaa.a == 1);
+8
+*/
 
-
+/*
     var v4 = new vector<int>.initialize(null);
 
     v4.push_back(1);
@@ -586,7 +601,6 @@ def main():int
         result
     });
 
-/*
     v5.each {
         printf("(%s)\n", it);
     }

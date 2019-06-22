@@ -161,6 +161,7 @@ void show_node_type(sNodeType* node_type);
 BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type);
 BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX]);
 BOOL included_generics_type(sNodeType* node_type);
+BOOL get_type_of_method_generics(sNodeType* method_generics_types[GENERICS_TYPES_MAX], sNodeType* fun_param_type, sNodeType* param_type);
   
 //////////////////////////////
 /// vtable.c
