@@ -44,6 +44,7 @@ sVarTable* clone_var_table(sVarTable* lv_table)
 
     while(1) {
         if(p->mName[0] != 0) {
+
             (void)add_variable_to_table(result, p->mName, p->mType, p->mReadOnly, p->mLLVMValue);
         }
 

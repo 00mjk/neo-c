@@ -27,6 +27,7 @@ struct header_t *get_free_block(size_t size)
 
 void xfree(void *block)
 {
+//printf("xfree %p\n", block);
     struct header_t *header, *tmp;
     /* program break is the end of the process's data segment */
     void *programbreak;
@@ -126,6 +127,8 @@ void *xcalloc(size_t num, size_t nsize)
     if (!block)
         return NULL;
     memset(block, 0, size);
+
+//printf("xcalloc %p\n", block);
     return block;
 }
 

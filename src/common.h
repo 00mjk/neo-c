@@ -151,6 +151,7 @@ sNodeType* clone_node_type(sNodeType* node_type);
 sNodeType* create_node_type_with_class_name(char* class_name);
 sNodeType* create_node_type_with_class_pointer(sCLClass* klass);
 BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type);
+BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type);
 
 struct sCompileInfoStruct;
 BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type);

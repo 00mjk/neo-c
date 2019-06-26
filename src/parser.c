@@ -337,6 +337,12 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     (*result_type)->mHeap = heap;
     (*result_type)->mNullable = nullable;
 
+    if(heap && nullable) {
+        parser_err_msg(info, "can't set heap and nullable. heap must be without nullable");
+        show_node_type(*result_type);
+        info->err_num++;
+    }
+
     if(info->mNumMethodGenericsTypes > 0) {
         if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))
         {

@@ -258,7 +258,7 @@ BOOL is_number_type(sNodeType* node_type)
     return (node_type->mClass->mFlags & CLASS_FLAGS_NUMBER) && node_type->mPointerNum == 0;
 }
 
-BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
+BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)
 {
     sCLClass* left_class = left_type->mClass;
     sCLClass* right_class = right_type->mClass; 
@@ -267,14 +267,28 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
     {
         return TRUE;
     }
-    else if(left_type->mNullable && left_type->mPointerNum > 0 && type_identify_with_class_name(right_type, "void*")) {
+    else if(left_type->mNullable && left_type->mPointerNum > 0 && type_identify_with_class_name(right_type, "void*")) 
+    {
         return TRUE;
     }
     else if(left_type->mNullable && type_identify_with_class_name(left_type, "lambda") && type_identify_with_class_name(right_type, "void*")) 
     {
         return TRUE;
     }
-    else if(left_type->mPointerNum > 0 && right_type->mPointerNum)
+
+    return FALSE;
+}
+
+BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
+{
+    sCLClass* left_class = left_type->mClass;
+    sCLClass* right_class = right_type->mClass; 
+
+    if(auto_cast_posibility(left_type, right_type))
+    {
+        return TRUE;
+    }
+    else if(left_type->mPointerNum > 0 && right_type->mPointerNum > 0)
     {
         return TRUE;
     }

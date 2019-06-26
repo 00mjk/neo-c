@@ -76,7 +76,11 @@ static Type* get_lvtable_type()
     sNodeType* lvtable_node_type = create_node_type_with_class_name(buf);
 
     Type* lvtable_type;
-    (void)create_llvm_type_from_node_type(&lvtable_type, lvtable_node_type);
+    if(!create_llvm_type_from_node_type(&lvtable_type, lvtable_node_type))
+    {
+        fprintf(stderr, "unexpected err\n");
+        exit(2);
+    }
 
     return lvtable_type;
 }
@@ -126,19 +130,6 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "xfree", TheModule);
-*/
-
-/*
-    /// exit ///
-    type_params.clear();
-    
-    result_type = Type::getVoidTy(TheContext);
-
-    param1_type = IntegerType::get(TheContext, 32);
-    type_params.push_back(param1_type);
-
-    function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "exit", TheModule);
 */
 
     Type* lvtable_type = get_lvtable_type();
@@ -673,6 +664,14 @@ int get_llvm_alignment_from_node_type(sNodeType* node_type)
     else if(node_type->mPointerNum > 0) {
         result = 8;
     }
+    else if(type_identify_with_class_name(node_type, "char"))
+    {
+        result = 1;
+    }
+    else if(type_identify_with_class_name(node_type, "short"))
+    {
+        result = 2;
+    }
     else if(type_identify_with_class_name(node_type, "int"))
     {
         result = 4;
@@ -817,13 +816,19 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     return TRUE;
 }
 
-void std_move(sNodeType* lvar_type, LVALUE* rvalue)
+void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL alloc, sCompileInfo* info)
 {
     sVar* rvar = rvalue->var;
     sNodeType* rvalue_type = rvalue->type;
 
-    if(rvar && lvar_type->mHeap && rvalue_type->mHeap) {
-        rvar->mLLVMValue = NULL;
+    if(lvar_type->mHeap && rvalue_type->mHeap) {
+        if(var_address && !alloc) {
+            free_object(lvar_type, var_address, info);
+        }
+
+        if(rvar) {
+            rvar->mLLVMValue = NULL;
+        }
     }
 
     if(lvar_type->mHeap) {

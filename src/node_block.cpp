@@ -100,6 +100,8 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
     int stack_num_before = info->stack_num;
 
+printf("compile_block %d\n", info->stack_num);
+
     if(block->mNumNodes == 0) {
         info->type = create_node_type_with_class_name("void");
     }
@@ -128,13 +130,13 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                     LVALUE llvm_value = *get_value_from_stack(-1);
                     arrange_stack(info, stack_num_before);
 
-                    if(cast_posibility(result_type, llvm_value.type))
+                    if(auto_cast_posibility(result_type, llvm_value.type))
                     {
                         cast_right_type_to_left_type(result_type, &llvm_value.type, &llvm_value, info);
                     }
 
                     if(!substitution_posibility(result_type, llvm_value.type)) {
-                        compile_err_msg(info, "The different type between left type and right type.");
+                        compile_err_msg(info, "The different type between left type and right type.(1)");
                         show_node_type(result_type);
                         show_node_type(llvm_value.type);
                         info->err_num++;
@@ -147,7 +149,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                     push_value_to_stack_ptr(&llvm_value, info);
 
 
-                    std_move(result_type, &llvm_value);
+                    std_move(NULL, result_type, &llvm_value, FALSE, info);
 
                     info->type = llvm_value.type;
                 }
@@ -163,10 +165,11 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
         }
     }
 
-    free_objects(block->mLVTable, info);
+    free_objects(info->pinfo->lv_table, info);
     //free_right_value_objects(info);
 
     info->pinfo->lv_table = old_table;
+printf("compile_block2 %d\n", info->stack_num);
 
     return TRUE;
 }

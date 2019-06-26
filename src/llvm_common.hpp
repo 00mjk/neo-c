@@ -129,7 +129,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 void store_address_to_lvtable(int index, Value* address);
 Value* load_address_to_lvtable(int index, sNodeType* var_type);
 BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type);
-void std_move(sNodeType* lvar_type, LVALUE* rvalue);
+void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL alloc, sCompileInfo* info);
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info);
 void free_right_value_objects(sCompileInfo* info);
 void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info);
