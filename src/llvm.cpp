@@ -57,7 +57,7 @@ void arrange_stack(sCompileInfo* info, int top)
         dec_stack_ptr(info->stack_num-top, info);
     }
     if(info->stack_num < top) {
-        fprintf(stderr, "%s %d: unexpected stack value. The stack num is %d\n", info->sname, info->sline, info->stack_num);
+        fprintf(stderr, "%s %d: unexpected stack value. The stack num is %d. top is %d\n", info->sname, info->sline, info->stack_num, top);
         exit(2);
     }
 }
@@ -76,7 +76,7 @@ static Type* get_lvtable_type()
     sNodeType* lvtable_node_type = create_node_type_with_class_name(buf);
 
     Type* lvtable_type;
-    if(!create_llvm_type_from_node_type(&lvtable_type, lvtable_node_type))
+    if(!create_llvm_type_from_node_type(&lvtable_type, lvtable_node_type, NULL))
     {
         fprintf(stderr, "unexpected err\n");
         exit(2);
@@ -142,7 +142,7 @@ void create_internal_functions()
     gLVTableValue->setInitializer(initializer);
 }
 
-Value* load_address_to_lvtable(int index, sNodeType* var_type)
+Value* load_address_to_lvtable(int index, sNodeType* var_type, sCompileInfo* info)
 {
     Value* lvtable_value2 = Builder.CreateCast(Instruction::BitCast, gLVTableValue, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
 
@@ -155,7 +155,7 @@ Value* load_address_to_lvtable(int index, sNodeType* var_type)
     int alignment = get_llvm_alignment_from_node_type(var_type);
 
     Type* llvm_type;
-    (void)create_llvm_type_from_node_type(&llvm_type, var_type);
+    (void)create_llvm_type_from_node_type(&llvm_type, var_type, info);
 
     Value* pointer_value2 = Builder.CreateCast(Instruction::BitCast, pointer_value, PointerType::get(llvm_type, 0));
 
@@ -479,9 +479,6 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
             fprintf(stderr, "faield to compile\n");
             exit(2);
         }
-
-        snprintf(command, PATH_MAX+128, "./%s", module_name3);
-        rc = system(command);
     }
 
     gResultCode = WEXITSTATUS(rc);
@@ -508,7 +505,7 @@ static void create_real_struct_name(char* real_struct_name, int size_real_struct
     }
 }
 
-BOOL create_llvm_struct_type(sNodeType* node_type)
+BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
 
@@ -534,7 +531,7 @@ BOOL create_llvm_struct_type(sNodeType* node_type)
             }
 
             Type* field_type;
-            if(!create_llvm_type_from_node_type(&field_type, field))
+            if(!create_llvm_type_from_node_type(&field_type, field, info))
             {
                 return FALSE;
             }
@@ -556,7 +553,7 @@ BOOL create_llvm_struct_type(sNodeType* node_type)
     return TRUE;
 }
 
-BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type)
+BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
 
@@ -573,7 +570,7 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type)
 
         if(gLLVMStructType[real_struct_name].first == nullptr) 
         {
-            if(!create_llvm_struct_type(node_type))
+            if(!create_llvm_struct_type(node_type, info))
             {
                 return FALSE;
             }
@@ -583,7 +580,14 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type)
     }
     else if((klass->mFlags & CLASS_FLAGS_GENERICS) || (klass->mFlags & CLASS_FLAGS_METHOD_GENERICS))
     {
-        return FALSE;
+        if(info && info->no_output) {
+            *result_type = IntegerType::get(TheContext, 64);
+        }
+        else {
+printf("info %p info->no_output %d\n", info, info->no_output);
+puts("AAA");
+            return FALSE;
+        }
     }
     else if(type_identify_with_class_name(node_type, "char"))
     {
@@ -619,7 +623,7 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type)
         sNodeType* fun_result_type = node_type->mResultType;
 
         Type* llvm_result_type;
-        if(!create_llvm_type_from_node_type(&llvm_result_type, fun_result_type))
+        if(!create_llvm_type_from_node_type(&llvm_result_type, fun_result_type, info))
         {
             return FALSE;
         }
@@ -631,7 +635,7 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type)
             sNodeType* param_type = node_type->mParamTypes[i];
 
             Type* llvm_param_type;
-            if(!create_llvm_type_from_node_type(&llvm_param_type, param_type))
+            if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, info))
             {
                 return FALSE;
             }
@@ -692,10 +696,25 @@ int get_llvm_alignment_from_node_type(sNodeType* node_type)
     return result;
 }
 
-BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type)
+Value* get_dummy_value(sNodeType* node_type, sCompileInfo* info)
 {
     Type* llvm_type;
-    if(!create_llvm_type_from_node_type(&llvm_type, node_type))
+    if(!create_llvm_type_from_node_type(&llvm_type, node_type, info))
+    {
+        return FALSE;
+    }
+
+    Value* address = Builder.CreateAlloca(llvm_type, 0, "dummy");
+
+    int alignment = get_llvm_alignment_from_node_type(node_type);
+
+    return Builder.CreateAlignedLoad(address, alignment, "dummy_value");
+}
+
+BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sCompileInfo* info)
+{
+    Type* llvm_type;
+    if(!create_llvm_type_from_node_type(&llvm_type, node_type, info))
     {
         return FALSE;
     }
@@ -732,7 +751,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         {
             if(rvalue) {
                 Type* llvm_type;
-                if(!create_llvm_type_from_node_type(&llvm_type, left_type))
+                if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
                 {
                     return FALSE;
                 }
@@ -746,7 +765,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         else if((*right_type)->mPointerNum > 0) {
             if(rvalue) {
                 Type* llvm_type;
-                if(!create_llvm_type_from_node_type(&llvm_type, left_type))
+                if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
                 {
                     return FALSE;
                 }
@@ -761,7 +780,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     else if(type_identify_with_class_name(*right_type, "void*")) {
         if(rvalue) {
             Type* llvm_type;
-            if(!create_llvm_type_from_node_type(&llvm_type, left_type))
+            if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
             {
                 return FALSE;
             }
@@ -775,7 +794,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     else if(type_identify_with_class_name(left_type, "lambda")) {
         if(rvalue) {
             Type* llvm_type;
-            if(!create_llvm_type_from_node_type(&llvm_type, left_type))
+            if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
             {
                 return FALSE;
             }
@@ -822,22 +841,24 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
 void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL alloc, sCompileInfo* info)
 {
-    sVar* rvar = rvalue->var;
-    sNodeType* rvalue_type = rvalue->type;
+    if(!info->no_output) {
+        sVar* rvar = rvalue->var;
+        sNodeType* rvalue_type = rvalue->type;
 
-    if(lvar_type->mHeap && rvalue_type->mHeap) {
-        if(var_address && !alloc) {
-            free_object(lvar_type, var_address, info);
+        if(lvar_type->mHeap && rvalue_type->mHeap) {
+            if(var_address && !alloc) {
+                free_object(lvar_type, var_address, info);
+            }
+
+            if(rvar) {
+                rvar->mLLVMValue = NULL;
+            }
         }
 
-        if(rvar) {
-            rvar->mLLVMValue = NULL;
-        }
-    }
-
-    if(lvar_type->mHeap) {
-        if(gHeapObjects[rvalue->value].first != nullptr) {
-            gHeapObjects[rvalue->value].second = false;
+        if(lvar_type->mHeap) {
+            if(gHeapObjects[rvalue->value].first != nullptr) {
+                gHeapObjects[rvalue->value].second = false;
+            }
         }
     }
 }
@@ -852,7 +873,7 @@ printf("free %p\n", obj);
     node_type2->mPointerNum = 0;
 
     Type* llvm_struct_type;
-    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2);
+    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, info);
 
     int i;
     for(i=0; i<klass->mNumFields; i++) {
@@ -860,7 +881,7 @@ printf("free %p\n", obj);
         sCLClass* field_class = field_type->mClass;
 
         Type* llvm_field_type;
-        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type);
+        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, info);
 
         if(field_type->mHeap)
         {
@@ -912,7 +933,7 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
     node_type2->mPointerNum = 0;
 
     Type* llvm_struct_type;
-    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2);
+    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, info);
 
     int i;
     for(i=0; i<klass->mNumFields; i++) {
@@ -921,7 +942,7 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
         sCLClass* field_class = field_type->mClass;
 
         Type* llvm_field_type;
-        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type);
+        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, info);
 
         if(field_type->mHeap)
         {
@@ -960,7 +981,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
     Value* address2 = Builder.CreateCall(fun, params2);
 
     Type* llvm_obj_type;
-    (void)create_llvm_type_from_node_type(&llvm_obj_type, node_type);
+    (void)create_llvm_type_from_node_type(&llvm_obj_type, node_type, info);
 
     Value* address3 = Builder.CreateCast(Instruction::BitCast, address2, llvm_obj_type);
 
@@ -968,7 +989,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
     node_type2->mPointerNum = 0;
 
     Type* llvm_struct_type;
-    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2);
+    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, info);
 
 /*
     Value* dest_obj = Builder.CreateAlignedLoad(address3, 8);
@@ -980,7 +1001,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
         sCLClass* field_class = field_type->mClass;
 
         Type* llvm_field_type;
-        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type);
+        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, info);
 
         int alignment = get_llvm_alignment_from_node_type(field_type);
 

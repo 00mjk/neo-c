@@ -365,7 +365,11 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
     if(((*result_type)->mClass->mFlags & CLASS_FLAGS_STRUCT) && !included_generics_type(*result_type))
     {
-        if(!create_llvm_struct_type((*result_type)))
+        sCompileInfo cinfo;
+        memset(&cinfo, 0, sizeof(sCompileInfo));
+        cinfo.no_output = TRUE;
+
+        if(!create_llvm_struct_type(*result_type, &cinfo))
         {
             parser_err_msg(info, "Can't create llvm struct from this node type");
             show_node_type(*result_type);

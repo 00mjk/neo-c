@@ -296,12 +296,16 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
     return FALSE;
 }
 
-BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type)
+BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompileInfo* info)
 {
     sCLClass* left_class = left_type->mClass;
     sCLClass* right_class = right_type->mClass; 
 
     if(type_identify_with_class_name(left_type, "any")) {
+        return TRUE;
+    }
+    else if(info->no_output && left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS)
+    {
         return TRUE;
     }
     else if(left_type->mPointerNum == 0 && type_identify_with_class_name(left_type, "void")) 

@@ -113,9 +113,12 @@ sNodeBlock* sNodeBlock_alloc()
 
 void sNodeBlock_free(sNodeBlock* block)
 {
+/// this is compiler, so allow me to make memory leak
+/*
     if(block->mNodes) free(block->mNodes);
     free(block->mSource.mBuf);
     free(block);
+*/
 }
 
 void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)

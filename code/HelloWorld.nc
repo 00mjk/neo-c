@@ -49,207 +49,8 @@ def assert(msg:char*, exp:bool)
     puts("OK");
 }
 
+
 /*
-def fun():int
-{
-    puts("HELLO WORLD");
-    1+1
-}
-
-def fun2(exp:bool) 
-{
-    assert("function param cast test", exp);
-}
-
-def fun3(x:int, y:int):int 
-{
-    x + y
-}
-
-def fun4(str:char*) 
-{
-    puts(str);
-}
-
-def fun5(block:lambda(int,int):int):int 
-{
-    block->(1,2)
-}
-
-struct OpTest 
-{
-    a:int;
-    b:int;
-}
-
-struct TestData 
-{
-    a:int;
-    b:int;
-}
-
-def fun6(data:TestData) 
-{
-    assert("struct test2", data.a == 123 && data.b == 234);
-}
-
-def fun7(value:int*) 
-{
-    assert("reffernce test", value->* == 111);
-}
-
-impl int {
-    def times(n:int, block:lambda()) 
-    {
-        for(var i=0; i<n; i++) {
-            block->();
-        };
-    }
-}
-
-def fun8(block:lambda(int,int):int):int
-{
-    block->(2,2)
-}
-
-struct Data {
-    a:int;
-    b:int;
-}
-
-impl Data {
-    def initialize(self:heap Data*):heap Data* {
-        self.a = 111;
-        self.b = 123;
-
-        self
-    }
-}
-
-struct Data2 {
-    a:heap Data*;
-    b:int;
-}
-
-impl Data2 {
-    def initialize(self:heap Data2*):heap Data2* {
-        self.a = new Data;
-
-        self.a.a = 123;
-        self.a.b = 234;
-
-        self.b = 123;
-
-        self
-    }
-}
-
-struct Data5 {
-    a:int;
-    b:int;
-}
-
-impl Data5 {
-    def initialize(self:heap Data5*):heap Data5* {
-        self.a = 111;
-        self.b = 222;
-
-        self
-    }
-}
-
-struct Data6 {
-    a:heap Data5*;
-    b:int;
-    c:heap char*;
-}
-
-impl Data6 {
-    def initialize(self:heap Data6*):heap Data6* {
-        self.a = new Data5;
-        self.a.a = 111;
-        self.a.b = 222;
-        self.b = 333;
-        self.c = new char[5];
-
-        self
-    }
-}
-
-def fun_test_borrow(aaa:char*) 
-{
-}
-
-struct Data3 {
-    a:int;
-    b:int;
-}
-
-struct Data4 {
-    a:Data3;
-    b:int;
-}
-
-struct Data10 {
-    a:int;
-    b:int;
-}
-
-struct Data11 {
-    a:heap Data10*;
-    b:int;
-}
-
-def fun9(a:int):heap char* {
-    "aaa" + "bbb"
-}
-
-struct GenericsTest <T, T2> {
-    a:T;
-    b:T2;
-    c:lambda(T, T):T;
-}
-
-def <I> method_generics_fun2(a:I, b:I):I
-{
-    a + b
-}
-
-struct GenericsTest2<T> {
-    a:T;
-    b:T;
-}
-
-impl GenericsTest2<T> {
-    def add(self:GenericsTest2<T>*, a:T, b:T):T {
-        a + b
-    }
-}
-
-struct MapTest2<T> {
-    a:T;
-}
-
-struct MapTest<T,T2> {
-    a:T;
-    b:T2;
-}
-
-impl MapTest<T,T2> {
-    def <R> fun(self:MapTest<T,T2>*, a:R, b:int):heap MapTest2<R>*
-    {
-        var result = new MapTest2<R>;
-        result.a = 1;
-        result
-    }
-    
-    def <R> fun2(self:MapTest<T,T2>*, a:R, block:lambda(R)): R
-    {
-        puts("AAA");
-        1
-    }
-}
-
 struct HeapTest2 {
     a:int;
     b:int;
@@ -289,7 +90,6 @@ def heap_test2()
 
     puts(b.a);
 }
-*/
 
 struct vector<T> {
     items:heap T*;
@@ -331,14 +131,14 @@ impl vector<T> {
     def each(self:vector<T>*, block:lambda(T,int)) {
         for(var i=0; i<self.len; i++) {
             block->(self.items[i], i);
-        }
+        };
     }
 
     def <R> map(self:vector<T>*, block:lambda(T):R): heap vector<R>*
     {
         var result = new vector<R>.initialize(null);
 
-        self.each{
+        self.each {
             result.push_back(block->(it));
         }
 
@@ -362,7 +162,6 @@ def vector_test()
         printf("v4 %d\n", it);
     }
 
-/*
     var v5 = v4.map(lambda(it:int):heap char* {
         var result = new char[256];
         snprintf(result, 256, "%d", it);
@@ -378,10 +177,8 @@ def vector_test()
     }
 
     printf("v5.len %d\n", v5.len);
-*/
 }
 
-/*
 def vector_test2()
 {
     var v4 = new vector<heap char*>.initialize(null);
@@ -401,6 +198,18 @@ def vector_test2()
     printf("v5.len %d\n", v5.len);
 }
 */
+
+struct Hello<T>
+{
+    a:T;
+}
+
+impl Hello<T> {
+    def <R> test(self:Hello<T>*, block:lambda():R):R 
+    {
+        block->()
+    }
+}
 
 def main():int 
 {
@@ -669,7 +478,6 @@ def main():int
     assert("method generics test X", aaa.a == 1);
 
     heap_test2();
-*/
 
     var v = new vector<int>.initialize(null);
 
@@ -707,9 +515,16 @@ def main():int
         printf("%d --> %d\n", it2, it);
     }
 
+
     vector_test();
 
-//    vector_test2();
+    vector_test2();
+*/
+    var a = new Hello<int>;
+
+    a.test {
+        1
+    }
 
     0
 }

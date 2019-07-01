@@ -154,7 +154,7 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type);
 BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type);
 
 struct sCompileInfoStruct;
-BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type);
+BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, struct sCompileInfoStruct* info);
 BOOL type_identify(sNodeType* left, sNodeType* right);
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
 BOOL is_number_type(sNodeType* node_type);
@@ -525,7 +525,7 @@ void arrange_stack(sCompileInfo* info, int top);
 void start_neo_c_main_function();
 void finish_neo_c_main_function();
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info);
-BOOL create_llvm_struct_type(sNodeType* node_type);
+BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info);
 
 #endif
 

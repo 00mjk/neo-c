@@ -110,5 +110,5 @@ distclean: clean
 ###################################################
 test: 
 	@echo "Compile to test code..."
-	PWD=`pwd` ./neo-c code/HelloWorld.nc
+	PWD=`pwd` ./neo-c code/HelloWorld.nc && ./HelloWorld
 
