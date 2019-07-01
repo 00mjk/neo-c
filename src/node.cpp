@@ -89,7 +89,7 @@ void compile_err_msg(sCompileInfo* info, const char* msg, ...)
     output_num++;
 }
 
-static void add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], char* sname, int sline)
+static void add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, char* sname, int sline)
 {
     sFunction fun;
     xstrncpy(fun.mName, name, VAR_NAME_MAX);
@@ -125,6 +125,7 @@ static void add_function(char* name, char* real_fun_name, char param_names[PARAM
         xstrncpy(fun.mMethodGenericsTypeNames[i], method_generics_type_names[i], VAR_NAME_MAX);
     }
 
+    fun.mGenericsFunction = generics_function;
 
     gFuncs[real_fun_name] = fun;
 }
@@ -717,8 +718,6 @@ unsigned int sNodeTree_create_equals(unsigned int left, unsigned int right, unsi
 
 static BOOL compile_equals(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -780,8 +779,6 @@ unsigned int sNodeTree_create_not_equals(unsigned int left, unsigned int right, 
 
 static BOOL compile_not_equals(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -843,8 +840,6 @@ unsigned int sNodeTree_create_gteq(unsigned int left, unsigned int right, unsign
 
 static BOOL compile_gteq(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -906,8 +901,6 @@ unsigned int sNodeTree_create_leeq(unsigned int left, unsigned int right, unsign
 
 static BOOL compile_leeq(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -969,8 +962,6 @@ unsigned int sNodeTree_create_gt(unsigned int left, unsigned int right, unsigned
 
 static BOOL compile_gt(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -1032,8 +1023,6 @@ unsigned int sNodeTree_create_le(unsigned int left, unsigned int right, unsigned
 
 static BOOL compile_le(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -1095,8 +1084,6 @@ unsigned int sNodeTree_create_logical_denial(unsigned int left, unsigned int rig
 
 static BOOL compile_logical_denial(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     int left_node = gNodes[node].mLeft;
     if(!compile(left_node, info)) {
         return FALSE;
@@ -1170,7 +1157,8 @@ unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL all
 
 static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 {
-    char* var_name = gNodes[node].uValue.sStoreVariable.mVarName;
+    char var_name[VAR_NAME_MAX];
+    xstrncpy(var_name, gNodes[node].uValue.sStoreVariable.mVarName, VAR_NAME_MAX);
     BOOL alloc = gNodes[node].uValue.sStoreVariable.mAlloc;
 
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
@@ -1230,7 +1218,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     Type* llvm_var_type;
     if(!create_llvm_type_from_node_type(&llvm_var_type, left_type))
     {
-        compile_err_msg(info, "Getting llvm type faield");
+        compile_err_msg(info, "Getting llvm type faield(1)");
         show_node_type(left_type);
         info->err_num++;
 
@@ -1369,12 +1357,15 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
 static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
 {
     /// rename variables ///
-    char* fun_name = gNodes[node].uValue.sFunction.mName;
+    char fun_name[VAR_NAME_MAX];
+    xstrncpy(fun_name, gNodes[node].uValue.sFunction.mName, VAR_NAME_MAX);
+
     int num_params = gNodes[node].uValue.sFunction.mNumParams;
-    sParserParam* params[PARAMS_MAX];
+    sParserParam params[PARAMS_MAX];
+    memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
     int i;
     for(i=0; i<num_params; i++) {
-        params[i] = gNodes[node].uValue.sFunction.mParams + i;
+        params[i] = gNodes[node].uValue.sFunction.mParams[i];
     }
 
     sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
@@ -1386,7 +1377,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
     Type* llvm_result_type;
     if(!create_llvm_type_from_node_type(&llvm_result_type, result_type))
     {
-        compile_err_msg(info, "Getting llvm type faield");
+        compile_err_msg(info, "Getting llvm type faield(2)");
         show_node_type(result_type);
         info->err_num++;
 
@@ -1400,12 +1391,12 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
     char param_names[PARAMS_MAX][VAR_NAME_MAX];
 
     for(i=0; i<num_params; i++) {
-        sNodeType* param_type = params[i]->mType;
+        sNodeType* param_type = params[i].mType;
 
         Type* llvm_param_type;
         if(!create_llvm_type_from_node_type(&llvm_param_type, param_type))
         {
-            compile_err_msg(info, "Getting llvm type faield");
+            compile_err_msg(info, "Getting llvm type faield(3)");
             show_node_type(param_type);
             info->err_num++;
 
@@ -1415,7 +1406,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
         }
         llvm_param_types.push_back(llvm_param_type);
 
-        xstrncpy(param_names[i], params[i]->mName, VAR_NAME_MAX);
+        xstrncpy(param_names[i], params[i].mName, VAR_NAME_MAX);
         param_types[i] = param_type;
     }
 
@@ -1438,7 +1429,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
 
     memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-    add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, NULL, 0);
+    add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, NULL, 0);
 
     return TRUE;
 }
@@ -1513,10 +1504,10 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     info2.lv_table = init_block_vtable(old_table);
     sVarTable* block_var_table = info2.lv_table;
     for(i=0; i<num_params; i++) {
-        sParserParam* param = params + i;
+        sParserParam param = params[i];
 
         BOOL readonly = FALSE;
-        if(!add_variable_to_table(info2.lv_table, param->mName, param->mType, readonly, NULL))
+        if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1))
         {
             return FALSE;
         }
@@ -1534,7 +1525,8 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     create_lambda_name(fun_name, VAR_NAME_MAX, info2.module_name);
 
     BOOL lambda = TRUE;
-    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, FALSE, &info2);
+    BOOL simple_lambda_param = TRUE;
+    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, FALSE, simple_lambda_param, &info2, FALSE);
 
     return TRUE;
 }
@@ -1671,11 +1663,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
 
     if(!solve_method_generics(&result_type, num_method_generics_types, method_generics_types))
     {
-        compile_err_msg(cinfo, "Can't solve method generics type");
-        show_node_type(result_type);
-        info->err_num++;
-
-        return FALSE;
+        result_type = create_node_type_with_class_name("any");
     }
 
     if(generics_type) {
@@ -1697,10 +1685,10 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     info2.lv_table = init_block_vtable(old_table);
     sVarTable* block_var_table = info2.lv_table;
     for(i=0; i<num_params; i++) {
-        sParserParam* param = params + i;
+        sParserParam param = params[i];
 
         BOOL readonly = FALSE;
-        if(!add_variable_to_table(info2.lv_table, param->mName, param->mType, readonly, NULL))
+        if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1))
         {
             return FALSE;
         }
@@ -1718,7 +1706,8 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun->mName, method_generics_types, num_method_generics_types, generics_type, NULL, generics_fun_num);
 
     BOOL lambda = FALSE;
-    *node = sNodeTree_create_function(real_fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, FALSE, &info2);
+    BOOL simple_lambda_param = FALSE;
+    *node = sNodeTree_create_function(real_fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, FALSE, simple_lambda_param, &info2, TRUE);
 
     return TRUE;
 }
@@ -1752,7 +1741,8 @@ unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params
 BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 {
     /// rename variables ///
-    char* fun_name = gNodes[node].uValue.sFunctionCall.mName;
+    char fun_name[VAR_NAME_MAX];
+    xstrncpy(fun_name, gNodes[node].uValue.sFunctionCall.mName, VAR_NAME_MAX);
     int num_params = gNodes[node].uValue.sFunctionCall.mNumParams;
     unsigned int params[PARAMS_MAX];
     BOOL method = gNodes[node].uValue.sFunctionCall.mMethod;
@@ -1887,6 +1877,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
     int num_method_generics_types = 0;
 
+    Value* generated_fun = nullptr;
     if(fun.mBlockText) {
         int i;
         for(i=0; i<num_params; i++) {
@@ -1922,7 +1913,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         if(fun2.mResultType == nullptr) {
             LVALUE* llvm_stack = gLLVMStack;
             int stack_num = info->stack_num;
-printf("1 info->stack_num %d\n", info->stack_num);
 
             char* buf = fun.mBlockText;
 
@@ -1930,7 +1920,6 @@ printf("1 info->stack_num %d\n", info->stack_num);
             int sline = fun.mSLine;
 
             unsigned int node = 0;
-
             if(!parse_generics_fun(&node, buf, &fun, sname, sline, generics_type, num_method_generics_types, method_generics_types, struct_name, fun.mNumGenerics, fun.mGenericsTypeNames, fun.mNumMethodGenerics, fun.mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num))
             {
                 info->generics_type = generics_type_before;
@@ -1951,7 +1940,6 @@ printf("1 info->stack_num %d\n", info->stack_num);
 
             //dec_stack_ptr(1, info);
 
-printf("(2) info->stack_num %d\n", info->stack_num);
             info->stack_num = stack_num;
             gLLVMStack = llvm_stack;
         }
@@ -2173,7 +2161,7 @@ printf("(2) info->stack_num %d\n", info->stack_num);
     return TRUE;
 }
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, sParserInfo* info)
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function)
 {
     unsigned int node = alloc_node();
 
@@ -2207,57 +2195,72 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
     }
 
     gNodes[node].uValue.sFunction.mOperatorFun = operator_fun;
+    gNodes[node].uValue.sFunction.mSimpleLambdaParam = simple_lambda_param;
+    gNodes[node].uValue.sFunction.mGenericsFunction = generics_function;
 
     return node;
 }
 
+
 BOOL compile_function(unsigned int node, sCompileInfo* info)
 {
+    /// get result type ///
+    sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
+    BOOL generics_function = gNodes[node].uValue.sFunction.mGenericsFunction;
+    char fun_name[VAR_NAME_MAX];
+    xstrncpy(fun_name, gNodes[node].uValue.sFunction.mName, VAR_NAME_MAX);
+
+    if(type_identify_with_class_name(result_type, "void"))
+    {
+        if(!info->no_output) {
+            LVALUE* llvm_stack = gLLVMStack;
+            int stack_num = info->stack_num;
+
+            info->no_output = TRUE;
+            if(!compile_function(node, info))
+            {
+                return FALSE;
+            }
+            info->no_output = FALSE;
+            result_type = info->type->mResultType;
+
+            gLLVMStack = llvm_stack;
+            info->stack_num = stack_num;
+        }
+    }
+
     /// rename variables ///
-    char* fun_name = gNodes[node].uValue.sFunction.mName;
     int num_params = gNodes[node].uValue.sFunction.mNumParams;
-    sParserParam* params[PARAMS_MAX];
     BOOL lambda = gNodes[node].uValue.sFunction.mLambda;
     sVarTable* block_var_table = gNodes[node].uValue.sFunction.mVarTable;
 
+    sParserParam params[PARAMS_MAX];
+    memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+
     int i;
     for(i=0; i<num_params; i++) {
-        params[i] = gNodes[node].uValue.sFunction.mParams + i;
+        params[i] = gNodes[node].uValue.sFunction.mParams[i];
     }
-
-    sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
 
     sNodeBlock* node_block = gNodes[node].uValue.sFunction.mNodeBlock;
     char* struct_name = gNodes[node].uValue.sFunction.mStructName;
 
     BOOL operator_fun = gNodes[node].uValue.sFunction.mOperatorFun;
 
+    BOOL simple_lambda_param = gNodes[node].uValue.sFunction.mSimpleLambdaParam;
+
     /// go ///
-printf("compile function %s\n", fun_name);
     std::vector<Type *> llvm_param_types;
     sNodeType* param_types[PARAMS_MAX];
     char param_names[PARAMS_MAX][VAR_NAME_MAX];
 
-    Type* llvm_result_type;
-
-    if(!create_llvm_type_from_node_type(&llvm_result_type, result_type))
-    {
-        compile_err_msg(info, "Getting llvm type faield");
-        show_node_type(result_type);
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
     for(i=0; i<num_params; i++) {
-        sNodeType* param_type = params[i]->mType;
+        sNodeType* param_type = params[i].mType;
 
         Type* llvm_param_type;
         if(!create_llvm_type_from_node_type(&llvm_param_type, param_type))
         {
-            compile_err_msg(info, "Getting llvm type faield");
+            compile_err_msg(info, "Getting llvm type faield(5)");
             show_node_type(param_type);
             info->err_num++;
 
@@ -2267,7 +2270,7 @@ printf("compile function %s\n", fun_name);
         }
         llvm_param_types.push_back(llvm_param_type);
 
-        xstrncpy(param_names[i], params[i]->mName, VAR_NAME_MAX);
+        xstrncpy(param_names[i], params[i].mName, VAR_NAME_MAX);
         param_types[i] = param_type;
     }
 
@@ -2286,7 +2289,22 @@ printf("compile function %s\n", fun_name);
 
     memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-    add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, FALSE, NULL, 0, generics_type_names, NULL, 0);
+    if(!info->no_output) {
+        add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, FALSE, NULL, 0, generics_type_names, FALSE, NULL, 0);
+    }
+
+    Type* llvm_result_type;
+
+    if(!create_llvm_type_from_node_type(&llvm_result_type, result_type))
+    {
+        compile_err_msg(info, "Getting llvm type faield(4)");
+        show_node_type(result_type);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
 
     FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, false);
     Function* fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
@@ -2294,8 +2312,8 @@ printf("compile function %s\n", fun_name);
     int n = 0;
     std::vector<Value *> llvm_params;
     for(auto &llvm_param : fun->args()) {
-        sParserParam* param = params[n];
-        char* var_name = param->mName;
+        sParserParam param = params[n];
+        char* var_name = param.mName;
 
         llvm_params.push_back(&llvm_param);
         llvm_param.setName(var_name);
@@ -2311,11 +2329,15 @@ printf("compile function %s\n", fun_name);
     llvm_change_block(current_block, &current_block_before, info);
 
     /// copy lvtable for other function ///
-    Value* lvtable = store_lvtable();
+    Value* lvtable;
+    if(!info->no_output) {
+        lvtable = store_lvtable();
+    }
 
+    /// ready for params ///
     for(i=0; i<num_params; i++) {
-        sParserParam* param = params[i];
-        char* var_name = param->mName;
+        sParserParam param = params[i];
+        char* var_name = param.mName;
 
         sVar* var = get_variable_from_table(node_block->mLVTable, (char*)var_name);
 
@@ -2324,7 +2346,7 @@ printf("compile function %s\n", fun_name);
         Type* llvm_type;
         if(!create_llvm_type_from_node_type(&llvm_type, var_type))
         {
-            compile_err_msg(info, "Getting llvm type faield");
+            compile_err_msg(info, "Getting llvm type faield(6)");
             show_node_type(var_type);
             info->err_num++;
 
@@ -2351,15 +2373,41 @@ printf("compile function %s\n", fun_name);
 
     xstrncpy(info->fun_name, fun_name, VAR_NAME_MAX);
 
+    sVarTable* lv_table_before = NULL;
+    sVarTable* node_block_lv_table_before = NULL;
+    //sVarTable* new_block_var_table = NULL;
+
+    if(info->no_output) {
+        lv_table_before = info->pinfo->lv_table;
+
+        info->pinfo->lv_table = clone_var_table(info->pinfo->lv_table);
+
+        node_block_lv_table_before = clone_var_table(node_block->mLVTable);
+        //sVarTable* new_block_var_table = clone_var_table(block_var_table);
+    }
+
     if(!compile_block(node_block, info, result_type))
     {
+        if(info->no_output) {
+            info->pinfo->lv_table = lv_table_before;
+
+            node_block->mLVTable = node_block_lv_table_before;
+        }
         xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
         return FALSE;
     }
 
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
+    sNodeType* block_result_type = info->type;
 
-    restore_lvtable(lvtable);
+    if(info->no_output) {
+        info->pinfo->lv_table = lv_table_before;
+
+        node_block->mLVTable = node_block_lv_table_before;
+    }
+
+    if(!info->no_output) {
+        restore_lvtable(lvtable);
+    }
 
     xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
 
@@ -2391,24 +2439,29 @@ printf("compile function %s\n", fun_name);
         lambda_type->mParamTypes[i] = param_type;
     }
 
-    lambda_type->mResultType = result_type;
+    lambda_type->mResultType = block_result_type;
     lambda_type->mNumParams = num_params;
 
-    LVALUE llvm_value;
-    llvm_value.value = fun;
-    llvm_value.type = lambda_type;
-    llvm_value.address = nullptr;
-    llvm_value.var = nullptr;
+    if(!info->no_output) {
+        LVALUE llvm_value;
+        llvm_value.value = fun;
+        llvm_value.type = lambda_type;
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
 
-    push_value_to_stack_ptr(&llvm_value, info);
+        push_value_to_stack_ptr(&llvm_value, info);
+    }
 
     info->type = lambda_type;
+
+    if(info->no_output) {
+        gFunction->eraseFromParent();
+    }
 
     gFunction = function_before;
 
     BasicBlock* current_block_before2;
     llvm_change_block(current_block_before, &current_block_before2, info);
-printf("compile function %s end\n", fun_name);
 
     return TRUE;
 }
@@ -2463,19 +2516,22 @@ unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* pa
 BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
 {
     /// rename variables ///
-    char* fun_name = gNodes[node].uValue.sFunction.mName;
+    char fun_name[VAR_NAME_MAX];
+    xstrncpy(fun_name, gNodes[node].uValue.sFunction.mName, VAR_NAME_MAX);
     int num_params = gNodes[node].uValue.sFunction.mNumParams;
-    sParserParam* params[PARAMS_MAX];
+    sParserParam params[PARAMS_MAX];
+    memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
 
     int i;
     for(i=0; i<num_params; i++) {
-        params[i] = gNodes[node].uValue.sFunction.mParams + i;
+        params[i] = gNodes[node].uValue.sFunction.mParams[i];
     }
 
     sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
 
     char* block_text = gNodes[node].uValue.sFunction.mBlockText;
-    char* struct_name = gNodes[node].uValue.sFunction.mStructName;
+    char struct_name[VAR_NAME_MAX];
+    xstrncpy(struct_name, gNodes[node].uValue.sFunction.mStructName, VAR_NAME_MAX);
     char* sname = gNodes[node].mSName;
     int sline = gNodes[node].mLine;
 
@@ -2498,9 +2554,9 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
     char param_names[PARAMS_MAX][VAR_NAME_MAX];
 
     for(i=0; i<num_params; i++) {
-        sNodeType* param_type = params[i]->mType;
+        sNodeType* param_type = params[i].mType;
 
-        xstrncpy(param_names[i], params[i]->mName, VAR_NAME_MAX);
+        xstrncpy(param_names[i], params[i].mName, VAR_NAME_MAX);
 
         param_types[i] = param_type;
     }
@@ -2509,7 +2565,7 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
 
     /// go ///
-    add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, sname, sline);
+    add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, TRUE, sname, sline);
     
 
     return TRUE;
@@ -2571,7 +2627,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     }
 
     if(var_address == nullptr) {
-        compile_err_msg(info, "Invalid variable.");
+        compile_err_msg(info, "Invalid variable. %s", var_name);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2718,7 +2774,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         Type* llvm_result_type;
         if(!create_llvm_type_from_node_type(&llvm_result_type, result_type))
         {
-            compile_err_msg(info, "Getting llvm type faield");
+            compile_err_msg(info, "Getting llvm type faield(7)");
             show_node_type(result_type);
             info->err_num++;
 
@@ -2963,7 +3019,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     uint64_t size;
     if(!get_size_from_node_type(&size, node_type2))
     {
-        compile_err_msg(info, "Getting alocate size error");
+        compile_err_msg(info, "Getting alocate size error(8)");
         show_node_type(node_type2);
         info->err_num++;
 
@@ -2989,7 +3045,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     Type* llvm_type;
     if(!create_llvm_type_from_node_type(&llvm_type, node_type2))
     {
-        compile_err_msg(info, "Getting llvm type faield");
+        compile_err_msg(info, "Getting llvm type faield(9)");
         show_node_type(node_type2);
         info->err_num++;
 
@@ -3062,7 +3118,7 @@ static BOOL compile_struct_object(unsigned int node, sCompileInfo* info)
     Type* llvm_var_type;
     if(!create_llvm_type_from_node_type(&llvm_var_type, node_type))
     {
-        compile_err_msg(info, "Getting llvm type faield");
+        compile_err_msg(info, "Getting llvm type faield(10)");
         show_node_type(node_type);
         info->err_num++;
 
@@ -3104,9 +3160,8 @@ unsigned int sNodeTree_create_store_field(char* var_name, unsigned int left_node
 
 static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
-    char* var_name = gNodes[node].uValue.sStoreField.mVarName;
+    char var_name[VAR_NAME_MAX];
+    xstrncpy(var_name, gNodes[node].uValue.sStoreField.mVarName, VAR_NAME_MAX);
 
     /// compile left node ///
     unsigned int lnode = gNodes[node].mLeft;
@@ -3194,7 +3249,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     Type* llvm_struct_type;
     if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2))
     {
-        compile_err_msg(info, "Getting llvm type faield");
+        compile_err_msg(info, "Getting llvm type faield(11)");
         show_node_type(left_type2);
         info->err_num++;
 
@@ -3222,7 +3277,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     Type* llvm_field_type;
     if(!create_llvm_type_from_node_type(&llvm_field_type, field_type))
     {
-        compile_err_msg(info, "Getting llvm type faield");
+        compile_err_msg(info, "Getting llvm type faield(12)");
         show_node_type(field_type);
         info->err_num++;
 
@@ -3275,9 +3330,8 @@ unsigned int sNodeTree_create_load_field(char* name, unsigned int left_node, sPa
 
 static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
-    char* var_name = gNodes[node].uValue.sLoadField.mVarName;
+    char var_name[VAR_NAME_MAX]; 
+    xstrncpy(var_name, gNodes[node].uValue.sLoadField.mVarName, VAR_NAME_MAX);
 
     /// compile left node ///
     unsigned int lnode = gNodes[node].mLeft;
@@ -3333,7 +3387,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     Type* llvm_field_type;
     if(!create_llvm_type_from_node_type(&llvm_field_type, field_type))
     {
-        compile_err_msg(info, "Getting llvm type faield");
+        compile_err_msg(info, "Getting llvm type faield(13)");
         show_node_type(field_type);
         info->err_num++;
 
@@ -3352,7 +3406,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     Type* llvm_struct_type;
     if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2))
     {
-        compile_err_msg(info, "Getting llvm type faield");
+        compile_err_msg(info, "Getting llvm type faield(14)");
         show_node_type(left_type2);
         info->err_num++;
 
@@ -3414,7 +3468,6 @@ unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED st
 
 static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
     sNodeBlock* while_node_block = gNodes[node].uValue.sWhile.mWhileNodeBlock;
 
     BasicBlock* loop_top_block = BasicBlock::Create(TheContext, "loop_top_block", gFunction);
@@ -3590,8 +3643,6 @@ unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right
 
 static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     Value* result_var = Builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "andand_result_var");
 
     /// compile expression ///
@@ -3711,8 +3762,6 @@ unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_n
 
 static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
-
     Value* result_var = Builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "oror_result_var");
 
     /// compile expression ///
@@ -3955,8 +4004,6 @@ unsigned int sNodeTree_create_lambda_call(unsigned int lambda_node, unsigned int
 
 BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
 {
-//    IRBuilder<> builder(&gFunction->getEntryBlock());
-
     /// rename variables ///
     int num_params = gNodes[node].uValue.sFunctionCall.mNumParams;
     unsigned int params[PARAMS_MAX];

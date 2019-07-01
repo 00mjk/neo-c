@@ -100,8 +100,6 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
     int stack_num_before = info->stack_num;
 
-printf("compile_block %d\n", info->stack_num);
-
     if(block->mNumNodes == 0) {
         info->type = create_node_type_with_class_name("void");
     }
@@ -120,7 +118,21 @@ printf("compile_block %d\n", info->stack_num);
 
             if(i == block->mNumNodes -1)
             {
-                if(result_type && type_identify_with_class_name(result_type, "void"))
+                if(info->no_output && has_result)
+                {
+                    LVALUE llvm_value = *get_value_from_stack(-1);
+                    arrange_stack(info, stack_num_before);
+
+                    push_value_to_stack_ptr(&llvm_value, info);
+
+                    result_type = llvm_value.type;
+
+                    std_move(NULL, result_type, &llvm_value, FALSE, info);
+
+                    info->type = llvm_value.type;
+
+                }
+                else if(result_type && type_identify_with_class_name(result_type, "void"))
                 {
                     arrange_stack(info, stack_num_before);
 
@@ -148,7 +160,6 @@ printf("compile_block %d\n", info->stack_num);
 
                     push_value_to_stack_ptr(&llvm_value, info);
 
-
                     std_move(NULL, result_type, &llvm_value, FALSE, info);
 
                     info->type = llvm_value.type;
@@ -169,7 +180,6 @@ printf("compile_block %d\n", info->stack_num);
     //free_right_value_objects(info);
 
     info->pinfo->lv_table = old_table;
-printf("compile_block2 %d\n", info->stack_num);
 
     return TRUE;
 }

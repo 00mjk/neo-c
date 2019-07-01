@@ -401,13 +401,13 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
         }
         if(node_type) {
             check_already_added_variable(info->lv_table, buf, info);
-            add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL);
+            add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1);
         }
     }
     else {
         node_type = NULL;
         check_already_added_variable(info->lv_table, buf, info);
-        add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL);
+        add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1);
     }
 
     /// assign the value to a variable ///
@@ -829,7 +829,7 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
             sParserParam* param = params + i;
 
             BOOL readonly = FALSE;
-            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL))
+            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1))
             {
                 return FALSE;
             }
@@ -845,7 +845,9 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
 
         BOOL lambda = FALSE;
 
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, info);
+        BOOL simple_lambda_param = FALSE;
+
+        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, simple_lambda_param, info, FALSE);
     }
 
     info->mNumMethodGenerics = 0;
@@ -1515,19 +1517,20 @@ static BOOL parse_for(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+int gNumLambdaName = 0;
+
 void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name)
 {
-    static int num_lambda = 0;
     xstrncpy(lambda_name, module_name, size_lambda_name);
     xstrncat(lambda_name, "_", size_lambda_name);
     xstrncat(lambda_name, "lambda", size_lambda_name);
 
     char buf[128];
-    snprintf(buf, 128, "%d", num_lambda);
+    snprintf(buf, 128, "%d", gNumLambdaName);
 
     xstrncat(lambda_name, buf, size_lambda_name);
 
-    num_lambda++;
+    gNumLambdaName++;
 }
 
 static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
@@ -1571,7 +1574,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
         sParserParam* param = params + i;
 
         BOOL readonly = TRUE;
-        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL))
+        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1))
         {
             return FALSE;
         }
@@ -1589,7 +1592,8 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     create_lambda_name(fun_name, VAR_NAME_MAX, info->module_name);
 
     BOOL lambda = TRUE;
-    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, FALSE, info);
+    BOOL simple_lambda_param = FALSE;
+    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, FALSE, simple_lambda_param, info, FALSE);
 
     return TRUE;
 }

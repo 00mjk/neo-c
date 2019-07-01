@@ -209,7 +209,7 @@ int get_variable_index(sVarTable* table, char* name, BOOL* parent);
 void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info);
 
 // result: (true) success (false) overflow the table or a variable which has the same name exists
-BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value);
+BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value, int index);
 
 // result: (null) not found (sVar*) found
 sVar* get_variable_from_table(sVarTable* table, char* name);
@@ -269,6 +269,8 @@ BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_m
 void expect_next_character_with_one_forward(char* characters, sParserInfo* info);
 BOOL expression(unsigned int* node, sParserInfo* info);
 void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name);
+
+extern int gNumLambdaName;
 
 //////////////////////////////
 /// source compiler 
@@ -349,6 +351,8 @@ struct sNodeTreeStruct
 
             int mNumMethodGenerics;
             char mMethodGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+            BOOL mSimpleLambdaParam;
+            BOOL mGenericsFunction;
         } sFunction;
 
         struct {
@@ -427,7 +431,7 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
 
 unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, int sline, sParserInfo* info);
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, sParserInfo* info);
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function);
 
 unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, sParserInfo* info);
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);

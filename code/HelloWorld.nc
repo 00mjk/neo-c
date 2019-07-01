@@ -12,6 +12,7 @@ def strcpy(mem:char*, mem2:char*):int;
 def memcpy(mem:char*, mem2:char*, size:int):char*;
 def strcat(mem:char*, mem2:char*):char*;
 def strlen(mem:char*):int;
+def atoi(str:char*):int;
 
 def operator+(left:char*, right:char*): heap char*
 {
@@ -26,6 +27,18 @@ def operator+(left:char*, right:char*): heap char*
     result
 }
 
+def string(str:char*): heap char*
+{
+    var len = strlen(str);
+
+    var result = new char[len + 1];
+
+    strcpy(result, str);
+
+    result
+}
+
+
 def assert(msg:char*, exp:bool) 
 {
     printf(msg + "...");
@@ -37,7 +50,7 @@ def assert(msg:char*, exp:bool)
 }
 
 /*
-def fun():int 
+def fun():int
 {
     puts("HELLO WORLD");
     1+1
@@ -61,6 +74,12 @@ def fun4(str:char*)
 def fun5(block:lambda(int,int):int):int 
 {
     block->(1,2)
+}
+
+struct OpTest 
+{
+    a:int;
+    b:int;
 }
 
 struct TestData 
@@ -161,6 +180,36 @@ def fun_test_borrow(aaa:char*)
 {
 }
 
+struct Data3 {
+    a:int;
+    b:int;
+}
+
+struct Data4 {
+    a:Data3;
+    b:int;
+}
+
+struct Data10 {
+    a:int;
+    b:int;
+}
+
+struct Data11 {
+    a:heap Data10*;
+    b:int;
+}
+
+def fun9(a:int):heap char* {
+    "aaa" + "bbb"
+}
+
+struct GenericsTest <T, T2> {
+    a:T;
+    b:T2;
+    c:lambda(T, T):T;
+}
+
 def <I> method_generics_fun2(a:I, b:I):I
 {
     a + b
@@ -201,44 +250,6 @@ impl MapTest<T,T2> {
     }
 }
 
-def fun9(a:int):heap char* {
-    "aaa" + "bbb"
-}
-
-struct OpTest 
-{
-    a:int;
-    b:int;
-}
-
-struct Data3 {
-    a:int;
-    b:int;
-}
-
-struct Data4 {
-    a:Data3;
-    b:int;
-}
-
-struct Data10 {
-    a:int;
-    b:int;
-}
-
-struct Data11 {
-    a:heap Data10*;
-    b:int;
-}
-
-struct GenericsTest <T, T2> {
-    a:T;
-    b:T2;
-    c:lambda(T, T):T;
-}
-*/
-
-/*
 struct HeapTest2 {
     a:int;
     b:int;
@@ -277,30 +288,6 @@ def heap_test2()
     var b = a.map(1, 'a');
 
     puts(b.a);
-}
-
-def heap_test() {
-    var a = "aaa" + "bbb"
-    a = "ggg" + "hhh"
-
-    puts(a);
-
-    var b = new HeapTest;
-    b.a = "aaa" + "bbb"
-    b.a = "ggg" + "ggg"
-
-    puts(b.a);
-
-    var c = new HeapTest;
-    c.a = "aaa" + "bbb"
-
-    puts(c.a);
-
-    if(true) {
-        c.a = "AAA" + "BBB"
-    }
-
-    puts(c.a);
 }
 */
 
@@ -371,17 +358,21 @@ def vector_test()
     printf("v4 %d\n", v4.item(1));
     printf("v4 %d\n", v4.item(2));
 
+    v4.each {
+        printf("v4 %d\n", it);
+    }
+
+/*
     var v5 = v4.map(lambda(it:int):heap char* {
         var result = new char[256];
         snprintf(result, 256, "%d", it);
-        result
+        result + "aaa"
     });
 
     printf("v5 %s\n", v5.item(0));
     printf("v5 %s\n", v5.item(1));
     printf("v5 %s\n", v5.item(2));
 
-/*
     v5.each {
         printf("%s\n", it);
     }
@@ -389,6 +380,27 @@ def vector_test()
     printf("v5.len %d\n", v5.len);
 */
 }
+
+/*
+def vector_test2()
+{
+    var v4 = new vector<heap char*>.initialize(null);
+
+    v4.push_back(string("1"));
+    v4.push_back(string("2"));
+    v4.push_back(string("3"));
+
+    var v5 = v4.map {
+        atoi(it)
+    }
+
+    v5.each {
+        printf("%d -- > %d\n", it2, it);
+    }
+
+    printf("v5.len %d\n", v5.len);
+}
+*/
 
 def main():int 
 {
@@ -432,18 +444,19 @@ def main():int
     elif(x == 2) {
     }
     elif(x == 4) {
-        x = 5
+        x = 5;
     }
     else {
     }
 
     assert("if test", x == 5);
 
-    fun4("aaa");
 
     var i = 1;
 
     assert("operator test", i > 0);
+
+    fun4("aaa");
 
     i = 0;
     while(i < 3) {
@@ -526,10 +539,12 @@ def main():int
     fun7(p);
 
     var nn = 0;
+
     3.times(lambda() {
         puts("HO!");
         nn++;
     })
+
     assert("lambda test1", nn == 3);
 
     nn = 0;
@@ -640,6 +655,22 @@ def main():int
 
     assert("generics test", generics_test.add(1,2) == 3);
 
+    var map_test = new MapTest<int, int>;
+
+    var aaa2 = map_test.fun2(1, lambda(a:int) {
+            puts("BBB");
+        }
+    );
+
+    assert("method generics test X2", aaa2 == 1);
+
+    var aaa = map_test.fun(1,2);
+
+    assert("method generics test X", aaa.a == 1);
+
+    heap_test2();
+*/
+
     var v = new vector<int>.initialize(null);
 
     v.push_back(1);
@@ -676,24 +707,9 @@ def main():int
         printf("%d --> %d\n", it2, it);
     }
 
-    var map_test = new MapTest<int, int>;
-
-    var aaa2 = map_test.fun2(1, lambda(a:int) {
-            puts("BBB");
-        }
-    );
-
-    assert("method generics test X2", aaa2 == 1);
-
-    var aaa = map_test.fun(1,2);
-
-    assert("method generics test X", aaa.a == 1);
-*/
-
-    //heap_test();
-    //heap_test2();
-
     vector_test();
+
+//    vector_test2();
 
     0
 }

@@ -38,14 +38,16 @@ sVarTable* clone_var_table(sVarTable* lv_table)
 {
     sVarTable* result = init_var_table();
 
+    result->mMaxBlockVarNum = lv_table->mMaxBlockVarNum;
+    result->mBlockLevel = lv_table->mBlockLevel;
+
     sVarTable* it = lv_table;
 
     sVar* p = it->mLocalVariables;
 
     while(1) {
         if(p->mName[0] != 0) {
-
-            (void)add_variable_to_table(result, p->mName, p->mType, p->mReadOnly, p->mLLVMValue);
+            (void)add_variable_to_table(result, p->mName, p->mType, p->mReadOnly, p->mLLVMValue, p->mIndex);
         }
 
         p++;
@@ -106,7 +108,7 @@ void restore_var_table(sVarTable* left, sVarTable* right)
 // local variable table
 //////////////////////////////////////////////////
 // result: (true) success (false) overflow the table or a variable which has the same name exists
-BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value)
+BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value, int index)
 {
     int hash_value;
     sVar* p;
@@ -117,7 +119,13 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL 
     while(1) {
         if(p->mName[0] == 0) {
             xstrncpy(p->mName, name, VAR_NAME_MAX);
-            p->mIndex = table->mVarNum++;
+            if(index == -1) {
+                p->mIndex = table->mVarNum++;
+            }
+            else {
+                p->mIndex = index;
+            }
+
             if(type_) {
                 p->mType = clone_node_type(type_);
             }

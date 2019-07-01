@@ -1,0 +1,553 @@
+==27069== Memcheck, a memory error detector
+==27069== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==27069== Using Valgrind-3.14.0 and LibVEX; rerun with -h for copyright info
+==27069== Command: ./HelloWorld
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D1E40: __dl_strlen (in /system/bin/linker64)
+==27069==    by 0x4032667: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x4032688: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x4032740: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2548: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2550: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2640: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2654: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D266C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D268C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2690: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D269C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x4032798: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x4032688: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401F677: __dl__ZL21open_library_on_pathsP15ZipArchiveCachePKcPlRKNSt3__16vectorINS4_12basic_stringIcNS4_11char_traitsIcEENS4_9allocatorIcEEEENS9_ISB_EEEEPSB_ (in /system/bin/linker64)
+==27069==    by 0x401D443: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x4032740: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401F677: __dl__ZL21open_library_on_pathsP15ZipArchiveCachePKcPlRKNSt3__16vectorINS4_12basic_stringIcNS4_11char_traitsIcEENS4_9allocatorIcEEEENS9_ISB_EEEEPSB_ (in /system/bin/linker64)
+==27069==    by 0x401D443: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x4032798: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==27069==    by 0x401F677: __dl__ZL21open_library_on_pathsP15ZipArchiveCachePKcPlRKNSt3__16vectorINS4_12basic_stringIcNS4_11char_traitsIcEENS4_9allocatorIcEEEENS9_ISB_EEEEPSB_ (in /system/bin/linker64)
+==27069==    by 0x401D443: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==27069==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==27069==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==27069==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==27069== 
+==27069== Jump to the invalid address stated on the next line
+==27069==    at 0x100000000: ???
+==27069==  Address 0x100000000 is not stack'd, malloc'd or (recently) free'd
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D1E40: __dl_strlen (in /system/bin/linker64)
+==27069==    by 0x4032667: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x4032688: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x4032740: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2548: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2550: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2640: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2654: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D265C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2664: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x4032798: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==27069==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D1E40: __dl_strlen (in /system/bin/linker64)
+==27069==    by 0x4032667: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x4032688: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x4032740: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2548: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2550: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2640: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2654: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D266C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D268C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2690: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D269C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x4032798: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x403222C: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2548: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2550: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2640: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D2654: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D266C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D268C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2690: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2694: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D269C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x403225C: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x4032768: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2674: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2678: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D267C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D265C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2660: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2664: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2694: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D265C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2660: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2664: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2560: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D256C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2570: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2574: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2674: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D2678: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Use of uninitialised value of size 8
+==27069==    at 0x40D267C: __dl_memcpy (in /system/bin/linker64)
+==27069==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==27069==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D1E94: __dl_strlen (in /system/bin/linker64)
+==27069==    by 0x40335C3: __dl_async_safe_write_log (in /system/bin/linker64)
+==27069==    by 0x403382B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Conditional jump or move depends on uninitialised value(s)
+==27069==    at 0x40D1EB0: __dl_strlen (in /system/bin/linker64)
+==27069==    by 0x40335C3: __dl_async_safe_write_log (in /system/bin/linker64)
+==27069==    by 0x403382B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069== 
+==27069== Syscall param writev(vector) points to uninitialised byte(s)
+==27069==    at 0x40DBBE0: __dl_writev (in /system/bin/linker64)
+==27069==    by 0x40335DB: __dl_async_safe_write_log (in /system/bin/linker64)
+==27069==    by 0x403382B: __dl_async_safe_format_log (in /system/bin/linker64)
+==27069==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==27069==  Address 0x4143b40 is on thread 1's stack
+==27069==  in frame #1, created by __dl_async_safe_write_log (???:)
+==27069== 
+==27069== Unsupported clone() flags: 0x1210900
+==27069== 
+==27069== The only supported clone() uses are:
+==27069==  - via a threads library (LinuxThreads or NPTL)
+==27069==  - via the implementation of fork or vfork
+==27069== 
+==27069== Valgrind detected that your program requires
+==27069== the following unimplemented functionality:
+==27069==    Valgrind does not support general clone().
+==27069== This may be because the functionality is hard to implement,
+==27069== or because no reasonable program would behave this way,
+==27069== or because nobody has yet needed it.  In any case, let us know at
+==27069== www.valgrind.org and/or try to work around the problem, if you can.
+==27069== 
+==27069== Valgrind has to exit now.  Sorry.  Bye!
+==27069== 
+
+sched status:
+  running_tid=1
+
+Thread 1: status = VgTs_Runnable syscall 220 (lwpid 27069)
+==27069==    at 0x40E8C14: __dl___bionic_clone (in /system/bin/linker64)
+==27069==    by 0x40D350F: __dl_clone (in /system/bin/linker64)
+==27069==    by 0x40340CB: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==27069==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+

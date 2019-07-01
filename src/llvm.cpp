@@ -601,6 +601,10 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type)
     {
         *result_type = IntegerType::get(TheContext, 64);
     }
+    else if(type_identify_with_class_name(node_type, "any"))
+    {
+        *result_type = IntegerType::get(TheContext, 64);
+    }
     else if(type_identify_with_class_name(node_type, "bool"))
     {
         *result_type = IntegerType::get(TheContext, 1);
