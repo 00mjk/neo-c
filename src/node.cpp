@@ -1664,10 +1664,11 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
 
     if(!solve_method_generics(&result_type, num_method_generics_types, method_generics_types))
     {
-/*
-show_node_type(result_type);
-        result_type = create_node_type_with_class_name("any");
-*/
+        compile_err_msg(cinfo, "Can't solve method generics type");
+        show_node_type(result_type);
+        info->err_num++;
+
+        return FALSE;
     }
 
     if(generics_type) {
@@ -1867,7 +1868,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         gNodes[node].mLine = info->pinfo->sline;
         gNodes[node].mSName = info->pinfo->sname;
 
-puts("BBB");
         if(!compile(node, info)) {
             info->generics_type = generics_type_before;
             return FALSE;
@@ -1937,7 +1937,6 @@ puts("BBB");
             gNodes[node].mLine = info->pinfo->sline;
             gNodes[node].mSName = info->pinfo->sname;
 
-puts("CCCC");
             if(!compile(node, info)) {
                 info->generics_type = generics_type_before;
                 gLLVMStack = llvm_stack;
@@ -2224,7 +2223,6 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
 
 BOOL compile_function(unsigned int node, sCompileInfo* info)
 {
-puts("AAA");
     /// get result type ///
     sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
     BOOL generics_function = gNodes[node].uValue.sFunction.mGenericsFunction;
@@ -2252,7 +2250,6 @@ puts("AAA");
     BOOL simple_lambda_param = gNodes[node].uValue.sFunction.mSimpleLambdaParam;
 
     BOOL no_output_before = info->no_output;
-printf("simple_lambda_param %d\n", simple_lambda_param);
     if(simple_lambda_param) {
         info->no_output = TRUE;
     }
@@ -2579,8 +2576,6 @@ printf("simple_lambda_param %d\n", simple_lambda_param);
         push_value_to_stack_ptr(&llvm_value, info);
 
         info->type = lambda_type;
-
-show_node_type(lambda_type);
 
         gFunction = function_before;
     }
@@ -3190,11 +3185,13 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
     push_value_to_stack_ptr(&llvm_value, info);
 
-    std::pair<sNodeType*, bool> pair_value;
-    pair_value.first = node_type2;
-    pair_value.second = true;
+    if(!info->no_output) {
+        std::pair<sNodeType*, bool> pair_value;
+        pair_value.first = node_type2;
+        pair_value.second = true;
 
-    gHeapObjects[address] = pair_value;
+        gHeapObjects[address] = pair_value;
+    }
 
     info->type = clone_node_type(node_type2);
 

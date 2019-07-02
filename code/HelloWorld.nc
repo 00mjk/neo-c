@@ -90,6 +90,7 @@ def heap_test2()
 
     puts(b.a);
 }
+*/
 
 struct vector<T> {
     items:heap T*;
@@ -146,6 +147,8 @@ impl vector<T> {
     }
 }
 
+/*
+
 def vector_test()
 {
     var v4 = new vector<int>.initialize(null);
@@ -199,20 +202,99 @@ def vector_test2()
 }
 */
 
+/*
 struct Hello<T>
 {
     a:T;
 }
 
 impl Hello<T> {
+    def loop(self:Hello<T>*, block:lambda())
+    {
+        for(var i=0; i < self.a; i++)
+        {
+            block->();
+        }
+    }
+
     def <R> test(self:Hello<T>*, block:lambda():R):R 
     {
+        self.a = 3;
+        self.loop {
+            puts("HO!");
+        }
         block->()
     }
 }
+*/
+
+/*
+struct Hello2<T>
+{
+    a:T;
+}
+
+impl Hello2<T> {
+    def loop(self:Hello2<T>*, block:lambda())
+    {
+        for(var i=0; i < self.a; i++)
+        {
+            block->();
+        }
+    }
+
+    def initialize(self:heap Hello2<T>*): heap Hello2<T>*
+    {
+        self.a = 3;
+
+        self
+    }
+
+    def <R> test(self:Hello2<T>*, block:lambda(T):R): heap Hello2<R>*
+    {
+        var result = new Hello2<R>.initialize();
+
+        result.loop {
+            puts("HO!");
+        }
+
+        block->(string("aaa"));
+
+        result
+    }
+}
+*/
 
 def main():int 
 {
+    var v = new vector<int>.initialize(null);
+
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
+
+    var v2 = v.map {
+        var result = new char[128];
+        snprintf(result, 128, "%d", it);
+        result
+    }
+
+    v2.each {
+        printf("%s\n", it);
+    }
+
+/*
+    var b = new Hello2<heap char*>;
+
+    var c = b.test {
+        3
+    }
+
+    c.loop {
+        puts("HE!");
+    }
+*/
+
 /*
     if(1 == 1) {
         puts("TRUE");
@@ -478,7 +560,9 @@ def main():int
     assert("method generics test X", aaa.a == 1);
 
     heap_test2();
+*/
 
+/*
     var v = new vector<int>.initialize(null);
 
     v.push_back(1);
@@ -520,11 +604,14 @@ def main():int
 
     vector_test2();
 */
+
+/*
     var a = new Hello<int>;
 
     a.test {
         1
     }
+*/
 
     0
 }

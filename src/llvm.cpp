@@ -584,8 +584,6 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
             *result_type = IntegerType::get(TheContext, 64);
         }
         else {
-printf("info %p info->no_output %d\n", info, info->no_output);
-puts("AAA");
             return FALSE;
         }
     }
