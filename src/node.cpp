@@ -1952,7 +1952,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         fun = gFuncs[real_fun_name];
 
-        //generics_fun_num++;
+        generics_fun_num++;
     }
 
     /// check parametors ///
