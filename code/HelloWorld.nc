@@ -79,6 +79,19 @@ int main()
 
     fun2(b);
 
+    int n = 1+1;
+
+    assert("local variable test", n == 2);
+
+    n = 777
+
+    assert("local variable test", n == 777);
+
+    int m = n + 1;
+
+    assert("local variable test", m == 778);
+
+
     0
 }
 
@@ -140,18 +153,6 @@ impl vector<T> {
 
 def main():int 
 {
-    var n = 1+1;
-
-    assert("local variable test", n == 2);
-
-    n = 777
-
-    assert("local variable test", n == 777);
-
-    var m = n + 1;
-
-    assert("local variable test", m == 778);
-
     def fun3(x:int, y:int):int 
     {
         x + y
