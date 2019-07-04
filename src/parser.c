@@ -211,6 +211,10 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     }
 
     if(*result_type == NULL) {
+        *result_type = get_typedef(type_name);
+    }
+
+    if(*result_type == NULL) {
         sCLClass* klass = get_class(type_name);
 
         if(klass) {
@@ -1665,6 +1669,23 @@ static BOOL parse_clone(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+BOOL parse_typedef(unsigned int* node, sParserInfo* info)
+{
+    char buf[VAR_NAME_MAX];
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+        return FALSE;
+    }
+
+    sNodeType* node_type = NULL;
+    if(!parse_type(&node_type, info)) {
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_typedef(buf, node_type, info);
+
+    return TRUE;
+}
+
 static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 {
     char* sname = info->sname;
@@ -2131,6 +2152,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "impl") == 0) {
             if(!parse_impl(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "typedef") == 0) {
+            if(!parse_typedef(node, info)) {
                 return FALSE;
             }
         }

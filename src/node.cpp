@@ -4805,6 +4805,32 @@ static BOOL compile_impl(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_typedef(char* name, sNodeType* node_type, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeTypeDef;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    add_typedef(name, clone_node_type(node_type));
+
+    return node;
+}
+
+static BOOL compile_typedef(unsigned int node, sCompileInfo* info)
+{
+
+    info->type = create_node_type_with_class_name("void");
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -5081,6 +5107,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeGenericsFunction:
             if(!compile_generics_function(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeTypeDef:
+            if(!compile_typedef(node, info))
             {
                 return FALSE;
             }

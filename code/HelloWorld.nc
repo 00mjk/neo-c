@@ -103,57 +103,7 @@ impl vector<T> {
     }
 }
 
-def vector_test()
-{
-    var v4 = new vector<int>.initialize(null);
-
-    v4.push_back(1);
-    v4.push_back(2);
-    v4.push_back(3);
-
-    printf("v4 %d\n", v4.item(0));
-    printf("v4 %d\n", v4.item(1));
-    printf("v4 %d\n", v4.item(2));
-
-    v4.each {
-        printf("v4 %d\n", it);
-    }
-
-    var v5 = v4.map(lambda(it:int):heap char* {
-        var result = new char[256];
-        snprintf(result, 256, "%d", it);
-        result + "aaa"
-    });
-
-    printf("v5 %s\n", v5.item(0));
-    printf("v5 %s\n", v5.item(1));
-    printf("v5 %s\n", v5.item(2));
-
-    v5.each {
-        printf("%s\n", it);
-    }
-
-    printf("v5.len %d\n", v5.len);
-}
-
-def vector_test2()
-{
-    var v4 = new vector<heap char*>.initialize(null);
-
-    v4.push_back(string("1"));
-    v4.push_back(string("2"));
-    v4.push_back(string("3"));
-
-    var v5 = v4.map {
-        atoi(it)
-    }
-
-    v5.each {
-        printf("%d -- > %d\n", it2, it);
-    }
-
-    printf("v5.len %d\n", v5.len);
-}
+typedef string heap char*;
 
 def main():int 
 {
@@ -689,9 +639,51 @@ def main():int
     }
 
 
-    vector_test();
+    var vv4 = new vector<int>.initialize(null);
 
-    vector_test2();
+    vv4.push_back(1);
+    vv4.push_back(2);
+    vv4.push_back(3);
+
+    printf("vv4 %d\n", vv4.item(0));
+    printf("vv4 %d\n", vv4.item(1));
+    printf("vv4 %d\n", vv4.item(2));
+
+    vv4.each {
+        printf("vv4 %d\n", it);
+    }
+
+    var vv5 = vv4.map(lambda(it:int):heap char* {
+        var result = new char[256];
+        snprintf(result, 256, "%d", it);
+        result + "aaa"
+    });
+
+    printf("vv5 %s\n", vv5.item(0));
+    printf("vv5 %s\n", vv5.item(1));
+    printf("vv5 %s\n", vv5.item(2));
+
+    vv5.each {
+        printf("%s\n", it);
+    }
+
+    printf("vv5.len %d\n", vv5.len);
+
+    var vvv4 = new vector<heap char*>.initialize(null);
+
+    vvv4.push_back(string("1"));
+    vvv4.push_back(string("2"));
+    vvv4.push_back(string("3"));
+
+    var vvv5 = vvv4.map {
+        atoi(it)
+    }
+
+    vvv5.each {
+        printf("%d -- > %d\n", it2, it);
+    }
+
+    printf("vvv5.len %d\n", vvv5.len);
 
     struct Hello<T>
     {
@@ -783,6 +775,15 @@ def main():int
     vv2.each {
         printf("%s\n", it);
     }
+
+    var str3 = string("aaa");
+
+    def fun9(str:string) {
+        str[1] = 'b';
+        puts(str);
+    }
+
+    fun9(str3);
 
     0
 }
