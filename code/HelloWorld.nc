@@ -1,25 +1,28 @@
-def xcalloc(num:int, size:long):heap char*;
-def xmalloc(size:long):heap char*;
-def xmemdup(mem:char*):heap char*;
-def xfree(mem:heap char*);
 
-def puts(str:char*):int;
-def exit(rcode:int);
-def strcmp(str1:char*, str2:char*):int;
-def printf(str:char*, ...):int;
-def snprintf(str:char*, size:int, ...):int;
-def strcpy(mem:char*, mem2:char*):int;
-def memcpy(mem:char*, mem2:char*, size:int):char*;
-def strcat(mem:char*, mem2:char*):char*;
-def strlen(mem:char*):int;
-def atoi(str:char*):int;
+char*% xcalloc(int num, long size);
+char*% xmalloc(long size);
+char*% xmemdup(char* mem);
+void xfree(char*% mem);
 
-def operator+(left:char*, right:char*): heap char*
+int puts(char* str);
+void exit(int rcode);
+int strcmp(char* str1, char* str2);
+int printf(char* str, ...);
+int snprintf(char* str, int size, ...);
+int strcpy(char* mem, char* mem2);
+char* memcpy(char* mem, char* mem2, int size);
+char* strcat(char* mem, char* mem2);
+int strlen(char* mem);
+int atoi(char* str);
+
+typedef string char*%;
+
+string operator+(char* left, char* right)
 {
-    var len1 = strlen(left);
-    var len2 = strlen(right);
+    int len1 = strlen(left);
+    int len2 = strlen(right);
 
-    var result = new char[len1 + len2 + 1];
+    string result = new char[len1 + len2 + 1];
 
     strcpy(result, left);
     strcat(result, right);
@@ -27,18 +30,18 @@ def operator+(left:char*, right:char*): heap char*
     result
 }
 
-def string(str:char*): heap char*
+string string(char* str)
 {
-    var len = strlen(str);
+    int len = strlen(str);
 
-    var result = new char[len + 1];
+    string result = new char[len + 1];
 
     strcpy(result, str);
 
     result
 }
 
-def assert(msg:char*, exp:bool) 
+void assert(char* msg, bool exp) 
 {
     printf(msg + "...");
     if(!exp) {
@@ -48,6 +51,38 @@ def assert(msg:char*, exp:bool)
     puts("OK");
 }
 
+int main()
+{
+    if(1 == 1) {
+        puts("TRUE");
+    }
+    else {
+        puts("FALSE");
+    }
+
+    int fun()
+    {
+        puts("HELLO WORLD");
+        1+1
+    }
+
+    int a = fun();
+
+    assert("function result test", a == 2);
+
+    int b = 1;
+
+    void fun2(bool exp) 
+    {
+        assert("function param cast test", exp);
+    }
+
+    fun2(b);
+
+    0
+}
+
+/*
 struct vector<T> {
     items:heap T*;
     len:int;
@@ -103,36 +138,8 @@ impl vector<T> {
     }
 }
 
-typedef string heap char*;
-
 def main():int 
 {
-    if(1 == 1) {
-        puts("TRUE");
-    }
-    else {
-        puts("FALSE");
-    }
-
-    def fun():int 
-    {
-        puts("HELLO WORLD");
-        1+1
-    }
-
-    var a = fun();
-
-    assert("function result test",a == 2);
-
-    var b = 1;
-
-    def fun2(exp:bool) 
-    {
-        assert("function param cast test", exp);
-    }
-
-    fun2(b);
-
     var n = 1+1;
 
     assert("local variable test", n == 2);
@@ -788,3 +795,4 @@ def main():int
     0
 }
 
+*/
