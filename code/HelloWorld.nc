@@ -1,9 +1,11 @@
-
+/// auto free funcs ///
 char*% xcalloc(int num, long size);
 char*% xmalloc(long size);
 char*% xmemdup(char* mem);
 void xfree(char*% mem);
+char*% xasprintf(char* str, ...);
 
+/// c funcs ///
 int puts(char* str);
 void exit(int rcode);
 int strcmp(char* str1, char* str2);
@@ -51,6 +53,62 @@ void assert(char* msg, bool exp)
     puts("OK");
 }
 
+struct vector<T> {
+    T*% items;
+    int len;
+    int size;
+}
+
+impl vector<T> {
+    vector<T>*% initialize(vector<T>*% self, void lambda(vector<T>*)? block) 
+    {
+        self.size = 16;
+        self.len = 0;
+        self.items = new T[self.size];
+
+        if(block != null) {
+            block->(self);
+        }
+
+        self
+    }
+    
+    void push_back(vector<T>* self, T item) {
+        if(self.len == self.size) {
+            var new_size = self.size;
+            var items = self.items;
+
+            self.items = new T[new_size];
+
+            memcpy(self.items->char*, items->char*, 8*self.size);
+            self.size = new_size;
+        }
+
+        self.items[self.len] = item;
+        self.len++;
+    }
+
+    T item(vector<T>* self, int index) {
+        self.items[index]
+    }
+    void each(vector<T>*  self, void lambda(T,int) block) {
+        for(int i=0; i<self.len; i++) {
+            block->(self.items[i], i);
+        };
+    }
+
+    template <R> vector<R>*% map(vector<T>* self, R lambda(T) block)
+    {
+        var result = new vector<R>.initialize(null);
+
+        self.each {
+            result.push_back(block->(it));
+        }
+
+        result
+    }
+}
+
 int main()
 {
     if(1 == 1) {
@@ -91,84 +149,22 @@ int main()
 
     assert("local variable test", m == 778);
 
-
-    0
-}
-
-/*
-struct vector<T> {
-    items:heap T*;
-    len:int;
-    size:int;
-}
-
-impl vector<T> {
-    def initialize(self:heap vector<T>*, block:nullable lambda(vector<T>*)):heap vector<T>* {
-        self.size = 16;
-        self.len = 0;
-        self.items = new T[self.size];
-
-        if(block != null) {
-            block->(self);
-        }
-
-        self
-    }
-    
-    def push_back(self: vector<T>*, item:T) {
-        if(self.len == self.size) {
-            var new_size = self.size;
-            var items = self.items;
-
-            self.items = new T[new_size];
-
-            memcpy(self.items->char*, items->char*, 8*self.size);
-            self.size = new_size;
-        }
-
-        self.items[self.len] = item;
-        self.len++;
-    }
-
-    def item(self:vector<T>*, index:int):T {
-        self.items[index]
-    }
-    def each(self:vector<T>*, block:lambda(T,int)) {
-        for(var i=0; i<self.len; i++) {
-            block->(self.items[i], i);
-        };
-    }
-
-    def <R> map(self:vector<T>*, block:lambda(T):R): heap vector<R>*
-    {
-        var result = new vector<R>.initialize(null);
-
-        self.each {
-            result.push_back(block->(it));
-        }
-
-        result
-    }
-}
-
-def main():int 
-{
-    def fun3(x:int, y:int):int 
+    int fun3(int x, int y)
     {
         x + y
     }
 
-    var l = fun3(1, 2)
+    int l = fun3(1, 2);
 
     assert("function result test", l == 3);
 
-    var x = 4;
+    int x = 4;
 
     if(x == 3) {
     }
-    elif(x == 2) {
+    else if(x == 2) {
     }
-    elif(x == 4) {
+    else if(x == 4) {
         x = 5;
     }
     else {
@@ -176,12 +172,11 @@ def main():int
 
     assert("if test", x == 5);
 
-
-    var i = 1;
+    int i = 1;
 
     assert("operator test", i > 0);
 
-    def fun4(str:char*) 
+    void fun4(char* str) 
     {
         puts(str);
     }
@@ -208,11 +203,11 @@ def main():int
 
     struct OpTest 
     {
-        a:int;
-        b:int;
+        int a;
+        int b;
     }
 
-    var obj = alloca OpTest;
+    OpTest* obj = alloca OpTest;
 
     obj.a = 123;
     assert("operator test6", obj.a++ == 123);
@@ -230,33 +225,37 @@ def main():int
 
     assert("operator test10", i == 4);
 
-    for(var i=0; i<3; i++) {
+    int iii3;
+
+    for(int i=0; i<3; i++) {
         puts("HO!");
     }
 
-    for(var i=0; i<3; i++) {
+    for(int i=0; i<3; i++) {
         puts("HE!");
     }
 
-    var aa = 4;
-    var bb = 1;
+    int aa = 4;
+    int bb = 1;
 
-    var fun = lambda(x:int, y:int):int {
-        bb = 222;
+    int lambda(int,int) fun = lambda(int x, int y):int {
+        bb = 2;
         x + y + aa
     }
 
-    def fun5(block:lambda(int,int):int):int 
+    assert("lambda test", fun->(1,2) == 7 && bb == 2);
+
+    int fun5(int lambda(int,int) block)
     {
         block->(1,2)
     }
 
-    var xxx = fun5(fun);
+    int xxx = fun5(fun);
 
     assert("lambda test", xxx == 7);
-    assert("lambda test2", bb == 222);
+    assert("lambda test2", bb == 2);
 
-    var xa = if(false) {
+    int xa = if(false) {
         111
     }
     else {
@@ -267,40 +266,40 @@ def main():int
 
     struct TestData 
     {
-        a:int;
-        b:int;
+        int a;
+        int b;
     }
 
-    var test11 = alloca TestData;
+    TestData* test11 = alloca TestData;
     test11.a = 123;
     test11.b = 234;
 
     assert("struct test", test11.a == 123 && test11.b == 234);
 
-    def fun6(data:TestData) 
+    void fun6(TestData data) 
     {
         assert("struct test2", data.a == 123 && data.b == 234);
     }
 
     fun6(test11->*);
 
-    var iii = 111;
+    int iii = 111;
 
-    var p = iii<-;
+    int* p = iii<-;
 
-    def fun7(value:int*) 
+    void fun7(int* value) 
     {
         assert("reffernce test", value->* == 111);
     }
 
     fun7(p);
 
-    var nn = 0;
+    int nn = 0;
 
     impl int {
-        def times(n:int, block:lambda()) 
+        void times(int n, void lambda() block) 
         {
-            for(var i=0; i<n; i++) {
+            for(int i=0; i<n; i++) {
                 block->();
             };
         }
@@ -321,16 +320,16 @@ def main():int
 
     assert("simple lambda param test", nn == 3);
 
-    var xb = 3;
+    int xb = 3;
 
-    var xmm = 1;
+    int xmm = 1;
 
-    def fun8(block:lambda(int,int):int):int
+    int fun8(int lambda(int,int) block)
     {
         block->(2,2)
     }
 
-    var mm = fun8() {
+    int mm = fun8() {
         xmm = 9;
         it + it2 + xb
     }
@@ -338,12 +337,12 @@ def main():int
     assert("simple lambda param test2", mm == 7 && xmm == 9);
 
     struct Data {
-        a:int;
-        b:int;
+        int a;
+        int b;
     }
 
     impl Data {
-        def initialize(self:heap Data*):heap Data* {
+        Data*% initialize(Data*% self) {
             self.a = 111;
             self.b = 123;
 
@@ -351,21 +350,21 @@ def main():int
         }
     }
 
-    var ya = new Data;
+    Data*% ya = new Data;
 
-    var xobj = ya.initialize();
+    Data*% xobj = ya.initialize();
 
-    var xobj2 = xobj;
+    Data*% xobj2 = xobj;
 
     assert("std::move test", xobj2.a == 111);
 
     struct Data2 {
-        a:heap Data*;
-        b:int;
+        Data*% a;
+        int b;
     }
 
     impl Data2 {
-        def initialize(self:heap Data2*):heap Data2* {
+        Data2*% initialize(Data2*% self) {
             self.a = new Data;
 
             self.a.a = 123;
@@ -381,14 +380,20 @@ def main():int
 
     assert("struct test", yb.b == 123 && yb.a.a == 123 && yb.a.b == 234);
 
+    int nx = 123;
+
+    string str = xasprintf("abc %d", nx);
+
+    puts(str);
+
     struct Data3 {
-        a:int;
-        b:int;
+        int a;
+        int b;
     }
 
     struct Data4 {
-        a:Data3;
-        b:int;
+        Data3 a;
+        int b;
     }
 
     var za = new Data4;
@@ -398,12 +403,12 @@ def main():int
     assert("struct test X", za.a.a == 123);
 
     struct Data5 {
-        a:int;
-        b:int;
+        int a;
+        int b;
     }
 
     impl Data5 {
-        def initialize(self:heap Data5*):heap Data5* {
+        Data5*% initialize(Data5*% self) {
             self.a = 111;
             self.b = 222;
 
@@ -418,13 +423,13 @@ def main():int
     assert("struct test X2", zz2.a == 111 && zz2.b == 222);
 
     struct Data6 {
-        a:heap Data5*;
-        b:int;
-        c:heap char*;
+        Data5*% a;
+        int b;
+        string c;
     }
 
     impl Data6 {
-        def initialize(self:heap Data6*):heap Data6* {
+        Data6*% initialize(Data6*% self) {
             self.a = new Data5;
             self.a.a = 111;
             self.a.b = 222;
@@ -445,37 +450,37 @@ def main():int
     var zz5 = new char[5];
     var zz6 = zz5;
 
-    var zz7:char* = zz6;
+    char* zz7 = zz6;
 
-    def fun_test_borrow(aaa:char*) 
+    void fun_test_borrow(char* aaa) 
     {
     }
 
     fun_test_borrow(zz6);
 
-    var zz8 = "AAA" + "BBB"
+    string zz8 = "AAA" + "BBB"
 
     puts(zz8);
 
+    assert("string test", strcmp("AAA" + "BBB", "AAABBB") == 0);
+
     struct Data10 {
-        a:int;
-        b:int;
+        int a;
+        int b;
     }
 
     struct Data11 {
-        a:heap Data10*;
-        b:int;
+        Data10*% a;
+        int b;
     }
 
     new Data11.a = new Data10;
-    
-    assert("string test", strcmp("AAA" + "BBB", "AAABBB") == 0);
 
     printf("1 + 1 == %d\n", 1 + 1);
     printf("(%s)\n", "AAA" + "BBB");
 
-    var axy = "xyz";
-    var str1 = new char[5];
+    char* axy = "xyz";
+    string str1 = new char[5];
 
     strcpy(str1, axy);
 
@@ -485,23 +490,23 @@ def main():int
 
     printf("str[0] %c\n", str1[0]);
 
-    var lll = lambda(a:int, b:int):int {
+    int lambda(int,int) lll = lambda(int a, int b):int {
         a + b
     }
 
     assert("lambda test X", lll->(1,2) == 3);
 
     struct GenericsTest <T, T2> {
-        a:T;
-        b:T2;
-        c:lambda(T, T):T;
+        T a;
+        T2 b;
+        T lambda(T,T) c;
     }
 
     var gvar = new GenericsTest<int, char>;
 
     gvar.a = 111;
     gvar.b = 'c';
-    gvar.c = lambda(x:int, y:int):int {
+    gvar.c = lambda(int x, int y):int {
         x + y
     }
 
@@ -511,7 +516,7 @@ def main():int
 
     assert("operator test", strcmp(aaaa, "AAABBB") == 0);
 
-    def <I> method_generics_fun2(a:I, b:I):I
+    template <I> I method_generics_fun2(I a, I b)
     {
         a + b
     }
@@ -522,12 +527,12 @@ def main():int
     assert("method generics test3", method_generics_fun2(2, 3) == 5);
 
     struct GenericsTest2<T> {
-        a:T;
-        b:T;
+        T a;
+        T b;
     }
 
     impl GenericsTest2<T> {
-        def add(self:GenericsTest2<T>*, a:T, b:T):T {
+        T add(GenericsTest2<T>* self, T a, T b) {
             a + b
         }
     }
@@ -537,23 +542,23 @@ def main():int
     assert("generics test", generics_test.add(1,2) == 3);
 
     struct MapTest2<T> {
-        a:T;
+        T a;
     }
 
     struct MapTest<T,T2> {
-        a:T;
-        b:T2;
+        T a;
+        T2 b;
     }
 
     impl MapTest<T,T2> {
-        def <R> fun(self:MapTest<T,T2>*, a:R, b:int):heap MapTest2<R>*
+        template <R> MapTest2<R>* fun(MapTest<T,T2>* self, R a, int b)
         {
             var result = new MapTest2<R>;
             result.a = 1;
             result
         }
         
-        def <R> fun2(self:MapTest<T,T2>*, a:R, block:lambda(R)): R
+        template <R> R fun2(MapTest<T,T2>* self, R a, void lambda(R) block)
         {
             puts("AAA");
             1
@@ -562,7 +567,7 @@ def main():int
 
     var map_test = new MapTest<int, int>;
 
-    var aaa2 = map_test.fun2(1, lambda(a:int) {
+    var aaa2 = map_test.fun2(1, lambda(int a):void {
             puts("BBB");
         }
     );
@@ -574,23 +579,23 @@ def main():int
     assert("method generics test X", aaa.a == 1);
 
     struct HeapTest2 {
-        a:int;
-        b:int;
+        int a;
+        int b;
     }
 
     struct HeapTest<T> {
-        a:heap T*;
-        b:int;
-        c:heap HeapTest2*;
+        T*% a;
+        int b;
+        HeapTest2*% c;
     }
 
     impl HeapTest<T> {
-        def initialize(self:HeapTest<T>*)
+        void initialize(HeapTest<T>* self)
         {
             self.a = new T[5];
         }
 
-        def <R> map(self:HeapTest<T>*, data:T, data2:R): heap HeapTest<R>*
+        template <R> HeapTest<R>*% map(HeapTest<T>* self, T data, R data2)
         {
             var result = new HeapTest<R>;
 
@@ -610,6 +615,81 @@ def main():int
 
     puts(bx.a);
 
+    struct Hello<T>
+    {
+        T a;
+    }
+
+    impl Hello<T> {
+        void loop(Hello<T>* self, void lambda() block)
+        {
+            for(int i=0; i < self.a; i++)
+            {
+                block->();
+            }
+        }
+
+        template <R> R test(Hello<T>* self, R lambda() block) 
+        {
+            self.a = 3;
+            self.loop {
+                puts("HO!");
+            }
+            block->()
+        }
+    }
+
+    struct Hello2<T>
+    {
+        T a;
+    }
+
+    impl Hello2<T> {
+        void loop(Hello2<T>* self, void lambda() block)
+        {
+            for(int i=0; i < self.a; i++)
+            {
+                block->();
+            }
+        }
+
+        Hello2<T>*% initialize(Hello2<T>*% self)
+        {
+            self.a = 3;
+
+            self
+        }
+
+        template <R> Hello2<R>*% test(Hello2<T>* self, R lambda(T) block)
+        {
+            var result = new Hello2<R>.initialize();
+
+            result.loop {
+                puts("HO!");
+            }
+
+            block->(string("aaa"));
+
+            result
+        }
+    }
+
+    var aaa3 = new Hello<int>;
+
+    aaa3.test {
+        1
+    }
+
+    var bb2 = new Hello2<char*%>;
+
+    var cc = bb2.test {
+        3
+    }
+
+    cc.loop {
+        puts("HE!");
+    }
+
     var v = new vector<int>.initialize(null);
 
     v.push_back(1);
@@ -625,7 +705,7 @@ def main():int
     }
 
     var v2 = new vector<int>.initialize(
-        lambda(it:vector<int>*) {
+        lambda(vector<int>* it) {
             it.push_back(111);
             it.push_back(222);
             it.push_back(333);
@@ -646,7 +726,6 @@ def main():int
         printf("%d --> %d\n", it2, it);
     }
 
-
     var vv4 = new vector<int>.initialize(null);
 
     vv4.push_back(1);
@@ -661,7 +740,7 @@ def main():int
         printf("vv4 %d\n", it);
     }
 
-    var vv5 = vv4.map(lambda(it:int):heap char* {
+    var vv5 = vv4.map(char*% lambda(int it) {
         var result = new char[256];
         snprintf(result, 256, "%d", it);
         result + "aaa"
@@ -677,7 +756,7 @@ def main():int
 
     printf("vv5.len %d\n", vv5.len);
 
-    var vvv4 = new vector<heap char*>.initialize(null);
+    var vvv4 = new vector<char*%>.initialize(null);
 
     vvv4.push_back(string("1"));
     vvv4.push_back(string("2"));
@@ -692,81 +771,6 @@ def main():int
     }
 
     printf("vvv5.len %d\n", vvv5.len);
-
-    struct Hello<T>
-    {
-        a:T;
-    }
-
-    impl Hello<T> {
-        def loop(self:Hello<T>*, block:lambda())
-        {
-            for(var i=0; i < self.a; i++)
-            {
-                block->();
-            }
-        }
-
-        def <R> test(self:Hello<T>*, block:lambda():R):R 
-        {
-            self.a = 3;
-            self.loop {
-                puts("HO!");
-            }
-            block->()
-        }
-    }
-
-    struct Hello2<T>
-    {
-        a:T;
-    }
-
-    impl Hello2<T> {
-        def loop(self:Hello2<T>*, block:lambda())
-        {
-            for(var i=0; i < self.a; i++)
-            {
-                block->();
-            }
-        }
-
-        def initialize(self:heap Hello2<T>*): heap Hello2<T>*
-        {
-            self.a = 3;
-
-            self
-        }
-
-        def <R> test(self:Hello2<T>*, block:lambda(T):R): heap Hello2<R>*
-        {
-            var result = new Hello2<R>.initialize();
-
-            result.loop {
-                puts("HO!");
-            }
-
-            block->(string("aaa"));
-
-            result
-        }
-    }
-
-    var aaa3 = new Hello<int>;
-
-    aaa3.test {
-        1
-    }
-
-    var bb2 = new Hello2<heap char*>;
-
-    var cc = bb2.test {
-        3
-    }
-
-    cc.loop {
-        puts("HE!");
-    }
 
     var vv1 = new vector<int>.initialize(null);
 
@@ -786,7 +790,7 @@ def main():int
 
     var str3 = string("aaa");
 
-    def fun9(str:string) {
+    void fun9(string str) {
         str[1] = 'b';
         puts(str);
     }
@@ -796,4 +800,3 @@ def main():int
     0
 }
 
-*/

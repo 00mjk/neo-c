@@ -3,6 +3,7 @@
 #include <pthread.h>
 /* Only for the debug printf */
 #include <stdio.h>
+#include <stdarg.h>
 
 struct header_t {
     size_t size;
@@ -170,6 +171,23 @@ void *xmemdup(void *block)
         //xfree(block);
     }
     return ret;
+}
+
+void *xasprintf(char* msg, ...)
+{
+
+    va_list args;
+    va_start(args, msg);
+    char* tmp;
+    int len = vasprintf(&tmp, msg, args);
+    va_end(args);
+
+    void* result = xcalloc(1, sizeof(char)*len);
+    strncpy(result, tmp, len);
+
+    free(tmp);
+
+    return result;
 }
 
 /*

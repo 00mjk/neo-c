@@ -2388,6 +2388,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
 
+    free_right_value_objects(info);
+
     // Finish off the function.
     if(type_identify_with_class_name(result_type, "void"))
     {
@@ -2535,6 +2537,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         restore_lvtable(lvtable);
 
         xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
+
+        free_right_value_objects(info);
 
         // Finish off the function.
         if(type_identify_with_class_name(result_type, "void"))

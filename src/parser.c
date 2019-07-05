@@ -251,7 +251,16 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         (*result_type)->mNumGenericsTypes = generics_num;
     }
 
-    if(strcmp(type_name, "lambda") == 0) {
+    if(memcmp(info->p, "lambda", 6) == 0) {
+        info->p += 6;
+        skip_spaces_and_lf(info);
+
+        sNodeType* node_type = clone_node_type(*result_type);
+
+        *result_type = create_node_type_with_class_name("lambda");
+
+        (*result_type)->mResultType = node_type;
+
         if(*info->p == '(') {
             info->p++;
             skip_spaces_and_lf(info);
@@ -291,21 +300,6 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
                     }
                 }
             }
-        }
-
-        if(*info->p == ':') {
-            info->p++;
-            skip_spaces_and_lf(info);
-
-            sNodeType* node_type = NULL;
-            if(!parse_type(&node_type, info)) {
-                return FALSE;
-            }
-
-            (*result_type)->mResultType = node_type;
-        }
-        else {
-            (*result_type)->mResultType = create_node_type_with_class_name("void");
         }
     }
 
@@ -434,6 +428,8 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
     else {
         parser_err_msg(info, "%s should be initialized", buf);
         info->err_num++;
+
+        *node = 0;
     }
 
     return TRUE;
@@ -466,8 +462,7 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
         }
     }
     else {
-        parser_err_msg(info, "%s should be initialized", name);
-        info->err_num++;
+        *node = sNodeTree_create_null(info);
     }
 
     return TRUE;
@@ -633,6 +628,46 @@ static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* inf
 
 static BOOL parse_generics_function(unsigned int* node, sNodeType* result_type, char* fun_name, char* struct_name, sParserInfo* info)
 {
+    BOOL operator_fun = FALSE;
+
+    expect_next_character_with_one_forward("(", info);
+
+    /// params ///
+    sParserParam params[PARAMS_MAX];
+    memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+    int num_params = 0;
+
+    /// parse_params ///
+    BOOL var_arg = FALSE;
+    if(!parse_params(params, &num_params, info, 0, &var_arg))
+    {
+        return FALSE;
+    }
+
+    char* sname = info->sname;
+    int sline = info->sline;
+
+    if(*info->p == '{') {
+        info->p++;
+    }
+
+    sBuf buf;
+    sBuf_init(&buf);
+
+    if(!get_block_text(&buf, info)) {
+        free(buf.mBuf);
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, info);
+
+    //info->mNumMethodGenerics = 0;
+
+    return TRUE;
+}
+
+static BOOL parse_method_generics_function(unsigned int* node, char* struct_name, sParserInfo* info)
+{
     /// method generics ///
     info->mNumMethodGenerics = 0;
 
@@ -675,6 +710,18 @@ static BOOL parse_generics_function(unsigned int* node, sNodeType* result_type, 
                 break;
             }
         }
+    }
+
+    sNodeType* result_type = NULL;
+    if(!parse_type(&result_type, info))
+    {
+        return FALSE;
+    }
+
+    char fun_name[VAR_NAME_MAX+1];
+    if(!parse_word(fun_name, VAR_NAME_MAX, info, TRUE, FALSE))
+    {
+        return FALSE;
     }
 
     BOOL operator_fun = FALSE;
@@ -960,38 +1007,43 @@ static BOOL parse_if(unsigned int* node, sParserInfo* info)
         }
 
         if(strcmp(buf, "else") == 0) {
-            if(!parse_block_easy(ALLOC &else_node_block, info))
-            {
-                return FALSE;
+            if(memcmp(info->p, "if", 2) == 0) {
+                info->p+=2;
+                skip_spaces_and_lf(info);
+
+                expect_next_character_with_one_forward("(", info);
+
+                /// expression ///
+                if(!expression(&elif_expression_nodes[elif_num], info)) {
+                    return FALSE;
+                }
+
+                if(elif_expression_nodes[elif_num] == 0) {
+                    parser_err_msg(info, "require elif expression");
+                    info->err_num++;
+                    return TRUE;
+                }
+
+                expect_next_character_with_one_forward(")", info);
+
+                if(!parse_block_easy(ALLOC &elif_node_blocks[elif_num], info))
+                {
+                    return FALSE;
+                }
+
+                elif_num++;
+                if(elif_num >= ELIF_NUM_MAX) {
+                    parser_err_msg(info, "overflow elif num");
+                    info->err_num++;
+                    return FALSE;
+                }
             }
-            break;
-        }
-        else if(strcmp(buf, "elif") == 0) {
-            expect_next_character_with_one_forward("(", info);
-
-            /// expression ///
-            if(!expression(&elif_expression_nodes[elif_num], info)) {
-                return FALSE;
-            }
-
-            if(elif_expression_nodes[elif_num] == 0) {
-                parser_err_msg(info, "require elif expression");
-                info->err_num++;
-                return TRUE;
-            }
-
-            expect_next_character_with_one_forward(")", info);
-
-            if(!parse_block_easy(ALLOC &elif_node_blocks[elif_num], info))
-            {
-                return FALSE;
-            }
-
-            elif_num++;
-            if(elif_num >= ELIF_NUM_MAX) {
-                parser_err_msg(info, "overflow elif num");
-                info->err_num++;
-                return FALSE;
+            else {
+                if(!parse_block_easy(ALLOC &else_node_block, info))
+                {
+                    return FALSE;
+                }
+                break;
             }
         }
         else {
@@ -1070,6 +1122,13 @@ static BOOL parse_struct(unsigned int* node, sParserInfo* info)
 
     int n = 0;
     while(TRUE) {
+        sNodeType* field = NULL;
+        if(!parse_type(&field, info)) {
+            return FALSE;
+        }
+
+        fields[num_fields] = field;
+
         char buf[VAR_NAME_MAX];
 
         if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
@@ -1078,14 +1137,6 @@ static BOOL parse_struct(unsigned int* node, sParserInfo* info)
 
         xstrncpy(field_names[num_fields], buf, VAR_NAME_MAX);
 
-        expect_next_character_with_one_forward(":", info);
-
-        sNodeType* field = NULL;
-        if(!parse_type(&field, info)) {
-            return FALSE;
-        }
-
-        fields[num_fields] = field;
         num_fields++;
 
         if(num_fields >= STRUCT_FIELD_MAX) {
@@ -1641,12 +1692,21 @@ BOOL parse_typedef(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL is_type_name(char* buf)
+static BOOL is_type_name(char* buf, sParserInfo* info)
 {
     sCLClass* klass = get_class(buf);
     sNodeType* node_type = get_typedef(buf);
 
-    return klass || node_type || strcmp(buf, "heap") == 0 || strcmp(buf, "nullable") ==0;
+    int i;
+    BOOL generics_type_name = FALSE;
+    for(i=0; i<info->mNumGenerics; i++) {
+        if(strcmp(buf, info->mGenericsTypeNames[i]) == 0)
+        {
+            generics_type_name = TRUE;
+        }
+    }
+
+    return klass || node_type || generics_type_name;
 }
 
 static BOOL parse_impl(unsigned int* node, sParserInfo* info)
@@ -1728,7 +1788,19 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
 
-        if(is_type_name(buf)) {
+        if(strcmp(buf, "template") == 0) {
+            if(!parse_method_generics_function(node, struct_name, info)) {
+                return FALSE;
+            }
+
+            nodes[num_nodes++] = *node;
+
+            if(num_nodes >= IMPL_DEF_MAX) {
+                fprintf(stderr, "overflow impl function max");
+                return FALSE;
+            }
+        }
+        else if(is_type_name(buf, info)) {
             info->p = p_before;
             info->sline = sline_before;
 
@@ -1744,14 +1816,16 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
 
-            if(*info->p == '<') {
-                if(!parse_generics_function(node, result_type, name, struct_name, info)) {
-                    return FALSE;
+            if(*info->p == '(') {
+                if(info->mNumGenerics > 0) {
+                    if(!parse_generics_function(node, result_type, name, struct_name, info)) {
+                        return FALSE;
+                    }
                 }
-            }
-            else if(*info->p == '(') {
-                if(!parse_function(node, result_type, name, struct_name, info)) {
-                    return FALSE;
+                else {
+                    if(!parse_function(node, result_type, name, struct_name, info)) {
+                        return FALSE;
+                    }
                 }
             }
             else {
@@ -2065,42 +2139,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
 
-        if(is_type_name(buf)) {
-            info->p = p_before;
-            info->sline = sline_before;
-
-            sNodeType* result_type = NULL;
-            if(!parse_type(&result_type, info))
-            {
+        if(strcmp(buf, "lambda") == 0) {
+            if(!parse_lambda(node, info)) {
                 return FALSE;
-            }
-
-            char name[VAR_NAME_MAX+1];
-            if(!parse_word(name, VAR_NAME_MAX, info, TRUE, FALSE))
-            {
-                return FALSE;
-            }
-
-            if(strcmp(name, "operator") == 0)
-            {
-                if(!parse_function(node, result_type, name, NULL, info)) {
-                    return FALSE;
-                }
-            }
-            else if(*info->p == '<') {
-                if(!parse_generics_function(node, result_type, name, NULL, info)) {
-                    return FALSE;
-                }
-            }
-            else if(*info->p == '(') {
-                if(!parse_function(node, result_type, name, NULL, info)) {
-                    return FALSE;
-                }
-            }
-            else {
-                if(!parse_variable(node, result_type, name, info, FALSE)) {
-                    return FALSE;
-                }
             }
         }
         else if(strcmp(buf, "var") == 0) {
@@ -2118,8 +2159,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "def") == 0) {
-        }
         else if(strcmp(buf, "if") == 0) {
             if(!parse_if(node, info)) {
                 return FALSE;
@@ -2132,11 +2171,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "for") == 0) {
             if(!parse_for(node, info)) {
-                return FALSE;
-            }
-        }
-        else if(strcmp(buf, "lambda") == 0) {
-            if(!parse_lambda(node, info)) {
                 return FALSE;
             }
         }
@@ -2172,6 +2206,44 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         else if(strcmp(buf, "typedef") == 0) {
             if(!parse_typedef(node, info)) {
                 return FALSE;
+            }
+        }
+        else if(strcmp(buf, "template") == 0) {
+            if(!parse_method_generics_function(node, NULL, info)) {
+                return FALSE;
+            }
+        }
+        else if(is_type_name(buf, info) && *info->p != '(') {
+            info->p = p_before;
+            info->sline = sline_before;
+
+            sNodeType* result_type = NULL;
+            if(!parse_type(&result_type, info))
+            {
+                return FALSE;
+            }
+
+            char name[VAR_NAME_MAX+1];
+            if(!parse_word(name, VAR_NAME_MAX, info, TRUE, FALSE))
+            {
+                return FALSE;
+            }
+
+            if(strcmp(name, "operator") == 0)
+            {
+                if(!parse_function(node, result_type, name, NULL, info)) {
+                    return FALSE;
+                }
+            }
+            else if(*info->p == '(') {
+                if(!parse_function(node, result_type, name, NULL, info)) {
+                    return FALSE;
+                }
+            }
+            else {
+                if(!parse_variable(node, result_type, name, info, FALSE)) {
+                    return FALSE;
+                }
             }
         }
         else {
