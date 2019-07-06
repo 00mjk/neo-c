@@ -182,7 +182,7 @@ void *xasprintf(char* msg, ...)
     int len = vasprintf(&tmp, msg, args);
     va_end(args);
 
-    void* result = xcalloc(1, sizeof(char)*len);
+    void* result = xcalloc(1, sizeof(char)*(len+1));
     strncpy(result, tmp, len);
 
     free(tmp);
