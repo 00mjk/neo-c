@@ -53,14 +53,16 @@ void assert(char* msg, bool exp)
     puts("OK");
 }
 
-struct vector<T> {
+struct vector<T> 
+{
     T*% items;
     int len;
     int size;
 }
 
-impl vector<T> {
-    vector<T>*% initialize(vector<T>*% self, void lambda(vector<T>*)? block) 
+impl vector<T> 
+{
+    initialize(void lambda(vector<T>*)? block) 
     {
         self.size = 16;
         self.len = 0;
@@ -69,8 +71,6 @@ impl vector<T> {
         if(block != null) {
             block->(self);
         }
-
-        self
     }
     
     void push_back(vector<T>* self, T item) {
@@ -342,11 +342,9 @@ int main()
     }
 
     impl Data {
-        Data*% initialize(Data*% self) {
+        initialize() {
             self.a = 111;
             self.b = 123;
-
-            self
         }
     }
 
@@ -364,15 +362,13 @@ int main()
     }
 
     impl Data2 {
-        Data2*% initialize(Data2*% self) {
+        initialize() {
             self.a = new Data;
 
             self.a.a = 123;
             self.a.b = 234;
 
             self.b = 123;
-
-            self
         }
     }
 
@@ -408,11 +404,9 @@ int main()
     }
 
     impl Data5 {
-        Data5*% initialize(Data5*% self) {
+        initialize() {
             self.a = 111;
             self.b = 222;
-
-            self
         }
     }
 
@@ -429,14 +423,12 @@ int main()
     }
 
     impl Data6 {
-        Data6*% initialize(Data6*% self) {
+        initialize() {
             self.a = new Data5;
             self.a.a = 111;
             self.a.b = 222;
             self.b = 333;
             self.c = new char[5];
-
-            self
         }
     }
 
@@ -653,11 +645,9 @@ int main()
             }
         }
 
-        Hello2<T>*% initialize(Hello2<T>*% self)
+        initialize()
         {
             self.a = 3;
-
-            self
         }
 
         template <R> Hello2<R>*% test(Hello2<T>* self, R lambda(T) block)

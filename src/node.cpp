@@ -1526,7 +1526,9 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
 
     BOOL lambda = TRUE;
     BOOL simple_lambda_param = TRUE;
-    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, FALSE, simple_lambda_param, &info2, FALSE);
+    BOOL constructor_fun = FALSE;
+    BOOL operator_fun = FALSE;
+    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, constructor_fun, simple_lambda_param, &info2, FALSE);
 
 
     return TRUE;
@@ -1712,7 +1714,9 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
 
     BOOL lambda = FALSE;
     BOOL simple_lambda_param = FALSE;
-    *node = sNodeTree_create_function(real_fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, FALSE, simple_lambda_param, &info2, TRUE);
+    BOOL constructor_fun = FALSE;
+    BOOL operator_fun = FALSE;
+    *node = sNodeTree_create_function(real_fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, constructor_fun, simple_lambda_param, &info2, TRUE);
 
     return TRUE;
 }
@@ -2181,7 +2185,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function)
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function)
 {
     unsigned int node = alloc_node();
 
@@ -2217,6 +2221,7 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
     gNodes[node].uValue.sFunction.mOperatorFun = operator_fun;
     gNodes[node].uValue.sFunction.mSimpleLambdaParam = simple_lambda_param;
     gNodes[node].uValue.sFunction.mGenericsFunction = generics_function;
+    gNodes[node].uValue.sFunction.mConstructorFun = constructor_fun;
 
     return node;
 }
@@ -2248,6 +2253,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     BOOL operator_fun = gNodes[node].uValue.sFunction.mOperatorFun;
 
     BOOL simple_lambda_param = gNodes[node].uValue.sFunction.mSimpleLambdaParam;
+    BOOL constructor_fun = gNodes[node].uValue.sFunction.mConstructorFun;
 
     BOOL no_output_before = info->no_output;
     if(simple_lambda_param) {
