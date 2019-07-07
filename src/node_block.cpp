@@ -45,6 +45,8 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
         int sline = info->sline;
         char* sname = info->sname;
 
+        info->sline_top = sline;
+
         if(!expression(&node, info)) {
             return FALSE;
         }
@@ -108,7 +110,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
         for(i=0; i<block->mNumNodes; i++) {
             unsigned int node = block->mNodes[i];
 
-            info->sname = gNodes[node].mSName;
+            xstrncpy(info->sname, gNodes[node].mSName, PATH_MAX);
             info->sline = gNodes[node].mLine;
 
 

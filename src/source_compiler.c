@@ -152,7 +152,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
 
     info.p = source;
     info.source = source;
-    info.sname = fname;
+    xstrncpy(info.sname, fname, PATH_MAX);
     info.lv_table = init_var_table();
     info.sline = 1;
 
@@ -189,6 +189,8 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
     while(*info.p) {
         int sline = info.sline;
         char* sname = info.sname;
+
+        info.sline_top = sline;
 
         unsigned int node = 0;
         if(!expression(&node, &info)) {

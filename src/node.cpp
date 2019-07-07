@@ -1476,7 +1476,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     memset(&info2, 0, sizeof(sParserInfo));
 
     info2.p = buf;
-    info2.sname = sname;
+    xstrncpy(info2.sname, sname, PATH_MAX);
     info2.source = buf;
     info2.module_name = info->module_name;
     info2.sline = sline;
@@ -1638,7 +1638,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     memset(&info2, 0, sizeof(sParserInfo));
 
     info2.p = buf;
-    info2.sname = sname;
+    xstrncpy(info2.sname, sname, PATH_MAX);
     info2.source = buf;
     info2.module_name = info->module_name;
     info2.sline = sline;

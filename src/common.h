@@ -230,12 +230,13 @@ void free_objects(sVarTable* table, struct sCompileInfoStruct* info);
 struct sParserInfoStruct
 {
     char* p;
-    char* sname;
+    char sname[PATH_MAX];
     char* source;
     char* module_name;
     int sline;
     int err_num;
     int parse_phase;
+    int sline_top;
     sVarTable* lv_table;
     int mNumGenerics;
     char mGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];

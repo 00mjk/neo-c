@@ -1,4 +1,5 @@
 #include "common.h"
+#include <ctype.h>
 
 void parser_init()
 {
@@ -20,7 +21,7 @@ void parser_err_msg(sParserInfo* info, const char* msg, ...)
     static int output_num = 0;
 
     if(output_num < PARSER_ERR_MSG_MAX) {
-        fprintf(stderr, "%s:%d: %s\n", info->sname, info->sline, msg2);
+        fprintf(stderr, "%s:%d: %s\n", info->sname, info->sline_top, msg2);
     }
 
     output_num++;
@@ -2011,7 +2012,59 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
-    if(*info->p == '!') {
+    if(*info->p == '#') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(isdigit(*info->p)) {
+            int line = 0;
+            char fname[PATH_MAX];
+
+            while(isdigit(*info->p)) {
+                line = line * 10 + (*info->p - '0');
+                info->p++;
+            }
+            skip_spaces_and_lf(info);
+
+            if(*info->p == '"') {
+                info->p++;
+
+                char* p = fname;
+
+                while(*info->p != '"') {
+                    *p++ = *info->p++;
+                }
+                *p = '\0';
+
+                while(*info->p != '\n') {
+                    info->p++;
+                }
+                info->p++;
+            }
+
+            info->sline = line;
+            xstrncpy(info->sname, fname, PATH_MAX);
+        }
+        else {
+            while(TRUE) {
+                if(*info->p == '\n') {
+                    info->p++;
+                    break;
+                }
+                else if(*info->p == '\0') {
+                    break;
+                }
+                else {
+                    info->p++;
+                }
+            }
+        }
+
+        if(!expression(node, info)) {
+            return FALSE;
+        }
+    }
+    else if(*info->p == '!') {
         info->p++;
         skip_spaces_and_lf(info);
 

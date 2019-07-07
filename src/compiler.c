@@ -26,10 +26,35 @@ static BOOL compiler(char* fname, BOOL optimize, BOOL output_object_file)
         fprintf(stderr, "%s doesn't exist\n", fname);
         return FALSE;
     }
+    
+    char fname2[PATH_MAX];
+    xstrncpy(fname2, fname, PATH_MAX);
+
+    char* p = fname2 + strlen(fname2);
+    while(p >= fname2) {
+        if(*p == '.') {
+            *p = '\0';
+            break;
+        }
+        else {
+            p--;
+        }
+    }
+
+    xstrncat(fname2, ".out", PATH_MAX);
+
+    char cmd[1024];
+    snprintf(cmd, 1024, "cpp %s > %s", fname, fname2);
+
+    int rc = system(cmd);
+    if(rc != 0) {
+        fprintf(stderr, "faield to cpp\n");
+        exit(2);
+    }
 
     sBuf source;
     sBuf_init(&source);
-    if(!read_source(fname, &source)) {
+    if(!read_source(fname2, &source)) {
         free(source.mBuf);
         return FALSE;
     }

@@ -1,5 +1,32 @@
-#include "neo-c.h"
-#include "cfuncs.h"
+# 1 "code/HelloWorld.nc"
+# 1 "<built-in>" 1
+# 1 "<built-in>" 3
+# 364 "<built-in>" 3
+# 1 "<command line>" 1
+# 1 "<built-in>" 2
+# 1 "code/HelloWorld.nc" 2
+# 1 "code/neo-c.h" 1
+
+char*% xcalloc(int num, long size);
+char*% xmalloc(long size);
+char*% xmemdup(char* mem);
+void xfree(char*% mem);
+char*% xasprintf(char* str, ...);
+# 2 "code/HelloWorld.nc" 2
+# 1 "code/cfuncs.h" 1
+
+
+int puts(char* str);
+void exit(int rcode);
+int strcmp(char* str1, char* str2);
+int printf(char* str, ...);
+int snprintf(char* str, int size, ...);
+int strcpy(char* mem, char* mem2);
+char* memcpy(char* mem, char* mem2, int size);
+char* strcat(char* mem, char* mem2);
+int strlen(char* mem);
+int atoi(char* str);
+# 3 "code/HelloWorld.nc" 2
 
 typedef string char*%;
 
@@ -27,7 +54,7 @@ string string(char* str)
     result
 }
 
-void assert(char* msg, bool exp) 
+void assert(char* msg, bool exp)
 {
     printf(msg + "...");
     if(!exp) {
@@ -37,16 +64,16 @@ void assert(char* msg, bool exp)
     puts("OK");
 }
 
-struct vector<T> 
+struct vector<T>
 {
     T*% items;
     int len;
     int size;
 }
 
-impl vector<T> 
+impl vector<T>
 {
-    initialize(void lambda(vector<T>*)? block) 
+    initialize(void lambda(vector<T>*)? block)
     {
         self.size = 16;
         self.len = 0;
@@ -56,7 +83,7 @@ impl vector<T>
             block->(self);
         }
     }
-    
+
     void push_back(vector<T>* self, T item) {
         if(self.len == self.size) {
             var new_size = self.size;
@@ -75,7 +102,7 @@ impl vector<T>
     T item(vector<T>* self, int index) {
         self.items[index]
     }
-    void each(vector<T>*  self, void lambda(T,int) block) {
+    void each(vector<T>* self, void lambda(T,int) block) {
         for(int i=0; i<self.len; i++) {
             block->(self.items[i], i);
         };
@@ -114,7 +141,7 @@ int main()
 
     int b = 1;
 
-    void fun2(bool exp) 
+    void fun2(bool exp)
     {
         assert("function param cast test", exp);
     }
@@ -160,7 +187,7 @@ int main()
 
     assert("operator test", i > 0);
 
-    void fun4(char* str) 
+    void fun4(char* str)
     {
         puts(str);
     }
@@ -185,7 +212,7 @@ int main()
     i = 124;
     assert("operator test5", --i == 123 && i == 123);
 
-    struct OpTest 
+    struct OpTest
     {
         int a;
         int b;
@@ -248,7 +275,7 @@ int main()
 
     assert("if test", xa == 222);
 
-    struct TestData 
+    struct TestData
     {
         int a;
         int b;
@@ -260,7 +287,7 @@ int main()
 
     assert("struct test", test11.a == 123 && test11.b == 234);
 
-    void fun6(TestData data) 
+    void fun6(TestData data)
     {
         assert("struct test2", data.a == 123 && data.b == 234);
     }
@@ -271,7 +298,7 @@ int main()
 
     int* p = iii<-;
 
-    void fun7(int* value) 
+    void fun7(int* value)
     {
         assert("reffernce test", value->* == 111);
     }
@@ -281,7 +308,7 @@ int main()
     int nn = 0;
 
     impl int {
-        void times(int n, void lambda() block) 
+        void times(int n, void lambda() block)
         {
             for(int i=0; i<n; i++) {
                 block->();
@@ -428,7 +455,7 @@ int main()
 
     char* zz7 = zz6;
 
-    void fun_test_borrow(char* aaa) 
+    void fun_test_borrow(char* aaa)
     {
     }
 
@@ -533,7 +560,7 @@ int main()
             result.a = 1;
             result
         }
-        
+
         template <R> R fun2(MapTest<T,T2>* self, R a, void lambda(R) block)
         {
             puts("AAA");
@@ -605,7 +632,7 @@ int main()
             }
         }
 
-        template <R> R test(Hello<T>* self, R lambda() block) 
+        template <R> R test(Hello<T>* self, R lambda() block)
         {
             self.a = 3;
             self.loop {
@@ -684,7 +711,7 @@ int main()
             it.push_back(222);
             it.push_back(333);
         }
-    ) 
+    )
 
     v2.each {
         printf("%d --> %d\n", it2, it);
@@ -771,10 +798,9 @@ int main()
 
     fun9(str3);
 
-#define ABC 123
 
-    assert("macro test", ABC == 123);
+
+    assert("macro test", 123 == 123);
 
     0
 }
-
