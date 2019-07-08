@@ -93,6 +93,8 @@ impl vector<T>
     }
 }
 
+int GlobalVar;
+
 int main()
 {
     if(1 == 1) {
@@ -774,6 +776,10 @@ int main()
 #define ABC 123
 
     assert("macro test", ABC == 123);
+
+    GlobalVar = 1;
+
+    assert("global var test", GlobalVar == 1);
 
     0
 }

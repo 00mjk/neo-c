@@ -1,29 +1,13 @@
-native de C-FFI & pointer operator
+operators.
 
-union
-
-no segmentation fault
-
-モジュール。ヘッダーの出力とinclude.
-
-グローバル変数
+no segmentation fault?
 
 return
 
-コンテナライブラリ
-
-lamdaの構造体
-
-インターフェース
-
-lvalue,rvalue -1でstruct copy で受け取る:
-
-if文の条件判断式
-
-struct field mo new
-
-heap nullable niha sinai
-
-line number
+collection
 
 generics line number
+
+Global Variable
+
+inner struct, union, 

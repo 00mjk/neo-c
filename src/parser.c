@@ -396,13 +396,13 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
         }
         if(node_type) {
             check_already_added_variable(info->lv_table, buf, info);
-            add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1);
+            add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1, info->mBlockLevel == 0);
         }
     }
     else {
         node_type = NULL;
         check_already_added_variable(info->lv_table, buf, info);
-        add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1);
+        add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1, info->mBlockLevel == 0);
     }
 
     /// assign the value to a variable ///
@@ -439,7 +439,7 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
 static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* name, sParserInfo* info, BOOL readonly)
 {
     check_already_added_variable(info->lv_table, name, info);
-    add_variable_to_table(info->lv_table, name, result_type, readonly, NULL, -1);
+    add_variable_to_table(info->lv_table, name, result_type, readonly, NULL, -1, info->mBlockLevel == 0);
 
     /// assign the value to a variable ///
     if(*info->p == '=' && *(info->p+1) != '=') {
@@ -463,7 +463,7 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
         }
     }
     else {
-        *node = sNodeTree_create_null(info);
+        *node = sNodeTree_create_define_variable(name, info);
     }
 
     return TRUE;
@@ -846,7 +846,7 @@ static BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun
             sParserParam* param = params + i;
 
             BOOL readonly = FALSE;
-            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1))
+            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1, FALSE))
             {
                 return FALSE;
             }
@@ -954,7 +954,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
             sParserParam* param = params + i;
 
             BOOL readonly = FALSE;
-            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1))
+            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1, FALSE))
             {
                 return FALSE;
             }
@@ -1723,7 +1723,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
         sParserParam* param = params + i;
 
         BOOL readonly = TRUE;
-        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1))
+        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1, FALSE))
         {
             return FALSE;
         }

@@ -26,6 +26,8 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
 {
     node_block->mSName = info->sname;
     node_block->mSLine = info->sline;
+
+    info->mBlockLevel++;
     
     char* source_head = info->p;
     BOOL has_result = FALSE;
@@ -37,6 +39,8 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
         else if(*info->p == '\0') {
             parser_err_msg(info, "require } before the source end");
             info->err_num++;
+
+            info->mBlockLevel--;
             return TRUE;
         }
 
@@ -48,6 +52,7 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
         info->sline_top = sline;
 
         if(!expression(&node, info)) {
+            info->mBlockLevel--;
             return FALSE;
         }
 
@@ -78,6 +83,7 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
         else if(*info->p == '\0') {
             parser_err_msg(info, "require } before the source end");
             info->err_num++;
+            info->mBlockLevel--;
             return TRUE;
         }
     }
@@ -89,6 +95,8 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
 
     node_block->mLVTable = info->lv_table;
     node_block->mHasResult = has_result;
+
+    info->mBlockLevel--;
 
     return TRUE;
 }

@@ -1135,6 +1135,87 @@ static BOOL compile_logical_denial(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_define_variable(char* var_name, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeDefineVariable;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    xstrncpy(gNodes[node].uValue.sDefineVariable.mVarName, var_name, VAR_NAME_MAX);
+    gNodes[node].uValue.sDefineVariable.mGlobal = info->mBlockLevel == 0;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
+{
+    char var_name[VAR_NAME_MAX];
+    xstrncpy(var_name, gNodes[node].uValue.sStoreVariable.mVarName, VAR_NAME_MAX);
+    BOOL global = gNodes[node].uValue.sDefineVariable.mGlobal;
+
+    sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
+
+    if(var == NULL) {
+        compile_err_msg(info, "undeclared variable %s", var_name);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    sNodeType* var_type = var->mType;
+
+    Type* llvm_var_type;
+    if(!create_llvm_type_from_node_type(&llvm_var_type, var_type, info))
+    {
+        compile_err_msg(info, "Getting llvm type failed(1)");
+        show_node_type(var_type);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    int alignment = get_llvm_alignment_from_node_type(var_type);
+
+    if(global) {
+        GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::CommonLinkage, 0, var_name);
+        address->setAlignment(alignment);
+
+        ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
+
+        address->setInitializer(initializer);
+
+        var->mLLVMValue = address;
+
+        BOOL parent = FALSE;
+        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+        store_address_to_lvtable(index, address);
+    }
+    else {
+        Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
+        var->mLLVMValue = address;
+
+        BOOL parent = FALSE;
+        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+        store_address_to_lvtable(index, address);
+    }
+
+    info->type = var_type;
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL alloc, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -1146,6 +1227,7 @@ unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL all
 
     xstrncpy(gNodes[node].uValue.sStoreVariable.mVarName, var_name, VAR_NAME_MAX);
     gNodes[node].uValue.sStoreVariable.mAlloc = alloc;
+    gNodes[node].uValue.sStoreVariable.mGlobal = info->mBlockLevel == 0;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = right;
@@ -1160,6 +1242,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     char var_name[VAR_NAME_MAX];
     xstrncpy(var_name, gNodes[node].uValue.sStoreVariable.mVarName, VAR_NAME_MAX);
     BOOL alloc = gNodes[node].uValue.sStoreVariable.mAlloc;
+    BOOL global = gNodes[node].uValue.sStoreVariable.mGlobal;
 
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
@@ -1255,7 +1338,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     sNodeType* var_type = left_type;
 
     Value* var_address;
-    if(parent) {
+    if(parent && !var->mGlobal) {
         var_address = load_address_to_lvtable(index, var_type, info);
     }
     else {
@@ -1507,7 +1590,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
         sParserParam param = params[i];
 
         BOOL readonly = FALSE;
-        if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1))
+        if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1, FALSE))
         {
             return FALSE;
         }
@@ -1695,7 +1778,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
         sParserParam param = params[i];
 
         BOOL readonly = FALSE;
-        if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1))
+        if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1, FALSE))
         {
             return FALSE;
         }
@@ -2711,6 +2794,7 @@ unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info)
     gNodes[node].mLine = info->sline;
 
     xstrncpy(gNodes[node].uValue.sLoadVariable.mVarName, var_name, VAR_NAME_MAX);
+    gNodes[node].uValue.sLoadVariable.mGlobal = info->mBlockLevel == 0;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -2723,6 +2807,7 @@ unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info)
 static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 {
     char* var_name = gNodes[node].uValue.sLoadVariable.mVarName;
+    BOOL global = gNodes[node].uValue.sLoadVariable.mGlobal;
 
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
@@ -2749,7 +2834,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
 
     Value* var_address;
-    if(parent) {
+    if(parent && !var->mGlobal) {
         var_address = load_address_to_lvtable(index, var_type, info);
     }
     else {
@@ -4923,6 +5008,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeStoreVariable:
             if(!compile_store_variable(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeDefineVariable:
+            if(!compile_define_variable(node, info)) {
                 return FALSE;
             }
             break;
