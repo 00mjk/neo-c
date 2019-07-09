@@ -93,7 +93,8 @@ impl vector<T>
     }
 }
 
-int GlobalVar;
+int GlobalVar = 2;
+char* GlobalVar2 = "ABC";
 
 int main()
 {
@@ -777,9 +778,13 @@ int main()
 
     assert("macro test", ABC == 123);
 
+    assert("global var test", GlobalVar == 2);
+
     GlobalVar = 1;
 
-    assert("global var test", GlobalVar == 1);
+    assert("global var test2", GlobalVar == 1);
+
+    assert("global var test3", strcmp(GlobalVar2, "ABC") == 0);
 
     0
 }

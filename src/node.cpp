@@ -1187,7 +1187,7 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
     int alignment = get_llvm_alignment_from_node_type(var_type);
 
     if(global) {
-        GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::CommonLinkage, 0, var_name);
+        GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::InternalLinkage, 0, var_name);
         address->setAlignment(alignment);
 
         ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
@@ -1313,13 +1313,41 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     int alignment = get_llvm_alignment_from_node_type(left_type);
 
     if(alloc) {
-        Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
-        var->mLLVMValue = address;
+        if(global) {
+            GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::InternalLinkage, 0, var_name);
+            address->setAlignment(alignment);
 
-        BOOL parent = FALSE;
-        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+            Value* rvalue2 = rvalue.value;
 
-        store_address_to_lvtable(index, address);
+            if(dyn_cast<Constant>(rvalue2)) {
+                Constant* rvalue3 = dyn_cast<Constant>(rvalue2);
+                address->setInitializer(rvalue3);
+            }
+            else {
+                compile_err_msg(info, "Invalid Global Variable Initializer. Require Constant Value");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            var->mLLVMValue = address;
+
+            BOOL parent = FALSE;
+            int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+            store_address_to_lvtable(index, address);
+        }
+        else {
+            Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
+            var->mLLVMValue = address;
+
+            BOOL parent = FALSE;
+            int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+            store_address_to_lvtable(index, address);
+        }
     }
     else {
         if(var->mReadOnly) {
