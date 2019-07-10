@@ -1186,7 +1186,15 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
 
     int alignment = get_llvm_alignment_from_node_type(var_type);
 
-    if(global) {
+    if(var->mConstant) {
+        compile_err_msg(info, "Require right value for constant");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+    else if(global) {
         GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::InternalLinkage, 0, var_name);
         address->setAlignment(alignment);
 
@@ -1314,7 +1322,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
     if(alloc) {
         if(global) {
-            GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::InternalLinkage, 0, var_name);
+            GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant, GlobalValue::InternalLinkage, 0, var_name);
             address->setAlignment(alignment);
 
             Value* rvalue2 = rvalue.value;
@@ -1350,8 +1358,8 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         }
     }
     else {
-        if(var->mReadOnly) {
-            compile_err_msg(info, "Varible(%s) is readonly variable", var->mName);
+        if(var->mReadOnly || var->mConstant) {
+            compile_err_msg(info, "Variable(%s) is readonly variable", var->mName);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -1618,7 +1626,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
         sParserParam param = params[i];
 
         BOOL readonly = FALSE;
-        if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1, FALSE))
+        if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1, FALSE, param.mType->mConstant))
         {
             return FALSE;
         }
@@ -1806,7 +1814,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
         sParserParam param = params[i];
 
         BOOL readonly = FALSE;
-        if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1, FALSE))
+        if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1, FALSE, param.mType->mConstant))
         {
             return FALSE;
         }
@@ -3194,6 +3202,29 @@ static BOOL compile_struct(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_union(sNodeType* struct_type, sParserInfo* info, char* sname, int sline)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeUnion;
+
+    gNodes[node].mSName = sname;
+    gNodes[node].mLine = sline;
+
+    gNodes[node].uValue.sStruct.mType = struct_type;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_union(unsigned int node, sCompileInfo* info)
+{
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_object(sNodeType* node_type, unsigned int object_num, char* sname, int sline)
 {
     unsigned node = alloc_node();
@@ -3417,6 +3448,15 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     sNodeType* left_type = info->type;
 
+    if(!(left_type->mClass->mFlags & CLASS_FLAGS_STRUCT) && !(left_type->mClass->mFlags & CLASS_FLAGS_UNION)) {
+        compile_err_msg(info, "This is not struct type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
     LVALUE lvalue = *get_value_from_stack(-1);
 
     /// compile right node ///
@@ -3476,7 +3516,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
     }
-
+    
     if(!substitution_posibility(field_type, right_type, info)) {
         compile_err_msg(info, "The different type between left type and right type.");
         show_node_type(field_type);
@@ -3503,22 +3543,6 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    Value* field_address;
-    if(left_type->mPointerNum == 0) {
-#if LLVM_VERSION_MAJOR >= 7
-        field_address = Builder.CreateStructGEP(lvalue.address, field_index);
-#else
-        field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, field_index);
-#endif
-    }
-    else {
-#if LLVM_VERSION_MAJOR >= 7
-        field_address = Builder.CreateStructGEP(lvalue.value, field_index);
-#else
-        field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, field_index);
-#endif
-    }
-
     Type* llvm_field_type;
     if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, info))
     {
@@ -3532,6 +3556,33 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     }
 
     int alignment = get_llvm_alignment_from_node_type(field_type);
+
+    Value* field_address;
+
+    if(left_type->mClass->mFlags & CLASS_FLAGS_UNION) {
+        if(left_type->mPointerNum == 0) {
+            field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+        }
+        else {
+            field_address = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(llvm_field_type, 0));
+        }
+    }
+    else {
+        if(left_type->mPointerNum == 0) {
+#if LLVM_VERSION_MAJOR >= 7
+            field_address = Builder.CreateStructGEP(lvalue.address, field_index);
+#else
+            field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, field_index);
+#endif
+        }
+        else {
+#if LLVM_VERSION_MAJOR >= 7
+            field_address = Builder.CreateStructGEP(lvalue.value, field_index);
+#else
+            field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, field_index);
+#endif
+        }
+    }
 
     Value* rvalue2 = rvalue.value;
 
@@ -3587,7 +3638,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
     sNodeType* left_type = info->type;
 
-    if(!(left_type->mClass->mFlags & CLASS_FLAGS_STRUCT)) {
+    if(!(left_type->mClass->mFlags & CLASS_FLAGS_STRUCT) && !(left_type->mClass->mFlags & CLASS_FLAGS_UNION)) {
         compile_err_msg(info, "This is not struct type");
         info->err_num++;
 
@@ -3661,19 +3712,29 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     }
 
     Value* field_address;
-    if(left_type->mPointerNum == 0) {
-#if LLVM_VERSION_MAJOR >= 7
-        field_address = Builder.CreateStructGEP(lvalue.address, field_index);
-#else
-        field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, field_index);
-#endif
+    if(left_type->mClass->mFlags & CLASS_FLAGS_UNION) {
+        if(left_type->mPointerNum == 0) {
+            field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+        }
+        else {
+            field_address = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(llvm_field_type, 0));
+        }
     }
     else {
+        if(left_type->mPointerNum == 0) {
 #if LLVM_VERSION_MAJOR >= 7
-        field_address = Builder.CreateStructGEP(lvalue.value, field_index);
+            field_address = Builder.CreateStructGEP(lvalue.address, field_index);
 #else
-        field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, field_index);
+            field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, field_index);
 #endif
+        }
+        else {
+#if LLVM_VERSION_MAJOR >= 7
+            field_address = Builder.CreateStructGEP(lvalue.value, field_index);
+#else
+            field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, field_index);
+#endif
+        }
     }
 
     Value* field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
@@ -5243,6 +5304,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeTypeDef:
             if(!compile_typedef(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeUnion:
+            if(!compile_union(node, info))
             {
                 return FALSE;
             }

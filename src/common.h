@@ -76,6 +76,7 @@ unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_o
 #define CLASS_FLAGS_UNSIGNED_NUMBER 0x08
 #define CLASS_FLAGS_GENERICS 0x10
 #define CLASS_FLAGS_METHOD_GENERICS 0x20
+#define CLASS_FLAGS_UNION 0x040
 
 struct sCLClassStruct {
     clint64 mFlags;
@@ -119,6 +120,7 @@ void class_final();
 
 sCLClass* get_class(char* class_name);
 sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
+sCLClass* alloc_union(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
 unsigned int get_hash_key(char* name, unsigned int max);
 int get_field_index(sCLClass* klass, char* var_name);
 
@@ -134,6 +136,7 @@ struct sNodeTypeStruct {
     int mArrayNum;
     BOOL mNullable;
     int mPointerNum;
+    BOOL mConstant;
 
     struct sNodeTypeStruct* mParamTypes[PARAMS_MAX];
     struct sNodeTypeStruct* mResultType;
@@ -175,6 +178,7 @@ struct sVarStruct {
     int mBlockLevel;
 
     BOOL mReadOnly;
+    BOOL mConstant;
     void* mLLVMValue;
 
     BOOL mGlobal;
@@ -211,7 +215,7 @@ int get_variable_index(sVarTable* table, char* name, BOOL* parent);
 void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info);
 
 // result: (true) success (false) overflow the table or a variable which has the same name exists
-BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value, int index, BOOL global);
+BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value, int index, BOOL global, BOOL constant);
 
 // result: (null) not found (sVar*) found
 sVar* get_variable_from_table(sVarTable* table, char* name);
@@ -294,7 +298,7 @@ struct sCompileInfoStruct
     struct sParserInfoStruct* pinfo;
     sNodeType* type;
 
-    char* sname;
+    char sname[PATH_MAX];
     int sline;
 
     int stack_num;
@@ -308,7 +312,7 @@ struct sCompileInfoStruct
 
 typedef struct sCompileInfoStruct sCompileInfo;
 
-enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeTypeDef };
+enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStructObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeTypeDef, kNodeTypeUnion };
 
 struct sNodeTreeStruct 
 {
@@ -455,6 +459,7 @@ unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
 unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED struct sNodeBlockStruct* if_node_block, unsigned int* elif_expression_nodes, MANAGED struct sNodeBlockStruct** elif_node_blocks, int elif_num, MANAGED struct sNodeBlockStruct* else_node_block, sParserInfo* info, char* sname, int sline);
 unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* sname, int sline);
+unsigned int sNodeTree_union(sNodeType* struct_type, sParserInfo* info, char* sname, int sline);
 unsigned int sNodeTree_create_object(sNodeType* node_type, unsigned int object_num, char* sname, int sline);
 unsigned int sNodeTree_create_store_field(char* var_name, unsigned int left_node, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_load_field(char* name, unsigned int left_node, sParserInfo* info);
@@ -546,6 +551,7 @@ void start_neo_c_main_function();
 void finish_neo_c_main_function();
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info);
 BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info);
+BOOL create_llvm_union_type(sNodeType* node_type, sCompileInfo* info);
 
 /// typedef.cpp ///
 void add_typedef(char* name, sNodeType* node_type);

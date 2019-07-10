@@ -154,6 +154,135 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
 
     return TRUE;
 }
+static void create_anoymous_struct_name(char* struct_name, int size_struct_name)
+{
+    static int anonymous_struct_num = 0;
+    snprintf(struct_name, size_struct_name, "AnonymousStruct__%d\n", anonymous_struct_num++);
+}
+
+BOOL parse_type(sNodeType** result_type, sParserInfo* info);
+
+static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_name, sParserInfo* info) 
+{
+    char* sname = info->sname;
+    int sline = info->sline;
+
+    int num_fields = 0;
+    char field_names[STRUCT_FIELD_MAX][VAR_NAME_MAX];
+    sNodeType* fields[STRUCT_FIELD_MAX];
+
+    /// anonymous struct ///
+    if(*info->p == '{') {
+        info->mNumGenerics = 0;
+
+        create_anoymous_struct_name(struct_name, size_struct_name);
+    }
+    /// normal struct ///
+    else {
+        char buf[VAR_NAME_MAX];
+        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+            return FALSE;
+        }
+
+        xstrncpy(struct_name, buf, size_struct_name);
+
+        info->mNumGenerics = 0;
+
+        if(*info->p == '<') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            int num_generics = 0;
+
+            while(TRUE) {
+                char buf[VAR_NAME_MAX];
+                if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                    return FALSE;
+                }
+
+                xstrncpy(info->mGenericsTypeNames[num_generics], buf, VAR_NAME_MAX);
+
+                num_generics++;
+
+                if(num_generics >= GENERICS_TYPES_MAX)
+                {
+                    parser_err_msg(info, "overflow generics types");
+                    return FALSE;
+                }
+
+                if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == '>') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+                else {
+                    parser_err_msg(info, "require , or > character");
+                    info->err_num++;
+                    break;
+                }
+            }
+
+            info->mNumGenerics = num_generics;
+        }
+    }
+
+    expect_next_character_with_one_forward("{", info);
+
+    int n = 0;
+    while(TRUE) {
+        sNodeType* field = NULL;
+        if(!parse_type(&field, info)) {
+            return FALSE;
+        }
+
+        fields[num_fields] = field;
+
+        char buf[VAR_NAME_MAX];
+
+        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+            return FALSE;
+        }
+
+        xstrncpy(field_names[num_fields], buf, VAR_NAME_MAX);
+
+        num_fields++;
+
+        if(num_fields >= STRUCT_FIELD_MAX) {
+            parser_err_msg(info, "overflow struct field");
+            return FALSE;
+        }
+
+        if(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+
+        if(*info->p == '}') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+    }
+
+    if(*info->p == ';') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+
+    sCLClass* struct_class = alloc_struct(struct_name, num_fields, field_names, fields);
+
+    sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
+
+    *node = sNodeTree_struct(struct_type, info, sname, sline);
+
+    return TRUE;
+}
+
+
 
 BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 {
@@ -163,10 +292,26 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
     BOOL heap = FALSE;
     BOOL nullable = FALSE;
+    BOOL constant = FALSE;
 
     if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
     {
         return FALSE;
+    }
+
+    if(strcmp(type_name, "const") == 0) {
+        constant = TRUE;
+
+        if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+        {
+            return FALSE;
+        }
+    }
+    else if(strcmp(type_name, "struct") == 0 && *info->p == '{') {
+        unsigned int node = 0;
+        if(!parse_struct(&node, type_name, VAR_NAME_MAX, info)) {
+            return FALSE;
+        }
     }
 
     int i;
@@ -333,6 +478,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     (*result_type)->mPointerNum += pointer_num;
     (*result_type)->mHeap = heap;
     (*result_type)->mNullable = nullable;
+    (*result_type)->mConstant = constant;
 
     if(info->mNumMethodGenericsTypes > 0) {
         if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))
@@ -367,6 +513,19 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
             info->err_num++;
         }
     }
+    else if(((*result_type)->mClass->mFlags & CLASS_FLAGS_UNION) && !included_generics_type(*result_type))
+    {
+        sCompileInfo cinfo;
+        memset(&cinfo, 0, sizeof(sCompileInfo));
+        cinfo.no_output = TRUE;
+
+        if(!create_llvm_union_type(*result_type, &cinfo))
+        {
+            parser_err_msg(info, "Can't create llvm union from this node type");
+            show_node_type(*result_type);
+            info->err_num++;
+        }
+    }
 
     return TRUE;
 }
@@ -396,13 +555,13 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
         }
         if(node_type) {
             check_already_added_variable(info->lv_table, buf, info);
-            add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1, info->mBlockLevel == 0);
+            add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1, info->mBlockLevel == 0, node_type->mConstant);
         }
     }
     else {
         node_type = NULL;
         check_already_added_variable(info->lv_table, buf, info);
-        add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1, info->mBlockLevel == 0);
+        add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1, info->mBlockLevel == 0, FALSE);
     }
 
     /// assign the value to a variable ///
@@ -439,7 +598,7 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
 static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* name, sParserInfo* info, BOOL readonly)
 {
     check_already_added_variable(info->lv_table, name, info);
-    add_variable_to_table(info->lv_table, name, result_type, readonly, NULL, -1, info->mBlockLevel == 0);
+    add_variable_to_table(info->lv_table, name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
 
     /// assign the value to a variable ///
     if(*info->p == '=' && *(info->p+1) != '=') {
@@ -563,6 +722,78 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
     sBuf_append_str(&buf, "}");
 
     *node = sNodeTree_create_simple_lambda_param(MANAGED buf.mBuf, sname, sline, info);
+
+    return TRUE;
+}
+
+static BOOL parse_union(unsigned int* node, sParserInfo* info) 
+{
+    char* sname = info->sname;
+    int sline = info->sline;
+
+    int num_fields = 0;
+    char field_names[STRUCT_FIELD_MAX][VAR_NAME_MAX];
+    sNodeType* fields[STRUCT_FIELD_MAX];
+
+    char buf[VAR_NAME_MAX];
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+        return FALSE;
+    }
+
+    char union_name[VAR_NAME_MAX];
+
+    xstrncpy(union_name, buf, VAR_NAME_MAX);
+
+    info->mNumGenerics = 0;
+
+    expect_next_character_with_one_forward("{", info);
+
+    int n = 0;
+    while(TRUE) {
+        sNodeType* field = NULL;
+        if(!parse_type(&field, info)) {
+            return FALSE;
+        }
+
+        fields[num_fields] = field;
+
+        char buf[VAR_NAME_MAX];
+
+        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+            return FALSE;
+        }
+
+        xstrncpy(field_names[num_fields], buf, VAR_NAME_MAX);
+
+        num_fields++;
+
+        if(num_fields >= STRUCT_FIELD_MAX) {
+            parser_err_msg(info, "overflow struct field");
+            return FALSE;
+        }
+
+        if(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+
+        if(*info->p == '}') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+    }
+
+    if(*info->p == ';') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+
+    sCLClass* union_class = alloc_union(union_name, num_fields, field_names, fields);
+
+    sNodeType* union_type = create_node_type_with_class_pointer(union_class);
+
+    *node = sNodeTree_union(union_type, info, sname, sline);
 
     return TRUE;
 }
@@ -846,7 +1077,7 @@ static BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun
             sParserParam* param = params + i;
 
             BOOL readonly = FALSE;
-            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1, FALSE))
+            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1, FALSE, param->mType->mConstant))
             {
                 return FALSE;
             }
@@ -954,7 +1185,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
             sParserParam* param = params + i;
 
             BOOL readonly = FALSE;
-            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1, FALSE))
+            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1, FALSE, param->mType->mConstant))
             {
                 return FALSE;
             }
@@ -1193,117 +1424,6 @@ static BOOL parse_if(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_struct(unsigned int* node, sParserInfo* info) 
-{
-    char* sname = info->sname;
-    int sline = info->sline;
-
-    char struct_name[VAR_NAME_MAX];
-    int num_fields = 0;
-    char field_names[STRUCT_FIELD_MAX][VAR_NAME_MAX];
-    sNodeType* fields[STRUCT_FIELD_MAX];
-
-    char buf[VAR_NAME_MAX];
-    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
-        return FALSE;
-    }
-
-    xstrncpy(struct_name, buf, VAR_NAME_MAX);
-
-    info->mNumGenerics = 0;
-
-    if(*info->p == '<') {
-        info->p++;
-        skip_spaces_and_lf(info);
-
-        int num_generics = 0;
-
-        while(TRUE) {
-            char buf[VAR_NAME_MAX];
-            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
-                return FALSE;
-            }
-
-            xstrncpy(info->mGenericsTypeNames[num_generics], buf, VAR_NAME_MAX);
-
-            num_generics++;
-
-            if(num_generics >= GENERICS_TYPES_MAX)
-            {
-                parser_err_msg(info, "overflow generics types");
-                return FALSE;
-            }
-
-            if(*info->p == ',') {
-                info->p++;
-                skip_spaces_and_lf(info);
-            }
-            else if(*info->p == '>') {
-                info->p++;
-                skip_spaces_and_lf(info);
-                break;
-            }
-            else {
-                parser_err_msg(info, "require , or > character");
-                info->err_num++;
-                break;
-            }
-        }
-
-        info->mNumGenerics = num_generics;
-    }
-
-    expect_next_character_with_one_forward("{", info);
-
-    int n = 0;
-    while(TRUE) {
-        sNodeType* field = NULL;
-        if(!parse_type(&field, info)) {
-            return FALSE;
-        }
-
-        fields[num_fields] = field;
-
-        char buf[VAR_NAME_MAX];
-
-        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
-            return FALSE;
-        }
-
-        xstrncpy(field_names[num_fields], buf, VAR_NAME_MAX);
-
-        num_fields++;
-
-        if(num_fields >= STRUCT_FIELD_MAX) {
-            parser_err_msg(info, "overflow struct field");
-            return FALSE;
-        }
-
-        if(*info->p == ';') {
-            info->p++;
-            skip_spaces_and_lf(info);
-        }
-
-        if(*info->p == '}') {
-            info->p++;
-            skip_spaces_and_lf(info);
-            break;
-        }
-    }
-
-    if(*info->p == ';') {
-        info->p++;
-        skip_spaces_and_lf(info);
-    }
-
-    sCLClass* struct_class = alloc_struct(struct_name, num_fields, field_names, fields);
-
-    sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
-
-    *node = sNodeTree_struct(struct_type, info, sname, sline);
-
-    return TRUE;
-}
 
 static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 {
@@ -1723,7 +1843,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
         sParserParam* param = params + i;
 
         BOOL readonly = TRUE;
-        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1, FALSE))
+        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1, FALSE, param->mType->mConstant))
         {
             return FALSE;
         }
@@ -1844,7 +1964,7 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
         }
     }
 
-    return klass || node_type || generics_type_name;
+    return klass || node_type || generics_type_name || strcmp(buf, "const") == 0 || (strcmp(buf, "struct") == 0 && *info->p == '{');
 }
 
 static BOOL parse_impl(unsigned int* node, sParserInfo* info)
@@ -2351,8 +2471,16 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "struct") == 0) {
-            if(!parse_struct(node, info)) {
+        else if(strcmp(buf, "struct") == 0 && *info->p != '{') {
+            char struct_name[VAR_NAME_MAX];
+            xstrncpy(struct_name, "", VAR_NAME_MAX);
+
+            if(!parse_struct(node, struct_name, VAR_NAME_MAX, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "union") == 0) {
+            if(!parse_union(node, info)) {
                 return FALSE;
             }
         }

@@ -1,6 +1,6 @@
-operators.
+inner struct, union, 
 
-no segmentation fault?
+extern
 
 return
 
@@ -8,4 +8,8 @@ collection
 
 generics line number
 
-inner struct, union, 
+casts
+
+operators.
+
+no segmentation fault?

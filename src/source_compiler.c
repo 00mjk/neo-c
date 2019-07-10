@@ -208,7 +208,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
 
         if(info.err_num == 0) {
             cinfo.sline = sline;
-            cinfo.sname = sname;
+            xstrncpy(cinfo.sname, sname, PATH_MAX);
 
             if(!compile(node, &cinfo)) {
                 return FALSE;

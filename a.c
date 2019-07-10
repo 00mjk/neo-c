@@ -1,16 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static char* data[128];
-
-void func(int a)
+union UnionTest
 {
-    int* p = &a;
-    printf("%p\n", p);
-}
+    int a;
+    long b;
+    struct {
+        long c;
+        long d;
+    } c;
+};
 
 int main()
 {
-    free(0);
+    union UnionTest data;
+
+    data.a = 1;
+
     exit(0);
 }

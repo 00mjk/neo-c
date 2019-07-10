@@ -96,8 +96,11 @@ impl vector<T>
 int GlobalVar = 2;
 char* GlobalVar2 = "ABC";
 
+const int GlobalConstantInt = 123;
+
 int main()
 {
+/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -785,6 +788,62 @@ int main()
     assert("global var test2", GlobalVar == 1);
 
     assert("global var test3", strcmp(GlobalVar2, "ABC") == 0);
+
+    assert("global constant int", GlobalConstantInt == 123);
+
+    const int const_a = 1;
+
+    assert("local constant int", const_a == 1);
+
+    void constant_test_fun(const int a) {
+        assert("constant test", a == 1);
+    }
+
+    constant_test_fun(1);
+
+    struct {
+        int a;
+        int b;
+    } var_x;
+
+    var_x.a = 1;
+    var_x.b = 2;
+
+    assert("anonymous struct test", var_x.a == 1 && var_x.b == 2);
+
+    struct StructTest {
+        struct {
+            int a;
+            int b;
+        } B;
+
+        int c;
+        int d;
+    }
+
+    StructTest*% axz = new StructTest;
+
+    axz.B.a = 1;
+    axz.B.b = 2;
+    axz.c = 3;
+    axz.d = 4;
+
+    assert("inner struct test", axz.B.a == 1 && axz.B.b == 2 && axz.c == 3 && axz.d == 4);
+*/
+    union UnionTest {
+        int a;
+        long b;
+    }
+
+    UnionTest*% data = new UnionTest;
+
+    data.a = 1;
+
+    assert("union test", data.a == 1);
+    
+    data.b = 2;
+
+    assert("union test2", data.b == 2);
 
     0
 }

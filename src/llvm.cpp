@@ -472,11 +472,103 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info)
     return TRUE;
 }
 
+BOOL create_llvm_union_type(sNodeType* node_type, sCompileInfo* info)
+{
+    sCLClass* klass = node_type->mClass;
+
+    char* class_name = CLASS_NAME(klass);
+
+    char real_struct_name[REAL_STRUCT_NAME_MAX];
+    int size_real_struct_name = REAL_STRUCT_NAME_MAX;
+
+    create_real_struct_name(real_struct_name, size_real_struct_name, class_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
+
+    if(gLLVMStructType[real_struct_name].first == nullptr) 
+    {
+        StructType* struct_type = StructType::create(TheContext, real_struct_name);
+        std::vector<Type*> fields;
+
+        uint64_t max_size = 0;
+        Type* max_size_field = NULL;
+
+        int i;
+        for(i=0; i<klass->mNumFields; i++) {
+            sNodeType* field = klass->mFields[i];
+
+            if(!solve_generics(&field, node_type))
+            {
+                return FALSE;
+            }
+
+            Type* field_type;
+            if(!create_llvm_type_from_node_type(&field_type, field, info))
+            {
+                return FALSE;
+            }
+
+            uint64_t alloc_size = 0;
+            if(!get_size_from_node_type(&alloc_size, field, info))
+            {
+                return FALSE;
+            }
+
+            if(alloc_size > max_size) {
+                max_size = alloc_size;
+
+                max_size_field = field_type;
+            }
+        }
+
+        if(max_size_field) {
+            fields.push_back(max_size_field);
+        }
+
+        if(struct_type->isOpaque()) {
+            struct_type->setBody(fields, false);
+        }
+
+        std::pair<Type*, sNodeType*> pair_value;
+        pair_value.first = struct_type;
+        pair_value.second = clone_node_type(node_type);
+
+        gLLVMStructType[real_struct_name] = pair_value;
+    }
+
+    return TRUE;
+}
+
+static void create_real_union_name(char* real_union_name, int size_real_union_name, char* union_name)
+{
+    xstrncpy(real_union_name, union_name, size_real_union_name);
+}
+
+
 BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
 
     if(klass->mFlags & CLASS_FLAGS_STRUCT) 
+    {
+        sCLClass* klass = node_type->mClass;
+
+        char* class_name = CLASS_NAME(klass);
+
+        char real_struct_name[REAL_STRUCT_NAME_MAX];
+        int size_real_struct_name = REAL_STRUCT_NAME_MAX;
+
+        create_real_struct_name(real_struct_name, size_real_struct_name, class_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
+
+        if(gLLVMStructType[real_struct_name].first == nullptr) 
+        {
+            if(!create_llvm_struct_type(node_type, info))
+            {
+                return FALSE;
+            }
+        }
+
+        *result_type = gLLVMStructType[real_struct_name].first;
+    }
+    else if(klass->mFlags & CLASS_FLAGS_UNION) 
     {
         sCLClass* klass = node_type->mClass;
 
@@ -584,6 +676,9 @@ int get_llvm_alignment_from_node_type(sNodeType* node_type)
     sCLClass* klass = node_type->mClass;
 
     if(klass->mFlags & CLASS_FLAGS_STRUCT) {
+        result = 8;
+    }
+    else if(klass->mFlags & CLASS_FLAGS_UNION) {
         result = 8;
     }
     else if(node_type->mPointerNum > 0) {
@@ -750,6 +845,22 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
             }
 
             *right_type = create_node_type_with_class_name("int");
+        }
+    }
+    else if(type_identify_with_class_name(left_type, "long"))
+    {
+        if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong"))
+        {
+            *right_type = create_node_type_with_class_name("long");
+        }
+        else if(type_identify_with_class_name(*right_type, "int") || type_identify_with_class_name(*right_type, "uint") || type_identify_with_class_name(*right_type, "short") || type_identify_with_class_name(*right_type, "ushort") || type_identify_with_class_name(*right_type, "char") || type_identify_with_class_name(*right_type, "uchar") || type_identify_with_class_name(*right_type, "bool"))
+        {
+            if(rvalue) {
+                rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 64));
+                rvalue->type = create_node_type_with_class_name("long");
+            }
+
+            *right_type = create_node_type_with_class_name("long");
         }
     }
 
