@@ -845,6 +845,58 @@ int main()
 
     assert("union test2", data.b == 2);
 
+    union UnionTest2 {
+        struct {
+            long a;
+            long b;
+        } a;
+        long b;
+        struct {
+            long a;
+            long b;
+            long c;
+        } c;
+    }
+
+    var data2 = new UnionTest2;
+
+    data2.c.a = 1;
+    data2.c.b = 2;
+    data2.c.c = 3;
+
+    assert("union test3", data2.c.a == 1 && data2.c.b == 2 && data2.c.c == 3);
+    
+    union {
+        struct {
+            int a;
+            int b;
+        } a;
+        long b;
+    } data3;
+
+    data3.a.a = 1;
+    data3.a.b = 2;
+
+    assert("union test4", data3.a.a == 1 && data3.a.b == 2);
+    
+    struct UnionTest3 {
+        union {
+            long a;
+            long b;
+        } a;
+
+        int b;
+    }
+
+    var data4 = new UnionTest3;
+
+    data4.a.a = 1;
+    data4.a.b = 2;
+
+    data4.b = 3;
+
+    assert("union test5", data4.a.a == 2 && data4.a.b == 2 && data4.b == 3);
+
     0
 }
 

@@ -157,10 +157,10 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
 static void create_anoymous_struct_name(char* struct_name, int size_struct_name)
 {
     static int anonymous_struct_num = 0;
-    snprintf(struct_name, size_struct_name, "AnonymousStruct__%d\n", anonymous_struct_num++);
+    snprintf(struct_name, size_struct_name, "anon%d\n", anonymous_struct_num++);
 }
 
-BOOL parse_type(sNodeType** result_type, sParserInfo* info);
+static BOOL parse_type(sNodeType** result_type, sParserInfo* info);
 
 static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_name, sParserInfo* info) 
 {
@@ -282,9 +282,86 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
     return TRUE;
 }
 
+static BOOL parse_union(unsigned int* node, char* union_name, int size_union_name, sParserInfo* info) 
+{
+    char* sname = info->sname;
+    int sline = info->sline;
 
+    int num_fields = 0;
+    char field_names[STRUCT_FIELD_MAX][VAR_NAME_MAX];
+    sNodeType* fields[STRUCT_FIELD_MAX];
 
-BOOL parse_type(sNodeType** result_type, sParserInfo* info)
+    /// anonymous union ///
+    if(*info->p == '{') {
+        info->mNumGenerics = 0;
+
+        create_anoymous_struct_name(union_name, size_union_name);
+    }
+    /// normal union ///
+    else {
+        char buf[VAR_NAME_MAX];
+        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+            return FALSE;
+        }
+
+        xstrncpy(union_name, buf, size_union_name);
+
+        info->mNumGenerics = 0;
+    }
+
+    expect_next_character_with_one_forward("{", info);
+
+    int n = 0;
+    while(TRUE) {
+        sNodeType* field = NULL;
+        if(!parse_type(&field, info)) {
+            return FALSE;
+        }
+
+        fields[num_fields] = field;
+
+        char buf[VAR_NAME_MAX];
+
+        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+            return FALSE;
+        }
+
+        xstrncpy(field_names[num_fields], buf, VAR_NAME_MAX);
+
+        num_fields++;
+
+        if(num_fields >= STRUCT_FIELD_MAX) {
+            parser_err_msg(info, "overflow struct field");
+            return FALSE;
+        }
+
+        if(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+
+        if(*info->p == '}') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+    }
+
+    if(*info->p == ';') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+
+    sCLClass* union_class = alloc_union(union_name, num_fields, field_names, fields);
+
+    sNodeType* union_type = create_node_type_with_class_pointer(union_class);
+
+    *node = sNodeTree_union(union_type, info, sname, sline);
+
+    return TRUE;
+}
+
+static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 {
     char type_name[VAR_NAME_MAX];
 
@@ -310,6 +387,12 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     else if(strcmp(type_name, "struct") == 0 && *info->p == '{') {
         unsigned int node = 0;
         if(!parse_struct(&node, type_name, VAR_NAME_MAX, info)) {
+            return FALSE;
+        }
+    }
+    else if(strcmp(type_name, "union") == 0 && *info->p == '{') {
+        unsigned int node = 0;
+        if(!parse_union(&node, type_name, VAR_NAME_MAX, info)) {
             return FALSE;
         }
     }
@@ -726,77 +809,6 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_union(unsigned int* node, sParserInfo* info) 
-{
-    char* sname = info->sname;
-    int sline = info->sline;
-
-    int num_fields = 0;
-    char field_names[STRUCT_FIELD_MAX][VAR_NAME_MAX];
-    sNodeType* fields[STRUCT_FIELD_MAX];
-
-    char buf[VAR_NAME_MAX];
-    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
-        return FALSE;
-    }
-
-    char union_name[VAR_NAME_MAX];
-
-    xstrncpy(union_name, buf, VAR_NAME_MAX);
-
-    info->mNumGenerics = 0;
-
-    expect_next_character_with_one_forward("{", info);
-
-    int n = 0;
-    while(TRUE) {
-        sNodeType* field = NULL;
-        if(!parse_type(&field, info)) {
-            return FALSE;
-        }
-
-        fields[num_fields] = field;
-
-        char buf[VAR_NAME_MAX];
-
-        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
-            return FALSE;
-        }
-
-        xstrncpy(field_names[num_fields], buf, VAR_NAME_MAX);
-
-        num_fields++;
-
-        if(num_fields >= STRUCT_FIELD_MAX) {
-            parser_err_msg(info, "overflow struct field");
-            return FALSE;
-        }
-
-        if(*info->p == ';') {
-            info->p++;
-            skip_spaces_and_lf(info);
-        }
-
-        if(*info->p == '}') {
-            info->p++;
-            skip_spaces_and_lf(info);
-            break;
-        }
-    }
-
-    if(*info->p == ';') {
-        info->p++;
-        skip_spaces_and_lf(info);
-    }
-
-    sCLClass* union_class = alloc_union(union_name, num_fields, field_names, fields);
-
-    sNodeType* union_type = create_node_type_with_class_pointer(union_class);
-
-    *node = sNodeTree_union(union_type, info, sname, sline);
-
-    return TRUE;
-}
 
 /// character_type --> 0: () 1: ||
 static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int character_type, BOOL* var_arg)
@@ -1964,7 +1976,7 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
         }
     }
 
-    return klass || node_type || generics_type_name || strcmp(buf, "const") == 0 || (strcmp(buf, "struct") == 0 && *info->p == '{');
+    return klass || node_type || generics_type_name || strcmp(buf, "const") == 0 || (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "union") == 0 && *info->p == '{');
 }
 
 static BOOL parse_impl(unsigned int* node, sParserInfo* info)
@@ -2479,8 +2491,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "union") == 0) {
-            if(!parse_union(node, info)) {
+        else if(strcmp(buf, "union") == 0 && *info->p != '{') {
+            char union_name[VAR_NAME_MAX];
+            xstrncpy(union_name, "", VAR_NAME_MAX);
+
+            if(!parse_union(node, union_name, VAR_NAME_MAX, info)) {
                 return FALSE;
             }
         }
