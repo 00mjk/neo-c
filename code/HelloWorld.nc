@@ -1,5 +1,5 @@
 #include "neo-c.h"
-#include "cfuncs.h"
+#include "neo-c-stdc.h"
 
 typedef string char*%;
 
@@ -95,12 +95,12 @@ impl vector<T>
 
 int GlobalVar = 2;
 char* GlobalVar2 = "ABC";
-
 const int GlobalConstantInt = 123;
+
+extern int gGlobalVar;
 
 int main()
 {
-/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -271,7 +271,7 @@ int main()
         assert("struct test2", data.a == 123 && data.b == 234);
     }
 
-    fun6(test11->*);
+    //fun6(test11->*);
 
     int iii = 111;
 
@@ -829,7 +829,7 @@ int main()
     axz.d = 4;
 
     assert("inner struct test", axz.B.a == 1 && axz.B.b == 2 && axz.c == 3 && axz.d == 4);
-*/
+
     union UnionTest {
         int a;
         long b;
@@ -896,6 +896,52 @@ int main()
     data4.b = 3;
 
     assert("union test5", data4.a.a == 2 && data4.a.b == 2 && data4.b == 3);
+
+    struct GenericsTest3 <T>
+    {
+        union {
+            T a;
+            T b;
+        } a;
+        
+        T b;
+    }
+
+    var data5 = new GenericsTest3<long>;
+
+    data5.a.a = 5;
+    data5.b = 6;
+
+    assert("union test6", data5.a.a == 5 && data5.b == 6);
+
+    struct GenericsTest4 <T>
+    {
+        struct {
+            T a;
+            T b;
+        } a;
+
+        union {
+            T a;
+            T b;
+        } b;
+    }
+
+    var data6 = new GenericsTest4<long>;
+
+    data6.a.a = 111;
+    data6.a.b = 222;
+    data6.b.b = 666;
+
+    assert("union test7", data6.a.a == 111 && data6.a.b == 222 && data6.b.a == 666);
+
+    extern char* malloc(long size);
+    extern void free(char* mem);
+
+    char* mem = malloc(1);
+    free(mem);
+
+    assert("extern test2", gGlobalVar == 1);
 
     0
 }

@@ -18,7 +18,7 @@
 //////////////////////////////
 #define GENERICS_TYPES_MAX 10
 #define VAR_NAME_MAX 32
-#define CLASS_NUM_MAX 512
+#define CLASS_NUM_MAX 512*2*2*2*2*2
 #define PARSER_ERR_MSG_MAX 5
 #define COMPILE_ERR_MSG_MAX 5
 #define NEO_C_STACK_SIZE 512
@@ -31,6 +31,7 @@
 #define REAL_FUN_NAME_MAX (VAR_NAME_MAX*PARAMS_MAX+32)
 #define REAL_STRUCT_NAME_MAX (VAR_NAME_MAX*PARAMS_MAX+32)
 #define IMPL_DEF_MAX 512
+#define EXTERNAL_OBJECT_MAX 4096
 
 #define clint64 long long      // for 32 bit cpu
 
@@ -77,12 +78,13 @@ unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_o
 #define CLASS_FLAGS_GENERICS 0x10
 #define CLASS_FLAGS_METHOD_GENERICS 0x20
 #define CLASS_FLAGS_UNION 0x040
+#define CLASS_FLAGS_ANONYMOUS 0x080
 
 struct sCLClassStruct {
     clint64 mFlags;
 
-    unsigned int mGenericsParamNameOffsets[GENERICS_TYPES_MAX];
-    unsigned int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
+//    unsigned int mGenericsParamNameOffsets[GENERICS_TYPES_MAX];
+//    unsigned int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
 
     sConst mConst;
 
@@ -119,10 +121,11 @@ void class_init();
 void class_final();
 
 sCLClass* get_class(char* class_name);
-sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
-sCLClass* alloc_union(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
+sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX], BOOL anonymous);
+sCLClass* alloc_union(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX], BOOL anonymous);
 unsigned int get_hash_key(char* name, unsigned int max);
 int get_field_index(sCLClass* klass, char* var_name);
+sCLClass* clone_class(sCLClass* klass);
 
 //////////////////////////////
 /// node_type.c
@@ -286,7 +289,7 @@ extern int gNumLambdaName;
 //////////////////////////////
 BOOL delete_comment(sBuf* source, sBuf* source2);
 BOOL read_source(char* fname, sBuf* source);
-BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object_file);
+BOOL compile_source(char* fname, char* source, BOOL optimize);
 
 //////////////////////////////
 /// node.cpp
@@ -322,7 +325,7 @@ struct sNodeTreeStruct
     unsigned int mRight;
     unsigned int mMiddle;
 
-    char* mSName;
+    char mSName[PATH_MAX];
     int mLine;
 
     union {
@@ -339,6 +342,7 @@ struct sNodeTreeStruct
         struct {
             char mVarName[VAR_NAME_MAX];
             BOOL mGlobal;
+            BOOL mExtern;
         } sDefineVariable;
 
         struct {
@@ -395,6 +399,7 @@ struct sNodeTreeStruct
 
         struct {
             sNodeType* mType;
+            BOOL mAnonymous;
         } sStruct;
 
         struct {
@@ -418,7 +423,7 @@ struct sNodeTreeStruct
 
         struct {
             char* mBuf;
-            char* mSName;
+            char mSName[PATH_MAX];
             int mSLine;
         } sSimpleLambdaParam;
 
@@ -458,9 +463,9 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
 unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, sParserInfo* info);
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
 unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED struct sNodeBlockStruct* if_node_block, unsigned int* elif_expression_nodes, MANAGED struct sNodeBlockStruct** elif_node_blocks, int elif_num, MANAGED struct sNodeBlockStruct* else_node_block, sParserInfo* info, char* sname, int sline);
-unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* sname, int sline);
-unsigned int sNodeTree_union(sNodeType* struct_type, sParserInfo* info, char* sname, int sline);
-unsigned int sNodeTree_create_object(sNodeType* node_type, unsigned int object_num, char* sname, int sline);
+unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* sname, int sline, BOOL anonymous);
+unsigned int sNodeTree_union(sNodeType* struct_type, sParserInfo* info, char* sname, int sline, BOOL anonymous);
+unsigned int sNodeTree_create_object(sNodeType* node_type, unsigned int object_num, char* sname, int sline, sParserInfo* info);
 unsigned int sNodeTree_create_store_field(char* var_name, unsigned int left_node, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_load_field(char* name, unsigned int left_node, sParserInfo* info);
 unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED struct sNodeBlockStruct* while_node_block, sParserInfo* info);
@@ -477,7 +482,7 @@ unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned in
 unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, sParserInfo* info);
 unsigned int sNodeTree_create_lambda_call(unsigned int lambda_node, unsigned int* params, int num_params, sParserInfo* info);
 unsigned int sNodeTree_create_simple_lambda_param(char* buf, char* sname, int sline, sParserInfo* info);
-unsigned int sNodeTree_create_struct_object(sNodeType* node_type, char* sname, int sline);
+unsigned int sNodeTree_create_struct_object(sNodeType* node_type, char* sname, int sline, sParserInfo* info);
 unsigned int sNodeTree_create_dereffernce(unsigned int left_node, sParserInfo* info);
 unsigned int sNodeTree_create_reffernce(unsigned int left_node, sParserInfo* info);
 unsigned int sNodeTree_create_null(sParserInfo* info);
@@ -493,7 +498,7 @@ unsigned int sNodeTree_create_cast(sNodeType* left_type, unsigned int left_node,
 unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, sParserInfo* info);
 unsigned int sNodeTree_create_impl(unsigned int* nodes, int num_nodes, sParserInfo* info);
 unsigned int sNodeTree_create_typedef(char* name, sNodeType* node_type, sParserInfo* info);
-unsigned int sNodeTree_create_define_variable(char* var_name, sParserInfo* info);
+unsigned int sNodeTree_create_define_variable(char* var_name, BOOL extern_, sParserInfo* info);
 void create_operator_fun_name(char* fun_name, char* real_fun_name, size_t size_real_fun_name, sNodeType** param_types, int num_params);
 
 void show_node(unsigned int node);
@@ -511,7 +516,7 @@ struct sNodeBlockStruct
     sVarTable* mLVTable;
 
     sBuf mSource;
-    char* mSName;
+    char mSName[PATH_MAX];
     int mSLine;
     
     BOOL mHasResult;
@@ -543,7 +548,7 @@ void llvm_init();
 void llvm_final();
 
 void start_to_make_native_code(char* sname);
-void output_native_code(BOOL optimize, BOOL output_object_file);
+void output_native_code(char* sname, BOOL optimize);
 extern int gResultCode;
 
 void arrange_stack(sCompileInfo* info, int top);

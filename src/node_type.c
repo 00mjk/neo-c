@@ -312,7 +312,7 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
     {
         return FALSE;
     }
-    else if(left_class == right_class) {
+    else if(type_identify(left_type, right_type)) {
         if(left_type->mPointerNum == right_type->mPointerNum) 
         {
             if(left_type->mHeap) {
@@ -332,7 +332,7 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
 
 BOOL type_identify(sNodeType* left, sNodeType* right)
 {
-    return left->mClass == right->mClass;
+    return strcmp(CLASS_NAME(left->mClass), CLASS_NAME(right->mClass)) == 0;
 }
 
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)
@@ -402,6 +402,20 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
         }
     }
     else {
+        if(((klass->mFlags & CLASS_FLAGS_STRUCT) || (klass->mFlags & CLASS_FLAGS_UNION)) && (klass->mFlags & CLASS_FLAGS_ANONYMOUS))
+        {
+            (*node_type)->mClass = clone_class(klass);
+            klass = (*node_type)->mClass;
+            
+            int i;
+            for(i=0; i<klass->mNumFields; i++) {
+                if(!solve_generics(&klass->mFields[i], generics_type))
+                {
+                    return FALSE;
+                }
+            }
+        }
+
         int i;
         for(i=0; i<(*node_type)->mNumGenericsTypes; i++)
         {
@@ -551,6 +565,20 @@ BOOL included_generics_type(sNodeType* node_type)
         return TRUE;
     }
     else {
+        if((klass->mFlags & CLASS_FLAGS_STRUCT) || (klass->mFlags & CLASS_FLAGS_UNION))
+        {
+            int i;
+            
+            for(i=0; i<klass->mNumFields; i++) {
+                sNodeType* field_type = klass->mFields[i];
+
+                if(included_generics_type(field_type))
+                {
+                    return TRUE;
+                }
+            }
+        }
+
         int i;
         for(i=0; i<node_type->mNumGenericsTypes; i++)
         {

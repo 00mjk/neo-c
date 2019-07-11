@@ -18,7 +18,6 @@ LoopAnalysisManager loopAnalysisManager(false);
 #endif
 
 LVALUE* gLLVMStack;
-char gSourceName[PATH_MAX];
 //Function* gNeoCMainFunction;
 Function* gFunction;
 
@@ -168,7 +167,12 @@ Value* store_lvtable()
 
     Value* lvtable = Builder.CreateAlloca(lvtable_type, 0, "lvtable");
 
-    Function* fun = TheModule->getFunction("memcpy");
+    Function* fun = TheModule->getFunction("xmemcpy");
+
+    if(fun == nullptr) {
+        fprintf(stderr, "require xmemcpy\n");
+        exit(2);
+    }
 
     std::vector<Value*> params2;
 
@@ -190,7 +194,12 @@ Value* store_lvtable()
 
 void restore_lvtable(Value* lvtable)
 {
-    Function* fun = TheModule->getFunction("memcpy");
+    Function* fun = TheModule->getFunction("xmemcpy");
+
+    if(fun == nullptr) {
+        fprintf(stderr, "require xmemcpy\n");
+        exit(2);
+    }
 
     std::vector<Value*> params2;
 
@@ -234,15 +243,16 @@ Function* create_llvm_function(const std::string& name)
 
 void start_to_make_native_code(char* sname)
 {
-    xstrncpy(gSourceName, sname, PATH_MAX);
+    char sname2[PATH_MAX];
+    xstrncpy(sname2, sname, PATH_MAX);
 
-    char* sname2 = basename(sname);
+    char* sname3 = basename(sname2);
 
-    char sname3[PATH_MAX];
-    xstrncpy(sname3, sname2, PATH_MAX);
+    char sname4[PATH_MAX];
+    xstrncpy(sname4, sname3, PATH_MAX);
 
-    char* p = sname3 + strlen(sname3);
-    while(p >= sname3) {
+    char* p = sname4 + strlen(sname4);
+    while(p >= sname4) {
         if(*p == '.') {
             *p = '\0';
             break;
@@ -253,7 +263,7 @@ void start_to_make_native_code(char* sname)
     }
 
     char module_name[PATH_MAX + 128];
-    snprintf(module_name, PATH_MAX, "Module %s", sname3);
+    snprintf(module_name, PATH_MAX, "Module %s", sname4);
     TheModule = new Module(module_name, TheContext);
 
     TheFPM = llvm::make_unique<FunctionPassManager>(TheModule);
@@ -264,9 +274,7 @@ void start_to_make_native_code(char* sname)
     gLLVMStack = (LVALUE*)xcalloc(1, sizeof(LVALUE)*NEO_C_STACK_SIZE);
 }
 
-int gResultCode = 0;
-
-void output_native_code(BOOL optimize, BOOL output_object_file)
+void output_native_code(char* sname, BOOL optimize)
 {
     free(gLLVMStack);
 
@@ -287,13 +295,11 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
     }
 #endif
 
-    char* sname2 = gSourceName;
+    char sname2[PATH_MAX];
+    xstrncpy(sname2, sname, PATH_MAX);
 
-    char sname3[PATH_MAX];
-    xstrncpy(sname3, sname2, PATH_MAX);
-
-    char* p = sname3 + strlen(sname3);
-    while(p >= sname3) {
+    char* p = sname2 + strlen(sname2);
+    while(p >= sname2) {
         if(*p == '.') {
             *p = '\0';
             break;
@@ -304,7 +310,7 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
     }
 
     char module_name[PATH_MAX];
-    xstrncpy(module_name, gSourceName, PATH_MAX);
+    xstrncpy(module_name, sname, PATH_MAX);
 
     char* module_name2 = basename(module_name);
 
@@ -326,7 +332,7 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
 
 #if LLVM_VERSION_MAJOR >= 7
     char path[PATH_MAX];
-    snprintf(path, PATH_MAX, "%s.bc", sname3);
+    snprintf(path, PATH_MAX, "%s.bc", sname2);
 
     (void)unlink(path);
 
@@ -341,7 +347,7 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
     llvm::WriteBitcodeToFile(*TheModule, output_stream, true);
     output_stream.flush();
 #elif LLVM_VERSION_MAJOR >= 4
-    char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s.bc", sname3);
+    char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s.bc", sname2);
 
     (void)unlink(path);
 
@@ -357,7 +363,7 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
     output_stream.flush();
 #else
     char path[PATH_MAX];
-    snprintf(path, PATH_MAX, "%s.bc", sname3);
+    snprintf(path, PATH_MAX, "%s.bc", sname2);
 
     (void)unlink(path);
 
@@ -375,32 +381,33 @@ void output_native_code(BOOL optimize, BOOL output_object_file)
 
     delete TheModule;
 
+printf("sname2 %s\n", sname2);
+
     char command[PATH_MAX+128];
 
-    snprintf(command, PATH_MAX+128, "llvm-dis %s.bc", sname3);
+    snprintf(command, PATH_MAX+128, "llvm-dis %s.bc", sname2);
+puts(command);
     int rc = system(command);
     if(rc != 0) {
         fprintf(stderr, "faield to compile\n");
         exit(2);
     }
 
-    snprintf(command, PATH_MAX+128, "llc %s.bc", sname3);
+    snprintf(command, PATH_MAX+128, "llc %s.bc", sname2);
+puts(command);
     rc = system(command);
     if(rc != 0) {
         fprintf(stderr, "faield to compile\n");
         exit(2);
     }
 
-    if(!output_object_file) {
-        snprintf(command, PATH_MAX+128, "clang -o %s %s.s memalloc.o", module_name3, sname3);
-        rc = system(command);
-        if(rc != 0) {
-            fprintf(stderr, "faield to compile\n");
-            exit(2);
-        }
+    snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.s", sname2, sname2);
+puts(command);
+    rc = system(command);
+    if(rc != 0) {
+        fprintf(stderr, "faield to compile\n");
+        exit(2);
     }
-
-    gResultCode = WEXITSTATUS(rc);
 }
 
 static void create_real_struct_name(char* real_struct_name, int size_real_struct_name, char* struct_name, int num_generics, sNodeType* generics_types[GENERICS_TYPES_MAX])
@@ -929,6 +936,11 @@ printf("field %d\n", i);
     /// free ///
     Function* fun = TheModule->getFunction("xfree");
 
+    if(fun == nullptr) {
+        fprintf(stderr, "require xfree\n");
+        exit(2);
+    }
+
     std::vector<Value*> params2;
     Value* param = Builder.CreateCast(Instruction::BitCast, obj2, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
@@ -986,6 +998,11 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
     /// free ///
     Function* fun = TheModule->getFunction("xfree");
 
+    if(fun == nullptr) {
+        fprintf(stderr, "require xfree\n");
+        exit(2);
+    }
+
     std::vector<Value*> params2;
     Value* param = Builder.CreateCast(Instruction::BitCast, obj, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
@@ -1001,6 +1018,11 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
 
     /// memdup ///
     Function* fun = TheModule->getFunction("xmemdup");
+
+    if(fun == nullptr) {
+        fprintf(stderr, "require xmemdup\n");
+        exit(2);
+    }
 
     std::vector<Value*> params2;
     Value* param = Builder.CreateCast(Instruction::BitCast, src_obj, PointerType::get(IntegerType::get(TheContext, 8), 0));

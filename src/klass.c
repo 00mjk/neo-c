@@ -296,13 +296,13 @@ sCLClass* get_class(char* class_name)
     return load_class(class_name, 0);
 }
 
-static sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_, BOOL number_type, BOOL unsigned_number, int generics_number, int method_generics_number, BOOL union_)
+static sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_, BOOL number_type, BOOL unsigned_number, int generics_number, int method_generics_number, BOOL union_, BOOL anonymous)
 {
     sCLClass* klass = xcalloc(1, sizeof(sCLClass));
 
     sConst_init(&klass->mConst);
 
-    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (struct_ ? CLASS_FLAGS_STRUCT:0) | (number_type ? CLASS_FLAGS_NUMBER:0) | (unsigned_number ? CLASS_FLAGS_UNSIGNED_NUMBER:0) | (union_ ? CLASS_FLAGS_UNION:0);
+    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (struct_ ? CLASS_FLAGS_STRUCT:0) | (number_type ? CLASS_FLAGS_NUMBER:0) | (unsigned_number ? CLASS_FLAGS_UNSIGNED_NUMBER:0) | (union_ ? CLASS_FLAGS_UNION:0) | (anonymous ? CLASS_FLAGS_ANONYMOUS:0);
 
     if(generics_number >= 0) {
         klass->mFlags |= CLASS_FLAGS_GENERICS;
@@ -324,9 +324,36 @@ static sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_, BO
     return klass;
 }
 
-sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])
+sCLClass* clone_class(sCLClass* klass)
 {
-    sCLClass* klass = alloc_class(class_name, FALSE, TRUE, FALSE, FALSE, -1, -1, FALSE);
+    sCLClass* klass2 = xcalloc(1, sizeof(sCLClass));
+
+    sConst_init(&klass2->mConst);
+
+    klass2->mFlags = klass->mFlags;
+
+    char* class_name = CLASS_NAME(klass);
+
+    klass2->mClassNameOffset = append_str_to_constant_pool(&klass2->mConst, class_name, FALSE);
+
+    klass2->mGenericsNum = klass->mGenericsNum;
+    klass2->mMethodGenericsNum = klass->mMethodGenericsNum;
+
+    klass2->mNumFields = klass->mNumFields;
+
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        char* field_name = CONS_str(&klass->mConst, klass->mFieldNameOffsets[i]);
+        klass2->mFieldNameOffsets[i] = append_str_to_constant_pool(&klass2->mConst, field_name, FALSE);
+        klass2->mFields[i] = clone_node_type(klass->mFields[i]);
+    }
+
+    return klass2;
+}
+
+sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX], BOOL anonymous)
+{
+    sCLClass* klass = alloc_class(class_name, FALSE, TRUE, FALSE, FALSE, -1, -1, FALSE, anonymous);
     klass->mNumFields = num_fields;
 
     int i;
@@ -338,9 +365,9 @@ sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_
     return klass;
 }
 
-sCLClass* alloc_union(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])
+sCLClass* alloc_union(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX], BOOL anonymous)
 {
-    sCLClass* klass = alloc_class(class_name, FALSE, FALSE, FALSE, FALSE, -1, -1, TRUE);
+    sCLClass* klass = alloc_class(class_name, FALSE, FALSE, FALSE, FALSE, -1, -1, TRUE, anonymous);
     klass->mNumFields = num_fields;
 
     int i;
@@ -356,38 +383,38 @@ void class_init()
 {
     memset(gClassTable, 0, sizeof(sClassTable)*CLASS_NUM_MAX);
 
-    alloc_class("bool", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE);
-    alloc_class("char", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE);
-    alloc_class("short", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE);
-    alloc_class("int", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE);
-    alloc_class("long", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE);
-    alloc_class("uchar", TRUE, FALSE, TRUE, TRUE, -1, -1, FALSE);
-    alloc_class("ushort", TRUE, FALSE, TRUE, TRUE, -1, -1, FALSE);
-    alloc_class("uint", TRUE, FALSE, TRUE, TRUE, -1, -1, FALSE);
-    alloc_class("ulong", TRUE, FALSE, TRUE, TRUE, -1, -1, FALSE);
-    alloc_class("void", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE);
-    alloc_class("any", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE);
-    alloc_class("lambda", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE);
-    alloc_class("generics0", FALSE, FALSE, FALSE, FALSE, 0, -1, FALSE);
-    alloc_class("generics1", FALSE, FALSE, FALSE, FALSE, 1, -1, FALSE);
-    alloc_class("generics2", FALSE, FALSE, FALSE, FALSE, 2, -1, FALSE);
-    alloc_class("generics3", FALSE, FALSE, FALSE, FALSE, 3, -1, FALSE);
-    alloc_class("generics4", FALSE, FALSE, FALSE, FALSE, 4, -1, FALSE);
-    alloc_class("generics5", FALSE, FALSE, FALSE, FALSE, 5, -1, FALSE);
-    alloc_class("generics6", FALSE, FALSE, FALSE, FALSE, 6, -1, FALSE);
-    alloc_class("generics7", FALSE, FALSE, FALSE, FALSE, 7, -1, FALSE);
-    alloc_class("generics8", FALSE, FALSE, FALSE, FALSE, 8, -1, FALSE);
-    alloc_class("generics9", FALSE, FALSE, FALSE, FALSE, 9, -1, FALSE);
-    alloc_class("mgenerics0", FALSE, FALSE, FALSE, FALSE, -1, 0, FALSE);
-    alloc_class("mgenerics1", FALSE, FALSE, FALSE, FALSE, -1, 1, FALSE);
-    alloc_class("mgenerics2", FALSE, FALSE, FALSE, FALSE, -1, 2, FALSE);
-    alloc_class("mgenerics3", FALSE, FALSE, FALSE, FALSE, -1, 3, FALSE);
-    alloc_class("mgenerics4", FALSE, FALSE, FALSE, FALSE, -1, 4, FALSE);
-    alloc_class("mgenerics5", FALSE, FALSE, FALSE, FALSE, -1, 5, FALSE);
-    alloc_class("mgenerics6", FALSE, FALSE, FALSE, FALSE, -1, 6, FALSE);
-    alloc_class("mgenerics7", FALSE, FALSE, FALSE, FALSE, -1, 7, FALSE);
-    alloc_class("mgenerics8", FALSE, FALSE, FALSE, FALSE, -1, 8, FALSE);
-    alloc_class("mgenerics9", FALSE, FALSE, FALSE, FALSE, -1, 9, FALSE);
+    alloc_class("bool", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE, FALSE);
+    alloc_class("char", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE, FALSE);
+    alloc_class("short", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE, FALSE);
+    alloc_class("int", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE, FALSE);
+    alloc_class("long", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE, FALSE);
+    alloc_class("uchar", TRUE, FALSE, TRUE, TRUE, -1, -1, FALSE, FALSE);
+    alloc_class("ushort", TRUE, FALSE, TRUE, TRUE, -1, -1, FALSE, FALSE);
+    alloc_class("uint", TRUE, FALSE, TRUE, TRUE, -1, -1, FALSE, FALSE);
+    alloc_class("ulong", TRUE, FALSE, TRUE, TRUE, -1, -1, FALSE, FALSE);
+    alloc_class("void", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE, FALSE);
+    alloc_class("any", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE, FALSE);
+    alloc_class("lambda", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE, FALSE);
+    alloc_class("generics0", FALSE, FALSE, FALSE, FALSE, 0, -1, FALSE, FALSE);
+    alloc_class("generics1", FALSE, FALSE, FALSE, FALSE, 1, -1, FALSE, FALSE);
+    alloc_class("generics2", FALSE, FALSE, FALSE, FALSE, 2, -1, FALSE, FALSE);
+    alloc_class("generics3", FALSE, FALSE, FALSE, FALSE, 3, -1, FALSE, FALSE);
+    alloc_class("generics4", FALSE, FALSE, FALSE, FALSE, 4, -1, FALSE, FALSE);
+    alloc_class("generics5", FALSE, FALSE, FALSE, FALSE, 5, -1, FALSE, FALSE);
+    alloc_class("generics6", FALSE, FALSE, FALSE, FALSE, 6, -1, FALSE, FALSE);
+    alloc_class("generics7", FALSE, FALSE, FALSE, FALSE, 7, -1, FALSE, FALSE);
+    alloc_class("generics8", FALSE, FALSE, FALSE, FALSE, 8, -1, FALSE, FALSE);
+    alloc_class("generics9", FALSE, FALSE, FALSE, FALSE, 9, -1, FALSE, FALSE);
+    alloc_class("mgenerics0", FALSE, FALSE, FALSE, FALSE, -1, 0, FALSE, FALSE);
+    alloc_class("mgenerics1", FALSE, FALSE, FALSE, FALSE, -1, 1, FALSE, FALSE);
+    alloc_class("mgenerics2", FALSE, FALSE, FALSE, FALSE, -1, 2, FALSE, FALSE);
+    alloc_class("mgenerics3", FALSE, FALSE, FALSE, FALSE, -1, 3, FALSE, FALSE);
+    alloc_class("mgenerics4", FALSE, FALSE, FALSE, FALSE, -1, 4, FALSE, FALSE);
+    alloc_class("mgenerics5", FALSE, FALSE, FALSE, FALSE, -1, 5, FALSE, FALSE);
+    alloc_class("mgenerics6", FALSE, FALSE, FALSE, FALSE, -1, 6, FALSE, FALSE);
+    alloc_class("mgenerics7", FALSE, FALSE, FALSE, FALSE, -1, 7, FALSE, FALSE);
+    alloc_class("mgenerics8", FALSE, FALSE, FALSE, FALSE, -1, 8, FALSE, FALSE);
+    alloc_class("mgenerics9", FALSE, FALSE, FALSE, FALSE, -1, 9, FALSE, FALSE);
 }
 
 void class_final()

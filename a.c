@@ -1,21 +1,9 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-union UnionTest
-{
-    int a;
-    long b;
-    struct {
-        long c;
-        long d;
-    } c;
-};
+extern int gGlobalVar;
 
-int main()
-{
-    union UnionTest data;
+int main() {
+    printf("%d\n", gGlobalVar);
 
-    data.a = 1;
-
-    exit(0);
+    return 0;
 }

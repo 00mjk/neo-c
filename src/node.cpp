@@ -111,7 +111,12 @@ static void add_function(char* name, char* real_fun_name, char param_names[PARAM
 
     fun.mBlockText = block_text;
 
-    fun.mSName = sname;
+    if(sname) {
+        xstrncpy(fun.mSName, sname, PATH_MAX);
+    }
+    else {
+        xstrncpy(fun.mSName, "", PATH_MAX);
+    }
     fun.mSLine = sline;
 
     fun.mNumGenerics = num_generics;
@@ -136,7 +141,7 @@ unsigned int sNodeTree_create_int_value(int value, sParserInfo* info)
 
     gNodes[node].mNodeType = kNodeTypeIntValue;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.mIntValue = value;
@@ -246,7 +251,7 @@ unsigned int sNodeTree_create_add(unsigned int left, unsigned int right, unsigne
 
     gNodes[node].mNodeType = kNodeTypeAdd;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -338,7 +343,7 @@ unsigned int sNodeTree_create_sub(unsigned int left, unsigned int right, unsigne
 
     gNodes[node].mNodeType = kNodeTypeSub;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -430,7 +435,7 @@ unsigned int sNodeTree_create_mult(unsigned int left, unsigned int right, unsign
 
     gNodes[node].mNodeType = kNodeTypeMult;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -522,7 +527,7 @@ unsigned int sNodeTree_create_div(unsigned int left, unsigned int right, unsigne
 
     gNodes[node].mNodeType = kNodeTypeDiv;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -614,7 +619,7 @@ unsigned int sNodeTree_create_mod(unsigned int left, unsigned int right, unsigne
 
     gNodes[node].mNodeType = kNodeTypeMod;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -706,7 +711,7 @@ unsigned int sNodeTree_create_equals(unsigned int left, unsigned int right, unsi
 
     gNodes[node].mNodeType = kNodeTypeEquals;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -767,7 +772,7 @@ unsigned int sNodeTree_create_not_equals(unsigned int left, unsigned int right, 
 
     gNodes[node].mNodeType = kNodeTypeNotEquals;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -828,7 +833,7 @@ unsigned int sNodeTree_create_gteq(unsigned int left, unsigned int right, unsign
 
     gNodes[node].mNodeType = kNodeTypeGteq;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -889,7 +894,7 @@ unsigned int sNodeTree_create_leeq(unsigned int left, unsigned int right, unsign
 
     gNodes[node].mNodeType = kNodeTypeLeeq;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -950,7 +955,7 @@ unsigned int sNodeTree_create_gt(unsigned int left, unsigned int right, unsigned
 
     gNodes[node].mNodeType = kNodeTypeGt;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -1011,7 +1016,7 @@ unsigned int sNodeTree_create_le(unsigned int left, unsigned int right, unsigned
 
     gNodes[node].mNodeType = kNodeTypeLe;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -1072,7 +1077,7 @@ unsigned int sNodeTree_create_logical_denial(unsigned int left, unsigned int rig
 
     gNodes[node].mNodeType = kNodeTypeLogicalDenial;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -1135,17 +1140,18 @@ static BOOL compile_logical_denial(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_define_variable(char* var_name, sParserInfo* info)
+unsigned int sNodeTree_create_define_variable(char* var_name, BOOL extern_, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeDefineVariable;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     xstrncpy(gNodes[node].uValue.sDefineVariable.mVarName, var_name, VAR_NAME_MAX);
     gNodes[node].uValue.sDefineVariable.mGlobal = info->mBlockLevel == 0;
+    gNodes[node].uValue.sDefineVariable.mExtern = extern_;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -1159,6 +1165,7 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
     char var_name[VAR_NAME_MAX];
     xstrncpy(var_name, gNodes[node].uValue.sStoreVariable.mVarName, VAR_NAME_MAX);
     BOOL global = gNodes[node].uValue.sDefineVariable.mGlobal;
+    BOOL extern_ = gNodes[node].uValue.sDefineVariable.mExtern;
 
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
@@ -1195,19 +1202,34 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
     else if(global) {
-        GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::InternalLinkage, 0, var_name);
-        address->setAlignment(alignment);
+        if(extern_) {
+            GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, true);
 
-        ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
+            address->setAlignment(alignment);
 
-        address->setInitializer(initializer);
+            var->mLLVMValue = address;
 
-        var->mLLVMValue = address;
+            BOOL parent = FALSE;
+            int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
 
-        BOOL parent = FALSE;
-        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+            store_address_to_lvtable(index, address);
+        }
+        else {
+            GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
 
-        store_address_to_lvtable(index, address);
+            address->setAlignment(alignment);
+
+            ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
+
+            address->setInitializer(initializer);
+
+            var->mLLVMValue = address;
+
+            BOOL parent = FALSE;
+            int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+            store_address_to_lvtable(index, address);
+        }
     }
     else {
         Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
@@ -1230,7 +1252,7 @@ unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL all
 
     gNodes[node].mNodeType = kNodeTypeStoreVariable;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     xstrncpy(gNodes[node].uValue.sStoreVariable.mVarName, var_name, VAR_NAME_MAX);
@@ -1322,7 +1344,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
     if(alloc) {
         if(global) {
-            GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant, GlobalValue::InternalLinkage, 0, var_name);
+            GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant, GlobalValue::ExternalLinkage, 0, var_name);
             address->setAlignment(alignment);
 
             Value* rvalue2 = rvalue.value;
@@ -1407,7 +1429,7 @@ unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, int s
 
     gNodes[node].mNodeType = kNodeTypeCString;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = sline;
 
     gNodes[node].mLeft = 0;
@@ -1443,7 +1465,7 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
 
     gNodes[node].mNodeType = kNodeTypeExternalFunction;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
@@ -1856,7 +1878,7 @@ unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params
     
     gNodes[node].mNodeType = kNodeTypeFunctionCall;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
@@ -1978,7 +2000,8 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         char* buf = gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mBuf;
 
-        char* sname = gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mSName;
+        char sname[PATH_MAX];
+        xstrncpy(sname, gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mSName, PATH_MAX);
         int sline = gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mSLine;
 
         unsigned int node = 0;
@@ -1989,7 +2012,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         }
 
         gNodes[node].mLine = info->pinfo->sline;
-        gNodes[node].mSName = info->pinfo->sname;
+        xstrncpy(gNodes[node].mSName, info->pinfo->sname, PATH_MAX);
 
         if(!compile(node, info)) {
             info->generics_type = generics_type_before;
@@ -2045,7 +2068,9 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             char* buf = fun.mBlockText;
 
-            char* sname = fun.mSName;
+            char sname[PATH_MAX];
+            xstrncpy(sname, fun.mSName, PATH_MAX);
+
             int sline = fun.mSLine;
 
             unsigned int node = 0;
@@ -2058,7 +2083,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             }
 
             gNodes[node].mLine = info->pinfo->sline;
-            gNodes[node].mSName = info->pinfo->sname;
+            xstrncpy(gNodes[node].mSName, info->pinfo->sname, PATH_MAX);
 
             if(!compile(node, info)) {
                 info->generics_type = generics_type_before;
@@ -2082,11 +2107,11 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     sNodeType* fun_params[PARAMS_MAX];
     BOOL valid_parametor = TRUE;
 
+    int check_param_num;
     if(fun.mNumParams == num_params || (fun.mVarArg && num_params >= fun.mNumParams)) 
     {
         memset(method_generics_types, 0, sizeof(sNodeType*)*GENERICS_TYPES_MAX);
 
-        int check_param_num;
         if(fun.mVarArg) {
             check_param_num = fun.mNumParams;
         }
@@ -2161,7 +2186,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         fprintf(stderr, "\nfunction parametor\n\n");
 
         int i;
-        for(i=0; i<num_params; i++) {
+        for(i=0; i<check_param_num; i++) {
             printf("param #%d\n", i);
             show_node_type(fun_params[i]);
         }
@@ -2310,7 +2335,7 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
 
     gNodes[node].mNodeType = kNodeTypeFunction;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
@@ -2721,7 +2746,7 @@ unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* pa
 
     gNodes[node].mNodeType = kNodeTypeGenericsFunction;
 
-    gNodes[node].mSName = sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = sline;
 
     gNodes[node].mLeft = 0;
@@ -2781,7 +2806,8 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
     char* block_text = gNodes[node].uValue.sFunction.mBlockText;
     char struct_name[VAR_NAME_MAX];
     xstrncpy(struct_name, gNodes[node].uValue.sFunction.mStructName, VAR_NAME_MAX);
-    char* sname = gNodes[node].mSName;
+    char sname[PATH_MAX];
+    xstrncpy(sname, gNodes[node].mSName, PATH_MAX);
     int sline = gNodes[node].mLine;
 
     int num_generics = gNodes[node].uValue.sFunction.mNumGenerics;
@@ -2826,7 +2852,7 @@ unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info)
 
     gNodes[node].mNodeType = kNodeTypeLoadVariable;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     xstrncpy(gNodes[node].uValue.sLoadVariable.mVarName, var_name, VAR_NAME_MAX);
@@ -2909,7 +2935,7 @@ unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED struc
 
     gNodes[node].mNodeType = kNodeTypeIf;
 
-    gNodes[node].mSName = sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = sline;
 
     gNodes[node].uValue.sIf.mExpressionNode = expression_node;
@@ -3179,16 +3205,17 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* sname, int sline)
+unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* sname, int sline, BOOL anonymous)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeStruct;
 
-    gNodes[node].mSName = sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = sline;
 
     gNodes[node].uValue.sStruct.mType = struct_type;
+    gNodes[node].uValue.sStruct.mAnonymous = anonymous;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -3202,16 +3229,17 @@ static BOOL compile_struct(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_union(sNodeType* struct_type, sParserInfo* info, char* sname, int sline)
+unsigned int sNodeTree_union(sNodeType* struct_type, sParserInfo* info, char* sname, int sline, BOOL anonymous)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeUnion;
 
-    gNodes[node].mSName = sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = sline;
 
     gNodes[node].uValue.sStruct.mType = struct_type;
+    gNodes[node].uValue.sStruct.mAnonymous = anonymous;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -3225,13 +3253,13 @@ static BOOL compile_union(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_object(sNodeType* node_type, unsigned int object_num, char* sname, int sline)
+unsigned int sNodeTree_create_object(sNodeType* node_type, unsigned int object_num, char* sname, int sline, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeObject;
 
-    gNodes[node].mSName = sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = sline;
 
     gNodes[node].uValue.sObject.mType = node_type;
@@ -3304,6 +3332,11 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
     Function* fun = TheModule->getFunction("xcalloc");
 
+    if(fun == nullptr) {
+        fprintf(stderr, "require xcalloc\n");
+        exit(2);
+    }
+
     std::vector<Value*> params2;
 
     Value* param = object_num;
@@ -3352,13 +3385,13 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_struct_object(sNodeType* node_type, char* sname, int sline)
+unsigned int sNodeTree_create_struct_object(sNodeType* node_type, char* sname, int sline, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeStructObject;
 
-    gNodes[node].mSName = sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = sline;
 
     gNodes[node].uValue.sObject.mType = node_type;
@@ -3422,7 +3455,7 @@ unsigned int sNodeTree_create_store_field(char* var_name, unsigned int left_node
 
     gNodes[node].mNodeType = kNodeTypeStoreField;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     xstrncpy(gNodes[node].uValue.sStoreField.mVarName, var_name, VAR_NAME_MAX);
@@ -3612,7 +3645,7 @@ unsigned int sNodeTree_create_load_field(char* name, unsigned int left_node, sPa
 
     gNodes[node].mNodeType = kNodeTypeLoadField;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     xstrncpy(gNodes[node].uValue.sLoadField.mVarName, name, VAR_NAME_MAX);
@@ -3759,7 +3792,7 @@ unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED st
 
     gNodes[node].mNodeType = kNodeTypeWhile;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.sWhile.mExpressionNode = expression_node;
@@ -3844,7 +3877,7 @@ unsigned int sNodeTree_create_true(sParserInfo* info)
 
     gNodes[node].mNodeType = kNodeTypeTrue;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
@@ -3875,7 +3908,7 @@ unsigned int sNodeTree_create_null(sParserInfo* info)
 
     gNodes[node].mNodeType = kNodeTypeNull;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
@@ -3906,7 +3939,7 @@ unsigned int sNodeTree_create_false(sParserInfo* info)
 
     gNodes[node].mNodeType = kNodeTypeFalse;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
@@ -3937,7 +3970,7 @@ unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right
 
     gNodes[node].mNodeType = kNodeTypeAndAnd;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
@@ -4056,7 +4089,7 @@ unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_n
 
     gNodes[node].mNodeType = kNodeTypeOrOr;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
@@ -4175,7 +4208,7 @@ unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned in
 
     gNodes[node].mNodeType = kNodeTypeFor;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.sFor.mExpressionNode = expression_node1;
@@ -4298,7 +4331,7 @@ unsigned int sNodeTree_create_lambda_call(unsigned int lambda_node, unsigned int
     
     gNodes[node].mNodeType = kNodeTypeLambdaCall;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = lambda_node;
@@ -4419,12 +4452,12 @@ unsigned int sNodeTree_create_simple_lambda_param(char* buf, char* sname, int sl
     unsigned int node = alloc_node();
 
     gNodes[node].uValue.sSimpleLambdaParam.mBuf = MANAGED buf;
-    gNodes[node].uValue.sSimpleLambdaParam.mSName = sname;
+    xstrncpy(gNodes[node].uValue.sSimpleLambdaParam.mSName, sname, PATH_MAX);
     gNodes[node].uValue.sSimpleLambdaParam.mSLine = sline;
     
     gNodes[node].mNodeType = kNodeTypeSimpleLambdaParam;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
@@ -4445,7 +4478,7 @@ unsigned int sNodeTree_create_dereffernce(unsigned int left_node, sParserInfo* i
 
     gNodes[node].mNodeType = kNodeTypeDerefference;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
@@ -4501,7 +4534,7 @@ unsigned int sNodeTree_create_reffernce(unsigned int left_node, sParserInfo* inf
 
     gNodes[node].mNodeType = kNodeTypeRefference;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
@@ -4555,7 +4588,7 @@ unsigned int sNodeTree_create_clone(unsigned int left, sParserInfo* info)
 
     gNodes[node].mNodeType = kNodeTypeClone;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
@@ -4616,7 +4649,7 @@ unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned in
 
     gNodes[node].mNodeType = kNodeTypeLoadElement;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = array;
@@ -4727,7 +4760,7 @@ unsigned int sNodeTree_create_store_element(unsigned int array, unsigned int ind
 
     gNodes[node].mNodeType = kNodeTypeStoreElement;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = array;
@@ -4870,7 +4903,7 @@ unsigned int sNodeTree_create_character_value(char c, sParserInfo* info)
 
     gNodes[node].mNodeType = kNodeTypeChar;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
@@ -4906,7 +4939,7 @@ unsigned int sNodeTree_create_cast(sNodeType* left_type, unsigned int left_node,
 
     gNodes[node].mNodeType = kNodeTypeCast;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
@@ -4956,7 +4989,7 @@ unsigned int sNodeTree_create_impl(unsigned int* nodes, int num_nodes, sParserIn
 
     gNodes[node].mNodeType = kNodeTypeImpl;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
@@ -4995,7 +5028,7 @@ unsigned int sNodeTree_create_typedef(char* name, sNodeType* node_type, sParserI
 
     gNodes[node].mNodeType = kNodeTypeTypeDef;
 
-    gNodes[node].mSName = info->sname;
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;

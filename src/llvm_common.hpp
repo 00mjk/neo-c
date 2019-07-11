@@ -101,7 +101,7 @@ struct sFunctionStruct {
     char mMethodGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
 
     char* mBlockText;
-    char* mSName;
+    char mSName[PATH_MAX];
     int mSLine;
 
     int mNumGenerics;

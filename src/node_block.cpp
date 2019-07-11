@@ -24,7 +24,7 @@ BOOL parse_block_easy(ALLOC sNodeBlock** node_block, sParserInfo* info)
 
 BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
 {
-    node_block->mSName = info->sname;
+    xstrncpy(node_block->mSName, info->sname, PATH_MAX);
     node_block->mSLine = info->sline;
 
     info->mBlockLevel++;
@@ -46,8 +46,11 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
 
         unsigned int node = 0;
 
+        skip_spaces_and_lf(info);
+
         int sline = info->sline;
-        char* sname = info->sname;
+        char sname[PATH_MAX];
+        xstrncpy(sname, info->sname, PATH_MAX);
 
         info->sline_top = sline;
 
@@ -62,7 +65,7 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
         }
 
         gNodes[node].mLine = sline;
-        gNodes[node].mSName = sname;
+        xstrncpy(gNodes[node].mSName, sname, PATH_MAX);
 
         if(info->err_num == 0) {
             append_node_to_node_block(node_block, node);
@@ -120,7 +123,6 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
             xstrncpy(info->sname, gNodes[node].mSName, PATH_MAX);
             info->sline = gNodes[node].mLine;
-
 
             if(!compile(node, info)) {
                 info->pinfo->lv_table = old_table;

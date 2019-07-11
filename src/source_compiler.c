@@ -145,7 +145,7 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
     return TRUE;
 }
 
-BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object_file)
+BOOL compile_source(char* fname, char* source, BOOL optimize)
 {
     sParserInfo info;
     memset(&info, 0, sizeof(sParserInfo));
@@ -187,6 +187,8 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
     start_to_make_native_code(fname);
 
     while(*info.p) {
+        skip_spaces_and_lf(&info);
+ 
         int sline = info.sline;
         char* sname = info.sname;
 
@@ -204,7 +206,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
         }
 
         gNodes[node].mLine = sline;
-        gNodes[node].mSName = sname;
+        xstrncpy(gNodes[node].mSName, sname, PATH_MAX);
 
         if(info.err_num == 0) {
             cinfo.sline = sline;
@@ -221,6 +223,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
             info.p++;
             skip_spaces_and_lf(&info);
         }
+        skip_spaces_and_lf(&info);
     }
 
     if(info.err_num > 0 || cinfo.err_num > 0) {
@@ -228,7 +231,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL output_object
         return FALSE;
     }
 
-    output_native_code(optimize, output_object_file);
+    output_native_code(fname, optimize);
 
     return TRUE;
 }

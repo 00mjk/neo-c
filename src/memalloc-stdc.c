@@ -1,4 +1,9 @@
 #include <unistd.h>
+#include <string.h>
+#include <pthread.h>
+/* Only for the debug printf */
+#include <stdio.h>
+#include <stdarg.h>
 
 struct header_t {
     size_t size;
@@ -7,6 +12,7 @@ struct header_t {
 };
 
 struct header_t *head = NULL, *tail = NULL;
+pthread_mutex_t global_malloc_lock;
 
 struct header_t *get_free_block(size_t size)
 {
@@ -22,12 +28,14 @@ struct header_t *get_free_block(size_t size)
 
 void xfree(void *block)
 {
+//printf("xfree %p\n", block);
     struct header_t *header, *tmp;
     /* program break is the end of the process's data segment */
     void *programbreak;
 
     if (!block)
         return;
+    pthread_mutex_lock(&global_malloc_lock);
     header = (struct header_t*)block - 1;
     /* sbrk(0) gives the current program break address */
     programbreak = sbrk(0);
@@ -63,9 +71,11 @@ void xfree(void *block)
            it, then we end up realeasing the memory obtained by
            the foreign sbrk().
         */
+        pthread_mutex_unlock(&global_malloc_lock);
         return;
     }
     header->is_free = 1;
+    pthread_mutex_unlock(&global_malloc_lock);
 }
 
 void *xmalloc(size_t size)
@@ -75,16 +85,19 @@ void *xmalloc(size_t size)
     struct header_t *header;
     if (!size)
         return NULL;
+    pthread_mutex_lock(&global_malloc_lock);
     header = get_free_block(size);
     if (header) {
         /* Woah, found a free block to accomodate requested memory. */
         header->is_free = 0;
+        pthread_mutex_unlock(&global_malloc_lock);
         return (void*)(header + 1);
     }
     /* We need to get memory to fit in the requested block and header from OS. */
     total_size = sizeof(struct header_t) + size;
     block = sbrk(total_size);
     if (block == (void*) -1) {
+        pthread_mutex_unlock(&global_malloc_lock);
         return NULL;
     }
     header = block;
@@ -96,15 +109,14 @@ void *xmalloc(size_t size)
     if (tail)
         tail->next = header;
     tail = header;
+    pthread_mutex_unlock(&global_malloc_lock);
     return (void*)(header + 1);
 }
 
 void *xcalloc(size_t num, size_t nsize)
 {
     size_t size;
-    char *block;
-    char* p;
-
+    void *block;
     if (!num || !nsize)
         return NULL;
     size = num * nsize;
@@ -115,22 +127,16 @@ void *xcalloc(size_t num, size_t nsize)
     block = xmalloc(size);
     if (!block)
         return NULL;
+    memset(block, 0, size);
 
-    p = block;
-    while(p - block < size) {
-        *p++ = 0;
-    }
-
+//printf("xcalloc %p\n", block);
     return block;
 }
 
-void *xrealloc(char *block, size_t size)
+void *xrealloc(void *block, size_t size)
 {
     struct header_t *header;
-    char *ret;
-    char* p;
-    char* p2;
-
+    void *ret;
     if (!block || !size)
         return xmalloc(size);
     header = (struct header_t*)block - 1;
@@ -138,26 +144,19 @@ void *xrealloc(char *block, size_t size)
         return block;
     ret = xmalloc(size);
     if (ret) {
-        // Relocate contents to the new bigger block
-        p = ret;
-        p2 = block;
-        while(p - ret < header->size) {
-            *p++ = *p2++;
-        }
-
-        // Free the old memory block
+        /* Relocate contents to the new bigger block */
+        memcpy(ret, block, header->size);
+        /* Free the old memory block */
         xfree(block);
     }
     return ret;
 }
 
-void *xmemdup(char *block)
+void *xmemdup(void *block)
 {
     struct header_t *header;
-    char *ret;
+    void *ret;
     size_t size;
-    char* p;
-    char* p2;
 
     header = (struct header_t*)block - 1;
     size = header->size;
@@ -166,26 +165,70 @@ void *xmemdup(char *block)
 
     ret = xmalloc(size);
     if (ret) {
-        p = ret;
-        p2 = block;
-        while(p - ret < header->size) {
-            *p++ = *p2++;
-        }
+        /* Relocate contents to the new bigger block */
+        memcpy(ret, block, header->size);
+        /* Free the old memory block */
+        //xfree(block);
     }
     return ret;
 }
 
+void *xasprintf(char* msg, ...)
+{
+
+    va_list args;
+    va_start(args, msg);
+    char* tmp;
+    int len = vasprintf(&tmp, msg, args);
+    va_end(args);
+
+    void* result = xcalloc(1, sizeof(char)*(len+1));
+    strncpy(result, tmp, len);
+
+    free(tmp);
+
+    return result;
+}
+
+/*
+char *xstrapd(char *block, char *block2)
+{
+    struct header_t *header;
+    char *ret;
+    size_t size;
+    int str_size, str_size2;
+
+    str_size = strlen(block);
+    str_size2 = strlen(block2);
+
+    size = str_size + str_size2;
+
+    if (!block || !block2) return (void*)0;
+
+    ret = (char*)xmalloc(size);
+    if (ret) {
+        memcpy(ret, block, str_size);
+        memcpy(ret + str_size, block2, str_size2);
+        ret[str_size + str_size2] = '\0';
+    }
+    return ret;
+}
+*/
+
+/* A debug function to print the entire link list */
+void print_mem_list()
+{
+    struct header_t *curr = head;
+    printf("head = %p, tail = %p \n", (void*)head, (void*)tail);
+    while(curr) {
+        printf("addr = %p, size = %zu, is_free=%u, next=%p\n",
+            (void*)curr, curr->size, curr->is_free, (void*)curr->next);
+        curr = curr->next;
+    }
+}
 
 char* xmemcpy(char* mem, char* mem2, int size)
 {
-    int i;
-
-    char* p = mem;
-    char* p2 = mem2;
-
-    for(i=0; i<size; i++) {
-        *p++ = *p2++;
-    }
-
-    return mem;
+    return memcpy(mem, mem2, size);
 }
+

@@ -157,24 +157,27 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
 static void create_anoymous_struct_name(char* struct_name, int size_struct_name)
 {
     static int anonymous_struct_num = 0;
-    snprintf(struct_name, size_struct_name, "anon%d\n", anonymous_struct_num++);
+    snprintf(struct_name, size_struct_name, "anon%d", anonymous_struct_num++);
 }
 
 static BOOL parse_type(sNodeType** result_type, sParserInfo* info);
 
 static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_name, sParserInfo* info) 
 {
-    char* sname = info->sname;
+    char sname[PATH_MAX];
+    xstrncpy(sname, info->sname, PATH_MAX);
+
     int sline = info->sline;
 
     int num_fields = 0;
     char field_names[STRUCT_FIELD_MAX][VAR_NAME_MAX];
     sNodeType* fields[STRUCT_FIELD_MAX];
 
+    BOOL anonymous = FALSE;
+
     /// anonymous struct ///
     if(*info->p == '{') {
-        info->mNumGenerics = 0;
-
+        anonymous = TRUE;
         create_anoymous_struct_name(struct_name, size_struct_name);
     }
     /// normal struct ///
@@ -273,28 +276,31 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
         skip_spaces_and_lf(info);
     }
 
-    sCLClass* struct_class = alloc_struct(struct_name, num_fields, field_names, fields);
+    sCLClass* struct_class = alloc_struct(struct_name, num_fields, field_names, fields, anonymous);
 
     sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
 
-    *node = sNodeTree_struct(struct_type, info, sname, sline);
+    *node = sNodeTree_struct(struct_type, info, sname, sline, anonymous);
 
     return TRUE;
 }
 
 static BOOL parse_union(unsigned int* node, char* union_name, int size_union_name, sParserInfo* info) 
 {
-    char* sname = info->sname;
+    char sname[PATH_MAX];
+    xstrncpy(sname, info->sname, PATH_MAX);
+
     int sline = info->sline;
 
     int num_fields = 0;
     char field_names[STRUCT_FIELD_MAX][VAR_NAME_MAX];
     sNodeType* fields[STRUCT_FIELD_MAX];
 
+    BOOL anonymous = FALSE;
+
     /// anonymous union ///
     if(*info->p == '{') {
-        info->mNumGenerics = 0;
-
+        anonymous = TRUE;
         create_anoymous_struct_name(union_name, size_union_name);
     }
     /// normal union ///
@@ -352,11 +358,11 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
         skip_spaces_and_lf(info);
     }
 
-    sCLClass* union_class = alloc_union(union_name, num_fields, field_names, fields);
+    sCLClass* union_class = alloc_union(union_name, num_fields, field_names, fields, anonymous);
 
     sNodeType* union_type = create_node_type_with_class_pointer(union_class);
 
-    *node = sNodeTree_union(union_type, info, sname, sline);
+    *node = sNodeTree_union(union_type, info, sname, sline, anonymous);
 
     return TRUE;
 }
@@ -439,7 +445,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     if(*result_type == NULL || (*result_type)->mClass == NULL) {
         parser_err_msg(info, "%s is not defined class(2)", type_name);
         info->err_num++;
-        return TRUE;
+        return FALSE;
     }
 
     if(*info->p == '<' && *(info->p+1) != '<' && *(info->p+1) != '=') 
@@ -678,7 +684,7 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
     return TRUE;
 }
 
-static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* name, sParserInfo* info, BOOL readonly)
+static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* name, BOOL extern_, sParserInfo* info, BOOL readonly)
 {
     check_already_added_variable(info->lv_table, name, info);
     add_variable_to_table(info->lv_table, name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
@@ -705,7 +711,7 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
         }
     }
     else {
-        *node = sNodeTree_create_define_variable(name, info);
+        *node = sNodeTree_create_define_variable(name, extern_, info);
     }
 
     return TRUE;
@@ -791,7 +797,9 @@ static BOOL get_block_text(sBuf* buf, sParserInfo* info)
 
 static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info)
 {
-    char* sname = info->sname;
+    char sname[PATH_MAX];
+    xstrncpy(sname, info->sname, PATH_MAX);
+
     int sline = info->sline;
 
     sBuf buf;
@@ -890,7 +898,8 @@ static BOOL parse_generics_function(unsigned int* node, sNodeType* result_type, 
         return FALSE;
     }
 
-    char* sname = info->sname;
+    char sname[PATH_MAX];
+    xstrncpy(sname, info->sname, PATH_MAX);
     int sline = info->sline;
 
     if(*info->p == '{') {
@@ -988,7 +997,8 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
         return FALSE;
     }
 
-    char* sname = info->sname;
+    char sname[PATH_MAX];
+    xstrncpy(sname, info->sname, PATH_MAX);
     int sline = info->sline;
 
     if(*info->p == '{') {
@@ -1160,7 +1170,8 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
     }
 
     if(info->mNumGenerics > 0) {
-        char* sname = info->sname;
+        char sname[PATH_MAX];
+        xstrncpy(sname, info->sname, PATH_MAX);
         int sline = info->sline;
 
         if(*info->p == '{') {
@@ -1209,7 +1220,8 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
         }
 
         int sline = info->sline;
-        char* sname = info->sname;
+        char sname[PATH_MAX];
+        xstrncpy(sname, info->sname, PATH_MAX);
 
         unsigned int result_node = sNodeTree_create_load_variable("self", info);
 
@@ -1219,7 +1231,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
         }
 
         gNodes[result_node].mLine = sline;
-        gNodes[result_node].mSName = sname;
+        xstrncpy(gNodes[result_node].mSName, sname, PATH_MAX);
 
         append_node_to_node_block(node_block, result_node);
 
@@ -1336,7 +1348,8 @@ static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, s
 
 static BOOL parse_if(unsigned int* node, sParserInfo* info)
 {
-    char* sname = info->sname;
+    char sname[PATH_MAX];
+    xstrncpy(sname, info->sname, PATH_MAX);
     int sline = info->sline;
 
     expect_next_character_with_one_forward("(", info);
@@ -1905,7 +1918,7 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("]", info);
         }
 
-        *node = sNodeTree_create_object(node_type, object_num, info->sname, info->sline);
+        *node = sNodeTree_create_object(node_type, object_num, info->sname, info->sline, info);
     }
     else {
         parser_err_msg(info, "Invalid type name");
@@ -1923,7 +1936,7 @@ static BOOL parse_alloca(unsigned int* node, sParserInfo* info)
         return FALSE;
     }
 
-    *node = sNodeTree_create_struct_object(node_type, info->sname, info->sline);
+    *node = sNodeTree_create_struct_object(node_type, info->sname, info->sline, info);
 
     return TRUE;
 }
@@ -1981,7 +1994,8 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
 
 static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 {
-    char* sname = info->sname;
+    char sname[PATH_MAX];
+    xstrncpy(sname, info->sname, PATH_MAX);
     int sline = info->sline;
 
     char struct_name[VAR_NAME_MAX];
@@ -2111,7 +2125,8 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
                 }
             }
             else {
-                if(!parse_variable(node, result_type, name, info, FALSE)) {
+                BOOL extern_ = FALSE;
+                if(!parse_variable(node, result_type, name, extern_, info, FALSE)) {
                     return FALSE;
                 }
             }
@@ -2191,6 +2206,10 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
         }
+
+        skip_spaces_and_lf(info);
+ 
+        info->sline_top = info->sline;
 
         if(!expression(node, info)) {
             return FALSE;
@@ -2563,6 +2582,41 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "extern") == 0) {
+            sNodeType* result_type = NULL;
+            if(!parse_type(&result_type, info))
+            {
+                return FALSE;
+            }
+
+            if(result_type == NULL) {
+                return TRUE;
+            }
+
+            char name[VAR_NAME_MAX+1];
+            if(!parse_word(name, VAR_NAME_MAX, info, TRUE, FALSE))
+            {
+                return FALSE;
+            }
+
+            if(strcmp(name, "operator") == 0)
+            {
+                if(!parse_function(node, result_type, name, NULL, info)) {
+                    return FALSE;
+                }
+            }
+            else if(*info->p == '(') {
+                if(!parse_function(node, result_type, name, NULL, info)) {
+                    return FALSE;
+                }
+            }
+            else {
+                BOOL extern_ = TRUE;
+                if(!parse_variable(node, result_type, name, extern_, info, FALSE)) {
+                    return FALSE;
+                }
+            }
+        }
         else if(is_type_name(buf, info) && *info->p != '(') {
             info->p = p_before;
             info->sline = sline_before;
@@ -2591,7 +2645,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else {
-                if(!parse_variable(node, result_type, name, info, FALSE)) {
+                BOOL extern_ = FALSE;
+                if(!parse_variable(node, result_type, name, extern_, info, FALSE)) {
                     return FALSE;
                 }
             }
@@ -3082,8 +3137,6 @@ static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)
 
 BOOL expression(unsigned int* node, sParserInfo* info) 
 {
-    skip_spaces_and_lf(info);
-
     if(!expression_and_and_or_or(node, info)) {
         return FALSE;
     }

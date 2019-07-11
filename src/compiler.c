@@ -20,7 +20,7 @@ static void compiler_final()
     parser_final();
 }
 
-static BOOL compiler(char* fname, BOOL optimize, BOOL output_object_file)
+static BOOL compiler(char* fname, BOOL optimize)
 {
     if(access(fname, F_OK) != 0) {
         fprintf(stderr, "%s doesn't exist\n", fname);
@@ -44,7 +44,7 @@ static BOOL compiler(char* fname, BOOL optimize, BOOL output_object_file)
     xstrncat(fname2, ".out", PATH_MAX);
 
     char cmd[1024];
-    snprintf(cmd, 1024, "cpp %s > %s", fname, fname2);
+    snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
 
     int rc = system(cmd);
     if(rc != 0) {
@@ -68,7 +68,7 @@ static BOOL compiler(char* fname, BOOL optimize, BOOL output_object_file)
         return FALSE;
     }
 
-    if(!compile_source(fname, source2.mBuf, optimize, output_object_file)) {
+    if(!compile_source(fname, source2.mBuf, optimize)) {
         free(source.mBuf);
         free(source2.mBuf);
         return FALSE;
@@ -90,9 +90,15 @@ int main(int argc, char** argv)
     gARGC = argc;
     gARGV = argv;
 
-    char sname[PATH_MAX+1];
+    char sname[PATH_MAX];
+    sname[0] = '\0';
+
     BOOL output_object_file = FALSE;
     BOOL optimize = FALSE;
+    char* external_objects[EXTERNAL_OBJECT_MAX];
+    int num_external_object = 0;
+    
+    memset(external_objects, 0, sizeof(char*)*EXTERNAL_OBJECT_MAX);
 
     int i;
     for(i=1; i<argc; i++) {
@@ -109,8 +115,16 @@ int main(int argc, char** argv)
         {
             optimize = TRUE;
         }
-        else {
+        else if(sname[0] == '\0') {
             xstrncpy(sname, argv[i], PATH_MAX);
+        }
+        else {
+            external_objects[num_external_object++] = argv[i];
+
+            if(num_external_object >= EXTERNAL_OBJECT_MAX) {
+                fprintf(stderr, "overflow object file number\n");
+                exit(2);
+            }
         }
     }
 
@@ -126,14 +140,17 @@ int main(int argc, char** argv)
     }
 
     if(p < sname) {
-        p = NULL;
+        fprintf(stderr, "Require extention name\n");
+        exit(2);
     }
 
-    char* ext_sname = p;
+    char main_module_name[PATH_MAX];
+    memcpy(main_module_name, sname, p-sname);
+    main_module_name[p-sname] = '\0';
 
     compiler_init();
 
-    if(!compiler(sname, optimize, output_object_file)) {
+    if(!compiler(sname, optimize)) {
         fprintf(stderr, "neo-c can't compile %s\n", sname);
         compiler_final();
         return 1;
@@ -141,5 +158,26 @@ int main(int argc, char** argv)
 
     compiler_final();
 
-    return gResultCode;
+    int result = 0;
+    if(!output_object_file) {
+        char command[4096*2];
+
+        snprintf(command, 4096*2, "clang -o %s %s.o memalloc-stdc.o ", main_module_name, main_module_name);
+
+        int i;
+        for(i=0; i<num_external_object; i++) {
+            xstrncat(command, external_objects[i], 4096*2);
+            xstrncat(command, " ", 4096*2);
+        }
+
+        int rc = system(command);
+        if(rc != 0) {
+            fprintf(stderr, "faield to compile\n");
+            exit(2);
+        }
+
+        result = WEXITSTATUS(rc);
+    }
+
+    return result;
 }
