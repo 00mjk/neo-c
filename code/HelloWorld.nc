@@ -101,6 +101,7 @@ extern int gGlobalVar;
 
 int main()
 {
+/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -978,6 +979,28 @@ int main()
     }
 
     assert("inline function test3", inline_fun5(2, 3) == 5);
+*/
+
+    struct StructTest2 <T>
+    {
+        T a;
+        T b;
+    }
+
+    impl StructTest2 <T> {
+        inline T fun(StructTest2<T>* self, T a, T b) {
+            self.a = a;
+            self.b = b
+
+            T c = self.a + self.b
+
+            c
+        }
+    }
+
+    var data7 = new StructTest2<int>;
+
+    assert("inline function test4", data7.fun(1,2) == 3 && data7.a == 1 && data7.b == 2);
 
     0
 }

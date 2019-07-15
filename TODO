@@ -1,6 +1,4 @@
 
-inline generics
-
 operators.
 
 return
@@ -13,10 +11,3 @@ structタグ名、structの中で自身の宣言(ポインタのみ)
 
 collection
 
-generics line number
-
-no segmentation fault?
-
-------------------------------------------------
-
-extern

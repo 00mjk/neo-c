@@ -2217,6 +2217,13 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
             {
                 return FALSE;
             }
+
+            nodes[num_nodes++] = *node;
+
+            if(num_nodes >= IMPL_DEF_MAX) {
+                fprintf(stderr, "overflow impl function max");
+                return FALSE;
+            }
         }
         else if(strcmp(buf, "initialize") == 0) {
             if(!parse_constructor(node, struct_name, info)) {
