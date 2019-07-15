@@ -108,6 +108,7 @@ struct sFunctionStruct {
     char mGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
 
     BOOL mGenericsFunction;
+    BOOL mInlineFunction;
 };
 
 typedef struct sFunctionStruct sFunction;

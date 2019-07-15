@@ -72,6 +72,11 @@ void free_nodes()
 
                 case kNodeTypeGenericsFunction:
                     free(gNodes[i].uValue.sFunction.mBlockText);
+                    break;
+
+                case kNodeTypeInlineFunction:
+                    free(gNodes[i].uValue.sFunction.mBlockText);
+                    break;
 
                 default:
                     break;

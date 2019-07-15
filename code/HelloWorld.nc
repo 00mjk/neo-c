@@ -943,6 +943,42 @@ int main()
 
     assert("extern test2", gGlobalVar == 1);
 
+    inline void inline_fun1() {
+        puts("HELLO INLINE");
+    }
+
+    inline_fun1();
+
+    inline int inline_fun2() {
+        123
+    }
+
+    assert("inline function test", inline_fun2() == 123);
+
+    inline void inline_fun3(int a, int b) {
+        printf("a %d b %d\n", a, b);
+    }
+
+    inline_fun3(1, 2);
+
+    inline int inline_fun4(int x, int y) 
+    {
+        x + y
+    }
+
+    assert("inline function test2", inline_fun4(2, 3) == 5);
+
+    inline <T> T inline_fun5(T x, T y) 
+    {
+        x + y;
+
+        T z = x + y;
+
+        z
+    }
+
+    assert("inline function test3", inline_fun5(2, 3) == 5);
+
     0
 }
 

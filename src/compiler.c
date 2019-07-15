@@ -159,6 +159,7 @@ int main(int argc, char** argv)
     compiler_final();
 
     int result = 0;
+
     if(!output_object_file) {
         char command[4096*2];
 

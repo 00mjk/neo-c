@@ -381,12 +381,9 @@ void output_native_code(char* sname, BOOL optimize)
 
     delete TheModule;
 
-printf("sname2 %s\n", sname2);
-
     char command[PATH_MAX+128];
 
     snprintf(command, PATH_MAX+128, "llvm-dis %s.bc", sname2);
-puts(command);
     int rc = system(command);
     if(rc != 0) {
         fprintf(stderr, "faield to compile\n");
@@ -394,7 +391,6 @@ puts(command);
     }
 
     snprintf(command, PATH_MAX+128, "llc %s.bc", sname2);
-puts(command);
     rc = system(command);
     if(rc != 0) {
         fprintf(stderr, "faield to compile\n");
@@ -402,7 +398,6 @@ puts(command);
     }
 
     snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.s", sname2, sname2);
-puts(command);
     rc = system(command);
     if(rc != 0) {
         fprintf(stderr, "faield to compile\n");
@@ -832,6 +827,27 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         }
 
         *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(left_type, "short"))
+    {
+        if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong") || type_identify_with_class_name(*right_type, "int") || type_identify_with_class_name(*right_type, "uint"))
+        {
+            if(rvalue) {
+                rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, IntegerType::get(TheContext, 16));
+                rvalue->type = create_node_type_with_class_name("short");
+            }
+
+            *right_type = create_node_type_with_class_name("short");
+        }
+        else if(type_identify_with_class_name(*right_type, "char") || type_identify_with_class_name(*right_type, "uchar") || type_identify_with_class_name(*right_type, "bool"))
+        {
+            if(rvalue) {
+                rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 32));
+                rvalue->type = create_node_type_with_class_name("short");
+            }
+
+            *right_type = create_node_type_with_class_name("short");
+        }
     }
     else if(type_identify_with_class_name(left_type, "int"))
     {
