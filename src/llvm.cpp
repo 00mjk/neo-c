@@ -626,7 +626,12 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
     }
     else if(type_identify_with_class_name(node_type, "void"))
     {
-        *result_type = Type::getVoidTy(TheContext);
+        if(node_type->mPointerNum > 0) {
+            *result_type = IntegerType::get(TheContext, 8);
+        }
+        else {
+            *result_type = Type::getVoidTy(TheContext);
+        }
     }
     else if(type_identify_with_class_name(node_type, "lambda"))
     {
@@ -761,22 +766,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
     if(left_type->mPointerNum > 0) 
     {
-        if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong"))
-        {
-            if(rvalue) {
-                Type* llvm_type;
-                if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
-                {
-                    return FALSE;
-                }
-
-                rvalue->value = Builder.CreateCast(Instruction::IntToPtr, rvalue->value, llvm_type);
-                rvalue->type = clone_node_type(left_type);
-            }
-
-            *right_type = clone_node_type(left_type);
-        }
-        else if((*right_type)->mPointerNum > 0) {
+        if((*right_type)->mPointerNum > 0) {
             if(rvalue) {
                 Type* llvm_type;
                 if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))

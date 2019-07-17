@@ -979,7 +979,6 @@ int main()
     }
 
     assert("inline function test3", inline_fun5(2, 3) == 5);
-*/
 
     struct StructTest2 <T>
     {
@@ -1001,6 +1000,56 @@ int main()
     var data7 = new StructTest2<int>;
 
     assert("inline function test4", data7.fun(1,2) == 3 && data7.a == 1 && data7.b == 2);
+
+    int aax = 2 >> 1;
+
+    assert("operator test", aax == 1);
+
+    int bxy = 2;
+
+    bxy *= 2;
+
+    assert("operator test2", bxy == 4);
+
+    char* pxy = "ABC";
+
+    pxy++;
+
+    assert("operator test3", *pxy == 'B');
+
+    int* pxyy = new int[128];
+
+    void* pxz = (void*)pxyy;
+
+*/
+
+    struct StructTest3 {
+        int a;
+        int b;
+    }
+
+    StructTest3 data8;
+
+    data8.a = 1;
+    data8.b = 2
+
+    assert("struct test", data8.a == 1 && data8.b == 2);
+
+    void fun(StructTest3 data) 
+    {
+        assert("struct test", data8.a == 1 && data8.b == 2);
+    }
+
+    fun(data8);
+
+    StructTest3* data9 = new StructTest3;
+
+    data9->a = 1;
+    data9->b = 2;
+
+    assert("struct test", data9->a == 1 && data9->b == 2);
+
+    fun(*data9);
 
     0
 }

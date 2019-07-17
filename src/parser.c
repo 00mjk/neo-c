@@ -154,6 +154,7 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
 
     return TRUE;
 }
+
 static void create_anoymous_struct_name(char* struct_name, int size_struct_name)
 {
     static int anonymous_struct_num = 0;
@@ -1578,10 +1579,16 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 
     while(*info->p) {
         /// call method or access field ///
-        if(*info->p == '.')
+        if(*info->p == '.' || (*info->p == '-' && *(info->p+1) == '>'))
         {
-            info->p++;
-            skip_spaces_and_lf(info);
+            if(*info->p == '-') {
+                info->p+=2;
+                skip_spaces_and_lf(info);
+            }
+            else {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
 
             if(isalpha(*info->p) || *info->p == '_') 
             {
@@ -1712,6 +1719,158 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                             *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
                             *node = sNodeTree_create_add(*node, right_node, 0, info);
                         }
+                        else if(*info->p == '*' && *(info->p+1) == '=')
+                        {
+                            info->p+=2;
+                            skip_spaces_and_lf(info);
+                            unsigned int right_node = 0;
+                            if(!expression(&right_node, info)) {
+                                return FALSE;
+                            }
+
+                            char var_name[VAR_NAME_MAX];
+                            xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                            *node = sNodeTree_create_load_field(buf, obj_node, info);
+
+                            unsigned int field_node = *node;
+
+                            *node = sNodeTree_create_mult(field_node, right_node, 0, info);
+                            *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
+                        }
+                        else if(*info->p == '/' && *(info->p+1) == '=')
+                        {
+                            info->p+=2;
+                            skip_spaces_and_lf(info);
+                            unsigned int right_node = 0;
+                            if(!expression(&right_node, info)) {
+                                return FALSE;
+                            }
+
+                            char var_name[VAR_NAME_MAX];
+                            xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                            *node = sNodeTree_create_load_field(buf, obj_node, info);
+
+                            unsigned int field_node = *node;
+
+                            *node = sNodeTree_create_div(field_node, right_node, 0, info);
+                            *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
+                        }
+                        else if(*info->p == '%' && *(info->p+1) == '=')
+                        {
+                            info->p+=2;
+                            skip_spaces_and_lf(info);
+                            unsigned int right_node = 0;
+                            if(!expression(&right_node, info)) {
+                                return FALSE;
+                            }
+
+                            char var_name[VAR_NAME_MAX];
+                            xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                            *node = sNodeTree_create_load_field(buf, obj_node, info);
+
+                            unsigned int field_node = *node;
+
+                            *node = sNodeTree_create_mod(field_node, right_node, 0, info);
+                            *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
+                        }
+                        else if(*info->p == '<' && *(info->p+1) == '<' && *(info->p+2) == '=')
+                        {
+                            info->p+=2;
+                            skip_spaces_and_lf(info);
+                            unsigned int right_node = 0;
+                            if(!expression(&right_node, info)) {
+                                return FALSE;
+                            }
+
+                            char var_name[VAR_NAME_MAX];
+                            xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                            *node = sNodeTree_create_load_field(buf, obj_node, info);
+
+                            unsigned int field_node = *node;
+
+                            *node = sNodeTree_create_left_shift(field_node, right_node, 0, info);
+                            *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
+                        }
+                        else if(*info->p == '>' && *(info->p+1) == '>' && *(info->p+2) == '=')
+                        {
+                            info->p+=2;
+                            skip_spaces_and_lf(info);
+                            unsigned int right_node = 0;
+                            if(!expression(&right_node, info)) {
+                                return FALSE;
+                            }
+
+                            char var_name[VAR_NAME_MAX];
+                            xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                            *node = sNodeTree_create_load_field(buf, obj_node, info);
+
+                            unsigned int field_node = *node;
+
+                            *node = sNodeTree_create_right_shift(field_node, right_node, 0, info);
+                            *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
+                        }
+                        else if(*info->p == '&' && *(info->p+1) == '=')
+                        {
+                            info->p+=2;
+                            skip_spaces_and_lf(info);
+                            unsigned int right_node = 0;
+                            if(!expression(&right_node, info)) {
+                                return FALSE;
+                            }
+
+                            char var_name[VAR_NAME_MAX];
+                            xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                            *node = sNodeTree_create_load_field(buf, obj_node, info);
+
+                            unsigned int field_node = *node;
+
+                            *node = sNodeTree_create_and(field_node, right_node, 0, info);
+                            *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
+                        }
+                        else if(*info->p == '^' && *(info->p+1) == '=')
+                        {
+                            info->p+=2;
+                            skip_spaces_and_lf(info);
+                            unsigned int right_node = 0;
+                            if(!expression(&right_node, info)) {
+                                return FALSE;
+                            }
+
+                            char var_name[VAR_NAME_MAX];
+                            xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                            *node = sNodeTree_create_load_field(buf, obj_node, info);
+
+                            unsigned int field_node = *node;
+
+                            *node = sNodeTree_create_xor(field_node, right_node, 0, info);
+                            *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
+                        }
+                        else if(*info->p == '|' && *(info->p+1) == '=')
+                        {
+                            info->p+=2;
+                            skip_spaces_and_lf(info);
+                            unsigned int right_node = 0;
+                            if(!expression(&right_node, info)) {
+                                return FALSE;
+                            }
+
+                            char var_name[VAR_NAME_MAX];
+                            xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                            *node = sNodeTree_create_load_field(buf, obj_node, info);
+
+                            unsigned int field_node = *node;
+
+                            *node = sNodeTree_create_or(field_node, right_node, 0, info);
+                            *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
+                        }
                         else {
                             *node = sNodeTree_create_load_field(buf, obj_node, info);
                         }
@@ -1741,20 +1900,6 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                 }
 
                 *node = sNodeTree_create_lambda_call(*node, params, num_params, info);
-            }
-            else if(*info->p == '*') {
-                info->p++;
-                skip_spaces_and_lf(info);
-
-                *node = sNodeTree_create_dereffernce(*node, info);
-            }
-            else {
-                sNodeType* node_type = NULL;
-                if(!parse_type(&node_type, info)) {
-                    return FALSE;
-                }
-
-                *node = sNodeTree_create_cast(node_type, *node, info);
             }
         }
         else if(*info->p == '<' && *(info->p+1) == '-')
@@ -2356,6 +2501,44 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
+    else if(*info->p == '*') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!expression_node(node, info)) {
+            return FALSE;
+        }
+
+        if(*node == 0) {
+            parser_err_msg(info, "require value for *");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_dereffernce(*node, info);
+    }
+    else if(*info->p == '(') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        sNodeType* node_type = NULL;
+        if(!parse_type(&node_type, info))
+        {
+            return FALSE;
+        }
+
+        expect_next_character_with_one_forward(")", info);
+
+        if(!expression_node(node, info)) {
+            return FALSE;
+        }
+
+        if(*node == 0) {
+            parser_err_msg(info, "require value for cast");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_cast(node_type, *node, info);
+    }
     else if(*info->p == '!') {
         info->p++;
         skip_spaces_and_lf(info);
@@ -2918,6 +3101,166 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
                     *node = sNodeTree_create_add(left_node2, right_node, 0, info);
                 }
+                else if(*info->p == '*' && *(info->p+1) == '=')
+                {
+                    info->p+=2;
+                    skip_spaces_and_lf(info);
+
+                    unsigned int right_node = 0;
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    char var_name[VAR_NAME_MAX];
+
+                    xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                    unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
+
+                    *node = sNodeTree_create_mult(left_node, right_node, 0, info);
+
+                    *node = sNodeTree_create_store_variable(var_name, *node, FALSE, info);
+                }
+                else if(*info->p == '/' && *(info->p+1) == '=')
+                {
+                    info->p+=2;
+                    skip_spaces_and_lf(info);
+
+                    unsigned int right_node = 0;
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    char var_name[VAR_NAME_MAX];
+
+                    xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                    unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
+
+                    *node = sNodeTree_create_div(left_node, right_node, 0, info);
+
+                    *node = sNodeTree_create_store_variable(var_name, *node, FALSE, info);
+                }
+                else if(*info->p == '%' && *(info->p+1) == '=')
+                {
+                    info->p+=2;
+                    skip_spaces_and_lf(info);
+
+                    unsigned int right_node = 0;
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    char var_name[VAR_NAME_MAX];
+
+                    xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                    unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
+
+                    *node = sNodeTree_create_mod(left_node, right_node, 0, info);
+
+                    *node = sNodeTree_create_store_variable(var_name, *node, FALSE, info);
+                }
+                else if(*info->p == '<' && *(info->p+1) == '<' && *(info->p+2) == '=')
+                {
+                    info->p+=2;
+                    skip_spaces_and_lf(info);
+
+                    unsigned int right_node = 0;
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    char var_name[VAR_NAME_MAX];
+
+                    xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                    unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
+
+                    *node = sNodeTree_create_left_shift(left_node, right_node, 0, info);
+
+                    *node = sNodeTree_create_store_variable(var_name, *node, FALSE, info);
+                }
+                else if(*info->p == '>' && *(info->p+1) == '>' && *(info->p+2) == '=')
+                {
+                    info->p+=2;
+                    skip_spaces_and_lf(info);
+
+                    unsigned int right_node = 0;
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    char var_name[VAR_NAME_MAX];
+
+                    xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                    unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
+
+                    *node = sNodeTree_create_right_shift(left_node, right_node, 0, info);
+
+                    *node = sNodeTree_create_store_variable(var_name, *node, FALSE, info);
+                }
+                else if(*info->p == '&' && *(info->p+1) == '=')
+                {
+                    info->p+=2;
+                    skip_spaces_and_lf(info);
+
+                    unsigned int right_node = 0;
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    char var_name[VAR_NAME_MAX];
+
+                    xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                    unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
+
+                    *node = sNodeTree_create_and(left_node, right_node, 0, info);
+
+                    *node = sNodeTree_create_store_variable(var_name, *node, FALSE, info);
+                }
+                else if(*info->p == '^' && *(info->p+1) == '=')
+                {
+                    info->p+=2;
+                    skip_spaces_and_lf(info);
+
+                    unsigned int right_node = 0;
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    char var_name[VAR_NAME_MAX];
+
+                    xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                    unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
+
+                    *node = sNodeTree_create_xor(left_node, right_node, 0, info);
+
+                    *node = sNodeTree_create_store_variable(var_name, *node, FALSE, info);
+                }
+                else if(*info->p == '|' && *(info->p+1) == '=')
+                {
+                    info->p+=2;
+                    skip_spaces_and_lf(info);
+
+                    unsigned int right_node = 0;
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    char var_name[VAR_NAME_MAX];
+
+                    xstrncpy(var_name, buf, VAR_NAME_MAX);
+
+                    unsigned int left_node = sNodeTree_create_load_variable(var_name, info);
+
+                    *node = sNodeTree_create_or(left_node, right_node, 0, info);
+
+                    *node = sNodeTree_create_store_variable(var_name, *node, FALSE, info);
+                }
                 else {
                     *node = sNodeTree_create_load_variable(buf, info);
                 }
@@ -3100,9 +3443,60 @@ static BOOL expression_add_sub(unsigned int* node, sParserInfo* info)
 }
 
 // from left to right order
-static BOOL expression_comparison(unsigned int* node, sParserInfo* info)
+static BOOL expression_shift(unsigned int* node, sParserInfo* info)
 {
     if(!expression_add_sub(node, info)) {
+        return FALSE;
+    }
+    if(*node == 0) {
+        return TRUE;
+    }
+
+    while(*info->p) {
+        if(*info->p == '<' && *(info->p+1) == '<' && *(info->p+2) != '=') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            unsigned int right = 0;
+            if(!expression_add_sub(&right, info)) {
+                return FALSE;
+            }
+
+            if(right == 0) {
+                parser_err_msg(info, "require right value for operator <<");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_left_shift(*node, right, 0, info);
+        }
+        else if(*info->p == '>' && *(info->p+1) == '>' && *(info->p+2) != '=') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+            
+            unsigned int right = 0;
+            if(!expression_add_sub(&right, info)) {
+                return FALSE;
+            }
+
+            if(right == 0) {
+                parser_err_msg(info, "require right value for operator >>");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_right_shift(*node, right, 0, info);
+        }
+        else {
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
+// from left to right order
+static BOOL expression_comparison(unsigned int* node, sParserInfo* info)
+{
+    if(!expression_shift(node, info)) {
         return FALSE;
     }
     if(*node == 0) {
@@ -3115,7 +3509,7 @@ static BOOL expression_comparison(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_add_sub(&right, info)) {
+            if(!expression_shift(&right, info)) {
                 return FALSE;
             }
 
@@ -3131,7 +3525,7 @@ static BOOL expression_comparison(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_add_sub(&right, info)) {
+            if(!expression_shift(&right, info)) {
                 return FALSE;
             }
 
@@ -3147,7 +3541,7 @@ static BOOL expression_comparison(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_add_sub(&right, info)) {
+            if(!expression_shift(&right, info)) {
                 return FALSE;
             }
 
@@ -3163,7 +3557,7 @@ static BOOL expression_comparison(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_add_sub(&right, info)) {
+            if(!expression_shift(&right, info)) {
                 return FALSE;
             }
 
@@ -3233,9 +3627,114 @@ static BOOL expression_equal(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)
+// from left to right order
+static BOOL expression_and(unsigned int* node, sParserInfo* info)
 {
     if(!expression_equal(node, info)) {
+        return FALSE;
+    }
+    if(*node == 0) {
+        return TRUE;
+    }
+
+    while(*info->p) {
+        if(*info->p == '&' && *(info->p+1) != '&' && *(info->p+1) != '=') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int right = 0;
+            if(!expression_equal(&right, info)) {
+                return FALSE;
+            }
+
+            if(right == 0) {
+                parser_err_msg(info, "require right value for & operator");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_and(*node, right, 0, info);
+        }
+        else {
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
+// from left to right order
+static BOOL expression_xor(unsigned int* node, sParserInfo* info)
+{
+    if(!expression_and(node, info)) {
+        return FALSE;
+    }
+    if(*node == 0) {
+        return TRUE;
+    }
+
+    while(*info->p) {
+        if(*info->p == '^' && *(info->p+1) != '=') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int right = 0;
+            if(!expression_and(&right, info)) {
+                return FALSE;
+            }
+
+            if(right == 0) {
+                parser_err_msg(info, "require right value for ^ operator");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_xor(*node, right, 0, info);
+        }
+        else {
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
+// from left to right order
+static BOOL expression_or(unsigned int* node, sParserInfo* info)
+{
+    if(!expression_xor(node, info)) {
+        return FALSE;
+    }
+    if(*node == 0) {
+        return TRUE;
+    }
+
+    while(*info->p) {
+        if(*info->p == '|' && *(info->p+1) != '=' && *(info->p+1) != '|') {
+            (info->p)++;
+            skip_spaces_and_lf(info);
+
+            unsigned int right = 0;
+            if(!expression_xor(&right, info)) {
+                return FALSE;
+            }
+
+            if(right == 0) {
+                parser_err_msg(info, "require right value for | operator");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_or(*node, right, 0, info);
+        }
+        else {
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
+static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)
+{
+    if(!expression_or(node, info)) {
         return FALSE;
     }
     if(*node == 0) {
@@ -3248,7 +3747,7 @@ static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_equal(&right, info)) {
+            if(!expression_or(&right, info)) {
                 return FALSE;
             }
 
@@ -3264,7 +3763,7 @@ static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_equal(&right, info)) {
+            if(!expression_or(&right, info)) {
                 return FALSE;
             }
 
