@@ -53,7 +53,7 @@ impl vector<T>
         self.items = new T[self.size];
 
         if(block != null) {
-            block->(self);
+            block(self);
         }
     }
     
@@ -64,7 +64,7 @@ impl vector<T>
 
             self.items = new T[new_size];
 
-            memcpy(self.items->char*, items->char*, 8*self.size);
+            memcpy((char*)self.items, (char*)items, 8*self.size);
             self.size = new_size;
         }
 
@@ -77,7 +77,7 @@ impl vector<T>
     }
     void each(vector<T>*  self, void lambda(T,int) block) {
         for(int i=0; i<self.len; i++) {
-            block->(self.items[i], i);
+            block(self.items[i], i);
         };
     }
 
@@ -86,7 +86,7 @@ impl vector<T>
         var result = new vector<R>.initialize(null);
 
         self.each {
-            result.push_back(block->(it));
+            result.push_back(block(it));
         }
 
         result
@@ -101,7 +101,6 @@ extern int gGlobalVar;
 
 int main()
 {
-/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -234,11 +233,11 @@ int main()
         x + y + aa
     }
 
-    assert("lambda test", fun->(1,2) == 7 && bb == 2);
+    assert("lambda test", fun(1,2) == 7 && bb == 2);
 
     int fun5(int lambda(int,int) block)
     {
-        block->(1,2)
+        block(1,2)
     }
 
     int xxx = fun5(fun);
@@ -280,7 +279,7 @@ int main()
 
     void fun7(int* value) 
     {
-        assert("reffernce test", value->* == 111);
+        assert("reffernce test", *value == 111);
     }
 
     fun7(p);
@@ -291,7 +290,7 @@ int main()
         void times(int n, void lambda() block) 
         {
             for(int i=0; i<n; i++) {
-                block->();
+                block();
             };
         }
     }
@@ -317,7 +316,7 @@ int main()
 
     int fun8(int lambda(int,int) block)
     {
-        block->(2,2)
+        block(2,2)
     }
 
     int mm = fun8() {
@@ -477,7 +476,7 @@ int main()
         a + b
     }
 
-    assert("lambda test X", lll->(1,2) == 3);
+    assert("lambda test X", lll(1,2) == 3);
 
     struct GenericsTest <T, T2> {
         T a;
@@ -608,7 +607,7 @@ int main()
         {
             for(int i=0; i < self.a; i++)
             {
-                block->();
+                block();
             }
         }
 
@@ -618,7 +617,7 @@ int main()
             self.loop {
                 puts("HO!");
             }
-            block->()
+            block()
         }
     }
 
@@ -632,7 +631,7 @@ int main()
         {
             for(int i=0; i < self.a; i++)
             {
-                block->();
+                block();
             }
         }
 
@@ -649,7 +648,7 @@ int main()
                 puts("HO!");
             }
 
-            block->(string("aaa"));
+            block(string("aaa"));
 
             result
         }
@@ -1021,8 +1020,6 @@ int main()
 
     void* pxz = (void*)pxyy;
 
-*/
-
     struct StructTest3 {
         int a;
         int b;
@@ -1035,12 +1032,12 @@ int main()
 
     assert("struct test", data8.a == 1 && data8.b == 2);
 
-    void fun(StructTest3 data) 
+    void funXYZ(StructTest3 data) 
     {
         assert("struct test", data8.a == 1 && data8.b == 2);
     }
 
-    fun(data8);
+    funXYZ(data8);
 
     StructTest3* data9 = new StructTest3;
 
@@ -1049,7 +1046,58 @@ int main()
 
     assert("struct test", data9->a == 1 && data9->b == 2);
 
-    fun(*data9);
+    funXYZ(*data9);
+
+    int funXYZ2() {
+        if(true) {
+            return 1;
+        }
+        
+        0
+    }
+
+    assert("return test", funXYZ2() == 1);
+
+    inline int inline_fun6(int x, int y) {
+        if(false) {
+            return x + y;
+        }
+
+        3
+    }
+
+    assert("inline fun6", inline_fun6(1, 2) == 3);
+
+    inline int inline_fun7(int x, int y) {
+        if(true) {
+            return x + y;
+        }
+
+       return 0; 
+    }
+
+    assert("inline fun7", inline_fun7(1, 2) == 3);
+
+    inline int inline_fun8(int x, int y) {
+        if(false) {
+            return x + y;
+        }
+
+       return 3; 
+    }
+
+    assert("inline fun8", inline_fun8(1, 2) == 3);
+
+    inline int inline_fun9(int x, int y) {
+        if(false) {
+            return x + y;
+        }
+        else {
+            return 3; 
+        };
+    }
+
+    assert("inline fun9", inline_fun9(1, 2) == 3);
 
     0
 }

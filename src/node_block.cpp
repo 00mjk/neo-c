@@ -131,28 +131,48 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
             if(i == block->mNumNodes -1)
             {
-/*
-                if(has_result)
-                {
-                    LVALUE llvm_value = *get_value_from_stack(-1);
+                BOOL last_expression_is_return = gNodes[node].mNodeType == kNodeTypeReturn;
+
+                if(last_expression_is_return) {
                     arrange_stack(info, stack_num_before);
 
-                    push_value_to_stack_ptr(&llvm_value, info);
+                    info->type = create_node_type_with_class_name("void");
 
-                    result_type = llvm_value.type;
-
-                    std_move(NULL, result_type, &llvm_value, FALSE, info);
-
-                    info->type = llvm_value.type;
-
+                    info->last_expression_is_return = TRUE;
                 }
-                else 
-*/
-                if(result_type && type_identify_with_class_name(result_type, "void"))
+                else if(result_type && type_identify_with_class_name(result_type, "void"))
                 {
                     arrange_stack(info, stack_num_before);
 
                     info->type = create_node_type_with_class_name("void");
+                }
+                else if(result_type && !type_identify_with_class_name(result_type, "void") && has_result && info->result_variable) 
+                {
+                    LVALUE llvm_value = *get_value_from_stack(-1);
+                    arrange_stack(info, stack_num_before);
+
+                    if(auto_cast_posibility(result_type, llvm_value.type))
+                    {
+                        cast_right_type_to_left_type(result_type, &llvm_value.type, &llvm_value, info);
+                    }
+
+                    if(!substitution_posibility(result_type, llvm_value.type, info)) {
+                        compile_err_msg(info, "The different type between left type and right type.(1)");
+                        show_node_type(result_type);
+                        show_node_type(llvm_value.type);
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+
+                    std_move(NULL, result_type, &llvm_value, FALSE, info);
+
+                    info->type = llvm_value.type;
+                    int alignment = get_llvm_alignment_from_node_type(llvm_value.type);
+
+                    Builder.CreateAlignedStore(llvm_value.value, (Value*)info->result_variable, alignment);
                 }
                 else if(has_result) {
                     LVALUE llvm_value = *get_value_from_stack(-1);

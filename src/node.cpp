@@ -2529,6 +2529,16 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     dec_stack_ptr(num_params, info);
 
     if(fun.mInlineFunction) {
+        BasicBlock* inline_func_begin = BasicBlock::Create(TheContext, fun_name, gFunction);
+
+        Builder.CreateBr(inline_func_begin);
+
+        BasicBlock* current_block_before;
+        llvm_change_block(inline_func_begin, &current_block_before, info);
+
+        void* inline_func_end_before = info->inline_func_end;
+        info->inline_func_end = BasicBlock::Create(TheContext, "inline_func_end", gFunction);
+
         sVarTable* lv_table = inline_block->mLVTable;
 
         for(i=0; i<num_params; i++) {
@@ -2590,12 +2600,65 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             }
         }
 
+        Type* llvm_type;
+        if(!create_llvm_type_from_node_type(&llvm_type, result_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(105)");
+            show_node_type(result_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        sNodeType* result_type_before = info->result_type;
+        info->result_type = clone_node_type(result_type);
+
+        Value* result_variable = NULL;
+        if(!type_identify_with_class_name(result_type, "void"))
+        {
+            IRBuilder<> ir(&gFunction->getEntryBlock()
+                            , gFunction->getEntryBlock().begin());
+            result_variable = ir.CreateAlloca(llvm_type, 0, "result_variable");
+        }
+
+        void* result_variable_before = info->result_variable;
+        info->result_variable = result_variable;
+
+        BOOL last_expression_is_return_before = info->last_expression_is_return;
+        info->last_expression_is_return = FALSE;
+
         if(!compile_block(inline_block, info, result_type))
         {
             return FALSE;
         }
 
-        info->type = fun.mResultType;
+        if(!info->last_expression_is_return) {
+            Builder.CreateBr((BasicBlock*)info->inline_func_end);
+        }
+
+        llvm_change_block((BasicBlock*)info->inline_func_end, &current_block_before, info);
+
+        if(!type_identify_with_class_name(result_type, "void"))
+        {
+            int alignment = get_llvm_alignment_from_node_type(result_type);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateAlignedLoad(result_variable, alignment, "result_variable");
+            llvm_value.type = result_type;
+            llvm_value.address = result_variable;
+            llvm_value.var = NULL;
+
+            push_value_to_stack_ptr(&llvm_value, info);
+        }
+
+        info->type = result_type;
+
+        info->last_expression_is_return = last_expression_is_return_before;
+        info->result_variable = result_variable_before;
+        info->result_type = result_type_before;
+        info->inline_func_end = inline_func_end_before;
     }
     else if(type_identify_with_class_name(fun.mResultType, "void"))
     {
@@ -2815,6 +2878,9 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     Value* lvtable;
     lvtable = store_lvtable();
 
+    void* function_lvtable_before = info->function_lvtable;
+    info->function_lvtable = lvtable;
+
     /// ready for params ///
     for(i=0; i<num_params; i++) {
         sParserParam param = params[i];
@@ -2833,6 +2899,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
             info->type = create_node_type_with_class_name("int"); // dummy
 
+
+            info->function_lvtable = function_lvtable_before;
             return TRUE;
         }
 
@@ -2857,34 +2925,48 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     sVarTable* lv_table_before = NULL;
     sVarTable* node_block_lv_table_before = NULL;
 
+    sNodeType* result_type_before = info->result_type;
+    info->result_type = clone_node_type(result_type);
+
+    BOOL last_expression_is_return_before = info->last_expression_is_return;
+    info->last_expression_is_return = FALSE;
+
     if(!compile_block(node_block, info, result_type))
     {
+        info->function_lvtable = function_lvtable_before;
+        info->result_type = result_type_before;
         xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
         return FALSE;
     }
 
+    info->result_type = result_type_before;
     sNodeType* block_result_type = info->type;
-
-    restore_lvtable(lvtable);
-
+    info->function_lvtable = function_lvtable_before;
     xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
 
-    free_right_value_objects(info);
+    if(!info->last_expression_is_return) {
+        restore_lvtable(lvtable);
 
-    // Finish off the function.
-    if(type_identify_with_class_name(result_type, "void"))
-    {
-        Value* ret_value = nullptr;
+        free_right_value_objects(info);
 
-        Builder.CreateRet(ret_value);
+        // Finish off the function.
+        if(type_identify_with_class_name(result_type, "void"))
+        {
+            Value* ret_value = nullptr;
+
+            Builder.CreateRet(ret_value);
+        }
+        else {
+            LVALUE ret_value = *get_value_from_stack(-1);
+
+            Builder.CreateRet(ret_value.value);
+
+            dec_stack_ptr(1, info);
+        }
     }
-    else {
-        LVALUE ret_value = *get_value_from_stack(-1);
 
-        Builder.CreateRet(ret_value.value);
+    info->last_expression_is_return = last_expression_is_return_before;
 
-        dec_stack_ptr(1, info);
-    }
 
     verifyFunction(*fun);
 
@@ -2965,6 +3047,9 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         Value* lvtable;
         lvtable = store_lvtable();
 
+        void* function_lvtable_before = info->function_lvtable;
+        info->function_lvtable = lvtable;
+
         /// ready for params ///
         for(i=0; i<num_params; i++) {
             sParserParam param = params[i];
@@ -2983,6 +3068,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
                 info->type = create_node_type_with_class_name("int"); // dummy
 
+
+                info->function_lvtable = function_lvtable_before;
                 return TRUE;
             }
 
@@ -3007,34 +3094,45 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         sVarTable* lv_table_before = NULL;
         sVarTable* node_block_lv_table_before = NULL;
 
+        sNodeType* result_type_before = info->result_type;
+        info->result_type = clone_node_type(result_type);
+
+        BOOL last_expression_is_return_before = info->last_expression_is_return;
+        info->last_expression_is_return = FALSE;
+
         if(!compile_block(node_block, info, result_type))
         {
             xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
             return FALSE;
         }
 
+        info->result_type = result_type_before;
         sNodeType* block_result_type = info->type;
-
-        restore_lvtable(lvtable);
-
+        info->function_lvtable = function_lvtable_before;
         xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
 
-        free_right_value_objects(info);
+        if(!info->last_expression_is_return) {
+            restore_lvtable(lvtable);
 
-        // Finish off the function.
-        if(type_identify_with_class_name(result_type, "void"))
-        {
-            Value* ret_value = nullptr;
+            free_right_value_objects(info);
 
-            Builder.CreateRet(ret_value);
+            // Finish off the function.
+            if(type_identify_with_class_name(result_type, "void"))
+            {
+                Value* ret_value = nullptr;
+
+                Builder.CreateRet(ret_value);
+            }
+            else {
+                LVALUE ret_value = *get_value_from_stack(-1);
+
+                Builder.CreateRet(ret_value.value);
+
+                dec_stack_ptr(1, info);
+            }
         }
-        else {
-            LVALUE ret_value = *get_value_from_stack(-1);
 
-            Builder.CreateRet(ret_value.value);
-
-            dec_stack_ptr(1, info);
-        }
+        info->last_expression_is_return = last_expression_is_return_before;
 
         verifyFunction(*fun);
 
@@ -3470,6 +3568,9 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     sNodeBlock* if_block = gNodes[node].uValue.sIf.mIfNodeBlock;
     sNodeType* result_type = create_node_type_with_class_name("any");
 
+    BOOL last_expression_is_return_before = info->last_expression_is_return;
+    info->last_expression_is_return = FALSE;
+
     if(!compile_block(if_block, info, result_type)) {
         return FALSE;
     }
@@ -3507,7 +3608,11 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         Builder.CreateAlignedStore(llvm_value.value, result_value, result_value_alignment);
     }
 
-    Builder.CreateBr(cond_end_block);
+    if(!info->last_expression_is_return) {
+        Builder.CreateBr(cond_end_block);
+    }
+
+    info->last_expression_is_return = last_expression_is_return_before;
 
     //// elif ///
     if(elif_num > 0) {
@@ -3568,6 +3673,9 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
             sNodeBlock* elif_node_block = gNodes[node].uValue.sIf.mElifNodeBlocks[i];
 
+            BOOL last_expression_is_return_before = info->last_expression_is_return;
+            info->last_expression_is_return = FALSE;
+
             if(!compile_block(elif_node_block, info, result_type)) 
             {
                 return FALSE;
@@ -3589,13 +3697,20 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
                 Builder.CreateAlignedStore(llvm_value.value, result_value, result_value_alignment);
             }
 
-            Builder.CreateBr(cond_end_block);
+            if(!info->last_expression_is_return) {
+                Builder.CreateBr(cond_end_block);
+            }
+
+            info->last_expression_is_return = last_expression_is_return_before;
         }
     }
 
     if(else_node_block) {
         BasicBlock* current_block_before;
         llvm_change_block(cond_else_block, &current_block_before, info);
+
+        BOOL last_expression_is_return_before = info->last_expression_is_return;
+        info->last_expression_is_return = FALSE;
 
         if(!compile_block(else_node_block, info, result_type)) 
         {
@@ -3618,7 +3733,11 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             Builder.CreateAlignedStore(llvm_value.value, result_value, result_value_alignment);
         }
 
-        Builder.CreateBr(cond_end_block);
+        if(!info->last_expression_is_return) {
+            Builder.CreateBr(cond_end_block);
+        }
+
+        info->last_expression_is_return = last_expression_is_return_before;
     }
 
     BasicBlock* current_block_before2;
@@ -4296,12 +4415,19 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     BasicBlock* current_block_before2;
     llvm_change_block(cond_then_block, &current_block_before2, info);
 
+    BOOL last_expression_is_return_before = info->last_expression_is_return;
+    info->last_expression_is_return = FALSE;
+
     sNodeType* result_type = create_node_type_with_class_name("void");
     if(!compile_block(while_node_block, info, result_type)) {
         return FALSE;
     }
 
-    Builder.CreateBr(loop_top_block);
+    if(!info->last_expression_is_return) {
+        Builder.CreateBr(loop_top_block);
+    }
+
+    info->last_expression_is_return = last_expression_is_return_before;
 
     BasicBlock* current_block_before3;
     llvm_change_block(cond_end_block, &current_block_before3, info);
@@ -4741,12 +4867,19 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     /// expression 3 ///
     unsigned int expression_node3 = gNodes[node].uValue.sFor.mExpressionNode3;
 
+    BOOL last_expression_is_return_before = info->last_expression_is_return;
+    info->last_expression_is_return = FALSE;
+
     if(!compile(expression_node3, info)) {
         info->pinfo->lv_table = lv_table_before;
         return FALSE;
     }
 
-    Builder.CreateBr(loop_top_block);
+    if(!info->last_expression_is_return) {
+        Builder.CreateBr(loop_top_block);
+    }
+
+    info->last_expression_is_return = last_expression_is_return_before;
 
     BasicBlock* current_block_before3;
     llvm_change_block(cond_end_block, &current_block_before3, info);
@@ -5946,6 +6079,111 @@ static BOOL compile_or(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_return(unsigned int left, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeReturn;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_return(unsigned int node, sCompileInfo* info)
+{
+    sNodeType* result_type = info->result_type;
+
+    if(result_type == NULL) {
+        compile_err_msg(info, "No result type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    int left_node = gNodes[node].mLeft;
+
+    if(left_node != 0) {
+        if(!compile(left_node, info)) {
+            return FALSE;
+        }
+
+        LVALUE llvm_value = *get_value_from_stack(-1);
+
+        if(auto_cast_posibility(result_type, llvm_value.type))
+        {
+            cast_right_type_to_left_type(result_type, &llvm_value.type, &llvm_value, info);
+        }
+
+        if(!substitution_posibility(result_type, llvm_value.type, info)) {
+            compile_err_msg(info, "The different type between left type and right type.(1)");
+            show_node_type(result_type);
+            show_node_type(llvm_value.type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        std_move(NULL, result_type, &llvm_value, FALSE, info);
+
+        restore_lvtable((Value*)info->function_lvtable);
+
+        free_right_value_objects(info);
+
+        if(info->inline_func_end) {
+            int alignment = get_llvm_alignment_from_node_type(llvm_value.type);
+
+            Builder.CreateAlignedStore(llvm_value.value, (Value*)info->result_variable, alignment);
+
+            dec_stack_ptr(1, info);
+
+            Builder.CreateBr((BasicBlock*)info->inline_func_end);
+        }
+        else {
+            Builder.CreateRet(llvm_value.value);
+
+            dec_stack_ptr(1, info);
+        }
+
+        info->type = create_node_type_with_class_name("void");
+    }
+    else {
+        if(!type_identify_with_class_name(result_type, "void"))
+        {
+            compile_err_msg(info, "Require result value");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        restore_lvtable((Value*)info->function_lvtable);
+
+        free_right_value_objects(info);
+
+        if(info->inline_func_end) {
+            Builder.CreateBr((BasicBlock*)info->inline_func_end);
+        }
+        else {
+            Builder.CreateRet(nullptr);
+        }
+
+        info->type = create_node_type_with_class_name("void");
+    }
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -6280,6 +6518,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeOr:
             if(!compile_or(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeReturn:
+            if(!compile_return(node, info)) {
                 return FALSE;
             }
             break;

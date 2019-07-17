@@ -686,6 +686,31 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
     return TRUE;
 }
 
+static BOOL parse_return(unsigned int* node, sParserInfo* info)
+{
+    *node = 0;
+
+    if(*info->p == '(') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!expression(node, info)) {
+            return FALSE;
+        }
+
+        expect_next_character_with_one_forward(")", info);
+    }
+    else if(*info->p != ';') {
+        if(!expression(node, info)) {
+            return FALSE;
+        }
+    }
+
+    *node = sNodeTree_create_return(*node, info);
+
+    return TRUE;
+}
+
 static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* name, BOOL extern_, sParserInfo* info, BOOL readonly)
 {
     check_already_added_variable(info->lv_table, name, info);
@@ -1871,6 +1896,23 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                             *node = sNodeTree_create_or(field_node, right_node, 0, info);
                             *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
                         }
+                        else if(*info->p == '-' && *(info->p+1) == '>' && *(info->p+2) == '(')
+                        {
+                            info->p+=2;
+
+                            unsigned int params[PARAMS_MAX];
+                            int num_params = 0;
+
+                            if(!parse_funcation_call_params(&num_params, params, info)) 
+                            {
+                                return FALSE;
+                            }
+
+                            *node = sNodeTree_create_load_field(buf, obj_node, info);
+
+                            *node = sNodeTree_create_lambda_call(*node, params, num_params, info);
+
+                        }
                         else {
                             *node = sNodeTree_create_load_field(buf, obj_node, info);
                         }
@@ -1882,24 +1924,6 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                 info->err_num++;
                 *node = 0;
                 break;
-            }
-        }
-        else if(*info->p == '-' && *(info->p+1) == '>')
-        {
-            info->p += 2;
-            skip_spaces_and_lf(info);
-
-            if(*info->p == '(')
-            {
-                unsigned int params[PARAMS_MAX];
-                int num_params = 0;
-
-                if(!parse_funcation_call_params(&num_params, params, info)) 
-                {
-                    return FALSE;
-                }
-
-                *node = sNodeTree_create_lambda_call(*node, params, num_params, info);
             }
         }
         else if(*info->p == '<' && *(info->p+1) == '-')
@@ -2821,6 +2845,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "return") == 0) {
+            if(!parse_return(node, info)) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "var") == 0) {
             if(!parse_var(node, info, FALSE)) {
                 return FALSE;
@@ -3260,6 +3289,20 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     *node = sNodeTree_create_or(left_node, right_node, 0, info);
 
                     *node = sNodeTree_create_store_variable(var_name, *node, FALSE, info);
+                }
+                else if(*info->p == '(')
+                {
+                    unsigned int params[PARAMS_MAX];
+                    int num_params = 0;
+
+                    if(!parse_funcation_call_params(&num_params, params, info)) 
+                    {
+                        return FALSE;
+                    }
+
+                    *node = sNodeTree_create_load_variable(buf, info);
+
+                    *node = sNodeTree_create_lambda_call(*node, params, num_params, info);
                 }
                 else {
                     *node = sNodeTree_create_load_variable(buf, info);
