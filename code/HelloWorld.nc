@@ -1,5 +1,6 @@
 #include "neo-c.h"
 #include "neo-c-stdc.h"
+#include <stdio.h>
 
 typedef string char*%;
 
@@ -99,25 +100,9 @@ const int GlobalConstantInt = 123;
 
 extern int gGlobalVar;
 
-struct StructTest4 {
-    int a;
-    int b;
-}
-
-impl StructTest4 {
-    initialize() {
-        self.a = 111;
-        self.b = 123;
-    }
-
-    finalize() {
-        puts("calling finalize");
-    }
-}
 
 int main()
 {
-/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -1130,7 +1115,24 @@ int main()
     }
 
     fun11(null);
-*/
+
+    struct StructTest4 {
+        int a;
+        int b;
+    }
+
+    impl StructTest4 {
+        initialize() {
+            self.a = 111;
+            self.b = 123;
+        }
+
+        finalize() {
+            assert("struct test13", self.a == 111 && self.b == 123);
+            puts("calling finalize");
+        }
+    }
+
     var struct_var = new StructTest4.initialize();
 
     assert("struct test12", struct_var.a == 111 && struct_var.b == 123);

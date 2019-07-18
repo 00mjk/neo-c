@@ -77,14 +77,12 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
             has_result = FALSE;
         }
         else {
-/*
             if(gNodes[node].mNodeType == kNodeTypeIf || gNodes[node].mNodeType == kNodeTypeWhile || gNodes[node].mNodeType == kNodeTypeFor) 
             {
             }
             else {
-*/
                 has_result = TRUE;
-//            }
+            }
         }
 
         if(*info->p == '}') {

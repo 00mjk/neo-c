@@ -212,12 +212,14 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
     sFunction fun = gFuncs[real_fun_name];
 
     if(fun.mResultType == nullptr) {
+        dec_stack_ptr(num_params, info);
         return FALSE;
     }
 
     Function* llvm_fun = TheModule->getFunction(real_fun_name);
 
     if(llvm_fun == nullptr) {
+        dec_stack_ptr(num_params, info);
         return FALSE;
     }
 
