@@ -99,8 +99,25 @@ const int GlobalConstantInt = 123;
 
 extern int gGlobalVar;
 
+struct StructTest4 {
+    int a;
+    int b;
+}
+
+impl StructTest4 {
+    initialize() {
+        self.a = 111;
+        self.b = 123;
+    }
+
+    finalize() {
+        puts("calling finalize");
+    }
+}
+
 int main()
 {
+/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -1089,15 +1106,34 @@ int main()
     assert("inline fun8", inline_fun8(1, 2) == 3);
 
     inline int inline_fun9(int x, int y) {
+        assert("inline inline fun8", inline_fun8(1, 2) == 3);
+
         if(false) {
             return x + y;
         }
         else {
             return 3; 
-        };
+        }
     }
 
     assert("inline fun9", inline_fun9(1, 2) == 3);
+
+    inline int inline_fun10(int x, int y) {
+        inline_fun8(1, 2)
+    }
+
+    assert("inline fun10", inline_fun10(1, 2) == 3);
+    void fun11(int*? self) {
+        if(self == null) {
+            return;
+        }
+    }
+
+    fun11(null);
+*/
+    var struct_var = new StructTest4.initialize();
+
+    assert("struct test12", struct_var.a == 111 && struct_var.b == 123);
 
     0
 }

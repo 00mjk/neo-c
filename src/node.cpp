@@ -204,7 +204,7 @@ static void create_operator_fun_name(char* real_fun_name, size_t size_real_fun_n
     }
 }
 
-static BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, sCompileInfo* info)
+BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, sCompileInfo* info)
 {
     char real_fun_name[REAL_FUN_NAME_MAX];
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
@@ -216,6 +216,10 @@ static BOOL call_function(char* fun_name, Value** params, int num_params, char* 
     }
 
     Function* llvm_fun = TheModule->getFunction(real_fun_name);
+
+    if(llvm_fun == nullptr) {
+        return FALSE;
+    }
 
     std::vector<Value*> llvm_params;
 

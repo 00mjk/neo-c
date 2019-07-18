@@ -139,6 +139,7 @@ void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_bef
 Value* store_lvtable();
 void restore_lvtable(Value* lvtable);
 Value* get_dummy_value(sNodeType* node_type, sCompileInfo* info);
+BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, sCompileInfo* info);
 }
 
 #endif

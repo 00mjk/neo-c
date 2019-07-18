@@ -969,11 +969,34 @@ void free_right_value_objects(sCompileInfo* info)
     gHeapObjects.clear();
 }
 
+static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
+{
+    Value* params[PARAMS_MAX];
+
+    params[0] = obj;
+
+    LVALUE llvm_value;
+    llvm_value.value = obj;
+    llvm_value.type = clone_node_type(node_type);
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    int num_params = 1;
+
+    char* struct_name = CLASS_NAME(node_type->mClass);
+
+    (void)call_function("finalize", params, num_params, struct_name, info);
+}
+
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
 
     Value* obj = Builder.CreateAlignedLoad((Value*)address, 8);
+
+    call_destructor(obj, node_type, info);
 
     sNodeType* node_type2 = clone_node_type(node_type);
     node_type2->mPointerNum = 0;
