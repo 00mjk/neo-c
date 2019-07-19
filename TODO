@@ -1,3 +1,47 @@
+volatile
+
+typedef struct
+
+typedef union
+
+unsigned
+
+const
+
+__extension__
+
+__attribute__
+
+__inline
+
+long long
+
+long int
+
+short int
+
+__restrict
+
+unsigned long long int
+
+signed
+
+register
+
+__builtin_var_list
+
+sizeof
+
+int a[sizeof(int)*2 + sizeof(char) * 2]
+
+enum
+
+function(void)
+
+void (*func)(void)
+
+int a[128];
+
 function pointer C互換
 
 function pointer call C互換

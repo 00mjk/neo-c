@@ -43,6 +43,8 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
 {
     char* p = source->mBuf;
 
+printf("%s\n", source->mBuf);
+
     BOOL in_string = FALSE;
     BOOL in_char = FALSE;
 
@@ -58,27 +60,15 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
             p+=2;
             int nest = 0;
             while(1) {
-                if((in_string || in_char) && *p == '\\') {
-                    p++;
-                    p++;
-                }
-                else if(!in_char && *p == '"') {
-                    p++;
-                    in_string = !in_string;
-                }
-                else if(!in_string && *p == '\'') {
-                    p++;
-                    in_char = !in_char;
-                }
-                else if(*p == 0) {
-                    fprintf(stderr, "there is not a comment end until source end\n");
+                if(*p == 0) {
+                    fprintf(stderr, "there is not a comment end until source end with /* in string %d in char %d\n", in_string, in_char);
                     return FALSE;
                 }
-                else if(!in_string && !in_char && *p == '/' && *(p+1) == '*') {
+                else if(*p == '/' && *(p+1) == '*') {
                     p+=2;
                     nest++;
                 }
-                else if(!in_string && !in_char && *p == '*' && *(p+1) == '/') {
+                else if(*p == '*' && *(p+1) == '/') {
                     p+=2;
                     if(nest == 0) {
                         break;

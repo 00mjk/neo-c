@@ -1,6 +1,5 @@
 #include "neo-c.h"
 #include "neo-c-stdc.h"
-#include <stdio.h>
 
 typedef string char*%;
 

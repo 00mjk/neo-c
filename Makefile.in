@@ -116,4 +116,6 @@ test:
 	PWD=`pwd` ./neo-c -c code/External.nc
 	PWD=`pwd` ./neo-c code/HelloWorld.nc code/External.o 
 	./code/HelloWorld
+	PWD=`pwd` ./neo-c code/HelloWorld2.nc
+	./code/HelloWorld2
 
