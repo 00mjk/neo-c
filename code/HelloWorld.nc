@@ -276,7 +276,7 @@ int main()
 
     int iii = 111;
 
-    int* p = iii<-;
+    int* p = &iii;
 
     void fun7(int* value) 
     {
@@ -1225,6 +1225,45 @@ int main()
     assert("alloca array test", intarray2[0] == 123 && intarray2[1] == 234 && intarray2[2] == 345);
 
     assert("sizeof test", sizeof(int) == 4 && sizeof(char) == 1 && sizeof(long) == 8);
+
+    int avalue, bvalue, cvalue;
+
+    avalue = 111; 
+    bvalue = 222;
+    cvalue = 333;
+
+    assert("avalue", avalue == 111 && bvalue == 222 && cvalue == 333);
+
+    int *aptr, *bptr, *cptr;
+
+    aptr = &avalue;
+    bptr = &bvalue;
+    cptr = &cvalue;
+
+    assert("avalue", *aptr == 111 && *bptr == 222 && *cptr == 333);
+
+    struct StructTest6 {
+        int a;
+        int b;
+    }
+
+    struct StructTest6 sxdata;
+
+    sxdata.a = 111;
+    sxdata.b = 222;
+
+    assert("struct testX", sxdata.a == 111 && sxdata.b == 222);
+
+    union UnionTest5 {
+        int a;
+        long b;
+    }
+
+    union UnionTest5 uxdata;
+
+    uxdata.b = 222;
+
+    assert("union testX", uxdata.b == 222);
 
     0
 }

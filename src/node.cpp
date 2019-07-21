@@ -6280,6 +6280,9 @@ unsigned int sNodeTree_create_sizeof(sNodeType* node_type, sParserInfo* info)
 
     gNodes[node].mNodeType = kNodeTypeSizeOf;
 
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
     gNodes[node].uValue.sSizeOf.mType = node_type;
 
     gNodes[node].mLeft = 0;
@@ -6310,6 +6313,48 @@ static BOOL compile_sizeof(unsigned int node, sCompileInfo* info)
     push_value_to_stack_ptr(&llvm_value, info);
 
     info->type = create_node_type_with_class_name("long");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_define_variables(unsigned int* nodes, int num_nodes, BOOL extern_, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeDefineVariables;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    memcpy(gNodes[node].uValue.sDefineVariables.mNodes, nodes, sizeof(unsigned int)*IMPL_DEF_MAX);
+    gNodes[node].uValue.sDefineVariables.mNumNodes = num_nodes;
+    gNodes[node].uValue.sDefineVariables.mGlobal = info->mBlockLevel == 0;
+    gNodes[node].uValue.sDefineVariables.mExtern = extern_;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_define_variables(unsigned int node, sCompileInfo* info)
+{
+    unsigned int* nodes = gNodes[node].uValue.sDefineVariables.mNodes;
+    int num_nodes = gNodes[node].uValue.sDefineVariables.mNumNodes;
+    BOOL global = gNodes[node].uValue.sDefineVariables.mGlobal;
+    BOOL extern_ = gNodes[node].uValue.sDefineVariables.mExtern ;
+
+    int i;
+    for(i=0; i<num_nodes; i++) {
+        unsigned int node = nodes[i];
+
+        if(!compile(node, info)) {
+            return FALSE;
+        }
+    }
+
+    info->type = create_node_type_with_class_name("void");
 
     return TRUE;
 }
@@ -6660,6 +6705,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
         
         case kNodeTypeSizeOf:
             if(!compile_sizeof(node, info)) {
+                return FALSE;
+            }
+            break;
+    
+        case kNodeTypeDefineVariables:
+            if(!compile_define_variables(node, info)) {
                 return FALSE;
             }
             break;
