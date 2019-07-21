@@ -1265,6 +1265,61 @@ int main()
 
     assert("union testX", uxdata.b == 222);
 
+    int funp(int a, int b) {
+        return a + b;
+    }
+
+    int (*fp)(int, int) = funp;
+
+    assert("function pointer test", fp(1,2) == 3);
+
+    struct StructTest7 {
+        int a;
+        struct StructTest7* data;
+    }
+
+    struct StructTest7* struct_test_var = alloca StructTest7;
+
+    struct_test_var.a = 111;
+
+    struct_test_var.data = alloca StructTest7;
+
+    struct_test_var.data.a = 222;
+
+    assert("self-refference struct", struct_test_var.a == 111 && struct_test_var.data.a == 222);
+
+    struct StructTest8;
+
+    struct StructTest8* struct_test_var2;
+
+    struct StructTest8 {
+        int a;
+        int b;
+    }
+
+    struct_test_var2 = alloca StructTest8;
+
+    struct_test_var2.a = 111;
+    struct_test_var2.b = 222;
+
+    assert("undefined struct", struct_test_var2.a == 111 && struct_test_var2.b == 222);
+
+
+    union UnionTest6;
+
+    union UnionTest6* union_test_var;
+
+    union UnionTest6 {
+        int a;
+        long b;
+    }
+
+    union_test_var = alloca UnionTest6;
+
+    union_test_var.a = 111;
+
+    assert("undefined union", union_test_var.a == 111);
+
     0
 }
 

@@ -426,6 +426,31 @@ static void create_real_struct_name(char* real_struct_name, int size_real_struct
     }
 }
 
+void create_undefined_llvm_struct_type(sNodeType* node_type)
+{
+    sCLClass* klass = node_type->mClass;
+
+    char* class_name = CLASS_NAME(klass);
+
+    char real_struct_name[REAL_STRUCT_NAME_MAX];
+    int size_real_struct_name = REAL_STRUCT_NAME_MAX;
+
+    create_real_struct_name(real_struct_name, size_real_struct_name, class_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
+
+    if(gLLVMStructType[real_struct_name].first == nullptr) 
+    {
+        StructType* struct_type = StructType::create(TheContext, real_struct_name);
+
+        std::pair<Type*, sNodeType*> pair_value;
+        pair_value.first = struct_type;
+        pair_value.second = clone_node_type(node_type);
+
+        gLLVMStructType[real_struct_name] = pair_value;
+
+        klass->mUndefinedStructType = struct_type;
+    }
+}
+
 BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
@@ -442,11 +467,53 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info)
         StructType* struct_type = StructType::create(TheContext, real_struct_name);
         std::vector<Type*> fields;
 
+        std::pair<Type*, sNodeType*> pair_value;
+        pair_value.first = struct_type;
+        pair_value.second = clone_node_type(node_type);
+
+        gLLVMStructType[real_struct_name] = pair_value;
+
         int i;
         for(i=0; i<klass->mNumFields; i++) {
             sNodeType* field = klass->mFields[i];
 
             if(!solve_generics(&field, node_type))
+            {
+                return FALSE;
+            }
+
+            if(field->mClass == klass && field->mPointerNum == 0)
+            {
+                return FALSE;
+            }
+
+            Type* field_type;
+            if(!create_llvm_type_from_node_type(&field_type, field, info))
+            {
+                return FALSE;
+            }
+
+            fields.push_back(field_type);
+        }
+
+        if(struct_type->isOpaque()) {
+            struct_type->setBody(fields, false);
+        }
+    }
+    else if(klass->mUndefinedStructType) {
+        StructType* struct_type = (StructType*)klass->mUndefinedStructType;
+        std::vector<Type*> fields;
+
+        int i;
+        for(i=0; i<klass->mNumFields; i++) {
+            sNodeType* field = klass->mFields[i];
+
+            if(!solve_generics(&field, node_type))
+            {
+                return FALSE;
+            }
+
+            if(field->mClass == klass && field->mPointerNum == 0)
             {
                 return FALSE;
             }
@@ -464,11 +531,7 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info)
             struct_type->setBody(fields, false);
         }
 
-        std::pair<Type*, sNodeType*> pair_value;
-        pair_value.first = struct_type;
-        pair_value.second = clone_node_type(node_type);
-
-        gLLVMStructType[real_struct_name] = pair_value;
+        klass->mUndefinedStructType = NULL;
     }
 
     return TRUE;
@@ -535,6 +598,51 @@ BOOL create_llvm_union_type(sNodeType* node_type, sCompileInfo* info)
 
         gLLVMStructType[real_struct_name] = pair_value;
     }
+    else if(klass->mUndefinedStructType) {
+        StructType* struct_type = (StructType*)klass->mUndefinedStructType;
+        std::vector<Type*> fields;
+
+        uint64_t max_size = 0;
+        Type* max_size_field = NULL;
+
+        int i;
+        for(i=0; i<klass->mNumFields; i++) {
+            sNodeType* field = klass->mFields[i];
+
+            if(!solve_generics(&field, node_type))
+            {
+                return FALSE;
+            }
+
+            Type* field_type;
+            if(!create_llvm_type_from_node_type(&field_type, field, info))
+            {
+                return FALSE;
+            }
+
+            uint64_t alloc_size = 0;
+            if(!get_size_from_node_type(&alloc_size, field, info))
+            {
+                return FALSE;
+            }
+
+            if(alloc_size > max_size) {
+                max_size = alloc_size;
+
+                max_size_field = field_type;
+            }
+        }
+
+        if(max_size_field) {
+            fields.push_back(max_size_field);
+        }
+
+        if(struct_type->isOpaque()) {
+            struct_type->setBody(fields, false);
+        }
+
+        klass->mUndefinedStructType = NULL;
+    }
 
     return TRUE;
 }
@@ -551,6 +659,11 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
 
     if(klass->mFlags & CLASS_FLAGS_STRUCT) 
     {
+        if(klass->mUndefinedStructType && node_type->mPointerNum == 0)
+        {
+            return FALSE;
+        }
+
         sCLClass* klass = node_type->mClass;
 
         char* class_name = CLASS_NAME(klass);
@@ -572,6 +685,11 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
     }
     else if(klass->mFlags & CLASS_FLAGS_UNION) 
     {
+        if(klass->mUndefinedStructType && node_type->mPointerNum == 0)
+        {
+            return FALSE;
+        }
+
         sCLClass* klass = node_type->mClass;
 
         char* class_name = CLASS_NAME(klass);

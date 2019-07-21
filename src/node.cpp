@@ -3,6 +3,11 @@
 std::map<std::string, sFunction> gFuncs;
 std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;
 
+BOOL is_function_name(char* name)
+{
+    return TheModule->getFunction(name) != NULL;
+}
+
 void show_node(unsigned int node)
 {
     switch(gNodes[node].mNodeType) {
@@ -6359,6 +6364,67 @@ static BOOL compile_define_variables(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_load_function(char* fun_name, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeLoadFunction;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    xstrncpy(gNodes[node].uValue.sLoadFunction.mFunName, fun_name, VAR_NAME_MAX);
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_load_function(unsigned int node, sCompileInfo* info)
+{
+    char* fun_name = gNodes[node].uValue.sLoadFunction.mFunName;
+
+    sFunction sfun = gFuncs[fun_name];
+    Function* fun = TheModule->getFunction(fun_name);
+
+    if(sfun.mResultType == nullptr || fun == nullptr) {
+        compile_err_msg(info, "Undeclared %s\n", fun_name);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+    
+    sNodeType* lambda_type = create_node_type_with_class_name("lambda");
+
+    int num_params = sfun.mNumParams;
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        sNodeType* param_type = sfun.mParamTypes[i];
+
+        lambda_type->mParamTypes[i] = param_type;
+    }
+
+    lambda_type->mResultType = sfun.mResultType;
+    lambda_type->mNumParams = num_params;
+
+    LVALUE llvm_value;
+    llvm_value.value = fun;
+    llvm_value.type = lambda_type;
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = lambda_type;
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -6711,6 +6777,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
     
         case kNodeTypeDefineVariables:
             if(!compile_define_variables(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeLoadFunction:
+            if(!compile_load_function(node, info)) {
                 return FALSE;
             }
             break;

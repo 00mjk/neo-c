@@ -1,15 +1,15 @@
 #include <stdio.h>
 #include <alloca.h>
 
-int func()
+struct StructTest7
 {
-    return 128;
-}
+    struct StructTest7* data;
+};
 
 int main() {
-    char* mem = alloca(func());
+    struct StructTest7 data;
 
-    mem[0] = 0;
+    data.data = NULL;
 
     return 0;
 }

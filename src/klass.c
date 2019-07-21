@@ -315,6 +315,7 @@ static sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_, BO
 
     klass->mGenericsNum = generics_number;
     klass->mMethodGenericsNum = method_generics_number;
+    klass->mUndefinedStructType = NULL;
 
     if(!put_class_to_table(class_name, klass)) {
         fprintf(stderr, "overflow class number\n");
@@ -351,23 +352,15 @@ sCLClass* clone_class(sCLClass* klass)
     return klass2;
 }
 
-sCLClass* alloc_struct(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX], BOOL anonymous)
+sCLClass* alloc_struct(char* class_name, BOOL anonymous)
 {
     sCLClass* klass = alloc_class(class_name, FALSE, TRUE, FALSE, FALSE, -1, -1, FALSE, anonymous);
-    klass->mNumFields = num_fields;
-
-    int i;
-    for(i=0; i<num_fields; i++) {
-        klass->mFieldNameOffsets[i] = append_str_to_constant_pool(&klass->mConst, field_name[i], FALSE);
-        klass->mFields[i] = clone_node_type(fields[i]);
-    }
 
     return klass;
 }
 
-sCLClass* alloc_union(char* class_name, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX], BOOL anonymous)
+void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])
 {
-    sCLClass* klass = alloc_class(class_name, FALSE, FALSE, FALSE, FALSE, -1, -1, TRUE, anonymous);
     klass->mNumFields = num_fields;
 
     int i;
@@ -375,8 +368,24 @@ sCLClass* alloc_union(char* class_name, int num_fields, char field_name[STRUCT_F
         klass->mFieldNameOffsets[i] = append_str_to_constant_pool(&klass->mConst, field_name[i], FALSE);
         klass->mFields[i] = clone_node_type(fields[i]);
     }
+}
+
+sCLClass* alloc_union(char* class_name, BOOL anonymous)
+{
+    sCLClass* klass = alloc_class(class_name, FALSE, FALSE, FALSE, FALSE, -1, -1, TRUE, anonymous);
 
     return klass;
+}
+
+void add_fields_to_union(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])
+{
+    klass->mNumFields = num_fields;
+
+    int i;
+    for(i=0; i<num_fields; i++) {
+        klass->mFieldNameOffsets[i] = append_str_to_constant_pool(&klass->mConst, field_name[i], FALSE);
+        klass->mFields[i] = clone_node_type(fields[i]);
+    }
 }
 
 void class_init()

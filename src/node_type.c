@@ -576,7 +576,7 @@ BOOL included_generics_type(sNodeType* node_type)
             for(i=0; i<klass->mNumFields; i++) {
                 sNodeType* field_type = klass->mFields[i];
 
-                if(included_generics_type(field_type))
+                if(field_type->mClass == klass ||included_generics_type(field_type))
                 {
                     return TRUE;
                 }
@@ -586,7 +586,7 @@ BOOL included_generics_type(sNodeType* node_type)
         int i;
         for(i=0; i<node_type->mNumGenericsTypes; i++)
         {
-            if(included_generics_type(node_type->mGenericsTypes[i]))
+            if(node_type->mGenericsTypes[i]->mClass == klass || included_generics_type(node_type->mGenericsTypes[i]))
             {
                 return TRUE;
             }

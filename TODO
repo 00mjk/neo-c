@@ -1,12 +1,6 @@
-structタグ名、structの中で自身の宣言(ポインタのみ)
-
-union タグ名
-
-void (*func)(void)
-
-function pointer C互換
-
-function pointer call C互換
+配列の初期化
+構造体の初期化
+ブロック
 
 enum
 
@@ -30,6 +24,8 @@ stdio,stdlibのinclude
 headのアドレスを使い専用の関数でxfreeする。
 
 collection
+
+メソッドの関数ポインタ
 
 ----------------------------------------------
 typedef struct
@@ -72,3 +68,16 @@ char *a, *b, *c;
 struct 型名 b;
 
 union 型名 a;
+
+void (*func)(void)
+
+function pointer C互換
+
+function pointer call C互換
+
+structタグ名、structの中で自身の宣言(ポインタのみ)
+
+union タグ名
+
+struct StructTest;
+
