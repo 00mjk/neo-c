@@ -658,7 +658,7 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
 
             llvm_param_types.push_back(llvm_param_type);
         }
-
+    
         *result_type = FunctionType::get(llvm_result_type, llvm_param_types, false);
 
         *result_type = PointerType::get(*result_type, 0);
@@ -668,7 +668,7 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
     for(i=0; i<node_type->mPointerNum; i++) {
         *result_type = PointerType::get(*result_type, 0);
     }
-
+    
     if(node_type->mArrayNum > 0) {
         *result_type = ArrayType::get(*result_type, node_type->mArrayNum);
     }
@@ -781,20 +781,6 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
             *right_type = clone_node_type(left_type);
         }
     }
-    else if(type_identify_with_class_name(*right_type, "void*")) {
-        if(rvalue) {
-            Type* llvm_type;
-            if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
-            {
-                return FALSE;
-            }
-
-            rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, llvm_type);
-            rvalue->type = left_type;
-        }
-
-        *right_type = clone_node_type(left_type);
-    }
     else if(type_identify_with_class_name(left_type, "lambda")) {
         if(rvalue) {
             Type* llvm_type;
@@ -818,9 +804,30 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
         *right_type = create_node_type_with_class_name("bool");
     }
+    else if(type_identify_with_class_name(left_type, "char"))
+    {
+        if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "int") || type_identify_with_class_name(*right_type, "short"))
+        {
+            if(rvalue) {
+                rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, IntegerType::get(TheContext, 8));
+                rvalue->type = create_node_type_with_class_name("short");
+            }
+
+            *right_type = create_node_type_with_class_name("char");
+        }
+        else if(type_identify_with_class_name(*right_type, "bool"))
+        {
+            if(rvalue) {
+                rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 8));
+                rvalue->type = create_node_type_with_class_name("short");
+            }
+
+            *right_type = create_node_type_with_class_name("char");
+        }
+    }
     else if(type_identify_with_class_name(left_type, "short"))
     {
-        if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong") || type_identify_with_class_name(*right_type, "int") || type_identify_with_class_name(*right_type, "uint"))
+        if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "int"))
         {
             if(rvalue) {
                 rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, IntegerType::get(TheContext, 16));
@@ -829,7 +836,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
             *right_type = create_node_type_with_class_name("short");
         }
-        else if(type_identify_with_class_name(*right_type, "char") || type_identify_with_class_name(*right_type, "uchar") || type_identify_with_class_name(*right_type, "bool"))
+        else if(type_identify_with_class_name(*right_type, "char") || type_identify_with_class_name(*right_type, "bool"))
         {
             if(rvalue) {
                 rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 32));
@@ -841,7 +848,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     }
     else if(type_identify_with_class_name(left_type, "int"))
     {
-        if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong"))
+        if(type_identify_with_class_name(*right_type, "long"))
         {
             if(rvalue) {
                 rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, IntegerType::get(TheContext, 32));
@@ -850,7 +857,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
             *right_type = create_node_type_with_class_name("int");
         }
-        else if(type_identify_with_class_name(*right_type, "short") || type_identify_with_class_name(*right_type, "ushort") || type_identify_with_class_name(*right_type, "char") || type_identify_with_class_name(*right_type, "uchar") || type_identify_with_class_name(*right_type, "bool"))
+        else if(type_identify_with_class_name(*right_type, "short") || type_identify_with_class_name(*right_type, "char") || type_identify_with_class_name(*right_type, "bool"))
         {
             if(rvalue) {
                 rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 32));
@@ -862,11 +869,11 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     }
     else if(type_identify_with_class_name(left_type, "long"))
     {
-        if(type_identify_with_class_name(*right_type, "long") || type_identify_with_class_name(*right_type, "ulong"))
+        if(type_identify_with_class_name(*right_type, "long"))
         {
             *right_type = create_node_type_with_class_name("long");
         }
-        else if(type_identify_with_class_name(*right_type, "int") || type_identify_with_class_name(*right_type, "uint") || type_identify_with_class_name(*right_type, "short") || type_identify_with_class_name(*right_type, "ushort") || type_identify_with_class_name(*right_type, "char") || type_identify_with_class_name(*right_type, "uchar") || type_identify_with_class_name(*right_type, "bool"))
+        else if(type_identify_with_class_name(*right_type, "int") || type_identify_with_class_name(*right_type, "short") || type_identify_with_class_name(*right_type, "char") || type_identify_with_class_name(*right_type, "bool"))
         {
             if(rvalue) {
                 rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 64));

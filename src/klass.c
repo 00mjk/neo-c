@@ -388,10 +388,6 @@ void class_init()
     alloc_class("short", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE, FALSE);
     alloc_class("int", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE, FALSE);
     alloc_class("long", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE, FALSE);
-    alloc_class("uchar", TRUE, FALSE, TRUE, TRUE, -1, -1, FALSE, FALSE);
-    alloc_class("ushort", TRUE, FALSE, TRUE, TRUE, -1, -1, FALSE, FALSE);
-    alloc_class("uint", TRUE, FALSE, TRUE, TRUE, -1, -1, FALSE, FALSE);
-    alloc_class("ulong", TRUE, FALSE, TRUE, TRUE, -1, -1, FALSE, FALSE);
     alloc_class("void", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE, FALSE);
     alloc_class("any", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE, FALSE);
     alloc_class("lambda", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE, FALSE);

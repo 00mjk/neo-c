@@ -1,12 +1,22 @@
-volatile
 
-typedef struct
+sizeof
 
-typedef union
+int a, b, c;
 
-unsigned
+char *a, *b, *c;
 
-const
+int a[128];
+
+int a = func();
+int b[a];
+
+structタグ名、structの中で自身の宣言(ポインタのみ)
+
+union タグ名
+
+enum
+
+void (*func)(void)
 
 __extension__
 
@@ -14,33 +24,9 @@ __attribute__
 
 __inline
 
-long long
-
-long int
-
-short int
-
 __restrict
 
-unsigned long long int
-
-signed
-
-register
-
 __builtin_var_list
-
-sizeof
-
-int a[sizeof(int)*2 + sizeof(char) * 2]
-
-enum
-
-function(void)
-
-void (*func)(void)
-
-int a[128];
 
 function pointer C互換
 
@@ -48,11 +34,36 @@ function pointer call C互換
 
 casts全サポート
 
-stdioのinclude
+stdio,stdlibのinclude
 
 %の配列、要素のfreeを行う
-
-structタグ名、structの中で自身の宣言(ポインタのみ)
+headのアドレスを使い専用の関数でxfreeする。
 
 collection
 
+----------------------------------------------
+typedef struct
+
+typedef union
+
+const
+
+unsigned
+
+long long
+
+long int
+
+short int
+
+unsigned long long int
+
+signed
+
+-111
+
+register
+
+volatile
+
+function(void)

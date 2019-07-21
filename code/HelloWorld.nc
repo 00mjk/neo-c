@@ -1,7 +1,7 @@
 #include "neo-c.h"
 #include "neo-c-stdc.h"
 
-typedef string char*%;
+typedef char*% string;
 
 string operator+(char* left, char* right)
 {
@@ -1135,6 +1135,96 @@ int main()
     var struct_var = new StructTest4.initialize();
 
     assert("struct test12", struct_var.a == 111 && struct_var.b == 123);
+
+    typedef union { int a; long b; } UnionTest4;
+
+    UnionTest4 aaa4;
+
+    aaa4.a = 111;
+    
+    assert("typedef test13", aaa4.a == 111);
+
+    const int gA = 111;
+
+    assert("const test", gA == 111);
+
+    unsigned int ua = 111;
+
+    assert("unsigned int test", ua == 111);
+
+    unsigned char uc = 255;
+
+    printf("uc %u\n", uc);
+
+    assert("unsigned char test", uc == 255);
+
+    long long int along = 111;
+
+    assert("long long int", along == 111);
+
+    long int along2 = 111;
+
+    assert("long int", along2 == 111);
+
+    short int ashort = 111;
+
+    assert("short int", ashort == 111);
+
+    unsigned long long int along3 = 123;
+
+    assert("unsigned long long int", along3 == 123);
+
+    signed int asigned = 111;
+
+    assert("signed", asigned == 111);
+
+    signed int asigned2 = -111;
+
+    assert("minus", asigned2 == -111);
+
+    int funcXXX(void) {
+        return 111;
+    }
+
+    assert("func(void)", funcXXX() == 111);
+
+    struct StructTest5 {
+        int a[123];
+    }
+
+    StructTest5 astruct1;
+
+    int aaaray[123];
+
+    int array_size_fun() {
+        return 3;
+    }
+
+    int aarray2[array_size_fun()];
+
+    aarray2[0] = 111;
+    aarray2[1] = 222;
+    aarray2[2] = 333;
+
+    assert("dynamic array test", aarray2[0] == 111 && aarray2[1] == 222 && aarray2[2] == 333);
+
+    int* intarray = new int[123];
+
+    intarray[0] = 123;
+    intarray[1] = 234;
+    intarray[2] = 345;
+
+    assert("new array test", intarray[0] == 123 && intarray[1] == 234 && intarray[2] == 345);
+
+    int* intarray2 = alloca int[123];
+
+    intarray2[0] = 123;
+    intarray2[1] = 234;
+    intarray2[2] = 345;
+
+    assert("alloca array test", intarray2[0] == 123 && intarray2[1] == 234 && intarray2[2] == 345);
+
+    assert("sizeof test", sizeof(int) == 4 && sizeof(char) == 1 && sizeof(long) == 8);
 
     0
 }

@@ -1259,6 +1259,35 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
 
     sNodeType* var_type = var->mType;
 
+    Value* index_value = NULL;
+    if(var_type->mDynamicArrayNum != 0) {
+        unsigned int node = var_type->mDynamicArrayNum;
+
+        if(!compile(node, info)) {
+            return FALSE;
+        }
+
+        sNodeType* index_type = info->type;
+
+        if(!type_identify_with_class_name(index_type, "int"))
+        {
+            compile_err_msg(info, "Invalid index type");
+
+            show_node_type(index_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        LVALUE llvm_value = *get_value_from_stack(-1);
+
+        index_value = llvm_value.value;
+
+        dec_stack_ptr(1, info);
+    }
+
     Type* llvm_var_type;
     if(!create_llvm_type_from_node_type(&llvm_var_type, var_type, info))
     {
@@ -1273,7 +1302,36 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
 
     int alignment = get_llvm_alignment_from_node_type(var_type);
 
-    if(var->mConstant) {
+    if(var_type->mDynamicArrayNum != 0) {
+        Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
+        var->mLLVMValue = address;
+
+        BOOL parent = FALSE;
+        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+        store_address_to_lvtable(index, address);
+
+        sNodeType* element_type = clone_node_type(var_type);
+
+        element_type->mPointerNum--;
+
+        Type* llvm_element_type;
+        if(!create_llvm_type_from_node_type(&llvm_element_type, element_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(1)");
+            show_node_type(element_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        Value* value = Builder.CreateAlloca(llvm_element_type, index_value, "element_value");
+
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else if(var->mConstant) {
         compile_err_msg(info, "Require right value for constant");
         info->err_num++;
 
@@ -3948,25 +4006,25 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_struct_object(sNodeType* node_type, char* sname, int sline, sParserInfo* info)
+unsigned int sNodeTree_create_stack_object(sNodeType* node_type, unsigned int object_num, char* sname, int sline, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
-    gNodes[node].mNodeType = kNodeTypeStructObject;
+    gNodes[node].mNodeType = kNodeTypeStackObject;
 
     xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = sline;
 
     gNodes[node].uValue.sObject.mType = node_type;
 
-    gNodes[node].mLeft = 0;
+    gNodes[node].mLeft = object_num;
     gNodes[node].mRight = 0;
     gNodes[node].mMiddle = 0;
 
     return node;
 }
 
-static BOOL compile_struct_object(unsigned int node, sCompileInfo* info)
+static BOOL compile_stack_object(unsigned int node, sCompileInfo* info)
 {
     sNodeType* node_type = gNodes[node].uValue.sObject.mType;
 
@@ -3999,8 +4057,34 @@ static BOOL compile_struct_object(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    unsigned int left_node = gNodes[node].mLeft;
+
+    Value* object_num;
+    if(left_node == 0) {
+        object_num = NULL;
+    }
+    else {
+        if(!compile(left_node, info)) {
+            return FALSE;
+        }
+
+        if(!is_number_type(info->type)) {
+            compile_err_msg(info, "Require number value for []");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        LVALUE llvm_value = *get_value_from_stack(-1);
+        dec_stack_ptr(1, info);
+
+        object_num = llvm_value.value;
+    }
+
     LVALUE llvm_value;
-    llvm_value.value = Builder.CreateAlloca(llvm_var_type, 0, "struct_object");
+    llvm_value.value = Builder.CreateAlloca(llvm_var_type, object_num, "stack_object");
     llvm_value.type = node_type2;
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
@@ -6190,6 +6274,46 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_sizeof(sNodeType* node_type, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeSizeOf;
+
+    gNodes[node].uValue.sSizeOf.mType = node_type;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_sizeof(unsigned int node, sCompileInfo* info)
+{
+    sNodeType* node_type = gNodes[node].uValue.sSizeOf.mType;
+    sNodeType* node_type2 = clone_node_type(node_type);
+
+    uint64_t alloc_size = 0;
+    if(!get_size_from_node_type(&alloc_size, node_type2, info))
+    {
+        return FALSE;
+    }
+
+    /// result ///
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, alloc_size, false)); 
+    llvm_value.type = create_node_type_with_class_name("long");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("long");
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -6306,8 +6430,8 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
-        case kNodeTypeStructObject:
-            if(!compile_struct_object(node, info)) {
+        case kNodeTypeStackObject:
+            if(!compile_stack_object(node, info)) {
                 return FALSE;
             }
             break;
@@ -6530,6 +6654,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeReturn:
             if(!compile_return(node, info)) {
+                return FALSE;
+            }
+            break;
+        
+        case kNodeTypeSizeOf:
+            if(!compile_sizeof(node, info)) {
                 return FALSE;
             }
             break;

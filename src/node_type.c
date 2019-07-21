@@ -79,6 +79,10 @@ sNodeType* clone_node_type(sNodeType* node_type)
     node_type2->mNullable = node_type->mNullable;
     node_type2->mPointerNum = node_type->mPointerNum;
     node_type2->mHeap = node_type->mHeap;
+    node_type2->mUnsigned = node_type->mUnsigned;
+    node_type2->mRegister = node_type->mRegister;
+    node_type2->mVolatile = node_type->mVolatile;
+    node_type2->mDynamicArrayNum = node_type->mDynamicArrayNum;
 
     if(node_type->mResultType) {
         node_type2->mResultType = clone_node_type(node_type->mResultType);
@@ -97,7 +101,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
 
 void show_node_type(sNodeType* node_type)
 {
-    printf("-+- [%s] array num %d nullable %d pointer num %d heap %d -+-\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap); 
+    printf("-+- [%s] array num %d nullable %d pointer num %d heap %d unsigned %d-+-\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap, node_type->mUnsigned); 
 
     printf(">>generics type num %d\n>>generics types\n", node_type->mNumGenericsTypes);
     int i;

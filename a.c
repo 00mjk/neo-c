@@ -1,9 +1,15 @@
 #include <stdio.h>
+#include <alloca.h>
 
-extern int gGlobalVar;
+int func()
+{
+    return 128;
+}
 
 int main() {
-    printf("%d\n", gGlobalVar);
+    char* mem = alloca(func());
+
+    mem[0] = 0;
 
     return 0;
 }
