@@ -1,15 +1,10 @@
 #include <stdio.h>
 #include <alloca.h>
 
-struct StructTest7
-{
-    struct StructTest7* data;
-};
-
 int main() {
-    struct StructTest7 data;
+    int a[3] = { 1, 2, 3 };
 
-    data.data = NULL;
+    printf("a[0] %d a[1] %d a[2] %d\n", a[0], a[1], a[2]);
 
     return 0;
 }

@@ -1075,20 +1075,94 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
         info->p++;
         skip_spaces_and_lf(info);
 
-        unsigned int right_node = 0;
+        if(result_type->mDynamicArrayNum != 0) {
+            if(type_identify_with_class_name(result_type, "char*"))
+            {
+                unsigned int right_node = 0;
 
-        if(!expression(&right_node, info)) {
-            return FALSE;
-        }
+                if(!expression(&right_node, info)) {
+                    return FALSE;
+                }
 
-        if(right_node == 0) {
-            parser_err_msg(info, "Require right value for =");
-            info->err_num++;
+                if(right_node == 0) {
+                    parser_err_msg(info, "Require right value for =");
+                    info->err_num++;
 
-            *node = 0;
+                    *node = 0;
+                }
+                else {
+                    unsigned int initialize_array_values[INIT_ARRAY_MAX];
+                    int num_initialize_array_value = 0;
+                    memset(initialize_array_values, 0, sizeof(unsigned int)*INIT_ARRAY_MAX);
+
+                    initialize_array_values[0] = right_node;
+                    num_initialize_array_value++;
+
+                    *node = sNodeTree_create_define_variable(name, extern_, info);
+
+                    *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                }
+            }
+            else {
+                expect_next_character_with_one_forward("{", info);
+
+                unsigned int initialize_array_values[INIT_ARRAY_MAX];
+                int num_initialize_array_value = 0;
+                memset(initialize_array_values, 0, sizeof(unsigned int)*INIT_ARRAY_MAX);
+
+                while(TRUE) {
+                    unsigned int right_node = 0;
+
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    if(right_node == 0) {
+                        parser_err_msg(info, "Require right value for {}");
+                        info->err_num++;
+
+                        *node = 0;
+                    }
+                    else {
+                        initialize_array_values[num_initialize_array_value++] = right_node;
+                    }
+
+                    if(*info->p == ',') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                    }
+                    else if(*info->p == '\0') {
+                        parser_err_msg(info, "In the array initialization, the parser has arraived at the source end");
+                        return FALSE;
+                    }
+                    else if(*info->p == '}') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                        break;
+                    }
+                }
+
+                *node = sNodeTree_create_define_variable(name, extern_, info);
+
+                *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+            }
         }
         else {
-            *node = sNodeTree_create_store_variable(name, right_node, TRUE, info);
+            unsigned int right_node = 0;
+
+            if(!expression(&right_node, info)) {
+                return FALSE;
+            }
+
+            if(right_node == 0) {
+                parser_err_msg(info, "Require right value for =");
+                info->err_num++;
+
+                *node = 0;
+            }
+            else {
+                *node = sNodeTree_create_store_variable(name, right_node, TRUE, info);
+            }
         }
     }
     else {

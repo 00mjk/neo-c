@@ -1332,7 +1332,7 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        Value* value = Builder.CreateAlloca(llvm_element_type, index_value, "element_value");
+        Value* value = Builder.CreateAlloca(llvm_element_type, index_value, "element_memory");
 
         Builder.CreateAlignedStore(value, address, alignment);
     }
@@ -6425,6 +6425,206 @@ static BOOL compile_load_function(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_array_with_initialization(char* name, int num_initialize_array_value, unsigned int* initialize_array_value, unsigned int left_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeArrayWithInitialization;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    xstrncpy(gNodes[node].uValue.sArrayWithInitialization.mVarName, name, VAR_NAME_MAX);
+    gNodes[node].uValue.sArrayWithInitialization.mNumInitializeArrayValue = num_initialize_array_value;
+    memcpy(gNodes[node].uValue.sArrayWithInitialization.mInitializeArrayValue, initialize_array_value, sizeof(unsigned int)*INIT_ARRAY_MAX);
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
+{
+    char* var_name = gNodes[node].uValue.sArrayWithInitialization.mVarName;
+    int num_initialize_array_value = gNodes[node].uValue.sArrayWithInitialization.mNumInitializeArrayValue;
+    unsigned int* initialize_array_value = gNodes[node].uValue.sArrayWithInitialization.mInitializeArrayValue;
+
+    /// compile node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
+
+    if(var == NULL) {
+        compile_err_msg(info, "undeclared variable %s", var_name);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    sNodeType* var_type = var->mType;
+
+    if(var_type == NULL || var_type->mClass == NULL) 
+    {
+        compile_err_msg(info, "null type %s", var_name);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    BOOL parent = FALSE;
+    int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+    Value* var_address;
+    if(parent && !var->mGlobal) {
+        var_address = load_address_to_lvtable(index, var_type, info);
+    }
+    else {
+        var_address = (Value*)var->mLLVMValue;
+    }
+
+    if(var_address == nullptr) {
+        compile_err_msg(info, "Invalid variable. %s", var_name);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    if(type_identify_with_class_name(var_type, "char*"))
+    {
+        int alignment = get_llvm_alignment_from_node_type(var_type);
+
+        var_address = Builder.CreateAlignedLoad(var_address, alignment);
+
+        unsigned int element_node = initialize_array_value[0];
+
+        if(!compile(element_node, info)) {
+            return FALSE;
+        }
+
+        sNodeType* right_type = info->type;
+
+        if(!type_identify(var_type, right_type))
+        {
+            compile_err_msg(info, "The different type between left type and right type.");
+            show_node_type(var_type);
+            show_node_type(right_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        LVALUE rvalue = *get_value_from_stack(-1);
+
+        Function* fun = TheModule->getFunction("xmemcpy");
+
+        if(fun == nullptr) {
+            fprintf(stderr, "require xmemcpy\n");
+            exit(2);
+        }
+
+        std::vector<Value*> params2;
+
+        Value* param = var_address;
+        params2.push_back(param);
+
+        Value* param2 = rvalue.value;
+        params2.push_back(param2);
+
+        Value* param3;
+        unsigned int node = var_type->mDynamicArrayNum;
+
+        if(!compile(node, info)) {
+            return FALSE;
+        }
+
+        sNodeType* index_type = info->type;
+
+        if(!type_identify_with_class_name(index_type, "int"))
+        {
+            compile_err_msg(info, "Invalid index type");
+
+            show_node_type(index_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        LVALUE llvm_value = *get_value_from_stack(-1);
+
+        param3 = llvm_value.value;
+
+        dec_stack_ptr(1, info);
+
+        params2.push_back(param3);
+
+        Builder.CreateCall(fun, params2);
+
+        dec_stack_ptr(1, info);
+    }
+    else {
+        int alignment = get_llvm_alignment_from_node_type(var_type);
+
+        var_address = Builder.CreateAlignedLoad(var_address, alignment);
+
+        sNodeType* var_element_type = clone_node_type(var_type);
+        var_element_type->mPointerNum--;
+
+        int i;
+        for(i=0; i<num_initialize_array_value; i++) {
+            /// compile node ///
+            unsigned int element_node = initialize_array_value[i];
+
+            if(!compile(element_node, info)) {
+                return FALSE;
+            }
+
+            sNodeType* right_type = info->type;
+
+            if(!type_identify(var_element_type, right_type))
+            {
+                compile_err_msg(info, "The different type between left type and right type.");
+                show_node_type(var_element_type);
+                show_node_type(right_type);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            LVALUE rvalue = *get_value_from_stack(-1);
+
+            Value* index_value = ConstantInt::get(TheContext, llvm::APInt(32, i, true)); 
+
+            Value* element_address = Builder.CreateGEP(var_address, index_value, "element_address");
+
+            int alignment = get_llvm_alignment_from_node_type(var_element_type);
+
+            Builder.CreateAlignedStore(rvalue.value, element_address, alignment);
+
+            dec_stack_ptr(1, info);
+        }
+    }
+
+    info->type = create_node_type_with_class_name("void");
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -6783,6 +6983,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeLoadFunction:
             if(!compile_load_function(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeArrayWithInitialization:
+            if(!compile_array_with_initialization(node, info))
+            {
                 return FALSE;
             }
             break;

@@ -102,6 +102,7 @@ extern int gGlobalVar;
 
 int main()
 {
+/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -1319,6 +1320,15 @@ int main()
     union_test_var.a = 111;
 
     assert("undefined union", union_test_var.a == 111);
+*/
+
+    int aarray3[3] = { 1, 2, 3 };
+
+    assert("aarray3 test", aarray3[0] == 1 && aarray3[1] == 2 && aarray3[2] == 3);
+
+    char char_array[4] = "ABC";
+
+    assert("char_array test", strcmp(char_array, "ABC") == 0);
 
     0
 }
