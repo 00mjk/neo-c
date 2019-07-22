@@ -78,6 +78,13 @@ void free_nodes()
                     free(gNodes[i].uValue.sFunction.mBlockText);
                     break;
 
+                case kNodeTypeNormalBlock:
+                    if(gNodes[i].uValue.sNormalBlock.mNodeBlock) 
+                    {
+                        sNodeBlock_free(gNodes[i].uValue.sNormalBlock.mNodeBlock);
+                    }
+                    break;
+
                 default:
                     break;
             }

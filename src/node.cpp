@@ -6625,6 +6625,40 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_normal_block(struct sNodeBlockStruct* node_block, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeNormalBlock;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.sNormalBlock.mNodeBlock = node_block;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
+{
+    struct sNodeBlockStruct* node_block = gNodes[node].uValue.sNormalBlock.mNodeBlock;
+
+    sNodeType* result_type = create_node_type_with_class_name("void");
+
+    if(!compile_block(node_block, info, result_type))
+    {
+        return FALSE;
+    }
+
+    info->type = create_node_type_with_class_name("void");
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -6990,6 +7024,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
         case kNodeTypeArrayWithInitialization:
             if(!compile_array_with_initialization(node, info))
             {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeNormalBlock:
+            if(!compile_normal_block(node, info)) {
                 return FALSE;
             }
             break;

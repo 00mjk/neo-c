@@ -3162,6 +3162,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
+    else if(*info->p == '{') {
+        sNodeBlock* node_block = NULL;
+        if(!parse_block_easy(ALLOC &node_block, info))
+        {
+            return FALSE;
+        }
+
+        *node = sNodeTree_create_normal_block(node_block, info);
+    }
     else if(*info->p == '*') {
         info->p++;
         skip_spaces_and_lf(info);

@@ -102,7 +102,6 @@ extern int gGlobalVar;
 
 int main()
 {
-/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -1320,7 +1319,6 @@ int main()
     union_test_var.a = 111;
 
     assert("undefined union", union_test_var.a == 111);
-*/
 
     int aarray3[3] = { 1, 2, 3 };
 
@@ -1329,6 +1327,24 @@ int main()
     char char_array[4] = "ABC";
 
     assert("char_array test", strcmp(char_array, "ABC") == 0);
+
+    {
+        int a = 111;
+
+        assert("normal block test", a == 111);
+
+        int b = 222;
+
+        assert("normal block test", b == 222);
+    }
+
+    typedef int (*pFun)(int, int);
+
+    pFun pfun = lambda(int a, int b):int {
+        return a + b;
+    }
+
+    assert("typedef function pointer test", pfun(1,2) == 3);
 
     0
 }
