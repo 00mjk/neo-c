@@ -184,44 +184,54 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(array_size_is_dynamic) {
-            if(!expression(&node_type->mDynamicArrayNum, info)) 
-            {
-                return FALSE;
+        if(array_size_is_dynamic && info->mBlockLevel > 0) {
+            if(*info->p != ']') {
+                if(!expression(&node_type->mDynamicArrayNum, info)) 
+                {
+                    return FALSE;
+                }
+            }
+            else {
+                node_type->mDynamicArrayNum= -1;
             }
 
             node_type->mPointerNum++;
         }
         else {
-            if(!isdigit(*info->p)) {
-                parser_err_msg(info, "require digits");
-                info->err_num++;
-                return TRUE;
+            if(*info->p != ']') {
+                if(!isdigit(*info->p)) {
+                    parser_err_msg(info, "require digits");
+                    info->err_num++;
+                    return TRUE;
+                }
+                else {
+                    int buf2_size = 128;
+                    char buf2[128];
+
+                    char* p2 = buf2;
+
+                    while(isdigit(*info->p) || *info->p == '_') {
+                        if(*info->p ==  '_') {
+                            info->p++;
+                        }
+                        else {
+                            *p2++ = *info->p;
+                            info->p++;
+                        }
+
+                        if(p2 - buf2 >= buf2_size) {
+                            parser_err_msg(info, "overflow node of number");
+                            return FALSE;
+                        }
+                    }
+                    *p2 = 0;
+                    skip_spaces_and_lf(info);
+                    
+                    node_type->mArrayNum = atoi(buf2);
+                }
             }
             else {
-                int buf2_size = 128;
-                char buf2[128];
-
-                char* p2 = buf2;
-
-                while(isdigit(*info->p) || *info->p == '_') {
-                    if(*info->p ==  '_') {
-                        info->p++;
-                    }
-                    else {
-                        *p2++ = *info->p;
-                        info->p++;
-                    }
-
-                    if(p2 - buf2 >= buf2_size) {
-                        parser_err_msg(info, "overflow node of number");
-                        return FALSE;
-                    }
-                }
-                *p2 = 0;
-                skip_spaces_and_lf(info);
-                
-                node_type->mArrayNum = atoi(buf2);
+                node_type->mArrayNum = -1;
             }
         }
 
@@ -1067,15 +1077,210 @@ static BOOL parse_return(unsigned int* node, sParserInfo* info)
 
 static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* name, BOOL extern_, sParserInfo* info, BOOL readonly)
 {
-    check_already_added_variable(info->lv_table, name, info);
-    add_variable_to_table(info->lv_table, name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
-
     /// assign the value to a variable ///
     if(*info->p == '=' && *(info->p+1) != '=') {
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(result_type->mDynamicArrayNum != 0) {
+        if(result_type->mDynamicArrayNum == -1) {
+            if(type_identify_with_class_name(result_type, "char*"))
+            {
+                unsigned int right_node = 0;
+
+                if(!expression(&right_node, info)) {
+                    return FALSE;
+                }
+
+                if(right_node == 0) {
+                    parser_err_msg(info, "Require right value for =");
+                    info->err_num++;
+
+                    *node = 0;
+                }
+                else {
+                    if(gNodes[right_node].mNodeType != kNodeTypeCString)
+                    {
+                        parser_err_msg(info, "Invalid right value");
+                        info->err_num++;
+
+                        *node = 0;
+
+                        return TRUE;
+                    }
+
+                    int string_len = strlen(gNodes[right_node].uValue.sString.mString) + 1;
+
+                    result_type->mDynamicArrayNum = sNodeTree_create_int_value(string_len, info);
+
+                    unsigned int initialize_array_values[INIT_ARRAY_MAX];
+                    int num_initialize_array_value = 0;
+                    memset(initialize_array_values, 0, sizeof(unsigned int)*INIT_ARRAY_MAX);
+
+                    initialize_array_values[0] = right_node;
+                    num_initialize_array_value++;
+
+                    *node = sNodeTree_create_define_variable(name, extern_, info);
+
+                    *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                }
+            }
+            else {
+                expect_next_character_with_one_forward("{", info);
+
+                unsigned int initialize_array_values[INIT_ARRAY_MAX];
+                int num_initialize_array_value = 0;
+                memset(initialize_array_values, 0, sizeof(unsigned int)*INIT_ARRAY_MAX);
+
+                while(TRUE) {
+                    unsigned int right_node = 0;
+
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    if(right_node == 0) {
+                        parser_err_msg(info, "Require right value for {}");
+                        info->err_num++;
+
+                        *node = 0;
+                    }
+                    else {
+                        initialize_array_values[num_initialize_array_value++] = right_node;
+                    }
+
+                    if(*info->p == ',') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                    }
+                    else if(*info->p == '\0') {
+                        parser_err_msg(info, "In the array initialization, the parser has arraived at the source end");
+                        return FALSE;
+                    }
+                    else if(*info->p == '}') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                        break;
+                    }
+                }
+
+                int array_len = num_initialize_array_value;
+
+                result_type->mDynamicArrayNum = sNodeTree_create_int_value(array_len, info);
+
+                *node = sNodeTree_create_define_variable(name, extern_, info);
+
+                *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+            }
+        }
+        else if(info->mBlockLevel == 0 && result_type->mArrayNum > 0)
+        {
+            if(type_identify_with_class_name(result_type, "char*"))
+            {
+                parser_err_msg(info, "No suport this initialization by neo-c");
+                info->err_num++;
+                *node = 0;
+                return TRUE;
+            }
+            else {
+                expect_next_character_with_one_forward("{", info);
+
+                unsigned int initialize_array_values[INIT_ARRAY_MAX];
+                int num_initialize_array_value = 0;
+                memset(initialize_array_values, 0, sizeof(unsigned int)*INIT_ARRAY_MAX);
+
+                while(TRUE) {
+                    unsigned int right_node = 0;
+
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    if(right_node == 0) {
+                        parser_err_msg(info, "Require right value for {}");
+                        info->err_num++;
+
+                        *node = 0;
+                    }
+                    else {
+                        initialize_array_values[num_initialize_array_value++] = right_node;
+                    }
+
+                    if(*info->p == ',') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                    }
+                    else if(*info->p == '\0') {
+                        parser_err_msg(info, "In the array initialization, the parser has arraived at the source end");
+                        return FALSE;
+                    }
+                    else if(*info->p == '}') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                        break;
+                    }
+                }
+
+                *node = sNodeTree_create_define_variable(name, extern_, info);
+
+                *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+            }
+        }
+        else if(info->mBlockLevel == 0 && result_type->mArrayNum == -1)
+        {
+            if(type_identify_with_class_name(result_type, "char*"))
+            {
+                parser_err_msg(info, "No suport this initialization by neo-c");
+                info->err_num++;
+                *node = 0;
+                return TRUE;
+            }
+            else {
+                expect_next_character_with_one_forward("{", info);
+
+                unsigned int initialize_array_values[INIT_ARRAY_MAX];
+                int num_initialize_array_value = 0;
+                memset(initialize_array_values, 0, sizeof(unsigned int)*INIT_ARRAY_MAX);
+
+                while(TRUE) {
+                    unsigned int right_node = 0;
+
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    if(right_node == 0) {
+                        parser_err_msg(info, "Require right value for {}");
+                        info->err_num++;
+
+                        *node = 0;
+                    }
+                    else {
+                        initialize_array_values[num_initialize_array_value++] = right_node;
+                    }
+
+                    if(*info->p == ',') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                    }
+                    else if(*info->p == '\0') {
+                        parser_err_msg(info, "In the array initialization, the parser has arraived at the source end");
+                        return FALSE;
+                    }
+                    else if(*info->p == '}') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                        break;
+                    }
+                }
+
+                result_type->mArrayNum = num_initialize_array_value;
+
+                *node = sNodeTree_create_define_variable(name, extern_, info);
+
+                *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+            }
+        }
+        else if(result_type->mDynamicArrayNum != 0) {
             if(type_identify_with_class_name(result_type, "char*"))
             {
                 unsigned int right_node = 0;
@@ -1168,6 +1373,9 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
     else {
         *node = sNodeTree_create_define_variable(name, extern_, info);
     }
+
+    check_already_added_variable(info->lv_table, name, info);
+    add_variable_to_table(info->lv_table, name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
 
     return TRUE;
 }

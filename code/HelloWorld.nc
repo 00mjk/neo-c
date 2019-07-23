@@ -99,6 +99,9 @@ const int GlobalConstantInt = 123;
 
 extern int gGlobalVar;
 
+int GlobalArray[3] = { 1, 2, 3 };
+
+int GlobalArray2[] = { 1, 2, 3 };
 
 int main()
 {
@@ -1345,6 +1348,20 @@ int main()
     }
 
     assert("typedef function pointer test", pfun(1,2) == 3);
+
+    int aarray4[] = { 1, 2, 3 }
+
+    assert("array initialize test", aarray4[0] == 1 && aarray4[1] == 2 && aarray4[2] == 3);
+
+    char str4[] = "ABC";
+
+    assert("array initialize test2", str4 != "ABC" && strcmp(str4, "ABC") == 0);
+
+    printf("%d %d %d\n", GlobalArray[0], GlobalArray[1], GlobalArray[2]);
+
+    assert("global array test", GlobalArray[0] == 1 && GlobalArray[1] == 2 && GlobalArray[2] == 3);
+
+    assert("global array2 test", GlobalArray2[0] == 1 && GlobalArray2[1] == 2 && GlobalArray2[2] == 3);
 
     0
 }
