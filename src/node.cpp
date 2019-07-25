@@ -6513,29 +6513,18 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
                 assert(0);
             }
             else {
-                sNodeType* var_element_type = clone_node_type(var_type);
-                var_element_type->mPointerNum--;
+                if(type_identify_with_class_name(var_type, "char*"))
+                {
+                    sNodeType* var_element_type = clone_node_type(var_type);
+                    var_element_type->mPointerNum--;
 
-                GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
+                    GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
 
-                std::vector<Constant *> init_data(num_initialize_array_value);
+                    unsigned int element_node = initialize_array_value[0];
 
-                int i;
-                for(i=0; i<num_initialize_array_value; i++) {
-                    /// compile node ///
-                    unsigned int element_node = initialize_array_value[i];
-
-                    if(!compile(element_node, info)) {
-                        return FALSE;
-                    }
-
-                    sNodeType* right_type = info->type;
-
-                    if(!type_identify(var_element_type, right_type))
+                    if(gNodes[element_node].mNodeType != kNodeTypeCString)
                     {
-                        compile_err_msg(info, "The different type between left type and right type.");
-                        show_node_type(var_element_type);
-                        show_node_type(right_type);
+                        compile_err_msg(info, "Require char* type");
                         info->err_num++;
 
                         info->type = create_node_type_with_class_name("int"); // dummy
@@ -6543,44 +6532,172 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
                         return TRUE;
                     }
 
-                    LVALUE rvalue = *get_value_from_stack(-1);
+                    char* str = gNodes[element_node].uValue.sString.mString;
 
-                    init_data[i] = (Constant*)rvalue.value;
+                    int len = strlen(str);
 
-                    dec_stack_ptr(1, info);
+                    std::vector<Constant *> init_data(len+1);
+
+                    int i;
+                    for(i=0; i<len; i++) {
+                        init_data[i] = ConstantInt::get(Type::getInt8Ty(TheContext), str[i]);
+                    }
+                    init_data[i] = ConstantInt::get(Type::getInt8Ty(TheContext), 0);
+
+                    Type* var_llvm_element_type;
+                    if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, info))
+                    {
+                        compile_err_msg(info, "Getting llvm type failed(10)");
+                        show_node_type(var_element_type);
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+
+                    Constant* constant_array = ConstantArray::get(ArrayType::get(var_llvm_element_type, len), init_data);
+                    address->setAlignment(alignment);
+
+                    ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
+
+                    address->setInitializer(constant_array);
+
+                    var->mLLVMValue = address;
+
+                    BOOL parent = FALSE;
+                    int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+                    store_address_to_lvtable(index, address);
                 }
+                else {
+                    sNodeType* var_element_type = clone_node_type(var_type);
+                    var_element_type->mPointerNum--;
 
-                Type* var_llvm_element_type;
-                if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, info))
-                {
-                    compile_err_msg(info, "Getting llvm type failed(10)");
-                    show_node_type(var_element_type);
-                    info->err_num++;
+                    GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
 
-                    info->type = create_node_type_with_class_name("int"); // dummy
+                    std::vector<Constant *> init_data(num_initialize_array_value);
 
-                    return TRUE;
+                    int i;
+                    for(i=0; i<num_initialize_array_value; i++) {
+                        /// compile node ///
+                        unsigned int element_node = initialize_array_value[i];
+
+                        if(!compile(element_node, info)) {
+                            return FALSE;
+                        }
+
+                        sNodeType* right_type = info->type;
+
+                        if(!type_identify(var_element_type, right_type))
+                        {
+                            compile_err_msg(info, "The different type between left type and right type.");
+                            show_node_type(var_element_type);
+                            show_node_type(right_type);
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            return TRUE;
+                        }
+
+                        LVALUE rvalue = *get_value_from_stack(-1);
+
+                        init_data[i] = (Constant*)rvalue.value;
+
+                        dec_stack_ptr(1, info);
+                    }
+
+                    Type* var_llvm_element_type;
+                    if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, info))
+                    {
+                        compile_err_msg(info, "Getting llvm type failed(10)");
+                        show_node_type(var_element_type);
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+
+                    Constant* constant_array = ConstantArray::get(ArrayType::get(var_llvm_element_type, num_initialize_array_value), init_data);
+                    address->setAlignment(alignment);
+
+                    ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
+
+                    address->setInitializer(constant_array);
+
+                    var->mLLVMValue = address;
+
+                    BOOL parent = FALSE;
+                    int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+                    store_address_to_lvtable(index, address);
                 }
-
-                Constant* constant_array = ConstantArray::get(ArrayType::get(var_llvm_element_type, num_initialize_array_value), init_data);
-                address->setAlignment(alignment);
-
-                ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
-
-                address->setInitializer(constant_array);
-
-                var->mLLVMValue = address;
-
-                BOOL parent = FALSE;
-                int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
-
-                store_address_to_lvtable(index, address);
             }
         }
         else {
             assert(0);
         }
 
+        info->type = var_type;
+    }
+    else if(gNodes[lnode].mNodeType == kNodeTypeObject) {
+        if(!compile(lnode, info)) {
+            return FALSE;
+        }
+
+        LVALUE llvm_value = *get_value_from_stack(-1);
+
+        dec_stack_ptr(1, info);
+
+        sNodeType* var_type = clone_node_type(info->type);
+
+        int alignment = get_llvm_alignment_from_node_type(var_type);
+
+        Value* var_address = llvm_value.value;
+        //Value* var_address = Builder.CreateAlignedLoad(var_address, alignment);
+
+        sNodeType* var_element_type = clone_node_type(var_type);
+        var_element_type->mPointerNum--;
+
+        int i;
+        for(i=0; i<num_initialize_array_value; i++) {
+            /// compile node ///
+            unsigned int element_node = initialize_array_value[i];
+
+            if(!compile(element_node, info)) {
+                return FALSE;
+            }
+
+            sNodeType* right_type = info->type;
+
+            if(!type_identify(var_element_type, right_type))
+            {
+                compile_err_msg(info, "The different type between left type and right type.");
+                show_node_type(var_element_type);
+                show_node_type(right_type);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            LVALUE rvalue = *get_value_from_stack(-1);
+
+            Value* index_value = ConstantInt::get(TheContext, llvm::APInt(32, i, true)); 
+
+            Value* element_address = Builder.CreateGEP(var_address, index_value, "element_address");
+
+            int alignment = get_llvm_alignment_from_node_type(var_element_type);
+
+            Builder.CreateAlignedStore(rvalue.value, element_address, alignment);
+
+            dec_stack_ptr(1, info);
+        }
+
+        push_value_to_stack_ptr(&llvm_value, info);
         info->type = var_type;
     }
     else {
@@ -6748,6 +6865,432 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
 
                 dec_stack_ptr(1, info);
             }
+        }
+
+        info->type = create_node_type_with_class_name("void");
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_struct_with_initialization(char* name, int num_initialize_array_value, unsigned int* initialize_array_value, unsigned int left_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeStructWithInitialization;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    xstrncpy(gNodes[node].uValue.sArrayWithInitialization.mVarName, name, VAR_NAME_MAX);
+    gNodes[node].uValue.sArrayWithInitialization.mNumInitializeArrayValue = num_initialize_array_value;
+    memcpy(gNodes[node].uValue.sArrayWithInitialization.mInitializeArrayValue, initialize_array_value, sizeof(unsigned int)*INIT_ARRAY_MAX);
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
+{
+    char* var_name = gNodes[node].uValue.sArrayWithInitialization.mVarName;
+    int num_initialize_array_value = gNodes[node].uValue.sArrayWithInitialization.mNumInitializeArrayValue;
+    unsigned int* initialize_array_value = gNodes[node].uValue.sArrayWithInitialization.mInitializeArrayValue;
+
+    /// compile node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(gNodes[lnode].uValue.sDefineVariable.mGlobal && !gNodes[lnode].uValue.sDefineVariable.mExtern) {
+        char var_name[VAR_NAME_MAX];
+        xstrncpy(var_name, gNodes[lnode].uValue.sStoreVariable.mVarName, VAR_NAME_MAX);
+        BOOL global = gNodes[lnode].uValue.sDefineVariable.mGlobal;
+        BOOL extern_ = gNodes[lnode].uValue.sDefineVariable.mExtern;
+
+        sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
+
+        if(var == NULL) {
+            compile_err_msg(info, "undeclared variable %s", var_name);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+            return TRUE;
+        }
+
+        sNodeType* var_type = var->mType;
+
+        Type* llvm_var_type;
+        if(!create_llvm_type_from_node_type(&llvm_var_type, var_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(1)");
+            show_node_type(var_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        int alignment = get_llvm_alignment_from_node_type(var_type);
+
+        if(global) {
+            if(extern_) {
+                assert(0);
+            }
+            else {
+                if(type_identify_with_class_name(var_type, "char*"))
+                {
+                    sNodeType* var_element_type = clone_node_type(var_type);
+                    var_element_type->mPointerNum--;
+
+                    GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
+
+                    unsigned int element_node = initialize_array_value[0];
+
+                    if(gNodes[element_node].mNodeType != kNodeTypeCString)
+                    {
+                        compile_err_msg(info, "Require char* type");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+
+                    char* str = gNodes[element_node].uValue.sString.mString;
+
+                    int len = strlen(str);
+
+                    std::vector<Constant *> init_data(len+1);
+
+                    int i;
+                    for(i=0; i<len; i++) {
+                        init_data[i] = ConstantInt::get(Type::getInt8Ty(TheContext), str[i]);
+                    }
+                    init_data[i] = ConstantInt::get(Type::getInt8Ty(TheContext), 0);
+
+                    Type* var_llvm_element_type;
+                    if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, info))
+                    {
+                        compile_err_msg(info, "Getting llvm type failed(10)");
+                        show_node_type(var_element_type);
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+
+                    Constant* constant_array = ConstantArray::get(ArrayType::get(var_llvm_element_type, len), init_data);
+                    address->setAlignment(alignment);
+
+                    ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
+
+                    address->setInitializer(constant_array);
+
+                    var->mLLVMValue = address;
+
+                    BOOL parent = FALSE;
+                    int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+                    store_address_to_lvtable(index, address);
+                }
+                else {
+                    sNodeType* var_element_type = clone_node_type(var_type);
+                    var_element_type->mPointerNum--;
+
+                    GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
+
+                    std::vector<Constant *> init_data(num_initialize_array_value);
+
+                    int i;
+                    for(i=0; i<num_initialize_array_value; i++) {
+                        /// compile node ///
+                        unsigned int element_node = initialize_array_value[i];
+
+                        if(!compile(element_node, info)) {
+                            return FALSE;
+                        }
+
+                        sNodeType* right_type = info->type;
+
+                        if(!type_identify(var_element_type, right_type))
+                        {
+                            compile_err_msg(info, "The different type between left type and right type.");
+                            show_node_type(var_element_type);
+                            show_node_type(right_type);
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            return TRUE;
+                        }
+
+                        LVALUE rvalue = *get_value_from_stack(-1);
+
+                        init_data[i] = (Constant*)rvalue.value;
+
+                        dec_stack_ptr(1, info);
+                    }
+
+                    Type* var_llvm_element_type;
+                    if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, info))
+                    {
+                        compile_err_msg(info, "Getting llvm type failed(10)");
+                        show_node_type(var_element_type);
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+
+                    Constant* constant_array = ConstantArray::get(ArrayType::get(var_llvm_element_type, num_initialize_array_value), init_data);
+                    address->setAlignment(alignment);
+
+                    ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
+
+                    address->setInitializer(constant_array);
+
+                    var->mLLVMValue = address;
+
+                    BOOL parent = FALSE;
+                    int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+                    store_address_to_lvtable(index, address);
+                }
+            }
+        }
+        else {
+            assert(0);
+        }
+
+        info->type = var_type;
+    }
+    else if(gNodes[lnode].mNodeType == kNodeTypeObject) {
+        if(!compile(lnode, info)) {
+            return FALSE;
+        }
+
+        LVALUE llvm_value = *get_value_from_stack(-1);
+
+        dec_stack_ptr(1, info);
+
+        sNodeType* var_type = clone_node_type(info->type);
+
+        Value* var_address = llvm_value.value;
+
+        if(var_address == nullptr) {
+            compile_err_msg(info, "Invalid variable. %s", var_name);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        int alignment = get_llvm_alignment_from_node_type(var_type);
+
+        Value* var_value = Builder.CreateAlignedLoad(var_address, alignment);
+
+        sCLClass* klass = var_type->mClass;
+
+        Type* llvm_struct_type;
+        if(!create_llvm_type_from_node_type(&llvm_struct_type, var_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(11)");
+            show_node_type(var_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        int i;
+        for(i=0; i<num_initialize_array_value; i++) {
+            /// compile node ///
+            unsigned int element_node = initialize_array_value[i];
+
+            if(!compile(element_node, info)) {
+                return FALSE;
+            }
+
+            sNodeType* right_type = info->type;
+
+            if(i >= klass->mNumFields) {
+                compile_err_msg(info, "Over field number.");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            sNodeType* field_type = klass->mFields[i];
+
+            if(!type_identify(field_type, right_type))
+            {
+                compile_err_msg(info, "The different type between left type and right type.");
+                show_node_type(field_type);
+                show_node_type(right_type);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            LVALUE rvalue = *get_value_from_stack(-1);
+
+            Value* field_address;
+            if(var_type->mPointerNum == 0) {
+#if LLVM_VERSION_MAJOR >= 7
+                field_address = Builder.CreateStructGEP(var_address, i, "element_adress");
+#else
+                field_address = Builder.CreateStructGEP(llvm_struct_type, var_address, i, "element_adress");
+#endif
+            }
+            else {
+#if LLVM_VERSION_MAJOR >= 7
+                field_address = Builder.CreateStructGEP(var_address, i, "element_adress");
+#else
+                field_address = Builder.CreateStructGEP(llvm_struct_type, var_address, i, "element_adress");
+#endif
+            }
+
+            int alignment = get_llvm_alignment_from_node_type(field_type);
+
+            Builder.CreateAlignedStore(rvalue.value, field_address, alignment);
+
+            dec_stack_ptr(1, info);
+        }
+
+        push_value_to_stack_ptr(&llvm_value, info);
+        info->type = var_type;
+    }
+    else {
+        if(!compile(lnode, info)) {
+            return FALSE;
+        }
+
+        sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
+
+        if(var == NULL) {
+            compile_err_msg(info, "undeclared variable %s", var_name);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+            return TRUE;
+        }
+
+        sNodeType* var_type = var->mType;
+
+        if(var_type == NULL || var_type->mClass == NULL) 
+        {
+            compile_err_msg(info, "null type %s", var_name);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+            return TRUE;
+        }
+
+        BOOL parent = FALSE;
+        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+        Value* var_address;
+        if(parent && !var->mGlobal) {
+            var_address = load_address_to_lvtable(index, var_type, info);
+        }
+        else {
+            var_address = (Value*)var->mLLVMValue;
+        }
+
+        if(var_address == nullptr) {
+            compile_err_msg(info, "Invalid variable. %s", var_name);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        int alignment = get_llvm_alignment_from_node_type(var_type);
+
+        Value* var_value = Builder.CreateAlignedLoad(var_address, alignment);
+
+        sCLClass* klass = var_type->mClass;
+
+        Type* llvm_struct_type;
+        if(!create_llvm_type_from_node_type(&llvm_struct_type, var_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(11)");
+            show_node_type(var_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        int i;
+        for(i=0; i<num_initialize_array_value; i++) {
+            /// compile node ///
+            unsigned int element_node = initialize_array_value[i];
+
+            if(!compile(element_node, info)) {
+                return FALSE;
+            }
+
+            sNodeType* right_type = info->type;
+
+            if(i >= klass->mNumFields) {
+                compile_err_msg(info, "Over field number.");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            sNodeType* field_type = klass->mFields[i];
+
+            if(!type_identify(field_type, right_type))
+            {
+                compile_err_msg(info, "The different type between left type and right type.");
+                show_node_type(field_type);
+                show_node_type(right_type);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            LVALUE rvalue = *get_value_from_stack(-1);
+
+            Value* field_address;
+            if(var_type->mPointerNum == 0) {
+#if LLVM_VERSION_MAJOR >= 7
+                field_address = Builder.CreateStructGEP(var_address, i, "element_adress");
+#else
+                field_address = Builder.CreateStructGEP(llvm_struct_type, var_address, i, "element_adress");
+#endif
+            }
+            else {
+#if LLVM_VERSION_MAJOR >= 7
+                field_address = Builder.CreateStructGEP(var_value, i, "element_adress");
+#else
+                field_address = Builder.CreateStructGEP(llvm_struct_type, var_value, i, "element_adress");
+#endif
+            }
+
+            int alignment = get_llvm_alignment_from_node_type(field_type);
+
+            Builder.CreateAlignedStore(rvalue.value, field_address, alignment);
+
+            dec_stack_ptr(1, info);
         }
 
         info->type = create_node_type_with_class_name("void");
@@ -7161,6 +7704,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeNormalBlock:
             if(!compile_normal_block(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeStructWithInitialization:
+            if(!compile_struct_with_initialization(node, info))
+            {
                 return FALSE;
             }
             break;

@@ -1176,10 +1176,30 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
         {
             if(type_identify_with_class_name(result_type, "char*"))
             {
-                parser_err_msg(info, "No suport this initialization by neo-c");
-                info->err_num++;
-                *node = 0;
-                return TRUE;
+                unsigned int right_node = 0;
+
+                if(!expression(&right_node, info)) {
+                    return FALSE;
+                }
+
+                if(right_node == 0) {
+                    parser_err_msg(info, "Require right value for =");
+                    info->err_num++;
+
+                    *node = 0;
+                }
+                else {
+                    unsigned int initialize_array_values[INIT_ARRAY_MAX];
+                    int num_initialize_array_value = 0;
+                    memset(initialize_array_values, 0, sizeof(unsigned int)*INIT_ARRAY_MAX);
+
+                    initialize_array_values[0] = right_node;
+                    num_initialize_array_value++;
+
+                    *node = sNodeTree_create_define_variable(name, extern_, info);
+
+                    *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                }
             }
             else {
                 expect_next_character_with_one_forward("{", info);
@@ -1229,10 +1249,36 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
         {
             if(type_identify_with_class_name(result_type, "char*"))
             {
-                parser_err_msg(info, "No suport this initialization by neo-c");
-                info->err_num++;
-                *node = 0;
-                return TRUE;
+                unsigned int right_node = 0;
+
+                if(!expression(&right_node, info)) {
+                    return FALSE;
+                }
+
+                if(right_node == 0 || gNodes[right_node].mNodeType != kNodeTypeCString) {
+                    parser_err_msg(info, "Require string for =");
+                    info->err_num++;
+
+                    *node = 0;
+                }
+                else {
+                    char* str = gNodes[right_node].uValue.sString.mString;
+
+                    int len = strlen(str);
+
+                    result_type->mArrayNum = len + 1;
+
+                    unsigned int initialize_array_values[INIT_ARRAY_MAX];
+                    int num_initialize_array_value = 0;
+                    memset(initialize_array_values, 0, sizeof(unsigned int)*INIT_ARRAY_MAX);
+
+                    initialize_array_values[0] = right_node;
+                    num_initialize_array_value++;
+
+                    *node = sNodeTree_create_define_variable(name, extern_, info);
+
+                    *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                }
             }
             else {
                 expect_next_character_with_one_forward("{", info);
@@ -1351,6 +1397,49 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
 
                 *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
             }
+        }
+        else if((result_type->mClass->mFlags & CLASS_FLAGS_STRUCT) && *info->p == '{') {
+            expect_next_character_with_one_forward("{", info);
+
+            unsigned int initialize_array_values[INIT_ARRAY_MAX];
+            int num_initialize_array_value = 0;
+            memset(initialize_array_values, 0, sizeof(unsigned int)*INIT_ARRAY_MAX);
+
+            while(TRUE) {
+                unsigned int right_node = 0;
+
+                if(!expression(&right_node, info)) {
+                    return FALSE;
+                }
+
+                if(right_node == 0) {
+                    parser_err_msg(info, "Require right value for {}");
+                    info->err_num++;
+
+                    *node = 0;
+                }
+                else {
+                    initialize_array_values[num_initialize_array_value++] = right_node;
+                }
+
+                if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == '\0') {
+                    parser_err_msg(info, "In the array initialization, the parser has arraived at the source end");
+                    return FALSE;
+                }
+                else if(*info->p == '}') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+            }
+
+            *node = sNodeTree_create_define_variable(name, extern_, info);
+
+            *node = sNodeTree_create_struct_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
         }
         else {
             unsigned int right_node = 0;
@@ -2997,7 +3086,60 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("]", info);
         }
 
-        *node = sNodeTree_create_object(node_type, object_num, info->sname, info->sline, info);
+        if(*info->p == '{') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int initialize_array_values[INIT_ARRAY_MAX];
+            int num_initialize_array_value = 0;
+            memset(initialize_array_values, 0, sizeof(unsigned int)*INIT_ARRAY_MAX);
+
+            while(TRUE) {
+                unsigned int right_node = 0;
+
+                if(!expression(&right_node, info)) {
+                    return FALSE;
+                }
+
+                if(right_node == 0) {
+                    parser_err_msg(info, "Require right value for {}");
+                    info->err_num++;
+
+                    *node = 0;
+                }
+                else {
+                    initialize_array_values[num_initialize_array_value++] = right_node;
+                }
+
+                if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == '\0') {
+                    parser_err_msg(info, "In the array initialization, the parser has arraived at the source end");
+                    return FALSE;
+                }
+                else if(*info->p == '}') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+            }
+
+            if(object_num > 0) {
+                *node = sNodeTree_create_object(node_type, object_num, info->sname, info->sline, info);
+
+                *node = sNodeTree_create_array_with_initialization("", num_initialize_array_value, initialize_array_values, *node, info);
+            }
+            else {
+                *node = sNodeTree_create_object(node_type, object_num, info->sname, info->sline, info);
+
+                *node = sNodeTree_create_struct_with_initialization("", num_initialize_array_value, initialize_array_values, *node, info);
+            }
+        }
+        else {
+            *node = sNodeTree_create_object(node_type, object_num, info->sname, info->sline, info);
+        }
     }
     else {
         parser_err_msg(info, "Invalid type name");

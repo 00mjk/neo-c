@@ -279,6 +279,10 @@ BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)
     {
         return TRUE;
     }
+    else if((left_type->mPointerNum-1 == right_type->mPointerNum) && right_type->mArrayNum > 0)
+    {
+        return TRUE;
+    }
 
     return FALSE;
 }
@@ -317,7 +321,19 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
         return FALSE;
     }
     else if(type_identify(left_type, right_type)) {
-        if(left_type->mPointerNum == right_type->mPointerNum) 
+        if((left_type->mPointerNum-1 == right_type->mPointerNum) && right_type->mArrayNum > 0)
+        {
+            if(left_type->mHeap) {
+                if(right_type->mHeap)
+                {
+                    return TRUE;
+                }
+            }
+            else {
+                return TRUE;
+            }
+        }
+        else if(left_type->mPointerNum == right_type->mPointerNum) 
         {
             if(left_type->mHeap) {
                 if(right_type->mHeap)

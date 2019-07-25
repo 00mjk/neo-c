@@ -1,11 +1,18 @@
 #include <stdio.h>
 #include <alloca.h>
 
-int a[] = { 1, 2, 3 };
+struct sStruct {
+    int a;
+    double b;
+};
+
+struct sStruct data = {
+    1111, 1.1
+};
 
 int main() {
 
-    printf("a[0] %d a[1] %d a[2] %d\n", a[0], a[1], a[2]);
+    printf("%d %f\n", data.a, data.b);
 
     return 0;
 }

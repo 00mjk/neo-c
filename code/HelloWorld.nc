@@ -103,6 +103,10 @@ int GlobalArray[3] = { 1, 2, 3 };
 
 int GlobalArray2[] = { 1, 2, 3 };
 
+char GlobalArray3[] = "ABC";
+
+char GlobalArray4[4] = "ABC";
+
 int main()
 {
     if(1 == 1) {
@@ -1362,6 +1366,34 @@ int main()
     assert("global array test", GlobalArray[0] == 1 && GlobalArray[1] == 2 && GlobalArray[2] == 3);
 
     assert("global array2 test", GlobalArray2[0] == 1 && GlobalArray2[1] == 2 && GlobalArray2[2] == 3);
+
+    assert("global array3 test", strcmp(GlobalArray3, "ABC") == 0);
+
+    assert("global array4 test", strcmp(GlobalArray4, "ABC") == 0);
+
+    int%* aaadata = new int[3] {
+        1, 2, 3
+    }
+
+    assert("new array initializer", aaadata[0] == 1 && aaadata[1] == 2 && aaadata[2] == 3);
+
+
+    struct sStruct {
+        int a;
+        int b;
+    };
+
+    struct sStruct sssdata = {
+        111, 222
+    };
+
+    assert("struct initializer", sssdata.a == 111 && sssdata.b == 222);
+
+    sStruct%* sss2data = new sStruct {
+        123, 1
+    }
+
+    assert("new struct initializer", sss2data.a == 123 && sss2data.b == 1);
 
     0
 }
