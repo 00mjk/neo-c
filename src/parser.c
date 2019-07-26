@@ -3627,6 +3627,62 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_switch(unsigned int* node, sParserInfo* info)
+{
+    expect_next_character_with_one_forward("(", info);
+
+    /// expression1 ///
+    unsigned int expression_node = 0;
+    if(!expression(&expression_node, info)) {
+        return FALSE;
+    }
+
+    if(expression_node == 0) {
+        parser_err_msg(info, "require expression for \"switch\"");
+        info->err_num++;
+        return TRUE;
+    }
+
+    expect_next_character_with_one_forward(")", info);
+    expect_next_character_with_one_forward("{", info);
+
+    int size_switch_expression = 16;
+    int num_switch_expression = 0;
+    unsigned int* switch_expression = (unsigned int*)xcalloc(1, sizeof(unsigned int)*size_switch_expression);
+    info->switch_nest++;
+
+    while(1) {
+        if(*info->p == '}') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            info->switch_nest--;
+            break;
+        }
+        else {
+            if(!expression(switch_expression + num_switch_expression, info)) 
+            {
+                return FALSE;
+            }
+
+            num_switch_expression++;
+
+            if(num_switch_expression >= size_switch_expression) 
+            {
+                size_switch_expression *= 2;
+                switch_expression = xrealloc(switch_expression, sizeof(unsigned int)*size_switch_expression);
+            }
+
+            if(*info->p == ';') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+        }
+    }
+
+    *node = sNodeTree_switch_expression(expression_node, num_switch_expression, MANAGED switch_expression, info);
+
+    return TRUE;
+}
 
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
@@ -4155,6 +4211,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "switch") == 0) {
+            if(!parse_switch(node, info)) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "if") == 0) {
             if(!parse_if(node, info)) {
                 return FALSE;
@@ -4209,6 +4270,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             if(!parse_typedef(node, info)) {
                 return FALSE;
             }
+        }
+        else if(strcmp(buf, "break") == 0) {
+            *node = sNodeTree_create_break_expression(info);
         }
         else if(strcmp(buf, "template") == 0) {
             if(!parse_method_generics_function(node, NULL, info)) {

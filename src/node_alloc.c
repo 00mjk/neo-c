@@ -85,6 +85,13 @@ void free_nodes()
                     }
                     break;
 
+                case kNodeTypeSwitch:
+                    if(gNodes[i].uValue.sSwitch.mSwitchExpression)
+                    {
+                        free(gNodes[i].uValue.sSwitch.mSwitchExpression);
+                    }
+                    break;
+
                 default:
                     break;
             }

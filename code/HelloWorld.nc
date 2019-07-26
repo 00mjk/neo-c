@@ -1406,7 +1406,6 @@ int main()
     assert("new struct initializer", sss2data.a == 123 && sss2data.b == 1);
 
     assert("global struct data", GlobalStructData.a == 123 && GlobalStructData.b == 345);
-*/
 
     enum { kA, kB };
 
@@ -1421,6 +1420,17 @@ int main()
     enum eEnum aenum = kA3;
 
     assert("enum test", aenum == kA3);
+*/
+
+    int switcha = 1;
+
+    switch(switcha) {
+        assert("switch test1", true);
+        break;
+
+        puts("AAA");
+    }
+    puts("BBB");
 
     0
 }

@@ -1,6 +1,10 @@
 double, floatの値の表現、8進数、16進数
 
-enum 型付き
+break
+
+continue
+
+do while
 
 switch
 
@@ -92,3 +96,5 @@ arrayからpointerへの自動キャスト
 グローバル変数の配列の初期化(文字列)
 グローバル変数の配列の初期化の添字の省略(文字列)
 構造体の初期化
+
+enum 型付き
