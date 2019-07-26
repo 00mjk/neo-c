@@ -107,6 +107,15 @@ char GlobalArray3[] = "ABC";
 
 char GlobalArray4[4] = "ABC";
 
+struct GlobalStruct {
+    int a;
+    int b;
+}
+
+struct GlobalStruct GlobalStructData = {
+    123, 345
+}
+
 int main()
 {
     if(1 == 1) {
@@ -1394,6 +1403,8 @@ int main()
     }
 
     assert("new struct initializer", sss2data.a == 123 && sss2data.b == 1);
+
+    assert("global struct data", GlobalStructData.a == 123 && GlobalStructData.b == 345);
 
     0
 }
