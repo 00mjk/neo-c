@@ -1416,6 +1416,12 @@ int main()
 
     assert("enum test", kA2 == 0 && kB2 == 999 && kC2 == 1000);
 
+    enum eEnum { kA3, kB3, kC3 };
+
+    enum eEnum aenum = kA3;
+
+    assert("enum test", aenum == kA3);
+
     0
 }
 

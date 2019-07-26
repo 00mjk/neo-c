@@ -709,6 +709,10 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
 
         *result_type = gLLVMStructType[real_struct_name].first;
     }
+    else if(klass->mFlags & CLASS_FLAGS_ENUM) 
+    {
+        *result_type = IntegerType::get(TheContext, 32);
+    }
     else if((klass->mFlags & CLASS_FLAGS_GENERICS) || (klass->mFlags & CLASS_FLAGS_METHOD_GENERICS))
     {
         if(info && info->no_output) {

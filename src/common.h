@@ -80,6 +80,7 @@ unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_o
 #define CLASS_FLAGS_METHOD_GENERICS 0x20
 #define CLASS_FLAGS_UNION 0x040
 #define CLASS_FLAGS_ANONYMOUS 0x080
+#define CLASS_FLAGS_ENUM 0x100
 
 struct sCLClassStruct {
     clint64 mFlags;
@@ -125,6 +126,7 @@ void class_final();
 
 sCLClass* get_class(char* class_name);
 sCLClass* alloc_struct(char* class_name, BOOL anonymous);
+sCLClass* alloc_enum(char* class_name);
 void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
 sCLClass* alloc_union(char* class_name, BOOL anonymous);
 void add_fields_to_union(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);

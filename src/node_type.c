@@ -320,6 +320,10 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
     {
         return FALSE;
     }
+    else if((left_class->mFlags & CLASS_FLAGS_ENUM) && type_identify_with_class_name(right_type, "int"))
+    {
+        return TRUE;
+    }
     else if(type_identify(left_type, right_type)) {
         if((left_type->mPointerNum-1 == right_type->mPointerNum) && right_type->mArrayNum > 0)
         {
