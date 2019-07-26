@@ -535,6 +535,86 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
     return TRUE;
 }
 
+static BOOL parse_anoymous_enum(unsigned int* node, sParserInfo* info) 
+{
+    expect_next_character_with_one_forward("{", info);
+
+    unsigned int nodes[IMPL_DEF_MAX];
+    memset(nodes, 0, sizeof(unsigned int)*IMPL_DEF_MAX);
+    int num_nodes = 0;
+    int value = 0;
+
+    while(TRUE) {
+        char var_name[VAR_NAME_MAX];
+        if(!parse_word(var_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+        {
+            return FALSE;
+        }
+
+        unsigned int right_node;
+
+        if(*info->p == '=') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(!expression(&right_node, info)) {
+                return FALSE;
+            }
+
+            if(!gNodes[right_node].mNodeType == kNodeTypeIntValue)
+            {
+                parser_err_msg(info, "This is not Int Value");
+                info->err_num++;
+                return TRUE;
+            }
+
+            value = gNodes[right_node].uValue.mIntValue;
+        }
+        else {
+            right_node = sNodeTree_create_int_value(value, info);
+        }
+
+        BOOL alloc_ = TRUE;
+        *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
+
+        sNodeType* result_type = create_node_type_with_class_name("int");
+        result_type->mConstant = TRUE;
+
+        check_already_added_variable(info->lv_table, var_name, info);
+        BOOL readonly = TRUE;
+        add_variable_to_table(info->lv_table, var_name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
+
+        nodes[num_nodes++] = *node;
+        value++;
+
+        if(num_nodes >= IMPL_DEF_MAX) {
+            fprintf(stderr, "overflow enum element max");
+            return FALSE;
+        }
+
+        if(*info->p == ',') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+
+        if(*info->p == '}') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+    }
+
+    if(*info->p == ';') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+
+    BOOL extern_ = FALSE;
+    *node = sNodeTree_create_define_variables(nodes, num_nodes, extern_, info);
+
+    return TRUE;
+}
+
 static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type)
 {
     if(func_pointer_name) {
@@ -3942,6 +4022,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             xstrncpy(union_name, "", VAR_NAME_MAX);
 
             if(!parse_union(node, union_name, VAR_NAME_MAX, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "enum") == 0 && *info->p == '{') {
+            if(!parse_anoymous_enum(node, info)) {
                 return FALSE;
             }
         }

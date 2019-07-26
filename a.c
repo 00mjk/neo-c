@@ -1,18 +1,15 @@
 #include <stdio.h>
 #include <alloca.h>
 
-struct sStruct {
-    int a;
-    double b;
-};
+enum eEnum { kA, kB=3, kC };
 
-struct sStruct data = {
-    1111, 1.1
-};
+void fun(enum eEnum2 aaa)
+{
+    printf("%d\n", aaa);
+}
 
 int main() {
-
-    printf("%d %f\n", data.a, data.b);
+    fun(4);
 
     return 0;
 }

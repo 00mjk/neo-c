@@ -118,6 +118,7 @@ struct GlobalStruct GlobalStructData = {
 
 int main()
 {
+/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -1405,6 +1406,15 @@ int main()
     assert("new struct initializer", sss2data.a == 123 && sss2data.b == 1);
 
     assert("global struct data", GlobalStructData.a == 123 && GlobalStructData.b == 345);
+*/
+
+    enum { kA, kB };
+
+    assert("enum test", kA == 0 && kB == 1);
+
+    enum { kA2, kB2 = 999, kC2 }
+
+    assert("enum test", kA2 == 0 && kB2 == 999 && kC2 == 1000);
 
     0
 }

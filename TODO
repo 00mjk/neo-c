@@ -1,6 +1,6 @@
 double, floatの値の表現、8進数、16進数
 
-enum
+enum 型付き
 
 switch
 
