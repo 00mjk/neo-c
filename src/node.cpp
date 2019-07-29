@@ -2,6 +2,7 @@
 
 std::map<std::string, sFunction> gFuncs;
 std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;
+std::map<std::string, BasicBlock*> gLabels;
 
 BOOL is_function_name(char* name)
 {
@@ -2600,10 +2601,11 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     if(fun.mInlineFunction) {
         BasicBlock* inline_func_begin = BasicBlock::Create(TheContext, fun_name, gFunction);
 
+        free_right_value_objects(info);
         Builder.CreateBr(inline_func_begin);
 
         BasicBlock* current_block_before;
-        llvm_change_block(inline_func_begin, &current_block_before, info);
+        llvm_change_block(inline_func_begin, &current_block_before, info, FALSE);
 
         void* inline_func_end_before = info->inline_func_end;
         info->inline_func_end = BasicBlock::Create(TheContext, "inline_func_end", gFunction);
@@ -2704,10 +2706,11 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         }
 
         if(!info->last_expression_is_return) {
+            free_right_value_objects(info);
             Builder.CreateBr((BasicBlock*)info->inline_func_end);
         }
 
-        llvm_change_block((BasicBlock*)info->inline_func_end, &current_block_before, info);
+        llvm_change_block((BasicBlock*)info->inline_func_end, &current_block_before, info, FALSE);
 
         if(!type_identify_with_class_name(result_type, "void"))
         {
@@ -2941,7 +2944,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     BasicBlock* current_block_before;
     BasicBlock* current_block = BasicBlock::Create(TheContext, "entry", fun);
-    llvm_change_block(current_block, &current_block_before, info);
+    llvm_change_block(current_block, &current_block_before, info, FALSE);
 
     /// copy lvtable for other function ///
     Value* lvtable;
@@ -3110,7 +3113,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
         BasicBlock* current_block_before;
         BasicBlock* current_block = BasicBlock::Create(TheContext, "entry", fun);
-        llvm_change_block(current_block, &current_block_before, info);
+        llvm_change_block(current_block, &current_block_before, info, FALSE);
 
         /// copy lvtable for other function ///
         Value* lvtable;
@@ -3233,7 +3236,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     }
 
     BasicBlock* current_block_before2;
-    llvm_change_block(current_block_before, &current_block_before2, info);
+    llvm_change_block(current_block_before, &current_block_before2, info, FALSE);
 
     return TRUE;
 }
@@ -3622,17 +3625,23 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end", gFunction);
 
     if(elif_num > 0) {
+        free_right_value_objects(info);
+
         Builder.CreateCondBr(conditional_value.value, cond_then_block, cond_elif_block[0]);
     }
     else if(else_node_block) {
+        free_right_value_objects(info);
+
         Builder.CreateCondBr(conditional_value.value, cond_then_block, cond_else_block);
     }
     else {
+        free_right_value_objects(info);
+
         Builder.CreateCondBr(conditional_value.value, cond_then_block, cond_end_block);
     }
 
     BasicBlock* current_block_before;
-    llvm_change_block(cond_then_block, &current_block_before, info);
+    llvm_change_block(cond_then_block, &current_block_before, info, FALSE);
 
     sNodeBlock* if_block = gNodes[node].uValue.sIf.mIfNodeBlock;
     sNodeType* result_type = create_node_type_with_class_name("any");
@@ -3678,6 +3687,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     }
 
     if(!info->last_expression_is_return) {
+        free_right_value_objects(info);
         Builder.CreateBr(cond_end_block);
     }
 
@@ -3688,7 +3698,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         int i;
         for(i=0; i<elif_num; i++) {
             BasicBlock* current_block_before;
-            llvm_change_block(cond_elif_block[i], &current_block_before, info);
+            llvm_change_block(cond_elif_block[i], &current_block_before, info, FALSE);
 
             unsigned int expression_node = gNodes[node].uValue.sIf.mElifExpressionNodes[i];
 
@@ -3727,18 +3737,22 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
             if(i == elif_num-1) {
                 if(else_node_block) {
+                    free_right_value_objects(info);
+
                     Builder.CreateCondBr(conditional_value.value, cond_elif_then_block[i], cond_else_block);
                 }
                 else {
+                    free_right_value_objects(info);
                     Builder.CreateCondBr(conditional_value.value, cond_elif_then_block[i], cond_end_block);
                 }
             }
             else {
+                free_right_value_objects(info);
                 Builder.CreateCondBr(conditional_value.value, cond_elif_then_block[i], cond_elif_block[i+1]);
             }
 
             BasicBlock* current_block_before2;
-            llvm_change_block(cond_elif_then_block[i], &current_block_before2, info);
+            llvm_change_block(cond_elif_then_block[i], &current_block_before2, info, FALSE);
 
             sNodeBlock* elif_node_block = gNodes[node].uValue.sIf.mElifNodeBlocks[i];
 
@@ -3767,6 +3781,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             }
 
             if(!info->last_expression_is_return) {
+                free_right_value_objects(info);
                 Builder.CreateBr(cond_end_block);
             }
 
@@ -3776,7 +3791,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
     if(else_node_block) {
         BasicBlock* current_block_before;
-        llvm_change_block(cond_else_block, &current_block_before, info);
+        llvm_change_block(cond_else_block, &current_block_before, info, FALSE);
 
         BOOL last_expression_is_return_before = info->last_expression_is_return;
         info->last_expression_is_return = FALSE;
@@ -3803,6 +3818,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         }
 
         if(!info->last_expression_is_return) {
+            free_right_value_objects(info);
             Builder.CreateBr(cond_end_block);
         }
 
@@ -3810,7 +3826,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     }
 
     BasicBlock* current_block_before2;
-    llvm_change_block(cond_end_block, &current_block_before2, info);
+    llvm_change_block(cond_end_block, &current_block_before2, info, FALSE);
 
     if(result_value) {
         LVALUE llvm_value;
@@ -4463,10 +4479,11 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
 
     BasicBlock* loop_top_block = BasicBlock::Create(TheContext, "loop_top_block", gFunction);
 
+    free_right_value_objects(info);
     Builder.CreateBr(loop_top_block);
 
     BasicBlock* current_block_before;
-    llvm_change_block(loop_top_block, &current_block_before, info);
+    llvm_change_block(loop_top_block, &current_block_before, info, FALSE);
 
     /// compile expression ///
     unsigned int expression_node = gNodes[node].uValue.sWhile.mExpressionNode;
@@ -4517,10 +4534,23 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    info->loop_begin_block[info->num_loop2] = cond_then_block;
+    info->num_loop2++;
+
+    if(info->num_loop2 >= LOOP_NEST_MAX) {
+        compile_err_msg(info, "Over flow loop number");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    free_right_value_objects(info);
     Builder.CreateCondBr(conditional_value.value, cond_then_block, cond_end_block);
 
     BasicBlock* current_block_before2;
-    llvm_change_block(cond_then_block, &current_block_before2, info);
+    llvm_change_block(cond_then_block, &current_block_before2, info, FALSE);
 
     BOOL last_expression_is_return_before = info->last_expression_is_return;
     info->last_expression_is_return = FALSE;
@@ -4531,13 +4561,130 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     }
 
     if(!info->last_expression_is_return) {
+        free_right_value_objects(info);
         Builder.CreateBr(loop_top_block);
     }
 
     info->last_expression_is_return = last_expression_is_return_before;
 
     BasicBlock* current_block_before3;
-    llvm_change_block(cond_end_block, &current_block_before3, info);
+    llvm_change_block(cond_end_block, &current_block_before3, info, FALSE);
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_do_while_expression(unsigned int expression_node, MANAGED struct sNodeBlockStruct* while_node_block, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeDoWhile;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.sWhile.mExpressionNode = expression_node;
+    gNodes[node].uValue.sWhile.mWhileNodeBlock = MANAGED while_node_block;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_do_while_expression(unsigned int node, sCompileInfo* info)
+{
+    sNodeBlock* while_node_block = gNodes[node].uValue.sWhile.mWhileNodeBlock;
+
+    BasicBlock* loop_top_block = BasicBlock::Create(TheContext, "loop_top_block", gFunction);
+
+    free_right_value_objects(info);
+    Builder.CreateBr(loop_top_block);
+
+    BasicBlock* current_block_before;
+    llvm_change_block(loop_top_block, &current_block_before, info, FALSE);
+
+    info->loop_begin_block[info->num_loop2] = loop_top_block;
+    info->num_loop2++;
+
+    if(info->num_loop2 >= LOOP_NEST_MAX) {
+        compile_err_msg(info, "Over flow loop number");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end_block", gFunction);
+
+    info->loop_end_block[info->num_loop] = cond_end_block;
+    info->num_loop++;
+
+    if(info->num_loop >= LOOP_NEST_MAX) {
+        compile_err_msg(info, "Over flow loop number");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    BOOL last_expression_is_return_before = info->last_expression_is_return;
+    info->last_expression_is_return = FALSE;
+
+    sNodeType* result_type = create_node_type_with_class_name("void");
+    if(!compile_block(while_node_block, info, result_type)) {
+        return FALSE;
+    }
+
+    /// compile expression ///
+    unsigned int expression_node = gNodes[node].uValue.sWhile.mExpressionNode;
+
+    if(!compile(expression_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* conditional_type = info->type;
+
+    LVALUE conditional_value = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    free_right_value_objects(info);
+    Builder.CreateCondBr(conditional_value.value, loop_top_block, cond_end_block);
+
+    sNodeType* bool_type = create_node_type_with_class_name("bool");
+
+    if(auto_cast_posibility(bool_type, conditional_type)) {
+        if(!cast_right_type_to_left_type(bool_type, &conditional_type, &conditional_value, info))
+        {
+            compile_err_msg(info, "Cast failed");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+            return TRUE;
+        }
+    }
+
+    if(!type_identify_with_class_name(conditional_type, "bool")) {
+        compile_err_msg(info, "This conditional type is not bool");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    BasicBlock* current_block_before2;
+    llvm_change_block(cond_end_block, &current_block_before2, info, FALSE);
+
+/*
+    if(!info->last_expression_is_return) {
+        free_right_value_objects(info);
+        Builder.CreateBr(loop_top_block);
+    }
+
+    info->last_expression_is_return = last_expression_is_return_before;
+*/
 
     return TRUE;
 }
@@ -4694,10 +4841,12 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 
     BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_jump_end", gFunction);;
 
+    free_right_value_objects(info);
+
     Builder.CreateCondBr(conditional_value.value, cond_then_block, cond_end_block);
 
     BasicBlock* current_block_before;
-    llvm_change_block(cond_then_block, &current_block_before, info);
+    llvm_change_block(cond_then_block, &current_block_before, info, FALSE);
 
     /// compile right expression ///
     unsigned int right_node = gNodes[node].mRight;
@@ -4734,10 +4883,11 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 
     Builder.CreateAlignedStore(andand_value, result_var, 1);
 
+    free_right_value_objects(info);
     Builder.CreateBr(cond_end_block);
 
     BasicBlock* current_block_before2;
-    llvm_change_block(cond_end_block, &current_block_before2, info);
+    llvm_change_block(cond_end_block, &current_block_before2, info, FALSE);
 
     dec_stack_ptr(2, info);
 
@@ -4813,10 +4963,12 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
 
     BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_jump_end", gFunction);;
 
+    free_right_value_objects(info);
+
     Builder.CreateCondBr(conditional_value.value, cond_end_block, cond_then_block);
 
     BasicBlock* current_block_before;
-    llvm_change_block(cond_then_block, &current_block_before, info);
+    llvm_change_block(cond_then_block, &current_block_before, info, FALSE);
 
     /// compile right expression ///
     unsigned int right_node = gNodes[node].mRight;
@@ -4853,10 +5005,11 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
 
     Builder.CreateAlignedStore(oror_value, result_var, 1);
 
+    free_right_value_objects(info);
     Builder.CreateBr(cond_end_block);
 
     BasicBlock* current_block_before2;
-    llvm_change_block(cond_end_block, &current_block_before2, info);
+    llvm_change_block(cond_end_block, &current_block_before2, info, FALSE);
 
     dec_stack_ptr(2, info);
 
@@ -4912,10 +5065,11 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     /// compile expression ///
     BasicBlock* loop_top_block = BasicBlock::Create(TheContext, "loop_top_block", gFunction);
 
+    free_right_value_objects(info);
     Builder.CreateBr(loop_top_block);
 
     BasicBlock* current_block_before;
-    llvm_change_block(loop_top_block, &current_block_before, info);
+    llvm_change_block(loop_top_block, &current_block_before, info, FALSE);
 
     unsigned int expression_node2 = gNodes[node].uValue.sFor.mExpressionNode2;
 
@@ -4970,10 +5124,23 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    info->loop_begin_block[info->num_loop2] = cond_then_block;
+    info->num_loop2++;
+
+    if(info->num_loop2 >= LOOP_NEST_MAX) {
+        compile_err_msg(info, "Over flow loop number");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    free_right_value_objects(info);
     Builder.CreateCondBr(conditional_value.value, cond_then_block, cond_end_block);
 
     BasicBlock* current_block_before2;
-    llvm_change_block(cond_then_block, &current_block_before2, info);
+    llvm_change_block(cond_then_block, &current_block_before2, info, FALSE);
 
     /// block of for expression ///
     sNodeType* result_type = create_node_type_with_class_name("void");
@@ -4996,13 +5163,14 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     }
 
     if(!info->last_expression_is_return) {
+        free_right_value_objects(info);
         Builder.CreateBr(loop_top_block);
     }
 
     info->last_expression_is_return = last_expression_is_return_before;
 
     BasicBlock* current_block_before3;
-    llvm_change_block(cond_end_block, &current_block_before3, info);
+    llvm_change_block(cond_end_block, &current_block_before3, info, FALSE);
     info->num_loop--;
 
     info->pinfo->lv_table = lv_table_before;
@@ -6289,6 +6457,7 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
 
             dec_stack_ptr(1, info);
 
+            free_right_value_objects(info);
             Builder.CreateBr((BasicBlock*)info->inline_func_end);
         }
         else {
@@ -6315,6 +6484,7 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
         free_right_value_objects(info);
 
         if(info->inline_func_end) {
+            free_right_value_objects(info);
             Builder.CreateBr((BasicBlock*)info->inline_func_end);
         }
         else {
@@ -7321,6 +7491,7 @@ unsigned int sNodeTree_switch_expression(unsigned int expression_node, int num_s
     xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
+    gNodes[node].uValue.sSwitch.mExpression = expression_node;
     gNodes[node].uValue.sSwitch.mSwitchExpression = MANAGED switch_expression;
     gNodes[node].uValue.sSwitch.mNumSwitchExpression = num_switch_expression;
 
@@ -7335,6 +7506,7 @@ BOOL compile_switch_expression(unsigned int node, sCompileInfo* info)
 {
     unsigned int* switch_expression = gNodes[node].uValue.sSwitch.mSwitchExpression;
     int num_switch_expression = gNodes[node].uValue.sSwitch.mNumSwitchExpression;
+    unsigned int expression_node = gNodes[node].uValue.sSwitch.mExpression;
     BasicBlock* loop_end_block = BasicBlock::Create(TheContext, "end_block", gFunction);
 
     info->loop_end_block[info->num_loop] = loop_end_block;
@@ -7349,6 +7521,16 @@ BOOL compile_switch_expression(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    if(!compile(expression_node, info)) {
+        return FALSE;
+    }
+
+    void* switch_expression_before = info->switch_expression;
+    info->switch_expression = get_value_from_stack(-1)->value;
+    dec_stack_ptr(1, info);
+
+    info->case_else_block = nullptr;
+
     int i;
     for(i=0; i<num_switch_expression; i++) {
         /// compile node ///
@@ -7360,14 +7542,117 @@ BOOL compile_switch_expression(unsigned int node, sCompileInfo* info)
         }
     }
 
+    BasicBlock* case_else_block = (BasicBlock*)info->case_else_block;
+
+    if(case_else_block) {
+        free_right_value_objects(info);
+        Builder.CreateBr(case_else_block);
+
+        BasicBlock* current_block_before;
+        llvm_change_block(case_else_block, &current_block_before, info, FALSE);
+    }
+
+    info->switch_expression = switch_expression_before;
+
+    free_right_value_objects(info);
     Builder.CreateBr(loop_end_block);
 
     BasicBlock* current_block_before;
-    llvm_change_block(loop_end_block, &current_block_before, info);
+    llvm_change_block(loop_end_block, &current_block_before, info, FALSE);
 
     info->type = create_node_type_with_class_name("void");
 
+    info->case_else_block = nullptr;
+
     info->num_loop--;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_case_expression(unsigned int expression_node, BOOL last_case, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCase;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.sCase.mExpression = expression_node;
+    gNodes[node].uValue.sCase.mLastCase = last_case;
+    gNodes[node].uValue.sCase.mFirstCase = FALSE;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_case_expression(unsigned int node, sCompileInfo* info)
+{
+    unsigned int expression_node = gNodes[node].uValue.sCase.mExpression;
+    BOOL first_case = gNodes[node].uValue.sCase.mFirstCase;
+    BOOL last_case = gNodes[node].uValue.sCase.mLastCase;
+
+    BasicBlock* cond_then_block;
+    if(first_case) {
+        cond_then_block = BasicBlock::Create(TheContext, "cond_then_block", gFunction);
+        info->case_then_block = cond_then_block;
+    }
+    else {
+        cond_then_block = (BasicBlock*)info->case_then_block;
+    }
+    BasicBlock* cond_else_block = BasicBlock::Create(TheContext, "cond_else_block", gFunction);
+
+    BasicBlock* case_else_block = (BasicBlock*)info->case_else_block;
+
+    if(case_else_block) {
+        if(first_case) {
+            free_right_value_objects(info);
+            Builder.CreateBr(case_else_block);
+        }
+
+        BasicBlock* current_block_before;
+        llvm_change_block(case_else_block, &current_block_before, info, FALSE);
+    }
+
+    if(expression_node == 0) {
+        free_right_value_objects(info);
+        Builder.CreateBr(cond_then_block);
+    }
+    else {
+        if(!compile(expression_node, info)) {
+            return FALSE;
+        }
+
+        LVALUE rvalue = *get_value_from_stack(-1);
+
+        dec_stack_ptr(1, info);
+        Value* lvalue = (Value*)info->switch_expression;
+
+        if(lvalue == nullptr) {
+            compile_err_msg(info, "No in the switch.");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        Value* conditional_value = Builder.CreateICmpEQ(lvalue, rvalue.value, "eqtmp");
+        free_right_value_objects(info);
+        Builder.CreateCondBr(conditional_value, cond_then_block, cond_else_block);
+    }
+
+    if(last_case) {
+        BasicBlock* current_block_before;
+        llvm_change_block(cond_then_block, &current_block_before, info, FALSE);
+    }
+
+    info->case_else_block = cond_else_block;
+
+    info->type = create_node_type_with_class_name("void");
 
     return TRUE;
 }
@@ -7400,16 +7685,140 @@ BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
     }
 
     BasicBlock* loop_end_block = (BasicBlock*)info->loop_end_block[info->num_loop-1];
-    info->num_loop--;
+    //info->num_loop--;
 
+    free_right_value_objects(info);
     Builder.CreateBr(loop_end_block);
 
     BasicBlock* after_break = BasicBlock::Create(TheContext, "after_break", gFunction);
 
     BasicBlock* current_block_before;
-    llvm_change_block(after_break, &current_block_before, info);
+    llvm_change_block(after_break, &current_block_before, info, FALSE);
 
     info->type = create_node_type_with_class_name("void");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_continue_expression(sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeContinue;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_continue_expression(unsigned int node, sCompileInfo* info)
+{
+    if(info->num_loop2 <= 0) {
+        compile_err_msg(info, "No in the loop");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    BasicBlock* loop_begin_block = (BasicBlock*)info->loop_begin_block[info->num_loop2-1];
+    info->num_loop2--;
+
+    free_right_value_objects(info);
+    Builder.CreateBr(loop_begin_block);
+
+    BasicBlock* after_continue = BasicBlock::Create(TheContext, "after_continue", gFunction);
+
+    BasicBlock* current_block_before;
+    llvm_change_block(after_continue, &current_block_before, info, FALSE);
+
+    info->type = create_node_type_with_class_name("void");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_label_expression(char* name, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeLabel;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    xstrncpy(gNodes[node].uValue.sLabel.mName, name, PATH_MAX);
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_label_expression(unsigned int node, sCompileInfo* info)
+{
+    char* label_name = gNodes[node].uValue.sLabel.mName;
+
+    BasicBlock* block = gLabels[label_name];
+    
+    if(block == nullptr) {
+        block = BasicBlock::Create(TheContext, label_name, gFunction);
+        gLabels[label_name] = block;
+    }
+
+    free_right_value_objects(info);
+    Builder.CreateBr(block);
+
+    BasicBlock* current_block_before;
+    llvm_change_block(block, &current_block_before, info, FALSE);
+
+    info->type = create_node_type_with_class_name("void");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_goto_expression(char* name, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeGoto;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    xstrncpy(gNodes[node].uValue.sGoto.mName, name, PATH_MAX);
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_goto_expression(unsigned int node, sCompileInfo* info)
+{
+    char* label_name = gNodes[node].uValue.sGoto.mName;
+
+    BasicBlock* block = gLabels[label_name];
+    
+    if(block == nullptr) {
+        block = BasicBlock::Create(TheContext, label_name, gFunction);
+        gLabels[label_name] = block;
+    }
+
+    free_right_value_objects(info);
+    Builder.CreateBr(block);
+
+    BasicBlock* block2 = BasicBlock::Create(TheContext, "after goto", gFunction);
+
+    BasicBlock* current_block_before;
+    llvm_change_block(block2, &current_block_before, info, FALSE);
 
     return TRUE;
 }
@@ -7805,6 +8214,41 @@ BOOL compile(unsigned int node, sCompileInfo* info)
         
         case kNodeTypeBreak:
             if(!compile_break_expression(node, info))
+            {
+                return FALSE;
+            }
+            break;
+        
+        case kNodeTypeContinue:
+            if(!compile_continue_expression(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeDoWhile:
+            if(!compile_do_while_expression(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeCase:
+            if(!compile_case_expression(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeLabel:
+            if(!compile_label_expression(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeGoto:
+            if(!compile_goto_expression(node, info))
             {
                 return FALSE;
             }

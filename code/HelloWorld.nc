@@ -118,7 +118,6 @@ struct GlobalStruct GlobalStructData = {
 
 int main()
 {
-/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -1420,17 +1419,36 @@ int main()
     enum eEnum aenum = kA3;
 
     assert("enum test", aenum == kA3);
-*/
 
-    int switcha = 1;
+    int aaaa2 = 1;
+
+    aaaa2++;
+
+    assert("aaaa", aaaa2 == 2);
+
+    int switcha = 2;
 
     switch(switcha) {
-        assert("switch test1", true);
-        break;
+        case 1:
+            puts("1");
+            break;
 
-        puts("AAA");
+        case 2:
+        case 4:
+        case 5:
+            assert("switch test", true);
+            break;
+
+        default:
+            puts("3");
+            break;
     }
-    puts("BBB");
+
+    goto label1;
+
+label1:
+    assert("label test", true);
+    
 
     0
 }

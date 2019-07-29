@@ -328,7 +328,48 @@ void output_native_code(char* sname, BOOL optimize)
         }
     }
 
-    TheModule->print(llvm::errs(), nullptr);
+    {
+#if LLVM_VERSION_MAJOR >= 7
+    char path[PATH_MAX];
+    snprintf(path, PATH_MAX, "%s.ll", sname2);
+
+    (void)unlink(path);
+
+    std::error_code ecode;
+    llvm::raw_fd_ostream output_stream(path, ecode, llvm::sys::fs::F_None);
+
+    std::string err_str;
+    raw_string_ostream err_ostream(err_str);
+#elif LLVM_VERSION_MAJOR >= 4
+    char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s.bc", sname2);
+
+    (void)unlink(path);
+
+    std::error_code ecode;
+    llvm::raw_fd_ostream output_stream(path, ecode, llvm::sys::fs::F_None);
+
+    std::string err_str;
+    raw_string_ostream err_ostream(err_str);
+#else
+    char path[PATH_MAX];
+    snprintf(path, PATH_MAX, "%s.bc", sname2);
+
+    (void)unlink(path);
+
+    std::error_code ecode;
+    llvm::raw_fd_ostream output_stream(path, ecode, llvm::sys::fs::F_None);
+
+    std::string err_str;
+    raw_string_ostream err_ostream(err_str);
+#endif
+
+
+
+
+//TheModule->print(llvm::errs(), nullptr);
+TheModule->print(output_stream, nullptr);
+output_stream.flush();
+    }
 
 #if LLVM_VERSION_MAJOR >= 7
     char path[PATH_MAX];
@@ -379,12 +420,24 @@ void output_native_code(char* sname, BOOL optimize)
     output_stream.flush();
 #endif
 
-    delete TheModule;
-
     char command[PATH_MAX+128];
 
-    snprintf(command, PATH_MAX+128, "llvm-dis %s.bc", sname2);
+    snprintf(command, PATH_MAX+128, "chmod 644 %s.ll", sname2);
     int rc = system(command);
+    if(rc != 0) {
+        fprintf(stderr, "faield to compile\n");
+        exit(2);
+    }
+
+    snprintf(command, PATH_MAX+128, "clang -c %s.ll", sname2);
+    rc = system(command);
+    if(rc != 0) {
+        fprintf(stderr, "faield to compile\n");
+        exit(2);
+    }
+
+    snprintf(command, PATH_MAX+128, "llvm-dis %s.bc", sname2);
+    rc = system(command);
     if(rc != 0) {
         fprintf(stderr, "faield to compile\n");
         exit(2);
@@ -403,6 +456,8 @@ void output_native_code(char* sname, BOOL optimize)
         fprintf(stderr, "faield to compile\n");
         exit(2);
     }
+
+    delete TheModule;
 }
 
 static void create_real_struct_name(char* real_struct_name, int size_real_struct_name, char* struct_name, int num_generics, sNodeType* generics_types[GENERICS_TYPES_MAX])
@@ -1243,9 +1298,11 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
     return address3;
 }
 
-void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info)
+void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info, BOOL no_free_right_objects)
 {
-    free_right_value_objects(info);
+    if(!no_free_right_objects) {
+        free_right_value_objects(info);
+    }
 
     *current_block_before = (BasicBlock*)info->current_block;
 

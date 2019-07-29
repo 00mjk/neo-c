@@ -3069,6 +3069,46 @@ static BOOL parse_while(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_do(unsigned int* node, sParserInfo* info)
+{
+    sNodeBlock* while_node_block = NULL;
+    if(!parse_block_easy(ALLOC &while_node_block, info))
+    {
+        return FALSE;
+    }
+    
+    char buf[VAR_NAME_MAX];
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+        return FALSE;
+    }
+
+    if(strcmp(buf, "while") != 0) {
+        parser_err_msg(info, "require while word");
+        info->err_num++;
+        return TRUE;
+    }
+
+    expect_next_character_with_one_forward("(", info);
+
+    /// expression ///
+    unsigned int expression_node = 0;
+    if(!expression(&expression_node, info)) {
+        return FALSE;
+    }
+
+    if(expression_node == 0) {
+        parser_err_msg(info, "require expression for do while");
+        info->err_num++;
+        return TRUE;
+    }
+
+    expect_next_character_with_one_forward(")", info);
+
+    *node = sNodeTree_do_while_expression(expression_node, MANAGED while_node_block, info);
+
+    return TRUE;
+}
+
 static BOOL parse_for(unsigned int* node, sParserInfo* info)
 {
     sVarTable* old_vtable = info->lv_table;
@@ -3651,6 +3691,8 @@ static BOOL parse_switch(unsigned int* node, sParserInfo* info)
     unsigned int* switch_expression = (unsigned int*)xcalloc(1, sizeof(unsigned int)*size_switch_expression);
     info->switch_nest++;
 
+    info->first_case = TRUE;
+
     while(1) {
         if(*info->p == '}') {
             info->p++;
@@ -3662,6 +3704,16 @@ static BOOL parse_switch(unsigned int* node, sParserInfo* info)
             if(!expression(switch_expression + num_switch_expression, info)) 
             {
                 return FALSE;
+            }
+
+            unsigned int node = switch_expression[num_switch_expression];
+
+            if(gNodes[node].mNodeType == kNodeTypeCase) {
+                gNodes[node].uValue.sCase.mFirstCase = info->first_case;
+                info->first_case = FALSE;
+            }
+            else {
+                info->first_case = TRUE;
             }
 
             num_switch_expression++;
@@ -3680,6 +3732,86 @@ static BOOL parse_switch(unsigned int* node, sParserInfo* info)
     }
 
     *node = sNodeTree_switch_expression(expression_node, num_switch_expression, MANAGED switch_expression, info);
+
+    return TRUE;
+}
+
+static BOOL parse_case(unsigned int* node, sParserInfo* info)
+{
+    /// expression1 ///
+    unsigned int expression_node = 0;
+    if(!expression(&expression_node, info)) {
+        return FALSE;
+    }
+
+    if(expression_node == 0) {
+        parser_err_msg(info, "require expression for \"case\"");
+        info->err_num++;
+        return TRUE;
+    }
+
+    expect_next_character_with_one_forward(":", info);
+
+    char* p_before = info->p;
+    int sline_before = info->sline;
+
+    char buf[VAR_NAME_MAX+1];
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
+    {
+        return FALSE;
+    }
+
+    BOOL last_case = strcmp(buf, "case") != 0;
+
+    info->p = p_before;
+    info->sline = sline_before;
+
+    *node = sNodeTree_case_expression(expression_node, last_case, info);
+
+    return TRUE;
+}
+
+static BOOL parse_default(unsigned int* node, sParserInfo* info)
+{
+    expect_next_character_with_one_forward(":", info);
+
+    char* p_before = info->p;
+    int sline_before = info->sline;
+
+    char buf[VAR_NAME_MAX+1];
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
+    {
+        return FALSE;
+    }
+
+    BOOL last_case = strcmp(buf, "case") != 0;
+
+    info->p = p_before;
+    info->sline = sline_before;
+
+    *node = sNodeTree_case_expression(0, last_case, info);
+
+    return TRUE;
+}
+
+static BOOL parse_label(unsigned int* node, char* name, sParserInfo* info)
+{
+    expect_next_character_with_one_forward(":", info);
+
+    *node = sNodeTree_label_expression(name, info);
+
+    return TRUE;
+}
+
+static BOOL parse_goto(unsigned int* node, sParserInfo* info)
+{
+    char buf[VAR_NAME_MAX+1];
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
+    {
+        return FALSE;
+    }
+
+    *node = sNodeTree_goto_expression(buf, info);
 
     return TRUE;
 }
@@ -4216,6 +4348,16 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "case") == 0) {
+            if(!parse_case(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "default") == 0) {
+            if(!parse_default(node, info)) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "if") == 0) {
             if(!parse_if(node, info)) {
                 return FALSE;
@@ -4223,6 +4365,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "while") == 0) {
             if(!parse_while(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "do") == 0) {
+            if(!parse_do(node, info)) {
                 return FALSE;
             }
         }
@@ -4273,6 +4420,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "break") == 0) {
             *node = sNodeTree_create_break_expression(info);
+        }
+        else if(strcmp(buf, "continue") == 0) {
+            *node = sNodeTree_create_continue_expression(info);
         }
         else if(strcmp(buf, "template") == 0) {
             if(!parse_method_generics_function(node, NULL, info)) {
@@ -4351,6 +4501,16 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "inline") == 0) {
             if(!parse_inline_function(node, NULL, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "goto") == 0) {
+            if(!parse_goto(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(*info->p == ':') {
+            if(!parse_label(node, buf, info)) {
                 return FALSE;
             }
         }

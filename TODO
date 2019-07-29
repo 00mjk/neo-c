@@ -1,13 +1,5 @@
 double, floatの値の表現、8進数、16進数
 
-break
-
-continue
-
-do while
-
-switch
-
 __extension__
 
 __attribute__
@@ -98,3 +90,13 @@ arrayからpointerへの自動キャスト
 構造体の初期化
 
 enum 型付き
+
+break
+
+continue
+
+do while
+
+switchのdefault
+
+label

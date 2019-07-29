@@ -135,7 +135,7 @@ BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sCompileInf
 void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL alloc, sCompileInfo* info);
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info);
 void free_right_value_objects(sCompileInfo* info);
-void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info);
+void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info, BOOL no_free_right_objects);
 Value* store_lvtable();
 void restore_lvtable(Value* lvtable);
 Value* get_dummy_value(sNodeType* node_type, sCompileInfo* info);
