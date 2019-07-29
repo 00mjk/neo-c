@@ -1448,7 +1448,6 @@ int main()
 
 label1:
     assert("label test", true);
-    
 
     0
 }

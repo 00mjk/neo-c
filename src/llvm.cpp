@@ -341,7 +341,8 @@ void output_native_code(char* sname, BOOL optimize)
     std::string err_str;
     raw_string_ostream err_ostream(err_str);
 #elif LLVM_VERSION_MAJOR >= 4
-    char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s.bc", sname2);
+    char path[PATH_MAX]; 
+    snprintf(path, PATH_MAX, "%s.ll", sname2);
 
     (void)unlink(path);
 
@@ -352,7 +353,7 @@ void output_native_code(char* sname, BOOL optimize)
     raw_string_ostream err_ostream(err_str);
 #else
     char path[PATH_MAX];
-    snprintf(path, PATH_MAX, "%s.bc", sname2);
+    snprintf(path, PATH_MAX, "%s.ll", sname2);
 
     (void)unlink(path);
 

@@ -7245,11 +7245,14 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
 
         sCLClass* klass = var_type->mClass;
 
+        sNodeType* left_type2 = clone_node_type(var_type);
+        left_type2->mPointerNum = 0;
+
         Type* llvm_struct_type;
-        if(!create_llvm_type_from_node_type(&llvm_struct_type, var_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, info))
         {
             compile_err_msg(info, "Getting llvm type failed(11)");
-            show_node_type(var_type);
+            show_node_type(left_type2);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -7291,21 +7294,22 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
                 return TRUE;
             }
 
+            LVALUE lvalue = llvm_value;
             LVALUE rvalue = *get_value_from_stack(-1);
 
             Value* field_address;
             if(var_type->mPointerNum == 0) {
 #if LLVM_VERSION_MAJOR >= 7
-                field_address = Builder.CreateStructGEP(var_address, i, "element_adress");
+                field_address = Builder.CreateStructGEP(lvalue.address, i);
 #else
-                field_address = Builder.CreateStructGEP(llvm_struct_type, var_address, i, "element_adress");
+                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, i);
 #endif
             }
             else {
 #if LLVM_VERSION_MAJOR >= 7
-                field_address = Builder.CreateStructGEP(var_address, i, "element_adress");
+                field_address = Builder.CreateStructGEP(lvalue.value, i);
 #else
-                field_address = Builder.CreateStructGEP(llvm_struct_type, var_address, i, "element_adress");
+                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, i);
 #endif
             }
 
