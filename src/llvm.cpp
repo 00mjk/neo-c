@@ -794,6 +794,18 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
     {
         *result_type = IntegerType::get(TheContext, 64);
     }
+    else if(type_identify_with_class_name(node_type, "float"))
+    {
+        *result_type = Type::getFloatTy(TheContext);
+    }
+    else if(type_identify_with_class_name(node_type, "double"))
+    {
+        *result_type = Type::getDoubleTy(TheContext);
+    }
+    else if(type_identify_with_class_name(node_type, "long_double"))
+    {
+        *result_type = Type::getFP128Ty(TheContext);
+    }
     else if(type_identify_with_class_name(node_type, "any"))
     {
         *result_type = IntegerType::get(TheContext, 64);
@@ -1309,6 +1321,38 @@ void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_bef
 
     Builder.SetInsertPoint(current_block);
     info->current_block = current_block;
+}
+
+BOOL get_const_value_from_node(int* array_size, unsigned int array_size_node, sParserInfo* info)
+{
+    sCompileInfo cinfo;
+
+    memset(&cinfo, 0, sizeof(sCompileInfo));
+
+    cinfo.pinfo = info;
+
+    if(!compile(array_size_node, &cinfo)) {
+        return FALSE;
+    }
+
+    sNodeType* node_type = cinfo.type;
+
+    LVALUE llvm_value = *get_value_from_stack(-1);
+
+    dec_stack_ptr(1, &cinfo);
+
+    Value* value = llvm_value.value;
+
+    ConstantInt* constant_value;
+
+    if(constant_value = dyn_cast<ConstantInt>(value)) {
+        *array_size = constant_value->getSExtValue();
+    }
+    else {
+        return FALSE;
+    }
+
+    return TRUE;
 }
 
 }

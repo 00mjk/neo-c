@@ -163,6 +163,37 @@ static void create_anoymous_struct_name(char* struct_name, int size_struct_name)
 
 static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type);
 
+static BOOL parse_attribute(sParserInfo* info)
+{
+    while(TRUE) {
+        if(memcmp(info->p, "__attribute__", 13) == 0) {
+            info->p += 13;
+            skip_spaces_and_lf(info);
+
+            int brace_num = 0;
+            while(*info->p == '(') {
+                info->p ++;
+                skip_spaces_and_lf(info);
+                brace_num++;
+            }
+
+            while(*info->p != ')') {
+                info->p++;
+            }
+
+            while(*info->p == ')') {
+                info->p ++;
+                skip_spaces_and_lf(info);
+            }
+        }
+        else {
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
 static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNodeType* node_type, BOOL array_size_is_dynamic)
 {
     if(*info->p == '*') {
@@ -199,6 +230,23 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
         }
         else {
             if(*info->p != ']') {
+                unsigned int array_size_node = 0;
+
+                if(!expression(&array_size_node, info)) {
+                    return FALSE;
+                }
+
+                int array_size = 0;
+                if(!get_const_value_from_node(&array_size, array_size_node, info))
+                {
+                    parser_err_msg(info, "Require Consta Value for array size");
+                    info->err_num++;
+                    return TRUE;
+                }
+
+                node_type->mArrayNum = array_size;
+
+/*
                 if(!isdigit(*info->p)) {
                     parser_err_msg(info, "require digits");
                     info->err_num++;
@@ -229,6 +277,7 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
                     
                     node_type->mArrayNum = atoi(buf2);
                 }
+*/
             }
             else {
                 node_type->mArrayNum = -1;
@@ -236,6 +285,10 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
         }
 
         expect_next_character_with_one_forward("]", info);
+    }
+
+    if(!parse_attribute(info)) {
+        return FALSE;
     }
 
     return TRUE;
@@ -722,6 +775,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     BOOL long_long = FALSE;
     BOOL register_ = FALSE;
     BOOL volatile_ = FALSE;
+    BOOL static_ = FALSE;
 
     while(TRUE) {
         char* p_before = info->p;
@@ -738,7 +792,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         else if(strcmp(type_name, "unsigned") == 0) {
             unsigned_ = TRUE;
         }
-        else if(strcmp(type_name, "signed") == 0) {
+        else if(strcmp(type_name, "signed") == 0 || strcmp(type_name, "__signed__") == 0) {
             unsigned_ = FALSE;
         }
         else if(strcmp(type_name, "register") == 0) {
@@ -746,6 +800,9 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         }
         else if(strcmp(type_name, "volatile") == 0) {
             volatile_ = TRUE;
+        }
+        else if(strcmp(type_name, "static") == 0) {
+            static_ = TRUE;
         }
         else {
             info->p = p_before;
@@ -880,6 +937,11 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     if((long_ || long_long ) && type_identify_with_class_name((*result_type), "int"))
     {
         *result_type = create_node_type_with_class_name("long");
+    }
+
+    if((long_ || long_long ) && type_identify_with_class_name((*result_type), "double"))
+    {
+        *result_type = create_node_type_with_class_name("long_double");
     }
 
     if(short_ && type_identify_with_class_name((*result_type), "int"))
@@ -1035,46 +1097,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         }
     }
 
-/*
-    /// array ///
-    if(*info->p == '[') {
-        info->p++;
-        skip_spaces_and_lf(info);
-
-        char buf[128];
-        int buf_size = 128;
-
-        char* p2 = buf;
-
-        if(isdigit(*info->p)) {
-            while(isdigit(*info->p) || *info->p == '_') {
-                if(*info->p ==  '_') {
-                    info->p++;
-                }
-                else {
-                    *p2++ = *info->p;
-                    info->p++;
-                }
-
-                if(p2 - buf >= buf_size) {
-                    parser_err_msg(info, "overflow node of number");
-                    return FALSE;
-                }
-            }
-            *p2 = 0;
-            skip_spaces_and_lf(info);
-
-            (*result_type)->mArrayNum = atoi(buf);
-        }
-        else {
-            parser_err_msg(info, "require digits after array type");
-            return FALSE;
-        }
-
-        expect_next_character_with_one_forward("]", info);
-    }
-*/
-
     /// pointer ///
     int pointer_num = 0;
 
@@ -1108,6 +1130,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     (*result_type)->mUnsigned = unsigned_;
     (*result_type)->mRegister = register_;
     (*result_type)->mVolatile = volatile_;
+    (*result_type)->mStatic = static_;
 
     if(info->mNumMethodGenericsTypes > 0) {
         if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))
@@ -1825,6 +1848,7 @@ static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* inf
     return TRUE;
 }
 
+
 static BOOL parse_generics_function(unsigned int* node, sNodeType* result_type, char* fun_name, char* struct_name, sParserInfo* info)
 {
     BOOL operator_fun = FALSE;
@@ -1840,6 +1864,10 @@ static BOOL parse_generics_function(unsigned int* node, sNodeType* result_type, 
     BOOL var_arg = FALSE;
     if(!parse_params(params, &num_params, info, 0, &var_arg))
     {
+        return FALSE;
+    }
+
+    if(!parse_attribute(info)) {
         return FALSE;
     }
 
@@ -1945,6 +1973,10 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
         return FALSE;
     }
 
+    if(!parse_attribute(info)) {
+        return FALSE;
+    }
+
     char sname[PATH_MAX];
     xstrncpy(sname, info->sname, PATH_MAX);
 
@@ -2027,6 +2059,10 @@ static BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun
     BOOL var_arg = FALSE;
     if(!parse_params(params, &num_params, info, 0, &var_arg))
     {
+        return FALSE;
+    }
+
+    if(!parse_attribute(info)) {
         return FALSE;
     }
 
@@ -2161,6 +2197,10 @@ static BOOL parse_inline_function(unsigned int* node, char* struct_name, sParser
         return FALSE;
     }
 
+    if(!parse_attribute(info)) {
+        return FALSE;
+    }
+
     char sname[PATH_MAX];
     xstrncpy(sname, info->sname, PATH_MAX);
 
@@ -2227,6 +2267,10 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
 
     if(!parse_params(params, &num_params, info, 0, &var_arg))
     {
+        return FALSE;
+    }
+
+    if(!parse_attribute(info)) {
         return FALSE;
     }
 
@@ -2361,6 +2405,10 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
 
     if(!parse_params(params, &num_params, info, 0, &var_arg))
     {
+        return FALSE;
+    }
+
+    if(!parse_attribute(info)) {
         return FALSE;
     }
 
@@ -3471,7 +3519,7 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
         }
     }
 
-    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || (klass && *info->p == '(') || strcmp(buf, "enum") == 0;
+    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || (klass && *info->p == '(') || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0;
 }
 
 static BOOL parse_impl(unsigned int* node, sParserInfo* info)
@@ -3568,7 +3616,7 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "inline") == 0) {
+        else if(strcmp(buf, "inline") == 0 || strcmp(buf, "__inline") == 0) {
             if(!parse_inline_function(node, struct_name, info)) 
             {
                 return FALSE;
@@ -4236,6 +4284,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         BOOL define_struct = FALSE;
         BOOL define_union  = FALSE;
         BOOL define_enum = FALSE;
+        BOOL static_inline = FALSE;
         if(strcmp(buf, "struct") == 0) {
             char* p_before2 = info->p;
             int sline_before2 = info->sline;
@@ -4295,6 +4344,24 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             info->p = p_before2;
             info->sline = sline_before2;
+        }
+        else if(strcmp(buf, "static") == 0) {
+            char* p_before2 = info->p;
+            int sline_before2 = info->sline;
+
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
+            {
+                return FALSE;
+            }
+
+            if(strcmp(buf, "inline") == 0 || strcmp(buf, "__inline") == 0)
+            {
+                static_inline = TRUE;
+            }
+            else {
+                info->p = p_before2;
+                info->sline = sline_before2;
+            }
         }
 
         if(strcmp(buf, "lambda") == 0) {
@@ -4499,7 +4566,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
         }
-        else if(strcmp(buf, "inline") == 0) {
+        else if(strcmp(buf, "inline") == 0 || strcmp(buf, "__inline") == 0) {
             if(!parse_inline_function(node, NULL, info)) {
                 return FALSE;
             }

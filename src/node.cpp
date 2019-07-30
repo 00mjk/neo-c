@@ -4443,7 +4443,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
     llvm_value.type = field_type;
-    llvm_value.address = field_address;
+    llvm_value.address = field_address2;
     llvm_value.var = nullptr;
 
     info->type = field_type;
@@ -5588,7 +5588,7 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
 
     /// go ///
     Value* element_value;
-    if(var && var->mGlobal && left_type->mArrayNum > 0) {
+    if(left_type->mArrayNum > 0) {
         sNodeType* var_type2 = clone_node_type(var_type);
         var_type2->mPointerNum++;
 
@@ -5755,21 +5755,41 @@ BOOL compile_store_element(unsigned int node, sCompileInfo* info)
     }
 
     /// generate code ///
-    Value* lvalue2 = lvalue.value;
+    Value* lvalue2;
+    if(left_type->mArrayNum > 0) {
+        sNodeType* var_type2 = clone_node_type(var_type);
+        var_type2->mPointerNum++;
 
-//    Value* element_size_value = ConstantInt::get(TheContext, llvm::APInt(32, element_size, true)); 
+        Type* llvm_var_type;
+        if(!create_llvm_type_from_node_type(&llvm_var_type, var_type2, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(10)");
+            show_node_type(var_type2);
+            info->err_num++;
 
-//    Value* rvalue2 = Builder.CreateMul(mvalue.value, element_size_value, "multmp", false, true);
+            info->type = create_node_type_with_class_name("int"); // dummy
 
-//    Value* element_address = Builder.CreateGEP(lvalue2, rvalue2, "element_address");
+            return TRUE;
+        }
 
-    Value* element_address = Builder.CreateGEP(lvalue2, mvalue.value, "element_address");
+        Value* lvalue2 = Builder.CreateCast(Instruction::BitCast, lvalue.address, llvm_var_type);
+        Value* load_element_addresss = Builder.CreateGEP(lvalue2, mvalue.value, "element_address");
 
-    int alignment = get_llvm_alignment_from_node_type(var_type);
+        int alignment = get_llvm_alignment_from_node_type(var_type);
 
-    std_move(element_address, var_type, &rvalue, FALSE, info);
+        Builder.CreateAlignedStore(rvalue.value, load_element_addresss, alignment);
+    }
+    else {
+        Value* lvalue2 = lvalue.value;
 
-    Builder.CreateAlignedStore(rvalue.value, element_address, alignment);
+        Value* element_address = Builder.CreateGEP(lvalue2, mvalue.value, "element_address");
+
+        int alignment = get_llvm_alignment_from_node_type(var_type);
+
+        std_move(element_address, var_type, &rvalue, FALSE, info);
+
+        Builder.CreateAlignedStore(rvalue.value, element_address, alignment);
+    }
 
     dec_stack_ptr(3, info);
     push_value_to_stack_ptr(&rvalue, info);

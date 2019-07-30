@@ -405,6 +405,9 @@ void class_init()
     alloc_class("int", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE, FALSE, FALSE);
     alloc_class("long", TRUE, FALSE, TRUE, FALSE, -1, -1, FALSE, FALSE, FALSE);
     alloc_class("void", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE, FALSE, FALSE);
+    alloc_class("float", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE, FALSE, FALSE);
+    alloc_class("double", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE, FALSE, FALSE);
+    alloc_class("long_double", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE, FALSE, FALSE);
     alloc_class("any", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE, FALSE, FALSE);
     alloc_class("lambda", TRUE, FALSE, FALSE, FALSE, -1, -1, FALSE, FALSE, FALSE);
     alloc_class("generics0", FALSE, FALSE, FALSE, FALSE, 0, -1, FALSE, FALSE, FALSE);

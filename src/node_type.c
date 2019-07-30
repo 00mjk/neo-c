@@ -82,6 +82,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
     node_type2->mUnsigned = node_type->mUnsigned;
     node_type2->mRegister = node_type->mRegister;
     node_type2->mVolatile = node_type->mVolatile;
+    node_type2->mStatic = node_type->mStatic;
     node_type2->mDynamicArrayNum = node_type->mDynamicArrayNum;
 
     if(node_type->mResultType) {

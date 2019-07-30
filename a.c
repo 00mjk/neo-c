@@ -2,14 +2,9 @@
 #include <alloca.h>
 
 int main() {
-    int a = 2;
+    long double a;
 
-    switch(a) {
-        case 2:
-        case 1:
-            puts("AAA");
-            break;
-    }
+    a = 1;
 
     return 0;
 }

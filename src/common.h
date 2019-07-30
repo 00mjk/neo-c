@@ -151,6 +151,7 @@ struct sNodeTypeStruct {
     BOOL mConstant;
     BOOL mRegister;
     BOOL mVolatile;
+    BOOL mStatic;
 
     struct sNodeTypeStruct* mParamTypes[PARAMS_MAX];
     struct sNodeTypeStruct* mResultType;
@@ -659,6 +660,7 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info);
 BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info);
 BOOL create_llvm_union_type(sNodeType* node_type, sCompileInfo* info);
 void create_undefined_llvm_struct_type(sNodeType* node_type);
+BOOL get_const_value_from_node(int* array_size, unsigned int array_size_node, sParserInfo* info);
 
 /// typedef.cpp ///
 void add_typedef(char* name, sNodeType* node_type);

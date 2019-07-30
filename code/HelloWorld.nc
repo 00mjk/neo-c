@@ -1449,6 +1449,29 @@ int main()
 label1:
     assert("label test", true);
 
+    int axxx[10];
+
+    axxx[0] = 123;
+
+    assert("array test", axxx[0] == 123);
+
+    int* bxxx = new int[3];
+
+    bxxx[0] = 123;
+
+    assert("array test", bxxx[0] == 123);
+
+    struct StructTest9 {
+        int a[3];
+        double aaa;
+    }
+
+    StructTest9* data10 = new StructTest9;
+
+    data10.a[0] = 123;
+
+    assert("array test", data10.a[0] == 123);
+
     0
 }
 
