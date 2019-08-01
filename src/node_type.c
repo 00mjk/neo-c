@@ -280,6 +280,10 @@ BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)
     {
         return TRUE;
     }
+    else if(type_identify_with_class_name(left_type, "char*") && type_identify_with_class_name(right_type, "va_list"))
+    {
+        return TRUE;
+    }
     else if((left_type->mPointerNum-1 == right_type->mPointerNum) && right_type->mArrayNum > 0)
     {
         return TRUE;

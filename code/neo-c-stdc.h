@@ -10,3 +10,5 @@ char* strcat(char* mem, char* mem2);
 int strlen(char* mem);
 int atoi(char* str);
 char* memcpy(char* mem, char* mem2, int size);
+
+int vprintf(const char* __fp, va_list __args);

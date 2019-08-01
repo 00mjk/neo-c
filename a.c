@@ -1,10 +1,17 @@
 #include <stdio.h>
 #include <alloca.h>
 
-int main() {
-    long double a;
+void va_list_test(char* str, ...)
+{
+    va_list vlist;
 
-    a = 1;
+    va_start(vlist, str);
+    vprintf(str, vlist);
+    va_end(vlist);
+}
+
+int main() {
+    va_list_test("%d\n", 123);
 
     return 0;
 }

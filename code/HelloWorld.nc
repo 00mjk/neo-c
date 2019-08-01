@@ -1462,8 +1462,8 @@ label1:
     assert("array test", bxxx[0] == 123);
 
     struct StructTest9 {
-        int a[3];
-        double aaa;
+       int a[3+1+sizeof(int)];
+       double aaa;
     }
 
     StructTest9* data10 = new StructTest9;
@@ -1471,6 +1471,23 @@ label1:
     data10.a[0] = 123;
 
     assert("array test", data10.a[0] == 123);
+
+    int axyxy = (1 + 1) * 2;
+
+    assert("test", axyxy == 4);
+
+    signed aaaaaaaaaa = 11111;
+
+    void va_list_test(char* str, ...)
+    {
+        va_list vlist;
+
+        va_start(vlist, str);
+        vprintf(str, vlist);
+        va_end(vlist);
+    }
+
+    va_list_test("aaa %d\n", 1);
 
     0
 }

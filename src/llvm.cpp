@@ -241,6 +241,170 @@ Function* create_llvm_function(const std::string& name)
     return function;
 }
 
+void declare_builtin_functions()
+{
+    Type* param1_type;
+    Type* param2_type;
+    Type* param3_type;
+    Type* param4_type;
+    Type* param5_type;
+    Type* param6_type;
+    Type* param7_type;
+    Type* param8_type;
+    Type* param9_type;
+    Type* result_type;
+
+    std::vector<Type *> params;
+
+    FunctionType* function_type;
+
+    /// va_list ///
+    StructType* struct_type = StructType::create(TheContext, "va_list");
+
+    std::vector<Type*> fields;
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    fields.push_back(param1_type);
+
+    if(struct_type->isOpaque()) {
+        struct_type->setBody(fields, false);
+    }
+
+    sCLClass* va_list_struct = alloc_struct("va_list", FALSE);
+
+    int num_fields = 1;
+    char field_names[STRUCT_FIELD_MAX][VAR_NAME_MAX];
+    sNodeType* fields2[STRUCT_FIELD_MAX];
+
+    xstrncpy(field_names[0], "field", VAR_NAME_MAX);
+    fields2[0] = create_node_type_with_class_name("char*");
+
+    add_fields_to_struct(va_list_struct, num_fields, field_names, fields2);
+
+    sCLClass* builtin_va_list_struct = alloc_struct("__builtin_va_list", FALSE);
+
+    add_fields_to_struct(builtin_va_list_struct, num_fields, field_names, fields2);
+
+    sNodeType* node_type = create_node_type_with_class_pointer(va_list_struct);
+
+    std::pair<Type*, sNodeType*> pair_value;
+
+    pair_value.first = struct_type;
+    pair_value.second = clone_node_type(node_type);
+
+    gLLVMStructType["va_list"] = pair_value;
+
+    /// va_start ///
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, params, false);
+
+    Function::Create(function_type, Function::ExternalLinkage, "llvm.va_start", TheModule);
+
+    {
+        std::vector<Type *> llvm_param_types;
+        sNodeType* param_types[PARAMS_MAX];
+        char param_names[PARAMS_MAX][VAR_NAME_MAX];
+
+        sNodeType* result_type = create_node_type_with_class_name("void");
+
+        int num_params = 1;
+        xstrncpy(param_names[0], "p", VAR_NAME_MAX);
+        param_types[0] = create_node_type_with_class_name("char*");
+
+        BOOL var_arg = FALSE;
+
+        char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+
+        memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+
+        char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+
+        memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+
+        add_function("llvm.va_start", "llvm.va_start", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+    }
+
+    /// va_end ///
+    params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, params, false);
+
+    Function::Create(function_type, Function::ExternalLinkage, "llvm.va_end", TheModule);
+
+    {
+        std::vector<Type *> llvm_param_types;
+        sNodeType* param_types[PARAMS_MAX];
+        char param_names[PARAMS_MAX][VAR_NAME_MAX];
+
+        sNodeType* result_type = create_node_type_with_class_name("void");
+
+        int num_params = 1;
+        xstrncpy(param_names[0], "p", VAR_NAME_MAX);
+        param_types[0] = create_node_type_with_class_name("char*");
+
+        BOOL var_arg = FALSE;
+
+        char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+
+        memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+
+        char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+
+        memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+
+        add_function("llvm.va_end", "llvm.va_end", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+    }
+
+    /// va_copy ///
+    params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    params.push_back(param1_type);
+    param2_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, params, false);
+
+    Function::Create(function_type, Function::ExternalLinkage, "llvm.va_copy", TheModule);
+
+    {
+        std::vector<Type *> llvm_param_types;
+        sNodeType* param_types[PARAMS_MAX];
+        char param_names[PARAMS_MAX][VAR_NAME_MAX];
+
+        sNodeType* result_type = create_node_type_with_class_name("void");
+
+        int num_params = 2;
+        xstrncpy(param_names[0], "p", VAR_NAME_MAX);
+        xstrncpy(param_names[1], "p2", VAR_NAME_MAX);
+        param_types[0] = create_node_type_with_class_name("char*");
+        param_types[1] = create_node_type_with_class_name("char*");
+
+        BOOL var_arg = FALSE;
+
+        char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+
+        memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+
+        char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+
+        memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+
+        add_function("llvm.va_copy", "llvm.va_copy", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+    }
+}
+
 void start_to_make_native_code(char* sname)
 {
     char sname2[PATH_MAX];
@@ -272,6 +436,7 @@ void start_to_make_native_code(char* sname)
     TheLabels.clear();
   
     gLLVMStack = (LVALUE*)xcalloc(1, sizeof(LVALUE)*NEO_C_STACK_SIZE);
+    declare_builtin_functions();
 }
 
 void output_native_code(char* sname, BOOL optimize)
@@ -954,7 +1119,16 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     sCLClass* left_class = left_type->mClass;
     sCLClass* right_class = (*right_type)->mClass;
 
-    if(left_type->mPointerNum > 0) 
+    if(type_identify_with_class_name(left_type, "char*") && type_identify_with_class_name(*right_type, "va_list"))
+    {
+        if(rvalue) {
+            rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, PointerType::get(IntegerType::get(TheContext, 8),0));
+            rvalue->type = create_node_type_with_class_name("char*");
+        }
+
+        *right_type = create_node_type_with_class_name("char*");
+    }
+    else if(left_type->mPointerNum > 0) 
     {
         if((left_type->mPointerNum-1 == (*right_type)->mPointerNum) && (*right_type)->mArrayNum > 0) {
             if(rvalue) {

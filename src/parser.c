@@ -756,6 +756,31 @@ static BOOL parse_enum(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL is_type_name(char* buf, sParserInfo* info)
+{
+    sCLClass* klass = get_class(buf);
+    sNodeType* node_type = get_typedef(buf);
+
+    int i;
+    BOOL generics_type_name = FALSE;
+    for(i=0; i<info->mNumGenerics; i++) {
+        if(strcmp(buf, info->mGenericsTypeNames[i]) == 0)
+        {
+            generics_type_name = TRUE;
+        }
+    }
+
+    BOOL method_type_name = FALSE;
+    for(i=0; i<info->mNumMethodGenericsTypes; i++) {
+        if(strcmp(buf, info->mMethodGenericsTypeNames[i]) == 0)
+        {
+            method_type_name = TRUE;
+        }
+    }
+
+    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || (klass && *info->p == '(') || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0;
+}
+
 static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type)
 {
     if(func_pointer_name) {
@@ -776,6 +801,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     BOOL register_ = FALSE;
     BOOL volatile_ = FALSE;
     BOOL static_ = FALSE;
+    BOOL signed_ = FALSE;
 
     while(TRUE) {
         char* p_before = info->p;
@@ -794,6 +820,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         }
         else if(strcmp(type_name, "signed") == 0 || strcmp(type_name, "__signed__") == 0) {
             unsigned_ = FALSE;
+            signed_ = TRUE;
         }
         else if(strcmp(type_name, "register") == 0) {
             register_ = TRUE;
@@ -811,120 +838,154 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         }
     }
 
-    if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
-    {
-        return FALSE;
-    }
+    BOOL only_signed_unsigned = FALSE;
+    if(unsigned_ || signed_) {
+        char* p_before = info->p;
+        int sline_before = info->sline;
 
-    if(strcmp(type_name, "long") == 0) {
-        if(memcmp(info->p, "int", 3) == 0 || memcmp(info->p, "double", 6) == 0) 
+        char buf[VAR_NAME_MAX+1];
+        if(!parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE))
         {
-            long_ = TRUE;
+            return FALSE;
+        }
+
+        if(is_type_name(buf, info)) {
+            info->p = p_before;
+            info->sline = sline_before;
 
             if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
             {
                 return FALSE;
             }
         }
-        else if(memcmp(info->p, "long", 4) == 0) {
-            long_ = TRUE;
+        else {
+            info->p = p_before;
+            info->sline = sline_before;
 
-            if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+            only_signed_unsigned = TRUE;
+        }
+    }
+    else {
+        if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+        {
+            return FALSE;
+        }
+    }
+
+    if(only_signed_unsigned) {
+        *result_type = create_node_type_with_class_name("int");
+    }
+    else {
+        if(strcmp(type_name, "long") == 0) {
+            if(memcmp(info->p, "int", 3) == 0 || memcmp(info->p, "double", 6) == 0) 
             {
-                return FALSE;
+                long_ = TRUE;
+
+                if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+                {
+                    return FALSE;
+                }
             }
+            else if(memcmp(info->p, "long", 4) == 0) {
+                long_ = TRUE;
 
-            if(strcmp(type_name, "long") == 0) {
-                if(memcmp(info->p, "int", 3) == 0) {
-                    long_long = TRUE;
+                if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+                {
+                    return FALSE;
+                }
 
-                    if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
-                    {
-                        return FALSE;
+                if(strcmp(type_name, "long") == 0) {
+                    if(memcmp(info->p, "int", 3) == 0) {
+                        long_long = TRUE;
+
+                        if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+                        {
+                            return FALSE;
+                        }
                     }
                 }
             }
         }
-    }
-    else if(strcmp(type_name, "short") == 0) {
-        if(memcmp(info->p, "int", 3) == 0) {
-            short_ = TRUE;
+        else if(strcmp(type_name, "short") == 0) {
+            if(memcmp(info->p, "int", 3) == 0) {
+                short_ = TRUE;
 
+                if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+                {
+                    return FALSE;
+                }
+            }
+        }
+        else if(strcmp(type_name, "struct") == 0 && (isalpha(*info->p) || *info->p == '_')) {
             if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
             {
                 return FALSE;
             }
         }
-    }
-    else if(strcmp(type_name, "struct") == 0 && (isalpha(*info->p) || *info->p == '_')) {
-        if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+        else if(strcmp(type_name, "union") == 0 && (isalpha(*info->p) || *info->p == '_'))
         {
-            return FALSE;
+            if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+            {
+                return FALSE;
+            }
         }
-    }
-    else if(strcmp(type_name, "union") == 0 && (isalpha(*info->p) || *info->p == '_'))
-    {
-        if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
-        {
-            return FALSE;
+        else if(strcmp(type_name, "enum") == 0 && (isalpha(*info->p) || *info->p == '_')) {
+            if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+            {
+                return FALSE;
+            }
         }
-    }
-    else if(strcmp(type_name, "enum") == 0 && (isalpha(*info->p) || *info->p == '_')) {
-        if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
-        {
-            return FALSE;
-        }
-    }
 
-    int i;
-    for(i=0; i<info->mNumGenerics; i++) {
-        if(strcmp(type_name, info->mGenericsTypeNames[i]) == 0)
-        {
-            char buf[VAR_NAME_MAX+1];
-            snprintf(buf, VAR_NAME_MAX, "generics%d", i);
-
-            *result_type = create_node_type_with_class_name(buf);
-        }
-    }
-
-    if(strcmp(type_name, "struct") == 0 && *info->p == '{') {
-        unsigned int node = 0;
-        if(!parse_struct(&node, type_name, VAR_NAME_MAX, info)) {
-            return FALSE;
-        }
-    }
-    else if(strcmp(type_name, "union") == 0 && *info->p == '{') {
-        unsigned int node = 0;
-        if(!parse_union(&node, type_name, VAR_NAME_MAX, info)) {
-            return FALSE;
-        }
-    }
-
-    if(*result_type == NULL) {
-        for(i=0; i<info->mNumMethodGenerics; i++) {
-            if(strcmp(type_name, info->mMethodGenericsTypeNames[i]) == 0)
+        int i;
+        for(i=0; i<info->mNumGenerics; i++) {
+            if(strcmp(type_name, info->mGenericsTypeNames[i]) == 0)
             {
                 char buf[VAR_NAME_MAX+1];
-                snprintf(buf, VAR_NAME_MAX, "mgenerics%d", i);
+                snprintf(buf, VAR_NAME_MAX, "generics%d", i);
 
                 *result_type = create_node_type_with_class_name(buf);
             }
         }
-    }
 
-    if(*result_type == NULL) {
-        *result_type = get_typedef(type_name);
-
-        if(*result_type) {
-            return TRUE;
+        if(strcmp(type_name, "struct") == 0 && *info->p == '{') {
+            unsigned int node = 0;
+            if(!parse_struct(&node, type_name, VAR_NAME_MAX, info)) {
+                return FALSE;
+            }
         }
-    }
+        else if(strcmp(type_name, "union") == 0 && *info->p == '{') {
+            unsigned int node = 0;
+            if(!parse_union(&node, type_name, VAR_NAME_MAX, info)) {
+                return FALSE;
+            }
+        }
 
-    if(*result_type == NULL) {
-        sCLClass* klass = get_class(type_name);
+        if(*result_type == NULL) {
+            for(i=0; i<info->mNumMethodGenerics; i++) {
+                if(strcmp(type_name, info->mMethodGenericsTypeNames[i]) == 0)
+                {
+                    char buf[VAR_NAME_MAX+1];
+                    snprintf(buf, VAR_NAME_MAX, "mgenerics%d", i);
 
-        if(klass) {
-            *result_type = create_node_type_with_class_name(type_name);
+                    *result_type = create_node_type_with_class_name(buf);
+                }
+            }
+        }
+
+        if(*result_type == NULL) {
+            *result_type = get_typedef(type_name);
+
+            if(*result_type) {
+                return TRUE;
+            }
+        }
+
+        if(*result_type == NULL) {
+            sCLClass* klass = get_class(type_name);
+
+            if(klass) {
+                *result_type = create_node_type_with_class_name(type_name);
+            }
         }
     }
 
@@ -1813,6 +1874,8 @@ static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* inf
             return FALSE;
         }
 
+        sParserParam* param = params + *num_params;
+
         (*num_params)++;
 
         if(*num_params >= PARAMS_MAX) {
@@ -2105,7 +2168,7 @@ static BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun
         BOOL simple_lambda_param = FALSE;
         BOOL construct_fun = FALSE;
 
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, FALSE);
+        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, FALSE, var_arg);
     }
 
     info->mNumMethodGenerics = 0;
@@ -2355,7 +2418,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
 
         BOOL generics_function = info->mNumGenerics > 0;
 
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function);
+        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE);
     }
 
     info->mNumMethodGenerics = 0;
@@ -2499,7 +2562,7 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
 
         BOOL generics_function = info->mNumGenerics > 0;
 
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function);
+        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE);
     }
 
     info->mNumMethodGenerics = 0;
@@ -3320,7 +3383,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     BOOL construct_fun = FALSE;
     BOOL operator_fun = FALSE;
 
-    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, construct_fun, simple_lambda_param, info, FALSE);
+    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, construct_fun, simple_lambda_param, info, FALSE, FALSE);
 
     return TRUE;
 }
@@ -3497,30 +3560,6 @@ BOOL parse_typedef(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL is_type_name(char* buf, sParserInfo* info)
-{
-    sCLClass* klass = get_class(buf);
-    sNodeType* node_type = get_typedef(buf);
-
-    int i;
-    BOOL generics_type_name = FALSE;
-    for(i=0; i<info->mNumGenerics; i++) {
-        if(strcmp(buf, info->mGenericsTypeNames[i]) == 0)
-        {
-            generics_type_name = TRUE;
-        }
-    }
-
-    BOOL method_type_name = FALSE;
-    for(i=0; i<info->mNumMethodGenericsTypes; i++) {
-        if(strcmp(buf, info->mMethodGenericsTypeNames[i]) == 0)
-        {
-            method_type_name = TRUE;
-        }
-    }
-
-    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || (klass && *info->p == '(') || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0;
-}
 
 static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 {
@@ -3922,6 +3961,59 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
+    else if(*info->p == '(') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        char* p_before = info->p;
+        int sline_before = info->sline;
+
+        char buf[VAR_NAME_MAX+1];
+        if(!parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE))
+        {
+            return FALSE;
+        }
+
+        if(is_type_name(buf, info)) {
+            info->p = p_before;
+            info->sline = sline_before;
+
+            sNodeType* node_type = NULL;
+            if(!parse_type(&node_type, info, NULL, TRUE))
+            {
+                return FALSE;
+            }
+
+            expect_next_character_with_one_forward(")", info);
+
+            if(!expression_node(node, info)) {
+                return FALSE;
+            }
+
+            if(*node == 0) {
+                parser_err_msg(info, "require value for cast");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_cast(node_type, *node, info);
+        }
+        else {
+            info->p = p_before;
+            info->sline = sline_before;
+
+            if(!expression(node, info)) {
+                return FALSE;
+            }
+            skip_spaces_and_lf(info);
+
+            if(*node == 0) {
+                parser_err_msg(info, "require expression as ( operand");
+                info->err_num++;
+            }
+
+            expect_next_character_with_one_forward(")", info);
+        }
+    }
     else if(*info->p == '{') {
         sNodeBlock* node_block = NULL;
         if(!parse_block_easy(ALLOC &node_block, info))
@@ -3960,29 +4052,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
 
         *node = sNodeTree_create_reffernce(*node, info);
-    }
-    else if(*info->p == '(') {
-        info->p++;
-        skip_spaces_and_lf(info);
-
-        sNodeType* node_type = NULL;
-        if(!parse_type(&node_type, info, NULL, TRUE))
-        {
-            return FALSE;
-        }
-
-        expect_next_character_with_one_forward(")", info);
-
-        if(!expression_node(node, info)) {
-            return FALSE;
-        }
-
-        if(*node == 0) {
-            parser_err_msg(info, "require value for cast");
-            info->err_num++;
-        }
-
-        *node = sNodeTree_create_cast(node_type, *node, info);
     }
     else if(*info->p == '!') {
         info->p++;
@@ -4285,7 +4354,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         BOOL define_union  = FALSE;
         BOOL define_enum = FALSE;
         BOOL static_inline = FALSE;
-        if(strcmp(buf, "struct") == 0) {
+        if(strcmp(buf, "__extension__") == 0) {
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
+            {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "struct") == 0) {
             char* p_before2 = info->p;
             int sline_before2 = info->sline;
 
@@ -4958,6 +5033,10 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 if(!parse_funcation_call_params(&num_params, params, info)) 
                 {
                     return FALSE;
+                }
+
+                if(strcmp(fun_name, "va_start") == 0) {
+                    num_params = 1;
                 }
 
                 *node = sNodeTree_create_function_call(fun_name, params, num_params, FALSE, info);
