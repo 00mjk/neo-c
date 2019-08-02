@@ -43,8 +43,6 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
 {
     char* p = source->mBuf;
 
-printf("%s\n", source->mBuf);
-
     BOOL in_string = FALSE;
     BOOL in_char = FALSE;
 
@@ -195,12 +193,22 @@ BOOL compile_source(char* fname, char* source, BOOL optimize)
             break;
         }
 
-        gNodes[node].mLine = sline;
-        xstrncpy(gNodes[node].mSName, sname, PATH_MAX);
+        if(info.change_sline) {
+            info.change_sline = FALSE;
+
+            gNodes[node].mLine = info.sline;
+            xstrncpy(gNodes[node].mSName, info.sname, PATH_MAX);
+
+            info.sline_top = info.sline;
+        }
+        else {
+            gNodes[node].mLine = sline;
+            xstrncpy(gNodes[node].mSName, sname, PATH_MAX);
+        }
 
         if(info.err_num == 0) {
-            cinfo.sline = sline;
-            xstrncpy(cinfo.sname, sname, PATH_MAX);
+            cinfo.sline = gNodes[node].mLine;
+            xstrncpy(cinfo.sname, gNodes[node].mSName, PATH_MAX);
 
             if(!compile(node, &cinfo)) {
                 return FALSE;

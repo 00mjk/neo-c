@@ -64,8 +64,18 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
             info->err_num++;
         }
 
-        gNodes[node].mLine = sline;
-        xstrncpy(gNodes[node].mSName, sname, PATH_MAX);
+        if(info->change_sline) {
+            info->change_sline = FALSE;
+
+            gNodes[node].mLine = info->sline;
+            xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+
+            info->sline_top = info->sline;
+        }
+        else {
+            gNodes[node].mLine = sline;
+            xstrncpy(gNodes[node].mSName, sname, PATH_MAX);
+        }
 
         if(info->err_num == 0) {
             append_node_to_node_block(node_block, node);

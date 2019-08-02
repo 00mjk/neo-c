@@ -21,7 +21,7 @@ void parser_err_msg(sParserInfo* info, const char* msg, ...)
     static int output_num = 0;
 
     if(output_num < PARSER_ERR_MSG_MAX) {
-        fprintf(stderr, "%s:%d: %s\n", info->sname, info->sline_top, msg2);
+        fprintf(stderr, "%s:%d(%d): %s\n", info->sname, info->sline_top, info->sline, msg2);
     }
 
     output_num++;
@@ -166,7 +166,15 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 static BOOL parse_attribute(sParserInfo* info)
 {
     while(TRUE) {
-        if(memcmp(info->p, "__attribute__", 13) == 0) {
+        if(memcmp(info->p, "__attribute_pure__", 19) == 0) {
+            info->p += 19;
+            skip_spaces_and_lf(info);
+        }
+        else if(memcmp(info->p, "__noreturn", 10) == 0) {
+            info->p += 10;
+            skip_spaces_and_lf(info);
+        }
+        else if(memcmp(info->p, "__attribute__", 13) == 0) {
             info->p += 13;
             skip_spaces_and_lf(info);
 
@@ -245,39 +253,6 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
                 }
 
                 node_type->mArrayNum = array_size;
-
-/*
-                if(!isdigit(*info->p)) {
-                    parser_err_msg(info, "require digits");
-                    info->err_num++;
-                    return TRUE;
-                }
-                else {
-                    int buf2_size = 128;
-                    char buf2[128];
-
-                    char* p2 = buf2;
-
-                    while(isdigit(*info->p) || *info->p == '_') {
-                        if(*info->p ==  '_') {
-                            info->p++;
-                        }
-                        else {
-                            *p2++ = *info->p;
-                            info->p++;
-                        }
-
-                        if(p2 - buf2 >= buf2_size) {
-                            parser_err_msg(info, "overflow node of number");
-                            return FALSE;
-                        }
-                    }
-                    *p2 = 0;
-                    skip_spaces_and_lf(info);
-                    
-                    node_type->mArrayNum = atoi(buf2);
-                }
-*/
             }
             else {
                 node_type->mArrayNum = -1;
@@ -975,8 +950,14 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         if(*result_type == NULL) {
             *result_type = get_typedef(type_name);
 
-            if(*result_type) {
-                return TRUE;
+            if(*result_type != NULL) {
+                heap = (*result_type)->mHeap;
+                nullable = (*result_type)->mNullable;
+                constant = (*result_type)->mConstant;
+                unsigned_ = (*result_type)->mUnsigned;
+                register_ = (*result_type)->mRegister;
+                volatile_ = (*result_type)->mVolatile;
+                static_ = (*result_type)->mStatic;
             }
         }
 
@@ -1030,6 +1011,24 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             info->p++;
             skip_spaces_and_lf(info);
 
+            if(memcmp(info->p, "void", 4) == 0) {
+                char* p_before = info->p;
+                int sline_before = info->sline;
+
+                char buf[VAR_NAME_MAX];
+                if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
+                {
+                    return FALSE;
+                }
+
+                if(*info->p == ')') {
+                }
+                else {
+                    info->p = p_before;
+                    info->sline = sline_before;
+                }
+            }
+
             if(*info->p == ')') {
                 info->p++;
                 skip_spaces_and_lf(info);
@@ -1048,6 +1047,12 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                     if((*result_type)->mNumParams >= PARAMS_MAX) {
                         parser_err_msg(info, "oveflow type params");
                         return FALSE;
+                    }
+
+                    if(isalpha(*info->p) || *info->p == '_') {
+                        char buf[VAR_NAME_MAX];
+
+                        (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
                     }
 
                     if(*info->p == ')') {
@@ -1733,10 +1738,15 @@ static BOOL parse_param(sParserParam* param, sParserInfo* info)
         return FALSE;
     }
 
-    if(param->mName[0] == '\0') {
-        if(!parse_variable_name(param->mName, VAR_NAME_MAX, info, param->mType, FALSE))
-        {
-            return FALSE;
+    if(*info->p == ',' || *info->p == ')') {
+        param->mName[0] = '\0';
+    }
+    else {
+        if(param->mName[0] == '\0') {
+            if(!parse_variable_name(param->mName, VAR_NAME_MAX, info, param->mType, FALSE))
+            {
+                return FALSE;
+            }
         }
     }
 
@@ -1930,6 +1940,16 @@ static BOOL parse_generics_function(unsigned int* node, sNodeType* result_type, 
         return FALSE;
     }
 
+    int i;
+    for(i=0; i<num_params; i++) {
+        char* name = params[i].mName;
+
+        if(name[0] == '\0') {
+            parser_err_msg(info, "Require parametor variable names");
+            info->err_num++;
+        }
+    }
+
     if(!parse_attribute(info)) {
         return FALSE;
     }
@@ -2036,6 +2056,16 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
         return FALSE;
     }
 
+    int i;
+    for(i=0; i<num_params; i++) {
+        char* name = params[i].mName;
+
+        if(name[0] == '\0') {
+            parser_err_msg(info, "Require parametor variable names");
+            info->err_num++;
+        }
+    }
+
     if(!parse_attribute(info)) {
         return FALSE;
     }
@@ -2136,6 +2166,16 @@ static BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun
         *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, info);
     }
     else {
+        int i;
+        for(i=0; i<num_params; i++) {
+            char* name = params[i].mName;
+
+            if(name[0] == '\0') {
+                parser_err_msg(info, "Require parametor variable names");
+                info->err_num++;
+            }
+        }
+
         sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
         expect_next_character_with_one_forward("{", info);
         sVarTable* old_table = info->lv_table;
@@ -2144,7 +2184,6 @@ static BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun
 
         sVarTable* block_var_table = info->lv_table;
 
-        int i;
         for(i=0; i<num_params; i++) {
             sParserParam* param = params + i;
 
@@ -2260,6 +2299,16 @@ static BOOL parse_inline_function(unsigned int* node, char* struct_name, sParser
         return FALSE;
     }
 
+    int i;
+    for(i=0; i<num_params; i++) {
+        char* name = params[i].mName;
+
+        if(name[0] == '\0') {
+            parser_err_msg(info, "Require parametor variable names");
+            info->err_num++;
+        }
+    }
+
     if(!parse_attribute(info)) {
         return FALSE;
     }
@@ -2331,6 +2380,15 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
     if(!parse_params(params, &num_params, info, 0, &var_arg))
     {
         return FALSE;
+    }
+
+    for(i=0; i<num_params; i++) {
+        char* name = params[i].mName;
+
+        if(name[0] == '\0') {
+            parser_err_msg(info, "Require parametor variable names");
+            info->err_num++;
+        }
     }
 
     if(!parse_attribute(info)) {
@@ -2469,6 +2527,15 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
     if(!parse_params(params, &num_params, info, 0, &var_arg))
     {
         return FALSE;
+    }
+
+    for(i=0; i<num_params; i++) {
+        char* name = params[i].mName;
+
+        if(name[0] == '\0') {
+            parser_err_msg(info, "Require parametor variable names");
+            info->err_num++;
+        }
     }
 
     if(!parse_attribute(info)) {
@@ -3655,7 +3722,8 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "inline") == 0 || strcmp(buf, "__inline") == 0) {
+        else if(strcmp(buf, "inline") == 0 || strcmp(buf, "__inline") == 0 || strcmp(buf, "__inline__") == 0) 
+        {
             if(!parse_inline_function(node, struct_name, info)) 
             {
                 return FALSE;
@@ -3936,7 +4004,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
 
             info->sline = line;
+            info->sline_top = line;
             xstrncpy(info->sname, fname, PATH_MAX);
+            info->change_sline = TRUE;
         }
         else {
             while(TRUE) {
@@ -4360,6 +4430,31 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "__attribute__") == 0) {
+            int brace_num = 0;
+            while(*info->p == '(') {
+                info->p ++;
+                skip_spaces_and_lf(info);
+                brace_num++;
+            }
+
+            while(*info->p != ')') {
+                info->p++;
+            }
+
+            while(*info->p == ')') {
+                info->p ++;
+                skip_spaces_and_lf(info);
+            }
+
+            p_before = info->p;
+            sline_before = info->sline;
+
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
+            {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "struct") == 0) {
             char* p_before2 = info->p;
             int sline_before2 = info->sline;
@@ -4429,7 +4524,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
 
-            if(strcmp(buf, "inline") == 0 || strcmp(buf, "__inline") == 0)
+            if(strcmp(buf, "inline") == 0 || strcmp(buf, "__inline") == 0 || strcmp(buf, "__inline__") == 0)
             {
                 static_inline = TRUE;
             }
@@ -4641,7 +4736,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
         }
-        else if(strcmp(buf, "inline") == 0 || strcmp(buf, "__inline") == 0) {
+        else if(static_inline || strcmp(buf, "inline") == 0 || strcmp(buf, "__inline") == 0 || strcmp(buf, "__inline__") == 0) 
+        {
             if(!parse_inline_function(node, NULL, info)) {
                 return FALSE;
             }

@@ -276,6 +276,8 @@ struct sParserInfoStruct
 
     int switch_nest;
     BOOL first_case;
+
+    BOOL change_sline;
 };
 
 typedef struct sParserInfoStruct sParserInfo;

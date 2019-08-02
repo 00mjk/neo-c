@@ -1489,6 +1489,15 @@ label1:
 
     va_list_test("aaa %d\n", 1);
 
+    void pfun_test(void) {
+        puts("XXX");
+    }
+
+    void (*pfunX)(void) = pfun_test;
+
+    pfunX();
+
+
     0
 }
 

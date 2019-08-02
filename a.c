@@ -1,17 +1,13 @@
-#include <stdio.h>
-#include <alloca.h>
+int atexit(void (*__fn)(void));
 
-void va_list_test(char* str, ...)
+void fun2(void)
 {
-    va_list vlist;
-
-    va_start(vlist, str);
-    vprintf(str, vlist);
-    va_end(vlist);
+    puts("HEHEHE");
 }
 
 int main() {
-    va_list_test("%d\n", 123);
+    void (*fun)(void) = fun2;
 
+    atexit(fun);
     return 0;
 }

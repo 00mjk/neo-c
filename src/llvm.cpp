@@ -1023,6 +1023,10 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
     for(i=0; i<node_type->mPointerNum; i++) {
         *result_type = PointerType::get(*result_type, 0);
     }
+
+    if(node_type->mArrayNum == -1) {
+        *result_type = PointerType::get(*result_type, 0);
+    }
     
     if(node_type->mArrayNum > 0) {
         *result_type = ArrayType::get(*result_type, node_type->mArrayNum);
