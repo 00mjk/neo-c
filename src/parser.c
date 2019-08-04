@@ -243,6 +243,12 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
         return FALSE;
     }
 
+    if(strcmp(buf, "const") == 0) {
+        if(!parse_word(buf, buf_size, info, TRUE, FALSE)) {
+            return FALSE;
+        }
+    }
+
     if(*info->p == '[') {
         info->p++;
         skip_spaces_and_lf(info);
