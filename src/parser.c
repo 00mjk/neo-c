@@ -1219,26 +1219,27 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             info->err_num++;
             return FALSE;
         }
-    }
-
-    if(!parse_only) {
-        if((long_ || long_long ) && type_identify_with_class_name((*result_type), "int"))
-        {
-            *result_type = create_node_type_with_class_name("long");
-        }
-
-        if((long_ || long_long ) && type_identify_with_class_name((*result_type), "double"))
-        {
-            *result_type = create_node_type_with_class_name("long_double");
-        }
-
-        if(short_ && type_identify_with_class_name((*result_type), "int"))
-        {
-            *result_type = create_node_type_with_class_name("short");
+        else {
+            *result_type = create_node_type_with_class_name("int");
         }
     }
 
-    if(!parse_only && definition_typedef && func_pointer_name) {
+    if((long_ || long_long ) && type_identify_with_class_name((*result_type), "int"))
+    {
+        *result_type = create_node_type_with_class_name("long");
+    }
+
+    if((long_ || long_long ) && type_identify_with_class_name((*result_type), "double"))
+    {
+        *result_type = create_node_type_with_class_name("long_double");
+    }
+
+    if(short_ && type_identify_with_class_name((*result_type), "int"))
+    {
+        *result_type = create_node_type_with_class_name("short");
+    }
+
+    if(definition_typedef && func_pointer_name) {
         if(isalpha(*info->p) || *info->p == '_') {
             char* p_before = info->p;
             int sline_before = info->sline;
@@ -1327,7 +1328,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         }
     }
 
-    if(!parse_only && *info->p == '(' && *(info->p+1) == '*' && func_pointer_name) {
+    if(*info->p == '(' && *(info->p+1) == '*' && func_pointer_name) {
         info->p += 2;
         skip_spaces_and_lf(info);
 
@@ -1409,7 +1410,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         }
     }
 
-    if(!parse_only && *info->p == '<' && *(info->p+1) != '<' && *(info->p+1) != '=') 
+    if(*info->p == '<' && *(info->p+1) != '<' && *(info->p+1) != '=') 
     {
         info->p++;
         skip_spaces_and_lf(info);
@@ -1447,7 +1448,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         (*result_type)->mNumGenericsTypes = generics_num;
     }
 
-    if(!parse_only && memcmp(info->p, "lambda", 6) == 0) 
+    if(memcmp(info->p, "lambda", 6) == 0) 
     {
         info->p += 6;
         skip_spaces_and_lf(info);
@@ -1542,61 +1543,59 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         }
     }
 
-    if(!parse_only) {
-        (*result_type)->mPointerNum += pointer_num;
-        (*result_type)->mHeap = heap;
-        (*result_type)->mNullable = nullable;
-        (*result_type)->mConstant = constant;
-        (*result_type)->mUnsigned = unsigned_;
-        (*result_type)->mRegister = register_;
-        (*result_type)->mVolatile = volatile_;
-        (*result_type)->mStatic = static_;
+    (*result_type)->mPointerNum += pointer_num;
+    (*result_type)->mHeap = heap;
+    (*result_type)->mNullable = nullable;
+    (*result_type)->mConstant = constant;
+    (*result_type)->mUnsigned = unsigned_;
+    (*result_type)->mRegister = register_;
+    (*result_type)->mVolatile = volatile_;
+    (*result_type)->mStatic = static_;
 
-        if(info->mNumMethodGenericsTypes > 0) {
-            if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))
-            {
-                parser_err_msg(info, "Can't solve method generics type");
-                show_node_type(*result_type);
-                info->err_num++;
-            }
-        }
-
-        if(info->mGenericsType && info->mGenericsType->mNumGenericsTypes > 0)
+    if(info->mNumMethodGenericsTypes > 0) {
+        if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))
         {
-            if(!solve_generics(result_type, info->mGenericsType))
-            {
-                parser_err_msg(info, "Can't solve generics type");
-                show_node_type(*result_type);
-                show_node_type(info->mGenericsType);
-                info->err_num++;
-            }
+            parser_err_msg(info, "Can't solve method generics type");
+            show_node_type(*result_type);
+            info->err_num++;
         }
+    }
 
-        if(((*result_type)->mClass->mFlags & CLASS_FLAGS_STRUCT) && !included_generics_type(*result_type) && definition_llvm_type && (*result_type)->mClass->mUndefinedStructType == NULL)
+    if(info->mGenericsType && info->mGenericsType->mNumGenericsTypes > 0)
+    {
+        if(!solve_generics(result_type, info->mGenericsType))
         {
-            sCompileInfo cinfo;
-            memset(&cinfo, 0, sizeof(sCompileInfo));
-            cinfo.no_output = TRUE;
-
-            if(!create_llvm_struct_type(*result_type, &cinfo))
-            {
-                parser_err_msg(info, "Can't create llvm struct from this node type");
-                show_node_type(*result_type);
-                info->err_num++;
-            }
+            parser_err_msg(info, "Can't solve generics type");
+            show_node_type(*result_type);
+            show_node_type(info->mGenericsType);
+            info->err_num++;
         }
-        else if(((*result_type)->mClass->mFlags & CLASS_FLAGS_UNION) && !included_generics_type(*result_type) && definition_llvm_type && (*result_type)->mClass->mUndefinedStructType == NULL)
-        {
-            sCompileInfo cinfo;
-            memset(&cinfo, 0, sizeof(sCompileInfo));
-            cinfo.no_output = TRUE;
+    }
 
-            if(!create_llvm_union_type(*result_type, &cinfo))
-            {
-                parser_err_msg(info, "Can't create llvm union from this node type");
-                show_node_type(*result_type);
-                info->err_num++;
-            }
+    if(((*result_type)->mClass->mFlags & CLASS_FLAGS_STRUCT) && !included_generics_type(*result_type) && definition_llvm_type && (*result_type)->mClass->mUndefinedStructType == NULL)
+    {
+        sCompileInfo cinfo;
+        memset(&cinfo, 0, sizeof(sCompileInfo));
+        cinfo.no_output = TRUE;
+
+        if(!create_llvm_struct_type(*result_type, &cinfo))
+        {
+            parser_err_msg(info, "Can't create llvm struct from this node type");
+            show_node_type(*result_type);
+            info->err_num++;
+        }
+    }
+    else if(((*result_type)->mClass->mFlags & CLASS_FLAGS_UNION) && !included_generics_type(*result_type) && definition_llvm_type && (*result_type)->mClass->mUndefinedStructType == NULL)
+    {
+        sCompileInfo cinfo;
+        memset(&cinfo, 0, sizeof(sCompileInfo));
+        cinfo.no_output = TRUE;
+
+        if(!create_llvm_union_type(*result_type, &cinfo))
+        {
+            parser_err_msg(info, "Can't create llvm union from this node type");
+            show_node_type(*result_type);
+            info->err_num++;
         }
     }
 
