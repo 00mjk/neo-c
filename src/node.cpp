@@ -5798,7 +5798,7 @@ BOOL compile_store_element(unsigned int node, sCompileInfo* info)
         Type* llvm_var_type;
         if(!create_llvm_type_from_node_type(&llvm_var_type, var_type2, info))
         {
-            compile_err_msg(info, "Getting llvm type failed(10)");
+            compile_err_msg(info, "Getting llvm type failed(11)");
             show_node_type(var_type2);
             info->err_num++;
 
@@ -6798,7 +6798,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
                     Type* var_llvm_element_type;
                     if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, info))
                     {
-                        compile_err_msg(info, "Getting llvm type failed(10)");
+                        compile_err_msg(info, "Getting llvm type failed(12)");
                         show_node_type(var_element_type);
                         info->err_num++;
 
@@ -6873,7 +6873,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
                     Type* var_llvm_element_type;
                     if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, info))
                     {
-                        compile_err_msg(info, "Getting llvm type failed(10)");
+                        compile_err_msg(info, "Getting llvm type failed(13)");
                         show_node_type(var_element_type);
                         info->err_num++;
 
@@ -7185,7 +7185,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
         Type* llvm_var_type;
         if(!create_llvm_type_from_node_type(&llvm_var_type, var_type, info))
         {
-            compile_err_msg(info, "Getting llvm type failed(1)");
+            compile_err_msg(info, "Getting llvm type failed(2)");
             show_node_type(var_type);
             info->err_num++;
 
@@ -7306,7 +7306,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
         Type* llvm_struct_type;
         if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, info))
         {
-            compile_err_msg(info, "Getting llvm type failed(11)");
+            compile_err_msg(info, "Getting llvm type failed(15)");
             show_node_type(left_type2);
             info->err_num++;
 
@@ -7433,7 +7433,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
         Type* llvm_struct_type;
         if(!create_llvm_type_from_node_type(&llvm_struct_type, var_type, info))
         {
-            compile_err_msg(info, "Getting llvm type failed(11)");
+            compile_err_msg(info, "Getting llvm type failed(16)");
             show_node_type(var_type);
             info->err_num++;
 

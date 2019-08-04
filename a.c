@@ -1,13 +1,10 @@
-int atexit(void (*__fn)(void));
+#include <stdlib.h>
+#include <stdio.h>
 
-void fun2(void)
+void fun()
 {
-    puts("HEHEHE");
+    const char* p = sys_errlist[0];
+
+    printf("%p\n", p);
 }
 
-int main() {
-    void (*fun)(void) = fun2;
-
-    atexit(fun);
-    return 0;
-}

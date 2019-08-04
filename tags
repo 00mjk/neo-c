@@ -133,7 +133,7 @@ ac_fn_c_try_link	configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_run	configure	/^ac_fn_c_try_run ()$/;"	f
 add_fields_to_struct	src/klass.c	/^void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
 add_fields_to_union	src/klass.c	/^void add_fields_to_union(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
-add_function	src/node.cpp	/^static void add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline)$/;"	f	file:
+add_function	src/node.cpp	/^void add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline)$/;"	f
 add_typedef	src/typedef.cpp	/^void add_typedef(char* name, sNodeType* node_type)$/;"	f
 add_variable_to_table	src/vtable.c	/^BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value, int index, BOOL global, BOOL constant)$/;"	f
 address	src/llvm_common.hpp	/^    Value* address;$/;"	m	struct:LVALUEStruct
@@ -183,6 +183,7 @@ case_else_block	src/common.h	/^    void* case_else_block;$/;"	m	struct:sCompileI
 case_then_block	src/common.h	/^    void* case_then_block;$/;"	m	struct:sCompileInfoStruct
 cast_posibility	src/node_type.c	/^BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)$/;"	f
 cast_right_type_to_left_type	src/llvm.cpp	/^BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info)$/;"	f
+change_sline	src/common.h	/^    BOOL change_sline;$/;"	m	struct:sParserInfoStruct
 check_already_added_variable	src/vtable.c	/^void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info)$/;"	f
 class_final	src/klass.c	/^void class_final()$/;"	f
 class_init	src/klass.c	/^void class_init()$/;"	f
@@ -284,6 +285,7 @@ current_block	src/common.h	/^    void* current_block;$/;"	m	struct:sCompileInfoS
 datadir	Makefile	/^datadir=${datarootdir}$/;"	m
 datarootdir	Makefile	/^datarootdir=${prefix}\/share\/clover2$/;"	m
 dec_stack_ptr	src/llvm.cpp	/^void dec_stack_ptr(int value, sCompileInfo* info)$/;"	f
+declare_builtin_functions	src/llvm.cpp	/^void declare_builtin_functions()$/;"	f
 delete_comment	src/source_compiler.c	/^BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 eNodeType	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto };$/;"	g
@@ -311,6 +313,8 @@ free_object	src/llvm.cpp	/^void free_object(sNodeType* node_type, void* address,
 free_objects	src/vtable.c	/^void free_objects(sVarTable* table, sCompileInfo* info)$/;"	f
 free_right_value_object	src/llvm.cpp	/^static void free_right_value_object(sNodeType* node_type, void* obj, sCompileInfo* info)$/;"	f	file:
 free_right_value_objects	src/llvm.cpp	/^void free_right_value_objects(sCompileInfo* info)$/;"	f
+fun	a.c	/^void fun()$/;"	f
+fun	a.s	/^fun:$/;"	l
 fun	code/HelloWorld.s	/^fun:                                    # @fun$/;"	l
 fun11	code/HelloWorld.s	/^fun11:                                  # @fun11$/;"	l
 fun2	code/HelloWorld.s	/^fun2:                                   # @fun2$/;"	l
@@ -355,6 +359,7 @@ gVersion	src/compiler.c	/^char* gVersion = "0.0.1";$/;"	v
 generics_type	src/common.h	/^    sNodeType* generics_type;$/;"	m	struct:sCompileInfoStruct
 get_block_text	src/parser.c	/^static BOOL get_block_text(sBuf* buf, sParserInfo* info)$/;"	f	file:
 get_class	src/klass.c	/^sCLClass* get_class(char* class_name)$/;"	f
+get_const_value_from_node	src/llvm.cpp	/^BOOL get_const_value_from_node(int* array_size, unsigned int array_size_node, sParserInfo* info)$/;"	f
 get_dummy_value	src/llvm.cpp	/^Value* get_dummy_value(sNodeType* node_type, sCompileInfo* info)$/;"	f
 get_field_index	src/klass.c	/^int get_field_index(sCLClass* klass, char* var_name)$/;"	f
 get_free_block	src/memalloc-stdc.c	/^struct header_t *get_free_block(size_t size)$/;"	f
@@ -617,6 +622,7 @@ mSize	src/buffer.h	/^    int mSize;$/;"	m	struct:sBufStruct
 mSize	src/common.h	/^    unsigned int mSize;$/;"	m	struct:sConstStruct
 mSizeNodes	src/common.h	/^    unsigned int mSizeNodes;$/;"	m	struct:sNodeBlockStruct
 mSource	src/common.h	/^    sBuf mSource;$/;"	m	struct:sNodeBlockStruct
+mStatic	src/common.h	/^    BOOL mStatic;$/;"	m	struct:sNodeTypeStruct
 mString	src/common.h	/^            char* mString;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon7
 mStructName	src/common.h	/^            char mStructName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon8
 mSwitchExpression	src/common.h	/^            unsigned int* mSwitchExpression;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon23
@@ -640,8 +646,8 @@ mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sVarTableStruct
 mVarTable	src/common.h	/^            sVarTable* mVarTable;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon8
 mVolatile	src/common.h	/^    BOOL mVolatile;$/;"	m	struct:sNodeTypeStruct
 mWhileNodeBlock	src/common.h	/^            MANAGED struct sNodeBlockStruct* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon11	typeref:struct:sNodeTreeStruct::__anon1::__anon11::sNodeBlockStruct
-main	a.c	/^int main() {$/;"	f
 main	code/HelloWorld.s	/^main:                                   # @main$/;"	l
+main	code/HelloWorld2.s	/^main:                                   # @main$/;"	l
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
 mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
 method_generics_fun2_charp1	code/HelloWorld.s	/^method_generics_fun2_charp1:            # @method_generics_fun2_charp1$/;"	l
@@ -658,6 +664,7 @@ output_native_code	src/llvm.cpp	/^void output_native_code(char* sname, BOOL opti
 p	src/common.h	/^    char* p;$/;"	m	struct:sParserInfoStruct
 parse_alloca	src/parser.c	/^static BOOL parse_alloca(unsigned int* node, sParserInfo* info)$/;"	f	file:
 parse_anoymous_enum	src/parser.c	/^static BOOL parse_anoymous_enum(unsigned int* node, sParserInfo* info) $/;"	f	file:
+parse_attribute	src/parser.c	/^static BOOL parse_attribute(sParserInfo* info)$/;"	f	file:
 parse_block	src/node_block.cpp	/^BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)$/;"	f
 parse_block_easy	src/node_block.cpp	/^BOOL parse_block_easy(ALLOC sNodeBlock** node_block, sParserInfo* info)$/;"	f
 parse_case	src/parser.c	/^static BOOL parse_case(unsigned int* node, sParserInfo* info)$/;"	f	file:
@@ -686,12 +693,13 @@ parse_param	src/parser.c	/^static BOOL parse_param(sParserParam* param, sParserI
 parse_params	src/parser.c	/^static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int character_type, BOOL* var_arg)$/;"	f	file:
 parse_phase	src/common.h	/^    int parse_phase;$/;"	m	struct:sParserInfoStruct
 parse_return	src/parser.c	/^static BOOL parse_return(unsigned int* node, sParserInfo* info)$/;"	f	file:
+parse_sharp	src/parser.c	/^static BOOL parse_sharp(sParserInfo* info)$/;"	f	file:
 parse_simple_lambda_param	src/node.cpp	/^static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, sNodeType* generics_type, sParserInfo* info, sCompileInfo* cinfo)$/;"	f	file:
 parse_simple_lambda_params	src/parser.c	/^static BOOL parse_simple_lambda_params(unsigned int* node, int sline, sParserInfo* info)$/;"	f	file:
 parse_sizeof	src/parser.c	/^static BOOL parse_sizeof(unsigned int* node, sParserInfo* info)$/;"	f	file:
 parse_struct	src/parser.c	/^static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_name, sParserInfo* info) $/;"	f	file:
 parse_switch	src/parser.c	/^static BOOL parse_switch(unsigned int* node, sParserInfo* info)$/;"	f	file:
-parse_type	src/parser.c	/^static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type)$/;"	f	file:
+parse_type	src/parser.c	/^static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef)$/;"	f	file:
 parse_typedef	src/parser.c	/^BOOL parse_typedef(unsigned int* node, sParserInfo* info)$/;"	f
 parse_union	src/parser.c	/^static BOOL parse_union(unsigned int* node, char* union_name, int size_union_name, sParserInfo* info) $/;"	f	file:
 parse_var	src/parser.c	/^static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)$/;"	f	file:
@@ -702,6 +710,8 @@ parse_word	src/parser.c	/^BOOL parse_word(char* buf, int buf_size, sParserInfo* 
 parser_err_msg	src/parser.c	/^void parser_err_msg(sParserInfo* info, const char* msg, ...)$/;"	f
 parser_final	src/parser.c	/^void parser_final()$/;"	f
 parser_init	src/parser.c	/^void parser_init()$/;"	f
+pfun_test	code/HelloWorld.s	/^pfun_test:                              # @pfun_test$/;"	l
+pfun_test2	code/HelloWorld.s	/^pfun_test2:                             # @pfun_test2$/;"	l
 pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sParserInfoStruct
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 prefix	Makefile	/^prefix=\/usr\/local$/;"	m
@@ -783,7 +793,7 @@ sNodeTree_create_div	src/node.cpp	/^unsigned int sNodeTree_create_div(unsigned i
 sNodeTree_create_equals	src/node.cpp	/^unsigned int sNodeTree_create_equals(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
 sNodeTree_create_external_function	src/node.cpp	/^unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, char* struct_name, BOOL operator_fun, sParserInfo* info)$/;"	f
 sNodeTree_create_false	src/node.cpp	/^unsigned int sNodeTree_create_false(sParserInfo* info)$/;"	f
-sNodeTree_create_function	src/node.cpp	/^unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function)$/;"	f
+sNodeTree_create_function	src/node.cpp	/^unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg)$/;"	f
 sNodeTree_create_function_call	src/node.cpp	/^unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, sParserInfo* info)$/;"	f
 sNodeTree_create_generics_function	src/node.cpp	/^unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, sParserInfo* info)$/;"	f
 sNodeTree_create_gt	src/node.cpp	/^unsigned int sNodeTree_create_gt(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
@@ -888,6 +898,7 @@ type	src/llvm_common.hpp	/^    sNodeType* type;$/;"	m	struct:LVALUEStruct
 type_identify	src/node_type.c	/^BOOL type_identify(sNodeType* left, sNodeType* right)$/;"	f
 type_identify_with_class_name	src/node_type.c	/^BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
 uValue	src/common.h	/^    } uValue;$/;"	m	struct:sNodeTreeStruct	typeref:union:sNodeTreeStruct::__anon1
+va_list_test	code/HelloWorld.s	/^va_list_test:                           # @va_list_test$/;"	l
 value	src/llvm_common.hpp	/^    Value* value;$/;"	m	struct:LVALUEStruct
 var	src/llvm_common.hpp	/^    sVar* var;$/;"	m	struct:LVALUEStruct
 vector_each_charp48	code/HelloWorld.s	/^vector_each_charp48:                    # @vector_each_charp48$/;"	l

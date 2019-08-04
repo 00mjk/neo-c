@@ -880,10 +880,12 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
 
     if(klass->mFlags & CLASS_FLAGS_STRUCT) 
     {
+/*
         if(klass->mUndefinedStructType && node_type->mPointerNum == 0)
         {
             return FALSE;
         }
+*/
 
         sCLClass* klass = node_type->mClass;
 

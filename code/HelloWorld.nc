@@ -1,6 +1,7 @@
 #include "neo-c.h"
 #include "neo-c-stdc.h"
 
+/*
 typedef char*% string;
 
 string operator+(char* left, char* right)
@@ -115,9 +116,13 @@ struct GlobalStruct {
 struct GlobalStruct GlobalStructData = {
     123, 345
 }
+*/
+
+extern const char *const sys_errlist[];
 
 int main()
 {
+/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -1497,6 +1502,17 @@ label1:
 
     pfunX();
 
+    int pfun_test2(int aaa, int bbb)
+    {
+        return aaa + bbb;
+    }
+
+    typedef int pfunXXX(int, int);
+
+    pfunXXX pfunX2 = pfun_test2;
+
+    assert("typedef function pointer", pfunX2(111, 222) == 333);
+*/
 
     0
 }
