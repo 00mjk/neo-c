@@ -154,25 +154,17 @@ append_wstr_to_constant_pool	src/constant.c	/^unsigned int append_wstr_to_consta
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
 array_size_fun	code/HelloWorld.s	/^array_size_fun:                         # @array_size_fun$/;"	l
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assert	code/HelloWorld.s	/^assert:                                 # @assert$/;"	l
 auto_cast_posibility	src/node_type.c	/^BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)$/;"	f
@@ -314,7 +306,6 @@ free_objects	src/vtable.c	/^void free_objects(sVarTable* table, sCompileInfo* in
 free_right_value_object	src/llvm.cpp	/^static void free_right_value_object(sNodeType* node_type, void* obj, sCompileInfo* info)$/;"	f	file:
 free_right_value_objects	src/llvm.cpp	/^void free_right_value_objects(sCompileInfo* info)$/;"	f
 fun	a.c	/^void fun()$/;"	f
-fun	a.s	/^fun:$/;"	l
 fun	code/HelloWorld.s	/^fun:                                    # @fun$/;"	l
 fun11	code/HelloWorld.s	/^fun11:                                  # @fun11$/;"	l
 fun2	code/HelloWorld.s	/^fun2:                                   # @fun2$/;"	l
@@ -647,7 +638,6 @@ mVarTable	src/common.h	/^            sVarTable* mVarTable;$/;"	m	struct:sNodeTre
 mVolatile	src/common.h	/^    BOOL mVolatile;$/;"	m	struct:sNodeTypeStruct
 mWhileNodeBlock	src/common.h	/^            MANAGED struct sNodeBlockStruct* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon11	typeref:struct:sNodeTreeStruct::__anon1::__anon11::sNodeBlockStruct
 main	code/HelloWorld.s	/^main:                                   # @main$/;"	l
-main	code/HelloWorld2.s	/^main:                                   # @main$/;"	l
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
 mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
 method_generics_fun2_charp1	code/HelloWorld.s	/^method_generics_fun2_charp1:            # @method_generics_fun2_charp1$/;"	l
@@ -674,7 +664,7 @@ parse_constructor	src/parser.c	/^static BOOL parse_constructor(unsigned int* nod
 parse_default	src/parser.c	/^static BOOL parse_default(unsigned int* node, sParserInfo* info)$/;"	f	file:
 parse_destructor	src/parser.c	/^static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info) $/;"	f	file:
 parse_do	src/parser.c	/^static BOOL parse_do(unsigned int* node, sParserInfo* info)$/;"	f	file:
-parse_enum	src/parser.c	/^static BOOL parse_enum(unsigned int* node, sParserInfo* info) $/;"	f	file:
+parse_enum	src/parser.c	/^static BOOL parse_enum(unsigned int* node, char* name, sParserInfo* info) $/;"	f	file:
 parse_for	src/parser.c	/^static BOOL parse_for(unsigned int* node, sParserInfo* info)$/;"	f	file:
 parse_funcation_call_params	src/parser.c	/^static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, sParserInfo* info)$/;"	f	file:
 parse_function	src/parser.c	/^static BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun_name, char* struct_name, sParserInfo* info)$/;"	f	file:
@@ -699,8 +689,9 @@ parse_simple_lambda_params	src/parser.c	/^static BOOL parse_simple_lambda_params
 parse_sizeof	src/parser.c	/^static BOOL parse_sizeof(unsigned int* node, sParserInfo* info)$/;"	f	file:
 parse_struct	src/parser.c	/^static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_name, sParserInfo* info) $/;"	f	file:
 parse_switch	src/parser.c	/^static BOOL parse_switch(unsigned int* node, sParserInfo* info)$/;"	f	file:
-parse_type	src/parser.c	/^static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef)$/;"	f	file:
+parse_type	src/parser.c	/^static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef, BOOL parse_only)$/;"	f	file:
 parse_typedef	src/parser.c	/^BOOL parse_typedef(unsigned int* node, sParserInfo* info)$/;"	f
+parse_typedef_attribute	src/parser.c	/^static BOOL parse_typedef_attribute(sParserInfo* info)$/;"	f	file:
 parse_union	src/parser.c	/^static BOOL parse_union(unsigned int* node, char* union_name, int size_union_name, sParserInfo* info) $/;"	f	file:
 parse_var	src/parser.c	/^static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)$/;"	f	file:
 parse_variable	src/parser.c	/^static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* name, BOOL extern_, sParserInfo* info, BOOL readonly)$/;"	f	file:

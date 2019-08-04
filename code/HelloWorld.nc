@@ -1,7 +1,6 @@
 #include "neo-c.h"
 #include "neo-c-stdc.h"
 
-/*
 typedef char*% string;
 
 string operator+(char* left, char* right)
@@ -111,18 +110,16 @@ char GlobalArray4[4] = "ABC";
 struct GlobalStruct {
     int a;
     int b;
-}
+};
 
 struct GlobalStruct GlobalStructData = {
     123, 345
-}
-*/
+};
 
 extern const char *const sys_errlist[];
 
 int main()
 {
-/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -217,7 +214,7 @@ int main()
     {
         int a;
         int b;
-    }
+    };
 
     OpTest* obj = alloca OpTest;
 
@@ -280,7 +277,7 @@ int main()
     {
         int a;
         int b;
-    }
+    };
 
     TestData* test11 = alloca TestData;
     test11.a = 123;
@@ -351,7 +348,7 @@ int main()
     struct Data {
         int a;
         int b;
-    }
+    };
 
     impl Data {
         initialize() {
@@ -371,7 +368,7 @@ int main()
     struct Data2 {
         Data*% a;
         int b;
-    }
+    };
 
     impl Data2 {
         initialize() {
@@ -397,12 +394,12 @@ int main()
     struct Data3 {
         int a;
         int b;
-    }
+    };
 
     struct Data4 {
         Data3 a;
         int b;
-    }
+    };
 
     var za = new Data4;
 
@@ -413,7 +410,7 @@ int main()
     struct Data5 {
         int a;
         int b;
-    }
+    };
 
     impl Data5 {
         initialize() {
@@ -432,7 +429,7 @@ int main()
         Data5*% a;
         int b;
         string c;
-    }
+    };
 
     impl Data6 {
         initialize() {
@@ -471,12 +468,12 @@ int main()
     struct Data10 {
         int a;
         int b;
-    }
+    };
 
     struct Data11 {
         Data10*% a;
         int b;
-    }
+    };
 
     new Data11.a = new Data10;
 
@@ -504,7 +501,7 @@ int main()
         T a;
         T2 b;
         T lambda(T,T) c;
-    }
+    };
 
     var gvar = new GenericsTest<int, char>;
 
@@ -533,7 +530,7 @@ int main()
     struct GenericsTest2<T> {
         T a;
         T b;
-    }
+    };
 
     impl GenericsTest2<T> {
         T add(GenericsTest2<T>* self, T a, T b) {
@@ -547,12 +544,12 @@ int main()
 
     struct MapTest2<T> {
         T a;
-    }
+    };
 
     struct MapTest<T,T2> {
         T a;
         T2 b;
-    }
+    };
 
     impl MapTest<T,T2> {
         template <R> MapTest2<R>* fun(MapTest<T,T2>* self, R a, int b)
@@ -585,13 +582,13 @@ int main()
     struct HeapTest2 {
         int a;
         int b;
-    }
+    };
 
     struct HeapTest<T> {
         T*% a;
         int b;
         HeapTest2*% c;
-    }
+    };
 
     impl HeapTest<T> {
         void initialize(HeapTest<T>* self)
@@ -622,7 +619,7 @@ int main()
     struct Hello<T>
     {
         T a;
-    }
+    };
 
     impl Hello<T> {
         void loop(Hello<T>* self, void lambda() block)
@@ -646,7 +643,7 @@ int main()
     struct Hello2<T>
     {
         T a;
-    }
+    };
 
     impl Hello2<T> {
         void loop(Hello2<T>* self, void lambda() block)
@@ -841,7 +838,7 @@ int main()
 
         int c;
         int d;
-    }
+    };
 
     StructTest*% axz = new StructTest;
 
@@ -855,7 +852,7 @@ int main()
     union UnionTest {
         int a;
         long b;
-    }
+    };
 
     UnionTest*% data = new UnionTest;
 
@@ -878,7 +875,7 @@ int main()
             long b;
             long c;
         } c;
-    }
+    };
 
     var data2 = new UnionTest2;
 
@@ -908,7 +905,7 @@ int main()
         } a;
 
         int b;
-    }
+    };
 
     var data4 = new UnionTest3;
 
@@ -927,7 +924,7 @@ int main()
         } a;
         
         T b;
-    }
+    };
 
     var data5 = new GenericsTest3<long>;
 
@@ -947,7 +944,7 @@ int main()
             T a;
             T b;
         } b;
-    }
+    };
 
     var data6 = new GenericsTest4<long>;
 
@@ -1005,7 +1002,7 @@ int main()
     {
         T a;
         T b;
-    }
+    };
 
     impl StructTest2 <T> {
         inline T fun(StructTest2<T>* self, T a, T b) {
@@ -1045,7 +1042,7 @@ int main()
     struct StructTest3 {
         int a;
         int b;
-    }
+    };
 
     StructTest3 data8;
 
@@ -1139,7 +1136,7 @@ int main()
     struct StructTest4 {
         int a;
         int b;
-    }
+    };
 
     impl StructTest4 {
         initialize() {
@@ -1211,7 +1208,7 @@ int main()
 
     struct StructTest5 {
         int a[123];
-    }
+    };
 
     StructTest5 astruct1;
 
@@ -1266,7 +1263,7 @@ int main()
     struct StructTest6 {
         int a;
         int b;
-    }
+    };
 
     struct StructTest6 sxdata;
 
@@ -1278,7 +1275,7 @@ int main()
     union UnionTest5 {
         int a;
         long b;
-    }
+    };
 
     union UnionTest5 uxdata;
 
@@ -1297,7 +1294,7 @@ int main()
     struct StructTest7 {
         int a;
         struct StructTest7* data;
-    }
+    };
 
     struct StructTest7* struct_test_var = alloca StructTest7;
 
@@ -1316,7 +1313,7 @@ int main()
     struct StructTest8 {
         int a;
         int b;
-    }
+    };
 
     struct_test_var2 = alloca StructTest8;
 
@@ -1333,7 +1330,7 @@ int main()
     union UnionTest6 {
         int a;
         long b;
-    }
+    };
 
     union_test_var = alloca UnionTest6;
 
@@ -1415,7 +1412,7 @@ int main()
 
     assert("enum test", kA == 0 && kB == 1);
 
-    enum { kA2, kB2 = 999, kC2 }
+    enum { kA2, kB2 = 999, kC2 };
 
     assert("enum test", kA2 == 0 && kB2 == 999 && kC2 == 1000);
 
@@ -1469,7 +1466,7 @@ label1:
     struct StructTest9 {
        int a[3+1+sizeof(int)];
        double aaa;
-    }
+    };
 
     StructTest9* data10 = new StructTest9;
 
@@ -1512,7 +1509,35 @@ label1:
     pfunXXX pfunX2 = pfun_test2;
 
     assert("typedef function pointer", pfunX2(111, 222) == 333);
-*/
+
+    enum { kTypedefEnumA, kTypedefEnumB } enum_value = kTypedefEnumA;
+
+    assert("anonymous enum test", enum_value == kTypedefEnumA);
+
+    typedef enum { kTypedefEnumC, kTypedefEnumD } eEnumX;
+
+    eEnumX enum_value2 = kTypedefEnumC;
+    assert("typedef enum test", enum_value2 == kTypedefEnumC);
+
+    struct AAAAAAA {
+        int a;
+        int b;
+    } abcabc;
+
+    abcabc.a = 111;
+    abcabc.b = 222;
+
+    assert("struct test", abcabc.a == 111 && abcabc.b == 222);
+
+    union BBBBBBBBB {
+        int a;
+        int b;
+    } abcabc2;
+
+    abcabc2.a = 111;
+    abcabc2.b = 222;
+
+    assert("union test", abcabc2.a == 222 && abcabc2.b == 222);
 
     0
 }

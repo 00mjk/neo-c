@@ -3,8 +3,9 @@
 
 void fun()
 {
-    const char* p = sys_errlist[0];
+    union AAA { int a; int b; } a;
 
-    printf("%p\n", p);
+    a.a = 111;
+    a.b = 222;
 }
 
