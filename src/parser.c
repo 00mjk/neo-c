@@ -490,6 +490,12 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
 
         int n = 0;
         while(TRUE) {
+            if(*info->p == '#') {
+                if(!parse_sharp(info)) {
+                    return FALSE;
+                }
+            }
+
             sNodeType* field = NULL;
             char buf[VAR_NAME_MAX];
             if(!parse_type(&field, info, buf, FALSE, FALSE, FALSE)) {
@@ -628,6 +634,12 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
 
         int n = 0;
         while(TRUE) {
+            if(*info->p == '#') {
+                if(!parse_sharp(info)) {
+                    return FALSE;
+                }
+            }
+
             sNodeType* field = NULL;
             char buf[VAR_NAME_MAX];
             if(!parse_type(&field, info, buf, FALSE, FALSE, FALSE)) {
@@ -876,13 +888,19 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
         }
     }
 
-    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || (klass && *info->p == '(') || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0;
+    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || (klass && *info->p == '(') || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0 || strcmp(buf, "__extension__") == 0;
 }
 
 static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef, BOOL parse_only)
 {
     if(func_pointer_name) {
         func_pointer_name[0] = '\0';
+    }
+
+    if(memcmp(info->p, "__extension__", 13) == 0)
+    {
+        info->p += 13;
+        skip_spaces_and_lf(info);
     }
 
     char type_name[VAR_NAME_MAX];
@@ -1486,6 +1504,22 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     int pointer_num = 0;
 
     while(1) {
+        char* p_before = info->p;
+        int sline_before = info->sline;
+
+        char buf[VAR_NAME_MAX];
+        (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
+        if(strcmp(buf, "__restrict") == 0)
+        {
+        }
+        else if(strcmp(buf, "const") == 0)
+        {
+        }
+        else {
+            info->p = p_before;
+            info->sline = info->sline;
+        }
+
         if(*info->p == '*') {
             pointer_num++;
             info->p++;
@@ -1506,11 +1540,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         else {
             break;
         }
-    }
-
-    if(memcmp(info->p, "__restrict", 10) == 0) {
-        info->p += 10;
-        skip_spaces_and_lf(info);
     }
 
     if(!parse_only) {
@@ -4801,6 +4830,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     skip_spaces_and_lf(info);
 
                     while(TRUE) {
+                        if(*info->p == '#') {
+                            if(!parse_sharp(info)) {
+                                return FALSE;
+                            }
+                        }
+
                         sNodeType* field = NULL;
                         char buf[VAR_NAME_MAX];
                         if(!parse_type(&field, info, buf, FALSE, FALSE, TRUE)) {
@@ -4871,6 +4906,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     skip_spaces_and_lf(info);
 
                     while(TRUE) {
+                        if(*info->p == '#') {
+                            if(!parse_sharp(info)) {
+                                return FALSE;
+                            }
+                        }
+
                         sNodeType* field = NULL;
                         char buf[VAR_NAME_MAX];
                         if(!parse_type(&field, info, buf, FALSE, FALSE, TRUE)) {
