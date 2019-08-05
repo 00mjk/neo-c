@@ -27,7 +27,7 @@ string string(char* str)
     result
 }
 
-void assert(char* msg, bool exp) 
+void xassert(char* msg, bool exp) 
 {
     printf(msg + "...");
     if(!exp) {
@@ -135,28 +135,28 @@ int main()
 
     int a = fun();
 
-    assert("function result test", a == 2);
+    xassert("function result test", a == 2);
 
     int b = 1;
 
     void fun2(bool exp) 
     {
-        assert("function param cast test", exp);
+        xassert("function param cast test", exp);
     }
 
     fun2(b);
 
     int n = 1+1;
 
-    assert("local variable test", n == 2);
+    xassert("local variable test", n == 2);
 
     n = 777
 
-    assert("local variable test", n == 777);
+    xassert("local variable test", n == 777);
 
     int m = n + 1;
 
-    assert("local variable test", m == 778);
+    xassert("local variable test", m == 778);
 
     int fun3(int x, int y)
     {
@@ -165,7 +165,7 @@ int main()
 
     int l = fun3(1, 2);
 
-    assert("function result test", l == 3);
+    xassert("function result test", l == 3);
 
     int x = 4;
 
@@ -179,11 +179,11 @@ int main()
     else {
     }
 
-    assert("if test", x == 5);
+    xassert("if test", x == 5);
 
     int i = 1;
 
-    assert("operator test", i > 0);
+    xassert("operator test", i > 0);
 
     void fun4(char* str) 
     {
@@ -199,16 +199,16 @@ int main()
     }
 
     i = 123;
-    assert("operator test2", i++ == 123 && i == 124);
+    xassert("operator test2", i++ == 123 && i == 124);
 
     i = 123;
-    assert("operator test3", i-- == 123 && i == 122);
+    xassert("operator test3", i-- == 123 && i == 122);
 
     i = 123;
-    assert("operator test4", ++i == 124 && i == 124);
+    xassert("operator test4", ++i == 124 && i == 124);
 
     i = 124;
-    assert("operator test5", --i == 123 && i == 123);
+    xassert("operator test5", --i == 123 && i == 123);
 
     struct OpTest 
     {
@@ -219,20 +219,20 @@ int main()
     OpTest* obj = alloca OpTest;
 
     obj.a = 123;
-    assert("operator test6", obj.a++ == 123);
+    xassert("operator test6", obj.a++ == 123);
 
     obj.a = 123;
-    assert("operator test7", obj.a-- == 123 && obj.a == 122);
+    xassert("operator test7", obj.a-- == 123 && obj.a == 122);
 
     obj.a = 123;
-    assert("operator test8", ++obj.a == 124 && obj.a == 124);
+    xassert("operator test8", ++obj.a == 124 && obj.a == 124);
 
-    assert("operator test9", --obj.a == 123 && obj.a == 123);
+    xassert("operator test9", --obj.a == 123 && obj.a == 123);
 
     i = 2;
     i += 2;
 
-    assert("operator test10", i == 4);
+    xassert("operator test10", i == 4);
 
     int iii3;
 
@@ -252,7 +252,7 @@ int main()
         x + y + aa
     }
 
-    assert("lambda test", fun(1,2) == 7 && bb == 2);
+    xassert("lambda test", fun(1,2) == 7 && bb == 2);
 
     int fun5(int lambda(int,int) block)
     {
@@ -261,8 +261,8 @@ int main()
 
     int xxx = fun5(fun);
 
-    assert("lambda test", xxx == 7);
-    assert("lambda test2", bb == 2);
+    xassert("lambda test", xxx == 7);
+    xassert("lambda test2", bb == 2);
 
     int xa = if(false) {
         111
@@ -271,7 +271,7 @@ int main()
         222
     }
 
-    assert("if test", xa == 222);
+    xassert("if test", xa == 222);
 
     struct TestData 
     {
@@ -283,11 +283,11 @@ int main()
     test11.a = 123;
     test11.b = 234;
 
-    assert("struct test", test11.a == 123 && test11.b == 234);
+    xassert("struct test", test11.a == 123 && test11.b == 234);
 
     void fun6(TestData data) 
     {
-        assert("struct test2", data.a == 123 && data.b == 234);
+        xassert("struct test2", data.a == 123 && data.b == 234);
     }
 
     //fun6(test11->*);
@@ -298,7 +298,7 @@ int main()
 
     void fun7(int* value) 
     {
-        assert("reffernce test", *value == 111);
+        xassert("reffernce test", *value == 111);
     }
 
     fun7(p);
@@ -319,7 +319,7 @@ int main()
         nn++;
     })
 
-    assert("lambda test1", nn == 3);
+    xassert("lambda test1", nn == 3);
 
     nn = 0;
     3.times {
@@ -327,7 +327,7 @@ int main()
         nn++;
     }
 
-    assert("simple lambda param test", nn == 3);
+    xassert("simple lambda param test", nn == 3);
 
     int xb = 3;
 
@@ -343,7 +343,7 @@ int main()
         it + it2 + xb
     }
 
-    assert("simple lambda param test2", mm == 7 && xmm == 9);
+    xassert("simple lambda param test2", mm == 7 && xmm == 9);
 
     struct Data {
         int a;
@@ -363,7 +363,7 @@ int main()
 
     Data*% xobj2 = xobj;
 
-    assert("std::move test", xobj2.a == 111);
+    xassert("std::move test", xobj2.a == 111);
 
     struct Data2 {
         Data*% a;
@@ -383,7 +383,7 @@ int main()
 
     var yb = new Data2.initialize();
 
-    assert("struct test", yb.b == 123 && yb.a.a == 123 && yb.a.b == 234);
+    xassert("struct test", yb.b == 123 && yb.a.a == 123 && yb.a.b == 234);
 
     int nx = 123;
 
@@ -405,7 +405,7 @@ int main()
 
     za.a.a = 123;
 
-    assert("struct test X", za.a.a == 123);
+    xassert("struct test X", za.a.a == 123);
 
     struct Data5 {
         int a;
@@ -423,7 +423,7 @@ int main()
 
     var zz2 = clone zz;
 
-    assert("struct test X2", zz2.a == 111 && zz2.b == 222);
+    xassert("struct test X2", zz2.a == 111 && zz2.b == 222);
 
     struct Data6 {
         Data5*% a;
@@ -445,8 +445,8 @@ int main()
 
     var zz4 = clone zz3;
 
-    assert("struct test X3", zz4.a.a == 111 && zz4.a.b == 222 && zz4.b == 333);
-    assert("struct test X4", zz3.a.a == 111 && zz3.a.b == 222 && zz3.b == 333);
+    xassert("struct test X3", zz4.a.a == 111 && zz4.a.b == 222 && zz4.b == 333);
+    xassert("struct test X4", zz3.a.a == 111 && zz3.a.b == 222 && zz3.b == 333);
 
     var zz5 = new char[5];
     var zz6 = zz5;
@@ -463,7 +463,7 @@ int main()
 
     puts(zz8);
 
-    assert("string test", strcmp("AAA" + "BBB", "AAABBB") == 0);
+    xassert("string test", strcmp("AAA" + "BBB", "AAABBB") == 0);
 
     struct Data10 {
         int a;
@@ -495,7 +495,7 @@ int main()
         a + b
     }
 
-    assert("lambda test X", lll(1,2) == 3);
+    xassert("lambda test X", lll(1,2) == 3);
 
     struct GenericsTest <T, T2> {
         T a;
@@ -511,21 +511,21 @@ int main()
         x + y
     }
 
-    assert("generics test", gvar.a == 111 && gvar.b == 'c' && gvar.c->(1, 2) == 3);
+    xassert("generics test", gvar.a == 111 && gvar.b == 'c' && gvar.c->(1, 2) == 3);
 
     var aaaa = "AAA" + "BBB";
 
-    assert("operator test", strcmp(aaaa, "AAABBB") == 0);
+    xassert("operator test", strcmp(aaaa, "AAABBB") == 0);
 
     template <I> I method_generics_fun2(I a, I b)
     {
         a + b
     }
 
-    assert("method generics test", method_generics_fun2(1, 2) == 3);
+    xassert("method generics test", method_generics_fun2(1, 2) == 3);
 
-    assert("method generics test2", strcmp(method_generics_fun2("AAA", "BBB"), "AAABBB") == 0);
-    assert("method generics test3", method_generics_fun2(2, 3) == 5);
+    xassert("method generics test2", strcmp(method_generics_fun2("AAA", "BBB"), "AAABBB") == 0);
+    xassert("method generics test3", method_generics_fun2(2, 3) == 5);
 
     struct GenericsTest2<T> {
         T a;
@@ -540,7 +540,7 @@ int main()
 
     var generics_test = new GenericsTest2<int>;
 
-    assert("generics test", generics_test.add(1,2) == 3);
+    xassert("generics test", generics_test.add(1,2) == 3);
 
     struct MapTest2<T> {
         T a;
@@ -573,11 +573,11 @@ int main()
         }
     );
 
-    assert("method generics test X2", aaa2 == 1);
+    xassert("method generics test X2", aaa2 == 1);
 
     var aaa = map_test.fun(1,2);
 
-    assert("method generics test X", aaa.a == 1);
+    xassert("method generics test X", aaa.a == 1);
 
     struct HeapTest2 {
         int a;
@@ -798,24 +798,24 @@ int main()
 
 #define ABC 123
 
-    assert("macro test", ABC == 123);
+    xassert("macro test", ABC == 123);
 
-    assert("global var test", GlobalVar == 2);
+    xassert("global var test", GlobalVar == 2);
 
     GlobalVar = 1;
 
-    assert("global var test2", GlobalVar == 1);
+    xassert("global var test2", GlobalVar == 1);
 
-    assert("global var test3", strcmp(GlobalVar2, "ABC") == 0);
+    xassert("global var test3", strcmp(GlobalVar2, "ABC") == 0);
 
-    assert("global constant int", GlobalConstantInt == 123);
+    xassert("global constant int", GlobalConstantInt == 123);
 
     const int const_a = 1;
 
-    assert("local constant int", const_a == 1);
+    xassert("local constant int", const_a == 1);
 
     void constant_test_fun(const int a) {
-        assert("constant test", a == 1);
+        xassert("constant test", a == 1);
     }
 
     constant_test_fun(1);
@@ -828,7 +828,7 @@ int main()
     var_x.a = 1;
     var_x.b = 2;
 
-    assert("anonymous struct test", var_x.a == 1 && var_x.b == 2);
+    xassert("anonymous struct test", var_x.a == 1 && var_x.b == 2);
 
     struct StructTest {
         struct {
@@ -847,7 +847,7 @@ int main()
     axz.c = 3;
     axz.d = 4;
 
-    assert("inner struct test", axz.B.a == 1 && axz.B.b == 2 && axz.c == 3 && axz.d == 4);
+    xassert("inner struct test", axz.B.a == 1 && axz.B.b == 2 && axz.c == 3 && axz.d == 4);
 
     union UnionTest {
         int a;
@@ -858,11 +858,11 @@ int main()
 
     data.a = 1;
 
-    assert("union test", data.a == 1);
+    xassert("union test", data.a == 1);
     
     data.b = 2;
 
-    assert("union test2", data.b == 2);
+    xassert("union test2", data.b == 2);
 
     union UnionTest2 {
         struct {
@@ -883,7 +883,7 @@ int main()
     data2.c.b = 2;
     data2.c.c = 3;
 
-    assert("union test3", data2.c.a == 1 && data2.c.b == 2 && data2.c.c == 3);
+    xassert("union test3", data2.c.a == 1 && data2.c.b == 2 && data2.c.c == 3);
     
     union {
         struct {
@@ -896,7 +896,7 @@ int main()
     data3.a.a = 1;
     data3.a.b = 2;
 
-    assert("union test4", data3.a.a == 1 && data3.a.b == 2);
+    xassert("union test4", data3.a.a == 1 && data3.a.b == 2);
     
     struct UnionTest3 {
         union {
@@ -914,7 +914,7 @@ int main()
 
     data4.b = 3;
 
-    assert("union test5", data4.a.a == 2 && data4.a.b == 2 && data4.b == 3);
+    xassert("union test5", data4.a.a == 2 && data4.a.b == 2 && data4.b == 3);
 
     struct GenericsTest3 <T>
     {
@@ -931,7 +931,7 @@ int main()
     data5.a.a = 5;
     data5.b = 6;
 
-    assert("union test6", data5.a.a == 5 && data5.b == 6);
+    xassert("union test6", data5.a.a == 5 && data5.b == 6);
 
     struct GenericsTest4 <T>
     {
@@ -952,7 +952,7 @@ int main()
     data6.a.b = 222;
     data6.b.b = 666;
 
-    assert("union test7", data6.a.a == 111 && data6.a.b == 222 && data6.b.a == 666);
+    xassert("union test7", data6.a.a == 111 && data6.a.b == 222 && data6.b.a == 666);
 
     extern char* malloc(long size);
     extern void free(char* mem);
@@ -960,7 +960,7 @@ int main()
     char* mem = malloc(1);
     free(mem);
 
-    assert("extern test2", gGlobalVar == 1);
+    xassert("extern test2", gGlobalVar == 1);
 
     inline void inline_fun1() {
         puts("HELLO INLINE");
@@ -972,7 +972,7 @@ int main()
         123
     }
 
-    assert("inline function test", inline_fun2() == 123);
+    xassert("inline function test", inline_fun2() == 123);
 
     inline void inline_fun3(int a, int b) {
         printf("a %d b %d\n", a, b);
@@ -985,7 +985,7 @@ int main()
         x + y
     }
 
-    assert("inline function test2", inline_fun4(2, 3) == 5);
+    xassert("inline function test2", inline_fun4(2, 3) == 5);
 
     inline <T> T inline_fun5(T x, T y) 
     {
@@ -996,7 +996,7 @@ int main()
         z
     }
 
-    assert("inline function test3", inline_fun5(2, 3) == 5);
+    xassert("inline function test3", inline_fun5(2, 3) == 5);
 
     struct StructTest2 <T>
     {
@@ -1017,23 +1017,23 @@ int main()
 
     var data7 = new StructTest2<int>;
 
-    assert("inline function test4", data7.fun(1,2) == 3 && data7.a == 1 && data7.b == 2);
+    xassert("inline function test4", data7.fun(1,2) == 3 && data7.a == 1 && data7.b == 2);
 
     int aax = 2 >> 1;
 
-    assert("operator test", aax == 1);
+    xassert("operator test", aax == 1);
 
     int bxy = 2;
 
     bxy *= 2;
 
-    assert("operator test2", bxy == 4);
+    xassert("operator test2", bxy == 4);
 
     char* pxy = "ABC";
 
     pxy++;
 
-    assert("operator test3", *pxy == 'B');
+    xassert("operator test3", *pxy == 'B');
 
     int* pxyy = new int[128];
 
@@ -1049,11 +1049,11 @@ int main()
     data8.a = 1;
     data8.b = 2
 
-    assert("struct test", data8.a == 1 && data8.b == 2);
+    xassert("struct test", data8.a == 1 && data8.b == 2);
 
     void funXYZ(StructTest3 data) 
     {
-        assert("struct test", data8.a == 1 && data8.b == 2);
+        xassert("struct test", data8.a == 1 && data8.b == 2);
     }
 
     funXYZ(data8);
@@ -1063,7 +1063,7 @@ int main()
     data9->a = 1;
     data9->b = 2;
 
-    assert("struct test", data9->a == 1 && data9->b == 2);
+    xassert("struct test", data9->a == 1 && data9->b == 2);
 
     funXYZ(*data9);
 
@@ -1075,7 +1075,7 @@ int main()
         0
     }
 
-    assert("return test", funXYZ2() == 1);
+    xassert("return test", funXYZ2() == 1);
 
     inline int inline_fun6(int x, int y) {
         if(false) {
@@ -1085,7 +1085,7 @@ int main()
         3
     }
 
-    assert("inline fun6", inline_fun6(1, 2) == 3);
+    xassert("inline fun6", inline_fun6(1, 2) == 3);
 
     inline int inline_fun7(int x, int y) {
         if(true) {
@@ -1095,7 +1095,7 @@ int main()
        return 0; 
     }
 
-    assert("inline fun7", inline_fun7(1, 2) == 3);
+    xassert("inline fun7", inline_fun7(1, 2) == 3);
 
     inline int inline_fun8(int x, int y) {
         if(false) {
@@ -1105,10 +1105,10 @@ int main()
        return 3; 
     }
 
-    assert("inline fun8", inline_fun8(1, 2) == 3);
+    xassert("inline fun8", inline_fun8(1, 2) == 3);
 
     inline int inline_fun9(int x, int y) {
-        assert("inline inline fun8", inline_fun8(1, 2) == 3);
+        xassert("inline inline fun8", inline_fun8(1, 2) == 3);
 
         if(false) {
             return x + y;
@@ -1118,13 +1118,13 @@ int main()
         }
     }
 
-    assert("inline fun9", inline_fun9(1, 2) == 3);
+    xassert("inline fun9", inline_fun9(1, 2) == 3);
 
     inline int inline_fun10(int x, int y) {
         inline_fun8(1, 2)
     }
 
-    assert("inline fun10", inline_fun10(1, 2) == 3);
+    xassert("inline fun10", inline_fun10(1, 2) == 3);
     void fun11(int*? self) {
         if(self == null) {
             return;
@@ -1145,14 +1145,14 @@ int main()
         }
 
         finalize() {
-            assert("struct test13", self.a == 111 && self.b == 123);
+            xassert("struct test13", self.a == 111 && self.b == 123);
             puts("calling finalize");
         }
     }
 
     var struct_var = new StructTest4.initialize();
 
-    assert("struct test12", struct_var.a == 111 && struct_var.b == 123);
+    xassert("struct test12", struct_var.a == 111 && struct_var.b == 123);
 
     typedef union { int a; long b; } UnionTest4;
 
@@ -1160,51 +1160,51 @@ int main()
 
     aaa4.a = 111;
     
-    assert("typedef test13", aaa4.a == 111);
+    xassert("typedef test13", aaa4.a == 111);
 
     const int gA = 111;
 
-    assert("const test", gA == 111);
+    xassert("const test", gA == 111);
 
     unsigned int ua = 111;
 
-    assert("unsigned int test", ua == 111);
+    xassert("unsigned int test", ua == 111);
 
     unsigned char uc = 255;
 
     printf("uc %u\n", uc);
 
-    assert("unsigned char test", uc == 255);
+    xassert("unsigned char test", uc == 255);
 
     long long int along = 111;
 
-    assert("long long int", along == 111);
+    xassert("long long int", along == 111);
 
     long int along2 = 111;
 
-    assert("long int", along2 == 111);
+    xassert("long int", along2 == 111);
 
     short int ashort = 111;
 
-    assert("short int", ashort == 111);
+    xassert("short int", ashort == 111);
 
     unsigned long long int along3 = 123;
 
-    assert("unsigned long long int", along3 == 123);
+    xassert("unsigned long long int", along3 == 123);
 
     signed int asigned = 111;
 
-    assert("signed", asigned == 111);
+    xassert("signed", asigned == 111);
 
     signed int asigned2 = -111;
 
-    assert("minus", asigned2 == -111);
+    xassert("minus", asigned2 == -111);
 
     int funcXXX(void) {
         return 111;
     }
 
-    assert("func(void)", funcXXX() == 111);
+    xassert("func(void)", funcXXX() == 111);
 
     struct StructTest5 {
         int a[123];
@@ -1224,7 +1224,7 @@ int main()
     aarray2[1] = 222;
     aarray2[2] = 333;
 
-    assert("dynamic array test", aarray2[0] == 111 && aarray2[1] == 222 && aarray2[2] == 333);
+    xassert("dynamic array test", aarray2[0] == 111 && aarray2[1] == 222 && aarray2[2] == 333);
 
     int* intarray = new int[123];
 
@@ -1232,7 +1232,7 @@ int main()
     intarray[1] = 234;
     intarray[2] = 345;
 
-    assert("new array test", intarray[0] == 123 && intarray[1] == 234 && intarray[2] == 345);
+    xassert("new array test", intarray[0] == 123 && intarray[1] == 234 && intarray[2] == 345);
 
     int* intarray2 = alloca int[123];
 
@@ -1240,9 +1240,9 @@ int main()
     intarray2[1] = 234;
     intarray2[2] = 345;
 
-    assert("alloca array test", intarray2[0] == 123 && intarray2[1] == 234 && intarray2[2] == 345);
+    xassert("alloca array test", intarray2[0] == 123 && intarray2[1] == 234 && intarray2[2] == 345);
 
-    assert("sizeof test", sizeof(int) == 4 && sizeof(char) == 1 && sizeof(long) == 8);
+    xassert("sizeof test", sizeof(int) == 4 && sizeof(char) == 1 && sizeof(long) == 8);
 
     int avalue, bvalue, cvalue;
 
@@ -1250,7 +1250,7 @@ int main()
     bvalue = 222;
     cvalue = 333;
 
-    assert("avalue", avalue == 111 && bvalue == 222 && cvalue == 333);
+    xassert("avalue", avalue == 111 && bvalue == 222 && cvalue == 333);
 
     int *aptr, *bptr, *cptr;
 
@@ -1258,7 +1258,7 @@ int main()
     bptr = &bvalue;
     cptr = &cvalue;
 
-    assert("avalue", *aptr == 111 && *bptr == 222 && *cptr == 333);
+    xassert("avalue", *aptr == 111 && *bptr == 222 && *cptr == 333);
 
     struct StructTest6 {
         int a;
@@ -1270,7 +1270,7 @@ int main()
     sxdata.a = 111;
     sxdata.b = 222;
 
-    assert("struct testX", sxdata.a == 111 && sxdata.b == 222);
+    xassert("struct testX", sxdata.a == 111 && sxdata.b == 222);
 
     union UnionTest5 {
         int a;
@@ -1281,7 +1281,7 @@ int main()
 
     uxdata.b = 222;
 
-    assert("union testX", uxdata.b == 222);
+    xassert("union testX", uxdata.b == 222);
 
     int funp(int a, int b) {
         return a + b;
@@ -1289,7 +1289,7 @@ int main()
 
     int (*fp)(int, int) = funp;
 
-    assert("function pointer test", fp(1,2) == 3);
+    xassert("function pointer test", fp(1,2) == 3);
 
     struct StructTest7 {
         int a;
@@ -1304,7 +1304,7 @@ int main()
 
     struct_test_var.data.a = 222;
 
-    assert("self-refference struct", struct_test_var.a == 111 && struct_test_var.data.a == 222);
+    xassert("self-refference struct", struct_test_var.a == 111 && struct_test_var.data.a == 222);
 
     struct StructTest8;
 
@@ -1320,7 +1320,7 @@ int main()
     struct_test_var2.a = 111;
     struct_test_var2.b = 222;
 
-    assert("undefined struct", struct_test_var2.a == 111 && struct_test_var2.b == 222);
+    xassert("undefined struct", struct_test_var2.a == 111 && struct_test_var2.b == 222);
 
 
     union UnionTest6;
@@ -1336,24 +1336,24 @@ int main()
 
     union_test_var.a = 111;
 
-    assert("undefined union", union_test_var.a == 111);
+    xassert("undefined union", union_test_var.a == 111);
 
     int aarray3[3] = { 1, 2, 3 };
 
-    assert("aarray3 test", aarray3[0] == 1 && aarray3[1] == 2 && aarray3[2] == 3);
+    xassert("aarray3 test", aarray3[0] == 1 && aarray3[1] == 2 && aarray3[2] == 3);
 
     char char_array[4] = "ABC";
 
-    assert("char_array test", strcmp(char_array, "ABC") == 0);
+    xassert("char_array test", strcmp(char_array, "ABC") == 0);
 
     {
         int a = 111;
 
-        assert("normal block test", a == 111);
+        xassert("normal block test", a == 111);
 
         int b = 222;
 
-        assert("normal block test", b == 222);
+        xassert("normal block test", b == 222);
     }
 
     typedef int (*pFun)(int, int);
@@ -1362,31 +1362,31 @@ int main()
         return a + b;
     }
 
-    assert("typedef function pointer test", pfun(1,2) == 3);
+    xassert("typedef function pointer test", pfun(1,2) == 3);
 
     int aarray4[] = { 1, 2, 3 }
 
-    assert("array initialize test", aarray4[0] == 1 && aarray4[1] == 2 && aarray4[2] == 3);
+    xassert("array initialize test", aarray4[0] == 1 && aarray4[1] == 2 && aarray4[2] == 3);
 
     char str4[] = "ABC";
 
-    assert("array initialize test2", str4 != "ABC" && strcmp(str4, "ABC") == 0);
+    xassert("array initialize test2", str4 != "ABC" && strcmp(str4, "ABC") == 0);
 
     printf("%d %d %d\n", GlobalArray[0], GlobalArray[1], GlobalArray[2]);
 
-    assert("global array test", GlobalArray[0] == 1 && GlobalArray[1] == 2 && GlobalArray[2] == 3);
+    xassert("global array test", GlobalArray[0] == 1 && GlobalArray[1] == 2 && GlobalArray[2] == 3);
 
-    assert("global array2 test", GlobalArray2[0] == 1 && GlobalArray2[1] == 2 && GlobalArray2[2] == 3);
+    xassert("global array2 test", GlobalArray2[0] == 1 && GlobalArray2[1] == 2 && GlobalArray2[2] == 3);
 
-    assert("global array3 test", strcmp(GlobalArray3, "ABC") == 0);
+    xassert("global array3 test", strcmp(GlobalArray3, "ABC") == 0);
 
-    assert("global array4 test", strcmp(GlobalArray4, "ABC") == 0);
+    xassert("global array4 test", strcmp(GlobalArray4, "ABC") == 0);
 
     int%* aaadata = new int[3] {
         1, 2, 3
     }
 
-    assert("new array initializer", aaadata[0] == 1 && aaadata[1] == 2 && aaadata[2] == 3);
+    xassert("new array initializer", aaadata[0] == 1 && aaadata[1] == 2 && aaadata[2] == 3);
 
 
     struct sStruct {
@@ -1398,35 +1398,35 @@ int main()
         111, 222
     };
 
-    assert("struct initializer", sssdata.a == 111 && sssdata.b == 222);
+    xassert("struct initializer", sssdata.a == 111 && sssdata.b == 222);
 
     sStruct%* sss2data = new sStruct {
         123, 1
     }
 
-    assert("new struct initializer", sss2data.a == 123 && sss2data.b == 1);
+    xassert("new struct initializer", sss2data.a == 123 && sss2data.b == 1);
 
-    assert("global struct data", GlobalStructData.a == 123 && GlobalStructData.b == 345);
+    xassert("global struct data", GlobalStructData.a == 123 && GlobalStructData.b == 345);
 
     enum { kA, kB };
 
-    assert("enum test", kA == 0 && kB == 1);
+    xassert("enum test", kA == 0 && kB == 1);
 
     enum { kA2, kB2 = 999, kC2 };
 
-    assert("enum test", kA2 == 0 && kB2 == 999 && kC2 == 1000);
+    xassert("enum test", kA2 == 0 && kB2 == 999 && kC2 == 1000);
 
     enum eEnum { kA3, kB3, kC3 };
 
     enum eEnum aenum = kA3;
 
-    assert("enum test", aenum == kA3);
+    xassert("enum test", aenum == kA3);
 
     int aaaa2 = 1;
 
     aaaa2++;
 
-    assert("aaaa", aaaa2 == 2);
+    xassert("aaaa", aaaa2 == 2);
 
     int switcha = 2;
 
@@ -1438,7 +1438,7 @@ int main()
         case 2:
         case 4:
         case 5:
-            assert("switch test", true);
+            xassert("switch test", true);
             break;
 
         default:
@@ -1449,19 +1449,19 @@ int main()
     goto label1;
 
 label1:
-    assert("label test", true);
+    xassert("label test", true);
 
     int axxx[10];
 
     axxx[0] = 123;
 
-    assert("array test", axxx[0] == 123);
+    xassert("array test", axxx[0] == 123);
 
     int* bxxx = new int[3];
 
     bxxx[0] = 123;
 
-    assert("array test", bxxx[0] == 123);
+    xassert("array test", bxxx[0] == 123);
 
     struct StructTest9 {
        int a[3+1+sizeof(int)];
@@ -1472,11 +1472,11 @@ label1:
 
     data10.a[0] = 123;
 
-    assert("array test", data10.a[0] == 123);
+    xassert("array test", data10.a[0] == 123);
 
     int axyxy = (1 + 1) * 2;
 
-    assert("test", axyxy == 4);
+    xassert("test", axyxy == 4);
 
     signed aaaaaaaaaa = 11111;
 
@@ -1508,16 +1508,16 @@ label1:
 
     pfunXXX pfunX2 = pfun_test2;
 
-    assert("typedef function pointer", pfunX2(111, 222) == 333);
+    xassert("typedef function pointer", pfunX2(111, 222) == 333);
 
     enum { kTypedefEnumA, kTypedefEnumB } enum_value = kTypedefEnumA;
 
-    assert("anonymous enum test", enum_value == kTypedefEnumA);
+    xassert("anonymous enum test", enum_value == kTypedefEnumA);
 
     typedef enum { kTypedefEnumC, kTypedefEnumD } eEnumX;
 
     eEnumX enum_value2 = kTypedefEnumC;
-    assert("typedef enum test", enum_value2 == kTypedefEnumC);
+    xassert("typedef enum test", enum_value2 == kTypedefEnumC);
 
     struct AAAAAAA {
         int a;
@@ -1527,7 +1527,7 @@ label1:
     abcabc.a = 111;
     abcabc.b = 222;
 
-    assert("struct test", abcabc.a == 111 && abcabc.b == 222);
+    xassert("struct test", abcabc.a == 111 && abcabc.b == 222);
 
     union BBBBBBBBB {
         int a;
@@ -1537,7 +1537,7 @@ label1:
     abcabc2.a = 111;
     abcabc2.b = 222;
 
-    assert("union test", abcabc2.a == 222 && abcabc2.b == 222);
+    xassert("union test", abcabc2.a == 222 && abcabc2.b == 222);
 
     0
 }
