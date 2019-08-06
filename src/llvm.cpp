@@ -184,7 +184,7 @@ Value* store_lvtable()
     param2 = Builder.CreateCast(Instruction::BitCast, param2, PointerType::get(IntegerType::get(TheContext, 8), 0));
     params2.push_back(param2);
 
-    Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, 8*LOCAL_VARIABLE_MAX, true));
+    Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, sizeof(char*)*LOCAL_VARIABLE_MAX, true));
     params2.push_back(param3);
 
     Builder.CreateCall(fun, params2);
@@ -211,7 +211,7 @@ void restore_lvtable(Value* lvtable)
     param2 = Builder.CreateCast(Instruction::BitCast, param2, PointerType::get(IntegerType::get(TheContext, 8), 0));
     params2.push_back(param2);
 
-    Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, 8*LOCAL_VARIABLE_MAX, true));
+    Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, sizeof(char*)*LOCAL_VARIABLE_MAX, true));
     params2.push_back(param3);
 
     Builder.CreateCall(fun, params2);

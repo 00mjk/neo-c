@@ -133,6 +133,8 @@ int main()
         1+1
     }
 
+    printf("aaaa\n");
+
     int a = fun();
 
     xassert("function result test", a == 2);
