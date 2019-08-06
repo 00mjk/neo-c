@@ -1541,6 +1541,28 @@ label1:
 
     xassert("union test", abcabc2.a == 222 && abcabc2.b == 222);
 
+    typedef union
+    {
+      struct __pthread_mutex_s
+      {
+        int __lock;
+        unsigned int __count;
+        int __owner;
+        short __spins;
+        short __elision;
+        unsigned int __nusers;
+        __extension__ union
+        {
+          struct
+          {
+                short __espins;
+                short __elision;
+          } __elision_data;
+        };
+      } __data;
+      long int __align;
+    } pthread_mutex_t;
+
     0
 }
 
