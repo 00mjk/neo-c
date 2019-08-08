@@ -504,7 +504,11 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
 
             fields[num_fields] = field;
 
-            if(buf[0] == '\0') {
+            if(field->mClass->mFlags & CLASS_FLAGS_ANONYMOUS_VAR_NAME)
+            {
+                create_anonymous_union_var_name(buf, VAR_NAME_MAX);
+            }
+            else if(buf[0] == '\0') {
                 if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE))
                 {
                     return FALSE;
@@ -546,6 +550,10 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
         if(*info->p == ';') {
             info->p++;
             skip_spaces_and_lf(info);
+
+            if(anonymous) {
+                struct_class->mFlags |= CLASS_FLAGS_ANONYMOUS_VAR_NAME;
+            }
         }
 
         undefined_struct = struct_class->mUndefinedStructType != NULL;
@@ -614,7 +622,7 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
         sCLClass* union_class = get_class(union_name);
 
         if(union_class == NULL) {
-            union_class = alloc_union(union_name, anonymous);
+            union_class = alloc_union(union_name, anonymous, FALSE);
         }
 
         sNodeType* union_type = create_node_type_with_class_pointer(union_class);
@@ -629,7 +637,7 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
         sCLClass* union_class = get_class(union_name);
 
         if(union_class == NULL) {
-            union_class = alloc_union(union_name, anonymous);
+            union_class = alloc_union(union_name, anonymous, FALSE);
         }
 
         int n = 0;
@@ -679,6 +687,10 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
         if(*info->p == ';') {
             info->p++;
             skip_spaces_and_lf(info);
+
+            if(anonymous) {
+                union_class->mFlags |= CLASS_FLAGS_ANONYMOUS_VAR_NAME;
+            }
         }
 
         undefined_struct = union_class->mUndefinedStructType != NULL;
@@ -1112,7 +1124,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
             if(struct_class == NULL) 
             {
-                struct_class = alloc_union(struct_name, FALSE);
+                struct_class = alloc_union(struct_name, FALSE, FALSE);
             }
 
             sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
@@ -4841,7 +4853,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                             return FALSE;
                         }
 
-                        if(buf[0] == '\0') {
+                        if(field->mClass->mFlags & CLASS_FLAGS_ANONYMOUS_VAR_NAME)
+                        {
+                            create_anonymous_union_var_name(buf, VAR_NAME_MAX);
+                        }
+                        else if(buf[0] == '\0') {
                             if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE))
                             {
                                 return FALSE;

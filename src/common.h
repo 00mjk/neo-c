@@ -82,6 +82,7 @@ unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_o
 #define CLASS_FLAGS_UNION 0x040
 #define CLASS_FLAGS_ANONYMOUS 0x080
 #define CLASS_FLAGS_ENUM 0x100
+#define CLASS_FLAGS_ANONYMOUS_VAR_NAME 0x200
 
 struct sCLClassStruct {
     clint64 mFlags;
@@ -129,10 +130,10 @@ sCLClass* get_class(char* class_name);
 sCLClass* alloc_struct(char* class_name, BOOL anonymous);
 sCLClass* alloc_enum(char* class_name);
 void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
-sCLClass* alloc_union(char* class_name, BOOL anonymous);
+sCLClass* alloc_union(char* class_name, BOOL anonymous, BOOL anonymous_var_name);
 void add_fields_to_union(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
 unsigned int get_hash_key(char* name, unsigned int max);
-int get_field_index(sCLClass* klass, char* var_name);
+int get_field_index(sCLClass* klass, char* var_name, int* parent_field_index);
 sCLClass* clone_class(sCLClass* klass);
 
 //////////////////////////////
@@ -663,6 +664,7 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info);
 BOOL create_llvm_union_type(sNodeType* node_type, sCompileInfo* info);
 void create_undefined_llvm_struct_type(sNodeType* node_type);
 BOOL get_const_value_from_node(int* array_size, unsigned int array_size_node, sParserInfo* info);
+void create_anonymous_union_var_name(char* name, int size_name);
 
 /// typedef.cpp ///
 void add_typedef(char* name, sNodeType* node_type);

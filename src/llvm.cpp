@@ -1535,4 +1535,11 @@ BOOL get_const_value_from_node(int* array_size, unsigned int array_size_node, sP
     return TRUE;
 }
 
+void create_anonymous_union_var_name(char* name, int size_name)
+{
+    char* prefix_name = "anon.union.var";
+    static int num = 0;
+    snprintf(name, size_name, "%s%d", prefix_name, num);
+}
+
 }

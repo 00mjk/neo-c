@@ -3551,7 +3551,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type = var_type2;
 
-        info->type = result_type;
+        info->type = clone_node_type(result_type);
     }
     else {
         int alignment = get_llvm_alignment_from_node_type(var_type);
@@ -3566,7 +3566,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type = var_type;
 
-        info->type = result_type;
+        info->type = clone_node_type(result_type);
     }
 
     return TRUE;
@@ -4206,7 +4206,8 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
-    int field_index = get_field_index(left_type->mClass, var_name);
+    int parent_field_index = -1;
+    int field_index = get_field_index(left_type->mClass, var_name, &parent_field_index);
 
     if(field_index == -1) {
         compile_err_msg(info, "The field(%s) is not found", var_name);
@@ -4217,51 +4218,164 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    sNodeType* field_type = clone_node_type(left_type->mClass->mFields[field_index]);
+    sNodeType* field_type;
+    if(parent_field_index != -1) {
+        sNodeType* parent_field_type = clone_node_type(left_type->mClass->mFields[parent_field_index]);
+        sCLClass* parent_field_class = parent_field_type->mClass;
 
-    if(!solve_generics(&field_type, left_type)) {
-        compile_err_msg(info, "Can't solve generics types");
-        show_node_type(field_type);
-        show_node_type(left_type);
-        info->err_num++;
+        field_type = clone_node_type(parent_field_class->mFields[field_index]);
 
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    if(field_type->mHeap != right_type->mHeap) {
-        compile_err_msg(info, "Require heap attribute for field.");
-        show_node_type(field_type);
-        show_node_type(right_type);
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    if(auto_cast_posibility(field_type, right_type)) {
-        if(!cast_right_type_to_left_type(field_type, &right_type, &rvalue, info))
-        {
-            compile_err_msg(info, "Cast failed");
+        if(!solve_generics(&field_type, left_type)) {
+            compile_err_msg(info, "Can't solve generics types");
+            show_node_type(field_type);
+            show_node_type(left_type);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
 
             return TRUE;
         }
+
+        if(field_type->mHeap != right_type->mHeap) {
+            compile_err_msg(info, "Require heap attribute for field.");
+            show_node_type(field_type);
+            show_node_type(right_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        if(auto_cast_posibility(field_type, right_type)) {
+            if(!cast_right_type_to_left_type(field_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+        
+        if(!substitution_posibility(field_type, right_type, info)) {
+            compile_err_msg(info, "The different type between left type and right type.");
+            show_node_type(field_type);
+            show_node_type(right_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        sNodeType* left_type2 = clone_node_type(left_type);
+        left_type2->mPointerNum = 0;
+
+        Type* llvm_struct_type;
+        if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(11)");
+            show_node_type(left_type2);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        Type* llvm_field_type;
+        if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(12)");
+            show_node_type(field_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        int alignment = get_llvm_alignment_from_node_type(field_type);
+
+        Value* field_address;
+
+        if(left_type->mClass->mFlags & CLASS_FLAGS_UNION) {
+            if(left_type->mPointerNum == 0) {
+                field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+            }
+            else {
+                field_address = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(llvm_field_type, 0));
+            }
+        }
+        else {
+            if(left_type->mPointerNum == 0) {
+#if LLVM_VERSION_MAJOR >= 7
+                field_address = Builder.CreateStructGEP(lvalue.address, parent_field_index);
+#else
+                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, parent_field_index);
+#endif
+            }
+            else {
+#if LLVM_VERSION_MAJOR >= 7
+                field_address = Builder.CreateStructGEP(lvalue.value, parent_field_index);
+#else
+                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, parent_field_index);
+#endif
+            }
+        }
+
+        left_type = field_type;
+        lvalue.address = field_address;
     }
-    
-    if(!substitution_posibility(field_type, right_type, info)) {
-        compile_err_msg(info, "The different type between left type and right type.");
-        show_node_type(field_type);
-        show_node_type(right_type);
-        info->err_num++;
+    else {
+        field_type = clone_node_type(left_type->mClass->mFields[field_index]);
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        if(!solve_generics(&field_type, left_type)) {
+            compile_err_msg(info, "Can't solve generics types");
+            show_node_type(field_type);
+            show_node_type(left_type);
+            info->err_num++;
 
-        return TRUE;
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        if(field_type->mHeap != right_type->mHeap) {
+            compile_err_msg(info, "Require heap attribute for field.");
+            show_node_type(field_type);
+            show_node_type(right_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        if(auto_cast_posibility(field_type, right_type)) {
+            if(!cast_right_type_to_left_type(field_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+        
+        if(!substitution_posibility(field_type, right_type, info)) {
+            compile_err_msg(info, "The different type between left type and right type.");
+            show_node_type(field_type);
+            show_node_type(right_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
     }
 
     sNodeType* left_type2 = clone_node_type(left_type);
@@ -4392,7 +4506,8 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    int field_index = get_field_index(left_type->mClass, var_name);
+    int parent_field_index = -1;
+    int field_index = get_field_index(left_type->mClass, var_name, &parent_field_index);
 
     if(field_index == -1) {
         compile_err_msg(info, "The field(%s) is not found", var_name);
@@ -4403,7 +4518,96 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    sNodeType* field_type = clone_node_type(left_type->mClass->mFields[field_index]);
+    sNodeType* field_type;
+    if(parent_field_index != -1) {
+        field_type = clone_node_type(left_type->mClass->mFields[parent_field_index]);
+
+        if(!solve_generics(&field_type, left_type)) {
+            compile_err_msg(info, "Can't solve generics types");
+            show_node_type(field_type);
+            show_node_type(left_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        Type* llvm_field_type;
+        if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(13)");
+            show_node_type(field_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        LVALUE lvalue = *get_value_from_stack(-1);
+
+        sNodeType* left_type2 = clone_node_type(left_type);
+        left_type2->mPointerNum = 0;
+
+        Type* llvm_struct_type;
+        if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(14)");
+            show_node_type(left_type2);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        Value* field_address;
+        if(left_type->mClass->mFlags & CLASS_FLAGS_UNION) {
+            if(left_type->mPointerNum == 0) {
+                field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+            }
+            else {
+                field_address = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(llvm_field_type, 0));
+            }
+        }
+        else {
+            if(left_type->mPointerNum == 0) {
+#if LLVM_VERSION_MAJOR >= 7
+                field_address = Builder.CreateStructGEP(lvalue.address, parent_field_index);
+#else
+                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, parent_field_index);
+#endif
+            }
+            else {
+#if LLVM_VERSION_MAJOR >= 7
+                field_address = Builder.CreateStructGEP(lvalue.value, parent_field_index);
+#else
+                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, parent_field_index);
+#endif
+            }
+        }
+
+        int alignment = get_llvm_alignment_from_node_type(field_type);
+
+        Value* field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
+
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
+        llvm_value.type = field_type;
+        llvm_value.address = field_address2;
+        llvm_value.var = nullptr;
+
+        dec_stack_ptr(1, info);
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        field_type = clone_node_type(field_type->mClass->mFields[field_index]);
+
+        left_type = field_type;
+    }
+    else {
+        field_type = clone_node_type(left_type->mClass->mFields[field_index]);
+    }
 
     if(!solve_generics(&field_type, left_type)) {
         compile_err_msg(info, "Can't solve generics types");
@@ -4427,8 +4631,6 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
         return TRUE;
     }
-
-    int alignment = get_llvm_alignment_from_node_type(field_type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -4472,6 +4674,9 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 #endif
         }
     }
+
+    int alignment = get_llvm_alignment_from_node_type(field_type);
+
 
     Value* field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
 

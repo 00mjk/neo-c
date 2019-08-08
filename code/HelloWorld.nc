@@ -1541,47 +1541,39 @@ label1:
 
     xassert("union test", abcabc2.a == 222 && abcabc2.b == 222);
 
-/*
-typedef union
-{
-  struct __pthread_mutex_s
-  {
-    int __lock;
-    unsigned int __count;
-    int __owner;
-#ifdef __x86_64__
-    unsigned int __nusers;
-#endif
-    /* KIND must stay at this position in the structure to maintain
-       binary compatibility.  */
-    int __kind;
-#ifdef __x86_64__
-    short __spins;
-    short __elision;
-    __pthread_list_t __list;
-# define __PTHREAD_MUTEX_HAVE_PREV	1
-/* Mutex __spins initializer used by PTHREAD_MUTEX_INITIALIZER.  */
-# define __PTHREAD_SPINS             0, 0
-#else
-    unsigned int __nusers;
-    __extension__ union
+    struct aaaxxx
     {
-      struct
-      {
-	short __espins;
-	short __elision;
-# define __spins __elision_data.__espins
-# define __elision __elision_data.__elision
-# define __PTHREAD_SPINS         { 0, 0 }
-      } __elision_data;
-      __pthread_slist_t __list;
+        int a;
+
+        union
+        {
+            double y;
+            int x;
+        };
     };
-#endif
-  } __data;
-  char __size[__SIZEOF_PTHREAD_MUTEX_T];
-  long int __align;
-} pthread_mutex_t;
-*/
+
+    struct aaaxxx data11;
+
+    data11.x = 123;
+
+    xassert("AnonymousUnion", data11.x == 123);
+
+    struct yyyxxx 
+    {
+        int a;
+        struct {
+            int b;
+            int c;
+        };
+    };
+
+    struct yyyxxx data12;
+
+    data12.b = 111;
+    data12.c = 222;
+
+    xassert("AnonymousStruct", data12.b == 111 && data12.c == 222);
+
 
     0
 }

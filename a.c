@@ -1,11 +1,22 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void fun()
-{
-    union AAA { int a; int b; } a;
+struct A {
+    int a;
+    struct {
+        int b;
+        int c;
+    };
+};
 
-    a.a = 111;
-    a.b = 222;
+
+int main()
+{
+    struct A data;
+
+    data.b = 111;
+    data.c = 222;
+
+    return 0;
 }
 
