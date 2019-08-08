@@ -4225,7 +4225,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
         field_type = clone_node_type(parent_field_class->mFields[field_index]);
 
-        if(!solve_generics(&field_type, left_type)) {
+        if(!solve_generics(&parent_field_type, left_type)) {
             compile_err_msg(info, "Can't solve generics types");
             show_node_type(field_type);
             show_node_type(left_type);
@@ -4286,7 +4286,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         }
 
         Type* llvm_field_type;
-        if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_field_type, parent_field_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(12)");
             show_node_type(field_type);
@@ -4297,7 +4297,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        int alignment = get_llvm_alignment_from_node_type(field_type);
+        int alignment = get_llvm_alignment_from_node_type(parent_field_type);
 
         Value* field_address;
 
@@ -4326,7 +4326,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
             }
         }
 
-        left_type = field_type;
+        left_type = parent_field_type;
         lvalue.address = field_address;
     }
     else {
@@ -4436,14 +4436,6 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     Value* rvalue2 = rvalue.value;
 
-
-/*
-    Value* rvalue2 = Builder.CreateCast(Instruction::BitCast, rvalue.value, llvm_field_type);
-
-    Value* field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
-    Builder.CreateAlignedStore(rvalue2, field_address2, alignment);
-*/
-
     std_move(field_address, right_type, &rvalue, FALSE, info);
 
     Builder.CreateAlignedStore(rvalue2, field_address, alignment);
@@ -4520,11 +4512,14 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
     sNodeType* field_type;
     if(parent_field_index != -1) {
-        field_type = clone_node_type(left_type->mClass->mFields[parent_field_index]);
+        sNodeType* parent_field_type = clone_node_type(left_type->mClass->mFields[parent_field_index]);
+        sCLClass* parent_field_class = parent_field_type->mClass;
 
-        if(!solve_generics(&field_type, left_type)) {
+        field_type = clone_node_type(parent_field_class->mFields[field_index]);
+
+        if(!solve_generics(&parent_field_type, left_type)) {
             compile_err_msg(info, "Can't solve generics types");
-            show_node_type(field_type);
+            show_node_type(parent_field_type);
             show_node_type(left_type);
             info->err_num++;
 
@@ -4534,10 +4529,10 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         }
 
         Type* llvm_field_type;
-        if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_field_type, parent_field_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(13)");
-            show_node_type(field_type);
+            show_node_type(parent_field_type);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -4588,7 +4583,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
             }
         }
 
-        int alignment = get_llvm_alignment_from_node_type(field_type);
+        int alignment = get_llvm_alignment_from_node_type(parent_field_type);
 
         Value* field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
 
@@ -4601,9 +4596,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         dec_stack_ptr(1, info);
         push_value_to_stack_ptr(&llvm_value, info);
 
-        field_type = clone_node_type(field_type->mClass->mFields[field_index]);
-
-        left_type = field_type;
+        left_type = parent_field_type;
     }
     else {
         field_type = clone_node_type(left_type->mClass->mFields[field_index]);

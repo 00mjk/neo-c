@@ -1574,7 +1574,6 @@ label1:
 
     xassert("AnonymousStruct", data12.b == 111 && data12.c == 222);
 
-
     0
 }
 
