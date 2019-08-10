@@ -930,6 +930,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     BOOL volatile_ = FALSE;
     BOOL static_ = FALSE;
     BOOL signed_ = FALSE;
+    BOOL no_heap = FALSE;
 
     while(TRUE) {
         char* p_before = info->p;
@@ -1213,6 +1214,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                 register_ = (*result_type)->mRegister;
                 volatile_ = (*result_type)->mVolatile;
                 static_ = (*result_type)->mStatic;
+                no_heap = (*result_type)->mNoHeap;
             }
         }
 
@@ -1544,6 +1546,12 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
             heap = TRUE;
         }
+        else if(*info->p == '&') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            no_heap = TRUE;
+        }
         else if(*info->p == '?') {
             info->p++;
             skip_spaces_and_lf(info);
@@ -1563,6 +1571,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     (*result_type)->mRegister = register_;
     (*result_type)->mVolatile = volatile_;
     (*result_type)->mStatic = static_;
+    (*result_type)->mNoHeap = no_heap;
 
     if(info->mNumMethodGenericsTypes > 0) {
         if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))

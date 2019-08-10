@@ -12,3 +12,5 @@ int atoi(char* str);
 char* memcpy(char* mem, char* mem2, int size);
 
 int vprintf(const char* __fp, va_list __args);
+
+void sleep(int sec);

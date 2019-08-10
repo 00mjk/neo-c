@@ -75,13 +75,13 @@ impl vector<T>
     T item(vector<T>* self, int index) {
         self.items[index]
     }
-    void each(vector<T>*  self, void lambda(T,int) block) {
+    void each(vector<T>*  self, void lambda(T&,int) block) {
         for(int i=0; i<self.len; i++) {
             block(self.items[i], i);
         };
     }
 
-    template <R> vector<R>*% map(vector<T>* self, R lambda(T) block)
+    template <R> vector<R>*% map(vector<T>* self, R lambda(T&) block)
     {
         var result = new vector<R>.initialize(null);
 
@@ -292,7 +292,7 @@ int main()
         xassert("struct test2", data.a == 123 && data.b == 234);
     }
 
-    //fun6(test11->*);
+    fun6(*test11);
 
     int iii = 111;
 
@@ -409,64 +409,6 @@ int main()
 
     xassert("struct test X", za.a.a == 123);
 
-    struct Data5 {
-        int a;
-        int b;
-    };
-
-    impl Data5 {
-        initialize() {
-            self.a = 111;
-            self.b = 222;
-        }
-    }
-
-    var zz = new Data5.initialize();
-
-    var zz2 = clone zz;
-
-    xassert("struct test X2", zz2.a == 111 && zz2.b == 222);
-
-    struct Data6 {
-        Data5*% a;
-        int b;
-        string c;
-    };
-
-    impl Data6 {
-        initialize() {
-            self.a = new Data5;
-            self.a.a = 111;
-            self.a.b = 222;
-            self.b = 333;
-            self.c = new char[5];
-        }
-    }
-
-    var zz3 = new Data6.initialize();
-
-    var zz4 = clone zz3;
-
-    xassert("struct test X3", zz4.a.a == 111 && zz4.a.b == 222 && zz4.b == 333);
-    xassert("struct test X4", zz3.a.a == 111 && zz3.a.b == 222 && zz3.b == 333);
-
-    var zz5 = new char[5];
-    var zz6 = zz5;
-
-    char* zz7 = zz6;
-
-    void fun_test_borrow(char* aaa) 
-    {
-    }
-
-    fun_test_borrow(zz6);
-
-    string zz8 = "AAA" + "BBB"
-
-    puts(zz8);
-
-    xassert("string test", strcmp("AAA" + "BBB", "AAABBB") == 0);
-
     struct Data10 {
         int a;
         int b;
@@ -554,10 +496,11 @@ int main()
     };
 
     impl MapTest<T,T2> {
-        template <R> MapTest2<R>* fun(MapTest<T,T2>* self, R a, int b)
+        template <R> MapTest2<R>%* fun(MapTest<T,T2>* self, R a, int b)
         {
             var result = new MapTest2<R>;
             result.a = 1;
+
             result
         }
         
@@ -1055,17 +998,17 @@ int main()
 
     void funXYZ(StructTest3 data) 
     {
-        xassert("struct test", data8.a == 1 && data8.b == 2);
+        xassert("struct test2", data8.a == 1 && data8.b == 2);
     }
 
     funXYZ(data8);
 
-    StructTest3* data9 = new StructTest3;
+    StructTest3%* data9 = new StructTest3;
 
     data9->a = 1;
     data9->b = 2;
 
-    xassert("struct test", data9->a == 1 && data9->b == 2);
+    xassert("struct test3", data9->a == 1 && data9->b == 2);
 
     funXYZ(*data9);
 
@@ -1228,7 +1171,7 @@ int main()
 
     xassert("dynamic array test", aarray2[0] == 111 && aarray2[1] == 222 && aarray2[2] == 333);
 
-    int* intarray = new int[123];
+    int%* intarray = new int[123];
 
     intarray[0] = 123;
     intarray[1] = 234;
@@ -1405,6 +1348,7 @@ int main()
     sStruct%* sss2data = new sStruct {
         123, 1
     }
+
 
     xassert("new struct initializer", sss2data.a == 123 && sss2data.b == 1);
 
@@ -1585,6 +1529,66 @@ label1:
     int none_heap = 123;
 
     xassert("is heap test4", !isHeap(none_heap));
+
+/*
+    struct Data5 {
+        int a;
+        int b;
+    };
+
+    impl Data5 {
+        initialize() {
+            self.a = 111;
+            self.b = 222;
+        }
+    }
+
+    var zz = new Data5.initialize();
+
+    var zz2 = clone zz;
+
+    xassert("struct test X2", zz2.a == 111 && zz2.b == 222);
+
+    struct Data6 {
+        Data5*% a;
+        int b;
+        string c;
+    };
+
+    impl Data6 {
+        initialize() {
+            self.a = new Data5;
+            self.a.a = 111;
+            self.a.b = 222;
+            self.b = 333;
+            self.c = new char[5];
+        }
+    }
+
+    var zz3 = new Data6.initialize();
+
+    var zz4 = clone zz3;
+
+    xassert("struct test X3", zz4.a.a == 111 && zz4.a.b == 222 && zz4.b == 333);
+    xassert("struct test X4", zz3.a.a == 111 && zz3.a.b == 222 && zz3.b == 333);
+
+    var zz5 = new char[5];
+    var zz6 = zz5;
+
+    char* zz7 = zz6;
+
+    void fun_test_borrow(char* aaa) 
+    {
+    }
+
+    fun_test_borrow(zz6);
+
+    string zz8 = "AAA" + "BBB"
+
+    puts(zz8);
+
+    xassert("string test", strcmp("AAA" + "BBB", "AAABBB") == 0);
+*/
 
     0
 }

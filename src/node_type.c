@@ -79,6 +79,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
     node_type2->mNullable = node_type->mNullable;
     node_type2->mPointerNum = node_type->mPointerNum;
     node_type2->mHeap = node_type->mHeap;
+    node_type2->mNoHeap = node_type->mNoHeap;
     node_type2->mUnsigned = node_type->mUnsigned;
     node_type2->mRegister = node_type->mRegister;
     node_type2->mVolatile = node_type->mVolatile;
@@ -102,7 +103,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
 
 void show_node_type(sNodeType* node_type)
 {
-    printf("-+- [%s] array num %d nullable %d pointer num %d heap %d unsigned %d-+-\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap, node_type->mUnsigned); 
+    printf("-+- [%s] array num %d nullable %d pointer num %d heap %d unsigned %d no heap  %d -+-\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap, node_type->mUnsigned, node_type->mNoHeap); 
 
     printf(">>generics type num %d\n>>generics types\n", node_type->mNumGenericsTypes);
     int i;
@@ -414,10 +415,15 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
             int pointer_num = (*node_type)->mPointerNum;
             BOOL heap = (*node_type)->mHeap;
 
+            BOOL no_heap = (*node_type)->mNoHeap;
+
             (*node_type) = clone_node_type(generics_type->mGenericsTypes[generics_number]);
 
             if(heap) {
                 (*node_type)->mHeap = heap;
+            }
+            if(no_heap) {
+                (*node_type)->mHeap = FALSE;
             }
             if(nullable) {
                 (*node_type)->mNullable = nullable;
@@ -489,10 +495,15 @@ BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types,
             int pointer_num = (*node_type)->mPointerNum;
             BOOL heap = (*node_type)->mHeap;
 
+            BOOL no_heap = (*node_type)->mNoHeap;
+
             *node_type = clone_node_type(method_generics_types[method_generics_number]);
 
             if(heap) {
                 (*node_type)->mHeap = heap;
+            }
+            if(no_heap) {
+                (*node_type)->mHeap = FALSE;
             }
             if(nullable) {
                 (*node_type)->mNullable = nullable;

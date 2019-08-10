@@ -159,6 +159,7 @@ struct sNodeTypeStruct {
     int mNumParams;
 
     BOOL mHeap;
+    BOOL mNoHeap;
 
     unsigned int mDynamicArrayNum;
 };

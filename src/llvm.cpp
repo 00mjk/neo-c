@@ -1326,7 +1326,7 @@ printf("field %d\n", i);
 
             Value* field_obj = Builder.CreateAlignedLoad(field_address, 8);
 
-            free_right_value_object(field_type, field_address, info);
+            free_right_value_object(field_type, field_obj, info);
         }
     }
 
