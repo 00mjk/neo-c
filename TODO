@@ -1,8 +1,21 @@
+mips64el, mips64(Bit endian), s390xでのテストの実行
+
+isHeap(変数名) 演算子
+sizeof(変数名)
+isHeapとおなじほうほうでじっそうする
+
+delete 変数名
+でxfree, finalize
+
+%の配列、要素のfreeを行う
+headのアドレスを使い専用の関数でxfreeする。
+-->しない。配列やポインタの要素のxfreeは手動
+
+collection
+
 double, floatの値の表現、8進数、16進数
 
 restrict
-
-sizeof(変数名)
 
 2次元配列
 
@@ -20,119 +33,5 @@ casts全サポート
 
 stdio,stdlibのinclude
 
-%の配列、要素のfreeを行う
-headのアドレスを使い専用の関数でxfreeする。
-
-collection
-
 メソッドの関数ポインタ
 
-----------------------------------------------
-typedef struct
-
-typedef union
-
-const
-
-unsigned
-
-long long
-
-long int
-
-short int
-
-unsigned long long int
-
-signed
-
--111
-
-register
-
-volatile
-
-function(void)
-
-sizeof
-
-int a[128];
-
-int a = func();
-int b[a];
-
-int a, b, c;
-
-char *a, *b, *c;
-
-struct 型名 b;
-
-union 型名 a;
-
-void (*func)(void)
-
-function pointer C互換
-
-function pointer call C互換
-
-structタグ名、structの中で自身の宣言(ポインタのみ)
-
-union タグ名
-
-struct StructTest;
-
-ブロック
-
-配列の初期化
-配列の初期化文字列
-配列の初期化添字なし
-グローバル変数の配列の初期化
-関数ポインタのtypedef
-
-arrayからpointerへの自動キャスト
-
-グローバル変数の配列の初期化(文字列)
-グローバル変数の配列の初期化の添字の省略(文字列)
-構造体の初期化
-
-enum 型付き
-
-break
-
-continue
-
-do while
-
-switchのdefault
-
-label
-hairetu element num expression
-
-#ifndef __STDARG_H
-#define __STDARG_H
-
-#ifndef _VA_LIST
-typedef __builtin_va_list va_list;
-#define _VA_LIST
-#endif
-#define va_start(ap, param) __builtin_va_start(ap, param)
-#define va_end(ap)          __builtin_va_end(ap)
-#define va_arg(ap, type)    __builtin_va_arg(ap, type)
-
-/* GCC always defines __va_copy, but does not define va_copy unless in c99 mode
- * or -ansi is not specified, since it was not part of C90.
- */
-#define __va_copy(d,s) __builtin_va_copy(d,s)
-
-#if __STDC_VERSION__ >= 199901L || __cplusplus >= 201103L || !defined(__STRICT_ANSI__)
-#define va_copy(dest, src)  __builtin_va_copy(dest, src)
-#endif
-
-#ifndef __GNUC_VA_LIST
-#define __GNUC_VA_LIST 1
-typedef __builtin_va_list __gnuc_va_list;
-#endif
-
-#endif /* __STDARG_H */
-
-匿名union。一時的な変数名を用意して宣言する

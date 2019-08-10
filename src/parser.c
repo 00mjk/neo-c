@@ -3974,6 +3974,21 @@ static BOOL parse_clone(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_is_heap(unsigned int* node, sParserInfo* info)
+{
+    expect_next_character_with_one_forward("(", info);
+
+    if(!expression(node, info)) {
+        return FALSE;
+    }
+
+    expect_next_character_with_one_forward(")", info);
+
+    *node = sNodeTree_create_is_heap(*node, info);
+
+    return TRUE;
+}
+
 BOOL parse_typedef(unsigned int* node, sParserInfo* info)
 {
     unsigned int nodes[IMPL_DEF_MAX];
@@ -5179,6 +5194,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "clone") == 0) {
             if(!parse_clone(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "isHeap") == 0) {
+            if(!parse_is_heap(node, info)) {
                 return FALSE;
             }
         }

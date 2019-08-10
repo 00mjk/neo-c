@@ -1574,6 +1574,18 @@ label1:
 
     xassert("AnonymousStruct", data12.b == 111 && data12.c == 222);
 
+    string str5 = string("AAA");
+
+    xassert("is heap test", isHeap(str5));
+
+    xassert("is heap test2", !isHeap("AAAA"));
+
+    xassert("is heap test3", !isHeap(1));
+
+    int none_heap = 123;
+
+    xassert("is heap test4", !isHeap(none_heap));
+
     0
 }
 

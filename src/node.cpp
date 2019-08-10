@@ -8080,6 +8080,50 @@ BOOL compile_goto_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_is_heap(unsigned int lnode, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeIsHeap;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = lnode;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_is_heap(unsigned int node, sCompileInfo* info)
+{
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* node_type = clone_node_type(info->type);
+
+    dec_stack_ptr(1, info);
+
+    BOOL value = node_type->mHeap;
+
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value, true)); 
+    llvm_value.type = create_node_type_with_class_name("bool");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("bool");
+
+    return TRUE;
+}
+
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -8510,6 +8554,14 @@ BOOL compile(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
+
+        case kNodeTypeIsHeap:
+            if(!compile_is_heap(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
     }
 
     return node;
