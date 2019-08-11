@@ -4822,7 +4822,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "__attribute__") == 0) {
+
+        if(strcmp(buf, "__attribute__") == 0) {
             int brace_num = 0;
             while(*info->p == '(') {
                 info->p ++;
@@ -4847,7 +4848,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "struct") == 0) {
+
+        if(strcmp(buf, "struct") == 0) {
             char* p_before2 = info->p;
             int sline_before2 = info->sline;
 
