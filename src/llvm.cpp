@@ -299,12 +299,11 @@ void declare_builtin_functions()
 
     param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
     params.push_back(param1_type);
-
-    function_type = FunctionType::get(result_type, params, false);
-
-    Function::Create(function_type, Function::ExternalLinkage, "llvm.va_start", TheModule);
-
     {
+        function_type = FunctionType::get(result_type, params, false);
+
+        Function* llvm_fun = Function::Create(function_type, Function::ExternalLinkage, "llvm.va_start", TheModule);
+
         std::vector<Type *> llvm_param_types;
         sNodeType* param_types[PARAMS_MAX];
         char param_names[PARAMS_MAX][VAR_NAME_MAX];
@@ -325,7 +324,7 @@ void declare_builtin_functions()
 
         memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-        add_function("llvm.va_start", "llvm.va_start", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+        add_function("llvm.va_start", "llvm.va_start", llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
     }
 
     /// va_end ///
@@ -336,11 +335,11 @@ void declare_builtin_functions()
     param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
     params.push_back(param1_type);
 
-    function_type = FunctionType::get(result_type, params, false);
-
-    Function::Create(function_type, Function::ExternalLinkage, "llvm.va_end", TheModule);
-
     {
+        function_type = FunctionType::get(result_type, params, false);
+
+        Function* llvm_fun = Function::Create(function_type, Function::ExternalLinkage, "llvm.va_end", TheModule);
+
         std::vector<Type *> llvm_param_types;
         sNodeType* param_types[PARAMS_MAX];
         char param_names[PARAMS_MAX][VAR_NAME_MAX];
@@ -361,7 +360,7 @@ void declare_builtin_functions()
 
         memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-        add_function("llvm.va_end", "llvm.va_end", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+        add_function("llvm.va_end", "llvm.va_end", llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
     }
 
     /// va_copy ///
@@ -374,11 +373,11 @@ void declare_builtin_functions()
     param2_type = PointerType::get(IntegerType::get(TheContext,8), 0);
     params.push_back(param1_type);
 
-    function_type = FunctionType::get(result_type, params, false);
-
-    Function::Create(function_type, Function::ExternalLinkage, "llvm.va_copy", TheModule);
-
     {
+        function_type = FunctionType::get(result_type, params, false);
+
+        Function* llvm_fun = Function::Create(function_type, Function::ExternalLinkage, "llvm.va_copy", TheModule);
+
         std::vector<Type *> llvm_param_types;
         sNodeType* param_types[PARAMS_MAX];
         char param_names[PARAMS_MAX][VAR_NAME_MAX];
@@ -401,7 +400,7 @@ void declare_builtin_functions()
 
         memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-        add_function("llvm.va_copy", "llvm.va_copy", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+        add_function("llvm.va_copy", "llvm.va_copy", llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
     }
 }
 
@@ -651,7 +650,7 @@ void create_undefined_llvm_struct_type(sNodeType* node_type)
     }
 }
 
-BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info)
+BOOL create_llvm_struct_type(sNodeType* node_type, BOOL new_create, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
 
@@ -662,8 +661,40 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info)
 
     create_real_struct_name(real_struct_name, size_real_struct_name, class_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
 
-    if(gLLVMStructType[real_struct_name].first == nullptr) 
-    {
+    if(klass->mUndefinedStructType) {
+        StructType* struct_type = (StructType*)klass->mUndefinedStructType;
+        std::vector<Type*> fields;
+
+        int i;
+        for(i=0; i<klass->mNumFields; i++) {
+            sNodeType* field = klass->mFields[i];
+
+            if(!solve_generics(&field, node_type))
+            {
+                return FALSE;
+            }
+
+            if(field->mClass == klass && field->mPointerNum == 0)
+            {
+                return FALSE;
+            }
+
+            Type* field_type;
+            if(!create_llvm_type_from_node_type(&field_type, field, info))
+            {
+                return FALSE;
+            }
+
+            fields.push_back(field_type);
+        }
+
+        if(struct_type->isOpaque()) {
+            struct_type->setBody(fields, false);
+        }
+
+        klass->mUndefinedStructType = NULL;
+    }
+    else if(gLLVMStructType[real_struct_name].first == nullptr || new_create) {
         StructType* struct_type = StructType::create(TheContext, real_struct_name);
         std::vector<Type*> fields;
 
@@ -699,39 +730,6 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info)
         if(struct_type->isOpaque()) {
             struct_type->setBody(fields, false);
         }
-    }
-    else if(klass->mUndefinedStructType) {
-        StructType* struct_type = (StructType*)klass->mUndefinedStructType;
-        std::vector<Type*> fields;
-
-        int i;
-        for(i=0; i<klass->mNumFields; i++) {
-            sNodeType* field = klass->mFields[i];
-
-            if(!solve_generics(&field, node_type))
-            {
-                return FALSE;
-            }
-
-            if(field->mClass == klass && field->mPointerNum == 0)
-            {
-                return FALSE;
-            }
-
-            Type* field_type;
-            if(!create_llvm_type_from_node_type(&field_type, field, info))
-            {
-                return FALSE;
-            }
-
-            fields.push_back(field_type);
-        }
-
-        if(struct_type->isOpaque()) {
-            struct_type->setBody(fields, false);
-        }
-
-        klass->mUndefinedStructType = NULL;
     }
 
     return TRUE;
@@ -877,7 +875,7 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
 
         if(gLLVMStructType[real_struct_name].first == nullptr) 
         {
-            if(!create_llvm_struct_type(node_type, info))
+            if(!create_llvm_struct_type(node_type, TRUE, info))
             {
                 return FALSE;
             }
@@ -903,7 +901,7 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
 
         if(gLLVMStructType[real_struct_name].first == nullptr) 
         {
-            if(!create_llvm_struct_type(node_type, info))
+            if(!create_llvm_struct_type(node_type, TRUE, info))
             {
                 return FALSE;
             }

@@ -570,7 +570,7 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
             memset(&cinfo, 0, sizeof(sCompileInfo));
             cinfo.no_output = TRUE;
 
-            if(!create_llvm_struct_type(struct_type, &cinfo))
+            if(!create_llvm_struct_type(struct_type, TRUE, &cinfo))
             {
                 parser_err_msg(info, "Can't create llvm struct from this node type");
                 show_node_type(struct_type);
@@ -1599,7 +1599,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         memset(&cinfo, 0, sizeof(sCompileInfo));
         cinfo.no_output = TRUE;
 
-        if(!create_llvm_struct_type(*result_type, &cinfo))
+        if(!create_llvm_struct_type(*result_type, FALSE, &cinfo))
         {
             parser_err_msg(info, "Can't create llvm struct from this node type");
             show_node_type(*result_type);

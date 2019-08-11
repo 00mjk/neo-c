@@ -368,13 +368,18 @@ sCLClass* alloc_enum(char* class_name)
 
 void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])
 {
-    klass->mNumFields = num_fields;
+    if(klass->mNumFields + num_fields >= STRUCT_FIELD_MAX) {
+        fprintf(stderr, "overflow field number of %s\n", CLASS_NAME(klass));
+        exit(0);
+    }
 
     int i;
     for(i=0; i<num_fields; i++) {
-        klass->mFieldNameOffsets[i] = append_str_to_constant_pool(&klass->mConst, field_name[i], FALSE);
-        klass->mFields[i] = clone_node_type(fields[i]);
+        klass->mFieldNameOffsets[klass->mNumFields+i] = append_str_to_constant_pool(&klass->mConst, field_name[i], FALSE);
+        klass->mFields[klass->mNumFields+i] = clone_node_type(fields[i]);
     }
+
+    klass->mNumFields += num_fields;
 }
 
 sCLClass* alloc_union(char* class_name, BOOL anonymous, BOOL anonymous_var_name)

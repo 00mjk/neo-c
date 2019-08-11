@@ -27,7 +27,7 @@
 #define METHOD_DEFAULT_PARAM_MAX 128
 #define SOURCE_EXPRESSION_MAX 4096*2
 #define ELIF_NUM_MAX 32
-#define STRUCT_FIELD_MAX 32
+#define STRUCT_FIELD_MAX 256
 #define REAL_FUN_NAME_MAX (VAR_NAME_MAX*PARAMS_MAX+32)
 #define REAL_STRUCT_NAME_MAX (VAR_NAME_MAX*PARAMS_MAX+32)
 #define IMPL_DEF_MAX 512
@@ -662,7 +662,7 @@ void arrange_stack(sCompileInfo* info, int top);
 void start_neo_c_main_function();
 void finish_neo_c_main_function();
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info);
-BOOL create_llvm_struct_type(sNodeType* node_type, sCompileInfo* info);
+BOOL create_llvm_struct_type(sNodeType* node_type, BOOL new_create, sCompileInfo* info);
 BOOL create_llvm_union_type(sNodeType* node_type, sCompileInfo* info);
 void create_undefined_llvm_struct_type(sNodeType* node_type);
 BOOL get_const_value_from_node(int* array_size, unsigned int array_size_node, sParserInfo* info);

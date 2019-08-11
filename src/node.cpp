@@ -95,7 +95,7 @@ void compile_err_msg(sCompileInfo* info, const char* msg, ...)
     output_num++;
 }
     
-void add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline)
+void add_function(char* name, char* real_fun_name, Function* llvm_fun, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline)
 {
     sFunction fun;
     xstrncpy(fun.mName, name, VAR_NAME_MAX);
@@ -138,6 +138,12 @@ void add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
 
     fun.mGenericsFunction = generics_function;
     fun.mInlineFunction = inline_function;
+
+    if(gFuncs[real_fun_name].mLLVMFunction != nullptr) {
+        fun.mParentFunction = gFuncs[real_fun_name].mLLVMFunction;
+    }
+
+    fun.mLLVMFunction = llvm_fun;
 
     gFuncs[real_fun_name] = fun;
 }
@@ -221,7 +227,7 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
         return FALSE;
     }
 
-    Function* llvm_fun = TheModule->getFunction(real_fun_name);
+    Function* llvm_fun = fun.mLLVMFunction;
 
     if(llvm_fun == nullptr) {
         dec_stack_ptr(num_params, info);
@@ -1708,7 +1714,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
     }
 
     FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
-    Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
+    Function* llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
 
     char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
 
@@ -1718,7 +1724,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
 
     memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-    add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+    add_function(fun_name, real_fun_name, llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
 
     return TRUE;
 }
@@ -2749,7 +2755,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     }
     else if(type_identify_with_class_name(fun.mResultType, "void"))
     {
-        Function* llvm_fun = TheModule->getFunction(real_fun_name);
+        Function* llvm_fun = fun.mLLVMFunction;
 
         if(!info->no_output) {
             Builder.CreateCall(llvm_fun, llvm_params);
@@ -2776,7 +2782,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         }
 
         if(!info->no_output) {
-            Function* llvm_fun = TheModule->getFunction(real_fun_name);
+            Function* llvm_fun = fun.mLLVMFunction;
 
             if(llvm_fun == nullptr) {
                 return TRUE;
@@ -2927,8 +2933,6 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-    add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
-
     Type* llvm_result_type;
     if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, info))
     {
@@ -2943,6 +2947,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
     Function* fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
+
+    add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
 
     int n = 0;
     std::vector<Value *> llvm_params;
@@ -3096,7 +3102,6 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     if(simple_lambda_param) {
         result_type = block_result_type;
-        add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, FALSE, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
 
         Type* llvm_result_type;
         if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, info))
@@ -3112,6 +3117,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
         FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, false);
         Function* fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
+        add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, FALSE, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
 
         int n = 0;
         std::vector<Value *> llvm_params;
@@ -3359,7 +3365,7 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
 
     /// go ///
-    add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline);
+    add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline);
     
 
     return TRUE;
@@ -3466,7 +3472,7 @@ BOOL compile_inline_function(unsigned int node, sCompileInfo* info)
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
 
     /// go ///
-    add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline);
+    add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline);
 
     return TRUE;
 }
@@ -6702,6 +6708,7 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
         restore_lvtable((Value*)info->function_lvtable);
 
         free_right_value_objects(info);
+        free_objects(info->pinfo->lv_table, info);
 
         if(info->inline_func_end) {
             int alignment = get_llvm_alignment_from_node_type(llvm_value.type);
@@ -6735,6 +6742,7 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
         restore_lvtable((Value*)info->function_lvtable);
 
         free_right_value_objects(info);
+        free_objects(info->pinfo->lv_table, info);
 
         if(info->inline_func_end) {
             free_right_value_objects(info);
