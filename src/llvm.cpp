@@ -595,28 +595,7 @@ output_stream.flush();
         exit(2);
     }
 
-    snprintf(command, PATH_MAX+128, "clang -c %s.ll", sname2);
-    rc = system(command);
-    if(rc != 0) {
-        fprintf(stderr, "faield to compile\n");
-        exit(2);
-    }
-
-    snprintf(command, PATH_MAX+128, "llvm-dis %s.bc", sname2);
-    rc = system(command);
-    if(rc != 0) {
-        fprintf(stderr, "faield to compile\n");
-        exit(2);
-    }
-
-    snprintf(command, PATH_MAX+128, "llc %s.bc", sname2);
-    rc = system(command);
-    if(rc != 0) {
-        fprintf(stderr, "faield to compile\n");
-        exit(2);
-    }
-
-    snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.s", sname2, sname2);
+    snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.ll", sname2, sname2);
     rc = system(command);
     if(rc != 0) {
         fprintf(stderr, "faield to compile\n");

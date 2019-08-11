@@ -30,62 +30,15 @@ CONS_str	src/common.h	59;"	d
 CXX	Makefile	/^CXX=ccache clang++$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . -I src -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
-Data2_initialize	code/HelloWorld.s	/^Data2_initialize:                       # @Data2_initialize$/;"	l
-Data_initialize	code/HelloWorld.s	/^Data_initialize:                        # @Data_initialize$/;"	l
 ELIF_NUM_MAX	src/common.h	29;"	d
 EXTERNAL_OBJECT_MAX	src/common.h	34;"	d
 FALSE	src/xfunc.h	9;"	d
 GENERICS_TYPES_MAX	src/common.h	19;"	d
-GenericsTest2_add_int3	code/HelloWorld.s	/^GenericsTest2_add_int3:                 # @GenericsTest2_add_int3$/;"	l
-GlobalArray	code/HelloWorld.s	/^GlobalArray:$/;"	l
-GlobalArray2	code/HelloWorld.s	/^GlobalArray2:$/;"	l
-GlobalArray3	code/HelloWorld.s	/^GlobalArray3:$/;"	l
-GlobalArray4	code/HelloWorld.s	/^GlobalArray4:$/;"	l
-GlobalConstantInt	code/HelloWorld.s	/^GlobalConstantInt:$/;"	l
-GlobalStructData	code/HelloWorld.s	/^GlobalStructData:$/;"	l
-GlobalVar	code/HelloWorld.s	/^GlobalVar:$/;"	l
-GlobalVar2	code/HelloWorld.s	/^GlobalVar2:$/;"	l
 HAVE_ICONV_H	config.h	3;"	d
 HAVE_ICONV_H	config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
 HAVE_PCRE_H	config.h	6;"	d
 HAVE_PTHREAD_H	config.h	11;"	d
-HeapTest_initialize_char7	code/HelloWorld.s	/^HeapTest_initialize_char7:              # @HeapTest_initialize_char7$/;"	l
-HeapTest_initialize_int6	code/HelloWorld.s	/^HeapTest_initialize_int6:               # @HeapTest_initialize_int6$/;"	l
-HeapTest_map_char_int7	code/HelloWorld.s	/^HeapTest_map_char_int7:                 # @HeapTest_map_char_int7$/;"	l
-Hello2_initialize_int11	code/HelloWorld.s	/^Hello2_initialize_int11:                # @Hello2_initialize_int11$/;"	l
-Hello2_loop_int12	code/HelloWorld.s	/^Hello2_loop_int12:                      # @Hello2_loop_int12$/;"	l
-Hello2_loop_int14	code/HelloWorld.s	/^Hello2_loop_int14:                      # @Hello2_loop_int14$/;"	l
-Hello2_test_int_charp11	code/HelloWorld.s	/^Hello2_test_int_charp11:                # @Hello2_test_int_charp11$/;"	l
-HelloWorld_lambda0	code/HelloWorld.s	/^HelloWorld_lambda0:                     # @HelloWorld_lambda0$/;"	l
-HelloWorld_lambda1	code/HelloWorld.s	/^HelloWorld_lambda1:                     # @HelloWorld_lambda1$/;"	l
-HelloWorld_lambda10	code/HelloWorld.s	/^HelloWorld_lambda10:                    # @HelloWorld_lambda10$/;"	l
-HelloWorld_lambda11	code/HelloWorld.s	/^HelloWorld_lambda11:                    # @HelloWorld_lambda11$/;"	l
-HelloWorld_lambda12	code/HelloWorld.s	/^HelloWorld_lambda12:                    # @HelloWorld_lambda12$/;"	l
-HelloWorld_lambda13	code/HelloWorld.s	/^HelloWorld_lambda13:                    # @HelloWorld_lambda13$/;"	l
-HelloWorld_lambda14	code/HelloWorld.s	/^HelloWorld_lambda14:                    # @HelloWorld_lambda14$/;"	l
-HelloWorld_lambda15	code/HelloWorld.s	/^HelloWorld_lambda15:                    # @HelloWorld_lambda15$/;"	l
-HelloWorld_lambda16	code/HelloWorld.s	/^HelloWorld_lambda16:                    # @HelloWorld_lambda16$/;"	l
-HelloWorld_lambda17	code/HelloWorld.s	/^HelloWorld_lambda17:                    # @HelloWorld_lambda17$/;"	l
-HelloWorld_lambda18	code/HelloWorld.s	/^HelloWorld_lambda18:                    # @HelloWorld_lambda18$/;"	l
-HelloWorld_lambda19	code/HelloWorld.s	/^HelloWorld_lambda19:                    # @HelloWorld_lambda19$/;"	l
-HelloWorld_lambda2	code/HelloWorld.s	/^HelloWorld_lambda2:                     # @HelloWorld_lambda2$/;"	l
-HelloWorld_lambda20	code/HelloWorld.s	/^HelloWorld_lambda20:                    # @HelloWorld_lambda20$/;"	l
-HelloWorld_lambda21	code/HelloWorld.s	/^HelloWorld_lambda21:                    # @HelloWorld_lambda21$/;"	l
-HelloWorld_lambda22	code/HelloWorld.s	/^HelloWorld_lambda22:                    # @HelloWorld_lambda22$/;"	l
-HelloWorld_lambda23	code/HelloWorld.s	/^HelloWorld_lambda23:                    # @HelloWorld_lambda23$/;"	l
-HelloWorld_lambda24	code/HelloWorld.s	/^HelloWorld_lambda24:                    # @HelloWorld_lambda24$/;"	l
-HelloWorld_lambda25	code/HelloWorld.s	/^HelloWorld_lambda25:                    # @HelloWorld_lambda25$/;"	l
-HelloWorld_lambda26	code/HelloWorld.s	/^HelloWorld_lambda26:                    # @HelloWorld_lambda26$/;"	l
-HelloWorld_lambda3	code/HelloWorld.s	/^HelloWorld_lambda3:                     # @HelloWorld_lambda3$/;"	l
-HelloWorld_lambda4	code/HelloWorld.s	/^HelloWorld_lambda4:                     # @HelloWorld_lambda4$/;"	l
-HelloWorld_lambda5	code/HelloWorld.s	/^HelloWorld_lambda5:                     # @HelloWorld_lambda5$/;"	l
-HelloWorld_lambda6	code/HelloWorld.s	/^HelloWorld_lambda6:                     # @HelloWorld_lambda6$/;"	l
-HelloWorld_lambda7	code/HelloWorld.s	/^HelloWorld_lambda7:                     # @HelloWorld_lambda7$/;"	l
-HelloWorld_lambda8	code/HelloWorld.s	/^HelloWorld_lambda8:                     # @HelloWorld_lambda8$/;"	l
-HelloWorld_lambda9	code/HelloWorld.s	/^HelloWorld_lambda9:                     # @HelloWorld_lambda9$/;"	l
-Hello_loop_int9	code/HelloWorld.s	/^Hello_loop_int9:                        # @Hello_loop_int9$/;"	l
-Hello_test_int_int9	code/HelloWorld.s	/^Hello_test_int_int9:                    # @Hello_test_int_int9$/;"	l
 IMPL_DEF_MAX	src/common.h	33;"	d
 INIT_ARRAY_MAX	src/common.h	35;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
@@ -97,8 +50,6 @@ LVALUE	src/llvm_common.hpp	/^typedef struct LVALUEStruct LVALUE;$/;"	t	typeref:s
 LVALUEStruct	src/llvm_common.hpp	/^struct LVALUEStruct {$/;"	s
 MANAGED	src/xfunc.h	5;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
-MapTest_fun2_int_int_int4	code/HelloWorld.s	/^MapTest_fun2_int_int_int4:              # @MapTest_fun2_int_int_int4$/;"	l
-MapTest_fun_int_int_int5	code/HelloWorld.s	/^MapTest_fun_int_int_int5:               # @MapTest_fun_int_int_int5$/;"	l
 NEO_C_STACK_SIZE	src/common.h	24;"	d
 NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
 OBJS	Makefile	/^OBJS=src\/source_compiler.o src\/parser.o src\/node.o src\/klass.o src\/node_type.o src\/typedef.o src\/constant.o src\/llvm.o src\/vtable.o src\/node_block.o src\/node_alloc.o$/;"	m
@@ -108,16 +59,11 @@ PARSER_ERR_MSG_MAX	src/common.h	22;"	d
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c -c code\/External.nc$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld.nc code\/External.o $/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld2.nc$/;"	m
-P_ALL	code/HelloWorld2.s	/^P_ALL:$/;"	l
-P_PGID	code/HelloWorld2.s	/^P_PGID:$/;"	l
-P_PID	code/HelloWorld2.s	/^P_PID:$/;"	l
 REAL_FUN_NAME_MAX	src/common.h	31;"	d
 REAL_STRUCT_NAME_MAX	src/common.h	32;"	d
 RUNTIME_OBJS	Makefile	/^RUNTIME_OBJS=$/;"	m
 SOURCE_EXPRESSION_MAX	src/common.h	28;"	d
 STRUCT_FIELD_MAX	src/common.h	30;"	d
-StructTest4_finalize	code/HelloWorld.s	/^StructTest4_finalize:                   # @StructTest4_finalize$/;"	l
-StructTest4_initialize	code/HelloWorld.s	/^StructTest4_initialize:                 # @StructTest4_initialize$/;"	l
 TRUE	src/xfunc.h	8;"	d
 TheContext	src/llvm.cpp	/^LLVMContext TheContext;$/;"	v
 TheFPM	src/llvm.cpp	/^std::unique_ptr<FunctionPassManager> TheFPM;$/;"	v
@@ -127,10 +73,6 @@ VAR_NAME_MAX	src/common.h	20;"	d
 XFUNC_H	src/xfunc.h	2;"	d
 __64BIT_CPU__	config.h	18;"	d
 __LINUX__	config.h	16;"	d
-__codecvt_error	code/HelloWorld2.s	/^__codecvt_error:$/;"	l
-__codecvt_noconv	code/HelloWorld2.s	/^__codecvt_noconv:$/;"	l
-__codecvt_ok	code/HelloWorld2.s	/^__codecvt_ok:$/;"	l
-__codecvt_partial	code/HelloWorld2.s	/^__codecvt_partial:$/;"	l
 __sbrk	src/sbrk.c	/^void * __sbrk (intptr_t increment)$/;"	f
 a	a.c	/^    int a;$/;"	m	struct:A	file:
 ac_fn_c_check_func	configure	/^ac_fn_c_check_func ()$/;"	f
@@ -162,7 +104,6 @@ append_str_to_constant_pool	src/constant.c	/^unsigned int append_str_to_constant
 append_wstr_to_constant_pool	src/constant.c	/^unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
-array_size_fun	code/HelloWorld.s	/^array_size_fun:                         # @array_size_fun$/;"	l
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
@@ -268,7 +209,6 @@ compile_xor	src/node.cpp	/^static BOOL compile_xor(unsigned int node, sCompileIn
 compiler	src/compiler.c	/^static BOOL compiler(char* fname, BOOL optimize)$/;"	f	file:
 compiler_final	src/compiler.c	/^static void compiler_final()$/;"	f	file:
 compiler_init	src/compiler.c	/^static void compiler_init()$/;"	f	file:
-constant_test_fun	code/HelloWorld.s	/^constant_test_fun:                      # @constant_test_fun$/;"	l
 create_anonymous_union_var_name	src/llvm.cpp	/^void create_anonymous_union_var_name(char* name, int size_name)$/;"	f
 create_anoymous_struct_name	src/parser.c	/^static void create_anoymous_struct_name(char* struct_name, int size_struct_name)$/;"	f	file:
 create_generics_fun_name	src/node.cpp	/^static void create_generics_fun_name(char* real_fun_name, int size_real_fun_name, char* fun_name, sNodeType** method_generics_types, int num_method_generics_types, sNodeType* generics_type, char* struct_name, int generics_fun_num)$/;"	f	file:
@@ -317,29 +257,14 @@ free_object	src/llvm.cpp	/^void free_object(sNodeType* node_type, void* address,
 free_objects	src/vtable.c	/^void free_objects(sVarTable* table, sCompileInfo* info)$/;"	f
 free_right_value_object	src/llvm.cpp	/^static void free_right_value_object(sNodeType* node_type, void* obj, sCompileInfo* info)$/;"	f	file:
 free_right_value_objects	src/llvm.cpp	/^void free_right_value_objects(sCompileInfo* info)$/;"	f
-fun	code/HelloWorld.s	/^fun:                                    # @fun$/;"	l
-fun11	code/HelloWorld.s	/^fun11:                                  # @fun11$/;"	l
-fun2	code/HelloWorld.s	/^fun2:                                   # @fun2$/;"	l
-fun3	code/HelloWorld.s	/^fun3:                                   # @fun3$/;"	l
-fun4	code/HelloWorld.s	/^fun4:                                   # @fun4$/;"	l
-fun5	code/HelloWorld.s	/^fun5:                                   # @fun5$/;"	l
-fun6	code/HelloWorld.s	/^fun6:                                   # @fun6$/;"	l
-fun7	code/HelloWorld.s	/^fun7:                                   # @fun7$/;"	l
-fun8	code/HelloWorld.s	/^fun8:                                   # @fun8$/;"	l
-fun9	code/HelloWorld.s	/^fun9:                                   # @fun9$/;"	l
-funXYZ	code/HelloWorld.s	/^funXYZ:                                 # @funXYZ$/;"	l
-funXYZ2	code/HelloWorld.s	/^funXYZ2:                                # @funXYZ2$/;"	l
 fun_name	src/common.h	/^    char fun_name[VAR_NAME_MAX];$/;"	m	struct:sCompileInfoStruct
-funcXXX	code/HelloWorld.s	/^funcXXX:                                # @funcXXX$/;"	l
 function_lvtable	src/common.h	/^    void* function_lvtable;$/;"	m	struct:sCompileInfoStruct
-funp	code/HelloWorld.s	/^funp:                                   # @funp$/;"	l
 gARGC	src/compiler.c	/^int gARGC;$/;"	v
 gARGV	src/compiler.c	/^char** gARGV;$/;"	v
 gClassTable	src/klass.c	/^static sClassTable gClassTable[CLASS_NUM_MAX];$/;"	v	file:
 gFuncs	src/node.cpp	/^std::map<std::string, sFunction> gFuncs;$/;"	v
 gFunction	src/llvm.cpp	/^Function* gFunction;$/;"	v
 gGlobalVar	b.c	/^int gGlobalVar = 2;$/;"	v
-gGlobalVar	code/External.s	/^gGlobalVar:$/;"	l
 gHeadClassTable	src/klass.c	/^sClassTable* gHeadClassTable = NULL;$/;"	v
 gHeadVTable	src/vtable.c	/^sVarTable* gHeadVTable;$/;"	v
 gHeapObjects	src/node.cpp	/^std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;$/;"	v
@@ -389,7 +314,6 @@ init_nodes	src/node_alloc.c	/^void init_nodes()$/;"	f
 init_var_table	src/vtable.c	/^sVarTable* init_var_table()$/;"	f
 init_vtable	src/vtable.c	/^void init_vtable()$/;"	f
 inline_func_end	src/common.h	/^    void* inline_func_end;$/;"	m	struct:sCompileInfoStruct
-int_times	code/HelloWorld.s	/^int_times:                              # @int_times$/;"	l
 is_free	src/memalloc.c	/^    unsigned is_free;$/;"	m	struct:header_t	file:
 is_function_name	src/node.cpp	/^BOOL is_function_name(char* name)$/;"	f
 is_number_type	src/node_type.c	/^BOOL is_number_type(sNodeType* node_type)$/;"	f
@@ -461,7 +385,6 @@ kNodeTypeTypeDef	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd
 kNodeTypeUnion	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap };$/;"	e	enum:eNodeType
 kNodeTypeWhile	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap };$/;"	e	enum:eNodeType
 kNodeTypeXor	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap };$/;"	e	enum:eNodeType
-lambda	code/HelloWorld.s	/^lambda:                                 # @lambda$/;"	l
 last_expression_is_return	src/common.h	/^    BOOL last_expression_is_return;$/;"	m	struct:sCompileInfoStruct
 libdir	Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 llvm_change_block	src/llvm.cpp	/^void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info, BOOL no_free_right_objects)$/;"	f
@@ -645,19 +568,13 @@ mVarTable	src/common.h	/^            sVarTable* mVarTable;$/;"	m	struct:sNodeTre
 mVolatile	src/common.h	/^    BOOL mVolatile;$/;"	m	struct:sNodeTypeStruct
 mWhileNodeBlock	src/common.h	/^            MANAGED struct sNodeBlockStruct* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon12	typeref:struct:sNodeTreeStruct::__anon2::__anon12::sNodeBlockStruct
 main	a.c	/^int main()$/;"	f
-main	code/HelloWorld.s	/^main:                                   # @main$/;"	l
-main	code/HelloWorld2.s	/^main:                                   # @main$/;"	l
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
 mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
-method_generics_fun2_charp1	code/HelloWorld.s	/^method_generics_fun2_charp1:            # @method_generics_fun2_charp1$/;"	l
-method_generics_fun2_int0	code/HelloWorld.s	/^method_generics_fun2_int0:              # @method_generics_fun2_int0$/;"	l
-method_generics_fun2_int2	code/HelloWorld.s	/^method_generics_fun2_int2:              # @method_generics_fun2_int2$/;"	l
 module_name	src/common.h	/^    char* module_name;$/;"	m	struct:sParserInfoStruct
 next	src/memalloc.c	/^    struct header_t *next;$/;"	m	struct:header_t	typeref:struct:header_t::header_t	file:
 no_output	src/common.h	/^    BOOL no_output;$/;"	m	struct:sCompileInfoStruct
 num_loop	src/common.h	/^    int num_loop;$/;"	m	struct:sCompileInfoStruct
 num_loop2	src/common.h	/^    int num_loop2;$/;"	m	struct:sCompileInfoStruct
-op_add_charp_charp	code/HelloWorld.s	/^op_add_charp_charp:                     # @op_add_charp_charp$/;"	l
 output_native_code	src/llvm.cpp	/^void output_native_code(char* sname, BOOL optimize)$/;"	f
 p	src/common.h	/^    char* p;$/;"	m	struct:sParserInfoStruct
 parse_alloca	src/parser.c	/^static BOOL parse_alloca(unsigned int* node, sParserInfo* info)$/;"	f	file:
@@ -710,8 +627,6 @@ parse_word	src/parser.c	/^BOOL parse_word(char* buf, int buf_size, sParserInfo* 
 parser_err_msg	src/parser.c	/^void parser_err_msg(sParserInfo* info, const char* msg, ...)$/;"	f
 parser_final	src/parser.c	/^void parser_final()$/;"	f
 parser_init	src/parser.c	/^void parser_init()$/;"	f
-pfun_test	code/HelloWorld.s	/^pfun_test:                              # @pfun_test$/;"	l
-pfun_test2	code/HelloWorld.s	/^pfun_test2:                             # @pfun_test2$/;"	l
 pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sParserInfoStruct
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 prefix	Makefile	/^prefix=\/usr\/local$/;"	m
@@ -869,7 +784,6 @@ show_node	src/node.cpp	/^void show_node(unsigned int node)$/;"	f
 show_node_type	src/node_type.c	/^void show_node_type(sNodeType* node_type)$/;"	f
 show_vtable	src/vtable.c	/^void show_vtable(sVarTable* table)$/;"	f
 size	src/memalloc.c	/^    size_t size;$/;"	m	struct:header_t	file:
-size_t	code/HelloWorld2.s	/^size_t:$/;"	l
 skip_spaces	src/parser.c	/^static void skip_spaces(sParserInfo* info)$/;"	f	file:
 skip_spaces_and_lf	src/parser.c	/^void skip_spaces_and_lf(sParserInfo* info)$/;"	f
 skip_spaces_for_parse_class_name	src/node_type.c	/^static void skip_spaces_for_parse_class_name(char** p) $/;"	f	file:
@@ -886,7 +800,6 @@ start_to_make_native_code	src/llvm.cpp	/^void start_to_make_native_code(char* sn
 std_move	src/llvm.cpp	/^void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL alloc, sCompileInfo* info)$/;"	f
 store_address_to_lvtable	src/llvm.cpp	/^void store_address_to_lvtable(int index, Value* address)$/;"	f
 store_lvtable	src/llvm.cpp	/^Value* store_lvtable()$/;"	f
-string	code/HelloWorld.s	/^string:                                 # @string$/;"	l
 substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompileInfo* info)$/;"	f
 switch_expression	src/common.h	/^    void* switch_expression;$/;"	m	struct:sCompileInfoStruct
 switch_nest	src/common.h	/^    int switch_nest;$/;"	m	struct:sParserInfoStruct
@@ -897,63 +810,9 @@ type	src/llvm_common.hpp	/^    sNodeType* type;$/;"	m	struct:LVALUEStruct
 type_identify	src/node_type.c	/^BOOL type_identify(sNodeType* left, sNodeType* right)$/;"	f
 type_identify_with_class_name	src/node_type.c	/^BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
 uValue	src/common.h	/^    } uValue;$/;"	m	struct:sNodeTreeStruct	typeref:union:sNodeTreeStruct::__anon2
-va_list_test	code/HelloWorld.s	/^va_list_test:                           # @va_list_test$/;"	l
 value	src/llvm_common.hpp	/^    Value* value;$/;"	m	struct:LVALUEStruct
 var	src/llvm_common.hpp	/^    sVar* var;$/;"	m	struct:LVALUEStruct
-vector_each_charp48	code/HelloWorld.s	/^vector_each_charp48:                    # @vector_each_charp48$/;"	l
-vector_each_charp55	code/HelloWorld.s	/^vector_each_charp55:                    # @vector_each_charp55$/;"	l
-vector_each_charp66	code/HelloWorld.s	/^vector_each_charp66:                    # @vector_each_charp66$/;"	l
-vector_each_int22	code/HelloWorld.s	/^vector_each_int22:                      # @vector_each_int22$/;"	l
-vector_each_int27	code/HelloWorld.s	/^vector_each_int27:                      # @vector_each_int27$/;"	l
-vector_each_int32	code/HelloWorld.s	/^vector_each_int32:                      # @vector_each_int32$/;"	l
-vector_each_int40	code/HelloWorld.s	/^vector_each_int40:                      # @vector_each_int40$/;"	l
-vector_each_int43	code/HelloWorld.s	/^vector_each_int43:                      # @vector_each_int43$/;"	l
-vector_each_int57	code/HelloWorld.s	/^vector_each_int57:                      # @vector_each_int57$/;"	l
-vector_each_int64	code/HelloWorld.s	/^vector_each_int64:                      # @vector_each_int64$/;"	l
-vector_initialize_charp41	code/HelloWorld.s	/^vector_initialize_charp41:              # @vector_initialize_charp41$/;"	l
-vector_initialize_charp49	code/HelloWorld.s	/^vector_initialize_charp49:              # @vector_initialize_charp49$/;"	l
-vector_initialize_charp62	code/HelloWorld.s	/^vector_initialize_charp62:              # @vector_initialize_charp62$/;"	l
-vector_initialize_int15	code/HelloWorld.s	/^vector_initialize_int15:                # @vector_initialize_int15$/;"	l
-vector_initialize_int26	code/HelloWorld.s	/^vector_initialize_int26:                # @vector_initialize_int26$/;"	l
-vector_initialize_int31	code/HelloWorld.s	/^vector_initialize_int31:                # @vector_initialize_int31$/;"	l
-vector_initialize_int33	code/HelloWorld.s	/^vector_initialize_int33:                # @vector_initialize_int33$/;"	l
-vector_initialize_int53	code/HelloWorld.s	/^vector_initialize_int53:                # @vector_initialize_int53$/;"	l
-vector_initialize_int58	code/HelloWorld.s	/^vector_initialize_int58:                # @vector_initialize_int58$/;"	l
-vector_item_charp45	code/HelloWorld.s	/^vector_item_charp45:                    # @vector_item_charp45$/;"	l
-vector_item_charp46	code/HelloWorld.s	/^vector_item_charp46:                    # @vector_item_charp46$/;"	l
-vector_item_charp47	code/HelloWorld.s	/^vector_item_charp47:                    # @vector_item_charp47$/;"	l
-vector_item_int19	code/HelloWorld.s	/^vector_item_int19:                      # @vector_item_int19$/;"	l
-vector_item_int20	code/HelloWorld.s	/^vector_item_int20:                      # @vector_item_int20$/;"	l
-vector_item_int21	code/HelloWorld.s	/^vector_item_int21:                      # @vector_item_int21$/;"	l
-vector_item_int37	code/HelloWorld.s	/^vector_item_int37:                      # @vector_item_int37$/;"	l
-vector_item_int38	code/HelloWorld.s	/^vector_item_int38:                      # @vector_item_int38$/;"	l
-vector_item_int39	code/HelloWorld.s	/^vector_item_int39:                      # @vector_item_int39$/;"	l
-vector_map_charp_int41	code/HelloWorld.s	/^vector_map_charp_int41:                 # @vector_map_charp_int41$/;"	l
-vector_map_charp_int62	code/HelloWorld.s	/^vector_map_charp_int62:                 # @vector_map_charp_int62$/;"	l
-vector_map_int_charp53	code/HelloWorld.s	/^vector_map_int_charp53:                 # @vector_map_int_charp53$/;"	l
-vector_push_back_charp42	code/HelloWorld.s	/^vector_push_back_charp42:               # @vector_push_back_charp42$/;"	l
-vector_push_back_charp50	code/HelloWorld.s	/^vector_push_back_charp50:               # @vector_push_back_charp50$/;"	l
-vector_push_back_charp51	code/HelloWorld.s	/^vector_push_back_charp51:               # @vector_push_back_charp51$/;"	l
-vector_push_back_charp52	code/HelloWorld.s	/^vector_push_back_charp52:               # @vector_push_back_charp52$/;"	l
-vector_push_back_charp63	code/HelloWorld.s	/^vector_push_back_charp63:               # @vector_push_back_charp63$/;"	l
-vector_push_back_int16	code/HelloWorld.s	/^vector_push_back_int16:                 # @vector_push_back_int16$/;"	l
-vector_push_back_int17	code/HelloWorld.s	/^vector_push_back_int17:                 # @vector_push_back_int17$/;"	l
-vector_push_back_int18	code/HelloWorld.s	/^vector_push_back_int18:                 # @vector_push_back_int18$/;"	l
-vector_push_back_int23	code/HelloWorld.s	/^vector_push_back_int23:                 # @vector_push_back_int23$/;"	l
-vector_push_back_int24	code/HelloWorld.s	/^vector_push_back_int24:                 # @vector_push_back_int24$/;"	l
-vector_push_back_int25	code/HelloWorld.s	/^vector_push_back_int25:                 # @vector_push_back_int25$/;"	l
-vector_push_back_int28	code/HelloWorld.s	/^vector_push_back_int28:                 # @vector_push_back_int28$/;"	l
-vector_push_back_int29	code/HelloWorld.s	/^vector_push_back_int29:                 # @vector_push_back_int29$/;"	l
-vector_push_back_int30	code/HelloWorld.s	/^vector_push_back_int30:                 # @vector_push_back_int30$/;"	l
-vector_push_back_int34	code/HelloWorld.s	/^vector_push_back_int34:                 # @vector_push_back_int34$/;"	l
-vector_push_back_int35	code/HelloWorld.s	/^vector_push_back_int35:                 # @vector_push_back_int35$/;"	l
-vector_push_back_int36	code/HelloWorld.s	/^vector_push_back_int36:                 # @vector_push_back_int36$/;"	l
-vector_push_back_int54	code/HelloWorld.s	/^vector_push_back_int54:                 # @vector_push_back_int54$/;"	l
-vector_push_back_int59	code/HelloWorld.s	/^vector_push_back_int59:                 # @vector_push_back_int59$/;"	l
-vector_push_back_int60	code/HelloWorld.s	/^vector_push_back_int60:                 # @vector_push_back_int60$/;"	l
-vector_push_back_int61	code/HelloWorld.s	/^vector_push_back_int61:                 # @vector_push_back_int61$/;"	l
 xasprintf	src/memalloc-stdc.c	/^void *xasprintf(char* msg, ...)$/;"	f
-xassert	code/HelloWorld.s	/^xassert:                                # @xassert$/;"	l
 xcalloc	src/memalloc-stdc.c	/^void *xcalloc(size_t num, size_t nsize)$/;"	f
 xcalloc	src/memalloc.c	/^void *xcalloc(size_t num, size_t nsize)$/;"	f
 xcalloc	src/xfunc.c	/^ALLOC void* xcalloc(size_t count, size_t size)$/;"	f
