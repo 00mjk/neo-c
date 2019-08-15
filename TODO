@@ -1,7 +1,5 @@
-in clangでコンパイルされていない。genericsのFunction, inline functionあたり。
+独自パーサーでstructの後方参照。mixin-layersを実装する
 
-
-isHeap(変数名) 演算子
 sizeof(変数名)
 isHeapとおなじほうほうでじっそうする
 
@@ -40,3 +38,4 @@ stdio,stdlibのinclude
 
 
 mips64el, mips64(Bit endian), s390xでのテストの実行
+isHeap(変数名) 演算子
