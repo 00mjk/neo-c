@@ -3,7 +3,7 @@
 extern "C"
 {
 
-BOOL parse_block_easy(ALLOC sNodeBlock** node_block, sParserInfo* info)
+BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_c_lang, sParserInfo* info)
 {
     expect_next_character_with_one_forward("{", info);
     sVarTable* old_table = info->lv_table;
@@ -11,7 +11,7 @@ BOOL parse_block_easy(ALLOC sNodeBlock** node_block, sParserInfo* info)
     *node_block = ALLOC sNodeBlock_alloc();
     info->lv_table = init_block_vtable(old_table);
 
-    if(!parse_block(*node_block, info)) {
+    if(!parse_block(*node_block, extern_c_lang, info)) {
         sNodeBlock_free(*node_block);
         return FALSE;
     }
@@ -22,17 +22,27 @@ BOOL parse_block_easy(ALLOC sNodeBlock** node_block, sParserInfo* info)
     return TRUE;
 }
 
-BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
+BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
 {
     xstrncpy(node_block->mSName, info->sname, PATH_MAX);
     node_block->mSLine = info->sline;
 
-    info->mBlockLevel++;
-    
+    node_block->mExternCLang = extern_c_lang;
+
+    if(!extern_c_lang) {
+        info->mBlockLevel++;
+    }
+
     char* source_head = info->p;
     BOOL has_result = FALSE;
 
     while(1) {
+        if(*info->p == '#') {
+            if(!parse_sharp(info)) {
+                return FALSE;
+            }
+        }
+
         if(*info->p == '}') {
             break;
         }
@@ -40,7 +50,9 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
             parser_err_msg(info, "require } before the source end");
             info->err_num++;
 
-            info->mBlockLevel--;
+            if(!extern_c_lang) {
+                info->mBlockLevel--;
+            }
             return TRUE;
         }
 
@@ -55,7 +67,9 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
         info->sline_top = sline;
 
         if(!expression(&node, info)) {
-            info->mBlockLevel--;
+            if(!extern_c_lang) {
+                info->mBlockLevel--;
+            }
             return FALSE;
         }
 
@@ -101,7 +115,9 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
         else if(*info->p == '\0') {
             parser_err_msg(info, "require } before the source end");
             info->err_num++;
-            info->mBlockLevel--;
+            if(!extern_c_lang) {
+                info->mBlockLevel--;
+            }
             return TRUE;
         }
     }
@@ -112,9 +128,18 @@ BOOL parse_block(sNodeBlock* node_block, sParserInfo* info)
     sBuf_append_char(&(node_block)->mSource, '\0');
 
     node_block->mLVTable = info->lv_table;
-    node_block->mHasResult = has_result;
+    if(!extern_c_lang) {
+        node_block->mHasResult = has_result;
+    }
+    else {
+        node_block->mHasResult = FALSE;
+    }
 
-    info->mBlockLevel--;
+    node_block->mInCLang = info->in_clang;
+
+    if(!extern_c_lang) {
+        info->mBlockLevel--;
+    }
 
     return TRUE;
 }
@@ -123,6 +148,8 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 {
     sVarTable* old_table = info->pinfo->lv_table;
     info->pinfo->lv_table = block->mLVTable;
+
+    BOOL extern_c_lang = block->mExternCLang;
 
     BOOL has_result = block->mHasResult;
 
@@ -227,7 +254,9 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
         }
     }
 
-    free_objects(info->pinfo->lv_table, info);
+    if(!extern_c_lang) {
+        free_objects(info->pinfo->lv_table, info);
+    }
     //free_right_value_objects(info);
 
     info->pinfo->lv_table = old_table;

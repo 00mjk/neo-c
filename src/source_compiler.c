@@ -222,6 +222,13 @@ BOOL compile_source(char* fname, char* source, BOOL optimize)
             skip_spaces_and_lf(&info);
         }
         skip_spaces_and_lf(&info);
+
+        if(info.in_clang && *info.p == '}') {
+            info.p++;
+            skip_spaces_and_lf(&info);
+
+            info.in_clang = FALSE;
+        }
     }
 
     if(info.err_num > 0 || cinfo.err_num > 0) {

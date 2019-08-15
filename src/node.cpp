@@ -95,7 +95,7 @@ void compile_err_msg(sCompileInfo* info, const char* msg, ...)
     output_num++;
 }
     
-void add_function(char* name, char* real_fun_name, Function* llvm_fun, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline)
+void add_function(char* name, char* real_fun_name, Function* llvm_fun, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang)
 {
     sFunction fun;
     xstrncpy(fun.mName, name, VAR_NAME_MAX);
@@ -144,6 +144,8 @@ void add_function(char* name, char* real_fun_name, Function* llvm_fun, char para
     }
 
     fun.mLLVMFunction = llvm_fun;
+
+    fun.mInCLang = in_clang;
 
     gFuncs[real_fun_name] = fun;
 }
@@ -247,18 +249,18 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
     {
         Builder.CreateCall(llvm_fun, llvm_params);
 
-        info->type = fun.mResultType;
+        info->type = clone_node_type(fun.mResultType);
     }
     else {
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateCall(llvm_fun, llvm_params);
-        llvm_value.type = fun.mResultType;
+        llvm_value.type = clone_node_type(fun.mResultType);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
 
         push_value_to_stack_ptr(&llvm_value, info);
 
-        info->type = fun.mResultType;
+        info->type = clone_node_type(fun.mResultType);
     }
 
     return TRUE;
@@ -1439,7 +1441,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
@@ -1626,12 +1628,15 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
     int i;
     for(i=0; i<num_params; i++) {
         gNodes[node].uValue.sFunction.mParams[i] = params[i]; // copy struct
+        gNodes[node].uValue.sFunction.mParams[i].mType = clone_node_type(params[i].mType);
+
     }
 
     gNodes[node].uValue.sFunction.mNumParams = num_params;
-    gNodes[node].uValue.sFunction.mResultType = result_type;
+    gNodes[node].uValue.sFunction.mResultType = clone_node_type(result_type);
     gNodes[node].uValue.sFunction.mVarArg = var_arg;
     gNodes[node].uValue.sFunction.mOperatorFun = operator_fun;
+    gNodes[node].uValue.sFunction.mInCLang = info->in_clang;
 
     if(struct_name) {
         xstrncpy(gNodes[node].uValue.sFunction.mStructName, struct_name, VAR_NAME_MAX);
@@ -1646,6 +1651,8 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
 
 static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
 {
+    BOOL in_clang = gNodes[node].uValue.sFunction.mInCLang;
+
     /// rename variables ///
     char fun_name[VAR_NAME_MAX];
     xstrncpy(fun_name, gNodes[node].uValue.sFunction.mName, VAR_NAME_MAX);
@@ -1724,12 +1731,12 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
 
     memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-    add_function(fun_name, real_fun_name, llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+    add_function(fun_name, real_fun_name, llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang);
 
     return TRUE;
 }
 
-static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, sNodeType* generics_type, sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, sNodeType* generics_type, sParserInfo* info, sCompileInfo* cinfo, BOOL in_clang)
 {
     sNodeType* lambda_type = fun->mParamTypes[fun->mNumParams-1];
 
@@ -1777,6 +1784,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     info2.sline = sline;
     info2.parse_phase = info->parse_phase;
     info2.lv_table = info->lv_table;
+    info2.in_clang = in_clang;
 
     sNodeType* result_type = clone_node_type(lambda_type->mResultType);
 
@@ -1808,7 +1816,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
         }
     }
 
-    if(!parse_block(node_block, &info2)) {
+    if(!parse_block(node_block, FALSE, &info2)) {
         sNodeBlock_free(node_block);
         return FALSE;
     }
@@ -1896,7 +1904,7 @@ static void create_generics_fun_name(char* real_fun_name, int size_real_fun_name
     xstrncat(real_fun_name, buf, size_real_fun_name);
 }
 
-static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, char* struct_name, sNodeType* generics_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX],  int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], sParserInfo* info, sCompileInfo* cinfo, int generics_fun_num)
+static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, char* struct_name, sNodeType* generics_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX],  int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], sParserInfo* info, sCompileInfo* cinfo, int generics_fun_num, BOOL in_clang)
 {
     /// params ///
     sParserParam params[PARAMS_MAX];
@@ -1944,6 +1952,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     info2.sline = sline;
     info2.parse_phase = info->parse_phase;
     info2.lv_table = info->lv_table;
+    info2.in_clang = in_clang;
 
     for(i=0; i<num_method_generics_types; i++) {
         info2.mMethodGenericsTypes[i] = clone_node_type(method_generics_types[i]);
@@ -2006,7 +2015,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
         }
     }
 
-    if(!parse_block(node_block, &info2)) {
+    if(!parse_block(node_block, FALSE, &info2)) {
         sNodeBlock_free(node_block);
         return FALSE;
     }
@@ -2031,7 +2040,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     return TRUE;
 }
 
-static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction* fun, char* sname, int sline, char* struct_name,sNodeType* generics_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX], int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction* fun, char* sname, int sline, char* struct_name,sNodeType* generics_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX], int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], sParserInfo* info, sCompileInfo* cinfo, BOOL in_clang)
 {
     /// params ///
     sParserParam params[PARAMS_MAX];
@@ -2078,6 +2087,7 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
     info2.sline = sline;
     info2.parse_phase = info->parse_phase;
     info2.lv_table = info->lv_table;
+    info2.in_clang = in_clang;
 
     for(i=0; i<num_method_generics_types; i++) {
         info2.mMethodGenericsTypes[i] = clone_node_type(method_generics_types[i]);
@@ -2119,7 +2129,7 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
         }
     }
 
-    if(!parse_block(*node_block, &info2)) {
+    if(!parse_block(*node_block, FALSE, &info2)) {
         return FALSE;
     }
 
@@ -2168,7 +2178,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     int num_params = gNodes[node].uValue.sFunctionCall.mNumParams;
     unsigned int params[PARAMS_MAX];
     BOOL method = gNodes[node].uValue.sFunctionCall.mMethod;
-
 
     if(strcmp(fun_name, "va_start") == 0) {
         xstrncpy(fun_name, "llvm.va_start", VAR_NAME_MAX);
@@ -2233,6 +2242,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, "");
     }
 
+
     /// get function ///
     sFunction fun = gFuncs[real_fun_name];
 
@@ -2287,8 +2297,10 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         xstrncpy(sname, gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mSName, PATH_MAX);
         int sline = gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mSLine;
 
+        BOOL in_clang = fun.mInCLang;
+
         unsigned int node = 0;
-        if(!parse_simple_lambda_param(&node, buf, &fun, sname, sline, generics_type, info->pinfo, info))
+        if(!parse_simple_lambda_param(&node, buf, &fun, sname, sline, generics_type, info->pinfo, info, in_clang))
         {
             info->generics_type = generics_type_before;
             return FALSE;
@@ -2350,7 +2362,9 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             int sline = fun.mSLine;
 
-            if(!parse_inline_function(&inline_block, buf, &fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun.mNumGenerics, fun.mGenericsTypeNames, fun.mNumMethodGenerics, fun.mMethodGenericsTypeNames, info->pinfo, info))
+            BOOL in_clang = fun.mInCLang;
+
+            if(!parse_inline_function(&inline_block, buf, &fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun.mNumGenerics, fun.mGenericsTypeNames, fun.mNumMethodGenerics, fun.mMethodGenericsTypeNames, info->pinfo, info, in_clang))
             {
                 info->generics_type = generics_type_before;
                 return FALSE;
@@ -2399,8 +2413,10 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
                 int sline = fun.mSLine;
 
+                BOOL in_clang = fun.mInCLang;
+
                 unsigned int node = 0;
-                if(!parse_generics_fun(&node, buf, &fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun.mNumGenerics, fun.mGenericsTypeNames, fun.mNumMethodGenerics, fun.mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num))
+                if(!parse_generics_fun(&node, buf, &fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun.mNumGenerics, fun.mGenericsTypeNames, fun.mNumMethodGenerics, fun.mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang))
                 {
                     info->generics_type = generics_type_before;
                     gLLVMStack = llvm_stack;
@@ -2761,7 +2777,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             Builder.CreateCall(llvm_fun, llvm_params);
         }
 
-        info->type = fun.mResultType;
+        info->type = clone_node_type(fun.mResultType);
     }
     else {
         sNodeType* result_type = clone_node_type(fun.mResultType);
@@ -2834,14 +2850,16 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
     int i;
     for(i=0; i<num_params; i++) {
         gNodes[node].uValue.sFunction.mParams[i] = params[i]; // copy struct
+        gNodes[node].uValue.sFunction.mParams[i].mType = clone_node_type(params[i].mType);
     }
 
     gNodes[node].uValue.sFunction.mNumParams = num_params;
-    gNodes[node].uValue.sFunction.mResultType = result_type;
+    gNodes[node].uValue.sFunction.mResultType = clone_node_type(result_type);
     gNodes[node].uValue.sFunction.mNodeBlock = MANAGED node_block;
     gNodes[node].uValue.sFunction.mLambda = lambda;
     gNodes[node].uValue.sFunction.mVarTable = block_var_table;
     gNodes[node].uValue.sFunction.mVarArg = var_arg;
+    gNodes[node].uValue.sFunction.mInCLang = info->in_clang;
 
     if(struct_name) {
         xstrncpy(gNodes[node].uValue.sFunction.mStructName, struct_name, VAR_NAME_MAX);
@@ -2860,6 +2878,8 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
 
 BOOL compile_function(unsigned int node, sCompileInfo* info)
 {
+    BOOL in_clang = gNodes[node].uValue.sFunction.mInCLang;
+
     /// get result type ///
     sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
     BOOL generics_function = gNodes[node].uValue.sFunction.mGenericsFunction;
@@ -2882,6 +2902,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     sNodeBlock* node_block = gNodes[node].uValue.sFunction.mNodeBlock;
     char* struct_name = gNodes[node].uValue.sFunction.mStructName;
+
 
     BOOL operator_fun = gNodes[node].uValue.sFunction.mOperatorFun;
 
@@ -2948,7 +2969,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
     Function* fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
 
-    add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+    add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang);
 
     int n = 0;
     std::vector<Value *> llvm_params;
@@ -3117,7 +3138,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
         FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, false);
         Function* fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
-        add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, FALSE, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+        add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, FALSE, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, info->pinfo->in_clang);
 
         int n = 0;
         std::vector<Value *> llvm_params;
@@ -3283,10 +3304,12 @@ unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* pa
     int i;
     for(i=0; i<num_params; i++) {
         gNodes[node].uValue.sFunction.mParams[i] = params[i]; // copy struct
+        gNodes[node].uValue.sFunction.mParams[i].mType = clone_node_type(params[i].mType);
     }
 
     gNodes[node].uValue.sFunction.mNumParams = num_params;
-    gNodes[node].uValue.sFunction.mResultType = result_type;
+    gNodes[node].uValue.sFunction.mResultType = clone_node_type(result_type);
+
     gNodes[node].uValue.sFunction.mBlockText = MANAGED block_text;
 
     if(struct_name) {
@@ -3304,6 +3327,7 @@ unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* pa
 
     gNodes[node].uValue.sFunction.mNumMethodGenerics = info->mNumMethodGenerics;
     gNodes[node].uValue.sFunction.mSLine = sline;
+    gNodes[node].uValue.sFunction.mInCLang = info->in_clang;
 
     for(i=0; i<info->mNumMethodGenerics; i++) {
         xstrncpy(gNodes[node].uValue.sFunction.mMethodGenericsTypeNames[i], info->mMethodGenericsTypeNames[i], VAR_NAME_MAX);
@@ -3314,6 +3338,8 @@ unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* pa
 
 BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
 {
+    BOOL in_clang = gNodes[node].uValue.sFunction.mInCLang;
+
     /// rename variables ///
     char fun_name[VAR_NAME_MAX];
     xstrncpy(fun_name, gNodes[node].uValue.sFunction.mName, VAR_NAME_MAX);
@@ -3365,7 +3391,7 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
 
     /// go ///
-    add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline);
+    add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline, in_clang);
     
 
     return TRUE;
@@ -3389,10 +3415,11 @@ unsigned int sNodeTree_create_inline_function(char* fun_name, sParserParam* para
     int i;
     for(i=0; i<num_params; i++) {
         gNodes[node].uValue.sFunction.mParams[i] = params[i]; // copy struct
+        gNodes[node].uValue.sFunction.mParams[i].mType = clone_node_type(params[i].mType);
     }
 
     gNodes[node].uValue.sFunction.mNumParams = num_params;
-    gNodes[node].uValue.sFunction.mResultType = result_type;
+    gNodes[node].uValue.sFunction.mResultType = clone_node_type(result_type);
     gNodes[node].uValue.sFunction.mBlockText = MANAGED block_text;
     gNodes[node].uValue.sFunction.mSLine = sline;
 
@@ -3411,6 +3438,7 @@ unsigned int sNodeTree_create_inline_function(char* fun_name, sParserParam* para
 
     gNodes[node].uValue.sFunction.mNumMethodGenerics = info->mNumMethodGenerics;
     gNodes[node].uValue.sFunction.mSLine = sline;
+    gNodes[node].uValue.sFunction.mInCLang = info->in_clang;
 
     for(i=0; i<info->mNumMethodGenerics; i++) {
         xstrncpy(gNodes[node].uValue.sFunction.mMethodGenericsTypeNames[i], info->mMethodGenericsTypeNames[i], VAR_NAME_MAX);
@@ -3421,6 +3449,8 @@ unsigned int sNodeTree_create_inline_function(char* fun_name, sParserParam* para
 
 BOOL compile_inline_function(unsigned int node, sCompileInfo* info)
 {
+    BOOL in_clang = gNodes[node].uValue.sFunction.mInCLang;
+
     /// rename variables ///
     char fun_name[VAR_NAME_MAX];
     xstrncpy(fun_name, gNodes[node].uValue.sFunction.mName, VAR_NAME_MAX);
@@ -3472,7 +3502,7 @@ BOOL compile_inline_function(unsigned int node, sCompileInfo* info)
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
 
     /// go ///
-    add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline);
+    add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline, in_clang);
 
     return TRUE;
 }
@@ -3513,7 +3543,6 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     }
 
     sNodeType* var_type = var->mType;
-
     if(var_type == NULL || var_type->mClass == NULL) 
     {
         compile_err_msg(info, "null type %s", var_name);
@@ -3945,7 +3974,7 @@ unsigned int sNodeTree_create_object(sNodeType* node_type, unsigned int object_n
     xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = sline;
 
-    gNodes[node].uValue.sObject.mType = node_type;
+    gNodes[node].uValue.sObject.mType = clone_node_type(node_type);
 
     gNodes[node].mLeft = object_num;
     gNodes[node].mRight = 0;
@@ -4049,7 +4078,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     /// result ///
     LVALUE llvm_value;
     llvm_value.value = address;
-    llvm_value.type = node_type2;
+    llvm_value.type = clone_node_type(node_type2);
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
 
@@ -4057,7 +4086,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
     if(!info->no_output) {
         std::pair<sNodeType*, bool> pair_value;
-        pair_value.first = node_type2;
+        pair_value.first = clone_node_type(node_type2);
         pair_value.second = true;
 
         gHeapObjects[address] = pair_value;
@@ -4077,7 +4106,7 @@ unsigned int sNodeTree_create_stack_object(sNodeType* node_type, unsigned int ob
     xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = sline;
 
-    gNodes[node].uValue.sObject.mType = node_type;
+    gNodes[node].uValue.sObject.mType = clone_node_type(node_type);
 
     gNodes[node].mLeft = object_num;
     gNodes[node].mRight = 0;
@@ -6767,7 +6796,7 @@ unsigned int sNodeTree_create_sizeof(sNodeType* node_type, sParserInfo* info)
     xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
-    gNodes[node].uValue.sSizeOf.mType = node_type;
+    gNodes[node].uValue.sSizeOf.mType = clone_node_type(node_type);
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -6888,7 +6917,7 @@ static BOOL compile_load_function(unsigned int node, sCompileInfo* info)
         lambda_type->mParamTypes[i] = param_type;
     }
 
-    lambda_type->mResultType = sfun.mResultType;
+    lambda_type->mResultType = clone_node_type(sfun.mResultType);
     lambda_type->mNumParams = num_params;
 
     LVALUE llvm_value;

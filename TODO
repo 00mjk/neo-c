@@ -1,4 +1,5 @@
-mips64el, mips64(Bit endian), s390xでのテストの実行
+in clangでコンパイルされていない。genericsのFunction, inline functionあたり。
+
 
 isHeap(変数名) 演算子
 sizeof(変数名)
@@ -35,3 +36,7 @@ stdio,stdlibのinclude
 
 メソッドの関数ポインタ
 
+----------------------
+
+
+mips64el, mips64(Bit endian), s390xでのテストの実行

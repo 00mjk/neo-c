@@ -34,7 +34,7 @@ void skip_spaces_and_lf(sParserInfo* info)
     }
 }
 
-static void skip_spaces(sParserInfo* info)
+void skip_spaces(sParserInfo* info)
 {
     while(*info->p == ' ' || *info->p == '\t') {
         info->p++;
@@ -330,7 +330,7 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
     return TRUE;
 }
 
-static BOOL parse_sharp(sParserInfo* info)
+BOOL parse_sharp(sParserInfo* info)
 {
     if(*info->p == '#') {
         info->p++;
@@ -931,6 +931,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     BOOL static_ = FALSE;
     BOOL signed_ = FALSE;
     BOOL no_heap = FALSE;
+    int pointer_num = 0;
 
     while(TRUE) {
         char* p_before = info->p;
@@ -1215,6 +1216,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                 volatile_ = (*result_type)->mVolatile;
                 static_ = (*result_type)->mStatic;
                 no_heap = (*result_type)->mNoHeap;
+                pointer_num = (*result_type)->mPointerNum;
             }
         }
 
@@ -1516,8 +1518,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     }
 
     /// pointer ///
-    int pointer_num = 0;
-
     while(1) {
         char* p_before = info->p;
         int sline_before = info->sline;
@@ -1563,7 +1563,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         }
     }
 
-    (*result_type)->mPointerNum += pointer_num;
+    (*result_type)->mPointerNum = pointer_num;
     (*result_type)->mHeap = heap;
     (*result_type)->mNullable = nullable;
     (*result_type)->mConstant = constant;
@@ -2128,7 +2128,7 @@ static BOOL parse_param(sParserParam* param, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL get_block_text(sBuf* buf, sParserInfo* info)
+BOOL get_block_text(sBuf* buf, sParserInfo* info)
 {
     sBuf_append_str(buf, "{ ");
 
@@ -2569,7 +2569,7 @@ static BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun
             }
         }
 
-        if(!parse_block(node_block, info)) {
+        if(!parse_block(node_block, FALSE, info)) {
             sNodeBlock_free(node_block);
             return FALSE;
         }
@@ -2818,7 +2818,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
             }
         }
 
-        if(!parse_block(node_block, info)) {
+        if(!parse_block(node_block, FALSE, info)) {
             sNodeBlock_free(node_block);
             return FALSE;
         }
@@ -2989,7 +2989,7 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
 
         info->p = p_before;
 
-        if(!parse_block(node_block, info)) {
+        if(!parse_block(node_block, FALSE, info)) {
             sNodeBlock_free(node_block);
             return FALSE;
         }
@@ -3127,7 +3127,7 @@ static BOOL parse_if(unsigned int* node, sParserInfo* info)
 
     expect_next_character_with_one_forward(")", info);
     sNodeBlock* if_node_block = NULL;
-    if(!parse_block_easy(ALLOC &if_node_block, info))
+    if(!parse_block_easy(ALLOC &if_node_block, FALSE, info))
     {
         return FALSE;
     }
@@ -3176,7 +3176,7 @@ static BOOL parse_if(unsigned int* node, sParserInfo* info)
 
                 expect_next_character_with_one_forward(")", info);
 
-                if(!parse_block_easy(ALLOC &elif_node_blocks[elif_num], info))
+                if(!parse_block_easy(ALLOC &elif_node_blocks[elif_num], FALSE, info))
                 {
                     return FALSE;
                 }
@@ -3189,7 +3189,7 @@ static BOOL parse_if(unsigned int* node, sParserInfo* info)
                 }
             }
             else {
-                if(!parse_block_easy(ALLOC &else_node_block, info))
+                if(!parse_block_easy(ALLOC &else_node_block, FALSE, info))
                 {
                     return FALSE;
                 }
@@ -3611,7 +3611,7 @@ static BOOL parse_while(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward(")", info);
 
     sNodeBlock* while_node_block = NULL;
-    if(!parse_block_easy(ALLOC &while_node_block, info))
+    if(!parse_block_easy(ALLOC &while_node_block, FALSE, info))
     {
         return FALSE;
     }
@@ -3625,7 +3625,7 @@ static BOOL parse_while(unsigned int* node, sParserInfo* info)
 static BOOL parse_do(unsigned int* node, sParserInfo* info)
 {
     sNodeBlock* while_node_block = NULL;
-    if(!parse_block_easy(ALLOC &while_node_block, info))
+    if(!parse_block_easy(ALLOC &while_node_block, FALSE, info))
     {
         return FALSE;
     }
@@ -3732,7 +3732,7 @@ static BOOL parse_for(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* for_node_block = ALLOC sNodeBlock_alloc();
-    if(!parse_block(for_node_block, info)) 
+    if(!parse_block(for_node_block, FALSE, info)) 
     {
         return FALSE;
     }
@@ -3809,7 +3809,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
         }
     }
 
-    if(!parse_block(node_block, info)) {
+    if(!parse_block(node_block, FALSE, info)) {
         sNodeBlock_free(node_block);
         return FALSE;
     }
@@ -3998,7 +3998,7 @@ static BOOL parse_is_heap(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-BOOL parse_typedef(unsigned int* node, sParserInfo* info)
+static BOOL parse_typedef(unsigned int* node, sParserInfo* info)
 {
     unsigned int nodes[IMPL_DEF_MAX];
     memset(nodes, 0, sizeof(unsigned int)*IMPL_DEF_MAX);
@@ -4475,7 +4475,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
     }
     else if(*info->p == '{') {
         sNodeBlock* node_block = NULL;
-        if(!parse_block_easy(ALLOC &node_block, info))
+        if(!parse_block_easy(ALLOC &node_block, FALSE, info))
         {
             return FALSE;
         }
@@ -6213,7 +6213,7 @@ static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-BOOL expression(unsigned int* node, sParserInfo* info) 
+BOOL clang_expression(unsigned int* node, sParserInfo* info) 
 {
     if(!expression_and_and_or_or(node, info)) {
         return FALSE;

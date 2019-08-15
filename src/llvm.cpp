@@ -324,7 +324,7 @@ void declare_builtin_functions()
 
         memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-        add_function("llvm.va_start", "llvm.va_start", llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+        add_function("llvm.va_start", "llvm.va_start", llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE);
     }
 
     /// va_end ///
@@ -360,7 +360,7 @@ void declare_builtin_functions()
 
         memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-        add_function("llvm.va_end", "llvm.va_end", llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+        add_function("llvm.va_end", "llvm.va_end", llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE);
     }
 
     /// va_copy ///
@@ -400,7 +400,7 @@ void declare_builtin_functions()
 
         memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-        add_function("llvm.va_copy", "llvm.va_copy", llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0);
+        add_function("llvm.va_copy", "llvm.va_copy", llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE);
     }
 }
 

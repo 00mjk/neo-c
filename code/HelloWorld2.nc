@@ -1,3 +1,6 @@
+extern "C"
+{
+
 #include "neo-c.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,4 +15,6 @@ int main()
     printf("1 + 1 == %d\n", a);
 
     return 0;
+}
+
 }

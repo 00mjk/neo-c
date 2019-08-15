@@ -118,4 +118,6 @@ test:
 	./code/HelloWorld
 	PWD=`pwd` ./neo-c code/HelloWorld2.nc
 	./code/HelloWorld2
+	PWD=`pwd` ./neo-c code/HelloWorld3.nc
+	./code/HelloWorld3
 

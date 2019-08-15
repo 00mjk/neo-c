@@ -1,3 +1,6 @@
+extern "C"
+{
+
 #include "neo-c.h"
 #include "neo-c-stdc.h"
 
@@ -120,6 +123,7 @@ extern const char *const sys_errlist[];
 
 int main()
 {
+/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -633,6 +637,7 @@ int main()
     cc.loop {
         puts("HE!");
     }
+*/
 
     var v = new vector<int>.initialize(null);
 
@@ -1593,3 +1598,4 @@ label1:
     0
 }
 
+}

@@ -280,6 +280,8 @@ struct sParserInfoStruct
     BOOL first_case;
 
     BOOL change_sline;
+
+    BOOL in_clang;
 };
 
 typedef struct sParserInfoStruct sParserInfo;
@@ -300,10 +302,17 @@ void parser_err_msg(sParserInfo* info, const char* msg, ...);
 void skip_spaces_and_lf(sParserInfo* info);
 BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf);
 void expect_next_character_with_one_forward(char* characters, sParserInfo* info);
-BOOL expression(unsigned int* node, sParserInfo* info);
+void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name);
+void expect_next_character_with_one_forward(char* characters, sParserInfo* info);
+void skip_spaces(sParserInfo* info);
 void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name);
 
 extern int gNumLambdaName;
+
+BOOL expression(unsigned int* node, sParserInfo* info);
+BOOL clang_expression(unsigned int* node, sParserInfo* info);
+BOOL get_block_text(sBuf* buf, sParserInfo* info);
+BOOL parse_sharp(sParserInfo* info);
 
 //////////////////////////////
 /// source compiler 
@@ -425,6 +434,7 @@ struct sNodeTreeStruct
             BOOL mGenericsFunction;
             BOOL mConstructorFun;
             int mSLine;
+            BOOL mInCLang;
         } sFunction;
 
         struct {
@@ -432,6 +442,7 @@ struct sNodeTreeStruct
             unsigned int mParams[PARAMS_MAX];
             int mNumParams;
             BOOL mMethod;
+            BOOL mInCLang;
         } sFunctionCall;
 
         struct {
@@ -627,12 +638,15 @@ struct sNodeBlockStruct
     int mSLine;
     
     BOOL mHasResult;
+    int mExternCLang;
+
+    BOOL mInCLang;
 };
 
 typedef struct sNodeBlockStruct sNodeBlock;
 
-BOOL parse_block_easy(ALLOC sNodeBlock** node_block, sParserInfo* info);
-BOOL parse_block(sNodeBlock* node_block, sParserInfo* info);
+BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_clang, sParserInfo* info);
+BOOL parse_block(sNodeBlock* node_block, BOOL extern_clang, sParserInfo* info);
 BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type);
 
 //////////////////////////////
