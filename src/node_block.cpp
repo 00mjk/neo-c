@@ -66,33 +66,40 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
 
         info->sline_top = sline;
 
-        if(!expression(&node, info)) {
-            if(!extern_c_lang) {
-                info->mBlockLevel--;
+        if(*info->p == '#') {
+            if(!parse_sharp(info)) {
+                return FALSE;
             }
-            return FALSE;
-        }
-
-        if(node == 0) {
-            parser_err_msg(info, "require an expression");
-            info->err_num++;
-        }
-
-        if(info->change_sline) {
-            info->change_sline = FALSE;
-
-            gNodes[node].mLine = info->sline;
-            xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
-
-            info->sline_top = info->sline;
         }
         else {
-            gNodes[node].mLine = sline;
-            xstrncpy(gNodes[node].mSName, sname, PATH_MAX);
-        }
+            if(!expression(&node, info)) {
+                if(!extern_c_lang) {
+                    info->mBlockLevel--;
+                }
+                return FALSE;
+            }
 
-        if(info->err_num == 0) {
-            append_node_to_node_block(node_block, node);
+            if(node == 0) {
+                parser_err_msg(info, "require an expression");
+                info->err_num++;
+            }
+
+            if(info->change_sline) {
+                info->change_sline = FALSE;
+
+                gNodes[node].mLine = info->sline;
+                xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+
+                info->sline_top = info->sline;
+            }
+            else {
+                gNodes[node].mLine = sline;
+                xstrncpy(gNodes[node].mSName, sname, PATH_MAX);
+            }
+
+            if(info->err_num == 0) {
+                append_node_to_node_block(node_block, node);
+            }
         }
 
         if(*info->p == ';') {
@@ -260,6 +267,103 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
     //free_right_value_objects(info);
 
     info->pinfo->lv_table = old_table;
+
+    return TRUE;
+}
+
+BOOL skip_block(sParserInfo* info)
+{
+    if(*info->p == '{') {
+        info->p++;
+
+        BOOL dquort = FALSE;
+        BOOL squort = FALSE;
+        int sline = 0;
+        int nest = 0;
+        while(1) {
+            if(dquort) {
+                if(*info->p == '\\') {
+                    info->p++;
+                    if(*info->p == '\0') {
+                        fprintf(stderr, "%s %d: unexpected the source end. close single quote or double quote.", info->sname, sline);
+                        return FALSE;
+                    }
+                    info->p++;
+                }
+                else if(*info->p == '"') {
+                    info->p++;
+                    dquort = !dquort;
+                }
+                else {
+                    info->p++;
+
+                    if(*info->p == '\0') {
+                        fprintf(stderr, "%s %d: unexpected the source end. close single quote or double quote.", info->sname, sline);
+                        return FALSE;
+                    }
+                }
+            }
+            else if(squort) {
+                if(*info->p == '\\') {
+                    info->p++;
+                    if(*info->p == '\0') {
+                        fprintf(stderr, "%s %d: unexpected the source end. close single quote or double quote.", info->sname, sline);
+                        return FALSE;
+                    }
+                    info->p++;
+                }
+                else if(*info->p == '\'') {
+                    info->p++;
+                    squort = !squort;
+                }
+                else {
+                    info->p++;
+
+                    if(*info->p == '\0') {
+                        fprintf(stderr, "%s %d: unexpected the source end. close single quote or double quote.", info->sname, sline);
+                        return FALSE;
+                    }
+                }
+            }
+            else if(*info->p == '\'') {
+                sline = info->sline;
+                info->p++;
+                squort = !squort;
+            }
+            else if(*info->p == '"') {
+                sline = info->sline;
+                info->p++;
+                dquort = !dquort;
+            }
+            else if(*info->p == '{') {
+                info->p++;
+
+                nest++;
+            }
+            else if(*info->p == '}') {
+                info->p++;
+
+                if(nest == 0) {
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+
+                nest--;
+            }
+            else if(*info->p == '\0') {
+                parser_err_msg(info, "The block requires } character for closing block");
+                info->err_num++;
+                return TRUE;
+            }
+            else if(*info->p == '\n') {
+                info->p++;
+                info->sline++;
+            }
+            else {
+                info->p++;
+            }
+        }
+    }
 
     return TRUE;
 }

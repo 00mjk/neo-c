@@ -1245,6 +1245,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         }
     }
 
+
     return TRUE;
 }
 

@@ -282,6 +282,10 @@ struct sParserInfoStruct
     BOOL change_sline;
 
     BOOL in_clang;
+
+    BOOL parse_struct_phase;
+
+    char fun_name[VAR_NAME_MAX];
 };
 
 typedef struct sParserInfoStruct sParserInfo;
@@ -443,6 +447,7 @@ struct sNodeTreeStruct
             int mNumParams;
             BOOL mMethod;
             BOOL mInCLang;
+            BOOL mInherit;
         } sFunctionCall;
 
         struct {
@@ -556,7 +561,7 @@ unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, int s
 
 unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg);
 
-unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, sParserInfo* info);
+unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, BOOL inherit, sParserInfo* info);
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
 unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED struct sNodeBlockStruct* if_node_block, unsigned int* elif_expression_nodes, MANAGED struct sNodeBlockStruct** elif_node_blocks, int elif_num, MANAGED struct sNodeBlockStruct* else_node_block, sParserInfo* info, char* sname, int sline);
 unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* sname, int sline, BOOL anonymous);
@@ -648,6 +653,7 @@ typedef struct sNodeBlockStruct sNodeBlock;
 BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_clang, sParserInfo* info);
 BOOL parse_block(sNodeBlock* node_block, BOOL extern_clang, sParserInfo* info);
 BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type);
+BOOL skip_block(sParserInfo* info);
 
 //////////////////////////////
 /// node_alloc.cpp

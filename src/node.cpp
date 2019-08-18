@@ -3,6 +3,7 @@
 std::map<std::string, sFunction> gFuncs;
 std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;
 std::map<std::string, BasicBlock*> gLabels;
+std::vector<sFunction> gFunctionStack;
 
 BOOL is_function_name(char* name)
 {
@@ -139,8 +140,12 @@ void add_function(char* name, char* real_fun_name, Function* llvm_fun, char para
     fun.mGenericsFunction = generics_function;
     fun.mInlineFunction = inline_function;
 
-    if(gFuncs[real_fun_name].mLLVMFunction != nullptr) {
-        fun.mParentFunction = gFuncs[real_fun_name].mLLVMFunction;
+    if((gFuncs[real_fun_name].mLLVMFunction != nullptr) || (gFuncs[real_fun_name].mBlockText != nullptr)) {
+        gFunctionStack.push_back(gFuncs[real_fun_name]);
+        fun.mParentFunction = &gFunctionStack[gFunctionStack.size()-1];
+    }
+    else {
+        fun.mParentFunction = nullptr;
     }
 
     fun.mLLVMFunction = llvm_fun;
@@ -1998,6 +2003,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
             return FALSE;
         }
     }
+    xstrncpy(info2.fun_name, fun->mName, VAR_NAME_MAX);
 
     sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
     expect_next_character_with_one_forward("{", &info2);
@@ -2144,7 +2150,7 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
     return TRUE;
 }
 
-unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, sParserInfo* info)
+unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, BOOL inherit, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -2157,6 +2163,7 @@ unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params
     }
 
     gNodes[node].uValue.sFunctionCall.mMethod = method;
+    gNodes[node].uValue.sFunctionCall.mInherit = inherit;
     
     gNodes[node].mNodeType = kNodeTypeFunctionCall;
 
@@ -2178,6 +2185,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     int num_params = gNodes[node].uValue.sFunctionCall.mNumParams;
     unsigned int params[PARAMS_MAX];
     BOOL method = gNodes[node].uValue.sFunctionCall.mMethod;
+    BOOL inherit = gNodes[node].uValue.sFunctionCall.mInherit;
 
     if(strcmp(fun_name, "va_start") == 0) {
         xstrncpy(fun_name, "llvm.va_start", VAR_NAME_MAX);
@@ -2245,6 +2253,17 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
     /// get function ///
     sFunction fun = gFuncs[real_fun_name];
+    if(inherit) {
+        if(fun.mParentFunction == nullptr) 
+        {
+            compile_err_msg(info, "can't call inherit function because there is not parent function");
+            info->err_num++;
+
+            return TRUE;
+        }
+
+        fun = *fun.mParentFunction;
+    }
 
     if(fun.mResultType == nullptr) {
         compile_err_msg(info, "function not found %s\n", real_fun_name);
@@ -2399,6 +2418,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             num_method_generics_types = i;
 
             static int generics_fun_num = 0;
+            generics_fun_num++;
             create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun.mName, method_generics_types, num_method_generics_types, generics_type, struct_name, generics_fun_num);
             sFunction fun2 = gFuncs[real_fun_name];
 
@@ -2441,8 +2461,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             }
 
             fun = gFuncs[real_fun_name];
-
-            generics_fun_num++;
         }
     }
 
@@ -3374,6 +3392,8 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
     for(i=0; i<num_method_generics; i++) {
         xstrncpy(method_generics_type_names[i], gNodes[node].uValue.sFunction.mMethodGenericsTypeNames[i], VAR_NAME_MAX);
     }
+
+    xstrncpy(info->fun_name, fun_name, VAR_NAME_MAX);
 
     /// go ///
     sNodeType* param_types[PARAMS_MAX];
