@@ -2282,7 +2282,10 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         if(fun.mNumParams > 0) {
             sNodeType* left_type = clone_node_type(fun.mParamTypes[0]);
 
-            std_move(NULL, left_type, &param, FALSE, info);
+            if(!(strcmp(fun.mName, "initialize") == 0 && inherit))
+            {
+                std_move(NULL, left_type, &param, FALSE, info);
+            }
         }
     }
 

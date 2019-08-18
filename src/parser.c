@@ -1079,6 +1079,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
     BOOL operator_fun = FALSE;
 
     char* fun_name = "initialize";
+    xstrncpy(info->fun_name, fun_name, VAR_NAME_MAX);
 
     expect_next_character_with_one_forward("(", info);
 
@@ -1148,13 +1149,12 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
         sBuf_append_str(&buf, "}");
 
         *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, info);
-
-        //info->mNumMethodGenerics = 0;
     }
     else {
         sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
         expect_next_character_with_one_forward("{", info);
         sVarTable* old_table = info->lv_table;
+
 
         info->lv_table = init_block_vtable(old_table);
 
@@ -1220,6 +1220,7 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
     BOOL operator_fun = FALSE;
 
     char* fun_name = "finalize";
+    xstrncpy(info->fun_name, fun_name, VAR_NAME_MAX);
 
     expect_next_character_with_one_forward("(", info);
 
