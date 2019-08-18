@@ -114,6 +114,7 @@ struct sFunctionStruct {
     Function* mLLVMFunction;
 
     BOOL mInCLang;
+    BOOL mExternal;
 };
 
 typedef struct sFunctionStruct sFunction;
@@ -146,7 +147,7 @@ void restore_lvtable(Value* lvtable);
 Value* get_dummy_value(sNodeType* node_type, sCompileInfo* info);
 BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, sCompileInfo* info);
 }
-void add_function(char* name, char* real_fun_name, Function* llvm_fun, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang);
+BOOL add_function(char* name, char* real_fun_name, Function* llvm_fun, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external);
 
 #endif
 

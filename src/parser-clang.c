@@ -1010,7 +1010,22 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         BOOL define_union = FALSE;
 
         if(strcmp(type_name, "long") == 0) {
-            if(memcmp(info->p, "int", 3) == 0 || memcmp(info->p, "double", 6) == 0) 
+            if(memcmp(info->p, "unsigned", 8) == 0)
+            {
+                long_ = TRUE;
+                unsigned_ = TRUE;
+
+                if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+                {
+                    return FALSE;
+                }
+
+                if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+                {
+                    return FALSE;
+                }
+            }
+            else if(memcmp(info->p, "int", 3) == 0 || memcmp(info->p, "double", 6) == 0) 
             {
                 long_ = TRUE;
 

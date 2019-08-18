@@ -1,6 +1,7 @@
+#include "neo-c.h"
+#
 extern "C"
 {
-#include "neo-c.h"
 #include <stdio.h>
 
 int fun(int x, int y) 

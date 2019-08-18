@@ -1,6 +1,7 @@
+#include "neo-c.h"
+
 extern "C"
 {
-#include "neo-c.h"
 #include <stdio.h>
 #include <stdlib.h>
 }
@@ -22,7 +23,8 @@ struct Data
     b:int;
 }
 
-impl Data {
+impl Data 
+{
     def fun(self:Data) {
         inherit(self);
         self.b = 7;
@@ -143,3 +145,4 @@ def main():int
 
     0
 }
+

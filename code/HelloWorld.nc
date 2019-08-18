@@ -1,100 +1,22 @@
+#include "neo-c.h"
+#
 extern "C"
 {
 
-#include "neo-c.h"
-#include "neo-c-stdc.h"
+int puts(char* str);
+void exit(int rcode);
+int strcmp(char* str1, char* str2);
+int printf(char* str, ...);
+int snprintf(char* str, int size, ...);
+int strcpy(char* mem, char* mem2);
+char* strcat(char* mem, char* mem2);
+int strlen(char* mem);
+int atoi(char* str);
+char* memcpy(char* mem, char* mem2, int size);
 
-typedef char*% string;
+int vprintf(const char* __fp, va_list __args);
 
-string operator+(char* left, char* right)
-{
-    int len1 = strlen(left);
-    int len2 = strlen(right);
-
-    string result = new char[len1 + len2 + 1];
-
-    strcpy(result, left);
-    strcat(result, right);
-
-    result
-}
-
-string string(char* str)
-{
-    int len = strlen(str);
-
-    string result = new char[len + 1];
-
-    strcpy(result, str);
-
-    result
-}
-
-void xassert(char* msg, bool exp) 
-{
-    printf(msg + "...");
-    if(!exp) {
-        puts("assertion failed");
-        exit(2);
-    }
-    puts("OK");
-}
-
-struct vector<T> 
-{
-    T*% items;
-    int len;
-    int size;
-}
-
-impl vector<T> 
-{
-    initialize(void lambda(vector<T>*)? block) 
-    {
-        self.size = 16;
-        self.len = 0;
-        self.items = new T[self.size];
-
-        if(block != null) {
-            block(self);
-        }
-    }
-    
-    void push_back(vector<T>* self, T item) {
-        if(self.len == self.size) {
-            var new_size = self.size;
-            var items = self.items;
-
-            self.items = new T[new_size];
-
-            memcpy((char*)self.items, (char*)items, 8*self.size);
-            self.size = new_size;
-        }
-
-        self.items[self.len] = item;
-        self.len++;
-    }
-
-    T item(vector<T>* self, int index) {
-        self.items[index]
-    }
-    void each(vector<T>*  self, void lambda(T&,int) block) {
-        for(int i=0; i<self.len; i++) {
-            block(self.items[i], i);
-        };
-    }
-
-    template <R> vector<R>*% map(vector<T>* self, R lambda(T&) block)
-    {
-        var result = new vector<R>.initialize(null);
-
-        self.each {
-            result.push_back(block(it));
-        }
-
-        result
-    }
-}
+void sleep(int sec);
 
 int GlobalVar = 2;
 char* GlobalVar2 = "ABC";

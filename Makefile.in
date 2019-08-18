@@ -113,13 +113,14 @@ distclean: clean
 ###################################################
 test: 
 	@echo "Compile to test code..."
+	PWD=`pwd` ./neo-c -c code/neo-c.nc
 	PWD=`pwd` ./neo-c -c code/External.nc
-	PWD=`pwd` ./neo-c code/HelloWorld.nc code/External.o 
+	PWD=`pwd` ./neo-c code/HelloWorld.nc code/External.o code/neo-c.o
 	./code/HelloWorld
-	PWD=`pwd` ./neo-c code/HelloWorld2.nc
+	PWD=`pwd` ./neo-c code/HelloWorld2.nc code/neo-c.o
 	./code/HelloWorld2
-	PWD=`pwd` ./neo-c code/HelloWorld3.nc
+	PWD=`pwd` ./neo-c code/HelloWorld3.nc code/neo-c.o
 	./code/HelloWorld3
-	PWD=`pwd` ./neo-c code/HelloWorld4.nc
+	PWD=`pwd` ./neo-c code/HelloWorld4.nc code/neo-c.o
 	./code/HelloWorld4
 

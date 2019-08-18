@@ -95,8 +95,24 @@ void compile_err_msg(sCompileInfo* info, const char* msg, ...)
     }
     output_num++;
 }
+
+static BOOL check_same_params(int num_params, sNodeType** param_types, int num_params2, sNodeType** param_types2)
+{
+    if(num_params != num_params2) {
+        return FALSE;
+    }
+    int i;
+    for(i=0; i<num_params; i++) {
+        if(!type_identify(param_types[i], param_types2[i]))
+        {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
     
-void add_function(char* name, char* real_fun_name, Function* llvm_fun, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang)
+BOOL add_function(char* name, char* real_fun_name, Function* llvm_fun, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external)
 {
     sFunction fun;
     xstrncpy(fun.mName, name, VAR_NAME_MAX);
@@ -140,6 +156,19 @@ void add_function(char* name, char* real_fun_name, Function* llvm_fun, char para
     fun.mGenericsFunction = generics_function;
     fun.mInlineFunction = inline_function;
 
+    if(gFuncs[real_fun_name].mExternal && !external)
+    {
+        if(!check_same_params(gFuncs[real_fun_name].mNumParams, gFuncs[real_fun_name].mParamTypes, num_params, param_types))
+        {
+            return FALSE;
+        }
+
+        if(!type_identify(gFuncs[real_fun_name].mResultType, result_type))
+        {
+            return FALSE;
+        }
+    }
+
     if((gFuncs[real_fun_name].mLLVMFunction != nullptr) || (gFuncs[real_fun_name].mBlockText != nullptr)) {
         gFunctionStack.push_back(gFuncs[real_fun_name]);
         fun.mParentFunction = &gFunctionStack[gFunctionStack.size()-1];
@@ -152,7 +181,11 @@ void add_function(char* name, char* real_fun_name, Function* llvm_fun, char para
 
     fun.mInCLang = in_clang;
 
+    fun.mExternal = external;
+
     gFuncs[real_fun_name] = fun;
+
+    return TRUE;
 }
 
 unsigned int sNodeTree_create_int_value(int value, sParserInfo* info)
@@ -1725,6 +1758,15 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
         create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
     }
 
+    if(gFuncs[real_fun_name].mExternal)
+    {
+        Function* llvm_fun = gFuncs[real_fun_name].mLLVMFunction;
+
+        if(llvm_fun) {
+            llvm_fun->eraseFromParent();
+        }
+    }
+
     FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
     Function* llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
 
@@ -1736,7 +1778,13 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
 
     memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-    add_function(fun_name, real_fun_name, llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang);
+    if(!add_function(fun_name, real_fun_name, llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, TRUE))
+    {
+        compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
+        info->err_num++;
+
+        return TRUE;
+    }
 
     return TRUE;
 }
@@ -2987,10 +3035,25 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    if(gFuncs[real_fun_name].mExternal)
+    {
+        Function* llvm_fun = gFuncs[real_fun_name].mLLVMFunction;
+
+        if(llvm_fun) {
+            llvm_fun->eraseFromParent();
+        }
+    }
+
     FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
     Function* fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
 
-    add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang);
+    if(!add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, FALSE))
+    {
+        compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
+        info->err_num++;
+
+        return TRUE;
+    }
 
     int n = 0;
     std::vector<Value *> llvm_params;
@@ -3159,7 +3222,13 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
         FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, false);
         Function* fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
-        add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, FALSE, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, info->pinfo->in_clang);
+        if(!add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, FALSE, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, info->pinfo->in_clang, FALSE))
+        {
+            compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
+            info->err_num++;
+
+            return TRUE;
+        }
 
         int n = 0;
         std::vector<Value *> llvm_params;
@@ -3414,7 +3483,13 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
 
     /// go ///
-    add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline, in_clang);
+    if(!add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline, in_clang, FALSE))
+    {
+        compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
+        info->err_num++;
+
+        return TRUE;
+    }
     
 
     return TRUE;
@@ -3525,7 +3600,13 @@ BOOL compile_inline_function(unsigned int node, sCompileInfo* info)
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
 
     /// go ///
-    add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline, in_clang);
+    if(!add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline, in_clang, FALSE))
+    {
+        compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
+        info->err_num++;
+
+        return TRUE;
+    }
 
     return TRUE;
 }
