@@ -1758,7 +1758,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
         create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
     }
 
-    if(gFuncs[real_fun_name].mExternal)
+    if(gFuncs[real_fun_name].mExternal && strcmp(struct_name, "") == 0)
     {
         Function* llvm_fun = gFuncs[real_fun_name].mLLVMFunction;
 
@@ -3035,7 +3035,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    if(gFuncs[real_fun_name].mExternal)
+    if(gFuncs[real_fun_name].mExternal && strcmp(struct_name, "") == 0)
     {
         Function* llvm_fun = gFuncs[real_fun_name].mLLVMFunction;
 
