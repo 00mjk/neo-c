@@ -102,7 +102,7 @@ permission:
 # clean
 ###################################################
 clean:
-	rm -fR code/HelloWorld code/HelloWorld2 code/HelloWorld3 neo-c neo-c.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out
+	rm -fR code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 neo-c neo-c.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out
 	rm -fR code/*.ll code/*.bc code/*.s
 
 distclean: clean
