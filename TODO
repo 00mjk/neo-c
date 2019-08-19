@@ -1,4 +1,8 @@
-独自パーサーでstructの後方参照。mixin-layersを実装する
+未定義のstructのポインタのいきなりの宣言。
+
+ヘッダーの自動出力
+
+vector
 
 sizeof(変数名)
 isHeapとおなじほうほうでじっそうする
@@ -39,3 +43,5 @@ stdio,stdlibのinclude
 
 mips64el, mips64(Bit endian), s390xでのテストの実行
 isHeap(変数名) 演算子
+
+独自パーサーでstructの後方参照。mixin-layersを実装する

@@ -1457,6 +1457,17 @@ label1:
 
     xassert("is heap test4", !isHeap(none_heap));
 
+    struct StructTest10 {
+        struct StructTest11* data[10];
+    }
+
+    struct StructTest11 {
+        int a;
+        int b;
+    }
+
+    var llll = new StructTest10;
+
 /*
     struct Data5 {
         int a;
