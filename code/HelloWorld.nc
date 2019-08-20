@@ -45,7 +45,6 @@ extern const char *const sys_errlist[];
 
 int main()
 {
-/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -559,7 +558,6 @@ int main()
     cc.loop {
         puts("HE!");
     }
-*/
 
     var v = new vector<int>.initialize(null);
 
@@ -1459,12 +1457,12 @@ label1:
 
     struct StructTest10 {
         struct StructTest11* data[10];
-    }
+    };
 
     struct StructTest11 {
         int a;
         int b;
-    }
+    };
 
     var llll = new StructTest10;
 

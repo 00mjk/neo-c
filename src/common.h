@@ -286,6 +286,8 @@ struct sParserInfoStruct
     BOOL parse_struct_phase;
 
     char fun_name[VAR_NAME_MAX];
+
+    char parse_struct_name[VAR_NAME_MAX];
 };
 
 typedef struct sParserInfoStruct sParserInfo;

@@ -1,4 +1,4 @@
-未定義のstructのポインタのいきなりの宣言。
+memalloc-std.cのneo-cでのコンパイル。LVtableのコピーをBlockLevel == 0なら行わない
 
 ヘッダーの自動出力
 
@@ -45,3 +45,7 @@ mips64el, mips64(Bit endian), s390xでのテストの実行
 isHeap(変数名) 演算子
 
 独自パーサーでstructの後方参照。mixin-layersを実装する
+
+未定義のstructのポインタのいきなりの宣言。
+VPSでもコンパイルエラーとなる
+

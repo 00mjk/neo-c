@@ -473,6 +473,8 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
             struct_class = alloc_struct(struct_name, anonymous);
         }
 
+        xstrncpy(info->parse_struct_name, struct_name, VAR_NAME_MAX);
+
         sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
 
         create_undefined_llvm_struct_type(struct_type);
@@ -487,6 +489,8 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
         if(struct_class == NULL) {
             struct_class = alloc_struct(struct_name, anonymous);
         }
+
+        xstrncpy(info->parse_struct_name, struct_name, VAR_NAME_MAX);
 
         int n = 0;
         while(TRUE) {
@@ -1008,6 +1012,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     else {
         BOOL define_struct = FALSE;
         BOOL define_union = FALSE;
+        BOOL undefined_struct = FALSE;
 
         if(strcmp(type_name, "long") == 0) {
             if(memcmp(info->p, "unsigned", 8) == 0)
@@ -1080,6 +1085,13 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             }
             else {
                 xstrncpy(type_name, buf, VAR_NAME_MAX);
+
+                sCLClass* klass = get_class(type_name);
+
+                if(klass == NULL && *info->p == '*' && strcmp(info->parse_struct_name, type_name) != 0 && !parse_only)
+                {
+                    undefined_struct = TRUE;
+                }
             }
         }
         else if(strcmp(type_name, "union") == 0 && (isalpha(*info->p) || *info->p == '_'))
@@ -1123,6 +1135,8 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                 struct_class = alloc_struct(struct_name, FALSE);
             }
 
+            xstrncpy(info->parse_struct_name, struct_name, VAR_NAME_MAX);
+
             sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
 
             create_undefined_llvm_struct_type(struct_type);
@@ -1153,8 +1167,22 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                 return FALSE;
             }
         }
+        else if(undefined_struct) {
+            sCLClass* struct_class = get_class(type_name);
+
+            if(struct_class == NULL) {
+                struct_class = alloc_struct(type_name, FALSE);
+            }
+
+            xstrncpy(info->parse_struct_name, type_name, VAR_NAME_MAX);
+
+            sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
+
+            create_undefined_llvm_struct_type(struct_type);
+        }
         else if(strcmp(type_name, "struct") == 0 && *info->p == '{') {
             unsigned int node = 0;
+
             if(!parse_struct(&node, type_name, VAR_NAME_MAX, info)) {
                 return FALSE;
             }
@@ -4459,8 +4487,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
 
             expect_next_character_with_one_forward(")", info);
-
-            if(!expression_node(node, info)) {
+            if(!expression_node(node, info)) 
+            {
                 return FALSE;
             }
 

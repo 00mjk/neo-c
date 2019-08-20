@@ -1,21 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-struct A {
-    int a;
-    struct {
-        int b;
-        int c;
-    };
-};
 
+struct AAA* abc;
 
 int main()
 {
-    struct A data;
-
-    data.b = 111;
-    data.c = 222;
 
     return 0;
 }
