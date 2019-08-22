@@ -6,10 +6,14 @@ extern "C"
 BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_c_lang, sParserInfo* info)
 {
     expect_next_character_with_one_forward("{", info);
+
     sVarTable* old_table = info->lv_table;
 
     *node_block = ALLOC sNodeBlock_alloc();
-    info->lv_table = init_block_vtable(old_table);
+
+    if(!extern_c_lang) {
+        info->lv_table = init_block_vtable(old_table);
+    }
 
     if(!parse_block(*node_block, extern_c_lang, info)) {
         sNodeBlock_free(*node_block);
@@ -17,7 +21,10 @@ BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_c_lang, sParser
     }
 
     expect_next_character_with_one_forward("}", info);
-    info->lv_table = old_table;
+
+    if(!extern_c_lang) {
+        info->lv_table = old_table;
+    }
 
     return TRUE;
 }

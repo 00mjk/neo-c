@@ -342,11 +342,11 @@ void show_vtable(sVarTable* table)
 
         while(1) {
             if(p->mName[0] != 0) {
-                if(p->mType && p->mType->mClass) {
-                    printf("name (%s) %s heap %d value %p\n", p->mName, CLASS_NAME(p->mType->mClass), p->mType->mHeap, p->mLLVMValue);
-                }
-                else {
-                    printf("name (%s)\n", p->mName);
+                printf("name %s index %d block level %d readonly %d constant %d value %p global %d\n", p->mName, p->mIndex, p->mBlockLevel, p->mReadOnly, p->mConstant, p->mLLVMValue, p->mGlobal);
+
+                if(p->mType && p->mType->mClass) 
+                {
+                    printf("%s\n", CLASS_NAME(p->mType->mClass));
                 }
             }
 

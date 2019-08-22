@@ -1,5 +1,5 @@
 #include "neo-c.h"
-#
+
 extern "C"
 {
 
@@ -1465,6 +1465,8 @@ label1:
     };
 
     var llll = new StructTest10;
+
+    printf("EnumA %d\n", EnumA);
 
 /*
     struct Data5 {

@@ -74,4 +74,9 @@ impl vector<T>
 /// others ///
 extern void xassert(char* msg, bool exp);
 
+
+enum EnumTest
+{
+    EnumA, EnumB
+}
 }

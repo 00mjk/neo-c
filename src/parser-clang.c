@@ -837,15 +837,15 @@ static BOOL parse_enum(unsigned int* node, char* name, sParserInfo* info)
             right_node = sNodeTree_create_int_value(value, info);
         }
 
-        BOOL alloc_ = TRUE;
-        *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
-
         sNodeType* result_type = create_node_type_with_class_name("int");
         result_type->mConstant = TRUE;
 
         check_already_added_variable(info->lv_table, var_name, info);
         BOOL readonly = TRUE;
         add_variable_to_table(info->lv_table, var_name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
+
+        BOOL alloc_ = TRUE;
+        *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
 
         nodes[num_nodes++] = *node;
         value++;

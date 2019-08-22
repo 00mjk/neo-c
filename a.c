@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
-struct AAA* abc;
+enum EnumA {
+    EnumA, EnumB
+};
 
 int main()
 {
+    printf("%d %d\n", EnumA, EnumB);
 
     return 0;
 }
