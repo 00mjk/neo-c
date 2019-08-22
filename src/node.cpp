@@ -2355,6 +2355,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
     /// get function ///
     sFunction fun = gFuncs[real_fun_name];
+
     if(inherit) {
         if(fun.mParentFunction == -1) 
         {
@@ -7005,6 +7006,50 @@ static BOOL compile_sizeof(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_sizeof_expression(unsigned int lnode, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeSizeOfExpression;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = lnode;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_sizeof_expression(unsigned int node, sCompileInfo* info)
+{
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* node_type = clone_node_type(info->type);
+
+    dec_stack_ptr(1, info);
+
+    long long int value = sizeof(node_type);
+
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, value, true)); 
+    llvm_value.type = create_node_type_with_class_name("bool");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("bool");
+
+    return TRUE;
+}
+
+
 unsigned int sNodeTree_create_define_variables(unsigned int* nodes, int num_nodes, BOOL extern_, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -8775,6 +8820,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
+        case kNodeTypeSizeOfExpression:
+            if(!compile_sizeof_expression(node, info))
+            {
+                return FALSE;
+            }
+            break;
     }
 
     return node;

@@ -3996,15 +3996,35 @@ static BOOL parse_sizeof(unsigned int* node, sParserInfo* info)
 {
     expect_next_character_with_one_forward("(", info);
 
-    sNodeType* node_type = NULL;
+    char* p_before = info->p;
+    int sline_before = info->sline;
 
-    if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE)) {
-        return FALSE;
+    char buf[VAR_NAME_MAX+1];
+    (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
+
+    info->p = p_before;
+    info->sline = sline_before;
+
+    if(is_type_name(buf, info)) {
+        sNodeType* node_type = NULL;
+
+        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE)) {
+            return FALSE;
+        }
+
+        expect_next_character_with_one_forward(")", info);
+
+        *node = sNodeTree_create_sizeof(node_type, info);
     }
+    else {
+        if(!expression(node, info)) {
+            return FALSE;
+        }
 
-    expect_next_character_with_one_forward(")", info);
+        expect_next_character_with_one_forward(")", info);
 
-    *node = sNodeTree_create_sizeof(node_type, info);
+        *node = sNodeTree_create_sizeof_expression(*node, info);
+    }
 
     return TRUE;
 }

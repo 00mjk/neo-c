@@ -25,15 +25,11 @@ struct vector<T>
 
 impl vector<T> 
 {
-    initialize(void lambda(vector<T>*)? block) 
+    initialize() 
     {
         self.size = 16;
         self.len = 0;
         self.items = new T[self.size];
-
-        if(block != null) {
-            block(self);
-        }
     }
     
     void push_back(vector<T>* self, T item) {
@@ -62,7 +58,7 @@ impl vector<T>
 
     template <R> vector<R>*% map(vector<T>* self, R lambda(T&) block)
     {
-        var result = new vector<R>.initialize(null);
+        var result = new vector<R>.initialize();
 
         self.each {
             result.push_back(block(it));
@@ -71,6 +67,8 @@ impl vector<T>
         result
     }
 }
+
+#define count_vector_args (T, ...) (sizeof((T[]) { __VA_ARGS__}) / sizeof(T))
 
 /// others ///
 extern void xassert(char* msg, bool exp);

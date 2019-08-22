@@ -1,13 +1,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-enum EnumA {
-    EnumA, EnumB
-};
+#define count_vector_args(T, ...) (sizeof((T[]) { __VA_ARGS__}) / sizeof(T))
 
 int main()
 {
-    printf("%d %d\n", EnumA, EnumB);
+/*
+    int c = count_vector_args(int, 1,2,3);
+    printf("c %d\n", c);
+*/
+
+    int aaa[] = { 1, 2, 3 };
+
+    printf("%d\n", sizeof(aaa));
 
     return 0;
 }

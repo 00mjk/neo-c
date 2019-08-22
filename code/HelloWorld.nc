@@ -564,7 +564,7 @@ int main()
         puts("HE!");
     }
 
-    var v = new vector<int>.initialize(null);
+    var v = new vector<int>.initialize();
 
     v.push_back(1);
     v.push_back(2);
@@ -578,29 +578,26 @@ int main()
         printf("%d --> %d\n", it2, it);
     }
 
-    var v2 = new vector<int>.initialize(
-        lambda(vector<int>* it) {
-            it.push_back(111);
-            it.push_back(222);
-            it.push_back(333);
-        }
-    ) 
+    var v2 = new vector<int>.initialize();
+
+    v2.push_back(111);
+    v2.push_back(222);
+    v2.push_back(333);
 
     v2.each {
         printf("%d --> %d\n", it2, it);
     }
 
-    var v3 = new vector<int>.initialize {
-        it.push_back(111);
-        it.push_back(555);
-        it.push_back(666);
-    }
+    var v3 = new vector<int>.initialize();
+    v3.push_back(111);
+    v3.push_back(555);
+    v3.push_back(666);
 
     v3.each {
         printf("%d --> %d\n", it2, it);
     }
 
-    var vv4 = new vector<int>.initialize(null);
+    var vv4 = new vector<int>.initialize();
 
     vv4.push_back(1);
     vv4.push_back(2);
@@ -630,7 +627,7 @@ int main()
 
     printf("vv5.len %d\n", vv5.len);
 
-    var vvv4 = new vector<char*%>.initialize(null);
+    var vvv4 = new vector<char*%>.initialize();
 
     vvv4.push_back(string("1"));
     vvv4.push_back(string("2"));
@@ -646,7 +643,7 @@ int main()
 
     printf("vvv5.len %d\n", vvv5.len);
 
-    var vv1 = new vector<int>.initialize(null);
+    var vv1 = new vector<int>.initialize();
 
     vv1.push_back(1);
     vv1.push_back(2);

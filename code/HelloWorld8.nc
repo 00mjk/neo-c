@@ -13,7 +13,7 @@ def main():int
 
     puts(str);
 
-    var v = new vector<int>.initialize(null);
+    var v = new vector<int>.initialize();
 
     v.push_back(1);
     v.push_back(2);
@@ -21,6 +21,21 @@ def main():int
 
     v.each {
         printf("%d\n", it);
+    }
+
+/*
+    var v2 = vector(int, 1, 2, 3);
+
+    v2.each {
+        printf("%d\n", it);
+    }
+*/
+
+    extern "C"
+    {
+        int aaa[3] = { 1, 2, 3 };
+
+        printf("%d\n", sizeof(aaa));
     }
     
     0
