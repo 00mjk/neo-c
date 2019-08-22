@@ -7485,6 +7485,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
             LVALUE llvm_value = *get_value_from_stack(-1);
 
             param3 = llvm_value.value;
+            param3 = Builder.CreateCast(Instruction::SExt, param3, IntegerType::get(TheContext, 64));
 
             dec_stack_ptr(1, info);
 

@@ -3,6 +3,11 @@
 extern "C"
 {
 
+enum EnumTest
+{
+    EnumA, EnumB
+}
+
 int puts(char* str);
 void exit(int rcode);
 int strcmp(char* str1, char* str2);

@@ -47,7 +47,7 @@ void *xasprintf(char* msg, ...)
 }
 
 
-char* xmemcpy(char* mem, char* mem2, int size)
+void* xmemcpy(void* mem, void* mem2, size_t size)
 {
     return memcpy(mem, mem2, size);
 }

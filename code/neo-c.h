@@ -1,11 +1,12 @@
 extern "C"
 {
-char*% xcalloc(int num, long size);
-char*% xmalloc(long size);
-char*% xmemdup(char* mem);
-void xfree(char*% mem);
+void*% xcalloc(int num, long size);
+void*% xmalloc(long size);
+void*% xmemdup(void* mem);
+void xfree(void*% mem);
 
-char* xmemcpy(char* mem, char* mem2, int size);
+char* xmemcpy(void* mem, void* mem2, long size);
+char* memcpy(void* mem, void* mem2, long size);
 
 char*% xasprintf(char* str, ...);
 
@@ -20,7 +21,7 @@ struct vector<T>
     T*% items;
     int len;
     int size;
-}
+};
 
 impl vector<T> 
 {
@@ -73,10 +74,4 @@ impl vector<T>
 
 /// others ///
 extern void xassert(char* msg, bool exp);
-
-
-enum EnumTest
-{
-    EnumA, EnumB
-}
 }
