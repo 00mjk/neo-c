@@ -171,10 +171,10 @@ BOOL add_function(char* name, char* real_fun_name, Function* llvm_fun, char para
 
     if((gFuncs[real_fun_name].mLLVMFunction != nullptr) || (gFuncs[real_fun_name].mBlockText != nullptr)) {
         gFunctionStack.push_back(gFuncs[real_fun_name]);
-        fun.mParentFunction = &gFunctionStack[gFunctionStack.size()-1];
+        fun.mParentFunction = gFunctionStack.size()-1;
     }
     else {
-        fun.mParentFunction = nullptr;
+        fun.mParentFunction = -1;
     }
 
     fun.mLLVMFunction = llvm_fun;
@@ -2356,7 +2356,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     /// get function ///
     sFunction fun = gFuncs[real_fun_name];
     if(inherit) {
-        if(fun.mParentFunction == nullptr) 
+        if(fun.mParentFunction == -1) 
         {
             compile_err_msg(info, "can't call inherit function because there is not parent function");
             info->err_num++;
@@ -2364,7 +2364,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        fun = *fun.mParentFunction;
+        fun = gFunctionStack[fun.mParentFunction];
     }
 
     if(fun.mResultType == nullptr) {

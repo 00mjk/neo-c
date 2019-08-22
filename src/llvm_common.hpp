@@ -110,7 +110,7 @@ struct sFunctionStruct {
     BOOL mGenericsFunction;
     BOOL mInlineFunction;
 
-    struct sFunctionStruct* mParentFunction;
+    int mParentFunction;
     Function* mLLVMFunction;
 
     BOOL mInCLang;
