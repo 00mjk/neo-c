@@ -1,18 +1,19 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 
-#define count_vector_args(T, ...) (sizeof((T[]) { __VA_ARGS__}) / sizeof(T))
+void va_list_test(char* str, ...)
+{
+    va_list vlist;
+
+    va_start(vlist, str);
+    vprintf(str, vlist);
+    va_end(vlist);
+}
 
 int main()
 {
-/*
-    int c = count_vector_args(int, 1,2,3);
-    printf("c %d\n", c);
-*/
-
-    int aaa[] = { 1, 2, 3 };
-
-    printf("%d\n", sizeof(aaa));
+    va_list_test("aaa %d\n", 1);
 
     return 0;
 }

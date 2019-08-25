@@ -1,5 +1,7 @@
 memalloc-std.cのneo-cでのコンパイル。LVtableのコピーをBlockLevel == 0なら行わない
 
+unistd.hのコンパイルを通す
+
 ヘッダーの自動出力
 
 vector

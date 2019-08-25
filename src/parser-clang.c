@@ -1847,6 +1847,7 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                 int array_len = num_initialize_array_value;
 
                 result_type->mDynamicArrayNum = sNodeTree_create_int_value(array_len, info);
+                result_type->mArrayInitializeNum = num_initialize_array_value;
 
                 *node = sNodeTree_create_define_variable(name, extern_, info);
 
@@ -2001,6 +2002,7 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                 }
 
                 result_type->mArrayNum = num_initialize_array_value;
+                result_type->mArrayInitializeNum = num_initialize_array_value;
 
                 *node = sNodeTree_create_define_variable(name, extern_, info);
 
@@ -2073,6 +2075,8 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                         break;
                     }
                 }
+
+                result_type->mArrayInitializeNum = num_initialize_array_value;
 
                 *node = sNodeTree_create_define_variable(name, extern_, info);
 
@@ -2393,7 +2397,7 @@ static BOOL parse_generics_function(unsigned int* node, sNodeType* result_type, 
 
     sBuf_append_str(&buf, "}");
 
-    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, info);
+    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
 
     //info->mNumMethodGenerics = 0;
 
@@ -2509,7 +2513,7 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
 
     sBuf_append_str(&buf, "}");
 
-    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, info);
+    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
 
     //info->mNumMethodGenerics = 0;
 
@@ -2752,7 +2756,7 @@ static BOOL parse_inline_function(unsigned int* node, char* struct_name, sParser
 
     sBuf_append_str(&buf, "}");
 
-    *node = sNodeTree_create_inline_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, info);
+    *node = sNodeTree_create_inline_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
 
     return TRUE;
 }
@@ -2837,7 +2841,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
 
         sBuf_append_str(&buf, "}");
 
-        *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, info);
+        *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
 
         //info->mNumMethodGenerics = 0;
     }
@@ -2984,7 +2988,7 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
 
         sBuf_append_str(&buf, "}");
 
-        *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, info);
+        *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
 
         //info->mNumMethodGenerics = 0;
     }
@@ -4471,6 +4475,35 @@ static BOOL parse_goto(unsigned int* node, sParserInfo* info)
 
     return TRUE;
 }
+static BOOL parse_va_arg(unsigned int* node, sParserInfo* info)
+{
+    expect_next_character_with_one_forward("(", info);
+
+    /// expression1 ///
+    if(!expression(node, info)) {
+        return FALSE;
+    }
+
+    if(*node == 0) {
+        parser_err_msg(info, "require expression for va_arg");
+        info->err_num++;
+        return TRUE;
+    }
+
+    expect_next_character_with_one_forward(",", info);
+
+    sNodeType* node_type = NULL;
+    if(!parse_type(&node_type, info, NULL, FALSE, FALSE, FALSE))
+    {
+        return FALSE;
+    }
+
+    expect_next_character_with_one_forward(")", info);
+
+    *node = sNodeTree_create_va_arg(*node, node_type, info);
+
+    return TRUE;
+}
 
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
@@ -5124,6 +5157,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "return") == 0) {
             if(!parse_return(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "__builtin_va_arg") == 0) {
+            if(!parse_va_arg(node, info))
+            {
                 return FALSE;
             }
         }

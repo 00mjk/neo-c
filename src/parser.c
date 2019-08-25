@@ -829,7 +829,7 @@ static BOOL parse_generics_function(unsigned int* node, char* struct_name, sPars
 
     sBuf_append_str(&buf, "}");
 
-    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, info);
+    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
 
     return TRUE;
 }
@@ -939,7 +939,7 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
 
     sBuf_append_str(&buf, "}");
 
-    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, info);
+    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
 
     return TRUE;
 }
@@ -1161,7 +1161,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
 
         sBuf_append_str(&buf, "}");
 
-        *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, info);
+        *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
     }
     else {
         sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
@@ -1295,7 +1295,7 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
 
         sBuf_append_str(&buf, "}");
 
-        *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, info);
+        *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
 
         //info->mNumMethodGenerics = 0;
     }
@@ -2663,6 +2663,181 @@ static BOOL parse_inherit(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL skip_paren(char head_char, char tail_char, sParserInfo* info)
+{
+    if(*info->p == head_char) {
+        info->p++;
+
+        BOOL dquort = FALSE;
+        BOOL squort = FALSE;
+        int sline = 0;
+        int nest = 0;
+        while(1) {
+            if(dquort) {
+                if(*info->p == '\\') {
+                    info->p++;
+                    if(*info->p == '\0') {
+                        fprintf(stderr, "%s %d: unexpected the source end. close single quote or double quote.", info->sname, sline);
+                        return FALSE;
+                    }
+                    info->p++;
+                }
+                else if(*info->p == '"') {
+                    info->p++;
+                    dquort = !dquort;
+                }
+                else {
+                    info->p++;
+
+                    if(*info->p == '\0') {
+                        fprintf(stderr, "%s %d: unexpected the source end. close single quote or double quote.", info->sname, sline);
+                        return FALSE;
+                    }
+                }
+            }
+            else if(squort) {
+                if(*info->p == '\\') {
+                    info->p++;
+                    if(*info->p == '\0') {
+                        fprintf(stderr, "%s %d: unexpected the source end. close single quote or double quote.", info->sname, sline);
+                        return FALSE;
+                    }
+                    info->p++;
+                }
+                else if(*info->p == '\'') {
+                    info->p++;
+                    squort = !squort;
+                }
+                else {
+                    info->p++;
+
+                    if(*info->p == '\0') {
+                        fprintf(stderr, "%s %d: unexpected the source end. close single quote or double quote.", info->sname, sline);
+                        return FALSE;
+                    }
+                }
+            }
+            else if(*info->p == '\'') {
+                sline = info->sline;
+                info->p++;
+                squort = !squort;
+            }
+            else if(*info->p == '"') {
+                sline = info->sline;
+                info->p++;
+                dquort = !dquort;
+            }
+            else if(*info->p == head_char) {
+                info->p++;
+
+                nest++;
+            }
+            else if(*info->p == tail_char) {
+                info->p++;
+
+                if(nest == 0) {
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+
+                nest--;
+            }
+            else if(*info->p == '\0') {
+                parser_err_msg(info, "The block requires %c character for closing block", tail_char);
+                info->err_num++;
+                return TRUE;
+            }
+            else if(*info->p == '\n') {
+                info->p++;
+                info->sline++;
+            }
+            else {
+                info->p++;
+            }
+        }
+    }
+
+    return TRUE;
+}
+
+BOOL parse_macro(unsigned int* node, sParserInfo* info)
+{
+    char buf[VAR_NAME_MAX+1];
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
+    {
+        return FALSE;
+    }
+
+    char* p = info->p + 1;
+
+    if(!skip_block(info)) {
+        return FALSE;
+    }
+
+    sBuf body;
+    sBuf_init(&body);
+
+    sBuf_append(&body, p, info->p-p-3);
+
+    if(info->parse_struct_phase) {
+        append_macro(buf, body.mBuf);
+    }
+
+    free(body.mBuf);
+
+    *node = sNodeTree_create_null(info);
+
+    skip_spaces_and_lf(info);
+
+    return TRUE;
+}
+
+BOOL parse_call_macro(unsigned int* node, char* name, sParserInfo* info)
+{
+    char* p = info->p + 1;
+
+    if(*info->p == '(') {
+        if(!skip_paren('(', ')', info)) {
+            return FALSE;
+        }
+    }
+    else if(*info->p == '{') {
+        if(!skip_paren('{', '}', info)) {
+            return FALSE;
+        }
+    }
+    else if(*info->p == '[') {
+        if(!skip_paren('[', ']', info)) {
+            return FALSE;
+        }
+    }
+    else if(*info->p == '<') {
+        if(!skip_paren('<', '>', info)) {
+            return FALSE;
+        }
+    }
+    else {
+        parser_err_msg(info, "Require (,{,[ or <");
+        info->err_num++;
+        return TRUE;
+    }
+
+    sBuf params;
+    sBuf_init(&params);
+
+    sBuf_append(&params, p, info->p-p-1);
+
+    skip_spaces_and_lf(info);
+
+    if(!call_macro(node, name, params.mBuf, info)) {
+        return FALSE;
+    }
+
+    free(params.mBuf);
+
+    return TRUE;
+}
+
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
     if(*info->p == '#') {
@@ -3178,6 +3353,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         else if(strcmp(buf, "continue") == 0) {
             *node = sNodeTree_create_continue_expression(info);
         }
+        else if(strcmp(buf, "macro") == 0) {
+            if(!parse_macro(node, info))
+            {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "goto") == 0) {
             if(!parse_goto(node, info)) {
                 return FALSE;
@@ -3233,6 +3414,14 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 if(!parse_function(node, struct_name, info)) {
                     return FALSE;
                 }
+            }
+        }
+        else if(*info->p == '!') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(!parse_call_macro(node, buf, info)) {
+                return FALSE;
             }
         }
         else {

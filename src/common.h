@@ -35,6 +35,8 @@
 #define INIT_ARRAY_MAX 128
 #define LOOP_NEST_MAX 32
 
+
+
 #define clint64 long long      // for 32 bit cpu
 
 //////////////////////////////
@@ -162,6 +164,8 @@ struct sNodeTypeStruct {
     BOOL mNoHeap;
 
     unsigned int mDynamicArrayNum;
+
+    int mArrayInitializeNum;
 };
 
 typedef struct sNodeTypeStruct sNodeType;
@@ -365,11 +369,13 @@ struct sCompileInfoStruct
 
     void* case_else_block;
     void* case_then_block;
+
+    int mBlockLevel;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;
 
-enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap };
+enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeVaArg };
 
 struct sNodeTreeStruct 
 {
@@ -420,6 +426,10 @@ struct sNodeTreeStruct
         } sString;
 
         struct {
+            sNodeType* mNodeType;
+        } sVaArg;
+
+        struct {
             char mName[VAR_NAME_MAX];
             sParserParam mParams[PARAMS_MAX];
             int mNumParams;
@@ -442,6 +452,11 @@ struct sNodeTreeStruct
             int mSLine;
             BOOL mInCLang;
         } sFunction;
+
+        struct {
+            int mNumParams;
+            unsigned int mParams[PARAMS_MAX];
+        } sVector;
 
         struct {
             char mName[VAR_NAME_MAX];
@@ -599,8 +614,8 @@ unsigned int sNodeTree_create_mult(unsigned int left, unsigned int right, unsign
 unsigned int sNodeTree_create_div(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_mod(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_cast(sNodeType* left_type, unsigned int left_node, sParserInfo* info);
-unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, sParserInfo* info);
-unsigned int sNodeTree_create_inline_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, sParserInfo* info);
+unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, BOOL va_arg, sParserInfo* info);
+unsigned int sNodeTree_create_inline_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, BOOL var_arg, sParserInfo* info);
 unsigned int sNodeTree_create_impl(unsigned int* nodes, int num_nodes, sParserInfo* info);
 unsigned int sNodeTree_create_typedef(char* name, sNodeType* node_type, sParserInfo* info);
 unsigned int sNodeTree_create_define_variable(char* var_name, BOOL extern_, sParserInfo* info);
@@ -626,6 +641,7 @@ unsigned int sNodeTree_case_expression(unsigned int expression_node, BOOL last_c
 unsigned int sNodeTree_label_expression(char* name, sParserInfo* info);
 unsigned int sNodeTree_goto_expression(char* name, sParserInfo* info);
 unsigned int sNodeTree_create_is_heap(unsigned int lnode, sParserInfo* info);
+unsigned int sNodeTree_create_va_arg(unsigned int lnode, sNodeType* node_type, sParserInfo* info);
 
 void show_node(unsigned int node);
 BOOL compile(unsigned int node, sCompileInfo* info);
@@ -694,6 +710,10 @@ void create_anonymous_union_var_name(char* name, int size_name);
 /// typedef.cpp ///
 void add_typedef(char* name, sNodeType* node_type);
 sNodeType* get_typedef(char* name);
+
+/// macro ///
+void append_macro(char* name, char* body);
+BOOL call_macro(unsigned int* node, char* name, char* params, sParserInfo* info);
 
 #endif
 

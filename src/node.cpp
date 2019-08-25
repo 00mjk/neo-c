@@ -1493,80 +1493,94 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         left_type = clone_node_type(var->mType);
     }
 
-    if(auto_cast_posibility(left_type, right_type)) {
-        if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
-        {
-            compile_err_msg(info, "Cast failed");
+    if(type_identify_with_class_name(left_type, "__builtin_va_list") && type_identify_with_class_name(right_type, "char*"))
+    {
+        BOOL parent = FALSE;
+        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+        sNodeType* var_type = left_type;
+
+        Value* var_address;
+        if(var->mLLVMValue == NULL) {
+            compile_err_msg(info, "Invalid variable.");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
 
             return TRUE;
         }
+
+        var_address = (Value*)var->mLLVMValue;
+
+        if(var_address == nullptr) {
+            compile_err_msg(info, "Invalid variable.");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        int alignment = get_llvm_alignment_from_node_type(right_type);
+
+        Value* var_address2 = Builder.CreateCast(Instruction::BitCast, var_address, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8),0),0));
+
+        Value* rvalue2 = rvalue.value;
+
+        Builder.CreateAlignedStore(rvalue2, var_address2, alignment);
+
+        info->type = create_node_type_with_class_name("char*");
     }
-
-    if(!substitution_posibility(left_type, right_type, info)) 
-    {
-        compile_err_msg(info, "The different type between left type and right type.");
-        show_node_type(left_type);
-        show_node_type(right_type);
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    Type* llvm_var_type;
-    if(!create_llvm_type_from_node_type(&llvm_var_type, left_type, info))
-    {
-        compile_err_msg(info, "Getting llvm type failed(1)");
-        show_node_type(left_type);
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    int alignment = get_llvm_alignment_from_node_type(left_type);
-
-    BOOL constant = var->mConstant && var->mBlockLevel == 0;
-
-    if(alloc) {
-        if(constant) {
-            Value* rvalue2 = rvalue.value;
-
-            if(dyn_cast<Constant>(rvalue2)) {
-                Constant* rvalue3 = dyn_cast<Constant>(rvalue2);
-            }
-            else {
-                compile_err_msg(info, "Invalid Global ConstantValue Variable Initializer. Require Constant Value");
+    else {
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
 
                 return TRUE;
             }
-
-            Value* rvalue3 = Builder.CreateCast(Instruction::BitCast, rvalue2, llvm_var_type);
-            var->mLLVMValue = rvalue3;
-
-            info->type = left_type;
         }
-        else {
-            if(global) {
-                GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant, GlobalValue::ExternalLinkage, 0, var_name);
-                address->setAlignment(alignment);
 
+        if(!substitution_posibility(left_type, right_type, info)) 
+        {
+            compile_err_msg(info, "The different type between left type and right type. store variable");
+            show_node_type(left_type);
+            show_node_type(right_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        Type* llvm_var_type;
+        if(!create_llvm_type_from_node_type(&llvm_var_type, left_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(1)");
+            show_node_type(left_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        BOOL constant = var->mConstant && var->mBlockLevel == 0;
+
+        if(alloc) {
+            if(constant) {
                 Value* rvalue2 = rvalue.value;
 
                 if(dyn_cast<Constant>(rvalue2)) {
                     Constant* rvalue3 = dyn_cast<Constant>(rvalue2);
-                    address->setInitializer(rvalue3);
                 }
                 else {
-                    compile_err_msg(info, "Invalid Global Variable Initializer. Require Constant Value");
+                    compile_err_msg(info, "Invalid Global ConstantValue Variable Initializer. Require Constant Value");
                     info->err_num++;
 
                     info->type = create_node_type_with_class_name("int"); // dummy
@@ -1574,21 +1588,87 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
                     return TRUE;
                 }
 
-                var->mLLVMValue = address;
+                Value* rvalue3 = Builder.CreateCast(Instruction::BitCast, rvalue2, llvm_var_type);
+                var->mLLVMValue = rvalue3;
 
-                BOOL parent = FALSE;
-                int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
-
-                store_address_to_lvtable(index, address);
+                info->type = left_type;
             }
             else {
-                Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
-                var->mLLVMValue = address;
+                if(global) {
+                    GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant, GlobalValue::ExternalLinkage, 0, var_name);
+                    address->setAlignment(alignment);
+
+                    Value* rvalue2 = rvalue.value;
+
+                    if(dyn_cast<Constant>(rvalue2)) {
+                        Constant* rvalue3 = dyn_cast<Constant>(rvalue2);
+                        address->setInitializer(rvalue3);
+                    }
+                    else {
+                        compile_err_msg(info, "Invalid Global Variable Initializer. Require Constant Value");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+
+                    var->mLLVMValue = address;
+
+                    BOOL parent = FALSE;
+                    int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+                    store_address_to_lvtable(index, address);
+                }
+                else {
+                    Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
+                    var->mLLVMValue = address;
+
+                    BOOL parent = FALSE;
+                    int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+                    store_address_to_lvtable(index, address);
+                }
 
                 BOOL parent = FALSE;
                 int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
 
-                store_address_to_lvtable(index, address);
+                sNodeType* var_type = left_type;
+
+                Value* var_address;
+                if(parent && !var->mGlobal) {
+                    var_address = load_address_to_lvtable(index, var_type, info);
+                }
+                else {
+                    var_address = (Value*)var->mLLVMValue;
+                }
+
+                if(var_address == nullptr) {
+                    compile_err_msg(info, "Invalid variable.");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    return TRUE;
+                }
+
+                Value* rvalue2 = Builder.CreateCast(Instruction::BitCast, rvalue.value, llvm_var_type);
+
+                std_move(var_address, var->mType, &rvalue, alloc, info);
+
+                Builder.CreateAlignedStore(rvalue2, var_address, alignment);
+
+                info->type = left_type;
+            }
+        }
+        else {
+            if(var->mReadOnly || var->mConstant) {
+                compile_err_msg(info, "Variable(%s) is readonly variable", var->mName);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
             }
 
             BOOL parent = FALSE;
@@ -1621,46 +1701,6 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
             info->type = left_type;
         }
-    }
-    else {
-        if(var->mReadOnly || var->mConstant) {
-            compile_err_msg(info, "Variable(%s) is readonly variable", var->mName);
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
-        BOOL parent = FALSE;
-        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
-
-        sNodeType* var_type = left_type;
-
-        Value* var_address;
-        if(parent && !var->mGlobal) {
-            var_address = load_address_to_lvtable(index, var_type, info);
-        }
-        else {
-            var_address = (Value*)var->mLLVMValue;
-        }
-
-        if(var_address == nullptr) {
-            compile_err_msg(info, "Invalid variable.");
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
-        Value* rvalue2 = Builder.CreateCast(Instruction::BitCast, rvalue.value, llvm_var_type);
-
-        std_move(var_address, var->mType, &rvalue, alloc, info);
-
-        Builder.CreateAlignedStore(rvalue2, var_address, alignment);
-
-        info->type = left_type;
     }
 
     return TRUE;
@@ -1782,9 +1822,9 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
     for(i=0; i<num_params; i++) {
         sNodeType* param_type = params[i].mType;
 
-        if(type_identify_with_class_name(param_type, "va_list"))
+        if(type_identify_with_class_name(param_type, "__builtin_va_list"))
         {
-            param_type = create_node_type_with_class_name("va_list*");
+            param_type = create_node_type_with_class_name("__builtin_va_list*");
         }
 
         Type* llvm_param_type;
@@ -2011,7 +2051,7 @@ static void create_generics_fun_name(char* real_fun_name, int size_real_fun_name
     xstrncat(real_fun_name, buf, size_real_fun_name);
 }
 
-static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, char* struct_name, sNodeType* generics_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX],  int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], sParserInfo* info, sCompileInfo* cinfo, int generics_fun_num, BOOL in_clang)
+static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, char* struct_name, sNodeType* generics_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX],  int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], sParserInfo* info, sCompileInfo* cinfo, int generics_fun_num, BOOL in_clang, BOOL var_arg)
 {
     /// params ///
     sParserParam params[PARAMS_MAX];
@@ -2143,7 +2183,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     BOOL simple_lambda_param = FALSE;
     BOOL constructor_fun = FALSE;
     BOOL operator_fun = FALSE;
-    *node = sNodeTree_create_function(real_fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, constructor_fun, simple_lambda_param, &info2, TRUE, FALSE);
+    *node = sNodeTree_create_function(real_fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, constructor_fun, simple_lambda_param, &info2, TRUE, var_arg);
 
     return TRUE;
 }
@@ -2289,13 +2329,13 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     BOOL method = gNodes[node].uValue.sFunctionCall.mMethod;
     BOOL inherit = gNodes[node].uValue.sFunctionCall.mInherit;
 
-    if(strcmp(fun_name, "va_start") == 0) {
+    if(strcmp(fun_name, "__builtin_va_start") == 0) {
         xstrncpy(fun_name, "llvm.va_start", VAR_NAME_MAX);
     }
-    else if(strcmp(fun_name, "va_end") == 0) {
+    else if(strcmp(fun_name, "__builtin_va_end") == 0) {
         xstrncpy(fun_name, "llvm.va_end", VAR_NAME_MAX);
     }
-    else if(strcmp(fun_name, "va_copy") == 0) {
+    else if(strcmp(fun_name, "__builtin_va_copy") == 0) {
         xstrncpy(fun_name, "llvm.va_copy", VAR_NAME_MAX);
     }
 
@@ -2497,7 +2537,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         }
         else {
             int i;
-            for(i=0; i<num_params; i++) {
+            for(i=0; i<fun.mNumParams; i++) {
                 sNodeType* fun_param_type = clone_node_type(fun.mParamTypes[i]);
                 sNodeType* param_type = clone_node_type(param_types[i]);
 
@@ -2540,9 +2580,10 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 int sline = fun.mSLine;
 
                 BOOL in_clang = fun.mInCLang;
+                BOOL var_arg = fun.mVarArg;
 
                 unsigned int node = 0;
-                if(!parse_generics_fun(&node, buf, &fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun.mNumGenerics, fun.mGenericsTypeNames, fun.mNumMethodGenerics, fun.mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang))
+                if(!parse_generics_fun(&node, buf, &fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun.mNumGenerics, fun.mGenericsTypeNames, fun.mNumMethodGenerics, fun.mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, var_arg))
                 {
                     info->generics_type = generics_type_before;
                     gLLVMStack = llvm_stack;
@@ -2674,86 +2715,165 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     /// convert param type ///
     std::vector<Value*> llvm_params;
     LVALUE* lvalue_params[PARAMS_MAX];
+    
+    if(strcmp(fun_name, "llvm.va_start") == 0)
+    {
+        sNodeType* left_type = clone_node_type(fun.mParamTypes[0]);
+        sNodeType* right_type = clone_node_type(param_types[0]);
+        LVALUE param = *get_value_from_stack(-num_params+0);
 
-    for(i=0; i<num_params; i++) {
-        if(i < fun.mNumParams) {
-            sNodeType* left_type = clone_node_type(fun.mParamTypes[i]);
-            sNodeType* right_type = clone_node_type(param_types[i]);
-            LVALUE param = *get_value_from_stack(-num_params+i);
+        lvalue_params[0] = &param;
 
-            lvalue_params[i] = &param;
+        if(fun.mInlineFunction) {
+            if(!solve_method_generics(&left_type, num_method_generics_types, method_generics_types))
+            {
+                compile_err_msg(info, "Can't solve method generics type");
+                show_node_type(left_type);
+                info->err_num++;
 
-            if(fun.mInlineFunction) {
-                if(!solve_method_generics(&left_type, num_method_generics_types, method_generics_types))
+                return FALSE;
+            }
+
+            if(generics_type) {
+                if(!solve_generics(&left_type, generics_type))
                 {
-                    compile_err_msg(info, "Can't solve method generics type");
+                    compile_err_msg(info, "Can't solve generics types");
                     show_node_type(left_type);
+                    show_node_type(generics_type);
                     info->err_num++;
 
-                    return FALSE;
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    info->generics_type = generics_type_before;
+                    return TRUE;
+                }
+            }
+        }
+
+        if(auto_cast_posibility(left_type, right_type)) 
+        {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &param, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+                info->generics_type = generics_type_before;
+
+                return TRUE;
+            }
+        }
+
+        sCLClass* left_class = left_type->mClass;
+        if(left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS)
+        {
+            sNodeType* left_type = create_node_type_with_class_name("long");
+
+            sNodeType* right_type2 = clone_node_type(right_type);
+            LVALUE rvalue;
+            rvalue.value = param.value;
+            rvalue.type = right_type2;
+            rvalue.address = nullptr;
+            rvalue.var = nullptr;
+
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+                info->generics_type = generics_type_before;
+
+                return TRUE;
+            }
+
+            param.value = rvalue.value;
+        }
+
+        llvm_params.push_back(param.value);
+    }
+    else {
+        for(i=0; i<num_params; i++) {
+            if(i < fun.mNumParams) 
+            {
+                sNodeType* left_type = clone_node_type(fun.mParamTypes[i]);
+                sNodeType* right_type = clone_node_type(param_types[i]);
+                LVALUE param = *get_value_from_stack(-num_params+i);
+
+                lvalue_params[i] = &param;
+
+                if(fun.mInlineFunction) {
+                    if(!solve_method_generics(&left_type, num_method_generics_types, method_generics_types))
+                    {
+                        compile_err_msg(info, "Can't solve method generics type");
+                        show_node_type(left_type);
+                        info->err_num++;
+
+                        return FALSE;
+                    }
+
+                    if(generics_type) {
+                        if(!solve_generics(&left_type, generics_type))
+                        {
+                            compile_err_msg(info, "Can't solve generics types");
+                            show_node_type(left_type);
+                            show_node_type(generics_type);
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            info->generics_type = generics_type_before;
+                            return TRUE;
+                        }
+                    }
                 }
 
-                if(generics_type) {
-                    if(!solve_generics(&left_type, generics_type))
+                if(auto_cast_posibility(left_type, right_type)) 
+                {
+                    if(!cast_right_type_to_left_type(left_type, &right_type, &param, info))
                     {
-                        compile_err_msg(info, "Can't solve generics types");
-                        show_node_type(left_type);
-                        show_node_type(generics_type);
+                        compile_err_msg(info, "Cast failed");
                         info->err_num++;
 
                         info->type = create_node_type_with_class_name("int"); // dummy
-
                         info->generics_type = generics_type_before;
+
                         return TRUE;
                     }
                 }
-            }
 
-            if(auto_cast_posibility(left_type, right_type)) 
-            {
-                if(!cast_right_type_to_left_type(left_type, &right_type, &param, info))
+                sCLClass* left_class = left_type->mClass;
+                if(left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS)
                 {
-                    compile_err_msg(info, "Cast failed");
-                    info->err_num++;
+                    sNodeType* left_type = create_node_type_with_class_name("long");
 
-                    info->type = create_node_type_with_class_name("int"); // dummy
-                    info->generics_type = generics_type_before;
+                    sNodeType* right_type2 = clone_node_type(right_type);
+                    LVALUE rvalue;
+                    rvalue.value = param.value;
+                    rvalue.type = right_type2;
+                    rvalue.address = nullptr;
+                    rvalue.var = nullptr;
 
-                    return TRUE;
-                }
-            }
+                    if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+                    {
+                        compile_err_msg(info, "Cast failed");
+                        info->err_num++;
 
-            sCLClass* left_class = left_type->mClass;
-            if(left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS)
-            {
-                sNodeType* left_type = create_node_type_with_class_name("long");
+                        info->type = create_node_type_with_class_name("int"); // dummy
+                        info->generics_type = generics_type_before;
 
-                sNodeType* right_type2 = clone_node_type(right_type);
-                LVALUE rvalue;
-                rvalue.value = param.value;
-                rvalue.type = right_type2;
-                rvalue.address = nullptr;
-                rvalue.var = nullptr;
+                        return TRUE;
+                    }
 
-                if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
-                {
-                    compile_err_msg(info, "Cast failed");
-                    info->err_num++;
-
-                    info->type = create_node_type_with_class_name("int"); // dummy
-                    info->generics_type = generics_type_before;
-
-                    return TRUE;
+                    param.value = rvalue.value;
                 }
 
-                param.value = rvalue.value;
+                llvm_params.push_back(param.value);
             }
-
-            llvm_params.push_back(param.value);
-        }
-        else {
-            LVALUE param = *get_value_from_stack(-num_params+i);
-            llvm_params.push_back(param.value);
+            else {
+                LVALUE param = *get_value_from_stack(-num_params+i);
+                llvm_params.push_back(param.value);
+            }
         }
     }
 
@@ -3277,7 +3397,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
         FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, false);
         Function* fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
-        if(!add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, FALSE, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, info->pinfo->in_clang, FALSE))
+        BOOL var_arg = FALSE;
+        if(!add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, info->pinfo->in_clang, FALSE))
         {
             compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
             info->err_num++;
@@ -3430,7 +3551,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, sParserInfo* info)
+unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, BOOL var_arg, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -3444,7 +3565,6 @@ unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* pa
     gNodes[node].mMiddle = 0;
 
     xstrncpy(gNodes[node].uValue.sFunction.mName, fun_name, VAR_NAME_MAX);
-
 
     int i;
     for(i=0; i<num_params; i++) {
@@ -3473,6 +3593,7 @@ unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* pa
     gNodes[node].uValue.sFunction.mNumMethodGenerics = info->mNumMethodGenerics;
     gNodes[node].uValue.sFunction.mSLine = sline;
     gNodes[node].uValue.sFunction.mInCLang = info->in_clang;
+    gNodes[node].uValue.sFunction.mVarArg = var_arg;
 
     for(i=0; i<info->mNumMethodGenerics; i++) {
         xstrncpy(gNodes[node].uValue.sFunction.mMethodGenericsTypeNames[i], info->mMethodGenericsTypeNames[i], VAR_NAME_MAX);
@@ -3491,6 +3612,7 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
     int num_params = gNodes[node].uValue.sFunction.mNumParams;
     sParserParam params[PARAMS_MAX];
     memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+    BOOL var_arg = gNodes[node].uValue.sFunction.mVarArg;
 
     int i;
     for(i=0; i<num_params; i++) {
@@ -3538,7 +3660,7 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
 
     /// go ///
-    if(!add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline, in_clang, FALSE))
+    if(!add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, var_arg, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline, in_clang, FALSE))
     {
         compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
         info->err_num++;
@@ -3550,7 +3672,7 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_inline_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, sParserInfo* info)
+unsigned int sNodeTree_create_inline_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, BOOL var_arg, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -3575,6 +3697,7 @@ unsigned int sNodeTree_create_inline_function(char* fun_name, sParserParam* para
     gNodes[node].uValue.sFunction.mResultType = clone_node_type(result_type);
     gNodes[node].uValue.sFunction.mBlockText = MANAGED block_text;
     gNodes[node].uValue.sFunction.mSLine = sline;
+    gNodes[node].uValue.sFunction.mVarArg = var_arg;
 
     if(struct_name) {
         xstrncpy(gNodes[node].uValue.sFunction.mStructName, struct_name, VAR_NAME_MAX);
@@ -3610,6 +3733,7 @@ BOOL compile_inline_function(unsigned int node, sCompileInfo* info)
     int num_params = gNodes[node].uValue.sFunction.mNumParams;
     sParserParam params[PARAMS_MAX];
     memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+    BOOL var_arg = gNodes[node].uValue.sFunction.mVarArg;
 
     int i;
     for(i=0; i<num_params; i++) {
@@ -3655,7 +3779,7 @@ BOOL compile_inline_function(unsigned int node, sCompileInfo* info)
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
 
     /// go ///
-    if(!add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, FALSE, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline, in_clang, FALSE))
+    if(!add_function(fun_name, real_fun_name, nullptr, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, var_arg, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline, in_clang, FALSE))
     {
         compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
         info->err_num++;
@@ -3701,7 +3825,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    sNodeType* var_type = var->mType;
+    sNodeType* var_type = clone_node_type(var->mType);
     if(var_type == NULL || var_type->mClass == NULL) 
     {
         compile_err_msg(info, "null type %s", var_name);
@@ -3727,27 +3851,31 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
         info->type = clone_node_type(result_type);
     }
     else {
-        BOOL parent = FALSE;
-        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+        if(type_identify_with_class_name(var_type, "__builtin_va_list")) {
+            BOOL parent = FALSE;
+            int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
 
-        Value* var_address;
-        if(parent && !var->mGlobal) {
-            var_address = load_address_to_lvtable(index, var_type, info);
-        }
-        else {
+            Value* var_address;
+
+            if(var->mLLVMValue == NULL) {
+                compile_err_msg(info, "Invalid variable. %s", var_name);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+                return TRUE;
+            }
+
             var_address = (Value*)var->mLLVMValue;
-        }
 
-        if(var_address == nullptr) {
-            compile_err_msg(info, "Invalid variable. %s", var_name);
-            info->err_num++;
+            if(var_address == nullptr) {
+                compile_err_msg(info, "Invalid variable. %s", var_name);
+                info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int"); // dummy
 
-            return TRUE;
-        }
+                return TRUE;
+            }
 
-        if(type_identify_with_class_name(var_type, "va_list")) {
             sNodeType* var_type2 = clone_node_type(var_type);
             var_type2->mPointerNum++;
 
@@ -3764,6 +3892,26 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
             info->type = clone_node_type(result_type);
         }
         else {
+            BOOL parent = FALSE;
+            int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+            Value* var_address;
+            if(parent && !var->mGlobal) {
+                var_address = load_address_to_lvtable(index, var_type, info);
+            }
+            else {
+                var_address = (Value*)var->mLLVMValue;
+            }
+
+            if(var_address == nullptr) {
+                compile_err_msg(info, "Invalid variable. %s", var_name);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
             int alignment = get_llvm_alignment_from_node_type(var_type);
 
             LVALUE llvm_value;
@@ -4471,7 +4619,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         }
         
         if(!substitution_posibility(field_type, right_type, info)) {
-            compile_err_msg(info, "The different type between left type and right type.");
+            compile_err_msg(info, "The different type between left type and right type. store field");
             show_node_type(field_type);
             show_node_type(right_type);
             info->err_num++;
@@ -4578,7 +4726,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         }
         
         if(!substitution_posibility(field_type, right_type, info)) {
-            compile_err_msg(info, "The different type between left type and right type.");
+            compile_err_msg(info, "The different type between left type and right type. store field");
             show_node_type(field_type);
             show_node_type(right_type);
             info->err_num++;
@@ -6188,7 +6336,7 @@ BOOL compile_store_element(unsigned int node, sCompileInfo* info)
 
     if(!substitution_posibility(var_type, right_type, info)) 
     {
-        compile_err_msg(info, "The different type between left type and right type");
+        compile_err_msg(info, "The different type between left type and right type, store element");
         show_node_type(var_type);
         show_node_type(right_type);
         info->err_num++;
@@ -6898,7 +7046,7 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
         }
 
         if(!substitution_posibility(result_type, llvm_value.type, info)) {
-            compile_err_msg(info, "The different type between left type and right type.(1)");
+            compile_err_msg(info, "The different type between left type and right type.return");
             show_node_type(result_type);
             show_node_type(llvm_value.type);
             info->err_num++;
@@ -7034,17 +7182,21 @@ BOOL compile_sizeof_expression(unsigned int node, sCompileInfo* info)
 
     dec_stack_ptr(1, info);
 
-    long long int value = sizeof(node_type);
+    uint64_t alloc_size = 0;
+    if(!get_size_from_node_type(&alloc_size, node_type, info))
+    {
+        return FALSE;
+    }
 
     LVALUE llvm_value;
-    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, value, true)); 
-    llvm_value.type = create_node_type_with_class_name("bool");
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, alloc_size, true)); 
+    llvm_value.type = create_node_type_with_class_name("long");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
-    info->type = create_node_type_with_class_name("bool");
+    info->type = create_node_type_with_class_name("long");
 
     return TRUE;
 }
@@ -7297,7 +7449,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
 
                         if(!type_identify(var_element_type, right_type))
                         {
-                            compile_err_msg(info, "The different type between left type and right type.");
+                            compile_err_msg(info, "The different type between left type and right type. array with initialization");
                             show_node_type(var_element_type);
                             show_node_type(right_type);
                             info->err_num++;
@@ -7391,7 +7543,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
 
             if(!type_identify(var_element_type, right_type))
             {
-                compile_err_msg(info, "The different type between left type and right type.");
+                compile_err_msg(info, "The different type between left type and right type. array with initialization");
                 show_node_type(var_element_type);
                 show_node_type(right_type);
                 info->err_num++;
@@ -7479,7 +7631,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
 
             if(!type_identify(var_type, right_type))
             {
-                compile_err_msg(info, "The different type between left type and right type.");
+                compile_err_msg(info, "The different type between left type and right type. array with initialization");
                 show_node_type(var_type);
                 show_node_type(right_type);
                 info->err_num++;
@@ -7561,7 +7713,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
 
                 if(!type_identify(var_element_type, right_type))
                 {
-                    compile_err_msg(info, "The different type between left type and right type.");
+                    compile_err_msg(info, "The different type between left type and right type. array with initialization");
                     show_node_type(var_element_type);
                     show_node_type(right_type);
                     info->err_num++;
@@ -7678,7 +7830,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
 
                     if(!type_identify(var_element_type, right_type))
                     {
-                        compile_err_msg(info, "The different type between left type and right type.");
+                        compile_err_msg(info, "The different type between left type and right type. struct with initialization");
                         show_node_type(var_element_type);
                         show_node_type(right_type);
                         info->err_num++;
@@ -7795,7 +7947,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
 
             if(!type_identify(field_type, right_type))
             {
-                compile_err_msg(info, "The different type between left type and right type.");
+                compile_err_msg(info, "The different type between left type and right type. struct with initialization");
                 show_node_type(field_type);
                 show_node_type(right_type);
                 info->err_num++;
@@ -7922,7 +8074,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
 
             if(!type_identify(field_type, right_type))
             {
-                compile_err_msg(info, "The different type between left type and right type.");
+                compile_err_msg(info, "The different type between left type and right type. struct with initialization");
                 show_node_type(field_type);
                 show_node_type(right_type);
                 info->err_num++;
@@ -7985,14 +8137,14 @@ BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
 {
     struct sNodeBlockStruct* node_block = gNodes[node].uValue.sNormalBlock.mNodeBlock;
 
-    sNodeType* result_type = create_node_type_with_class_name("void");
+    sNodeType* result_type = create_node_type_with_class_name("any");
 
     if(!compile_block(node_block, info, result_type))
     {
         return FALSE;
     }
 
-    info->type = create_node_type_with_class_name("void");
+//    info->type = create_node_type_with_class_name("void");
 
     return TRUE;
 }
@@ -8381,6 +8533,68 @@ BOOL compile_is_heap(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_va_arg(unsigned int lnode, sNodeType* node_type, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeVaArg;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.sVaArg.mNodeType = clone_node_type(node_type);
+
+    gNodes[node].mLeft = lnode;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_va_arg(unsigned int node, sCompileInfo* info)
+{
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    sNodeType* node_type = gNodes[node].uValue.sVaArg.mNodeType;
+
+    Type* llvm_type;
+    if(!create_llvm_type_from_node_type(&llvm_type, node_type, info))
+    {
+        compile_err_msg(info, "Getting llvm type failed(17)");
+        show_node_type(node_type);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    Value* vlist = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(IntegerType::get(TheContext, 8),0));
+
+    Instruction* inst = new VAArgInst(vlist, llvm_type);
+
+    BasicBlock* current_block = (BasicBlock*)info->current_block;
+    current_block->getInstList().push_back(inst);
+
+    LVALUE llvm_value;
+    llvm_value.value = inst;
+    llvm_value.type = clone_node_type(node_type);
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = clone_node_type(node_type);
+
+    return TRUE;
+}
 
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
@@ -8822,6 +9036,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeSizeOfExpression:
             if(!compile_sizeof_expression(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeVaArg:
+            if(!compile_va_arg(node, info))
             {
                 return FALSE;
             }

@@ -36,7 +36,6 @@ void *xmemdup(void *block)
 
 void *xasprintf(char* msg, ...)
 {
-
     va_list args;
     va_start(args, msg);
     char* tmp;

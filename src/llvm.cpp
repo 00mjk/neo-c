@@ -259,18 +259,50 @@ void declare_builtin_functions()
     FunctionType* function_type;
 
     /// va_list ///
-    StructType* struct_type = StructType::create(TheContext, "va_list");
+    params.clear();
+
+    StructType* struct_type = StructType::create(TheContext, "__builtin_va_list");
 
     std::vector<Type*> fields;
 
+/*
+    param1_type = IntegerType::get(TheContext, 32);
+    fields.push_back(param1_type);
+
+    param2_type = IntegerType::get(TheContext, 32);
+    fields.push_back(param2_type);
+
+    param3_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    fields.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    fields.push_back(param4_type);
+*/
+
+/*
     param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
     fields.push_back(param1_type);
+*/
+    param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    fields.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    fields.push_back(param2_type);
+
+    param3_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    fields.push_back(param3_type);
+
+    param4_type = IntegerType::get(TheContext,32);
+    fields.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext,32);
+    fields.push_back(param5_type);
 
     if(struct_type->isOpaque()) {
         struct_type->setBody(fields, false);
     }
 
-    sCLClass* va_list_struct = alloc_struct("va_list", FALSE);
+    sCLClass* va_list_struct = alloc_struct("__builtin_va_list", FALSE);
 
     int num_fields = 1;
     char field_names[STRUCT_FIELD_MAX][VAR_NAME_MAX];
@@ -292,9 +324,11 @@ void declare_builtin_functions()
     pair_value.first = struct_type;
     pair_value.second = clone_node_type(node_type);
 
-    gLLVMStructType["va_list"] = pair_value;
+    gLLVMStructType["__builtin_va_list"] = pair_value;
 
     /// va_start ///
+    params.clear();
+
     result_type = Type::getVoidTy(TheContext);
 
     param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
@@ -314,7 +348,7 @@ void declare_builtin_functions()
         xstrncpy(param_names[0], "p", VAR_NAME_MAX);
         param_types[0] = create_node_type_with_class_name("char*");
 
-        BOOL var_arg = FALSE;
+        BOOL var_arg = TRUE;
 
         char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
 
@@ -1070,8 +1104,15 @@ Value* get_dummy_value(sNodeType* node_type, sCompileInfo* info)
 
 BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sCompileInfo* info)
 {
+    sNodeType* node_type2 = clone_node_type(node_type);
+
+    if(node_type2->mArrayInitializeNum > 0){
+        node_type2->mPointerNum--;
+        node_type2->mArrayNum = node_type2->mArrayInitializeNum;
+    }
+
     Type* llvm_type;
-    if(!create_llvm_type_from_node_type(&llvm_type, node_type, info))
+    if(!create_llvm_type_from_node_type(&llvm_type, node_type2, info))
     {
         return FALSE;
     }
@@ -1110,6 +1151,45 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         }
 
         *right_type = create_node_type_with_class_name("char*");
+    }
+    else if(type_identify_with_class_name(left_type, "char*") && type_identify_with_class_name(*right_type, "__builtin_va_list"))
+    {
+        if(rvalue) {
+            rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, PointerType::get(IntegerType::get(TheContext, 8),0));
+            rvalue->type = create_node_type_with_class_name("char*");
+        }
+
+        *right_type = create_node_type_with_class_name("char*");
+    }
+    else if(type_identify_with_class_name(left_type, "va_list") && type_identify_with_class_name(*right_type, "char*"))
+    {
+        if(rvalue) {
+            Type* llvm_type;
+            if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
+            {
+                return FALSE;
+            }
+
+            rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, llvm_type);
+            rvalue->type = create_node_type_with_class_name("va_list");
+        }
+
+        *right_type = create_node_type_with_class_name("va_list");
+    }
+    else if(type_identify_with_class_name(left_type, "__builtin_va_list") && type_identify_with_class_name(*right_type, "char*"))
+    {
+        if(rvalue) {
+            Type* llvm_type;
+            if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
+            {
+                return FALSE;
+            }
+
+            rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, llvm_type);
+            rvalue->type = create_node_type_with_class_name("__builtin_va_list");
+        }
+
+        *right_type = create_node_type_with_class_name("__builtin_va_list");
     }
     else if(left_type->mPointerNum > 0) 
     {

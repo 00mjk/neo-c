@@ -142,7 +142,10 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
     sBuf_append_char(&(node_block)->mSource, '\0');
 
     node_block->mLVTable = info->lv_table;
-    if(!extern_c_lang) {
+    node_block->mHasResult = has_result;
+
+    if(!extern_c_lang || info->mBlockLevel > 0) 
+    {
         node_block->mHasResult = has_result;
     }
     else {
@@ -169,6 +172,10 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
     int stack_num_before = info->stack_num;
 
+    if(!extern_c_lang) {
+        info->mBlockLevel++;
+    }
+
     if(block->mNumNodes == 0) {
         info->type = create_node_type_with_class_name("void");
     }
@@ -182,6 +189,9 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
             if(!compile(node, info)) {
                 info->pinfo->lv_table = old_table;
+                if(!extern_c_lang) {
+                    info->mBlockLevel--;
+                }
                 return FALSE;
             }
 
@@ -220,6 +230,9 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
                         info->type = create_node_type_with_class_name("int"); // dummy
 
+                        if(!extern_c_lang) {
+                            info->mBlockLevel--;
+                        }
                         return TRUE;
                     }
 
@@ -247,6 +260,9 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
                         info->type = create_node_type_with_class_name("int"); // dummy
 
+                        if(!extern_c_lang) {
+                            info->mBlockLevel--;
+                        }
                         return TRUE;
                     }
 
@@ -270,6 +286,9 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
     if(!extern_c_lang) {
         free_objects(info->pinfo->lv_table, info);
+    }
+    if(!extern_c_lang) {
+        info->mBlockLevel--;
     }
     //free_right_value_objects(info);
 

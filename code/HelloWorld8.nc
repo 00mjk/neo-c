@@ -5,6 +5,16 @@ extern "C"
 #include <stdio.h>
 }
 
+macro hello {
+ruby <<EOS
+print <<"REOS"
+{
+    puts("HELLO MACRO #{ENV['PARAMS']}");
+}
+REOS
+EOS
+}
+
 def main():int 
 {
     var str = string("HELLO WORLD");
@@ -23,20 +33,14 @@ def main():int
         printf("%d\n", it);
     }
 
-/*
-    var v2 = vector(int, 1, 2, 3);
+    var mmmzzz = extern "C" {
+        345
+    };
 
-    v2.each {
-        printf("%d\n", it);
-    }
-*/
+    xassert("c lang result value", mmmzzz == 345);
 
-    extern "C"
-    {
-        int aaa[3] = { 1, 2, 3 };
-
-        printf("%d\n", sizeof(aaa));
-    }
+    hello!(HELLO WORLD);
+    hello!{HELLO WORLD, HELLO WORLD2};
     
     0
 }

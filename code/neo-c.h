@@ -68,7 +68,7 @@ impl vector<T>
     }
 }
 
-#define count_vector_args (T, ...) (sizeof((T[]) { __VA_ARGS__}) / sizeof(T))
+#define count_vector_element_number(T, ...) {  T tmp[] = { __VA_ARGS__ }; sizeof(tmp) / sizeof(T) }
 
 /// others ///
 extern void xassert(char* msg, bool exp);

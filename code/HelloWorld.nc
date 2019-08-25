@@ -3,25 +3,14 @@
 extern "C"
 {
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 enum EnumTest
 {
     EnumA, EnumB
 }
-
-int puts(char* str);
-void exit(int rcode);
-int strcmp(char* str1, char* str2);
-int printf(char* str, ...);
-int snprintf(char* str, int size, ...);
-int strcpy(char* mem, char* mem2);
-char* strcat(char* mem, char* mem2);
-int strlen(char* mem);
-int atoi(char* str);
-char* memcpy(char* mem, char* mem2, int size);
-
-int vprintf(const char* __fp, va_list __args);
-
-void sleep(int sec);
 
 int GlobalVar = 2;
 char* GlobalVar2 = "ABC";
@@ -1364,6 +1353,20 @@ label1:
 
     va_list_test("aaa %d\n", 1);
 
+/*
+    void va_list_test2(int num_args, ...)
+    {
+        int sum = 0;
+        va_list vlist;
+
+        va_start(vlist, num_args);
+        int n = va_arg(vlist, int);
+        va_end(vlist);
+    }
+
+    va_list_test2(2, 1, 2);
+*/
+
     void pfun_test(void) {
         puts("XXX");
     }
@@ -1469,6 +1472,19 @@ label1:
     var llll = new StructTest10;
 
     printf("EnumA %d\n", EnumA);
+
+    var llll2 = count_vector_element_number(int, 1,2,3);
+    xassert("count_vector_element_number", llll2 == 3);
+
+    int aaazzz[] = { 1, 2, 3 };
+
+    xassert("int array size", sizeof(aaazzz) == 12);
+
+    var nnnzzz = {
+        123
+    };
+
+    xassert("normal block result value", nnnzzz == 123);
 
 /*
     struct Data5 {

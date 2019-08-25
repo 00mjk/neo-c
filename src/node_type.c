@@ -85,6 +85,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
     node_type2->mVolatile = node_type->mVolatile;
     node_type2->mStatic = node_type->mStatic;
     node_type2->mDynamicArrayNum = node_type->mDynamicArrayNum;
+    node_type2->mArrayInitializeNum = node_type->mArrayInitializeNum;
 
     if(node_type->mResultType) {
         node_type2->mResultType = clone_node_type(node_type->mResultType);
@@ -103,7 +104,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
 
 void show_node_type(sNodeType* node_type)
 {
-    printf("-+- [%s] array num %d nullable %d pointer num %d heap %d unsigned %d no heap  %d -+-\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap, node_type->mUnsigned, node_type->mNoHeap); 
+    printf("-+- [%s] array num %d nullable %d pointer num %d heap %d unsigned %d no heap  %d constant %d dynamic array num %d -+- array_initialize_num %d\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap, node_type->mUnsigned, node_type->mNoHeap, node_type->mConstant, node_type->mDynamicArrayNum, node_type->mArrayInitializeNum); 
 
     printf(">>generics type num %d\n>>generics types\n", node_type->mNumGenericsTypes);
     int i;
@@ -281,7 +282,19 @@ BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)
     {
         return TRUE;
     }
-    else if(type_identify_with_class_name(left_type, "char*") && type_identify_with_class_name(right_type, "va_list"))
+    else if(type_identify_with_class_name(left_type, "char*") && type_identify_with_class_name(right_type, "__builtin_va_list"))
+    {
+        return TRUE;
+    }
+    else if(type_identify_with_class_name(left_type, "__builtin_va_list") && type_identify_with_class_name(right_type, "char*"))
+    {
+        return TRUE;
+    }
+    else if(type_identify_with_class_name(left_type, "va_list") && type_identify_with_class_name(right_type, "va_list*"))
+    {
+        return TRUE;
+    }
+    else if(type_identify_with_class_name(left_type, "__builtin_va_list") && type_identify_with_class_name(right_type, "__builtin_va_list*"))
     {
         return TRUE;
     }
@@ -307,7 +320,8 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
         return TRUE;
     }
 
-    return FALSE;
+    return TRUE;
+    //return FALSE;
 }
 
 BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompileInfo* info)
