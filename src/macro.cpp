@@ -38,6 +38,8 @@ static BOOL get_command_result(sBuf* command_result, char* macro_name, char* cmd
     FILE* f;
     char buf[BUFSIZ];
 
+    sBuf_append(command_result, (void*)"{", 1);
+
     setenv("PARAMS", params, 1);
 
     f = popen(cmdline, "r");
@@ -59,6 +61,8 @@ static BOOL get_command_result(sBuf* command_result, char* macro_name, char* cmd
         fprintf(stderr, "pclose(2) is failed at %s\n", macro_name);
         return FALSE;
     }
+
+    sBuf_append(command_result, (void*)"}", 1);
 
     return TRUE;
 }

@@ -904,7 +904,7 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
         }
     }
 
-    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || (klass && *info->p == '(') || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0 || strcmp(buf, "__extension__") == 0;
+    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || (klass && *info->p == '(') || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0 || strcmp(buf, "__extension__") == 0 || strcmp(buf, "typeof") == 0;
 }
 
 static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef, BOOL parse_only)
@@ -971,6 +971,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             break;
         }
     }
+
 
     BOOL only_signed_unsigned = FALSE;
     if(unsigned_ || signed_) {
@@ -1270,6 +1271,34 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                 *result_type = create_node_type_with_class_name(type_name);
             }
         }
+    }
+
+    if(strcmp(type_name, "typeof") == 0 && *info->p == '(')
+    {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        unsigned int node = 0;
+        if(!expression(&node, info)) {
+            return FALSE;
+        }
+
+        sCompileInfo cinfo;
+        memset(&cinfo, 0, sizeof(sCompileInfo));
+        cinfo.no_output = TRUE;
+        cinfo.pinfo = info;
+
+        if(!compile(node, &cinfo)) {
+            parser_err_msg(info, "can't get type from typedef");
+            info->err_num++;
+            return TRUE;
+        }
+
+        dec_stack_ptr(1, &cinfo);
+
+        expect_next_character_with_one_forward(")", info);
+
+        *result_type = clone_node_type(cinfo.type);
     }
 
     if(*result_type == NULL || (*result_type)->mClass == NULL) {
@@ -5331,6 +5360,18 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         else if(strcmp(buf, "continue") == 0) {
             *node = sNodeTree_create_continue_expression(info);
         }
+        else if(strcmp(buf, "macro") == 0) {
+            if(!parse_macro(node, info))
+            {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "ruby_macro") == 0) {
+            if(!parse_ruby_macro(node, info))
+            {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "template") == 0) {
             if(!parse_method_generics_function(node, NULL, info)) {
                 return FALSE;
@@ -5422,7 +5463,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(is_type_name(buf, info) && (*info->p != '(' || (*info->p == '(' && *(info->p+1) == '*'))) {
+        else if(is_type_name(buf, info) && (*info->p != '(' || (*info->p == '(' && *(info->p+1) == '*')) || strcmp(buf, "typeof") == 0) {
             info->p = p_before;
             info->sline = sline_before;
 

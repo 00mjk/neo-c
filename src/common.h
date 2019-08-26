@@ -706,6 +706,7 @@ BOOL create_llvm_union_type(sNodeType* node_type, sCompileInfo* info);
 void create_undefined_llvm_struct_type(sNodeType* node_type);
 BOOL get_const_value_from_node(int* array_size, unsigned int array_size_node, sParserInfo* info);
 void create_anonymous_union_var_name(char* name, int size_name);
+void dec_stack_ptr(int value, sCompileInfo* info);
 
 /// typedef.cpp ///
 void add_typedef(char* name, sNodeType* node_type);
@@ -714,6 +715,10 @@ sNodeType* get_typedef(char* name);
 /// macro ///
 void append_macro(char* name, char* body);
 BOOL call_macro(unsigned int* node, char* name, char* params, sParserInfo* info);
+
+/// parser.c ///
+BOOL parse_macro(unsigned int* node, sParserInfo* info);
+BOOL parse_ruby_macro(unsigned int* node, sParserInfo* info);
 
 #endif
 

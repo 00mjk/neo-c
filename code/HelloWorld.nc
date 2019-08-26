@@ -1486,6 +1486,14 @@ label1:
 
     xassert("normal block result value", nnnzzz == 123);
 
+    typeof(1) axyuuuu = 123;
+
+    xassert("typeof test", axyuuuu == 123);
+
+    typeof(axyuuuu) axyuuuu2 = 234;
+
+    xassert("typeof test", axyuuuu2 == 234);
+
 /*
     struct Data5 {
         int a;

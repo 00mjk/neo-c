@@ -6,13 +6,18 @@ extern "C"
 }
 
 macro hello {
-ruby <<EOS
+ruby <<'EOS'
+$a = "\"aaa\"";
 print <<"REOS"
-{
-    puts("HELLO MACRO #{ENV['PARAMS']}");
-}
+    puts("HELLO MACRO");
+    puts(#{$a});
 REOS
 EOS
+}
+
+ruby_macro hello2 {
+    param = ENV['PARAMS'];
+    print "puts(\"HELLO RUBY MACRO #{param}\");";
 }
 
 def main():int 
@@ -41,6 +46,8 @@ def main():int
 
     hello!(HELLO WORLD);
     hello!{HELLO WORLD, HELLO WORLD2};
+
+    hello2!(I LOVE RUBY);
     
     0
 }

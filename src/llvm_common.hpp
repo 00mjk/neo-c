@@ -126,7 +126,6 @@ extern LVALUE* gLLVMStack;
 extern "C"
 {
 void push_value_to_stack_ptr(LVALUE* value, sCompileInfo* info);
-void dec_stack_ptr(int value, sCompileInfo* info);
 
 LVALUE* get_value_from_stack(int offset);
 
