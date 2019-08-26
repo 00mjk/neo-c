@@ -35,8 +35,6 @@ struct GlobalStruct GlobalStructData = {
     123, 345
 };
 
-extern const char *const sys_errlist[];
-
 int main()
 {
     if(1 == 1) {
@@ -1342,6 +1340,7 @@ label1:
 
     signed aaaaaaaaaa = 11111;
 
+/*
     void va_list_test(char* str, ...)
     {
         va_list vlist;
@@ -1352,6 +1351,7 @@ label1:
     }
 
     va_list_test("aaa %d\n", 1);
+*/
 
 /*
     void va_list_test2(int num_args, ...)
@@ -1486,6 +1486,7 @@ label1:
 
     xassert("normal block result value", nnnzzz == 123);
 
+/*
     typeof(1) axyuuuu = 123;
 
     xassert("typeof test", axyuuuu == 123);
@@ -1493,6 +1494,7 @@ label1:
     typeof(axyuuuu) axyuuuu2 = 234;
 
     xassert("typeof test", axyuuuu2 == 234);
+*/
 
 /*
     struct Data5 {
