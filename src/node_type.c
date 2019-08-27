@@ -86,6 +86,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
     node_type2->mStatic = node_type->mStatic;
     node_type2->mDynamicArrayNum = node_type->mDynamicArrayNum;
     node_type2->mArrayInitializeNum = node_type->mArrayInitializeNum;
+    node_type2->mTypeOfExpression = node_type->mTypeOfExpression;
 
     if(node_type->mResultType) {
         node_type2->mResultType = clone_node_type(node_type->mResultType);
@@ -549,6 +550,30 @@ BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types,
             }
         }
     }
+
+    return TRUE;
+}
+
+BOOL solve_typeof(sNodeType** node_type, sCompileInfo* info)
+{
+    unsigned int node = (*node_type)->mTypeOfExpression;
+
+/*
+    sCompileInfo cinfo;
+    memset(&cinfo, 0, sizeof(sCompileInfo));
+    cinfo.no_output = TRUE;
+    cinfo.pinfo = info->pinfo;
+*/
+
+    if(!compile(node, info)) {
+        parser_err_msg(info, "can't get type from typedef");
+        info->err_num++;
+        return TRUE;
+    }
+
+    dec_stack_ptr(1, info);
+
+    *node_type = clone_node_type(info->type);
 
     return TRUE;
 }

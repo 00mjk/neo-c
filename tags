@@ -613,6 +613,7 @@ mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct:
 mType	src/common.h	/^        sNodeType* mType;$/;"	m	union:sNodeTreeStruct::__anon2
 mType	src/common.h	/^    sNodeType* mType;$/;"	m	struct:sParserParamStruct
 mType	src/common.h	/^    sNodeType* mType;$/;"	m	struct:sVarStruct
+mTypeOfExpression	src/common.h	/^    unsigned int mTypeOfExpression;$/;"	m	struct:sNodeTypeStruct
 mUndefinedStructType	src/common.h	/^    void* mUndefinedStructType;$/;"	m	struct:sCLClassStruct
 mUnsigned	src/common.h	/^    BOOL mUnsigned;$/;"	m	struct:sNodeTypeStruct
 mVarArg	src/common.h	/^            BOOL mVarArg;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon10
@@ -909,6 +910,7 @@ sname	src/common.h	/^    char sname[PATH_MAX];$/;"	m	struct:sCompileInfoStruct
 sname	src/common.h	/^    char sname[PATH_MAX];$/;"	m	struct:sParserInfoStruct
 solve_generics	src/node_type.c	/^BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)$/;"	f
 solve_method_generics	src/node_type.c	/^BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX])$/;"	f
+solve_typeof	src/node_type.c	/^BOOL solve_typeof(sNodeType** node_type, sCompileInfo* info)$/;"	f
 source	src/common.h	/^    char* source;$/;"	m	struct:sParserInfoStruct
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
 start_to_make_native_code	src/llvm.cpp	/^void start_to_make_native_code(char* sname)$/;"	f

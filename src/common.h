@@ -166,6 +166,8 @@ struct sNodeTypeStruct {
     unsigned int mDynamicArrayNum;
 
     int mArrayInitializeNum;
+
+    unsigned int mTypeOfExpression;
 };
 
 typedef struct sNodeTypeStruct sNodeType;
@@ -187,6 +189,7 @@ BOOL is_number_type(sNodeType* node_type);
 void show_node_type(sNodeType* node_type);
 BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type);
 BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX]);
+BOOL solve_typeof(sNodeType** node_type, struct sCompileInfoStruct* info);
 BOOL included_generics_type(sNodeType* node_type);
 BOOL get_type_of_method_generics(sNodeType* method_generics_types[GENERICS_TYPES_MAX], sNodeType* fun_param_type, sNodeType* param_type);
   

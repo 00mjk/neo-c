@@ -1283,22 +1283,11 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             return FALSE;
         }
 
-        sCompileInfo cinfo;
-        memset(&cinfo, 0, sizeof(sCompileInfo));
-        cinfo.no_output = TRUE;
-        cinfo.pinfo = info;
-
-        if(!compile(node, &cinfo)) {
-            parser_err_msg(info, "can't get type from typedef");
-            info->err_num++;
-            return TRUE;
-        }
-
-        dec_stack_ptr(1, &cinfo);
+        *result_type = create_node_type_with_class_name("TYPEOF");
 
         expect_next_character_with_one_forward(")", info);
 
-        *result_type = clone_node_type(cinfo.type);
+        (*result_type)->mTypeOfExpression = node;
     }
 
     if(*result_type == NULL || (*result_type)->mClass == NULL) {

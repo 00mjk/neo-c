@@ -1493,6 +1493,19 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         left_type = clone_node_type(var->mType);
     }
 
+    if(left_type->mTypeOfExpression) 
+    {
+        if(!solve_typeof(&left_type, info)) 
+        {
+            compile_err_msg(info, "Can't solve typeof types");
+            show_node_type(left_type);
+            info->err_num++;
+
+            return TRUE;
+        }
+        var->mType = clone_node_type(left_type);
+    }
+
     if(type_identify_with_class_name(left_type, "__builtin_va_list") && type_identify_with_class_name(right_type, "char*"))
     {
         BOOL parent = FALSE;
@@ -1502,7 +1515,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
         Value* var_address;
         if(var->mLLVMValue == NULL) {
-            compile_err_msg(info, "Invalid variable.");
+            compile_err_msg(info, "Invalid variable.store variable");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -1513,7 +1526,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         var_address = (Value*)var->mLLVMValue;
 
         if(var_address == nullptr) {
-            compile_err_msg(info, "Invalid variable.");
+            compile_err_msg(info, "Invalid variable.store variable");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -1644,7 +1657,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
                 }
 
                 if(var_address == nullptr) {
-                    compile_err_msg(info, "Invalid variable.");
+                    compile_err_msg(info, "Invalid variable.store variable");
                     info->err_num++;
 
                     info->type = create_node_type_with_class_name("int"); // dummy
@@ -1685,7 +1698,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
             }
 
             if(var_address == nullptr) {
-                compile_err_msg(info, "Invalid variable.");
+                compile_err_msg(info, "Invalid variable.store variable");
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
@@ -1907,6 +1920,17 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
 
         param->mType = clone_node_type(lambda_type->mParamTypes[i]);
 
+        if(param->mType->mTypeOfExpression) 
+        {
+            if(!solve_typeof(&param->mType, cinfo)) 
+            {
+                compile_err_msg(cinfo, "Can't solve typeof types");
+                show_node_type(param->mType);
+                info->err_num++;
+
+                return FALSE;
+            }
+        }
         if(generics_type) {
             if(!solve_generics(&param->mType, generics_type)) 
             {
@@ -1934,6 +1958,18 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     info2.in_clang = in_clang;
 
     sNodeType* result_type = clone_node_type(lambda_type->mResultType);
+
+    if(result_type->mTypeOfExpression) 
+    {
+        if(!solve_typeof(&result_type, cinfo)) 
+        {
+            compile_err_msg(cinfo, "Can't solve typeof types");
+            show_node_type(result_type);
+            info->err_num++;
+
+            return FALSE;
+        }
+    }
 
     if(generics_type) {
         if(!solve_generics(&result_type, generics_type)) 
@@ -2066,6 +2102,18 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
 
         param->mType = clone_node_type(fun->mParamTypes[i]);
 
+        if(param->mType->mTypeOfExpression) 
+        {
+            if(!solve_typeof(&param->mType, cinfo)) 
+            {
+                compile_err_msg(cinfo, "Can't solve typeof types");
+                show_node_type(param->mType);
+                info->err_num++;
+
+                return FALSE;
+            }
+        }
+
         if(!solve_method_generics(&param->mType, num_method_generics_types, method_generics_types))
         {
             compile_err_msg(cinfo, "Can't solve method generics type");
@@ -2124,6 +2172,18 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     }
 
     sNodeType* result_type = clone_node_type(fun->mResultType);
+
+    if(result_type->mTypeOfExpression) 
+    {
+        if(!solve_typeof(&result_type, cinfo)) 
+        {
+            compile_err_msg(cinfo, "Can't solve typeof types");
+            show_node_type(result_type);
+            info->err_num++;
+
+            return FALSE;
+        }
+    }
 
     if(!solve_method_generics(&result_type, num_method_generics_types, method_generics_types))
     {
@@ -2201,6 +2261,18 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
 
         xstrncpy(param->mName, fun->mParamNames[i], VAR_NAME_MAX);
         param->mType = clone_node_type(fun->mParamTypes[i]);
+
+        if(param->mType->mTypeOfExpression) 
+        {
+            if(!solve_typeof(&param->mType, cinfo)) 
+            {
+                compile_err_msg(cinfo, "Can't solve typeof types");
+                show_node_type(param->mType);
+                info->err_num++;
+
+                return FALSE;
+            }
+        }
 
         if(!solve_method_generics(&param->mType, num_method_generics_types, method_generics_types))
         {
@@ -2656,6 +2728,17 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 }
             }
 
+            if(left_type->mTypeOfExpression) 
+            {
+                if(!solve_typeof(&left_type, info)) 
+                {
+                    compile_err_msg(info, "Can't solve typeof types");
+                    show_node_type(left_type); 
+                    info->err_num++;
+                    return FALSE;
+                }
+            }
+
             if(!solve_generics(&left_type, generics_type)) {
                 found = FALSE;
             }
@@ -2725,6 +2808,17 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         lvalue_params[0] = &param;
 
         if(fun.mInlineFunction) {
+            if(left_type->mTypeOfExpression) 
+            {
+                if(!solve_typeof(&left_type, info)) 
+                {
+                    compile_err_msg(info, "Can't solve typeof types");
+                    show_node_type(left_type); 
+                    info->err_num++;
+                    return FALSE;
+                }
+            }
+
             if(!solve_method_generics(&left_type, num_method_generics_types, method_generics_types))
             {
                 compile_err_msg(info, "Can't solve method generics type");
@@ -2803,6 +2897,17 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 lvalue_params[i] = &param;
 
                 if(fun.mInlineFunction) {
+                    if(left_type->mTypeOfExpression) 
+                    {
+                        if(!solve_typeof(&left_type, info)) 
+                        {
+                            compile_err_msg(info, "Can't solve typeof types");
+                            show_node_type(left_type); 
+                            info->err_num++;
+                            return FALSE;
+                        }
+                    }
+
                     if(!solve_method_generics(&left_type, num_method_generics_types, method_generics_types))
                     {
                         compile_err_msg(info, "Can't solve method generics type");
@@ -2928,6 +3033,17 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type = clone_node_type(fun.mResultType);
 
+        if(result_type->mTypeOfExpression) 
+        {
+            if(!solve_typeof(&result_type, info)) 
+            {
+                compile_err_msg(info, "Can't solve typeof types");
+                show_node_type(result_type); 
+                info->err_num++;
+                return FALSE;
+            }
+        }
+
         if(!solve_method_generics(&result_type, num_method_generics_types, method_generics_types))
         {
             compile_err_msg(info, "Can't solve method generics type");
@@ -3025,6 +3141,17 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     }
     else {
         sNodeType* result_type = clone_node_type(fun.mResultType);
+
+        if(result_type->mTypeOfExpression) 
+        {
+            if(!solve_typeof(&result_type, info)) 
+            {
+                compile_err_msg(info, "Can't solve typeof types");
+                show_node_type(result_type); 
+                info->err_num++;
+                return FALSE;
+            }
+        }
 
         if(generics_type) {
             if(!solve_generics(&result_type, generics_type))
@@ -3858,7 +3985,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
             Value* var_address;
 
             if(var->mLLVMValue == NULL) {
-                compile_err_msg(info, "Invalid variable. %s", var_name);
+                compile_err_msg(info, "Invalid variable. %s. load variable", var_name);
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
@@ -3868,7 +3995,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
             var_address = (Value*)var->mLLVMValue;
 
             if(var_address == nullptr) {
-                compile_err_msg(info, "Invalid variable. %s", var_name);
+                compile_err_msg(info, "Invalid variable. %s. load variable", var_name);
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
@@ -3904,7 +4031,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
             }
 
             if(var_address == nullptr) {
-                compile_err_msg(info, "Invalid variable. %s", var_name);
+                compile_err_msg(info, "Invalid variable. %s. load variable", var_name);
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
@@ -4315,6 +4442,16 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     node_type2->mHeap = TRUE;
 
     if(info->pinfo->mGenericsType) {
+        if(node_type2->mTypeOfExpression) 
+        {
+            if(!solve_typeof(&node_type2, info)) 
+            {
+                compile_err_msg(info, "Can't solve typeof types");
+                show_node_type(node_type2); 
+                info->err_num++;
+                return FALSE;
+            }
+        }
         if(!solve_generics(&node_type2, info->pinfo->mGenericsType)) {
             compile_err_msg(info, "Can't solve generics types");
             show_node_type(node_type2);
@@ -4448,6 +4585,16 @@ static BOOL compile_stack_object(unsigned int node, sCompileInfo* info)
     node_type2->mHeap = FALSE;
 
     if(info->pinfo->mGenericsType) {
+        if(node_type2->mTypeOfExpression) 
+        {
+            if(!solve_typeof(&node_type2, info)) 
+            {
+                compile_err_msg(info, "Can't solve typeof types");
+                show_node_type(node_type2); 
+                info->err_num++;
+                return FALSE;
+            }
+        }
         if(!solve_generics(&node_type2, info->pinfo->mGenericsType)) {
             compile_err_msg(info, "Can't solve generics types");
             show_node_type(node_type2);
@@ -4584,6 +4731,17 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
         field_type = clone_node_type(parent_field_class->mFields[field_index]);
 
+        if(parent_field_type->mTypeOfExpression) 
+        {
+            if(!solve_typeof(&parent_field_type, info)) 
+            {
+                compile_err_msg(info, "Can't solve typeof types");
+                show_node_type(parent_field_type); 
+                info->err_num++;
+                return FALSE;
+            }
+        }
+
         if(!solve_generics(&parent_field_type, left_type)) {
             compile_err_msg(info, "Can't solve generics types");
             show_node_type(field_type);
@@ -4690,6 +4848,17 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     }
     else {
         field_type = clone_node_type(left_type->mClass->mFields[field_index]);
+
+        if(field_type->mTypeOfExpression) 
+        {
+            if(!solve_typeof(&field_type, info)) 
+            {
+                compile_err_msg(info, "Can't solve typeof types");
+                show_node_type(field_type); 
+                info->err_num++;
+                return FALSE;
+            }
+        }
 
         if(!solve_generics(&field_type, left_type)) {
             compile_err_msg(info, "Can't solve generics types");
@@ -4876,6 +5045,17 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
         field_type = clone_node_type(parent_field_class->mFields[field_index]);
 
+        if(parent_field_type->mTypeOfExpression) 
+        {
+            if(!solve_typeof(&parent_field_type, info)) 
+            {
+                compile_err_msg(info, "Can't solve typeof types");
+                show_node_type(parent_field_type); 
+                info->err_num++;
+                return FALSE;
+            }
+        }
+
         if(!solve_generics(&parent_field_type, left_type)) {
             compile_err_msg(info, "Can't solve generics types");
             show_node_type(parent_field_type);
@@ -4959,6 +5139,17 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     }
     else {
         field_type = clone_node_type(left_type->mClass->mFields[field_index]);
+    }
+
+    if(field_type->mTypeOfExpression) 
+    {
+        if(!solve_typeof(&field_type, info)) 
+        {
+            compile_err_msg(info, "Can't solve typeof types");
+            show_node_type(field_type); 
+            info->err_num++;
+            return FALSE;
+        }
     }
 
     if(!solve_generics(&field_type, left_type)) {
@@ -7607,7 +7798,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
         }
 
         if(var_address == nullptr) {
-            compile_err_msg(info, "Invalid variable. %s", var_name);
+            compile_err_msg(info, "Invalid variable. %s. array with initialization", var_name);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -7894,7 +8085,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
         Value* var_address = llvm_value.value;
 
         if(var_address == nullptr) {
-            compile_err_msg(info, "Invalid variable. %s", var_name);
+            compile_err_msg(info, "Invalid variable. %s. struct with initialization", var_name);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -8024,7 +8215,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
         }
 
         if(var_address == nullptr) {
-            compile_err_msg(info, "Invalid variable. %s", var_name);
+            compile_err_msg(info, "Invalid variable. %s. struct with initialazation", var_name);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
