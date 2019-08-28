@@ -23,7 +23,7 @@ def main():int
         printf("%d\n", it);
     }
 
-    var v2 = vector!(1,2,3);
+    var v2 = vec!(1,2,3);
 
     v2.each {
         printf("%d\n", it);

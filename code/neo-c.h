@@ -68,7 +68,7 @@ impl vector<T>
     }
 }
 
-ruby_macro vector {
+ruby_macro vec {
     params = [];
     param = "";
     dquort = false;
