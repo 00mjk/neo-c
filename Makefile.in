@@ -129,3 +129,5 @@ test:
 	./code/HelloWorld7
 	PWD=`pwd` ./neo-c code/HelloWorld8.nc code/neo-c.o
 	./code/HelloWorld8
+	PWD=`pwd` ./neo-c code/HelloWorld9.nc code/neo-c.o
+	./code/HelloWorld9

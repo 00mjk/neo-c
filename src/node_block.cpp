@@ -244,6 +244,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                     Builder.CreateAlignedStore(llvm_value.value, (Value*)info->result_variable, alignment);
                 }
                 else if(has_result) {
+puts("AAA");
                     LVALUE llvm_value = *get_value_from_stack(-1);
                     arrange_stack(info, stack_num_before);
 

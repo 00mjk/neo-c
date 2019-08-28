@@ -67,9 +67,14 @@ static BOOL get_command_result(sBuf* command_result, char* macro_name, char* cmd
     return TRUE;
 }
 
-BOOL call_macro(unsigned int* node, char* name, char* params, sParserInfo* info)
+BOOL call_macro(unsigned * node, char* name, char* params, sParserInfo* info)
 {
     char* cmdline = (char*)gMacros[name].mBody.c_str();
+
+    if(gMacros[name].mName == "") {
+        fprintf(stderr, "invalid macro. %s\n", name);
+        return FALSE;
+    }
 
     sBuf command_result;
     sBuf_init(&command_result);
@@ -81,7 +86,6 @@ BOOL call_macro(unsigned int* node, char* name, char* params, sParserInfo* info)
 
     sParserInfo info2;
     memset(&info2, 0, sizeof(sParserInfo));
-
 
     info2.p = command_result.mBuf;
     info2.source = command_result.mBuf;

@@ -68,7 +68,56 @@ impl vector<T>
     }
 }
 
-#define count_vector_element_number(T, ...) {  T tmp[] = { __VA_ARGS__ }; sizeof(tmp) / sizeof(T) }
+ruby_macro vector {
+    params = [];
+    param = "";
+    dquort = false;
+    squort = false;
+    param_line = ENV['PARAMS'];
+    n = 0;
+    while(n < param_line.length()) do
+        c = param_line[n];
+        n = n + 1;
+
+        if (dquort || squort) && c == "\\"
+            param.concat(c);
+            
+            c = param_line[n];
+            n = n + 1;
+
+            param.concat(c);
+        elsif c == "\""
+            param.concat(c);
+            dquort = !dquort
+        elsif c == "'"
+            param.concat(c);
+            squort = !squort
+        elsif dquort || squort
+            param.concat(c);
+        elsif c == ","
+            if param.length() > 0
+                params.push(param);
+                param = ""
+            end
+        else
+            param.concat(c);
+        end
+    end
+
+    if param.length() != 0
+        params.push(param);
+    end
+
+    puts("extern \"C\" {");
+    puts("var result = new vector<typeof(#{params[0]})>.initialize();");
+
+    params.each do |param|
+        puts("result.push_back(#{param});");
+    end
+
+    puts("result");
+    puts("}");
+}
 
 /// others ///
 extern void xassert(char* msg, bool exp);

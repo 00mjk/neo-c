@@ -1493,7 +1493,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         left_type = clone_node_type(var->mType);
     }
 
-    if(left_type->mTypeOfExpression) 
+    if(is_typeof_type(left_type))
     {
         if(!solve_typeof(&left_type, info)) 
         {
@@ -1920,7 +1920,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
 
         param->mType = clone_node_type(lambda_type->mParamTypes[i]);
 
-        if(param->mType->mTypeOfExpression) 
+        if(is_typeof_type(param->mType))
         {
             if(!solve_typeof(&param->mType, cinfo)) 
             {
@@ -1959,7 +1959,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
 
     sNodeType* result_type = clone_node_type(lambda_type->mResultType);
 
-    if(result_type->mTypeOfExpression) 
+    if(is_typeof_type(result_type))
     {
         if(!solve_typeof(&result_type, cinfo)) 
         {
@@ -2102,7 +2102,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
 
         param->mType = clone_node_type(fun->mParamTypes[i]);
 
-        if(param->mType->mTypeOfExpression) 
+        if(is_typeof_type(param->mType))
         {
             if(!solve_typeof(&param->mType, cinfo)) 
             {
@@ -2173,7 +2173,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
 
     sNodeType* result_type = clone_node_type(fun->mResultType);
 
-    if(result_type->mTypeOfExpression) 
+    if(is_typeof_type(result_type))
     {
         if(!solve_typeof(&result_type, cinfo)) 
         {
@@ -2262,7 +2262,7 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
         xstrncpy(param->mName, fun->mParamNames[i], VAR_NAME_MAX);
         param->mType = clone_node_type(fun->mParamTypes[i]);
 
-        if(param->mType->mTypeOfExpression) 
+        if(is_typeof_type(param->mType))
         {
             if(!solve_typeof(&param->mType, cinfo)) 
             {
@@ -2728,7 +2728,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 }
             }
 
-            if(left_type->mTypeOfExpression) 
+            if(is_typeof_type(left_type))
             {
                 if(!solve_typeof(&left_type, info)) 
                 {
@@ -2808,7 +2808,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         lvalue_params[0] = &param;
 
         if(fun.mInlineFunction) {
-            if(left_type->mTypeOfExpression) 
+            if(is_typeof_type(left_type))
             {
                 if(!solve_typeof(&left_type, info)) 
                 {
@@ -2897,7 +2897,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 lvalue_params[i] = &param;
 
                 if(fun.mInlineFunction) {
-                    if(left_type->mTypeOfExpression) 
+                    if(is_typeof_type(left_type))
                     {
                         if(!solve_typeof(&left_type, info)) 
                         {
@@ -3033,7 +3033,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type = clone_node_type(fun.mResultType);
 
-        if(result_type->mTypeOfExpression) 
+        if(is_typeof_type(result_type))
         {
             if(!solve_typeof(&result_type, info)) 
             {
@@ -3142,7 +3142,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     else {
         sNodeType* result_type = clone_node_type(fun.mResultType);
 
-        if(result_type->mTypeOfExpression) 
+        if(is_typeof_type(result_type))
         {
             if(!solve_typeof(&result_type, info)) 
             {
@@ -4166,6 +4166,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
     sNodeBlock* if_block = gNodes[node].uValue.sIf.mIfNodeBlock;
     sNodeType* result_type = create_node_type_with_class_name("any");
+    result_type->mHeap = TRUE;
 
     BOOL last_expression_is_return_before = info->last_expression_is_return;
     info->last_expression_is_return = FALSE;
@@ -4441,17 +4442,18 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     sNodeType* node_type2 = clone_node_type(node_type);
     node_type2->mHeap = TRUE;
 
-    if(info->pinfo->mGenericsType) {
-        if(node_type2->mTypeOfExpression) 
+    if(is_typeof_type(node_type2))
+    {
+        if(!solve_typeof(&node_type2, info)) 
         {
-            if(!solve_typeof(&node_type2, info)) 
-            {
-                compile_err_msg(info, "Can't solve typeof types");
-                show_node_type(node_type2); 
-                info->err_num++;
-                return FALSE;
-            }
+            compile_err_msg(info, "Can't solve typeof types");
+            show_node_type(node_type2); 
+            info->err_num++;
+            return FALSE;
         }
+    }
+
+    if(info->pinfo->mGenericsType) {
         if(!solve_generics(&node_type2, info->pinfo->mGenericsType)) {
             compile_err_msg(info, "Can't solve generics types");
             show_node_type(node_type2);
@@ -4584,17 +4586,18 @@ static BOOL compile_stack_object(unsigned int node, sCompileInfo* info)
     node_type2->mPointerNum++;
     node_type2->mHeap = FALSE;
 
-    if(info->pinfo->mGenericsType) {
-        if(node_type2->mTypeOfExpression) 
+    if(is_typeof_type(node_type2))
+    {
+        if(!solve_typeof(&node_type2, info)) 
         {
-            if(!solve_typeof(&node_type2, info)) 
-            {
-                compile_err_msg(info, "Can't solve typeof types");
-                show_node_type(node_type2); 
-                info->err_num++;
-                return FALSE;
-            }
+            compile_err_msg(info, "Can't solve typeof types");
+            show_node_type(node_type2); 
+            info->err_num++;
+            return FALSE;
         }
+    }
+
+    if(info->pinfo->mGenericsType) {
         if(!solve_generics(&node_type2, info->pinfo->mGenericsType)) {
             compile_err_msg(info, "Can't solve generics types");
             show_node_type(node_type2);
@@ -4731,7 +4734,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
         field_type = clone_node_type(parent_field_class->mFields[field_index]);
 
-        if(parent_field_type->mTypeOfExpression) 
+        if(is_typeof_type(parent_field_type))
         {
             if(!solve_typeof(&parent_field_type, info)) 
             {
@@ -4849,7 +4852,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     else {
         field_type = clone_node_type(left_type->mClass->mFields[field_index]);
 
-        if(field_type->mTypeOfExpression) 
+        if(is_typeof_type(field_type))
         {
             if(!solve_typeof(&field_type, info)) 
             {
@@ -5045,7 +5048,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
         field_type = clone_node_type(parent_field_class->mFields[field_index]);
 
-        if(parent_field_type->mTypeOfExpression) 
+        if(is_typeof_type(parent_field_type))
         {
             if(!solve_typeof(&parent_field_type, info)) 
             {
@@ -5141,7 +5144,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         field_type = clone_node_type(left_type->mClass->mFields[field_index]);
     }
 
-    if(field_type->mTypeOfExpression) 
+    if(is_typeof_type(field_type))
     {
         if(!solve_typeof(&field_type, info)) 
         {
@@ -8329,6 +8332,7 @@ BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
     struct sNodeBlockStruct* node_block = gNodes[node].uValue.sNormalBlock.mNodeBlock;
 
     sNodeType* result_type = create_node_type_with_class_name("any");
+    result_type->mHeap = TRUE;
 
     if(!compile_block(node_block, info, result_type))
     {

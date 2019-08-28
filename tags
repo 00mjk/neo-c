@@ -65,6 +65,7 @@ PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld3.nc code\/neo-c.o$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld4.nc code\/neo-c.o$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld7.nc code\/HelloWorld5.o code\/HelloWorld6.o code\/neo-c.o$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld8.nc code\/neo-c.o$/;"	m
+PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld9.nc code\/neo-c.o$/;"	m
 REAL_FUN_NAME_MAX	src/common.h	31;"	d
 REAL_STRUCT_NAME_MAX	src/common.h	32;"	d
 RUNTIME_OBJS	Makefile	/^RUNTIME_OBJS=$/;"	m
@@ -133,7 +134,7 @@ b	code/HelloWorld6.h	/^    b:int;$/;"	m	struct:StructData1
 bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 call_destructor	src/llvm.cpp	/^static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)$/;"	f	file:
 call_function	src/node.cpp	/^BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, sCompileInfo* info)$/;"	f
-call_macro	src/macro.cpp	/^BOOL call_macro(unsigned int* node, char* name, char* params, sParserInfo* info)$/;"	f
+call_macro	src/macro.cpp	/^BOOL call_macro(unsigned * node, char* name, char* params, sParserInfo* info)$/;"	f
 call_preprocessor	src/preprocessor.c	/^static BOOL call_preprocessor(sBuf* command, sBuf* output)$/;"	f	file:
 case_else_block	src/common.h	/^    void* case_else_block;$/;"	m	struct:sCompileInfoStruct
 case_then_block	src/common.h	/^    void* case_then_block;$/;"	m	struct:sCompileInfoStruct
@@ -226,7 +227,6 @@ compile_xor	src/node.cpp	/^static BOOL compile_xor(unsigned int node, sCompileIn
 compiler	src/compiler.c	/^static BOOL compiler(char* fname, BOOL optimize)$/;"	f	file:
 compiler_final	src/compiler.c	/^static void compiler_final()$/;"	f	file:
 compiler_init	src/compiler.c	/^static void compiler_init()$/;"	f	file:
-count_vector_element_number	code/neo-c.h	71;"	d
 create_anonymous_union_var_name	src/llvm.cpp	/^void create_anonymous_union_var_name(char* name, int size_name)$/;"	f
 create_anoymous_struct_name	src/parser-clang.c	/^static void create_anoymous_struct_name(char* struct_name, int size_struct_name)$/;"	f	file:
 create_generics_fun_name	src/node.cpp	/^static void create_generics_fun_name(char* real_fun_name, int size_real_fun_name, char* fun_name, sNodeType** method_generics_types, int num_method_generics_types, sNodeType* generics_type, char* struct_name, int generics_fun_num)$/;"	f	file:
@@ -356,6 +356,7 @@ is_function_name	src/node.cpp	/^BOOL is_function_name(char* name)$/;"	f
 is_number_type	src/node_type.c	/^BOOL is_number_type(sNodeType* node_type)$/;"	f
 is_type_name	src/parser-clang.c	/^static BOOL is_type_name(char* buf, sParserInfo* info)$/;"	f	file:
 is_type_name	src/parser.c	/^static BOOL is_type_name(char* buf, sParserInfo* info)$/;"	f	file:
+is_typeof_type	src/node_type.c	/^BOOL is_typeof_type(sNodeType* node_type)$/;"	f
 items	code/neo-c.h	/^    T*% items;$/;"	m	struct:vector
 kNodeTypeAdd	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeVaArg };$/;"	e	enum:eNodeType
 kNodeTypeAnd	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeVaArg };$/;"	e	enum:eNodeType
@@ -698,7 +699,7 @@ parse_params	src/parser.c	/^static BOOL parse_params(sParserParam* params, int* 
 parse_phase	src/common.h	/^    int parse_phase;$/;"	m	struct:sParserInfoStruct
 parse_return	src/parser-clang.c	/^static BOOL parse_return(unsigned int* node, sParserInfo* info)$/;"	f	file:
 parse_return	src/parser.c	/^static BOOL parse_return(unsigned int* node, sParserInfo* info)$/;"	f	file:
-parse_ruby_macro	src/parser.c	/^BOOL parse_ruby_macro(unsigned int* node, sParserInfo* info)$/;"	f
+parse_ruby_macro	src/parser.c	/^BOOL parse_ruby_macro(unsigned int* node, sParserInfo* info, BOOL really_appended)$/;"	f
 parse_sharp	src/parser-clang.c	/^BOOL parse_sharp(sParserInfo* info)$/;"	f
 parse_simple_lambda_param	src/node.cpp	/^static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, sNodeType* generics_type, sParserInfo* info, sCompileInfo* cinfo, BOOL in_clang)$/;"	f	file:
 parse_simple_lambda_params	src/parser-clang.c	/^static BOOL parse_simple_lambda_params(unsigned int* node, int sline, sParserInfo* info)$/;"	f	file:

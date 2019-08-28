@@ -5356,8 +5356,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "ruby_macro") == 0) {
-            if(!parse_ruby_macro(node, info))
-            {
+            if(!parse_ruby_macro(node, info, TRUE)) {
                 return FALSE;
             }
         }
@@ -5365,6 +5364,25 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             if(!parse_method_generics_function(node, NULL, info)) {
                 return FALSE;
             }
+        }
+        else if(strcmp(buf, "extern") == 0 && *info->p == '"') {
+            expect_next_character_with_one_forward("\"", info);
+            expect_next_character_with_one_forward("cC", info);
+            expect_next_character_with_one_forward("\"", info);
+
+            BOOL in_clang = info->in_clang;
+
+            info->in_clang = TRUE;
+            sNodeBlock* node_block = NULL;
+            if(!parse_block_easy(ALLOC &node_block, TRUE, info))
+            {
+                info->in_clang = in_clang;
+                return FALSE;
+            }
+
+            info->in_clang = in_clang;
+
+            *node = sNodeTree_create_normal_block(node_block, info);
         }
         else if(strcmp(buf, "extern") == 0) {
             info->mNumGenerics = 0;

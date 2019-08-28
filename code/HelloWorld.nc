@@ -1473,9 +1473,6 @@ label1:
 
     printf("EnumA %d\n", EnumA);
 
-    var llll2 = count_vector_element_number(int, 1,2,3);
-    xassert("count_vector_element_number", llll2 == 3);
-
     int aaazzz[] = { 1, 2, 3 };
 
     xassert("int array size", sizeof(aaazzz) == 12);

@@ -2792,7 +2792,7 @@ BOOL parse_macro(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-BOOL parse_ruby_macro(unsigned int* node, sParserInfo* info)
+BOOL parse_ruby_macro(unsigned int* node, sParserInfo* info, BOOL really_appended)
 {
     char buf[VAR_NAME_MAX+1];
     if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
@@ -2810,10 +2810,11 @@ BOOL parse_ruby_macro(unsigned int* node, sParserInfo* info)
     sBuf_init(&body);
 
     sBuf_append_str(&body, "ruby <<'NEOCRUBYMACO'\n");
-    sBuf_append(&body, p, info->p-p-3);
+    sBuf_append(&body, p, info->p-p-4);
+
     sBuf_append_str(&body, "\nNEOCRUBYMACO\n");
 
-    if(info->parse_struct_phase) {
+    if(really_appended) {
         append_macro(buf, body.mBuf);
     }
 
@@ -2828,6 +2829,9 @@ BOOL parse_ruby_macro(unsigned int* node, sParserInfo* info)
 
 BOOL parse_call_macro(unsigned int* node, char* name, sParserInfo* info)
 {
+    char name2[VAR_NAME_MAX];
+    xstrncpy(name2, name, VAR_NAME_MAX);
+
     char* p = info->p + 1;
 
     if(*info->p == '(') {
@@ -2863,7 +2867,7 @@ BOOL parse_call_macro(unsigned int* node, char* name, sParserInfo* info)
 
     skip_spaces_and_lf(info);
 
-    if(!call_macro(node, name, params.mBuf, info)) {
+    if(!call_macro(node, name2, params.mBuf, info)) {
         return FALSE;
     }
 
@@ -3394,7 +3398,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "ruby_macro") == 0) {
-            if(!parse_ruby_macro(node, info))
+            if(!parse_ruby_macro(node, info, info->parse_struct_phase))
             {
                 return FALSE;
             }

@@ -20,6 +20,10 @@ ruby_macro hello2 {
     print "puts(\"HELLO RUBY MACRO #{param}\");";
 }
 
+ruby_macro hello3 {
+    print "123"
+}
+
 def main():int 
 {
     var str = string("HELLO WORLD");
@@ -48,6 +52,18 @@ def main():int
     hello!{HELLO WORLD, HELLO WORLD2};
 
     hello2!(I LOVE RUBY);
+
+    var nnn = hello3!();
+
+    xassert("macro result test", nnn == 123);
+
+    var ggg =  extern "C" {
+        extern "C" {
+            111
+        }
+    }
+
+    xassert("extern C test", ggg == 111);
     
     0
 }

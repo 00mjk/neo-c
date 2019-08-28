@@ -554,26 +554,50 @@ BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types,
     return TRUE;
 }
 
-BOOL solve_typeof(sNodeType** node_type, sCompileInfo* info)
+BOOL is_typeof_type(sNodeType* node_type)
 {
-    unsigned int node = (*node_type)->mTypeOfExpression;
+    BOOL result = FALSE;
 
-/*
-    sCompileInfo cinfo;
-    memset(&cinfo, 0, sizeof(sCompileInfo));
-    cinfo.no_output = TRUE;
-    cinfo.pinfo = info->pinfo;
-*/
-
-    if(!compile(node, info)) {
-        parser_err_msg(info, "can't get type from typedef");
-        info->err_num++;
-        return TRUE;
+    int i;
+    for(i=0; i<node_type->mNumGenericsTypes; i++)
+    {
+        if(node_type->mGenericsTypes[i]->mTypeOfExpression) {
+            result = TRUE;
+        }
     }
 
-    dec_stack_ptr(1, info);
+    if(node_type->mTypeOfExpression) {
+        result = TRUE;
+    }
 
-    *node_type = clone_node_type(info->type);
+    return result;
+}
+
+BOOL solve_typeof(sNodeType** node_type, sCompileInfo* info)
+{
+
+    int i;
+    for(i=0; i<(*node_type)->mNumGenericsTypes; i++)
+    {
+        if(!solve_typeof(&(*node_type)->mGenericsTypes[i], info))
+        {
+            return FALSE;
+        }
+    }
+
+    unsigned int node = (*node_type)->mTypeOfExpression;
+
+    if(node) {
+        if(!compile(node, info)) {
+            parser_err_msg(info, "can't get type from typedef");
+            info->err_num++;
+            return TRUE;
+        }
+
+        dec_stack_ptr(1, info);
+
+        *node_type = clone_node_type(info->type);
+    }
 
     return TRUE;
 }
