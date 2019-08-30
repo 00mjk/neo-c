@@ -1436,16 +1436,27 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
 
     char* struct_name = CLASS_NAME(node_type->mClass);
 
-    (void)call_function("finalize", params, num_params, struct_name, info);
+    if(node_type->mNumGenericsTypes > 0) {
+        char real_fun_name[REAL_FUN_NAME_MAX];
+        create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", NULL, 0, node_type, struct_name, node_type->mClass->mFinalizeGenericsFunNum);
+
+        (void)call_function(real_fun_name, params, num_params, "", info);
+    }
+    else {
+        (void)call_function("finalize", params, num_params, struct_name, info);
+    }
 }
 
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
 
-    Value* obj = Builder.CreateAlignedLoad((Value*)address, 8);
+    Value* obj;
+    if(node_type->mHeap && node_type->mPointerNum > 0) {
+        obj = Builder.CreateAlignedLoad((Value*)address, 8);
 
-    call_destructor(obj, node_type, info);
+        call_destructor(obj, node_type, info);
+    }
 
     sNodeType* node_type2 = clone_node_type(node_type);
     node_type2->mPointerNum = 0;
@@ -1474,18 +1485,20 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
     }
 
     /// free ///
-    Function* fun = TheModule->getFunction("xfree");
+    if(node_type->mHeap && node_type->mPointerNum > 0) {
+        Function* fun = TheModule->getFunction("xfree");
 
-    if(fun == nullptr) {
-        fprintf(stderr, "require xfree\n");
-        exit(2);
+        if(fun == nullptr) {
+            fprintf(stderr, "require xfree\n");
+            exit(2);
+        }
+
+        std::vector<Value*> params2;
+        Value* param = Builder.CreateCast(Instruction::BitCast, obj, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+        params2.push_back(param);
+        Builder.CreateCall(fun, params2);
     }
-
-    std::vector<Value*> params2;
-    Value* param = Builder.CreateCast(Instruction::BitCast, obj, PointerType::get(IntegerType::get(TheContext, 8), 0));
-
-    params2.push_back(param);
-    Builder.CreateCall(fun, params2);
 }
 
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)

@@ -1339,34 +1339,6 @@ label1:
     xassert("test", axyxy == 4);
 
     signed aaaaaaaaaa = 11111;
-
-/*
-    void va_list_test(char* str, ...)
-    {
-        va_list vlist;
-
-        va_start(vlist, str);
-        vprintf(str, vlist);
-        va_end(vlist);
-    }
-
-    va_list_test("aaa %d\n", 1);
-*/
-
-/*
-    void va_list_test2(int num_args, ...)
-    {
-        int sum = 0;
-        va_list vlist;
-
-        va_start(vlist, num_args);
-        int n = va_arg(vlist, int);
-        va_end(vlist);
-    }
-
-    va_list_test2(2, 1, 2);
-*/
-
     void pfun_test(void) {
         puts("XXX");
     }
@@ -1450,15 +1422,15 @@ label1:
 
     string str5 = string("AAA");
 
-    xassert("is heap test", isHeap(str5));
+    xassert("is heap test", isheap(str5));
 
-    xassert("is heap test2", !isHeap("AAAA"));
+    xassert("is heap test2", !isheap("AAAA"));
 
-    xassert("is heap test3", !isHeap(1));
+    xassert("is heap test3", !isheap(1));
 
     int none_heap = 123;
 
-    xassert("is heap test4", !isHeap(none_heap));
+    xassert("is heap test4", !isheap(none_heap));
 
     struct StructTest10 {
         struct StructTest11* data[10];
@@ -1549,6 +1521,31 @@ label1:
 
     xassert("string test", strcmp("AAA" + "BBB", "AAABBB") == 0);
 */
+/*
+    void va_list_test(char* str, ...)
+    {
+        va_list vlist;
+
+        va_start(vlist, str);
+        vprintf(str, vlist);
+        va_end(vlist);
+    }
+
+    va_list_test("aaa %d\n", 1);
+
+    void va_list_test2(int num_args, ...)
+    {
+        int sum = 0;
+        va_list vlist;
+
+        va_start(vlist, num_args);
+        int n = va_arg(vlist, int);
+        va_end(vlist);
+    }
+
+    va_list_test2(2, 1, 2);
+*/
+
 
     0
 }

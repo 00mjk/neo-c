@@ -31,6 +31,15 @@ impl vector<T>
         self.len = 0;
         self.items = new T[self.size];
     }
+
+    finalize()
+    {
+        if(isheap(T)) {
+            for(int i=0; i<self.len; i++) {
+                delete self.items[i];
+            }
+        }
+    }
     
     void push_back(vector<T>* self, T item) {
         if(self.len == self.size) {

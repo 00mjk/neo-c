@@ -674,7 +674,7 @@ static BOOL parse_simple_lambda_params(unsigned int* node, int sline, sParserInf
     sBuf buf;
     sBuf_init(&buf);
 
-    if(!get_block_text(&buf, info)) {
+    if(!get_block_text(&buf, info, TRUE)) {
         free(buf.mBuf);
         return FALSE;
     }
@@ -822,7 +822,7 @@ static BOOL parse_generics_function(unsigned int* node, char* struct_name, sPars
     sBuf buf;
     sBuf_init(&buf);
 
-    if(!get_block_text(&buf, info)) {
+    if(!get_block_text(&buf, info, TRUE)) {
         free(buf.mBuf);
         return FALSE;
     }
@@ -932,7 +932,7 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
     sBuf buf;
     sBuf_init(&buf);
 
-    if(!get_block_text(&buf, info)) {
+    if(!get_block_text(&buf, info, TRUE)) {
         free(buf.mBuf);
         return FALSE;
     }
@@ -1152,7 +1152,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
         sBuf buf;
         sBuf_init(&buf);
 
-        if(!get_block_text(&buf, info)) {
+        if(!get_block_text(&buf, info, TRUE)) {
             free(buf.mBuf);
             return FALSE;
         }
@@ -1286,9 +1286,11 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
         sBuf buf;
         sBuf_init(&buf);
 
-        sBuf_append_str(&buf, "\nif(self == null) { return; }");
+        sBuf_append_str(&buf, "{");
 
-        if(!get_block_text(&buf, info)) {
+        sBuf_append_str(&buf, "\nif(self == null) { return; }\n");
+
+        if(!get_block_text(&buf, info, FALSE)) {
             free(buf.mBuf);
             return FALSE;
         }
@@ -3365,7 +3367,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "isHeap") == 0) {
+        else if(strcmp(buf, "isheap") == 0) {
             if(!parse_is_heap(node, info)) {
                 return FALSE;
             }

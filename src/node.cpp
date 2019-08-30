@@ -5,6 +5,8 @@ std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;
 std::map<std::string, BasicBlock*> gLabels;
 std::vector<sFunction> gFunctionStack;
 
+static int gGenericsFunNum = 0;
+
 BOOL is_function_name(char* name)
 {
     return TheModule->getFunction(name) != NULL;
@@ -1783,7 +1785,7 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
     gNodes[node].uValue.sFunction.mOperatorFun = operator_fun;
     gNodes[node].uValue.sFunction.mInCLang = info->in_clang;
 
-    if(struct_name) {
+    if(struct_name && strcmp(struct_name, "") != 0) {
         xstrncpy(gNodes[node].uValue.sFunction.mStructName, struct_name, VAR_NAME_MAX);
     }
     else {
@@ -1928,7 +1930,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
                 show_node_type(param->mType);
                 info->err_num++;
 
-                return FALSE;
+                return TRUE;
             }
         }
         if(generics_type) {
@@ -1967,7 +1969,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
             show_node_type(result_type);
             info->err_num++;
 
-            return FALSE;
+            return TRUE;
         }
     }
 
@@ -2025,9 +2027,9 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     return TRUE;
 }
 
-static void create_generics_fun_name(char* real_fun_name, int size_real_fun_name, char* fun_name, sNodeType** method_generics_types, int num_method_generics_types, sNodeType* generics_type, char* struct_name, int generics_fun_num)
+void create_generics_fun_name(char* real_fun_name, int size_real_fun_name, char* fun_name, sNodeType** method_generics_types, int num_method_generics_types, sNodeType* generics_type, char* struct_name, int generics_fun_num)
 {
-    if(struct_name) {
+    if(struct_name && strcmp(struct_name, "") != 0) {
         xstrncpy(real_fun_name, struct_name, size_real_fun_name);
 
         xstrncat(real_fun_name, "_", size_real_fun_name);
@@ -2110,7 +2112,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
                 show_node_type(param->mType);
                 info->err_num++;
 
-                return FALSE;
+                return TRUE;
             }
         }
 
@@ -2181,7 +2183,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
             show_node_type(result_type);
             info->err_num++;
 
-            return FALSE;
+            return TRUE;
         }
     }
 
@@ -2270,7 +2272,7 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
                 show_node_type(param->mType);
                 info->err_num++;
 
-                return FALSE;
+                return TRUE;
             }
         }
 
@@ -2449,19 +2451,21 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     /// get real fun name ///
     char real_fun_name[REAL_FUN_NAME_MAX];
 
-    char* struct_name = NULL;
+    char struct_name[VAR_NAME_MAX];
     if(num_params2 > 0) {
         if(method) {
-            struct_name = CLASS_NAME(param_types[0]->mClass);
+            xstrncpy(struct_name, CLASS_NAME(param_types[0]->mClass), VAR_NAME_MAX);
 
             create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
         }
         else {
-            create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, "");
+            xstrncpy(struct_name, "", VAR_NAME_MAX);
+            create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
         }
     }
     else {
-        create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, "");
+        xstrncpy(struct_name, "", VAR_NAME_MAX);
+        create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
     }
 
 
@@ -2635,9 +2639,10 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             num_method_generics_types = i;
 
-            static int generics_fun_num = 0;
-            generics_fun_num++;
+            int generics_fun_num = gGenericsFunNum;
+            gGenericsFunNum++;
             create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun.mName, method_generics_types, num_method_generics_types, generics_type, struct_name, generics_fun_num);
+
             sFunction fun2 = gFuncs[real_fun_name];
 
             if(fun2.mResultType == nullptr) {
@@ -2735,7 +2740,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                     compile_err_msg(info, "Can't solve typeof types");
                     show_node_type(left_type); 
                     info->err_num++;
-                    return FALSE;
+                    return TRUE;
                 }
             }
 
@@ -2815,7 +2820,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                     compile_err_msg(info, "Can't solve typeof types");
                     show_node_type(left_type); 
                     info->err_num++;
-                    return FALSE;
+                    return TRUE;
                 }
             }
 
@@ -2904,7 +2909,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                             compile_err_msg(info, "Can't solve typeof types");
                             show_node_type(left_type); 
                             info->err_num++;
-                            return FALSE;
+                            return TRUE;
                         }
                     }
 
@@ -3040,7 +3045,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "Can't solve typeof types");
                 show_node_type(result_type); 
                 info->err_num++;
-                return FALSE;
+                return TRUE;
             }
         }
 
@@ -3149,7 +3154,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "Can't solve typeof types");
                 show_node_type(result_type); 
                 info->err_num++;
-                return FALSE;
+                return TRUE;
             }
         }
 
@@ -3232,7 +3237,7 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
     gNodes[node].uValue.sFunction.mVarArg = var_arg;
     gNodes[node].uValue.sFunction.mInCLang = info->in_clang;
 
-    if(struct_name) {
+    if(struct_name && strcmp(struct_name, "") != 0) {
         xstrncpy(gNodes[node].uValue.sFunction.mStructName, struct_name, VAR_NAME_MAX);
     }
     else {
@@ -3318,6 +3323,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
     }
 
+
     char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
     memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
@@ -3348,6 +3354,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
     Function* fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
+
 
     if(!add_function(fun_name, real_fun_name, fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, FALSE))
     {
@@ -4435,6 +4442,64 @@ unsigned int sNodeTree_create_object(sNodeType* node_type, unsigned int object_n
     return node;
 }
 
+static BOOL create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info)
+{
+    int generics_fun_num = ++gGenericsFunNum;
+
+    char* struct_name = CLASS_NAME(node_type2->mClass);
+
+    char real_fun_name[REAL_FUN_NAME_MAX];
+    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", struct_name);
+
+    sFunction fun = gFuncs[real_fun_name];
+
+    if(fun.mResultType != nullptr) {
+        /// get function ///
+        int num_method_generics_types = 0;
+        sNodeType* method_generics_types[GENERICS_TYPES_MAX];
+        memset(method_generics_types, 0, sizeof(sNodeType*)*GENERICS_TYPES_MAX);
+
+        sNodeType* generics_type = clone_node_type(node_type2);
+
+        LVALUE* llvm_stack = gLLVMStack;
+        int stack_num = info->stack_num;
+
+        char* buf = fun.mBlockText;
+
+        char sname[PATH_MAX];
+        xstrncpy(sname, fun.mSName, PATH_MAX);
+
+        int sline = fun.mSLine;
+
+        BOOL in_clang = fun.mInCLang;
+        BOOL var_arg = fun.mVarArg;
+
+        unsigned int node = 0;
+        if(!parse_generics_fun(&node, buf, &fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun.mNumGenerics, fun.mGenericsTypeNames, fun.mNumMethodGenerics, fun.mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, var_arg))
+        {
+            gLLVMStack = llvm_stack;
+            info->stack_num = stack_num;
+            return FALSE;
+        }
+
+        gNodes[node].mLine = info->pinfo->sline;
+        xstrncpy(gNodes[node].mSName, info->pinfo->sname, PATH_MAX);
+
+        if(!compile(node, info)) {
+            gLLVMStack = llvm_stack;
+            info->stack_num = stack_num;
+            return FALSE;
+        }
+
+        info->stack_num = stack_num;
+        gLLVMStack = llvm_stack;
+
+        node_type2->mClass->mFinalizeGenericsFunNum = generics_fun_num;
+    }
+
+    return TRUE;
+}
+
 static BOOL compile_object(unsigned int node, sCompileInfo* info)
 {
     sNodeType* node_type = gNodes[node].uValue.sObject.mType;
@@ -4449,7 +4514,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "Can't solve typeof types");
             show_node_type(node_type2); 
             info->err_num++;
-            return FALSE;
+            return TRUE;
         }
     }
 
@@ -4463,6 +4528,13 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
             info->type = create_node_type_with_class_name("int"); // dummy
 
             return TRUE;
+        }
+    }
+
+    /// generate finalize function for generics ///
+    if(node_type2->mNumGenericsTypes > 0) {
+        if(!create_generics_finalize_method(node_type2, info)) {
+            return FALSE;
         }
     }
 
@@ -4560,6 +4632,60 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_delete(unsigned int object_node, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeDelete;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = object_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_delete(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(left_node == 0) {
+        compile_err_msg(info, "require delete target object");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    LVALUE llvm_value = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    sNodeType* node_type = clone_node_type(info->type);
+
+/*
+    if(!node_type->mHeap) {
+        compile_err_msg(info, "Can't delete this memory.");
+        show_node_type(node_type); 
+        info->err_num++;
+        return TRUE;
+    }
+*/
+
+    free_object(node_type, llvm_value.address, info);
+
+    info->type = create_node_type_with_class_name("void");
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_stack_object(sNodeType* node_type, unsigned int object_num, char* sname, int sline, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -4593,7 +4719,7 @@ static BOOL compile_stack_object(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "Can't solve typeof types");
             show_node_type(node_type2); 
             info->err_num++;
-            return FALSE;
+            return TRUE;
         }
     }
 
@@ -6374,6 +6500,7 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
 
     /// go ///
     Value* element_value;
+    Value* load_element_addresss;
     if(left_type->mArrayNum > 0) {
         sNodeType* var_type2 = clone_node_type(var_type);
         var_type2->mPointerNum++;
@@ -6391,7 +6518,7 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
         }
 
         Value* lvalue2 = Builder.CreateCast(Instruction::BitCast, lvalue.address, llvm_var_type);
-        Value* load_element_addresss = Builder.CreateGEP(lvalue2, rvalue.value, "element_address");
+        load_element_addresss = Builder.CreateGEP(lvalue2, rvalue.value, "element_address");
 
         int alignment = get_llvm_alignment_from_node_type(var_type);
 
@@ -6401,7 +6528,7 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
     else {
         Value* lvalue2 = lvalue.value;
 
-        Value* load_element_addresss = Builder.CreateGEP(lvalue2, rvalue.value, "element_address");
+        load_element_addresss = Builder.CreateGEP(lvalue2, rvalue.value, "element_address");
 
         int alignment = get_llvm_alignment_from_node_type(var_type);
 
@@ -6411,7 +6538,7 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
     LVALUE llvm_value;
     llvm_value.value = element_value;
     llvm_value.type = clone_node_type(var_type);
-    llvm_value.address = nullptr;
+    llvm_value.address = load_element_addresss;
     llvm_value.var = nullptr;
 
     dec_stack_ptr(2, info);
@@ -8685,11 +8812,11 @@ BOOL compile_goto_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_is_heap(unsigned int lnode, sParserInfo* info)
+unsigned int sNodeTree_create_is_heap_expression(unsigned int lnode, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
-    gNodes[node].mNodeType = kNodeTypeIsHeap;
+    gNodes[node].mNodeType = kNodeTypeIsHeapExpression;
 
     xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
@@ -8701,7 +8828,7 @@ unsigned int sNodeTree_create_is_heap(unsigned int lnode, sParserInfo* info)
     return node;
 }
 
-BOOL compile_is_heap(unsigned int node, sCompileInfo* info)
+BOOL compile_is_heap_expression(unsigned int node, sCompileInfo* info)
 {
     unsigned int lnode = gNodes[node].mLeft;
 
@@ -8714,6 +8841,44 @@ BOOL compile_is_heap(unsigned int node, sCompileInfo* info)
     dec_stack_ptr(1, info);
 
     BOOL value = node_type->mHeap;
+
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value, true)); 
+    llvm_value.type = create_node_type_with_class_name("bool");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("bool");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_is_heap(sNodeType* node_type, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeIsHeap;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.sIsHeap.mType = clone_node_type(node_type);
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_is_heap(unsigned int node, sCompileInfo* info)
+{
+    sNodeType* node_type = gNodes[node].uValue.sIsHeap.mType;
+    sNodeType* node_type2 = clone_node_type(node_type);
+
+    BOOL value = node_type2->mHeap;
 
     LVALUE llvm_value;
     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value, true)); 
@@ -9229,6 +9394,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
+        case kNodeTypeIsHeapExpression:
+            if(!compile_is_heap_expression(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
         case kNodeTypeSizeOfExpression:
             if(!compile_sizeof_expression(node, info))
             {
@@ -9238,6 +9410,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeVaArg:
             if(!compile_va_arg(node, info))
+            {
+                return FALSE;
+            }
+            break;
+        
+        case kNodeTypeDelete:
+            if(!compile_delete(node, info))
             {
                 return FALSE;
             }

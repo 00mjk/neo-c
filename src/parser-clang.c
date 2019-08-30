@@ -2193,9 +2193,11 @@ static BOOL parse_param(sParserParam* param, sParserInfo* info)
     return TRUE;
 }
 
-BOOL get_block_text(sBuf* buf, sParserInfo* info)
+BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly_brace)
 {
-    sBuf_append_str(buf, "{ ");
+    if(append_head_currly_brace) {
+        sBuf_append_str(buf, "{ ");
+    }
 
     BOOL dquort = FALSE;
     BOOL squort = FALSE;
@@ -2266,7 +2268,7 @@ static BOOL parse_simple_lambda_params(unsigned int* node, int sline, sParserInf
     sBuf buf;
     sBuf_init(&buf);
 
-    if(!get_block_text(&buf, info)) {
+    if(!get_block_text(&buf, info, TRUE)) {
         free(buf.mBuf);
         return FALSE;
     }
@@ -2408,7 +2410,7 @@ static BOOL parse_generics_function(unsigned int* node, sNodeType* result_type, 
     sBuf buf;
     sBuf_init(&buf);
 
-    if(!get_block_text(&buf, info)) {
+    if(!get_block_text(&buf, info, TRUE)) {
         free(buf.mBuf);
         return FALSE;
     }
@@ -2524,7 +2526,7 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
     sBuf buf;
     sBuf_init(&buf);
 
-    if(!get_block_text(&buf, info)) {
+    if(!get_block_text(&buf, info, TRUE)) {
         free(buf.mBuf);
         return FALSE;
     }
@@ -2767,7 +2769,7 @@ static BOOL parse_inline_function(unsigned int* node, char* struct_name, sParser
     sBuf buf;
     sBuf_init(&buf);
 
-    if(!get_block_text(&buf, info)) {
+    if(!get_block_text(&buf, info, TRUE)) {
         free(buf.mBuf);
         return FALSE;
     }
@@ -2850,7 +2852,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
         sBuf buf;
         sBuf_init(&buf);
 
-        if(!get_block_text(&buf, info)) {
+        if(!get_block_text(&buf, info, TRUE)) {
             free(buf.mBuf);
             return FALSE;
         }
@@ -2997,9 +2999,11 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
         sBuf buf;
         sBuf_init(&buf);
 
-        sBuf_append_str(&buf, "\nif(self == null) { return; }");
+        sBuf_append_str(&buf, "{");
 
-        if(!get_block_text(&buf, info)) {
+        sBuf_append_str(&buf, "\nif(self == null) { return; }\n");
+
+        if(!get_block_text(&buf, info, FALSE)) {
             free(buf.mBuf);
             return FALSE;
         }
@@ -3981,6 +3985,19 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_delete(unsigned int* node, sParserInfo* info)
+{
+    unsigned int object_node;
+    if(!expression(&object_node, info)) {
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_delete(object_node, info);
+
+    return TRUE;
+}
+
+
 static BOOL parse_alloca(unsigned int* node, sParserInfo* info)
 {
     sNodeType* node_type = NULL;
@@ -4072,13 +4089,37 @@ static BOOL parse_is_heap(unsigned int* node, sParserInfo* info)
 {
     expect_next_character_with_one_forward("(", info);
 
-    if(!expression(node, info)) {
-        return FALSE;
+    char* p_before = info->p;
+    int sline_before = info->sline;
+
+    char buf[VAR_NAME_MAX+1];
+    (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
+
+    info->p = p_before;
+    info->sline = sline_before;
+
+    if(is_type_name(buf, info)) {
+        sNodeType* node_type = NULL;
+
+        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE)) {
+            return FALSE;
+        }
+
+        expect_next_character_with_one_forward(")", info);
+
+        *node = sNodeTree_create_is_heap(node_type, info);
+    }
+    else {
+        if(!expression(node, info)) {
+            return FALSE;
+        }
+
+        expect_next_character_with_one_forward(")", info);
+
+        *node = sNodeTree_create_is_heap_expression(*node, info);
     }
 
-    expect_next_character_with_one_forward(")", info);
-
-    *node = sNodeTree_create_is_heap(*node, info);
+    return TRUE;
 
     return TRUE;
 }
@@ -5312,6 +5353,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "delete") == 0) {
+            if(!parse_delete(node, info)) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "alloca") == 0) {
             if(!parse_alloca(node, info)) {
                 return FALSE;
@@ -5328,7 +5374,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "isHeap") == 0) {
+        else if(strcmp(buf, "isheap") == 0) {
             if(!parse_is_heap(node, info)) {
                 return FALSE;
             }

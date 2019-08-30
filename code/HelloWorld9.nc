@@ -7,6 +7,7 @@ extern "C"
 
 def main():int 
 {
+/*
     var str = string("HELLO WORLD");
 
     str[0] = 'h';
@@ -28,6 +29,24 @@ def main():int
     v2.each {
         printf("%d\n", it);
     }
+
+    var v3 = vec!("AAA", "BBB", "CCC");
+
+    v3.each {
+        printf("%s\n", it);
+    }
+*/
+    var v4 = new vector<string>.initialize();
+
+    v4.push_back(string("ABC"));
+
+//    var v4 = vec!(string("AAA"));
+
+/*
+    v4.each {
+        printf("%s\n", it);
+    }
+*/
     
     0
 }
