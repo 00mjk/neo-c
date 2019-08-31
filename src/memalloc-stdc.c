@@ -5,7 +5,7 @@
 
 void xfree(void *block)
 {
-//printf("runtime free %p\n", block);
+printf("runtime free %p\n", block);
     free(block);
 }
 
@@ -18,7 +18,7 @@ void *xcalloc(size_t num, size_t nsize)
 {
     void* result = calloc(num, nsize);
 
-//printf("runtime calloc %p\n", result);
+printf("runtime calloc %p\n", result);
 
     return result;
 }

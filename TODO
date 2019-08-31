@@ -1,42 +1,13 @@
-memalloc-std.cのneo-cでのコンパイル。LVtableのコピーをBlockLevel == 0なら行わない
-
-unistd.hのコンパイルを通す
-
 ヘッダーの自動出力
 
 vector
 
-sizeof(変数名)
-isHeapとおなじほうほうでじっそうする
-
-delete 変数名
-でxfree, finalize
-
-%の配列、要素のfreeを行う
-headのアドレスを使い専用の関数でxfreeする。
--->しない。配列やポインタの要素のxfreeは手動
-
 collection
-
 double, floatの値の表現、8進数、16進数
-
-restrict
 
 2次元配列
 
-__extension__
-
-__attribute__
-
-__inline
-
-__restrict
-
-__builtin_var_list
-
 casts全サポート
-
-stdio,stdlibのinclude
 
 メソッドの関数ポインタ
 
@@ -51,3 +22,29 @@ isHeap(変数名) 演算子
 未定義のstructのポインタのいきなりの宣言。
 VPSでもコンパイルエラーとなる
 
+memalloc-std.cのneo-cでのコンパイル。LVtableのコピーをBlockLevel == 0なら行わない
+
+unistd.hのコンパイルを通す
+
+sizeof(変数名)
+isHeapとおなじほうほうでじっそうする
+
+
+delete 変数名
+でxfree, finalize
+
+%の配列、要素のfreeを行う
+headのアドレスを使い専用の関数でxfreeする。
+-->しない。配列やポインタの要素のxfreeは手動
+
+restrict
+
+__extension__
+
+__attribute__
+
+__inline
+
+__restrict
+
+__builtin_var_list

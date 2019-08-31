@@ -7495,9 +7495,15 @@ BOOL compile_sizeof_expression(unsigned int node, sCompileInfo* info)
 {
     unsigned int lnode = gNodes[node].mLeft;
 
+    BOOL no_output = info->no_output;
+    info->no_output = TRUE;
+
     if(!compile(lnode, info)) {
+        info->no_output = no_output;
         return FALSE;
     }
+
+    info->no_output = no_output;
 
     sNodeType* node_type = clone_node_type(info->type);
 
@@ -8832,9 +8838,15 @@ BOOL compile_is_heap_expression(unsigned int node, sCompileInfo* info)
 {
     unsigned int lnode = gNodes[node].mLeft;
 
+    BOOL no_output = info->no_output;
+    info->no_output = TRUE;
+
     if(!compile(lnode, info)) {
+        info->no_output = FALSE;
         return FALSE;
     }
+
+    info->no_output = no_output;
 
     sNodeType* node_type = clone_node_type(info->type);
 

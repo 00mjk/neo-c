@@ -1411,6 +1411,7 @@ void free_right_value_objects(sCompileInfo* info)
         bool flag = it.second.second;
 
         if(flag) {
+printf("delete right object\n");
             free_right_value_object(node_type, address, info);
         }
     }

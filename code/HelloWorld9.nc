@@ -36,11 +36,11 @@ def main():int
         printf("%s\n", it);
     }
 */
-    var v4 = new vector<string>.initialize();
+    var v4 = vec!(string("AAA"));
 
-    v4.push_back(string("ABC"));
-
-//    var v4 = vec!(string("AAA"));
+    v4.each {
+        printf("%s\n", it);
+    }
 
 /*
     v4.each {

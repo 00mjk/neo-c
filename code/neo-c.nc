@@ -26,6 +26,7 @@ string string(char* str)
 
     string result = new char[len + 1];
 
+printf("string %p\n", result); 
     strcpy(result, str);
 
     result

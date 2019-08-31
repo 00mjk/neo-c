@@ -105,8 +105,7 @@ ruby_macro vec {
             param.concat(c);
         elsif c == ","
             if param.length() > 0
-                params.push(param);
-                param = ""
+                params.push(param); param = ""
             end
         else
             param.concat(c);

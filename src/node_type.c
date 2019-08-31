@@ -588,11 +588,15 @@ BOOL solve_typeof(sNodeType** node_type, sCompileInfo* info)
     unsigned int node = (*node_type)->mTypeOfExpression;
 
     if(node) {
+        BOOL no_output = info->no_output;
+        info->no_output = TRUE;
         if(!compile(node, info)) {
             parser_err_msg(info, "can't get type from typedef");
             info->err_num++;
+            info->no_output = no_output;
             return TRUE;
         }
+        info->no_output = no_output;
 
         dec_stack_ptr(1, info);
 
