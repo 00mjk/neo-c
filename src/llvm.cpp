@@ -1353,6 +1353,35 @@ void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL all
     }
 }
 
+static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
+{
+    Value* params[PARAMS_MAX];
+
+    params[0] = obj;
+
+    LVALUE llvm_value;
+    llvm_value.value = obj;
+    llvm_value.type = clone_node_type(node_type);
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    int num_params = 1;
+
+    char* struct_name = CLASS_NAME(node_type->mClass);
+
+    if(node_type->mNumGenericsTypes > 0) {
+        char real_fun_name[REAL_FUN_NAME_MAX];
+        create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", NULL, 0, node_type, struct_name, node_type->mClass->mFinalizeGenericsFunNum);
+
+        (void)call_function(real_fun_name, params, num_params, "", info);
+    }
+    else {
+        (void)call_function("finalize", params, num_params, struct_name, info);
+    }
+}
+
 static void free_right_value_object(sNodeType* node_type, void* obj, sCompileInfo* info)
 {
 printf("free %p\n", obj);
@@ -1360,6 +1389,13 @@ printf("free %p\n", obj);
     sCLClass* klass = node_type->mClass;
 
     sNodeType* node_type2 = clone_node_type(node_type);
+
+    if(node_type2->mHeap && node_type2->mPointerNum > 0) {
+        Value* obj3 = Builder.CreateAlignedLoad((Value*)obj2, 8);
+
+        call_destructor(obj3, node_type2, info);
+    }
+
     node_type2->mPointerNum = 0;
 
     Type* llvm_struct_type;
@@ -1419,34 +1455,6 @@ printf("delete right object\n");
     gHeapObjects.clear();
 }
 
-static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
-{
-    Value* params[PARAMS_MAX];
-
-    params[0] = obj;
-
-    LVALUE llvm_value;
-    llvm_value.value = obj;
-    llvm_value.type = clone_node_type(node_type);
-    llvm_value.address = nullptr;
-    llvm_value.var = nullptr;
-
-    push_value_to_stack_ptr(&llvm_value, info);
-
-    int num_params = 1;
-
-    char* struct_name = CLASS_NAME(node_type->mClass);
-
-    if(node_type->mNumGenericsTypes > 0) {
-        char real_fun_name[REAL_FUN_NAME_MAX];
-        create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", NULL, 0, node_type, struct_name, node_type->mClass->mFinalizeGenericsFunNum);
-
-        (void)call_function(real_fun_name, params, num_params, "", info);
-    }
-    else {
-        (void)call_function("finalize", params, num_params, struct_name, info);
-    }
-}
 
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 {

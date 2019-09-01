@@ -36,6 +36,7 @@ impl vector<T>
     {
         if(isheap(T)) {
             for(int i=0; i<self.len; i++) {
+printf("i %d\n", i);
                 delete self.items[i];
             }
         }
