@@ -104,8 +104,6 @@ struct sCLClassStruct {
     int mNumFields;
 
     void* mUndefinedStructType;
-
-    int mFinalizeGenericsFunNum;
 };
 
 #define CLASS_NAME(klass) (CONS_str((&(klass)->mConst), (klass)->mClassNameOffset))
@@ -170,6 +168,8 @@ struct sNodeTypeStruct {
     int mArrayInitializeNum;
 
     unsigned int mTypeOfExpression;
+
+    int mFinalizeGenericsFunNum;
 };
 
 typedef struct sNodeTypeStruct sNodeType;
@@ -195,6 +195,7 @@ BOOL solve_typeof(sNodeType** node_type, struct sCompileInfoStruct* info);
 BOOL is_typeof_type(sNodeType* node_type);
 BOOL included_generics_type(sNodeType* node_type);
 BOOL get_type_of_method_generics(sNodeType* method_generics_types[GENERICS_TYPES_MAX], sNodeType* fun_param_type, sNodeType* param_type);
+void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type);
   
 //////////////////////////////
 /// vtable.c

@@ -1372,8 +1372,13 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
     char* struct_name = CLASS_NAME(node_type->mClass);
 
     if(node_type->mNumGenericsTypes > 0) {
+        char type_name[1024];
+        create_type_name_from_node_type(type_name, 1024, node_type);
+
+        int finalize_generics_fun_num = gFinalizeGenericsFunNum[type_name];
+
         char real_fun_name[REAL_FUN_NAME_MAX];
-        create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", NULL, 0, node_type, struct_name, node_type->mClass->mFinalizeGenericsFunNum);
+        create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", NULL, 0, node_type, struct_name, finalize_generics_fun_num);
 
         (void)call_function(real_fun_name, params, num_params, "", info);
     }

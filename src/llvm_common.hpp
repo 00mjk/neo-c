@@ -74,6 +74,7 @@ extern Module* TheModule;
 extern std::unique_ptr<FunctionPassManager> TheFPM;
 extern FunctionAnalysisManager TheFAM;
 extern std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;
+extern std::map<std::string, int> gFinalizeGenericsFunNum;
 
 struct LVALUEStruct {
     sNodeType* type;

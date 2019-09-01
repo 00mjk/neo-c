@@ -4120,8 +4120,6 @@ static BOOL parse_is_heap(unsigned int* node, sParserInfo* info)
     }
 
     return TRUE;
-
-    return TRUE;
 }
 
 static BOOL parse_typedef(unsigned int* node, sParserInfo* info)

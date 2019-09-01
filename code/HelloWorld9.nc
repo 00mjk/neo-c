@@ -34,7 +34,6 @@ def main():int
     v3.each {
         printf("%s\n", it);
     }
-
     var v4 = vec!(string("AAA"), string("BBB"), string("CCC"));
 
     v4.each {

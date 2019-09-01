@@ -4,6 +4,7 @@ std::map<std::string, sFunction> gFuncs;
 std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;
 std::map<std::string, BasicBlock*> gLabels;
 std::vector<sFunction> gFunctionStack;
+std::map<std::string, int> gFinalizeGenericsFunNum;
 
 static int gGenericsFunNum = 0;
 
@@ -4494,7 +4495,10 @@ static BOOL create_generics_finalize_method(sNodeType* node_type2, sCompileInfo*
         info->stack_num = stack_num;
         gLLVMStack = llvm_stack;
 
-        node_type2->mClass->mFinalizeGenericsFunNum = generics_fun_num;
+        char type_name[1024];
+        create_type_name_from_node_type(type_name, 1024, node_type2);
+
+        gFinalizeGenericsFunNum[type_name] = generics_fun_num;
     }
 
     return TRUE;

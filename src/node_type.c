@@ -704,3 +704,48 @@ BOOL included_generics_type(sNodeType* node_type)
 
     return FALSE;
 }
+
+void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type)
+{
+    sCLClass* klass = node_type->mClass;
+
+    xstrncat(type_name, CLASS_NAME(klass), type_name_max);
+
+    if(node_type->mNumParams > 0) {
+        xstrncat(type_name, "(", type_name_max);
+
+        int i;
+        for(i=0; i<node_type->mNumParams; i++) {
+            create_type_name_from_node_type(type_name, type_name_max, node_type->mParamTypes[i]);
+            
+            if(i != node_type->mNumParams-1) {
+                xstrncat(type_name, ",", type_name_max);
+            }
+        }
+        xstrncat(type_name, ")", type_name_max);
+
+        xstrncat(type_name, ":", type_name_max);
+
+        create_type_name_from_node_type(type_name, type_name_max, node_type->mResultType);
+    }
+    if(node_type->mNullable) {
+        xstrncat(type_name, "?", type_name_max);
+    }
+    if(node_type->mHeap) {
+        xstrncat(type_name, "%", type_name_max);
+    }
+    if(node_type->mNumGenericsTypes > 0) {
+        xstrncat(type_name, "<", type_name_max);
+
+        int i;
+        for(i=0; i<node_type->mNumGenericsTypes; i++) {
+            create_type_name_from_node_type(type_name, type_name_max, node_type->mGenericsTypes[i]);
+
+            if(i != node_type->mNumGenericsTypes-1) {
+                xstrncat(type_name, ",", type_name_max);
+            }
+        }
+
+        xstrncat(type_name, ">", type_name_max);
+    }
+}
