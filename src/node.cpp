@@ -4496,6 +4496,7 @@ static BOOL create_generics_finalize_method(sNodeType* node_type2, sCompileInfo*
         gLLVMStack = llvm_stack;
 
         char type_name[1024];
+        type_name[0] = '\0';
         create_type_name_from_node_type(type_name, 1024, node_type2);
 
         gFinalizeGenericsFunNum[type_name] = generics_fun_num;
@@ -8909,6 +8910,99 @@ BOOL compile_is_heap(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_class_name_expression(unsigned int lnode, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeClassNameExpression;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = lnode;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_class_name_expression(unsigned int node, sCompileInfo* info)
+{
+    unsigned int lnode = gNodes[node].mLeft;
+
+    BOOL no_output = info->no_output;
+    info->no_output = TRUE;
+
+    if(!compile(lnode, info)) {
+        info->no_output = FALSE;
+        return FALSE;
+    }
+
+    info->no_output = no_output;
+
+    sNodeType* node_type = clone_node_type(info->type);
+
+    dec_stack_ptr(1, info);
+
+    char type_name[1024];
+    type_name[0] = '\0';
+
+    create_type_name_from_node_type(type_name, 1024, node_type);
+
+    LVALUE llvm_value;
+    llvm_value.value = llvm_create_string(type_name);
+    llvm_value.type = create_node_type_with_class_name("char*");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("char*");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_class_name(sNodeType* node_type, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeClassName;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.sIsHeap.mType = clone_node_type(node_type);
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_class_name(unsigned int node, sCompileInfo* info)
+{
+    sNodeType* node_type = gNodes[node].uValue.sIsHeap.mType;
+    sNodeType* node_type2 = clone_node_type(node_type);
+
+    char type_name[1024];
+    type_name[0] = '\0';
+
+    create_type_name_from_node_type(type_name, 1024, node_type);
+
+    LVALUE llvm_value;
+    llvm_value.value = llvm_create_string(type_name);
+    llvm_value.type = create_node_type_with_class_name("char*");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("char*");
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_va_arg(unsigned int lnode, sNodeType* node_type, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -9437,6 +9531,19 @@ BOOL compile(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
+
+        case kNodeTypeClassNameExpression:
+            if(!compile_class_name_expression(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeClassName:
+            if(!compile_class_name(node, info)) {
+                return FALSE;
+            }
+            break;
+
     }
 
     return node;

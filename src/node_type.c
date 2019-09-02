@@ -591,7 +591,7 @@ BOOL solve_typeof(sNodeType** node_type, sCompileInfo* info)
         BOOL no_output = info->no_output;
         info->no_output = TRUE;
         if(!compile(node, info)) {
-            parser_err_msg(info, "can't get type from typedef");
+            compile_err_msg(info, "can't get type from typedef");
             info->err_num++;
             info->no_output = no_output;
             return TRUE;
@@ -727,6 +727,11 @@ void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeTy
         xstrncat(type_name, ":", type_name_max);
 
         create_type_name_from_node_type(type_name, type_name_max, node_type->mResultType);
+    }
+
+    int i;
+    for(i=0; i<node_type->mPointerNum; i++) {
+        xstrncat(type_name, "*", type_name_max);
     }
     if(node_type->mNullable) {
         xstrncat(type_name, "?", type_name_max);

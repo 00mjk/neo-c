@@ -1462,6 +1462,18 @@ label1:
     typeof(axyuuuu) axyuuuu2 = 234;
     xassert("typeof test", axyuuuu2 == 234);
 
+    var gxy = 111;
+
+    xassert("class name", strcmp(class_name(gxy), "int") == 0);
+
+    var gxll = "abc";
+
+    xassert("class name test2", strcmp(class_name(gxll), "char*") == 0);
+
+    var gxll2 = new StructTest2<int>;
+
+    xassert("class name test3", strcmp(class_name(gxll2), "StructTest2*%<int>") == 0);
+
 /*
     struct Data5 {
         int a;

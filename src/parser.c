@@ -3394,6 +3394,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "class_name") == 0) {
+            if(!parse_class_name_expression(node, info)) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "impl") == 0) {
             if(!parse_impl(node, info)) {
                 return FALSE;
