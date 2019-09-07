@@ -1,7 +1,6 @@
 #include "llvm_common.hpp"
 
 std::map<std::string, sFunction> gFuncs;
-std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;
 std::map<std::string, BasicBlock*> gLabels;
 std::vector<sFunction> gFunctionStack;
 std::map<std::string, int> gFinalizeGenericsFunNum;
@@ -218,6 +217,7 @@ static BOOL compile_int_value(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("int");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -298,10 +298,16 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
         llvm_value.type = clone_node_type(fun.mResultType);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         push_value_to_stack_ptr(&llvm_value, info);
 
         info->type = clone_node_type(fun.mResultType);
+
+        if(llvm_value.type->mHeap && !llvm_value.binded_value) 
+        {
+            append_heap_object_to_right_value(&llvm_value);
+        }
     }
 
     return TRUE;
@@ -384,6 +390,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
         llvm_value.type = clone_node_type(left_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -397,6 +404,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
         llvm_value.type = clone_node_type(right_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -512,6 +520,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
         llvm_value.type = clone_node_type(left_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -525,6 +534,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
         llvm_value.type = clone_node_type(right_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -617,6 +627,7 @@ static BOOL compile_mult(unsigned int node, sCompileInfo* info)
         llvm_value.type = clone_node_type(right_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -709,6 +720,7 @@ static BOOL compile_div(unsigned int node, sCompileInfo* info)
         llvm_value.type = clone_node_type(right_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -801,6 +813,7 @@ static BOOL compile_mod(unsigned int node, sCompileInfo* info)
         llvm_value.type = clone_node_type(right_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -891,6 +904,7 @@ static BOOL compile_equals(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     dec_stack_ptr(2, info);
     push_value_to_stack_ptr(&llvm_value, info);
@@ -952,6 +966,7 @@ static BOOL compile_not_equals(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     dec_stack_ptr(2, info);
     push_value_to_stack_ptr(&llvm_value, info);
@@ -1013,6 +1028,7 @@ static BOOL compile_gteq(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     dec_stack_ptr(2, info);
     push_value_to_stack_ptr(&llvm_value, info);
@@ -1074,6 +1090,7 @@ static BOOL compile_leeq(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     dec_stack_ptr(2, info);
     push_value_to_stack_ptr(&llvm_value, info);
@@ -1135,6 +1152,7 @@ static BOOL compile_gt(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     dec_stack_ptr(2, info);
     push_value_to_stack_ptr(&llvm_value, info);
@@ -1196,6 +1214,7 @@ static BOOL compile_le(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     dec_stack_ptr(2, info);
     push_value_to_stack_ptr(&llvm_value, info);
@@ -1259,12 +1278,14 @@ static BOOL compile_logical_denial(unsigned int node, sCompileInfo* info)
     rvalue.type = nullptr;
     rvalue.address = nullptr;
     rvalue.var = nullptr;
+    rvalue.binded_value = FALSE;
 
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateICmpEQ(lvalue.value, rvalue.value, "LOGICAL_DIANEAL");
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     dec_stack_ptr(1, info);
     push_value_to_stack_ptr(&llvm_value, info);
@@ -1450,6 +1471,7 @@ unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL all
     xstrncpy(gNodes[node].uValue.sStoreVariable.mVarName, var_name, VAR_NAME_MAX);
     gNodes[node].uValue.sStoreVariable.mAlloc = alloc;
     gNodes[node].uValue.sStoreVariable.mGlobal = info->mBlockLevel == 0;
+    gNodes[node].uValue.sStoreVariable.mParseStructPhase = info->parse_struct_phase;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = right;
@@ -1461,6 +1483,7 @@ unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL all
 
 static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 {
+    BOOL parse_struct_phase = gNodes[node].uValue.sStoreVariable.mParseStructPhase;
     char var_name[VAR_NAME_MAX];
     xstrncpy(var_name, gNodes[node].uValue.sStoreVariable.mVarName, VAR_NAME_MAX);
     BOOL alloc = gNodes[node].uValue.sStoreVariable.mAlloc;
@@ -1518,7 +1541,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
         Value* var_address;
         if(var->mLLVMValue == NULL) {
-            compile_err_msg(info, "Invalid variable.store variable");
+            compile_err_msg(info, "Invalid variable.store variable(1)");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -1529,7 +1552,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         var_address = (Value*)var->mLLVMValue;
 
         if(var_address == nullptr) {
-            compile_err_msg(info, "Invalid variable.store variable");
+            compile_err_msg(info, "Invalid variable.store variable(2)");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -1660,7 +1683,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
                 }
 
                 if(var_address == nullptr) {
-                    compile_err_msg(info, "Invalid variable.store variable");
+                    compile_err_msg(info, "Invalid variable.store variable(3)");
                     info->err_num++;
 
                     info->type = create_node_type_with_class_name("int"); // dummy
@@ -1701,7 +1724,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
             }
 
             if(var_address == nullptr) {
-                compile_err_msg(info, "Invalid variable.store variable");
+                compile_err_msg(info, "Invalid variable.store variable(4)");
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
@@ -1749,6 +1772,7 @@ BOOL compile_c_string_value(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("char*");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -2197,6 +2221,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
         return FALSE;
     }
 
+
     if(generics_type) {
         if(!solve_generics(&result_type, generics_type)) 
         {
@@ -2442,8 +2467,12 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        param_types[0] = info->type;
-        generics_type = info->type;
+        param_types[0] = clone_node_type(info->type);
+        generics_type = clone_node_type(info->type);
+
+        LVALUE param = *get_value_from_stack(-1);
+
+        remove_from_right_value_object(param.value);
     }
 
     sNodeType* generics_type_before = info->generics_type;
@@ -2495,20 +2524,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    /// std move first parametor ///
-    if(num_params2 > 0) {
-        LVALUE param = *get_value_from_stack(-1);
-
-        if(fun.mNumParams > 0) {
-            sNodeType* left_type = clone_node_type(fun.mParamTypes[0]);
-
-            if(!(strcmp(fun.mName, "initialize") == 0 && inherit))
-            {
-                std_move(NULL, left_type, &param, FALSE, info);
-            }
-        }
-    }
-
     /// compile parametors ///
     int i;
     for(i=1; i<num_params2; i++) {
@@ -2519,14 +2534,11 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        param_types[i] = info->type;
+        param_types[i] = clone_node_type(info->type);
 
         LVALUE param = *get_value_from_stack(-1);
 
-        if(i < fun.mNumParams) {
-            sNodeType* left_type = clone_node_type(fun.mParamTypes[i]);
-            std_move(NULL, left_type, &param, FALSE, info);
-        }
+        remove_from_right_value_object(param.value);
     }
 
     /// compile simple lambda param ///
@@ -2804,51 +2816,15 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     /// convert param type ///
     std::vector<Value*> llvm_params;
     LVALUE* lvalue_params[PARAMS_MAX];
+    sNodeType* fun_param_types[PARAMS_MAX];
     
     if(strcmp(fun_name, "llvm.va_start") == 0)
     {
-        sNodeType* left_type = clone_node_type(fun.mParamTypes[0]);
+        sNodeType* left_type = fun_params[0];
         sNodeType* right_type = clone_node_type(param_types[0]);
         LVALUE param = *get_value_from_stack(-num_params+0);
 
         lvalue_params[0] = &param;
-
-        if(fun.mInlineFunction) {
-            if(is_typeof_type(left_type))
-            {
-                if(!solve_typeof(&left_type, info)) 
-                {
-                    compile_err_msg(info, "Can't solve typeof types");
-                    show_node_type(left_type); 
-                    info->err_num++;
-                    return TRUE;
-                }
-            }
-
-            if(!solve_method_generics(&left_type, num_method_generics_types, method_generics_types))
-            {
-                compile_err_msg(info, "Can't solve method generics type");
-                show_node_type(left_type);
-                info->err_num++;
-
-                return FALSE;
-            }
-
-            if(generics_type) {
-                if(!solve_generics(&left_type, generics_type))
-                {
-                    compile_err_msg(info, "Can't solve generics types");
-                    show_node_type(left_type);
-                    show_node_type(generics_type);
-                    info->err_num++;
-
-                    info->type = create_node_type_with_class_name("int"); // dummy
-
-                    info->generics_type = generics_type_before;
-                    return TRUE;
-                }
-            }
-        }
 
         if(auto_cast_posibility(left_type, right_type)) 
         {
@@ -2875,6 +2851,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             rvalue.type = right_type2;
             rvalue.address = nullptr;
             rvalue.var = nullptr;
+            rvalue.binded_value = FALSE;
 
             if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
             {
@@ -2894,50 +2871,15 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     }
     else {
         for(i=0; i<num_params; i++) {
+            LVALUE param = *get_value_from_stack(-num_params+i);
+
+            lvalue_params[i] = get_value_from_stack(-num_params+i);
+
             if(i < fun.mNumParams) 
             {
-                sNodeType* left_type = clone_node_type(fun.mParamTypes[i]);
+                sNodeType* left_type = fun_params[i];
                 sNodeType* right_type = clone_node_type(param_types[i]);
-                LVALUE param = *get_value_from_stack(-num_params+i);
 
-                lvalue_params[i] = &param;
-
-                if(fun.mInlineFunction) {
-                    if(is_typeof_type(left_type))
-                    {
-                        if(!solve_typeof(&left_type, info)) 
-                        {
-                            compile_err_msg(info, "Can't solve typeof types");
-                            show_node_type(left_type); 
-                            info->err_num++;
-                            return TRUE;
-                        }
-                    }
-
-                    if(!solve_method_generics(&left_type, num_method_generics_types, method_generics_types))
-                    {
-                        compile_err_msg(info, "Can't solve method generics type");
-                        show_node_type(left_type);
-                        info->err_num++;
-
-                        return FALSE;
-                    }
-
-                    if(generics_type) {
-                        if(!solve_generics(&left_type, generics_type))
-                        {
-                            compile_err_msg(info, "Can't solve generics types");
-                            show_node_type(left_type);
-                            show_node_type(generics_type);
-                            info->err_num++;
-
-                            info->type = create_node_type_with_class_name("int"); // dummy
-
-                            info->generics_type = generics_type_before;
-                            return TRUE;
-                        }
-                    }
-                }
 
                 if(auto_cast_posibility(left_type, right_type)) 
                 {
@@ -2964,6 +2906,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                     rvalue.type = right_type2;
                     rvalue.address = nullptr;
                     rvalue.var = nullptr;
+                    rvalue.binded_value = FALSE;
 
                     if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
                     {
@@ -2980,10 +2923,70 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 }
 
                 llvm_params.push_back(param.value);
+
+
+                fun_param_types[i] = clone_node_type(left_type);
             }
             else {
                 LVALUE param = *get_value_from_stack(-num_params+i);
                 llvm_params.push_back(param.value);
+            }
+        }
+    }
+
+    /// std_move if the argument parametor and functiontion parametor is heap object ///
+    for(i=0; i<num_params; i++) {
+        LVALUE llvm_value = *lvalue_params[i];
+
+        if(i < fun.mNumParams) {
+            sNodeType* left_type = fun_param_types[i];
+            sNodeType* right_type = lvalue_params[i]->type;
+
+            BOOL self_in_inherit = inherit && strcmp(fun_name, "initialize") == 0 && i == 0;
+
+            if(self_in_inherit) {
+                remove_from_right_value_object(llvm_value.value);
+            }
+            else if(left_type->mHeap && right_type->mHeap)
+            {
+                if(llvm_value.binded_value)
+                {
+                    std_move(NULL, left_type, &llvm_value, FALSE, info);
+                }
+                else {
+                    remove_from_right_value_object(llvm_value.value);
+                }
+            }
+        }
+        else {
+            sNodeType* right_type = lvalue_params[i]->type;
+
+            if(right_type->mHeap && !llvm_value.binded_value) 
+            {
+                append_heap_object_to_right_value(&llvm_value);
+            }
+        }
+    }
+
+    /// restore right value object after determine generics types ///
+    for(i=0; i<num_params; i++) {
+        LVALUE llvm_value = *lvalue_params[i];
+
+        if(i < fun.mNumParams) {
+            sNodeType* left_type = fun_param_types[i];
+            sNodeType* right_type = lvalue_params[i]->type;
+
+            if(!left_type->mHeap && right_type->mHeap && !llvm_value.binded_value)
+            {
+                append_heap_object_to_right_value(&llvm_value);
+            }
+        }
+        else {
+            sNodeType* right_type = lvalue_params[i]->type;
+
+            if(right_type->mHeap && !llvm_value.binded_value) 
+            {
+                append_heap_object_to_right_value(&llvm_value);
             }
         }
     }
@@ -3103,7 +3106,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         BOOL last_expression_is_return_before = info->last_expression_is_return;
         info->last_expression_is_return = FALSE;
 
-        if(!compile_block(inline_block, info, result_type))
+        if(!compile_block(inline_block, info, result_type, TRUE))
         {
             return FALSE;
         }
@@ -3124,8 +3127,13 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             llvm_value.type = result_type;
             llvm_value.address = result_variable;
             llvm_value.var = NULL;
+            llvm_value.binded_value = FALSE;
 
             push_value_to_stack_ptr(&llvm_value, info);
+
+            if(llvm_value.type->mHeap) {
+                append_heap_object_to_right_value(&llvm_value);
+            }
         }
 
         info->type = result_type;
@@ -3186,8 +3194,17 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             llvm_value.type = result_type;
             llvm_value.address = nullptr;
             llvm_value.var = nullptr;
+            llvm_value.binded_value = FALSE;
 
             push_value_to_stack_ptr(&llvm_value, info);
+
+            BOOL initialize_inherit = inherit && strcmp(fun_name, "initialize") == 0;
+
+            if(!initialize_inherit) {
+                if(llvm_value.type->mHeap) {
+                    append_heap_object_to_right_value(&llvm_value);
+                }
+            }
 
             info->type = result_type;
         }
@@ -3197,6 +3214,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             llvm_value.type = result_type;
             llvm_value.address = nullptr;
             llvm_value.var = nullptr;
+            llvm_value.binded_value = FALSE;
 
             push_value_to_stack_ptr(&llvm_value, info);
 
@@ -3249,12 +3267,15 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
     gNodes[node].uValue.sFunction.mSimpleLambdaParam = simple_lambda_param;
     gNodes[node].uValue.sFunction.mGenericsFunction = generics_function;
     gNodes[node].uValue.sFunction.mConstructorFun = constructor_fun;
+    gNodes[node].uValue.sFunction.mParseStructPhase = info->parse_struct_phase;
 
     return node;
 }
 
 BOOL compile_function(unsigned int node, sCompileInfo* info)
 {
+    BOOL parse_struct_phase = gNodes[node].uValue.sFunction.mParseStructPhase;
+
     BOOL in_clang = gNodes[node].uValue.sFunction.mInCLang;
 
     /// get result type ///
@@ -3441,7 +3462,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     BOOL last_expression_is_return_before = info->last_expression_is_return;
     info->last_expression_is_return = FALSE;
 
-    if(!compile_block(node_block, info, result_type))
+    if(!compile_block(node_block, info, result_type, TRUE))
     {
         info->function_lvtable = function_lvtable_before;
         info->result_type = result_type_before;
@@ -3499,6 +3520,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     llvm_value.type = lambda_type;
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     if(!info->no_output) {
         push_value_to_stack_ptr(&llvm_value, info);
@@ -3617,7 +3639,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         BOOL last_expression_is_return_before = info->last_expression_is_return;
         info->last_expression_is_return = FALSE;
 
-        if(!compile_block(node_block, info, result_type))
+        if(!compile_block(node_block, info, result_type, FALSE))
         {
             xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
             return FALSE;
@@ -3672,6 +3694,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         llvm_value.type = lambda_type;
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         push_value_to_stack_ptr(&llvm_value, info);
 
@@ -3681,7 +3704,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     }
 
     BasicBlock* current_block_before2;
-    llvm_change_block(current_block_before, &current_block_before2, info, FALSE);
+    llvm_change_block(current_block_before, &current_block_before2, info, TRUE);
 
     return TRUE;
 }
@@ -3978,6 +4001,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
         llvm_value.type = var_type;
         llvm_value.address = nullptr;
         llvm_value.var = var;
+        llvm_value.binded_value = TRUE;
 
         push_value_to_stack_ptr(&llvm_value, info);
 
@@ -4019,6 +4043,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
             llvm_value.type = var_type2;
             llvm_value.address = nullptr;
             llvm_value.var = var;
+            llvm_value.binded_value = TRUE;
 
             push_value_to_stack_ptr(&llvm_value, info);
 
@@ -4054,6 +4079,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
             llvm_value.type = var_type;
             llvm_value.address = var_address;
             llvm_value.var = var;
+            llvm_value.binded_value = TRUE;
 
             push_value_to_stack_ptr(&llvm_value, info);
 
@@ -4179,7 +4205,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     BOOL last_expression_is_return_before = info->last_expression_is_return;
     info->last_expression_is_return = FALSE;
 
-    if(!compile_block(if_block, info, result_type)) {
+    if(!compile_block(if_block, info, result_type, TRUE)) {
         return FALSE;
     }
 
@@ -4289,7 +4315,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             BOOL last_expression_is_return_before = info->last_expression_is_return;
             info->last_expression_is_return = FALSE;
 
-            if(!compile_block(elif_node_block, info, result_type)) 
+            if(!compile_block(elif_node_block, info, result_type, TRUE)) 
             {
                 return FALSE;
             }
@@ -4326,7 +4352,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         BOOL last_expression_is_return_before = info->last_expression_is_return;
         info->last_expression_is_return = FALSE;
 
-        if(!compile_block(else_node_block, info, result_type)) 
+        if(!compile_block(else_node_block, info, result_type, TRUE)) 
         {
             return FALSE;
         }
@@ -4364,11 +4390,16 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         llvm_value.type = result_type;
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         info->type = result_type;
 
         dec_stack_ptr(1, info);
         push_value_to_stack_ptr(&llvm_value, info);
+
+        if(llvm_value.type->mHeap) {
+            append_heap_object_to_right_value(&llvm_value);
+        }
     }
     else {
         info->type = create_node_type_with_class_name("void");
@@ -4497,7 +4528,9 @@ static BOOL create_generics_finalize_method(sNodeType* node_type2, sCompileInfo*
 
         char type_name[1024];
         type_name[0] = '\0';
-        create_type_name_from_node_type(type_name, 1024, node_type2);
+        sNodeType* node_type3 = clone_node_type(node_type2);
+        node_type3->mPointerNum++;
+        create_type_name_from_node_type(type_name, 1024, node_type3);
 
         gFinalizeGenericsFunNum[type_name] = generics_fun_num;
     }
@@ -4621,15 +4654,12 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     llvm_value.type = clone_node_type(node_type2);
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
     if(!info->no_output) {
-        std::pair<sNodeType*, bool> pair_value;
-        pair_value.first = clone_node_type(node_type2);
-        pair_value.second = true;
-
-        gHeapObjects[address] = pair_value;
+        append_heap_object_to_right_value(&llvm_value);
     }
 
     info->type = clone_node_type(node_type2);
@@ -4784,6 +4814,7 @@ static BOOL compile_stack_object(unsigned int node, sCompileInfo* info)
     llvm_value.type = node_type2;
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -5098,7 +5129,8 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     Value* rvalue2 = rvalue.value;
 
-    std_move(field_address, right_type, &rvalue, FALSE, info);
+    BOOL alloc = FALSE;
+    std_move(field_address, right_type, &rvalue, alloc, info);
 
     Builder.CreateAlignedStore(rvalue2, field_address, alignment);
 
@@ -5265,6 +5297,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         llvm_value.type = field_type;
         llvm_value.address = field_address2;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = TRUE;
 
         dec_stack_ptr(1, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -5362,6 +5395,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     llvm_value.type = field_type;
     llvm_value.address = field_address2;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = TRUE;
 
     info->type = field_type;
 
@@ -5473,7 +5507,7 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     info->last_expression_is_return = FALSE;
 
     sNodeType* result_type = create_node_type_with_class_name("void");
-    if(!compile_block(while_node_block, info, result_type)) {
+    if(!compile_block(while_node_block, info, result_type, TRUE)) {
         return FALSE;
     }
 
@@ -5551,7 +5585,7 @@ static BOOL compile_do_while_expression(unsigned int node, sCompileInfo* info)
     info->last_expression_is_return = FALSE;
 
     sNodeType* result_type = create_node_type_with_class_name("void");
-    if(!compile_block(while_node_block, info, result_type)) {
+    if(!compile_block(while_node_block, info, result_type, TRUE)) {
         return FALSE;
     }
 
@@ -5629,6 +5663,7 @@ static BOOL compile_true(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -5660,6 +5695,7 @@ static BOOL compile_null(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("void*");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -5691,6 +5727,7 @@ static BOOL compile_false(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -5813,6 +5850,7 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = result_var;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -5935,6 +5973,7 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = result_var;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -6061,7 +6100,7 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
 
     /// block of for expression ///
     sNodeType* result_type = create_node_type_with_class_name("void");
-    if(!compile_block(for_block, info, result_type)) 
+    if(!compile_block(for_block, info, result_type, TRUE)) 
     {
         info->num_loop--;
         info->pinfo->lv_table = lv_table_before;
@@ -6215,6 +6254,7 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
         llvm_value.type = lambda_type->mResultType;
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         push_value_to_stack_ptr(&llvm_value, info);
 
@@ -6297,6 +6337,7 @@ static BOOL compile_dereffernce(unsigned int node, sCompileInfo* info)
     llvm_value.type = derefference_type;
     llvm_value.address = lvalue.value;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -6351,6 +6392,7 @@ static BOOL compile_reffernce(unsigned int node, sCompileInfo* info)
     llvm_value.type = refference_type;
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -6412,6 +6454,7 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
     llvm_value.type = left_type;
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -6503,6 +6546,10 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
         var_type->mPointerNum--;
     }
 
+    if(var_type->mPointerNum == 0) {
+        var_type->mHeap = FALSE;
+    }
+
     /// go ///
     Value* element_value;
     Value* load_element_addresss;
@@ -6545,11 +6592,12 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
     llvm_value.type = clone_node_type(var_type);
     llvm_value.address = load_element_addresss;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = lvalue.binded_value;
 
     dec_stack_ptr(2, info);
     push_value_to_stack_ptr(&llvm_value, info);
 
-    info->type = var_type;
+    info->type = clone_node_type(var_type);
 
     return TRUE;
 }
@@ -6704,7 +6752,8 @@ BOOL compile_store_element(unsigned int node, sCompileInfo* info)
 
         int alignment = get_llvm_alignment_from_node_type(var_type);
 
-        std_move(element_address, var_type, &rvalue, FALSE, info);
+        BOOL alloc = FALSE;
+        std_move(element_address, var_type, &rvalue, alloc, info);
 
         Builder.CreateAlignedStore(rvalue.value, element_address, alignment);
     }
@@ -6744,6 +6793,7 @@ BOOL compile_char_value(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("char");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -6855,14 +6905,15 @@ unsigned int sNodeTree_create_typedef(char* name, sNodeType* node_type, sParserI
     gNodes[node].mRight = 0;
     gNodes[node].mMiddle = 0;
 
-    add_typedef(name, clone_node_type(node_type));
+    if(info->parse_struct_phase) {
+        add_typedef(name, clone_node_type(node_type));
+    }
 
     return node;
 }
 
 static BOOL compile_typedef(unsigned int node, sCompileInfo* info)
 {
-
     info->type = create_node_type_with_class_name("void");
 
     return TRUE;
@@ -6922,6 +6973,7 @@ static BOOL compile_left_shift(unsigned int node, sCompileInfo* info)
         llvm_value.type = clone_node_type(right_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -7014,6 +7066,7 @@ static BOOL compile_right_shift(unsigned int node, sCompileInfo* info)
         llvm_value.type = clone_node_type(right_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -7106,6 +7159,7 @@ static BOOL compile_and(unsigned int node, sCompileInfo* info)
         llvm_value.type = clone_node_type(right_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -7198,6 +7252,7 @@ static BOOL compile_xor(unsigned int node, sCompileInfo* info)
         llvm_value.type = clone_node_type(right_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -7290,6 +7345,7 @@ static BOOL compile_or(unsigned int node, sCompileInfo* info)
         llvm_value.type = clone_node_type(right_type);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
 
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
@@ -7382,13 +7438,13 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        std_move(NULL, result_type, &llvm_value, FALSE, info);
+        prevent_from_right_object_free(&llvm_value, info);
 
         restore_lvtable((Value*)info->function_lvtable);
 
         free_right_value_objects(info);
         free_objects(info->pinfo->lv_table, info);
-
+        
         if(info->inline_func_end) {
             int alignment = get_llvm_alignment_from_node_type(llvm_value.type);
 
@@ -7472,6 +7528,7 @@ static BOOL compile_sizeof(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("long");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -7525,6 +7582,7 @@ BOOL compile_sizeof_expression(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("long");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -7629,6 +7687,7 @@ static BOOL compile_load_function(unsigned int node, sCompileInfo* info)
     llvm_value.type = lambda_type;
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -8457,6 +8516,7 @@ unsigned int sNodeTree_create_normal_block(struct sNodeBlockStruct* node_block, 
     gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.sNormalBlock.mNodeBlock = node_block;
+    gNodes[node].uValue.sNormalBlock.mHeap = FALSE;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -8472,12 +8532,19 @@ BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
     sNodeType* result_type = create_node_type_with_class_name("any");
     result_type->mHeap = TRUE;
 
-    if(!compile_block(node_block, info, result_type))
+    if(!compile_block(node_block, info, result_type, TRUE))
     {
         return FALSE;
     }
 
-//    info->type = create_node_type_with_class_name("void");
+    if(!type_identify_with_class_name(info->type, "void"))
+    {
+        LVALUE llvm_value = *get_value_from_stack(-1);
+
+        if(llvm_value.type->mHeap) {
+            append_heap_object_to_right_value(&llvm_value);
+        }
+    }
 
     return TRUE;
 }
@@ -8864,6 +8931,7 @@ BOOL compile_is_heap_expression(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -8902,6 +8970,7 @@ BOOL compile_is_heap(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -8954,6 +9023,7 @@ static BOOL compile_class_name_expression(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("char*");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -8995,6 +9065,7 @@ static BOOL compile_class_name(unsigned int node, sCompileInfo* info)
     llvm_value.type = create_node_type_with_class_name("char*");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -9058,6 +9129,7 @@ static BOOL compile_va_arg(unsigned int node, sCompileInfo* info)
     llvm_value.type = clone_node_type(node_type);
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 

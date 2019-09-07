@@ -35,6 +35,14 @@ struct GlobalStruct GlobalStructData = {
     123, 345
 };
 
+typedef int (*pFun)(int, int);
+
+typedef int pfunXXX(int, int);
+
+typedef enum { kTypedefEnumC, kTypedefEnumD } eEnumX;
+
+typedef union { int a; long b; } UnionTest4;
+
 int main()
 {
     if(1 == 1) {
@@ -341,7 +349,9 @@ int main()
     printf("1 + 1 == %d\n", 1 + 1);
     printf("(%s)\n", "AAA" + "BBB");
 
+
     char* axy = "xyz";
+
     string str1 = new char[5];
 
     strcpy(str1, axy);
@@ -385,7 +395,8 @@ int main()
 
     xassert("method generics test", method_generics_fun2(1, 2) == 3);
 
-    xassert("method generics test2", strcmp(method_generics_fun2("AAA", "BBB"), "AAABBB") == 0);
+    xassert("method generics test2", strcmp(method_generics_fun2(string("AAA"), string("BBB")), "AAABBB") == 0);
+
     xassert("method generics test3", method_generics_fun2(2, 3) == 5);
 
     struct GenericsTest2<T> {
@@ -544,6 +555,7 @@ int main()
     var bb2 = new Hello2<char*%>;
 
     var cc = bb2.test {
+        printf("it %p\n", it);
         3
     }
 
@@ -583,36 +595,6 @@ int main()
     v3.each {
         printf("%d --> %d\n", it2, it);
     }
-
-    var vv4 = new vector<int>.initialize();
-
-    vv4.push_back(1);
-    vv4.push_back(2);
-    vv4.push_back(3);
-
-    printf("vv4 %d\n", vv4.item(0));
-    printf("vv4 %d\n", vv4.item(1));
-    printf("vv4 %d\n", vv4.item(2));
-
-    vv4.each {
-        printf("vv4 %d\n", it);
-    }
-
-    var vv5 = vv4.map(char*% lambda(int it) {
-        var result = new char[256];
-        snprintf(result, 256, "%d", it);
-        result + "aaa"
-    });
-
-    printf("vv5 %s\n", vv5.item(0));
-    printf("vv5 %s\n", vv5.item(1));
-    printf("vv5 %s\n", vv5.item(2));
-
-    vv5.each {
-        printf("%s\n", it);
-    }
-
-    printf("vv5.len %d\n", vv5.len);
 
     var vvv4 = new vector<char*%>.initialize();
 
@@ -801,8 +783,7 @@ int main()
 
         union {
             T a;
-            T b;
-        } b;
+            T b; } b;
     };
 
     var data6 = new GenericsTest4<long>;
@@ -898,33 +879,6 @@ int main()
 
     void* pxz = (void*)pxyy;
 
-    struct StructTest3 {
-        int a;
-        int b;
-    };
-
-    StructTest3 data8;
-
-    data8.a = 1;
-    data8.b = 2
-
-    xassert("struct test", data8.a == 1 && data8.b == 2);
-
-    void funXYZ(StructTest3 data) 
-    {
-        xassert("struct test2", data8.a == 1 && data8.b == 2);
-    }
-
-    funXYZ(data8);
-
-    StructTest3%* data9 = new StructTest3;
-
-    data9->a = 1;
-    data9->b = 2;
-
-    xassert("struct test3", data9->a == 1 && data9->b == 2);
-
-    funXYZ(*data9);
 
     int funXYZ2() {
         if(true) {
@@ -1012,8 +966,6 @@ int main()
     var struct_var = new StructTest4.initialize();
 
     xassert("struct test12", struct_var.a == 111 && struct_var.b == 123);
-
-    typedef union { int a; long b; } UnionTest4;
 
     UnionTest4 aaa4;
 
@@ -1215,8 +1167,6 @@ int main()
         xassert("normal block test", b == 222);
     }
 
-    typedef int (*pFun)(int, int);
-
     pFun pfun = lambda(int a, int b):int {
         return a + b;
     }
@@ -1352,8 +1302,6 @@ label1:
         return aaa + bbb;
     }
 
-    typedef int pfunXXX(int, int);
-
     pfunXXX pfunX2 = pfun_test2;
 
     xassert("typedef function pointer", pfunX2(111, 222) == 333);
@@ -1361,8 +1309,6 @@ label1:
     enum { kTypedefEnumA, kTypedefEnumB } enum_value = kTypedefEnumA;
 
     xassert("anonymous enum test", enum_value == kTypedefEnumA);
-
-    typedef enum { kTypedefEnumC, kTypedefEnumD } eEnumX;
 
     eEnumX enum_value2 = kTypedefEnumC;
     xassert("typedef enum test", enum_value2 == kTypedefEnumC);
@@ -1474,7 +1420,6 @@ label1:
 
     xassert("class name test3", strcmp(class_name(gxll2), "StructTest2*%<int>") == 0);
 
-/*
     struct Data5 {
         int a;
         int b;
@@ -1487,6 +1432,104 @@ label1:
         }
     }
 
+
+    string zz8 = "AAA" + "BBB"
+
+    puts(zz8);
+
+    xassert("string test", strcmp("AAA" + "BBB", "AAABBB") == 0);
+
+    var vv4 = new vector<int>.initialize();
+
+    vv4.push_back(1);
+    vv4.push_back(2);
+    vv4.push_back(3);
+
+    printf("vv4 %d\n", vv4.item(0));
+    printf("vv4 %d\n", vv4.item(1));
+    printf("vv4 %d\n", vv4.item(2));
+
+    vv4.each {
+        printf("vv4 %d\n", it);
+    }
+
+    var vv5 = vv4.map(char*% lambda(int it) {
+        var result = new char[256];
+        snprintf(result, 256, "%d", it);
+        result + "aaa"
+    });
+
+    printf("vv5 %s\n", vv5.item(0));
+    printf("vv5 %s\n", vv5.item(1));
+    printf("vv5 %s\n", vv5.item(2));
+
+    vv5.each {
+        printf("%s\n", it);
+    }
+
+    printf("vv5.len %d\n", vv5.len);
+
+
+/*
+    struct StructTest3 {
+        int a;
+        int b;
+    };
+
+    StructTest3 data8;
+
+    data8.a = 1;
+    data8.b = 2
+
+    xassert("struct test", data8.a == 1 && data8.b == 2);
+
+    void funXYZ(StructTest3 data) 
+    {
+        xassert("struct test2", data8.a == 1 && data8.b == 2);
+    }
+
+    funXYZ(data8);
+
+    StructTest3%* data9 = new StructTest3;
+
+    data9->a = 1;
+    data9->b = 2;
+
+    xassert("struct test3", data9->a == 1 && data9->b == 2);
+
+    funXYZ(*data9);
+*/
+
+    0
+}
+
+void unsupported_function()
+{
+/*
+    void va_list_test(char* str, ...)
+    {
+        va_list vlist;
+
+        va_start(vlist, str);
+        vprintf(str, vlist);
+        va_end(vlist);
+    }
+
+    va_list_test("aaa %d\n", 1);
+
+    void va_list_test2(int num_args, ...)
+    {
+        int sum = 0;
+        va_list vlist;
+
+        va_start(vlist, num_args);
+        int n = va_arg(vlist, int);
+        va_end(vlist);
+    }
+
+    va_list_test2(2, 1, 2);
+*/
+/*
     var zz = new Data5.initialize();
 
     var zz2 = clone zz;
@@ -1526,40 +1569,7 @@ label1:
     }
 
     fun_test_borrow(zz6);
-
-    string zz8 = "AAA" + "BBB"
-
-    puts(zz8);
-
-    xassert("string test", strcmp("AAA" + "BBB", "AAABBB") == 0);
 */
-/*
-    void va_list_test(char* str, ...)
-    {
-        va_list vlist;
-
-        va_start(vlist, str);
-        vprintf(str, vlist);
-        va_end(vlist);
-    }
-
-    va_list_test("aaa %d\n", 1);
-
-    void va_list_test2(int num_args, ...)
-    {
-        int sum = 0;
-        va_list vlist;
-
-        va_start(vlist, num_args);
-        int n = va_arg(vlist, int);
-        va_end(vlist);
-    }
-
-    va_list_test2(2, 1, 2);
-*/
-
-
-    0
 }
 
 }

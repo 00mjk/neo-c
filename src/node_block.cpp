@@ -11,7 +11,7 @@ BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_c_lang, sParser
 
     *node_block = ALLOC sNodeBlock_alloc();
 
-    if(!extern_c_lang) {
+    if(!extern_c_lang || info->mBlockLevel == 0) {
         info->lv_table = init_block_vtable(old_table);
     }
 
@@ -22,7 +22,7 @@ BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_c_lang, sParser
 
     expect_next_character_with_one_forward("}", info);
 
-    if(!extern_c_lang) {
+    if(!extern_c_lang || info->mBlockLevel == 0) {
         info->lv_table = old_table;
     }
 
@@ -161,7 +161,8 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
     return TRUE;
 }
 
-BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type)
+
+BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type, BOOL free_var_object)
 {
     sVarTable* old_table = info->pinfo->lv_table;
     info->pinfo->lv_table = block->mLVTable;
@@ -236,7 +237,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                         return TRUE;
                     }
 
-                    std_move(NULL, result_type, &llvm_value, FALSE, info);
+                    prevent_from_right_object_free(&llvm_value, info);
 
                     info->type = llvm_value.type;
                     int alignment = get_llvm_alignment_from_node_type(llvm_value.type);
@@ -266,9 +267,9 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                         return TRUE;
                     }
 
-                    push_value_to_stack_ptr(&llvm_value, info);
+                    prevent_from_right_object_free(&llvm_value, info);
 
-                    std_move(NULL, result_type, &llvm_value, FALSE, info);
+                    push_value_to_stack_ptr(&llvm_value, info);
 
                     info->type = llvm_value.type;
                 }
@@ -284,13 +285,14 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
         }
     }
 
-    if(!extern_c_lang) {
+    if(!extern_c_lang && free_var_object) {
         free_objects(info->pinfo->lv_table, info);
+
+        free_right_value_objects(info);
     }
     if(!extern_c_lang) {
         info->mBlockLevel--;
     }
-    //free_right_value_objects(info);
 
     info->pinfo->lv_table = old_table;
 

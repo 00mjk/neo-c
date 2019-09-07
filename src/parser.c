@@ -71,6 +71,11 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info);
 
 static BOOL parse_struct(unsigned int* node, sParserInfo* info) 
 {
+    if(info->mBlockLevel > 0) {
+        parser_err_msg(info, "definition of struct should be at the top level");
+        info->err_num++;
+    }
+
     char sname[PATH_MAX];
     xstrncpy(sname, info->sname, PATH_MAX);
 
@@ -3447,6 +3452,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("cC", info);
             expect_next_character_with_one_forward("\"", info);
 
+/*
             if(info->parse_struct_phase) {
                 if(!skip_block(info)) {
                     return FALSE;
@@ -3469,6 +3475,21 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
                 *node = sNodeTree_create_normal_block(node_block, info);
             }
+*/
+
+            BOOL in_clang = info->in_clang;
+
+            info->in_clang = TRUE;
+            sNodeBlock* node_block = NULL;
+            if(!parse_block_easy(ALLOC &node_block, TRUE, info))
+            {
+                info->in_clang = in_clang;
+                return FALSE;
+            }
+
+            info->in_clang = in_clang;
+
+            *node = sNodeTree_create_normal_block(node_block, info);
         }
         else if(strcmp(buf, "def") == 0) {
             char* struct_name = NULL;

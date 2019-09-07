@@ -379,6 +379,8 @@ struct sCompileInfoStruct
     void* case_then_block;
 
     int mBlockLevel;
+
+    BOOL prevent_from_free_right_value_objects;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;
@@ -405,6 +407,7 @@ struct sNodeTreeStruct
             char mVarName[VAR_NAME_MAX];
             BOOL mAlloc;
             BOOL mGlobal;
+            BOOL mParseStructPhase;
         } sStoreVariable;
 
         struct {
@@ -459,6 +462,7 @@ struct sNodeTreeStruct
             BOOL mConstructorFun;
             int mSLine;
             BOOL mInCLang;
+            BOOL mParseStructPhase;
         } sFunction;
 
         struct {
@@ -545,6 +549,7 @@ struct sNodeTreeStruct
 
         struct {
             struct sNodeBlockStruct* mNodeBlock;
+            BOOL mHeap;
         } sNormalBlock;
 
         struct {
@@ -687,7 +692,7 @@ typedef struct sNodeBlockStruct sNodeBlock;
 
 BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_clang, sParserInfo* info);
 BOOL parse_block(sNodeBlock* node_block, BOOL extern_clang, sParserInfo* info);
-BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type);
+BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type, BOOL free_var_object);
 BOOL skip_block(sParserInfo* info);
 
 //////////////////////////////

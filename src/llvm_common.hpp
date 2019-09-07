@@ -73,7 +73,6 @@ extern Function* gFunction;
 extern Module* TheModule;
 extern std::unique_ptr<FunctionPassManager> TheFPM;
 extern FunctionAnalysisManager TheFAM;
-extern std::map<Value*, std::pair<sNodeType*, bool>> gHeapObjects;
 extern std::map<std::string, int> gFinalizeGenericsFunNum;
 
 struct LVALUEStruct {
@@ -81,6 +80,7 @@ struct LVALUEStruct {
     Value* value;
     Value* address;
     sVar* var;
+    BOOL binded_value;
 };
 
 typedef struct LVALUEStruct LVALUE;
@@ -139,6 +139,8 @@ void store_address_to_lvtable(int index, Value* address);
 Value* load_address_to_lvtable(int index, sNodeType* var_type, sCompileInfo* info);
 BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sCompileInfo* info);
 void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL alloc, sCompileInfo* info);
+void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info);
+void remove_from_right_value_object(Value* value);
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info);
 void free_right_value_objects(sCompileInfo* info);
 void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info, BOOL no_free_right_objects);
@@ -146,6 +148,7 @@ Value* store_lvtable();
 void restore_lvtable(Value* lvtable);
 Value* get_dummy_value(sNodeType* node_type, sCompileInfo* info);
 BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, sCompileInfo* info);
+void append_heap_object_to_right_value(LVALUE* llvm_value);
 }
 BOOL add_function(char* name, char* real_fun_name, Function* llvm_fun, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external);
 void create_generics_fun_name(char* real_fun_name, int size_real_fun_name, char* fun_name, sNodeType** method_generics_types, int num_method_generics_types, sNodeType* generics_type, char* struct_name, int generics_fun_num);

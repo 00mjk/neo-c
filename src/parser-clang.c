@@ -907,6 +907,17 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
     return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || (klass && *info->p == '(') || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0 || strcmp(buf, "__extension__") == 0 || strcmp(buf, "typeof") == 0;
 }
 
+static BOOL is_premitive_type(char* buf, sParserInfo* info)
+{
+    sCLClass* klass = get_class(buf);
+
+    if(klass == NULL) {
+        return FALSE;
+    }
+
+    return klass->mFlags & CLASS_FLAGS_PRIMITIVE;
+}
+
 static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef, BOOL parse_only)
 {
     if(func_pointer_name) {
@@ -984,7 +995,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             return FALSE;
         }
 
-        if(is_type_name(buf, info)) {
+        if(is_premitive_type(buf, info)) {
             info->p = p_before;
             info->sline = sline_before;
 
@@ -2608,48 +2619,57 @@ static BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun
         *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, info);
     }
     else {
-        int i;
-        for(i=0; i<num_params; i++) {
-            char* name = params[i].mName;
-
-            if(name[0] == '\0') {
-                parser_err_msg(info, "Require parametor variable names");
-                info->err_num++;
-            }
-        }
-
-        sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
-        expect_next_character_with_one_forward("{", info);
-        sVarTable* old_table = info->lv_table;
-
-        info->lv_table = init_block_vtable(old_table);
-
-        sVarTable* block_var_table = info->lv_table;
-
-        for(i=0; i<num_params; i++) {
-            sParserParam* param = params + i;
-
-            BOOL readonly = FALSE;
-            if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1, FALSE, param->mType->mConstant))
-            {
+        if(info->parse_struct_phase) {
+            if(!skip_block(info)) {
                 return FALSE;
             }
+
+            *node = sNodeTree_create_null(info);
         }
+        else {
+            int i;
+            for(i=0; i<num_params; i++) {
+                char* name = params[i].mName;
 
-        if(!parse_block(node_block, FALSE, info)) {
-            sNodeBlock_free(node_block);
-            return FALSE;
+                if(name[0] == '\0') {
+                    parser_err_msg(info, "Require parametor variable names");
+                    info->err_num++;
+                }
+            }
+
+            sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
+            expect_next_character_with_one_forward("{", info);
+            sVarTable* old_table = info->lv_table;
+
+            info->lv_table = init_block_vtable(old_table);
+
+            sVarTable* block_var_table = info->lv_table;
+
+            for(i=0; i<num_params; i++) {
+                sParserParam* param = params + i;
+
+                BOOL readonly = FALSE;
+                if(!add_variable_to_table(info->lv_table, param->mName, param->mType, readonly, NULL, -1, FALSE, param->mType->mConstant))
+                {
+                    return FALSE;
+                }
+            }
+
+            if(!parse_block(node_block, FALSE, info)) {
+                sNodeBlock_free(node_block);
+                return FALSE;
+            }
+
+            expect_next_character_with_one_forward("}", info);
+            info->lv_table = old_table;
+
+            BOOL lambda = FALSE;
+
+            BOOL simple_lambda_param = FALSE;
+            BOOL construct_fun = FALSE;
+
+            *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, FALSE, var_arg);
         }
-
-        expect_next_character_with_one_forward("}", info);
-        info->lv_table = old_table;
-
-        BOOL lambda = FALSE;
-
-        BOOL simple_lambda_param = FALSE;
-        BOOL construct_fun = FALSE;
-
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, FALSE, var_arg);
     }
 
     info->mNumMethodGenerics = 0;

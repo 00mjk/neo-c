@@ -374,8 +374,9 @@ void free_objects(sVarTable* table, sCompileInfo* info)
             {
                 if(p->mLLVMValue)
                 {
-printf("free %s\n", p->mName);
+printf("free %s %s in vtable\n", p->mName, CLASS_NAME(node_type->mClass));
                     free_object(p->mType, p->mLLVMValue, info);
+                    p->mLLVMValue = NULL;
                 }
             }
         }

@@ -1,5 +1,7 @@
 extern "C"
 {
+typedef char*% string;
+
 void*% xcalloc(int num, long size);
 void*% xmalloc(long size);
 void*% xmemdup(void* mem);
@@ -9,8 +11,6 @@ char* xmemcpy(void* mem, void* mem2, long size);
 char* memcpy(void* mem, void* mem2, long size);
 
 char*% xasprintf(char* str, ...);
-
-typedef char*% string;
 
 extern string operator+(char* left, char* right);
 extern string string(char* str);
@@ -37,6 +37,7 @@ impl vector<T>
         if(isheap(T)) {
             for(int i=0; i<self.len; i++) {
                 delete self.items[i];
+
             }
         }
     }
@@ -56,7 +57,7 @@ impl vector<T>
         self.len++;
     }
 
-    T item(vector<T>* self, int index) {
+    T& item(vector<T>* self, int index) {
         self.items[index]
     }
     void each(vector<T>*  self, void lambda(T&,int) block) {

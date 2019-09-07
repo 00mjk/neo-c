@@ -12,6 +12,7 @@ ModuleAnalysisManager moduleAnalysisManager(false);
 std::map<std::string, std::pair<Type*, sNodeType*>> gLLVMStructType;
 
 GlobalVariable* gLVTableValue;
+std::map<Value*, std::pair<sNodeType*, int>> gRightValueObjects;
 
 #if LLVM_VERSION_MAJOR >= 7
 LoopAnalysisManager loopAnalysisManager(false);
@@ -1329,6 +1330,34 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     return TRUE;
 }
 
+void append_heap_object_to_right_value(LVALUE* llvm_value)
+{
+    if(llvm_value->type->mHeap) {
+        if(gRightValueObjects.count(llvm_value->value) == 0)
+        {
+            int flg = gRightValueObjects[llvm_value->value].second;
+
+            flg = 1;
+
+            std::pair<sNodeType*, int> pair_value;
+            pair_value.first = clone_node_type(llvm_value->type);
+            pair_value.second = 0;
+
+            gRightValueObjects[llvm_value->value] = pair_value;
+
+printf("append object to right heap value %p %s*\n", llvm_value->value, CLASS_NAME(llvm_value->type->mClass));
+        }
+    }
+}
+
+void remove_from_right_value_object(Value* value)
+{
+    if(gRightValueObjects.count(value) > 0)
+    {
+        gRightValueObjects.erase(value);
+    }
+}
+
 void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL alloc, sCompileInfo* info)
 {
     if(!info->no_output) {
@@ -1346,8 +1375,29 @@ void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL all
         }
 
         if(lvar_type->mHeap) {
-            if(gHeapObjects[rvalue->value].first != nullptr) {
-                gHeapObjects[rvalue->value].second = false;
+            if(gRightValueObjects.count(rvalue->value) > 0)
+            {
+printf("remove from right value object %p %s\n", rvalue->value, CLASS_NAME(lvar_type->mClass));
+                gRightValueObjects.erase(rvalue->value);
+            }
+        }
+    }
+}
+
+void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info)
+{
+    if(!info->no_output) {
+        if(llvm_value->type->mHeap) {
+            if(gRightValueObjects.count(llvm_value->value) > 0) 
+            {
+printf("remove from right value%p\n", llvm_value->value);
+                //gRightValueObjects[llvm_value->value].second = 1;
+                gRightValueObjects.erase(llvm_value->value);
+            }
+
+            sVar* var = llvm_value->var;
+            if(var) {
+                var->mLLVMValue = NULL;
             }
         }
     }
@@ -1364,6 +1414,7 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
     llvm_value.type = clone_node_type(node_type);
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -1390,16 +1441,16 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
 
 static void free_right_value_object(sNodeType* node_type, void* obj, sCompileInfo* info)
 {
-printf("free %p\n", obj);
+printf("free rigt value object %p type %s*\n", obj, CLASS_NAME(node_type->mClass));
     Value* obj2 = (Value*)obj;
     sCLClass* klass = node_type->mClass;
 
     sNodeType* node_type2 = clone_node_type(node_type);
 
     if(node_type2->mHeap && node_type2->mPointerNum > 0) {
-        Value* obj3 = Builder.CreateAlignedLoad((Value*)obj2, 8);
+        //Value* obj3 = Builder.CreateAlignedLoad((Value*)obj2, 8);
 
-        call_destructor(obj3, node_type2, info);
+        call_destructor(obj2, node_type2, info);
     }
 
     node_type2->mPointerNum = 0;
@@ -1417,7 +1468,7 @@ printf("free %p\n", obj);
 
         if(field_type->mHeap)
         {
-printf("field %d\n", i);
+printf("free right value object field %d %s*\n", i, CLASS_NAME(field_type->mClass));
 #if LLVM_VERSION_MAJOR >= 7
             Value* field_address = Builder.CreateStructGEP(obj2, i);
 #else
@@ -1443,31 +1494,45 @@ printf("field %d\n", i);
 
     params2.push_back(param);
     Builder.CreateCall(fun, params2);
+    
+    gRightValueObjects.erase(obj2);
 }
 
 void free_right_value_objects(sCompileInfo* info)
 {
-    for(std::pair<Value*, std::pair<sNodeType*, bool>> it: gHeapObjects) {
-        Value* address = it.first;
-        sNodeType* node_type = it.second.first; 
-        bool flag = it.second.second;
+    std::map<Value*, std::pair<sNodeType*, int>> old_heap_objects(gRightValueObjects);
 
-        if(flag) {
-printf("delete right object\n");
+    gRightValueObjects.clear();
+
+    for(std::pair<Value*, std::pair<sNodeType*, int>> it: old_heap_objects) 
+    {
+        Value* address = it.first;
+
+        sNodeType* node_type = it.second.first; 
+        int flag = it.second.second;
+
+        if(flag <= 0) {
             free_right_value_object(node_type, address, info);
         }
+        else {
+            flag--;
+
+            std::pair<sNodeType*, int> pair_value;
+            pair_value.first = clone_node_type(node_type);
+            pair_value.second = flag;
+
+            gRightValueObjects[address] = pair_value;
+        }
     }
-
-    gHeapObjects.clear();
 }
-
 
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
 
-    Value* obj;
+    Value* obj = NULL;
     if(node_type->mHeap && node_type->mPointerNum > 0) {
+        //obj = (Value*)address;
         obj = Builder.CreateAlignedLoad((Value*)address, 8);
 
         call_destructor(obj, node_type, info);
