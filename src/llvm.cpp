@@ -1345,7 +1345,9 @@ void append_heap_object_to_right_value(LVALUE* llvm_value)
 
             gRightValueObjects[llvm_value->value] = pair_value;
 
+#ifdef MDEBUG
 printf("append object to right heap value %p %s*\n", llvm_value->value, CLASS_NAME(llvm_value->type->mClass));
+#endif
         }
     }
 }
@@ -1377,7 +1379,9 @@ void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL all
         if(lvar_type->mHeap) {
             if(gRightValueObjects.count(rvalue->value) > 0)
             {
+#ifdef MDEBUG
 printf("remove from right value object %p %s\n", rvalue->value, CLASS_NAME(lvar_type->mClass));
+#endif
                 gRightValueObjects.erase(rvalue->value);
             }
         }
@@ -1390,7 +1394,9 @@ void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info)
         if(llvm_value->type->mHeap) {
             if(gRightValueObjects.count(llvm_value->value) > 0) 
             {
+#ifdef MDEBUG
 printf("remove from right value%p\n", llvm_value->value);
+#endif
                 //gRightValueObjects[llvm_value->value].second = 1;
                 gRightValueObjects.erase(llvm_value->value);
             }
@@ -1441,7 +1447,10 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
 
 static void free_right_value_object(sNodeType* node_type, void* obj, sCompileInfo* info)
 {
+#ifdef MDEBUG
 printf("free rigt value object %p type %s*\n", obj, CLASS_NAME(node_type->mClass));
+#endif
+
     Value* obj2 = (Value*)obj;
     sCLClass* klass = node_type->mClass;
 
@@ -1468,7 +1477,10 @@ printf("free rigt value object %p type %s*\n", obj, CLASS_NAME(node_type->mClass
 
         if(field_type->mHeap)
         {
+#ifdef MDEBUG
 printf("free right value object field %d %s*\n", i, CLASS_NAME(field_type->mClass));
+#endif
+
 #if LLVM_VERSION_MAJOR >= 7
             Value* field_address = Builder.CreateStructGEP(obj2, i);
 #else

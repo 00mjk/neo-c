@@ -379,7 +379,9 @@ void free_objects(sVarTable* table, sCompileInfo* info)
             {
                 if(p->mLLVMValue)
                 {
+#ifdef MDEBUG
 printf("free %s %s in vtable\n", p->mName, CLASS_NAME(node_type->mClass));
+#endif
                     free_object(p->mType, p->mLLVMValue, info);
                     p->mLLVMValue = NULL;
                 }

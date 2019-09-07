@@ -3,24 +3,26 @@
 #include <string.h>
 #include <stdarg.h>
 
-//int gNumMemAlloc = 0;
+#ifdef MDEBUG
+int gNumMemAlloc = 0;
+#endif
 
 void xfree(void *block)
 {
-/*
+#ifdef MDEBUG
 if(block) gNumMemAlloc--;
 printf("\nruntime free %p %d\n", block, gNumMemAlloc);
-*/
+#endif
     free(block);
 }
 
 void *xmalloc(size_t size)
 {
     void* result = malloc(size);
-/*
+#ifdef MDEBUG
 gNumMemAlloc++;
 printf("\nruntime alloc %p %d\n", result, gNumMemAlloc);
-*/
+#endif
     return result;
 }
 
@@ -28,10 +30,10 @@ void *xcalloc(size_t num, size_t nsize)
 {
     void* result = calloc(num, nsize);
 
-/*
+#ifdef MDEBUG
 gNumMemAlloc++;
 printf("runtime calloc %p %d\n", result, gNumMemAlloc);
-*/
+#endif
 
     return result;
 }
@@ -49,13 +51,17 @@ void *xmemdup(void *block)
 
 void *xasprintf(char* msg, ...)
 {
-//gNumMemAlloc++;
+#ifdef MDEBUG
+gNumMemAlloc++;
+#endif
     va_list args;
     va_start(args, msg);
     char* tmp;
     int len = vasprintf(&tmp, msg, args);
     va_end(args);
-//printf("runtime asprintf %p %d\n", tmp, gNumMemAlloc);
+#ifdef MDEBUG
+printf("runtime asprintf %p %d\n", tmp, gNumMemAlloc);
+#endif
 
     return tmp;
 }

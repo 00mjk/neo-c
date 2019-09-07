@@ -1491,12 +1491,6 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
-
-if(strcmp(var_name, "P_ALL") == 0)
-{
-puts("P_ALL");
-}
-
     if(var == NULL) {
         compile_err_msg(info, "undeclared variable %s", var_name);
         info->err_num++;
@@ -1618,10 +1612,7 @@ puts("P_ALL");
         BOOL constant = var->mConstant && var->mBlockLevel == 0;
 
         if(alloc) {
-puts("alloc");
-printf("var->mConstant %d var->mBlockLevel %d\n", var->mConstant, var->mBlockLevel);
             if(constant) {
-puts("constant");
                 Value* rvalue2 = rvalue.value;
 
                 if(dyn_cast<Constant>(rvalue2)) {
@@ -1649,7 +1640,6 @@ puts("constant");
             }
             else {
                 if(global) {
-puts("global");
                     GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant, GlobalValue::ExternalLinkage, 0, var_name);
                     address->setAlignment(alignment);
 
@@ -1676,7 +1666,6 @@ puts("global");
                     store_address_to_lvtable(index, address);
                 }
                 else {
-puts("local var");
                     Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
                     var->mLLVMValue = address;
 
@@ -1718,7 +1707,6 @@ puts("local var");
             }
         }
         else {
-puts("no alloc");
             if(var->mReadOnly || var->mConstant) {
                 compile_err_msg(info, "Variable(%s) is readonly variable", var->mName);
                 info->err_num++;

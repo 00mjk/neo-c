@@ -770,11 +770,6 @@ static BOOL parse_anoymous_enum(unsigned int* node, sParserInfo* info)
 
         check_already_added_variable(info->lv_table, var_name, info);
         BOOL readonly = TRUE;
-if(strcmp(var_name, "P_ALL") == 0)
-{
-puts("P_ALL");
-printf("block level %d info->lv_table->mBlockLevel %d\n", info->mBlockLevel, info->lv_table->mBlockLevel);
-}
 
         add_variable_to_table(info->lv_table, var_name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
 
@@ -5478,7 +5473,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "extern") == 0 && *info->p == '"') {
-puts("XXX");
             expect_next_character_with_one_forward("\"", info);
             expect_next_character_with_one_forward("cC", info);
             expect_next_character_with_one_forward("\"", info);
