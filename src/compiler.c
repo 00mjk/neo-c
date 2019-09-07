@@ -27,6 +27,32 @@ static BOOL compiler(char* fname, BOOL optimize)
         return FALSE;
     }
     
+    sBuf source;
+    sBuf_init(&source);
+
+    char path[PATH_MAX]; 
+    snprintf(path, PATH_MAX, "%s/include/neo-c.h", PREFIX);
+
+    if(access(path, R_OK) == 0) {
+        char line[PATH_MAX*2]; 
+
+        snprintf(line, PATH_MAX*2, "#include \"%s\"\n", path);
+
+        sBuf_append_str(&source, line);
+    }
+    else {
+        char line[PATH_MAX*2]; 
+
+        snprintf(line, PATH_MAX*2, "#include \"neo-c.h\"\n");
+
+        sBuf_append_str(&source, line);
+    }
+
+    if(!read_source(fname, &source)) {
+        free(source.mBuf);
+        return FALSE;
+    }
+
     char fname2[PATH_MAX];
     xstrncpy(fname2, fname, PATH_MAX);
 
@@ -41,10 +67,30 @@ static BOOL compiler(char* fname, BOOL optimize)
         }
     }
 
-    xstrncat(fname2, ".out", PATH_MAX);
+    xstrncat(fname2, ".nc.tmp", PATH_MAX);
+
+    FILE* f = fopen(fname2, "w");
+    fprintf(f, "%s", source.mBuf);
+    fclose(f);
+
+    char fname3[PATH_MAX];
+    xstrncpy(fname3, fname, PATH_MAX);
+
+    p = fname3 + strlen(fname3);
+    while(p >= fname3) {
+        if(*p == '.') {
+            *p = '\0';
+            break;
+        }
+        else {
+            p--;
+        }
+    }
+
+    xstrncat(fname3, ".out", PATH_MAX);
 
     char cmd[1024];
-    snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
+    snprintf(cmd, 1024, "cpp -C %s > %s", fname2, fname3);
 
     int rc = system(cmd);
     if(rc != 0) {
@@ -52,9 +98,11 @@ static BOOL compiler(char* fname, BOOL optimize)
         exit(2);
     }
 
-    sBuf source;
+    free(source.mBuf);
+    
     sBuf_init(&source);
-    if(!read_source(fname2, &source)) {
+
+    if(!read_source(fname3, &source)) {
         free(source.mBuf);
         return FALSE;
     }
@@ -163,7 +211,30 @@ int main(int argc, char** argv)
     if(!output_object_file) {
         char command[4096*2];
 
-        snprintf(command, 4096*2, "clang -o %s %s.o memalloc-stdc.o ", main_module_name, main_module_name);
+        snprintf(command, 4096*2, "clang -o %s %s.o ", main_module_name, main_module_name);
+
+        char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s/lib/neo-c.o", PREFIX);
+
+
+        if(access(path, R_OK) == 0) {
+            xstrncat(command, path, 4096*2);
+            xstrncat(command, " ", 4096*2);
+        }
+        else {
+            snprintf(path, PATH_MAX, "./neo-c.o ");
+            xstrncat(command, path, 4096*2);
+        }
+
+        snprintf(path, PATH_MAX, "%s/lib/memalloc-stdc.o", PREFIX);
+
+        if(access(path, R_OK) == 0) {
+            xstrncat(command, path, 4096*2);
+            xstrncat(command, " ", 4096*2);
+        }
+        else {
+            snprintf(path, PATH_MAX, "./memalloc-stdc.o ");
+            xstrncat(command, path, 4096*2);
+        }
 
         int i;
         for(i=0; i<num_external_object; i++) {

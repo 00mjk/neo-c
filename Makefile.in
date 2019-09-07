@@ -7,9 +7,9 @@ bindir=@bindir@
 datadir=@datadir@
 mandir=@mandir@
 sharedstatedir=@sharedstatedir@
-sysconfdir=@sysconfdir@/clover2
-includedir=@includedir@/clover2
-datarootdir=@datarootdir@/clover2
+sysconfdir=@sysconfdir@/neo-c
+includedir=@includedir@/neo-c
+datarootdir=@datarootdir@/neo-c
 docdir=@datadir@/doc
 libdir=@libdir@
 
@@ -32,16 +32,14 @@ COMMON_OBJS=@COMMON_OBJS@
 ###################################################
 # main
 ###################################################
-all: neo-c 
+all: neo-c neo-c.o
 	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
 neo-c: config.h src/compiler.o $(COMMON_OBJS) $(OBJS) memalloc.o memalloc-stdc.o
 	$(CXX) -o neo-c src/compiler.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS)
 
-libneo-c.so.1.0.0: $(COMMON_OBJ) $(RUNTIME_OBJS)
-	$(CC) -shared -o libneo-c.so.1.0.0 $(RUNTIME_OBJS) $(CFLAGS) $(LIBS)
-	ln -s -f libneo-c.so.1.0.0 libneo-c.so.1
-	ln -s -f libneo-c.so.1.0.0 libneo-c.so
+neo-c.o: neo-c.nc
+	PWD=`pwd` ./neo-c -c neo-c.nc
 
 memalloc.o: src/memalloc.c
 	$(CC) -c -o memalloc.o src/memalloc.c
@@ -63,29 +61,30 @@ $(RUNTIME_OBJS): src/*.h Makefile configure
 ###################################################
 install:
 	mkdir -p $(DESTDIR)/lib
-	$(INSTALL) -m 755 ./libneo-c.so.1.0.0 $(DESTDIR)/lib
-	$(INSTALL) -m 755 ./libneo-c.so.1 $(DESTDIR)/lib
-	$(INSTALL) -m 755 ./libneo-c.so $(DESTDIR)/lib
+	$(INSTALL) -m 644 ./memalloc-stdc.o $(DESTDIR)/lib
+	$(INSTALL) -m 644 ./neo-c.o $(DESTDIR)/lib
 
-	mkdir -p $(DESTDIR)/share/man/man1
-	$(INSTALL) ./man/neo-c.1.gz $(DESTDIR)/share/man/man1
+	mkdir -p $(DESTDIR)/include
+	$(INSTALL) -m 644 ./neo-c.h $(DESTDIR)/include
+
+#	mkdir -p $(DESTDIR)/share/man/man1
+#	$(INSTALL) ./man/neo-c.1.gz $(DESTDIR)/share/man/man1
 
 	mkdir -p "$(DESTDIR)/bin"
 	$(INSTALL) -m 755 ./neo-c "$(DESTDIR)/bin"
 
-	mkdir -p $(DESTDIR)/share/doc/neo-c
-	$(INSTALL) -m 644 ./manual/*.md "$(DESTDIR)/share/doc/neo-c"
+#	mkdir -p $(DESTDIR)/share/doc/neo-c
+#	$(INSTALL) -m 644 ./manual/*.md "$(DESTDIR)/share/doc/neo-c"
 
 ###################################################
 # uninstall
 ###################################################
 uninstall:
-	rm -f "$(DESTDIR)"/bin/no-c
+	rm -f "$(DESTDIR)"/bin/noo-c
 	rm -f "$(DESTDIR)"/share/neo-c/*
 	rmdir "$(DESTDIR)"/share/neo-c
 	rm -f "$(DESTDIR)"/share/doc/neo-c/*
 	rmdir "$(DESTDIR)"/share/doc/neo-c
-	rm -f "$(DESTDIR)"/lib/libneo-c.*
 	rm -f "$(DESTDIR)"/share/man/man1/neo-c.1.gz
 
 ###################################################
@@ -94,7 +93,7 @@ uninstall:
 permission:
 	chmod 644 *
 	chmod 755 .git man src configure
-	chmod 644 src/*.c
+	chmod 644 src/*.c src/*.cpp
 	chmod 644 src/*.h
 	chmod 755 update_neo-c.sh
 
@@ -102,7 +101,7 @@ permission:
 # clean
 ###################################################
 clean:
-	rm -fR code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 neo-c neo-c.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out
+	rm -fR code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 code/HelloWorld8 code/HelloWorld9 neo-c neo-c.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out
 	rm -fR code/*.ll code/*.bc code/*.s
 
 distclean: clean
@@ -113,21 +112,20 @@ distclean: clean
 ###################################################
 test: 
 	@echo "Compile to test code..."
-	PWD=`pwd` ./neo-c -c code/neo-c.nc
 	PWD=`pwd` ./neo-c -c code/External.nc
-	PWD=`pwd` ./neo-c code/HelloWorld.nc code/External.o code/neo-c.o
+	PWD=`pwd` ./neo-c code/HelloWorld.nc code/External.o
 	./code/HelloWorld
-	PWD=`pwd` ./neo-c code/HelloWorld2.nc code/neo-c.o
+	PWD=`pwd` ./neo-c code/HelloWorld2.nc
 	./code/HelloWorld2
-	PWD=`pwd` ./neo-c code/HelloWorld3.nc code/neo-c.o
+	PWD=`pwd` ./neo-c code/HelloWorld3.nc
 	./code/HelloWorld3
-	PWD=`pwd` ./neo-c code/HelloWorld4.nc code/neo-c.o
+	PWD=`pwd` ./neo-c code/HelloWorld4.nc
 	./code/HelloWorld4
 	PWD=`pwd` ./neo-c -c code/HelloWorld5.nc
 	PWD=`pwd` ./neo-c -c code/HelloWorld6.nc
-	PWD=`pwd` ./neo-c code/HelloWorld7.nc code/HelloWorld5.o code/HelloWorld6.o code/neo-c.o
+	PWD=`pwd` ./neo-c code/HelloWorld7.nc code/HelloWorld5.o code/HelloWorld6.o
 	./code/HelloWorld7
-	PWD=`pwd` ./neo-c code/HelloWorld8.nc code/neo-c.o
+	PWD=`pwd` ./neo-c code/HelloWorld8.nc
 	./code/HelloWorld8
-	PWD=`pwd` ./neo-c code/HelloWorld9.nc code/neo-c.o
+	PWD=`pwd` ./neo-c code/HelloWorld9.nc
 	./code/HelloWorld9
