@@ -1491,6 +1491,12 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
+
+if(strcmp(var_name, "P_ALL") == 0)
+{
+puts("P_ALL");
+}
+
     if(var == NULL) {
         compile_err_msg(info, "undeclared variable %s", var_name);
         info->err_num++;
@@ -1612,11 +1618,25 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         BOOL constant = var->mConstant && var->mBlockLevel == 0;
 
         if(alloc) {
+puts("alloc");
+printf("var->mConstant %d var->mBlockLevel %d\n", var->mConstant, var->mBlockLevel);
             if(constant) {
+puts("constant");
                 Value* rvalue2 = rvalue.value;
 
                 if(dyn_cast<Constant>(rvalue2)) {
                     Constant* rvalue3 = dyn_cast<Constant>(rvalue2);
+
+                    var->mLLVMValue = rvalue3;
+
+/*
+                    GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant,GlobalValue::PrivateLinkage, 0, var_name);
+                    address->setAlignment(alignment);
+                    address->setInitializer(rvalue3);
+                    var->mLLVMValue = address;
+*/
+
+                    info->type = left_type;
                 }
                 else {
                     compile_err_msg(info, "Invalid Global ConstantValue Variable Initializer. Require Constant Value");
@@ -1626,14 +1646,10 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
                     return TRUE;
                 }
-
-                Value* rvalue3 = Builder.CreateCast(Instruction::BitCast, rvalue2, llvm_var_type);
-                var->mLLVMValue = rvalue3;
-
-                info->type = left_type;
             }
             else {
                 if(global) {
+puts("global");
                     GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant, GlobalValue::ExternalLinkage, 0, var_name);
                     address->setAlignment(alignment);
 
@@ -1660,6 +1676,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
                     store_address_to_lvtable(index, address);
                 }
                 else {
+puts("local var");
                     Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
                     var->mLLVMValue = address;
 
@@ -1701,6 +1718,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
             }
         }
         else {
+puts("no alloc");
             if(var->mReadOnly || var->mConstant) {
                 compile_err_msg(info, "Variable(%s) is readonly variable", var->mName);
                 info->err_num++;
@@ -2014,7 +2032,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     expect_next_character_with_one_forward("{", &info2);
     sVarTable* old_table = info2.lv_table;
 
-    info2.lv_table = init_block_vtable(old_table);
+    info2.lv_table = init_block_vtable(old_table, FALSE);
     sVarTable* block_var_table = info2.lv_table;
     for(i=0; i<num_params; i++) {
         sParserParam param = params[i];
@@ -2239,7 +2257,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     expect_next_character_with_one_forward("{", &info2);
     sVarTable* old_table = info2.lv_table;
 
-    info2.lv_table = init_block_vtable(old_table);
+    info2.lv_table = init_block_vtable(old_table, FALSE);
     sVarTable* block_var_table = info2.lv_table;
     for(i=0; i<num_params; i++) {
         sParserParam param = params[i];
@@ -2365,7 +2383,7 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
     expect_next_character_with_one_forward("{", &info2);
     sVarTable* old_table = info2.lv_table;
 
-    info2.lv_table = init_block_vtable(old_table);
+    info2.lv_table = init_block_vtable(old_table, FALSE);
     sVarTable* block_var_table = info2.lv_table;
     for(i=0; i<num_params; i++) {
         sParserParam param = params[i];

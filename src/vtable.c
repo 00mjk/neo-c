@@ -307,13 +307,18 @@ int get_parent_var_num_of_sum(sVarTable* table)
     return get_sum_of_parent_var_num(table);
 }
 
-sVarTable* init_block_vtable(sVarTable* lv_table)
+sVarTable* init_block_vtable(sVarTable* lv_table, BOOL no_increment_block_level)
 {
     sVarTable* new_table;
 
     new_table = init_var_table();
     if(lv_table) {
-        new_table->mBlockLevel = lv_table->mBlockLevel + 1;
+        if(no_increment_block_level) {
+            new_table->mBlockLevel = lv_table->mBlockLevel;
+        }
+        else {
+            new_table->mBlockLevel = lv_table->mBlockLevel + 1;
+        }
         new_table->mParent = lv_table;
     }
     else {

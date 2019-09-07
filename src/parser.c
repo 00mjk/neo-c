@@ -1052,7 +1052,7 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
             expect_next_character_with_one_forward("{", info);
             sVarTable* old_table = info->lv_table;
 
-            info->lv_table = init_block_vtable(old_table);
+            info->lv_table = init_block_vtable(old_table, FALSE);
 
             sVarTable* block_var_table = info->lv_table;
 
@@ -1174,7 +1174,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
         sVarTable* old_table = info->lv_table;
 
 
-        info->lv_table = init_block_vtable(old_table);
+        info->lv_table = init_block_vtable(old_table, FALSE);
 
         sVarTable* block_var_table = info->lv_table;
 
@@ -1311,7 +1311,7 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
         expect_next_character_with_one_forward("{", info);
         sVarTable* old_table = info->lv_table;
 
-        info->lv_table = init_block_vtable(old_table);
+        info->lv_table = init_block_vtable(old_table, FALSE);
 
         sVarTable* block_var_table = info->lv_table;
 
@@ -1644,7 +1644,7 @@ static BOOL parse_do(unsigned int* node, sParserInfo* info)
 static BOOL parse_for(unsigned int* node, sParserInfo* info)
 {
     sVarTable* old_vtable = info->lv_table;
-    info->lv_table = init_block_vtable(old_vtable);
+    info->lv_table = init_block_vtable(old_vtable, FALSE);
     
     expect_next_character_with_one_forward("(", info);
 
@@ -1758,7 +1758,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward("{", info);
     sVarTable* old_table = info->lv_table;
 
-    info->lv_table = init_block_vtable(old_table);
+    info->lv_table = init_block_vtable(old_table, FALSE);
     sVarTable* block_var_table = info->lv_table;
 
     int i;

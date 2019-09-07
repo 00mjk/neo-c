@@ -232,7 +232,7 @@ typedef struct sVarTableStruct sVarTable;
 void init_vtable();
 void final_vtable();
 
-sVarTable* init_block_vtable(sVarTable* lv_table);
+sVarTable* init_block_vtable(sVarTable* lv_table, BOOL no_increment_block_level);
 
 sVarTable* init_var_table();
 sVarTable* clone_var_table(sVarTable* lv_table);
