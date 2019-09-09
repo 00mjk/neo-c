@@ -1,3 +1,5 @@
+#include "neo-c.h"
+
 extern "C"
 {
 #include <stdio.h>

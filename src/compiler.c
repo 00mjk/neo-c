@@ -30,29 +30,6 @@ static BOOL compiler(char* fname, BOOL optimize)
     sBuf source;
     sBuf_init(&source);
 
-    char path[PATH_MAX]; 
-    snprintf(path, PATH_MAX, "%s/include/neo-c.h", PREFIX);
-
-    if(access(path, R_OK) == 0) {
-        char line[PATH_MAX*2]; 
-
-        snprintf(line, PATH_MAX*2, "#include \"%s\"\n", path);
-
-        sBuf_append_str(&source, line);
-    }
-    else {
-        char line[PATH_MAX*2]; 
-
-        snprintf(line, PATH_MAX*2, "#include \"neo-c.h\"\n");
-
-        sBuf_append_str(&source, line);
-    }
-
-    if(!read_source(fname, &source)) {
-        free(source.mBuf);
-        return FALSE;
-    }
-
     char fname2[PATH_MAX];
     xstrncpy(fname2, fname, PATH_MAX);
 
@@ -67,30 +44,10 @@ static BOOL compiler(char* fname, BOOL optimize)
         }
     }
 
-    xstrncat(fname2, ".nc.tmp", PATH_MAX);
-
-    FILE* f = fopen(fname2, "w");
-    fprintf(f, "%s", source.mBuf);
-    fclose(f);
-
-    char fname3[PATH_MAX];
-    xstrncpy(fname3, fname, PATH_MAX);
-
-    p = fname3 + strlen(fname3);
-    while(p >= fname3) {
-        if(*p == '.') {
-            *p = '\0';
-            break;
-        }
-        else {
-            p--;
-        }
-    }
-
-    xstrncat(fname3, ".out", PATH_MAX);
+    xstrncat(fname2, ".out", PATH_MAX);
 
     char cmd[1024];
-    snprintf(cmd, 1024, "cpp -C %s > %s", fname2, fname3);
+    snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
 
     int rc = system(cmd);
     if(rc != 0) {
@@ -98,11 +55,7 @@ static BOOL compiler(char* fname, BOOL optimize)
         exit(2);
     }
 
-    free(source.mBuf);
-    
-    sBuf_init(&source);
-
-    if(!read_source(fname3, &source)) {
+    if(!read_source(fname2, &source)) {
         free(source.mBuf);
         return FALSE;
     }
@@ -148,6 +101,10 @@ int main(int argc, char** argv)
     
     memset(external_objects, 0, sizeof(char*)*EXTERNAL_OBJECT_MAX);
 
+    const int max_c_include_path = 1024*2*2*2;
+    char c_include_path[max_c_include_path];
+    snprintf(c_include_path, max_c_include_path, "%s/include/", PREFIX);
+
     int i;
     for(i=1; i<argc; i++) {
         if(strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "-V") == 0)
@@ -163,6 +120,14 @@ int main(int argc, char** argv)
         {
             optimize = TRUE;
         }
+        else if(strcmp(argv[i], "-I") == 0)
+        {
+            if(i + 1 < argc) {
+                xstrncat(c_include_path, ":", max_c_include_path);
+                xstrncat(c_include_path, argv[i+1], max_c_include_path);
+                i++;
+            }
+        }
         else if(sname[0] == '\0') {
             xstrncpy(sname, argv[i], PATH_MAX);
         }
@@ -175,6 +140,9 @@ int main(int argc, char** argv)
             }
         }
     }
+
+    setenv("C_INCLUDE_PATH", c_include_path, 1);
+
 
     char* p = sname + strlen(sname);
 
@@ -242,6 +210,7 @@ int main(int argc, char** argv)
             xstrncat(command, " ", 4096*2);
         }
 
+puts(command);
         int rc = system(command);
         if(rc != 0) {
             fprintf(stderr, "faield to compile\n");

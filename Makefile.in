@@ -80,12 +80,13 @@ install:
 # uninstall
 ###################################################
 uninstall:
-	rm -f "$(DESTDIR)"/bin/noo-c
-	rm -f "$(DESTDIR)"/share/neo-c/*
-	rmdir "$(DESTDIR)"/share/neo-c
+	rm -f "$(DESTDIR)"/bin/neo-c
 	rm -f "$(DESTDIR)"/share/doc/neo-c/*
 	rmdir "$(DESTDIR)"/share/doc/neo-c
+	rm -f "$(DESTDIR)"/include/neo-c.h
 	rm -f "$(DESTDIR)"/share/man/man1/neo-c.1.gz
+	rm -f "$(DESTDIR)/memalloc-stdc.o"
+	rm -f "$(DESTDIR)/neo-c.o"
 
 ###################################################
 # permission

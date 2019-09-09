@@ -107,7 +107,7 @@ void expect_next_character_with_one_forward(char* characters, sParserInfo* info)
         skip_spaces_and_lf(info);
     }
     else {
-        parser_err_msg(info, "expected that next character is %s, but it is %c(%d)", characters, *info->p, *info->p);
+        parser_err_msg(info, "expected that next character is (%s), but it is %c(%d)", characters, *info->p, *info->p);
         info->err_num++;
         info->p++;
         skip_spaces_and_lf(info);

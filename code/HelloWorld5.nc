@@ -1,3 +1,4 @@
+#include "neo-c.h"
 
 extern "C"
 {
