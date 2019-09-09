@@ -1,5 +1,4 @@
 #include "neo-c.h"
-
 extern "C"
 {
 #include <stdio.h>
@@ -14,6 +13,15 @@ int main()
     int a = 1 + 1;
 
     printf("1 + 1 == %d\n", a);
+
+    initscr();
+    clear();
+    mvprintw(2, 2, "aaa\n");
+    refresh();
+
+    int key = getch();
+
+    endwin();
 
     return 0;
 }
