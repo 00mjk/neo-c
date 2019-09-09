@@ -506,6 +506,11 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
                 return FALSE;
             }
 
+            char saved_buf[VAR_NAME_MAX];
+            xstrncpy(saved_buf, buf, VAR_NAME_MAX);
+
+            sNodeType* saved_field = clone_node_type(field);
+
             fields[num_fields] = field;
 
             if(field->mClass->mFlags & CLASS_FLAGS_ANONYMOUS_VAR_NAME)
@@ -526,6 +531,39 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
             if(num_fields >= STRUCT_FIELD_MAX) {
                 parser_err_msg(info, "overflow struct field");
                 return FALSE;
+            }
+
+            if(*info->p == ',') {
+                while(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    char buf2[VAR_NAME_MAX];
+                    xstrncpy(buf2, saved_buf, VAR_NAME_MAX);
+
+                    sNodeType* field2 = clone_node_type(saved_field);
+
+                    fields[num_fields] = field2;
+
+                    if(field2->mClass->mFlags & CLASS_FLAGS_ANONYMOUS_VAR_NAME)
+                    {
+                        create_anonymous_union_var_name(buf2, VAR_NAME_MAX);
+                    }
+                    else if(buf2[0] == '\0') {
+                        if(!parse_variable_name(buf2, VAR_NAME_MAX, info, field2, FALSE))
+                        {
+                            return FALSE;
+                        }
+                    }
+
+                    xstrncpy(field_names[num_fields], buf2, VAR_NAME_MAX);
+
+                    num_fields++;
+
+                    if(num_fields >= STRUCT_FIELD_MAX) {
+                        parser_err_msg(info, "overflow struct field");
+                        return FALSE;
+                    }
+                }
             }
 
             if(*info->p == ';') {
@@ -1101,7 +1139,11 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
                 sCLClass* klass = get_class(type_name);
 
-                if(klass == NULL && *info->p == '*' && strcmp(info->parse_struct_name, type_name) != 0 && !parse_only)
+                if(klass == NULL && definition_typedef)
+                {
+                    undefined_struct = TRUE;
+                }
+                else if(klass == NULL && *info->p == '*' && strcmp(info->parse_struct_name, type_name) != 0 && !parse_only)
                 {
                     undefined_struct = TRUE;
                 }
@@ -1421,9 +1463,14 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         info->p += 2;
         skip_spaces_and_lf(info);
 
-        if(!parse_word(func_pointer_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
-        {
-            return FALSE;
+        if(*info->p == ')') {
+            func_pointer_name[0] = '\0';
+        }
+        else {
+            if(!parse_word(func_pointer_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+            {
+                return FALSE;
+            }
         }
 
         expect_next_character_with_one_forward(")", info);
@@ -5090,6 +5137,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                             return FALSE;
                         }
 
+                        char saved_buf[VAR_NAME_MAX];
+                        xstrncpy(saved_buf, buf, VAR_NAME_MAX);
+
+                        sNodeType* saved_field = clone_node_type(field);
+
                         if(field->mClass->mFlags & CLASS_FLAGS_ANONYMOUS_VAR_NAME)
                         {
                             create_anonymous_union_var_name(buf, VAR_NAME_MAX);
@@ -5098,6 +5150,29 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                             if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE))
                             {
                                 return FALSE;
+                            }
+                        }
+
+                        if(*info->p == ',')
+                        {
+                            while(*info->p == ',') {
+                                info->p++;
+                                skip_spaces_and_lf(info);
+                                char buf2[VAR_NAME_MAX];
+                                xstrncpy(buf2, saved_buf, VAR_NAME_MAX);
+
+                                sNodeType* field2 = clone_node_type(saved_field);
+
+                                if(field2->mClass->mFlags & CLASS_FLAGS_ANONYMOUS_VAR_NAME)
+                                {
+                                    create_anonymous_union_var_name(buf2, VAR_NAME_MAX);
+                                }
+                                else if(buf2[0] == '\0') {
+                                    if(!parse_variable_name(buf2, VAR_NAME_MAX, info, field2, FALSE))
+                                    {
+                                        return FALSE;
+                                    }
+                                }
                             }
                         }
 
