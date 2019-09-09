@@ -11,7 +11,9 @@ BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_c_lang, sParser
 
     *node_block = ALLOC sNodeBlock_alloc();
 
-    if(!extern_c_lang || info->mBlockLevel == 0) {
+    if(!extern_c_lang)
+    {
+        //|| info->mBlockLevel == 0) {
         info->lv_table = init_block_vtable(old_table, extern_c_lang);
     }
 
@@ -22,7 +24,9 @@ BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_c_lang, sParser
 
     expect_next_character_with_one_forward("}", info);
 
-    if(!extern_c_lang || info->mBlockLevel == 0) {
+    if(!extern_c_lang)
+        //|| info->mBlockLevel == 0) {
+    {
         info->lv_table = old_table;
     }
 

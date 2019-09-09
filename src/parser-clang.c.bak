@@ -800,26 +800,25 @@ static BOOL parse_anoymous_enum(unsigned int* node, sParserInfo* info)
             right_node = sNodeTree_create_int_value(value, info);
         }
 
-        BOOL alloc_ = TRUE;
-        *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
+        if(info->parse_struct_phase) {
+            BOOL alloc_ = TRUE;
+            *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
 
-        sNodeType* result_type = create_node_type_with_class_name("int");
-        result_type->mConstant = TRUE;
+            sNodeType* result_type = create_node_type_with_class_name("int");
+            result_type->mConstant = TRUE;
 
-        if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
-        {
             check_already_added_variable(info->lv_table, var_name, info);
             BOOL readonly = TRUE;
 
             add_variable_to_table(info->lv_table, var_name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
-        }
 
-        nodes[num_nodes++] = *node;
-        value++;
+            nodes[num_nodes++] = *node;
+            value++;
 
-        if(num_nodes >= IMPL_DEF_MAX) {
-            fprintf(stderr, "overflow enum element max");
-            return FALSE;
+            if(num_nodes >= IMPL_DEF_MAX) {
+                fprintf(stderr, "overflow enum element max");
+                return FALSE;
+            }
         }
 
         if(*info->p == ',') {
@@ -879,25 +878,24 @@ static BOOL parse_enum(unsigned int* node, char* name, sParserInfo* info)
             right_node = sNodeTree_create_int_value(value, info);
         }
 
-        sNodeType* result_type = create_node_type_with_class_name("int");
-        result_type->mConstant = TRUE;
+        if(info->parse_struct_phase) {
+            sNodeType* result_type = create_node_type_with_class_name("int");
+            result_type->mConstant = TRUE;
 
-        if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
-        {
             check_already_added_variable(info->lv_table, var_name, info);
             BOOL readonly = TRUE;
             add_variable_to_table(info->lv_table, var_name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
-        }
 
-        BOOL alloc_ = TRUE;
-        *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
+            BOOL alloc_ = TRUE;
+            *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
 
-        nodes[num_nodes++] = *node;
-        value++;
+            nodes[num_nodes++] = *node;
+            value++;
 
-        if(num_nodes >= IMPL_DEF_MAX) {
-            fprintf(stderr, "overflow enum element max");
-            return FALSE;
+            if(num_nodes >= IMPL_DEF_MAX) {
+                fprintf(stderr, "overflow enum element max");
+                return FALSE;
+            }
         }
 
         if(*info->p == ',') {
@@ -1882,9 +1880,15 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
 
                     initialize_array_values[0] = right_node;
                     num_initialize_array_value++;
-                    *node = sNodeTree_create_define_variable(name, extern_, info);
+                    if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
+                    {
+                        *node = sNodeTree_create_define_variable(name, extern_, info);
 
-                    *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                        *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                    }
+                    else {
+                        *node = sNodeTree_create_null(info);
+                    }
                 }
             }
             else {
@@ -1931,9 +1935,15 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                 result_type->mDynamicArrayNum = sNodeTree_create_int_value(array_len, info);
                 result_type->mArrayInitializeNum = num_initialize_array_value;
 
-                *node = sNodeTree_create_define_variable(name, extern_, info);
+                if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
+                {
+                    *node = sNodeTree_create_define_variable(name, extern_, info);
 
-                *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                    *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                }
+                else {
+                    *node = sNodeTree_create_null(info);
+                }
             }
         }
         else if(info->mBlockLevel == 0 && result_type->mArrayNum > 0)
@@ -1960,9 +1970,15 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                     initialize_array_values[0] = right_node;
                     num_initialize_array_value++;
 
-                    *node = sNodeTree_create_define_variable(name, extern_, info);
+                    if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
+                    {
+                        *node = sNodeTree_create_define_variable(name, extern_, info);
 
-                    *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                        *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                    }
+                    else {
+                        *node = sNodeTree_create_null(info);
+                    }
                 }
             }
             else {
@@ -2005,9 +2021,15 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                 }
 
 
-                *node = sNodeTree_create_define_variable(name, extern_, info);
+                if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
+                {
+                    *node = sNodeTree_create_define_variable(name, extern_, info);
 
-                *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                    *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                }
+                else {
+                    *node = sNodeTree_create_null(info);
+                }
             }
         }
         else if(info->mBlockLevel == 0 && result_type->mArrayNum == -1)
@@ -2040,9 +2062,15 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                     initialize_array_values[0] = right_node;
                     num_initialize_array_value++;
 
-                    *node = sNodeTree_create_define_variable(name, extern_, info);
+                    if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
+                    {
+                        *node = sNodeTree_create_define_variable(name, extern_, info);
 
-                    *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                        *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                    }
+                    else {
+                        *node = sNodeTree_create_null(info);
+                    }
                 }
             }
             else {
@@ -2087,9 +2115,15 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                 result_type->mArrayNum = num_initialize_array_value;
                 result_type->mArrayInitializeNum = num_initialize_array_value;
 
-                *node = sNodeTree_create_define_variable(name, extern_, info);
+                if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
+                {
+                    *node = sNodeTree_create_define_variable(name, extern_, info);
 
-                *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                    *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                }
+                else {
+                    *node = sNodeTree_create_null(info);
+                }
             }
         }
         else if(result_type->mDynamicArrayNum != 0) {
@@ -2115,9 +2149,15 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                     initialize_array_values[0] = right_node;
                     num_initialize_array_value++;
 
-                    *node = sNodeTree_create_define_variable(name, extern_, info);
+                    if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
+                    {
+                        *node = sNodeTree_create_define_variable(name, extern_, info);
 
-                    *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                        *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                    }
+                    else {
+                        *node = sNodeTree_create_null(info);
+                    }
                 }
             }
             else {
@@ -2161,9 +2201,15 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
 
                 result_type->mArrayInitializeNum = num_initialize_array_value;
 
-                *node = sNodeTree_create_define_variable(name, extern_, info);
+                if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
+                {
+                    *node = sNodeTree_create_define_variable(name, extern_, info);
 
-                *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                    *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                }
+                else {
+                    *node = sNodeTree_create_null(info);
+                }
             }
         }
         else if((result_type->mClass->mFlags & CLASS_FLAGS_STRUCT) && *info->p == '{') {
@@ -2205,9 +2251,15 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                 }
             }
 
-            *node = sNodeTree_create_define_variable(name, extern_, info);
+            if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
+            {
+                *node = sNodeTree_create_define_variable(name, extern_, info);
 
-            *node = sNodeTree_create_struct_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+                *node = sNodeTree_create_struct_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+            }
+            else {
+                *node = sNodeTree_create_null(info);
+            }
         }
         else {
             unsigned int right_node = 0;
@@ -2223,12 +2275,24 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                 *node = 0;
             }
             else {
-                *node = sNodeTree_create_store_variable(name, right_node, TRUE, info);
+                if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
+                {
+                    *node = sNodeTree_create_store_variable(name, right_node, TRUE, info);
+                }
+                else {
+                    *node = sNodeTree_create_null(info);
+                }
             }
         }
     }
     else {
-        *node = sNodeTree_create_define_variable(name, extern_, info);
+        if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
+        {
+            *node = sNodeTree_create_define_variable(name, extern_, info);
+        }
+        else {
+            *node = sNodeTree_create_null(info);
+        }
     }
 
     if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
@@ -5758,7 +5822,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         *node = 0;
                     }
                     else {
-                        *node = sNodeTree_create_store_variable(buf, right_node, FALSE, info);
+                        if((info->parse_struct_phase && info->mBlockLevel == 0) || info->mBlockLevel > 0) 
+                        {
+                            *node = sNodeTree_create_store_variable(buf, right_node, FALSE, info);
+                        }
+                        else {
+                            *node = sNodeTree_create_null(info);
+                        }
                     }
                 }
                 else if(*info->p == '+' && *(info->p+1) == '+')

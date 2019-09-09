@@ -268,22 +268,24 @@ static BOOL parse_enum(unsigned int* node, sParserInfo* info)
             right_node = sNodeTree_create_int_value(value, info);
         }
 
-        BOOL alloc_ = TRUE;
-        *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
+        if(info->parse_struct_phase) {
+            BOOL alloc_ = TRUE;
+            *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
 
-        sNodeType* result_type = create_node_type_with_class_name("int");
-        result_type->mConstant = TRUE;
+            sNodeType* result_type = create_node_type_with_class_name("int");
+            result_type->mConstant = TRUE;
 
-        check_already_added_variable(info->lv_table, var_name, info);
-        BOOL readonly = TRUE;
-        add_variable_to_table(info->lv_table, var_name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
+            check_already_added_variable(info->lv_table, var_name, info);
+            BOOL readonly = TRUE;
+            add_variable_to_table(info->lv_table, var_name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
 
-        nodes[num_nodes++] = *node;
-        value++;
+            nodes[num_nodes++] = *node;
+            value++;
 
-        if(num_nodes >= IMPL_DEF_MAX) {
-            fprintf(stderr, "overflow enum element max");
-            return FALSE;
+            if(num_nodes >= IMPL_DEF_MAX) {
+                fprintf(stderr, "overflow enum element max");
+                return FALSE;
+            }
         }
 
         if(*info->p == ',') {
@@ -3451,31 +3453,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("\"", info);
             expect_next_character_with_one_forward("cC", info);
             expect_next_character_with_one_forward("\"", info);
-
-/*
-            if(info->parse_struct_phase) {
-                if(!skip_block(info)) {
-                    return FALSE;
-                }
-
-                *node = sNodeTree_create_null(info);
-            }
-            else {
-                BOOL in_clang = info->in_clang;
-
-                info->in_clang = TRUE;
-                sNodeBlock* node_block = NULL;
-                if(!parse_block_easy(ALLOC &node_block, TRUE, info))
-                {
-                    info->in_clang = in_clang;
-                    return FALSE;
-                }
-
-                info->in_clang = in_clang;
-
-                *node = sNodeTree_create_normal_block(node_block, info);
-            }
-*/
 
             BOOL in_clang = info->in_clang;
 
