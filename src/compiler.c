@@ -105,6 +105,9 @@ int main(int argc, char** argv)
     char c_include_path[max_c_include_path];
     snprintf(c_include_path, max_c_include_path, "%s/include/", PREFIX);
 
+    char program_name[PATH_MAX];
+    program_name[0] = '\0';
+
     int i;
     for(i=1; i<argc; i++) {
         if(strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "-V") == 0)
@@ -125,6 +128,13 @@ int main(int argc, char** argv)
             if(i + 1 < argc) {
                 xstrncat(c_include_path, ":", max_c_include_path);
                 xstrncat(c_include_path, argv[i+1], max_c_include_path);
+                i++;
+            }
+        }
+        else if(strcmp(argv[i], "-o") == 0)
+        {
+            if(i + 1 < argc) {
+                xstrncpy(program_name, argv[i+1], PATH_MAX);
                 i++;
             }
         }
@@ -164,6 +174,10 @@ int main(int argc, char** argv)
     memcpy(main_module_name, sname, p-sname);
     main_module_name[p-sname] = '\0';
 
+    if(strcmp(program_name, "") == 0) {
+        xstrncpy(program_name, main_module_name, PATH_MAX);
+    }
+
     compiler_init();
 
     if(!compiler(sname, optimize)) {
@@ -179,7 +193,7 @@ int main(int argc, char** argv)
     if(!output_object_file) {
         char command[4096*2];
 
-        snprintf(command, 4096*2, "clang -o %s %s.o ", main_module_name, main_module_name);
+        snprintf(command, 4096*2, "clang -o %s %s.o ", program_name, main_module_name);
 
         char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s/lib/neo-c.o", PREFIX);
 
@@ -210,7 +224,6 @@ int main(int argc, char** argv)
             xstrncat(command, " ", 4096*2);
         }
 
-puts(command);
         int rc = system(command);
         if(rc != 0) {
             fprintf(stderr, "faield to compile\n");
