@@ -1,0 +1,34 @@
+#include "neo-c.h"
+
+extern "C"
+{
+#include <stdio.h>
+#include <stdlib.h>
+#include <ncurses.h>
+}
+
+#include "mvi.h"
+
+struct mvi {
+    b:int;
+}
+
+impl mvi {
+    initialize() {
+        inherit(self);
+        puts("initialize mvi2");
+    }
+
+    finalize() {
+        inherit(self);
+        puts("finalize mvi2");
+    }
+
+    def main(self:mvi):int {
+        inherit(self);
+
+        puts("finish app");
+
+        0
+    }
+}

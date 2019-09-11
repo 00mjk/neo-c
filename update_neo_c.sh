@@ -4,6 +4,11 @@ if [ -e Makefile ]
 then
     make distclean
 fi
+if [ -e mvi/Makefile ]
+then
+    (cd mvi; make distclean)
+fi
+
 if [ ! -e Makefile ]
 then
     git add .

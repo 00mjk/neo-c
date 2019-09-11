@@ -1815,6 +1815,7 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
     gNodes[node].uValue.sFunction.mVarArg = var_arg;
     gNodes[node].uValue.sFunction.mOperatorFun = operator_fun;
     gNodes[node].uValue.sFunction.mInCLang = info->in_clang;
+    gNodes[node].uValue.sFunction.mParseStructPhase = info->parse_struct_phase;
 
     if(struct_name && strcmp(struct_name, "") != 0) {
         xstrncpy(gNodes[node].uValue.sFunction.mStructName, struct_name, VAR_NAME_MAX);
@@ -1829,101 +1830,105 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
 
 static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
 {
-    BOOL in_clang = gNodes[node].uValue.sFunction.mInCLang;
+    BOOL parse_struct_phase = gNodes[node].uValue.sFunction.mParseStructPhase;
 
-    /// rename variables ///
-    char fun_name[VAR_NAME_MAX];
-    xstrncpy(fun_name, gNodes[node].uValue.sFunction.mName, VAR_NAME_MAX);
+    if(!parse_struct_phase) {
+        BOOL in_clang = gNodes[node].uValue.sFunction.mInCLang;
 
-    int num_params = gNodes[node].uValue.sFunction.mNumParams;
-    sParserParam params[PARAMS_MAX];
-    memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
-    int i;
-    for(i=0; i<num_params; i++) {
-        params[i] = gNodes[node].uValue.sFunction.mParams[i];
-    }
+        /// rename variables ///
+        char fun_name[VAR_NAME_MAX];
+        xstrncpy(fun_name, gNodes[node].uValue.sFunction.mName, VAR_NAME_MAX);
 
-    sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
-    BOOL var_arg = gNodes[node].uValue.sFunction.mVarArg;
-    char* struct_name = gNodes[node].uValue.sFunction.mStructName;
-    BOOL operator_fun = gNodes[node].uValue.sFunction.mOperatorFun;
-
-    /// go ///
-    Type* llvm_result_type;
-    if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, info))
-    {
-        compile_err_msg(info, "Getting llvm type failed(2)");
-        show_node_type(result_type);
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    std::vector<Type *> llvm_param_types;
-    sNodeType* param_types[PARAMS_MAX];
-    char param_names[PARAMS_MAX][VAR_NAME_MAX];
-
-    for(i=0; i<num_params; i++) {
-        sNodeType* param_type = params[i].mType;
-
-        if(type_identify_with_class_name(param_type, "__builtin_va_list"))
-        {
-            param_type = create_node_type_with_class_name("__builtin_va_list*");
+        int num_params = gNodes[node].uValue.sFunction.mNumParams;
+        sParserParam params[PARAMS_MAX];
+        memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+        int i;
+        for(i=0; i<num_params; i++) {
+            params[i] = gNodes[node].uValue.sFunction.mParams[i];
         }
 
-        Type* llvm_param_type;
-        if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, info))
+        sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
+        BOOL var_arg = gNodes[node].uValue.sFunction.mVarArg;
+        char* struct_name = gNodes[node].uValue.sFunction.mStructName;
+        BOOL operator_fun = gNodes[node].uValue.sFunction.mOperatorFun;
+
+        /// go ///
+        Type* llvm_result_type;
+        if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, info))
         {
-            compile_err_msg(info, "Getting llvm type failed(3)");
-            show_node_type(param_type);
+            compile_err_msg(info, "Getting llvm type failed(2)");
+            show_node_type(result_type);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
 
             return TRUE;
         }
-        llvm_param_types.push_back(llvm_param_type);
 
-        xstrncpy(param_names[i], params[i].mName, VAR_NAME_MAX);
-        param_types[i] = param_type;
-    }
+        std::vector<Type *> llvm_param_types;
+        sNodeType* param_types[PARAMS_MAX];
+        char param_names[PARAMS_MAX][VAR_NAME_MAX];
 
-    char real_fun_name[REAL_FUN_NAME_MAX];
-    if(operator_fun) {
-        create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, param_types, num_params);
-    }
-    else {
-        create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
-    }
+        for(i=0; i<num_params; i++) {
+            sNodeType* param_type = params[i].mType;
 
-    if(gFuncs[real_fun_name].mExternal && strcmp(struct_name, "") == 0)
-    {
-        Function* llvm_fun = gFuncs[real_fun_name].mLLVMFunction;
+            if(type_identify_with_class_name(param_type, "__builtin_va_list"))
+            {
+                param_type = create_node_type_with_class_name("__builtin_va_list*");
+            }
 
-        if(llvm_fun) {
-            llvm_fun->eraseFromParent();
+            Type* llvm_param_type;
+            if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, info))
+            {
+                compile_err_msg(info, "Getting llvm type failed(3)");
+                show_node_type(param_type);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+            llvm_param_types.push_back(llvm_param_type);
+
+            xstrncpy(param_names[i], params[i].mName, VAR_NAME_MAX);
+            param_types[i] = param_type;
         }
-    }
 
-    FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
-    Function* llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
+        char real_fun_name[REAL_FUN_NAME_MAX];
+        if(operator_fun) {
+            create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, param_types, num_params);
+        }
+        else {
+            create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
+        }
 
-    char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+        if(gFuncs[real_fun_name].mExternal && strcmp(struct_name, "") == 0)
+        {
+            Function* llvm_fun = gFuncs[real_fun_name].mLLVMFunction;
 
-    memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+            if(llvm_fun) {
+                llvm_fun->eraseFromParent();
+            }
+        }
 
-    char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+        FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
+        Function* llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
 
-    memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+        char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
 
-    if(!add_function(fun_name, real_fun_name, llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, TRUE))
-    {
-        compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
-        info->err_num++;
+        memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-        return TRUE;
+        char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+
+        memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+
+        if(!add_function(fun_name, real_fun_name, llvm_fun, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, TRUE))
+        {
+            compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
+            info->err_num++;
+
+            return TRUE;
+        }
     }
 
     return TRUE;
@@ -3380,6 +3385,14 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         }
     }
 
+/*
+    Function* previous_fun = TheModule->getFunction(real_fun_name);
+
+    if(previous_fun) {
+        previous_fun->eraseFromParent();
+    }
+*/
+
     FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
     Function* fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
 
@@ -4536,7 +4549,8 @@ static BOOL create_generics_finalize_method(sNodeType* node_type2, sCompileInfo*
         type_name[0] = '\0';
         sNodeType* node_type3 = clone_node_type(node_type2);
         node_type3->mPointerNum++;
-        create_type_name_from_node_type(type_name, 1024, node_type3);
+        type_name[0] = '\0';
+        create_type_name_from_node_type(type_name, 1024, node_type3, FALSE);
 
         gFinalizeGenericsFunNum[type_name] = generics_fun_num;
     }
@@ -9022,7 +9036,7 @@ static BOOL compile_class_name_expression(unsigned int node, sCompileInfo* info)
     char type_name[1024];
     type_name[0] = '\0';
 
-    create_type_name_from_node_type(type_name, 1024, node_type);
+    create_type_name_from_node_type(type_name, 1024, node_type, FALSE);
 
     LVALUE llvm_value;
     llvm_value.value = llvm_create_string(type_name);
@@ -9064,7 +9078,7 @@ static BOOL compile_class_name(unsigned int node, sCompileInfo* info)
     char type_name[1024];
     type_name[0] = '\0';
 
-    create_type_name_from_node_type(type_name, 1024, node_type);
+    create_type_name_from_node_type(type_name, 1024, node_type, FALSE);
 
     LVALUE llvm_value;
     llvm_value.value = llvm_create_string(type_name);

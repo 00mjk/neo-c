@@ -133,7 +133,7 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
     return TRUE;
 }
 
-BOOL compile_source(char* fname, char* source, BOOL optimize)
+BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL automatically_header)
 {
     sParserInfo info;
     memset(&info, 0, sizeof(sParserInfo));
@@ -144,6 +144,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize)
     info.lv_table = init_var_table();
     info.sline = 1;
     info.parse_struct_phase = TRUE;
+    info.automatically_header = automatically_header;
 
     char module_name[PATH_MAX];
     xstrncpy(module_name, fname, PATH_MAX);

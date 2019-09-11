@@ -1431,7 +1431,7 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
     if(node_type->mNumGenericsTypes > 0) {
         char type_name[1024];
         type_name[0] = '\0';
-        create_type_name_from_node_type(type_name, 1024, node_type);
+        create_type_name_from_node_type(type_name, 1024, node_type, FALSE);
 
         int finalize_generics_fun_num = gFinalizeGenericsFunNum[type_name];
 

@@ -1,0 +1,35 @@
+#include "neo-c.h"
+
+extern "C"
+{
+#include <stdio.h>
+#include <stdlib.h>
+#include <ncurses.h>
+}
+
+struct mvi {
+    a:int;
+}
+
+impl mvi {
+    initialize() {
+        puts("initialize mvi");
+    }
+
+    finalize() {
+        puts("finalize mvi");
+    }
+
+    def main(self:mvi):int {
+        initscr();
+        clear();
+        mvprintw(1,1, "HELLO MVI");
+        refresh();
+
+        var key = getch();
+
+        endwin();
+
+        0
+    }
+}

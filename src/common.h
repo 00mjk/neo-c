@@ -195,7 +195,7 @@ BOOL solve_typeof(sNodeType** node_type, struct sCompileInfoStruct* info);
 BOOL is_typeof_type(sNodeType* node_type);
 BOOL included_generics_type(sNodeType* node_type);
 BOOL get_type_of_method_generics(sNodeType* method_generics_types[GENERICS_TYPES_MAX], sNodeType* fun_param_type, sNodeType* param_type);
-void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type);
+void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type, BOOL neo_c);
   
 //////////////////////////////
 /// vtable.c
@@ -299,6 +299,8 @@ struct sParserInfoStruct
     char fun_name[VAR_NAME_MAX];
 
     char parse_struct_name[VAR_NAME_MAX];
+
+    BOOL automatically_header;
 };
 
 typedef struct sParserInfoStruct sParserInfo;
@@ -337,7 +339,9 @@ BOOL parse_class_name_expression(unsigned int* node, sParserInfo* info);
 //////////////////////////////
 BOOL delete_comment(sBuf* source, sBuf* source2);
 BOOL read_source(char* fname, sBuf* source);
-BOOL compile_source(char* fname, char* source, BOOL optimize);
+BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL automatically_header);
+
+extern char gMainModulePath[PATH_MAX];
 
 //////////////////////////////
 /// node.cpp

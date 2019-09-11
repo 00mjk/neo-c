@@ -705,7 +705,7 @@ BOOL included_generics_type(sNodeType* node_type)
     return FALSE;
 }
 
-void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type)
+void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type, BOOL neo_c)
 {
     sCLClass* klass = node_type->mClass;
 
@@ -716,7 +716,7 @@ void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeTy
 
         int i;
         for(i=0; i<node_type->mNumParams; i++) {
-            create_type_name_from_node_type(type_name, type_name_max, node_type->mParamTypes[i]);
+            create_type_name_from_node_type(type_name, type_name_max, node_type->mParamTypes[i], neo_c);
             
             if(i != node_type->mNumParams-1) {
                 xstrncat(type_name, ",", type_name_max);
@@ -726,11 +726,17 @@ void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeTy
 
         xstrncat(type_name, ":", type_name_max);
 
-        create_type_name_from_node_type(type_name, type_name_max, node_type->mResultType);
+        create_type_name_from_node_type(type_name, type_name_max, node_type->mResultType, neo_c);
+    }
+
+    int pointer_num = node_type->mPointerNum;
+    if(klass->mFlags & CLASS_FLAGS_STRUCT && neo_c)
+    {
+        pointer_num--;
     }
 
     int i;
-    for(i=0; i<node_type->mPointerNum; i++) {
+    for(i=0; i<pointer_num; i++) {
         xstrncat(type_name, "*", type_name_max);
     }
     if(node_type->mNullable) {
@@ -744,7 +750,7 @@ void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeTy
 
         int i;
         for(i=0; i<node_type->mNumGenericsTypes; i++) {
-            create_type_name_from_node_type(type_name, type_name_max, node_type->mGenericsTypes[i]);
+            create_type_name_from_node_type(type_name, type_name_max, node_type->mGenericsTypes[i], neo_c);
 
             if(i != node_type->mNumGenericsTypes-1) {
                 xstrncat(type_name, ",", type_name_max);

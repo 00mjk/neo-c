@@ -1,0 +1,74 @@
+##########################################
+# installed directories
+##########################################
+prefix=@prefix@ exec_prefix=@exec_prefix@
+bindir=@bindir@
+datadir=@datadir@
+mandir=@mandir@
+sharedstatedir=@sharedstatedir@
+sysconfdir=@sysconfdir@/neo-c
+includedir=@includedir@/neo-c
+datarootdir=@datarootdir@/neo-c
+docdir=@datadir@/doc
+libdir=@libdir@
+
+
+#########################################
+# environmnet variables
+##########################################
+CC=@CC@
+NCC=@NCC@
+INSTALL=@INSTALL@
+CFLAGS=@CFLAGS@
+LIBS=@LIBS@
+OS=@OS@
+DESTDIR=@DESTDIR@
+
+#########################################
+# main
+##########################################
+all: mvi
+
+mvi: config.h src/main.nc src/mvi.o src/mvi2.o
+	neo-c -o mvi src/main.nc src/mvi.o src/mvi2.o $(CFLAGS) $(LIBS)
+
+src/mvi.o: config.h src/mvi.ncc
+	neo-c -c src/mvi.ncc $(CFLAGS) $(LIBS)
+
+src/mvi2.o: config.h src/mvi2.ncc
+	neo-c -c src/mvi2.ncc $(CFLAGS) $(LIBS)
+
+
+#########################################
+# install
+#########################################
+install:
+	mkdir -p "$(DESTDIR)/bin"
+	$(INSTALL) -m 755 ./mvi "$(DESTDIR)/bin"
+
+#########################################
+# uninstall
+#########################################
+uninstall:
+	rm -f "$(DESTDIR)"/bin/mvi
+
+#########################################
+# permission
+#########################################
+permission:
+	chmod 644 *
+	chmod 755 .git man src configure
+	chmod 644 src/*.nc
+	chmod 644 src/*.h
+	chmod 755 update_mvi-c.sh
+
+#########################################
+# clean
+#########################################
+clean:
+	rm -fR src/*.ll src/*.bc src/*.nc.tmp src/*.out src/*.o
+	rm -fR mvi
+
+distclean: clean
+	rm -fR  config.h Makefile autom4te.cache 
+
