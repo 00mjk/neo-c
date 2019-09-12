@@ -5,25 +5,61 @@ extern "C"
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+int xgetmaxx() 
+{
+    var ws = new winsize;
+    //ioctl(STDOUT_FILENO, TIOCGWINZ, ws);
+
+    return ws.ws_col
+}
+
+int xgetmaxy() 
+{
+    var ws = new winsize;
+    //ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
+
+    return ws.ws_row
+}
+
+}
+
+struct win {
+    win:WINDOW;
+//    texts:list<string>;
+}
+
+impl win {
+    initialize() {
+//        self.texts = new list<string>.initialize();
+        var maxx = xgetmaxx();
+        var maxy = xgetmaxy();
+        self.win = newwin(0,0, maxx-1, maxy-1);
+    }
+
+    def view() {
+    }
 }
 
 struct mvi {
-    a:int;
+    numWinHeight:int;
+    numWinWidth:int;
 }
 
 impl mvi {
     initialize() {
-        puts("initialize mvi");
+        self.numWinHeight = 1;
+        self.numWinWidth = 1;
     }
 
     finalize() {
-        puts("finalize mvi");
     }
 
     def main(self:mvi):int {
         initscr();
         clear();
-        mvprintw(1,1, "HELLO MVI");
         refresh();
 
         var key = getch();

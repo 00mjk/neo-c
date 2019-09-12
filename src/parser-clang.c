@@ -5526,6 +5526,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "__alignof__") == 0 && *info->p == '(') 
+        {
+            if(!parse_sizeof(node, info)) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "clone") == 0) {
             if(!parse_clone(node, info)) {
                 return FALSE;
@@ -6571,9 +6577,55 @@ static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-BOOL clang_expression(unsigned int* node, sParserInfo* info) 
+static BOOL expression_conditional_operator(unsigned int* node, sParserInfo* info)
 {
     if(!expression_and_and_or_or(node, info)) {
+        return FALSE;
+    }
+    if(*node == 0) {
+        return TRUE;
+    }
+
+    while(*info->p) {
+        if(*info->p == '?') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int value1 = 0;
+            if(!expression_and_and_or_or(&value1, info)) {
+                return FALSE;
+            }
+
+            if(value1 == 0) {
+                parser_err_msg(info, "require right value for ? operator");
+                info->err_num++;
+            }
+
+            expect_next_character_with_one_forward(":", info);
+
+            unsigned int value2 = 0;
+            if(!expression_and_and_or_or(&value2, info)) {
+                return FALSE;
+            }
+
+            if(value2 == 0) {
+                parser_err_msg(info, "require right value for ? operator");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_conditional(*node, value1, value2, info);
+        }
+        else {
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
+BOOL clang_expression(unsigned int* node, sParserInfo* info) 
+{
+    if(!expression_conditional_operator(node, info)) {
         return FALSE;
     }
 

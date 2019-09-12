@@ -4,6 +4,7 @@ extern "C"
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
+//#include <unistd.h>
 
 int main()
 {
@@ -19,7 +20,7 @@ int main()
     mvprintw(2, 2, "aaa\n");
     refresh();
 
-    int key = getch();
+    //int key = getch();
 
     endwin();
 

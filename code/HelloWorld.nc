@@ -43,6 +43,14 @@ typedef enum { kTypedefEnumC, kTypedefEnumD } eEnumX;
 
 typedef union { int a; long b; } UnionTest4;
 
+/*
+struct unistdStruct 
+{
+    char aaa[true?128:64];
+    //char _dummy_pkey[(__alignof__(void *) < sizeof(short) ? sizeof(short) : __alignof__(void *))];
+};
+*/
+
 int main()
 {
     if(1 == 1) {
@@ -1469,6 +1477,8 @@ label1:
 
     printf("vv5.len %d\n", vv5.len);
 
+    var acon = 1 == 1 ? 128:0;
+    xassert("condtional operator", acon == 128);
 
 /*
     struct StructTest3 {
