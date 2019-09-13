@@ -698,7 +698,11 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
 
             fields[num_fields] = field;
 
-            if(buf[0] == '\0') {
+            if(field->mClass->mFlags & CLASS_FLAGS_ANONYMOUS_VAR_NAME)
+            {
+                create_anonymous_union_var_name(buf, VAR_NAME_MAX);
+            }
+            else if(buf[0] == '\0') {
                 if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE))
                 {
                     return FALSE;
@@ -1200,7 +1204,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
             sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
 
-            create_undefined_llvm_struct_type(struct_type);
+            //create_undefined_llvm_struct_type(struct_type);
             unsigned int node = 0;
 
             if(!parse_struct(&node, type_name, VAR_NAME_MAX, info)) {
@@ -1221,7 +1225,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
             sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
 
-            create_undefined_llvm_struct_type(struct_type);
+            //create_undefined_llvm_struct_type(struct_type);
             unsigned int node = 0;
 
             if(!parse_union(&node, type_name, VAR_NAME_MAX, info)) {
@@ -4162,6 +4166,43 @@ static BOOL parse_sizeof(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_alignof(unsigned int* node, sParserInfo* info)
+{
+    expect_next_character_with_one_forward("(", info);
+
+    char* p_before = info->p;
+    int sline_before = info->sline;
+
+    char buf[VAR_NAME_MAX+1];
+    (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
+
+    info->p = p_before;
+    info->sline = sline_before;
+
+    if(is_type_name(buf, info)) {
+        sNodeType* node_type = NULL;
+
+        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE)) {
+            return FALSE;
+        }
+
+        expect_next_character_with_one_forward(")", info);
+
+        *node = sNodeTree_create_alignof(node_type, info);
+    }
+    else {
+        if(!expression(node, info)) {
+            return FALSE;
+        }
+
+        expect_next_character_with_one_forward(")", info);
+
+        *node = sNodeTree_create_alignof_expression(*node, info);
+    }
+
+    return TRUE;
+}
+
 static BOOL parse_clone(unsigned int* node, sParserInfo* info)
 {
     if(!expression(node, info)) {
@@ -4294,7 +4335,13 @@ static BOOL parse_typedef(unsigned int* node, sParserInfo* info)
     }
 
     if(buf[0] == '\0') {
+/*
         if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+            return FALSE;
+        }
+*/
+        if(!parse_variable_name(buf, VAR_NAME_MAX, info, node_type, FALSE))
+        {
             return FALSE;
         }
     }
@@ -5271,7 +5318,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                             return FALSE;
                         }
 
-                        if(buf[0] == '\0') {
+                        if(field->mClass->mFlags & CLASS_FLAGS_ANONYMOUS_VAR_NAME)
+                        {
+                            create_anonymous_union_var_name(buf, VAR_NAME_MAX);
+                        }
+                        else if(buf[0] == '\0') {
                             if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE))
                             {
                                 return FALSE;
@@ -5528,7 +5579,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "__alignof__") == 0 && *info->p == '(') 
         {
-            if(!parse_sizeof(node, info)) {
+            if(!parse_alignof(node, info)) {
                 return FALSE;
             }
         }

@@ -7611,6 +7611,96 @@ BOOL compile_sizeof_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_alignof(sNodeType* node_type, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeAlignOf;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.sAlignOf.mType = clone_node_type(node_type);
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_alignof(unsigned int node, sCompileInfo* info)
+{
+    sNodeType* node_type = gNodes[node].uValue.sAlignOf.mType;
+    sNodeType* node_type2 = clone_node_type(node_type);
+
+    int alignment = get_llvm_alignment_from_node_type(node_type2);
+
+    /// result ///
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, alignment, false)); 
+    llvm_value.type = create_node_type_with_class_name("long");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("long");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_alignof_expression(unsigned int lnode, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeAlignOfExpression;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = lnode;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_alignof_expression(unsigned int node, sCompileInfo* info)
+{
+    unsigned int lnode = gNodes[node].mLeft;
+
+    BOOL no_output = info->no_output;
+    info->no_output = TRUE;
+
+    if(!compile(lnode, info)) {
+        info->no_output = no_output;
+        return FALSE;
+    }
+
+    info->no_output = no_output;
+
+    sNodeType* node_type = clone_node_type(info->type);
+
+    dec_stack_ptr(1, info);
+
+    int alignment = get_llvm_alignment_from_node_type(node_type);
+
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, alignment, true)); 
+    llvm_value.type = create_node_type_with_class_name("long");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("long");
+
+    return TRUE;
+}
+
 
 unsigned int sNodeTree_create_define_variables(unsigned int* nodes, int num_nodes, BOOL extern_, sParserInfo* info)
 {
@@ -9214,94 +9304,125 @@ static BOOL compile_conditional(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_jump_then", gFunction);
-    BasicBlock* cond_else_block = BasicBlock::Create(TheContext, "cond_else_block", gFunction);
+    int compile_time_value = -1;
 
-    BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end", gFunction);
+    ConstantInt* constant_value;
 
-    free_right_value_objects(info);
-
-    Builder.CreateCondBr(conditional_value.value, cond_then_block, cond_else_block);
-
-    BasicBlock* current_block_before;
-    llvm_change_block(cond_then_block, &current_block_before, info, FALSE);
-
-    unsigned int value1_node  = gNodes[node].mRight;
-
-    if(!compile(value1_node, info)) 
+    if(constant_value = dyn_cast<ConstantInt>(conditional_value.value)) 
     {
-        return FALSE;
+        compile_time_value = constant_value->getZExtValue();
     }
-
-    LVALUE value1 = *get_value_from_stack(-1);
-    dec_stack_ptr(1, info);
-    sNodeType* value1_result_type = clone_node_type(info->type);
-
-    Type* llvm_result_type;
-    if(!create_llvm_type_from_node_type(&llvm_result_type, value1_result_type, info))
-    {
-        compile_err_msg(info, "Getting llvm type failed(99)");
-        show_node_type(value1_result_type);
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
-
-    Value* result_value = builder.CreateAlloca(llvm_result_type, 0, "condtional_result_value");
-
-    int result_value_alignment = get_llvm_alignment_from_node_type(value1_result_type);
-
-    Builder.CreateAlignedStore(value1.value, result_value, result_value_alignment);
-
-    free_right_value_objects(info);
-    Builder.CreateBr(cond_end_block);
-
-    BasicBlock* current_block_before2;
-    llvm_change_block(cond_else_block, &current_block_before2, info, FALSE);
-
-    unsigned int value2_node  = gNodes[node].mMiddle;
-
-    if(!compile(value2_node, info)) 
-    {
-        return FALSE;
-    }
-
-    LVALUE value2 = *get_value_from_stack(-1);
-    dec_stack_ptr(1, info);
-    sNodeType* value2_result_type = clone_node_type(info->type);
-
-    if(!type_identify(value1_result_type, value2_result_type))
-    {
-        compile_err_msg(info, "Different result type for conditional operator");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    Builder.CreateAlignedStore(value2.value, result_value, result_value_alignment);
-
-    free_right_value_objects(info);
-    Builder.CreateBr(cond_end_block);
-
-    BasicBlock* current_block_before3;
-    llvm_change_block(cond_end_block, &current_block_before3, info, FALSE);
 
     LVALUE llvm_value;
-    llvm_value.value = Builder.CreateAlignedLoad(result_value, result_value_alignment);
-    llvm_value.type = clone_node_type(value1_result_type);
-    llvm_value.address = nullptr;
-    llvm_value.var = nullptr;
-    llvm_value.binded_value = FALSE;
+    if(compile_time_value != -1) {
+        if(compile_time_value) {
+            unsigned int value1_node  = gNodes[node].mRight;
 
-    info->type = clone_node_type(value1_result_type);
+            if(!compile(value1_node, info)) 
+            {
+                return FALSE;
+            }
+        }
+        else {
+            unsigned int value2_node  = gNodes[node].mMiddle;
 
-    push_value_to_stack_ptr(&llvm_value, info);
+            if(!compile(value2_node, info)) 
+            {
+                return FALSE;
+            }
+        }
+
+        llvm_value = *get_value_from_stack(-1);
+    }
+    else {
+        BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_jump_then", gFunction);
+        BasicBlock* cond_else_block = BasicBlock::Create(TheContext, "cond_else_block", gFunction);
+
+        BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end", gFunction);
+
+        free_right_value_objects(info);
+
+        Builder.CreateCondBr(conditional_value.value, cond_then_block, cond_else_block);
+
+        BasicBlock* current_block_before;
+        llvm_change_block(cond_then_block, &current_block_before, info, FALSE);
+
+        unsigned int value1_node  = gNodes[node].mRight;
+
+        if(!compile(value1_node, info)) 
+        {
+            return FALSE;
+        }
+
+        LVALUE value1 = *get_value_from_stack(-1);
+        dec_stack_ptr(1, info);
+        sNodeType* value1_result_type = clone_node_type(info->type);
+
+        Type* llvm_result_type;
+        if(!create_llvm_type_from_node_type(&llvm_result_type, value1_result_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(99)");
+            show_node_type(value1_result_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
+
+        Value* result_value = builder.CreateAlloca(llvm_result_type, 0, "condtional_result_value");
+
+        int result_value_alignment = get_llvm_alignment_from_node_type(value1_result_type);
+
+        Builder.CreateAlignedStore(value1.value, result_value, result_value_alignment);
+
+        free_right_value_objects(info);
+        Builder.CreateBr(cond_end_block);
+
+        BasicBlock* current_block_before2;
+        llvm_change_block(cond_else_block, &current_block_before2, info, FALSE);
+
+        unsigned int value2_node  = gNodes[node].mMiddle;
+
+        if(!compile(value2_node, info)) 
+        {
+            return FALSE;
+        }
+
+        LVALUE value2 = *get_value_from_stack(-1);
+        dec_stack_ptr(1, info);
+        sNodeType* value2_result_type = clone_node_type(info->type);
+
+        if(!type_identify(value1_result_type, value2_result_type))
+        {
+            compile_err_msg(info, "Different result type for conditional operator");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        Builder.CreateAlignedStore(value2.value, result_value, result_value_alignment);
+
+        free_right_value_objects(info);
+        Builder.CreateBr(cond_end_block);
+
+        BasicBlock* current_block_before3;
+        llvm_change_block(cond_end_block, &current_block_before3, info, FALSE);
+
+        llvm_value.value = Builder.CreateAlignedLoad(result_value, result_value_alignment);
+        llvm_value.type = clone_node_type(value1_result_type);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
+
+        info->type = clone_node_type(value1_result_type);
+
+        push_value_to_stack_ptr(&llvm_value, info);
+    }
 
     if(llvm_value.type->mHeap) {
         append_heap_object_to_right_value(&llvm_value);
@@ -9793,6 +9914,20 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             {
                 return FALSE;
             }
+            break;
+
+        case kNodeTypeAlignOf:
+            if(!compile_alignof(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeAlignOfExpression:
+            if(!compile_alignof_expression(node, info))
+            {
+                return FALSE;
+            }
+            break;
 
     }
 

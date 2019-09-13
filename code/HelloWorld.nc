@@ -43,13 +43,21 @@ typedef enum { kTypedefEnumC, kTypedefEnumD } eEnumX;
 
 typedef union { int a; long b; } UnionTest4;
 
-/*
 struct unistdStruct 
 {
-    char aaa[true?128:64];
-    //char _dummy_pkey[(__alignof__(void *) < sizeof(short) ? sizeof(short) : __alignof__(void *))];
+    //char aaa[true?128:64];
+    char _dummy_pkey[(__alignof__(void *) < sizeof(short) ? sizeof(short) : __alignof__(void *))];
+    int _si_pad[128 / sizeof(int)];
 };
-*/
+
+typedef int garray[34];
+
+typedef union sigval {
+    int a;
+    int b;
+} sigval_t;
+
+int sigqueue(pid_t __pid, int __signal, union sigval __value) __attribute__((annotate("introduced_in=" "23")));
 
 int main()
 {
@@ -1360,11 +1368,11 @@ label1:
 
     struct yyyxxx 
     {
-        int a;
         struct {
             int b;
             int c;
         };
+        int a;
     };
 
     struct yyyxxx data12;
@@ -1477,8 +1485,12 @@ label1:
 
     printf("vv5.len %d\n", vv5.len);
 
-    var acon = 1 == 1 ? 128:0;
+    var acon = (1 == 1) ? 128:0;
     xassert("condtional operator", acon == 128);
+
+    xassert("align operator", __alignof__(int) == 4);
+
+    var aunistd = new unistdStruct;
 
 /*
     struct StructTest3 {
