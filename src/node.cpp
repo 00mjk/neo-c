@@ -1325,7 +1325,7 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
     if(var == NULL) {
-        compile_err_msg(info, "undeclared variable %s", var_name);
+        compile_err_msg(info, "undeclared variable %s(1)", var_name);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1492,7 +1492,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
     if(var == NULL) {
-        compile_err_msg(info, "undeclared variable %s", var_name);
+        compile_err_msg(info, "undeclared variable %s(2)", var_name);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1609,7 +1609,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
         int alignment = get_llvm_alignment_from_node_type(left_type);
 
-        BOOL constant = var->mConstant && var->mBlockLevel == 0;
+        BOOL constant = var->mConstant;
 
         if(alloc) {
             if(constant) {
@@ -1619,13 +1619,6 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
                     Constant* rvalue3 = dyn_cast<Constant>(rvalue2);
 
                     var->mLLVMValue = rvalue3;
-
-/*
-                    GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant,GlobalValue::PrivateLinkage, 0, var_name);
-                    address->setAlignment(alignment);
-                    address->setInitializer(rvalue3);
-                    var->mLLVMValue = address;
-*/
 
                     info->type = left_type;
                 }
@@ -2033,6 +2026,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
         BOOL readonly = FALSE;
         if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1, FALSE, param.mType->mConstant))
         {
+            compile_err_msg(cinfo, "overflow variable table");
             return FALSE;
         }
     }
@@ -2258,6 +2252,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
         BOOL readonly = FALSE;
         if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1, FALSE, param.mType->mConstant))
         {
+            compile_err_msg(cinfo, "overflow variable table");
             return FALSE;
         }
     }
@@ -2384,6 +2379,7 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
         BOOL readonly = FALSE;
         if(!add_variable_to_table(info2.lv_table, param.mName, param.mType, readonly, NULL, -1, FALSE, param.mType->mConstant))
         {
+            compile_err_msg(cinfo, "overflow variable table");
             return FALSE;
         }
     }
@@ -3995,7 +3991,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
     if(var == NULL) {
-        compile_err_msg(info, "undeclared variable %s", var_name);
+        compile_err_msg(info, "undeclared variable %s(3)", var_name);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4012,7 +4008,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    BOOL constant = var->mConstant && var->mBlockLevel == 0;
+    BOOL constant = var->mConstant;
 
     if(constant) {
         LVALUE llvm_value;
@@ -7844,7 +7840,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
         sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
         if(var == NULL) {
-            compile_err_msg(info, "undeclared variable %s", var_name);
+            compile_err_msg(info, "undeclared variable %s(4)", var_name);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -8078,7 +8074,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
         sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
         if(var == NULL) {
-            compile_err_msg(info, "undeclared variable %s", var_name);
+            compile_err_msg(info, "undeclared variable %s(5)", var_name);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -8282,7 +8278,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
         sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
         if(var == NULL) {
-            compile_err_msg(info, "undeclared variable %s", var_name);
+            compile_err_msg(info, "undeclared variable %s(6)", var_name);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -8495,7 +8491,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
         sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
         if(var == NULL) {
-            compile_err_msg(info, "undeclared variable %s", var_name);
+            compile_err_msg(info, "undeclared variable %s(7)", var_name);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy

@@ -22,7 +22,7 @@
 #define PARSER_ERR_MSG_MAX 5
 #define COMPILE_ERR_MSG_MAX 5
 #define NEO_C_STACK_SIZE 512
-#define LOCAL_VARIABLE_MAX 256
+#define LOCAL_VARIABLE_MAX 4096*2
 #define PARAMS_MAX 32
 #define METHOD_DEFAULT_PARAM_MAX 128
 #define SOURCE_EXPRESSION_MAX 4096*2
@@ -259,6 +259,9 @@ void show_vtable(sVarTable* table);
 int get_parent_var_num_of_sum(sVarTable* table);
 
 void free_objects(sVarTable* table, struct sCompileInfoStruct* info);
+
+// result: (null) not found (sVar*) found
+sVar* get_variable_from_this_table_only(sVarTable* table, char* name);
 
 //////////////////////////////
 /// parser.c

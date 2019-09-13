@@ -47,7 +47,11 @@ sVarTable* clone_var_table(sVarTable* lv_table)
 
     while(1) {
         if(p->mName[0] != 0) {
-            (void)add_variable_to_table(result, p->mName, p->mType, p->mReadOnly, p->mLLVMValue, p->mIndex, p->mGlobal, p->mConstant);
+            if(!add_variable_to_table(result, p->mName, p->mType, p->mReadOnly, p->mLLVMValue, p->mIndex, p->mGlobal, p->mConstant))
+            {
+                fprintf(stderr, "overflow variable table\n");
+                exit(2);
+            }
         }
 
         p++;
@@ -207,7 +211,7 @@ sVar* get_variable_from_index(sVarTable* table, int index)
 }
 
 // result: (null) not found (sVar*) found
-static sVar* get_variable_from_this_table_only(sVarTable* table, char* name)
+sVar* get_variable_from_this_table_only(sVarTable* table, char* name)
 {
     int hash_value;
     sVar* p;

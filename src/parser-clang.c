@@ -366,6 +366,12 @@ BOOL parse_sharp(sParserInfo* info)
             info->sline_top = line;
             xstrncpy(info->sname, fname, PATH_MAX);
             info->change_sline = TRUE;
+
+            skip_spaces_and_lf(info);
+            if(*info->p == ';') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
         }
         else {
             while(TRUE) {
@@ -765,13 +771,10 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
     return TRUE;
 }
 
-static BOOL parse_anoymous_enum(unsigned int* node, sParserInfo* info) 
+static BOOL parse_anonymous_enum(unsigned int* node, sParserInfo* info) 
 {
     expect_next_character_with_one_forward("{", info);
 
-    unsigned int nodes[IMPL_DEF_MAX];
-    memset(nodes, 0, sizeof(unsigned int)*IMPL_DEF_MAX);
-    int num_nodes = 0;
     int value = 0;
 
     while(TRUE) {
@@ -781,49 +784,51 @@ static BOOL parse_anoymous_enum(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
 
-        unsigned int right_node;
-
         if(*info->p == '=') {
             info->p++;
             skip_spaces_and_lf(info);
 
-            if(!expression(&right_node, info)) {
+            unsigned int node2;
+            if(!expression(&node2, info)) {
                 return FALSE;
             }
 
-            if(gNodes[right_node].mNodeType != kNodeTypeIntValue)
+            if(!get_const_value_from_node(&value, node2, info))
             {
-                parser_err_msg(info, "This is not Int Value");
-                info->err_num++;
-                return TRUE;
+                return FALSE;
             }
-
-            value = gNodes[right_node].uValue.mIntValue;
-        }
-        else {
-            right_node = sNodeTree_create_int_value(value, info);
         }
 
-        BOOL alloc_ = TRUE;
-        *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
+        sVar* var = get_variable_from_this_table_only(info->lv_table, var_name);
 
-        sNodeType* result_type = create_node_type_with_class_name("int");
-        result_type->mConstant = TRUE;
+        if(var == NULL) {
+            unsigned int right_node = sNodeTree_create_int_value(value, info);
 
-        if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
-        {
+            BOOL alloc_ = TRUE;
+            *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
+
+            sNodeType* result_type = create_node_type_with_class_name("int");
+            result_type->mConstant = TRUE;
+
             check_already_added_variable(info->lv_table, var_name, info);
             BOOL readonly = TRUE;
+            if(!add_variable_to_table(info->lv_table, var_name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant))
+            {
+                fprintf(stderr, "overflow variable table\n");
+                exit(2);
+            }
 
-            add_variable_to_table(info->lv_table, var_name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
-        }
+            sCompileInfo cinfo;
+            memset(&cinfo, 0, sizeof(sCompileInfo));
 
-        nodes[num_nodes++] = *node;
-        value++;
+            cinfo.pinfo = info;
 
-        if(num_nodes >= IMPL_DEF_MAX) {
-            fprintf(stderr, "overflow enum element max");
-            return FALSE;
+            if(!compile(*node, &cinfo)) 
+            {
+                return FALSE;
+            }
+
+            dec_stack_ptr(1, &cinfo);
         }
 
         if(*info->p == ',') {
@@ -836,10 +841,11 @@ static BOOL parse_anoymous_enum(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
             break;
         }
+
+        value++;
     }
 
-    BOOL extern_ = FALSE;
-    *node = sNodeTree_create_define_variables(nodes, num_nodes, extern_, info);
+    *node = sNodeTree_create_null(info);
 
     return TRUE;
 }
@@ -848,9 +854,6 @@ static BOOL parse_enum(unsigned int* node, char* name, sParserInfo* info)
 {
     expect_next_character_with_one_forward("{", info);
 
-    unsigned int nodes[IMPL_DEF_MAX];
-    memset(nodes, 0, sizeof(unsigned int)*IMPL_DEF_MAX);
-    int num_nodes = 0;
     int value = 0;
 
     while(TRUE) {
@@ -860,48 +863,51 @@ static BOOL parse_enum(unsigned int* node, char* name, sParserInfo* info)
             return FALSE;
         }
 
-        unsigned int right_node;
-
         if(*info->p == '=') {
             info->p++;
             skip_spaces_and_lf(info);
 
-            if(!expression(&right_node, info)) {
+            unsigned int node2;
+            if(!expression(&node2, info)) {
                 return FALSE;
             }
 
-            if(gNodes[right_node].mNodeType != kNodeTypeIntValue)
+            if(!get_const_value_from_node(&value, node2, info))
             {
-                parser_err_msg(info, "This is not Int Value");
-                info->err_num++;
-                return TRUE;
+                return FALSE;
             }
-
-            value = gNodes[right_node].uValue.mIntValue;
-        }
-        else {
-            right_node = sNodeTree_create_int_value(value, info);
         }
 
-        sNodeType* result_type = create_node_type_with_class_name("int");
-        result_type->mConstant = TRUE;
+        sVar* var = get_variable_from_this_table_only(info->lv_table, var_name);
 
-        if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
-        {
+        if(var == NULL) {
+            unsigned int right_node = sNodeTree_create_int_value(value, info);
+
+            BOOL alloc_ = TRUE;
+            *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
+
+            sNodeType* result_type = create_node_type_with_class_name("int");
+            result_type->mConstant = TRUE;
+
             check_already_added_variable(info->lv_table, var_name, info);
             BOOL readonly = TRUE;
-            add_variable_to_table(info->lv_table, var_name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
-        }
+            if(!add_variable_to_table(info->lv_table, var_name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant))
+            {
+                fprintf(stderr, "overflow variable table\n");
+                exit(2);
+            }
 
-        BOOL alloc_ = TRUE;
-        *node = sNodeTree_create_store_variable(var_name, right_node, alloc_, info);
+            sCompileInfo cinfo;
+            memset(&cinfo, 0, sizeof(sCompileInfo));
 
-        nodes[num_nodes++] = *node;
-        value++;
+            cinfo.pinfo = info;
 
-        if(num_nodes >= IMPL_DEF_MAX) {
-            fprintf(stderr, "overflow enum element max");
-            return FALSE;
+            if(!compile(*node, &cinfo)) 
+            {
+                return FALSE;
+            }
+
+            dec_stack_ptr(1, &cinfo);
         }
 
         if(*info->p == ',') {
@@ -914,6 +920,8 @@ static BOOL parse_enum(unsigned int* node, char* name, sParserInfo* info)
             skip_spaces_and_lf(info);
             break;
         }
+
+        value++;
     }
 
     if(*info->p == ';') {
@@ -921,10 +929,9 @@ static BOOL parse_enum(unsigned int* node, char* name, sParserInfo* info)
         skip_spaces_and_lf(info);
     }
 
-    if(strcmp(name, "") != 0) {
-        BOOL extern_ = FALSE;
-        *node = sNodeTree_create_define_variables(nodes, num_nodes, extern_, info);
+    *node = sNodeTree_create_null(info);
 
+    if(strcmp(name, "") != 0) {
         (void)alloc_enum(name);
     }
 
@@ -1260,36 +1267,9 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         }
         else if(strcmp(type_name, "enum") == 0 && *info->p == '{') 
         {
-            expect_next_character_with_one_forward("{", info);
-
-            while(TRUE) {
-                char var_name[VAR_NAME_MAX];
-                if(!parse_word(var_name, VAR_NAME_MAX, info, FALSE, FALSE)) 
-                {
-                    return FALSE;
-                }
-
-                unsigned int right_node;
-
-                if(*info->p == '=') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
-
-                    if(!expression(&right_node, info)) {
-                        return FALSE;
-                    }
-                }
-
-                if(*info->p == ',') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
-                }
-
-                if(*info->p == '}') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
-                    break;
-                }
+            unsigned int anonymous_enum_node = 0;
+            if(!parse_anonymous_enum(&anonymous_enum_node, info)) {
+                return FALSE;
             }
 
             if(*info->p == ';') {
@@ -1778,13 +1758,21 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
         }
         if(node_type) {
             check_already_added_variable(info->lv_table, buf, info);
-            add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1, info->mBlockLevel == 0, node_type->mConstant);
+            if(!add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1, info->mBlockLevel == 0, node_type->mConstant))
+            {
+                fprintf(stderr, "overflow variable table\n");
+                exit(2);
+            }
         }
     }
     else {
         node_type = NULL;
         check_already_added_variable(info->lv_table, buf, info);
-        add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1, info->mBlockLevel == 0, FALSE);
+        if(!add_variable_to_table(info->lv_table, buf, node_type, readonly, NULL, -1, info->mBlockLevel == 0, FALSE))
+        {
+            fprintf(stderr, "overflow variable table\n");
+            exit(2);
+        }
     }
 
     /// assign the value to a variable ///
@@ -2238,7 +2226,11 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
     if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
     {
         check_already_added_variable(info->lv_table, name, info);
-        add_variable_to_table(info->lv_table, name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant);
+        if(!add_variable_to_table(info->lv_table, name, result_type, readonly, NULL, -1, info->mBlockLevel == 0, result_type->mConstant))
+        {
+            fprintf(stderr, "overflow variable table\n");
+            exit(2);
+        }
     }
 
     return TRUE;
@@ -4314,7 +4306,7 @@ static BOOL parse_typedef(unsigned int* node, sParserInfo* info)
 
     if(strcmp(buf, "enum") == 0) {
         if(*info->p == '{') {
-            if(!parse_anoymous_enum(&anonymous_enum_node, info)) {
+            if(!parse_anonymous_enum(&anonymous_enum_node, info)) {
                 return FALSE;
             }
         }
@@ -5384,10 +5376,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else {
-                if(!parse_anoymous_enum(&anonymous_enum_node, info)) {
+                if(!parse_anonymous_enum(&anonymous_enum_node, info)) {
                     return FALSE;
                 }
-
 
                 if(*info->p == ';') 
                 {
