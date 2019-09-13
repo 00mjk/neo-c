@@ -5,20 +5,12 @@ struct win {
 
 impl win {
     initialize() ;
+def view() ;
 
 }
 struct mvi {
     numWinHeight:int;
     numWinWidth:int;
-}
-
-impl mvi {
-    initialize() ;
-finalize() ;
-
-}
-struct mvi {
-    b:int;
 }
 
 impl mvi {

@@ -11,7 +11,7 @@ extern "C"
 int xgetmaxx() 
 {
     var ws = new winsize;
-    //ioctl(STDOUT_FILENO, TIOCGWINZ, ws);
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
 
     return ws.ws_col
 }
@@ -19,7 +19,7 @@ int xgetmaxx()
 int xgetmaxy() 
 {
     var ws = new winsize;
-    //ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
 
     return ws.ws_row
 }
@@ -50,11 +50,13 @@ struct mvi {
 
 impl mvi {
     initialize() {
+        puts("mvi initialize");
         self.numWinHeight = 1;
         self.numWinWidth = 1;
     }
 
     finalize() {
+        puts("mvi initialize");
     }
 
     def main(self:mvi):int {

@@ -86,6 +86,71 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+BOOL get_hex_number(unsigned int* node, sParserInfo* info)
+{
+    int buf_size = 128;
+    char buf[128+1];
+    char* p = buf;
+
+    *p++ = '0';
+    *p++ = 'x';
+
+    while((*info->p >= '0' && *info->p <= '9') || (*info->p >= 'a' && *info->p <= 'f') || (*info->p >= 'A' && *info->p <= 'F') || *info->p == '_') 
+    {
+        if(*info->p == '_') {
+            info->p++;
+        }
+        else {
+            *p++ = *info->p;
+            info->p++;
+        }
+
+        if(p - buf >= buf_size-1) {
+            parser_err_msg(info, "overflow node of number");
+            return FALSE;
+        }
+    }
+    *p = 0;
+    skip_spaces_and_lf(info);
+
+    unsigned clint64 value = strtoll(buf, NULL, 0);
+
+    *node = sNodeTree_create_int_value((int)value, info);
+
+    return TRUE;
+}
+
+BOOL get_oct_number(unsigned int* node, sParserInfo* info)
+{
+    int buf_size = 128;
+    char buf[128+1];
+    char* p = buf;
+
+    *p++ = '0';
+
+    while((*info->p >= '0' && *info->p <= '7') || *info->p == '_') {
+        if(*info->p == '_') {
+            info->p++;
+        }
+        else {
+            *p++ = *info->p++;
+        }
+
+        if(p - buf >= buf_size-1) {
+            parser_err_msg(info, "overflow node of number");
+            return FALSE;
+        }
+    }
+    *p = 0;
+    skip_spaces_and_lf(info);
+
+    unsigned clint64 value = strtoul(buf, NULL, 0);
+
+    *node = sNodeTree_create_int_value((int)value, info);
+
+    return TRUE;
+}
+
 static BOOL parse_type(sNodeType** result_type, sParserInfo* info);
 
 static BOOL parse_struct(unsigned int* node, sParserInfo* info) 
@@ -3428,6 +3493,22 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     info->err_num++;
                 }
             }
+        }
+    }
+    /// hex number ///
+    else if(*info->p == '0' && *(info->p+1) == 'x') {
+        info->p += 2;
+
+        if(!get_hex_number(node, info)) {
+            return FALSE;
+        }
+    }
+    /// oct number ///
+    else if(*info->p == '0' && isdigit(*(info->p+1))) {
+        info->p++;
+
+        if(!get_oct_number(node, info)) {
+            return FALSE;
         }
     }
     else if(isdigit(*info->p)) {

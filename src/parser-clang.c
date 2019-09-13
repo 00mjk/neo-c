@@ -4984,6 +4984,23 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
     }
+    /// hex number ///
+    else if(*info->p == '0' && *(info->p+1) == 'x') {
+        info->p += 2;
+
+        if(!get_hex_number(node, info)) {
+            return FALSE;
+        }
+    }
+    /// oct number ///
+    else if(*info->p == '0' && isdigit(*(info->p+1))) {
+        info->p++;
+
+        if(!get_oct_number(node, info)) {
+            return FALSE;
+        }
+    }
+    /// number ///
     else if(isdigit(*info->p)) {
         if(!get_number(FALSE, node, info)) {
             return FALSE;

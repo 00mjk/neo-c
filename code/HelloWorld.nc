@@ -1988,6 +1988,14 @@ label1:
 
     var aunistd = new unistdStruct;
 
+    var xyzX = 0x10;
+
+    xassert("hex test", xyzX == 16);
+
+    var xyzY = 010;
+
+    xassert("oct test", xyzY == 8);
+
 /*
     struct StructTest3 {
         int a;
