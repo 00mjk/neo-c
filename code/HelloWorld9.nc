@@ -47,7 +47,6 @@ def main():int
         printf("%d\n", it);
     }
     
-puts("main last");
     0
 }
 

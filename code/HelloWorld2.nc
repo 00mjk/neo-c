@@ -20,7 +20,7 @@ int main()
     mvprintw(2, 2, "aaa\n");
     refresh();
 
-    int key = getch();
+//    int key = getch();
 
     endwin();
 
