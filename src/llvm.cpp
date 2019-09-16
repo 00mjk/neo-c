@@ -1370,8 +1370,8 @@ void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL all
         sVar* rvar = rvalue->var;
         sNodeType* rvalue_type = rvalue->type;
 
-        if(lvar_type->mHeap && rvalue_type->mHeap) {
-            if(var_address && !alloc) {
+        if((lvar_type->mManaged || lvar_type->mHeap) && rvalue_type->mHeap) {
+            if(!lvar_type->mManaged && lvar_type->mHeap && var_address && !alloc) {
                 free_object(lvar_type, var_address, info);
             }
 
@@ -1547,41 +1547,50 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
     sCLClass* klass = node_type->mClass;
 
     Value* obj = NULL;
-    if(node_type->mHeap && node_type->mPointerNum > 0) {
+    if((node_type->mHeap || node_type->mManaged) && node_type->mPointerNum > 0) {
         //obj = (Value*)address;
         obj = Builder.CreateAlignedLoad((Value*)address, 8);
 
         call_destructor(obj, node_type, info);
     }
 
-    sNodeType* node_type2 = clone_node_type(node_type);
-    node_type2->mPointerNum = 0;
+    if(node_type->mHeap && !node_type->mManaged && node_type->mPointerNum > 0) 
+    {
+        sNodeType* node_type2 = clone_node_type(node_type);
+        node_type2->mPointerNum = 0;
 
-    Type* llvm_struct_type;
-    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, info);
+        Type* llvm_struct_type;
+        (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, info);
 
-    int i;
-    for(i=0; i<klass->mNumFields; i++) {
-        sNodeType* field_type = klass->mFields[i];
-        (void)solve_generics(&field_type, node_type);
-        sCLClass* field_class = field_type->mClass;
+        int i;
+        for(i=0; i<klass->mNumFields; i++) {
+            sNodeType* field_type = klass->mFields[i];
+            (void)solve_generics(&field_type, node_type);
+            sCLClass* field_class = field_type->mClass;
 
-        Type* llvm_field_type;
-        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, info);
+            if(type_identify(node_type, field_type))
+            {
+                compile_err_msg(info,"infinity recursive on free object. The same type of object type and field type. %s\n", CLASS_NAME(field_class));
+                exit(1);
+            }
 
-        if(field_type->mHeap)
-        {
+            Type* llvm_field_type;
+            (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, info);
+
+            if(field_type->mHeap)
+            {
 #if LLVM_VERSION_MAJOR >= 7
-            Value* field_address = Builder.CreateStructGEP(obj, i);
+                Value* field_address = Builder.CreateStructGEP(obj, i);
 #else
-            Value* field_address = Builder.CreateStructGEP(llvm_struct_type, obj, i);
+                Value* field_address = Builder.CreateStructGEP(llvm_struct_type, obj, i);
 #endif
-            free_object(field_type, field_address, info);
+                free_object(field_type, field_address, info);
+            }
         }
     }
 
     /// free ///
-    if(node_type->mHeap && node_type->mPointerNum > 0) {
+    if((node_type->mHeap || node_type->mManaged) && node_type->mPointerNum > 0) {
         Function* fun = TheModule->getFunction("xfree");
 
         if(fun == nullptr) {
@@ -1642,7 +1651,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
 
         int alignment = get_llvm_alignment_from_node_type(field_type);
 
-        if(field_type->mHeap)
+        if(field_type->mHeap || field_type->mManaged) 
         {
 #if LLVM_VERSION_MAJOR >= 7
            Value* field_address = Builder.CreateStructGEP(address3, i);

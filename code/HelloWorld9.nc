@@ -11,6 +11,7 @@ struct StructTest {
 
 def main():int 
 {
+/*
     var str = string("HELLO WORLD");
 
     str[0] = 'h';
@@ -34,7 +35,19 @@ def main():int
     v3.each {
         printf("%s\n", it);
     }
+*/
     
+    var li = new list<int>.initialize();
+
+    li.push_back(1);
+    li.push_back(2);
+    li.push_back(3);
+
+    li.each {
+        printf("%d\n", it);
+    }
+    
+puts("main last");
     0
 }
 

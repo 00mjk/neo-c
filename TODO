@@ -1,7 +1,6 @@
--Iのサポート、プリプロセッサの検索パスの追加。
-neo-c.hを自動的にはincludeしないようにする
+managed 変数 &
 
-ヘッダーの自動出力
+list
 
 vector
 
@@ -51,3 +50,10 @@ __inline
 __restrict
 
 __builtin_var_list
+
+
+-Iのサポート、プリプロセッサの検索パスの追加。
+neo-c.hを自動的にはincludeしないようにする
+
+ヘッダーの自動出力
+

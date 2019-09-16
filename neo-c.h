@@ -78,6 +78,84 @@ impl vector<T>
     }
 }
 
+struct list_item<T>
+{
+    T&$ item;
+    struct list_item<T>*? prev;
+    struct list_item<T>*?$ next;
+}
+
+struct list<T>
+{
+    list_item<T>*?$ head;
+    list_item<T>*? tail;
+}
+
+impl list <T>
+{
+    initialize() {
+        self.head = null;
+        self.tail = null;
+    }
+
+    finalize() {
+        var it = self.head;
+        while(it != null) {
+            if(isheap(it.item)) {
+                delete it.item;
+            }
+            var prev_it = it;
+            it = it.next;
+            delete prev_it;
+        }
+    }
+
+    void push_back(list<T>* self, T item) {
+        if(self.head == self.tail)
+        {
+            if(self.head == null) 
+            {
+                var litem = new list_item<T>;
+                litem.prev = null;
+                litem.next = null;
+                litem.item = item;
+                
+                self.tail = litem;
+                self.head = litem;
+            }
+            else {
+                var litem = new list_item<T>;
+                litem.prev = self.head;
+                litem.next = null;
+                litem.item = item;
+                
+                self.tail = litem;
+                self.head.next = litem;
+            }
+        }
+        else {
+            var litem = borrow new list_item<T>;
+
+            litem.prev = self.tail;
+            litem.next = null;
+            litem.item = item;
+            
+            self.tail.next = litem;
+            self.tail = litem;
+        }
+    }
+    
+    void each(list<T>* self, void lambda(T&,int) block) {
+        list_item<T>?* it = self.head;
+        var i = 0;
+        while(it != null) {
+            block(it.item, i);
+            it = it.next;
+            i++;
+        };
+    }
+}
+
 ruby_macro vec {
     params = [];
     param = "";

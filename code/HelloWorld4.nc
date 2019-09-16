@@ -13,7 +13,7 @@ struct Data
 
 impl Data 
 {
-    def fun(self:Data) {
+    def fun(self:Data*) {
         self.a = 1;
     }
 }
@@ -25,11 +25,11 @@ struct Data
 
 impl Data 
 {
-    def fun(self:Data) {
+    def fun(self:Data*) {
         inherit(self);
         self.b = 7;
     }
-    def show(self:Data) {
+    def show(self:Data*) {
         printf("self.a %d self.b %d\n", self.a, self.b);
     }
 }
@@ -41,7 +41,7 @@ struct Data2<T>
 
 impl Data2<T>
 {
-    def fun(self:Data2<T>) {
+    def fun(self:Data2<T>*) {
         self.a = 123;
     }
 }
@@ -53,12 +53,12 @@ struct Data2<T>
 
 impl Data2<T>
 {
-    def fun(self:Data2<T>) {
+    def fun(self:Data2<T>*) {
         inherit(self);
         self.b = 234;
     }
 
-    def show(self:Data2<T>) {
+    def show(self:Data2<T>*) {
         printf("self.a %d self.b %d\n", self.a, self.b);
     }
 }
@@ -76,7 +76,7 @@ impl Data3
         self.b = 222;
     }
 
-    def show(self:Data3) {
+    def show(self:Data3*) {
         printf("self.a %d self.b %d\n", self.a, self.b);
     }
 }
@@ -93,7 +93,7 @@ impl Data3
         self.c = 333;
     }
 
-    def show(self:Data3) {
+    def show(self:Data3*) {
         printf("self.a %d self.b %d self.c %d\n", self.a, self.b, self.c);
     }
 }
@@ -122,7 +122,7 @@ impl Data4<T>
         self.b = 234;
     }
 
-    def show(self:Data4<T>) {
+    def show(self:Data4<T>*) {
         printf("self.a %d self.b %d\n", self.a, self.b);
     }
 }

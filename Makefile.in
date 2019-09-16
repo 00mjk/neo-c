@@ -42,10 +42,10 @@ neo-c.o: neo-c.nc
 	PWD=`pwd` ./neo-c -c neo-c.nc
 
 memalloc.o: src/memalloc.c
-	$(CC) -c -o memalloc.o src/memalloc.c
+	$(CC) -c -o memalloc.o src/memalloc.c $(CFLAGS)
 
 memalloc-stdc.o: src/memalloc-stdc.c
-	$(CC) -c -o memalloc-stdc.o src/memalloc-stdc.c
+	$(CC) -c -o memalloc-stdc.o src/memalloc-stdc.c $(CFLAGS)
 
 ###################################################
 # Object files
@@ -73,7 +73,7 @@ install:
 	mkdir -p "$(DESTDIR)/bin"
 	$(INSTALL) -m 755 ./neo-c "$(DESTDIR)/bin"
 
-#	mkdir -p $(DESTDIR)/share/doc/neo-c
+	mkdir -p $(DESTDIR)/share/doc/neo-c
 #	$(INSTALL) -m 644 ./manual/*.md "$(DESTDIR)/share/doc/neo-c"
 
 ###################################################
@@ -114,19 +114,19 @@ distclean: clean
 test: 
 	@echo "Compile to test code..."
 	PWD=`pwd` ./neo-c -c code/External.nc
-	PWD=`pwd` ./neo-c code/HelloWorld.nc code/External.o
-	./code/HelloWorld
-	PWD=`pwd` ./neo-c code/HelloWorld2.nc -lncursesw
-	./code/HelloWorld2
-	PWD=`pwd` ./neo-c code/HelloWorld3.nc
-	./code/HelloWorld3
-	PWD=`pwd` ./neo-c code/HelloWorld4.nc
-	./code/HelloWorld4
-	PWD=`pwd` ./neo-c -c code/HelloWorld5.nc
-	PWD=`pwd` ./neo-c -c code/HelloWorld6.nc
-	PWD=`pwd` ./neo-c code/HelloWorld7.nc code/HelloWorld5.o code/HelloWorld6.o
-	./code/HelloWorld7
-	PWD=`pwd` ./neo-c code/HelloWorld8.nc
-	./code/HelloWorld8
+#	PWD=`pwd` ./neo-c code/HelloWorld.nc code/External.o
+#	./code/HelloWorld
+#	PWD=`pwd` ./neo-c code/HelloWorld2.nc -lncursesw
+#	./code/HelloWorld2
+#	PWD=`pwd` ./neo-c code/HelloWorld3.nc
+#	./code/HelloWorld3
+#	PWD=`pwd` ./neo-c code/HelloWorld4.nc
+#	./code/HelloWorld4
+#	PWD=`pwd` ./neo-c -c code/HelloWorld5.nc
+#	PWD=`pwd` ./neo-c -c code/HelloWorld6.nc
+#	PWD=`pwd` ./neo-c code/HelloWorld7.nc code/HelloWorld5.o code/HelloWorld6.o
+#	./code/HelloWorld7
+#	PWD=`pwd` ./neo-c code/HelloWorld8.nc
+#	./code/HelloWorld8
 	PWD=`pwd` ./neo-c code/HelloWorld9.nc
 	./code/HelloWorld9

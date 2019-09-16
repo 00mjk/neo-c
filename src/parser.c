@@ -435,6 +435,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     BOOL unsigned_ = FALSE;
     BOOL static_ = FALSE;
     BOOL no_heap = FALSE;
+    BOOL managed = FALSE;
 
     while(TRUE) {
         char* p_before = info->p;
@@ -502,6 +503,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
             unsigned_ = (*result_type)->mUnsigned;
             static_ = (*result_type)->mStatic;
             no_heap = (*result_type)->mNoHeap;
+            managed = (*result_type)->mManaged;
         }
     }
 
@@ -615,11 +617,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     /// pointer ///
     int pointer_num = 0;
 
-    if((*result_type)->mClass->mFlags & CLASS_FLAGS_STRUCT)
-    {
-        pointer_num = 1;
-    }
-
     while(1) {
         if(*info->p == '%') {
             info->p++;
@@ -633,11 +630,23 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
             no_heap = TRUE;
         }
+        else if(*info->p == '$') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            managed = TRUE;
+        }
         else if(*info->p == '?') {
             info->p++;
             skip_spaces_and_lf(info);
 
             nullable = TRUE;
+        }
+        else if(*info->p == '*') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            pointer_num++;
         }
         else {
             break;
@@ -653,6 +662,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     (*result_type)->mVolatile = FALSE;
     (*result_type)->mStatic = static_;
     (*result_type)->mNoHeap = no_heap;
+    (*result_type)->mManaged = managed;
 
     if(info->mNumMethodGenericsTypes > 0) {
         if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))
@@ -2105,10 +2115,6 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
     }
 
     sCLClass* klass = node_type->mClass;
-
-    if(klass->mFlags & CLASS_FLAGS_STRUCT) {
-        node_type->mPointerNum--;
-    }
 
     if(klass) {
         unsigned int object_num = 0;
@@ -3735,6 +3741,16 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "new") == 0) {
             if(!parse_new(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "delete") == 0) {
+            if(!parse_delete(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "borrow") == 0) {
+            if(!parse_borrow(node, info)) {
                 return FALSE;
             }
         }

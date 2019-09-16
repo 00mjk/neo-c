@@ -2954,7 +2954,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             if(self_in_inherit) {
                 remove_from_right_value_object(llvm_value.value);
             }
-            else if(left_type->mHeap && right_type->mHeap)
+            else if((left_type->mHeap || left_type->mManaged) && (right_type->mHeap || right_type->mManaged))
             {
                 if(llvm_value.binded_value)
                 {
@@ -4722,7 +4722,7 @@ static BOOL compile_delete(unsigned int node, sCompileInfo* info)
     sNodeType* node_type = clone_node_type(info->type);
 
 /*
-    if(!node_type->mHeap) {
+    if(!node_type->mHeap && !node_type->mManaged) {
         compile_err_msg(info, "Can't delete this memory.");
         show_node_type(node_type); 
         info->err_num++;
@@ -4733,6 +4733,53 @@ static BOOL compile_delete(unsigned int node, sCompileInfo* info)
     free_object(node_type, llvm_value.address, info);
 
     info->type = create_node_type_with_class_name("void");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_borrow(unsigned int object_node, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeBorrow;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = object_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_borrow(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(left_node == 0) {
+        compile_err_msg(info, "require borrow target object");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    LVALUE llvm_value = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    llvm_value.type->mHeap = FALSE;
+
+    remove_from_right_value_object(llvm_value.value);
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = clone_node_type(llvm_value.type);
 
     return TRUE;
 }
@@ -4934,16 +4981,22 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        if(field_type->mHeap != right_type->mHeap) {
-            compile_err_msg(info, "Require heap attribute for field.");
-            show_node_type(field_type);
-            show_node_type(right_type);
-            info->err_num++;
+/*
+        if(!type_identify_with_class_name(right_type, "void*"))
+        {
+            if((field_type->mHeap != right_type->mHeap) && field_type->mManaged) 
+            {
+                compile_err_msg(info, "Require heap attribute for field.");
+                show_node_type(field_type);
+                show_node_type(right_type);
+                info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int"); // dummy
 
-            return TRUE;
+                return TRUE;
+            }
         }
+*/
 
         if(auto_cast_posibility(field_type, right_type)) {
             if(!cast_right_type_to_left_type(field_type, &right_type, &rvalue, info))
@@ -5052,16 +5105,21 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        if(field_type->mHeap != right_type->mHeap) {
-            compile_err_msg(info, "Require heap attribute for field.");
-            show_node_type(field_type);
-            show_node_type(right_type);
-            info->err_num++;
+/*
+        if(!type_identify_with_class_name(right_type, "void*"))
+        {
+            if(field_type->mHeap != right_type->mHeap) {
+                compile_err_msg(info, "Require heap attribute for field.");
+                show_node_type(field_type);
+                show_node_type(right_type);
+                info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int"); // dummy
 
-            return TRUE;
+                return TRUE;
+            }
         }
+*/
 
         if(auto_cast_posibility(field_type, right_type)) {
             if(!cast_right_type_to_left_type(field_type, &right_type, &rvalue, info))
@@ -5146,7 +5204,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     Value* rvalue2 = rvalue.value;
 
     BOOL alloc = FALSE;
-    std_move(field_address, right_type, &rvalue, alloc, info);
+    std_move(field_address, field_type, &rvalue, alloc, info);
 
     Builder.CreateAlignedStore(rvalue2, field_address, alignment);
 
@@ -6454,7 +6512,7 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
 
     sNodeType* left_type = info->type;
 
-    if(!left_type->mHeap) {
+    if(!left_type->mHeap && !left_type->mManaged) {
         compile_err_msg(info, "Can't clone this value");
         show_node_type(left_type);
         info->err_num++;
@@ -6564,6 +6622,7 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
 
     if(var_type->mPointerNum == 0) {
         var_type->mHeap = FALSE;
+        var_type->mManaged = FALSE;
     }
 
     /// go ///
@@ -9892,6 +9951,14 @@ BOOL compile(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
+        
+        case kNodeTypeBorrow:
+            if(!compile_borrow(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
 
         case kNodeTypeClassNameExpression:
             if(!compile_class_name_expression(node, info)) {

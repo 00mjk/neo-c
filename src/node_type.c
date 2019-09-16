@@ -80,6 +80,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
     node_type2->mPointerNum = node_type->mPointerNum;
     node_type2->mHeap = node_type->mHeap;
     node_type2->mNoHeap = node_type->mNoHeap;
+    node_type2->mManaged = node_type->mManaged;
     node_type2->mUnsigned = node_type->mUnsigned;
     node_type2->mRegister = node_type->mRegister;
     node_type2->mVolatile = node_type->mVolatile;
@@ -105,7 +106,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
 
 void show_node_type(sNodeType* node_type)
 {
-    printf("-+- [%s] array num %d nullable %d pointer num %d heap %d unsigned %d no heap  %d constant %d dynamic array num %d -+- array_initialize_num %d\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap, node_type->mUnsigned, node_type->mNoHeap, node_type->mConstant, node_type->mDynamicArrayNum, node_type->mArrayInitializeNum); 
+    printf("-+- [%s] array num %d nullable %d pointer num %d heap %d unsigned %d no heap  %d managed %d constant %d dynamic array num %d -+- array_initialize_num %d\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap, node_type->mUnsigned, node_type->mNoHeap, node_type->mManaged, node_type->mConstant, node_type->mDynamicArrayNum, node_type->mArrayInitializeNum); 
 
     printf(">>generics type num %d\n>>generics types\n", node_type->mNumGenericsTypes);
     int i;
@@ -354,8 +355,8 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
     else if(type_identify(left_type, right_type)) {
         if((left_type->mPointerNum-1 == right_type->mPointerNum) && right_type->mArrayNum > 0)
         {
-            if(left_type->mHeap) {
-                if(right_type->mHeap)
+            if(left_type->mHeap || left_type->mManaged) {
+                if(right_type->mHeap || right_type->mManaged)
                 {
                     return TRUE;
                 }
@@ -366,8 +367,8 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
         }
         else if(left_type->mPointerNum == right_type->mPointerNum) 
         {
-            if(left_type->mHeap) {
-                if(right_type->mHeap)
+            if(left_type->mHeap || right_type->mManaged) {
+                if(right_type->mHeap || right_type->mManaged)
                 {
                     return TRUE;
                 }
@@ -437,14 +438,19 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
             BOOL heap = (*node_type)->mHeap;
 
             BOOL no_heap = (*node_type)->mNoHeap;
+            BOOL managed = (*node_type)->mManaged;
 
             (*node_type) = clone_node_type(generics_type->mGenericsTypes[generics_number]);
 
             if(heap) {
                 (*node_type)->mHeap = heap;
             }
+            if(managed) {
+                (*node_type)->mManaged = managed;
+            }
             if(no_heap) {
                 (*node_type)->mHeap = FALSE;
+                (*node_type)->mManaged = FALSE;
             }
             if(nullable) {
                 (*node_type)->mNullable = nullable;
@@ -515,6 +521,7 @@ BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types,
             BOOL nullable = (*node_type)->mNullable;
             int pointer_num = (*node_type)->mPointerNum;
             BOOL heap = (*node_type)->mHeap;
+            BOOL managed = (*node_type)->mManaged;
 
             BOOL no_heap = (*node_type)->mNoHeap;
 
@@ -523,8 +530,12 @@ BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types,
             if(heap) {
                 (*node_type)->mHeap = heap;
             }
+            if(managed) {
+                (*node_type)->mManaged = managed;
+            }
             if(no_heap) {
                 (*node_type)->mHeap = FALSE;
+                (*node_type)->mManaged = FALSE;
             }
             if(nullable) {
                 (*node_type)->mNullable = nullable;
@@ -744,6 +755,9 @@ void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeTy
     }
     if(node_type->mHeap) {
         xstrncat(type_name, "%", type_name_max);
+    }
+    if(node_type->mManaged) {
+        xstrncat(type_name, "$", type_name_max);
     }
     if(node_type->mNumGenericsTypes > 0) {
         xstrncat(type_name, "<", type_name_max);

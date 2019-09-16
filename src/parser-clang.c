@@ -1002,6 +1002,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     BOOL static_ = FALSE;
     BOOL signed_ = FALSE;
     BOOL no_heap = FALSE;
+    BOOL managed = FALSE;
     int pointer_num = 0;
 
     while(TRUE) {
@@ -1304,6 +1305,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                 volatile_ = (*result_type)->mVolatile;
                 static_ = (*result_type)->mStatic;
                 no_heap = (*result_type)->mNoHeap;
+                managed = (*result_type)->mManaged;
                 pointer_num = (*result_type)->mPointerNum;
             }
         }
@@ -1662,6 +1664,12 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
             no_heap = TRUE;
         }
+        else if(*info->p == '$') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            managed = TRUE;
+        }
         else if(*info->p == '?') {
             info->p++;
             skip_spaces_and_lf(info);
@@ -1682,6 +1690,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     (*result_type)->mVolatile = volatile_;
     (*result_type)->mStatic = static_;
     (*result_type)->mNoHeap = no_heap;
+    (*result_type)->mManaged = managed;
 
     if(info->mNumMethodGenericsTypes > 0) {
         if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))
@@ -4075,7 +4084,7 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_delete(unsigned int* node, sParserInfo* info)
+BOOL parse_delete(unsigned int* node, sParserInfo* info)
 {
     unsigned int object_node;
     if(!expression(&object_node, info)) {
@@ -4083,6 +4092,18 @@ static BOOL parse_delete(unsigned int* node, sParserInfo* info)
     }
 
     *node = sNodeTree_create_delete(object_node, info);
+
+    return TRUE;
+}
+
+BOOL parse_borrow(unsigned int* node, sParserInfo* info)
+{
+    unsigned int object_node;
+    if(!expression(&object_node, info)) {
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_borrow(object_node, info);
 
     return TRUE;
 }
@@ -5571,6 +5592,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "delete") == 0) {
             if(!parse_delete(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "borrow") == 0) {
+            if(!parse_borrow(node, info)) {
                 return FALSE;
             }
         }
