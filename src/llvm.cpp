@@ -1380,7 +1380,8 @@ void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL all
             }
         }
 
-        if(lvar_type->mHeap) {
+        if(lvar_type->mHeap || lvar_type->mManaged) 
+        {
             if(gRightValueObjects.count(rvalue->value) > 0)
             {
 #ifdef MDEBUG

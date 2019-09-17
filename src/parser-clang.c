@@ -5595,11 +5595,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "borrow") == 0) {
-            if(!parse_borrow(node, info)) {
-                return FALSE;
-            }
-        }
         else if(strcmp(buf, "alloca") == 0) {
             if(!parse_alloca(node, info)) {
                 return FALSE;

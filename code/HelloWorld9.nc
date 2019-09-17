@@ -44,7 +44,7 @@ def main():int
     li.push_back(3);
 
     li.each {
-        printf("%d\n", it);
+        printf("(%d)\n", it);
     }
     
     0

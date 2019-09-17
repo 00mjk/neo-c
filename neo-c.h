@@ -134,7 +134,7 @@ impl list <T>
             }
         }
         else {
-            var litem = borrow new list_item<T>;
+            list_item<T>*$ litem = new list_item<T>;
 
             litem.prev = self.tail;
             litem.next = null;
