@@ -89,6 +89,7 @@ struct list<T>
 {
     list_item<T>*?$ head;
     list_item<T>*? tail;
+    int length;
 }
 
 impl list <T>
@@ -96,6 +97,7 @@ impl list <T>
     initialize() {
         self.head = null;
         self.tail = null;
+        self.length = 0;
     }
 
     finalize() {
@@ -143,6 +145,83 @@ impl list <T>
             self.tail.next = litem;
             self.tail = litem;
         }
+
+        self.length++;
+    }
+
+    void insert(list<T>* self, int position, T item)
+    {
+        if(position < 0) {
+            position += self.length + 1;
+        }
+        if(position < 0) {
+            position = 0;
+        }
+        if(self.length == 0 || position >= self.length) 
+        {
+            self.push_back(item);
+            return;
+        }
+
+        if(position == 0) {
+            var litem = new list_item<T>;
+
+            litem.prev = null;
+            litem.next = self.head;
+            litem.item = item;
+            
+            self.head = litem;
+
+            self.length++;
+        }
+        else if(self.length == 1) {
+            var litem = new list_item<T>;
+
+            litem.prev = self.head;
+            litem.next = self.tail;
+            litem.item = item;
+            
+            self.tail.prev = litem;
+            self.head.next = litem;
+
+            self.length++;
+        }
+        else {
+            list_item<T>?* it = self.head;
+            var i = 0;
+            while(it != null) {
+                if(position == i) {
+                    list_item<T>$* litem = new list_item<T>;
+
+                    litem.prev = it.prev;
+                    litem.next = it;
+                    litem.item = item;
+
+                    it.prev.next = litem;
+                    it.prev = litem;
+
+                    self.length++;
+                }
+
+                it = it.next;
+                i++;
+            }
+        }
+    }
+    
+    bool item(list<T>* self, int position, T* result) {
+        list_item<T>?* it = self.head;
+        var i = 0;
+        while(it != null) {
+            if(position == i) {
+                *result = it.item;
+                return true;
+            }
+            it = it.next;
+            i++;
+        };
+
+        return false;
     }
     
     void each(list<T>* self, void lambda(T&,int) block) {

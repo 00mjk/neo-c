@@ -2712,6 +2712,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     sNodeType* fun_params[PARAMS_MAX];
     BOOL valid_parametor = TRUE;
 
+
     int check_param_num;
     if(fun.mNumParams == num_params || (fun.mVarArg && num_params >= fun.mNumParams)) 
     {
@@ -2793,6 +2794,17 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         if(!found) {
             valid_parametor = FALSE;
         }
+    }
+    else {
+        compile_err_msg(info, "function parametor number error (%s)\n", real_fun_name);
+        info->err_num++;
+
+        printf("function parametor number is %d. calling with function parametor number is %d\n", fun.mNumParams, num_params);
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        info->generics_type = generics_type_before;
+        return TRUE;
     }
 
     if(!valid_parametor) {
@@ -9144,6 +9156,95 @@ BOOL compile_is_heap(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_is_managed_expression(unsigned int lnode, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeIsManagedExpression;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = lnode;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_is_managed_expression(unsigned int node, sCompileInfo* info)
+{
+    unsigned int lnode = gNodes[node].mLeft;
+
+    BOOL no_output = info->no_output;
+    info->no_output = TRUE;
+
+    if(!compile(lnode, info)) {
+        info->no_output = FALSE;
+        return FALSE;
+    }
+
+    info->no_output = no_output;
+
+    sNodeType* node_type = clone_node_type(info->type);
+
+    dec_stack_ptr(1, info);
+
+    BOOL value = node_type->mManaged;
+
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value, true)); 
+    llvm_value.type = create_node_type_with_class_name("bool");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("bool");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_is_managed(sNodeType* node_type, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeIsManaged;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.sIsManaged.mType = clone_node_type(node_type);
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+BOOL compile_is_managed(unsigned int node, sCompileInfo* info)
+{
+    sNodeType* node_type = gNodes[node].uValue.sIsManaged.mType;
+    sNodeType* node_type2 = clone_node_type(node_type);
+
+    BOOL value = node_type2->mManaged;
+
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value, true)); 
+    llvm_value.type = create_node_type_with_class_name("bool");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("bool");
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_class_name_expression(unsigned int lnode, sParserInfo* info)
 {
     unsigned int node = alloc_node();
@@ -9926,6 +10027,20 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeIsHeapExpression:
             if(!compile_is_heap_expression(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeIsManaged:
+            if(!compile_is_managed(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeIsManagedExpression:
+            if(!compile_is_managed_expression(node, info))
             {
                 return FALSE;
             }

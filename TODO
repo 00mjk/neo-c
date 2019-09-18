@@ -1,6 +1,6 @@
-managed変数へのheapの代入
+managed 変数 &で削除
 
-managed 変数 &
+borrowでヒープの代入を簡単にする
 
 list
 
@@ -59,3 +59,4 @@ neo-c.hを自動的にはincludeしないようにする
 
 ヘッダーの自動出力
 
+managed変数へのheapの代入

@@ -45,111 +45,6 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
     return klass || node_type || generics_type_name || method_type_name || (strcmp(buf, "const") == 0) || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "static") == 0);
 }
 
-static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
-{
-    const int buf_size = 128;
-    char buf[128+1];
-    char* p2 = buf;
-
-    if(minus) {
-        *p2 = '-';
-        p2++;
-    }
-
-    if(isdigit(*info->p)) {
-        while(isdigit(*info->p) || *info->p == '_') {
-            if(*info->p ==  '_') {
-                info->p++;
-            }
-            else {
-                *p2++ = *info->p;
-                info->p++;
-            }
-
-            if(p2 - buf >= buf_size) {
-                parser_err_msg(info, "overflow node of number");
-                return FALSE;
-            }
-        }
-        *p2 = 0;
-        skip_spaces_and_lf(info);
-        
-        *node = sNodeTree_create_int_value(atoi(buf), info);
-    }
-    else {
-        parser_err_msg(info, "require digits after + or -");
-        info->err_num++;
-
-        *node = 0;
-    }
-
-    return TRUE;
-}
-
-BOOL get_hex_number(unsigned int* node, sParserInfo* info)
-{
-    int buf_size = 128;
-    char buf[128+1];
-    char* p = buf;
-
-    *p++ = '0';
-    *p++ = 'x';
-
-    while((*info->p >= '0' && *info->p <= '9') || (*info->p >= 'a' && *info->p <= 'f') || (*info->p >= 'A' && *info->p <= 'F') || *info->p == '_') 
-    {
-        if(*info->p == '_') {
-            info->p++;
-        }
-        else {
-            *p++ = *info->p;
-            info->p++;
-        }
-
-        if(p - buf >= buf_size-1) {
-            parser_err_msg(info, "overflow node of number");
-            return FALSE;
-        }
-    }
-    *p = 0;
-    skip_spaces_and_lf(info);
-
-    unsigned clint64 value = strtoll(buf, NULL, 0);
-
-    *node = sNodeTree_create_int_value((int)value, info);
-
-    return TRUE;
-}
-
-BOOL get_oct_number(unsigned int* node, sParserInfo* info)
-{
-    int buf_size = 128;
-    char buf[128+1];
-    char* p = buf;
-
-    *p++ = '0';
-
-    while((*info->p >= '0' && *info->p <= '7') || *info->p == '_') {
-        if(*info->p == '_') {
-            info->p++;
-        }
-        else {
-            *p++ = *info->p++;
-        }
-
-        if(p - buf >= buf_size-1) {
-            parser_err_msg(info, "overflow node of number");
-            return FALSE;
-        }
-    }
-    *p = 0;
-    skip_spaces_and_lf(info);
-
-    unsigned clint64 value = strtoul(buf, NULL, 0);
-
-    *node = sNodeTree_create_int_value((int)value, info);
-
-    return TRUE;
-}
 
 static BOOL parse_type(sNodeType** result_type, sParserInfo* info);
 
@@ -2240,42 +2135,6 @@ static BOOL parse_clone(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_is_heap(unsigned int* node, sParserInfo* info)
-{
-    expect_next_character_with_one_forward("(", info);
-
-    char* p_before = info->p;
-    int sline_before = info->sline;
-
-    char buf[VAR_NAME_MAX+1];
-    (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
-
-    info->p = p_before;
-    info->sline = sline_before;
-
-    if(is_type_name(buf, info)) {
-        sNodeType* node_type = NULL;
-
-        if(!parse_type(&node_type, info)) {
-            return FALSE;
-        }
-
-        expect_next_character_with_one_forward(")", info);
-
-        *node = sNodeTree_create_is_heap(node_type, info);
-    }
-    else {
-        if(!expression(node, info)) {
-            return FALSE;
-        }
-
-        expect_next_character_with_one_forward(")", info);
-
-        *node = sNodeTree_create_is_heap_expression(*node, info);
-    }
-
-    return TRUE;
-}
 
 static BOOL parse_typedef(unsigned int* node, sParserInfo* info)
 {
@@ -3255,6 +3114,80 @@ BOOL parse_call_macro(unsigned int* node, char* name, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_is_heap(unsigned int* node, sParserInfo* info)
+{
+    expect_next_character_with_one_forward("(", info);
+
+    char* p_before = info->p;
+    int sline_before = info->sline;
+
+    char buf[VAR_NAME_MAX+1];
+    (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
+
+    info->p = p_before;
+    info->sline = sline_before;
+
+    if(is_type_name(buf, info)) {
+        sNodeType* node_type = NULL;
+
+        if(!parse_type(&node_type, info)) {
+            return FALSE;
+        }
+
+        expect_next_character_with_one_forward(")", info);
+
+        *node = sNodeTree_create_is_heap(node_type, info);
+    }
+    else {
+        if(!expression(node, info)) {
+            return FALSE;
+        }
+
+        expect_next_character_with_one_forward(")", info);
+
+        *node = sNodeTree_create_is_heap_expression(*node, info);
+    }
+
+    return TRUE;
+}
+
+static BOOL parse_is_managed(unsigned int* node, sParserInfo* info)
+{
+    expect_next_character_with_one_forward("(", info);
+
+    char* p_before = info->p;
+    int sline_before = info->sline;
+
+    char buf[VAR_NAME_MAX+1];
+    (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
+
+    info->p = p_before;
+    info->sline = sline_before;
+
+    if(is_type_name(buf, info)) {
+        sNodeType* node_type = NULL;
+
+        if(!parse_type(&node_type, info)) {
+            return FALSE;
+        }
+
+        expect_next_character_with_one_forward(")", info);
+
+        *node = sNodeTree_create_is_managed(node_type, info);
+    }
+    else {
+        if(!expression(node, info)) {
+            return FALSE;
+        }
+
+        expect_next_character_with_one_forward(")", info);
+
+        *node = sNodeTree_create_is_managed_expression(*node, info);
+    }
+
+    return TRUE;
+}
+
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
     if(*info->p == '#') {
@@ -3767,6 +3700,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "isheap") == 0) {
             if(!parse_is_heap(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "ismanaged") == 0) {
+            if(!parse_is_managed(node, info)) {
                 return FALSE;
             }
         }

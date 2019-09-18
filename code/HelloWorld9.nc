@@ -39,9 +39,11 @@ def main():int
     
     var li = new list<int>.initialize();
 
+    li.push_back(0);
     li.push_back(1);
-    li.push_back(2);
-    li.push_back(3);
+    li.insert(2, 7);
+
+    li.insert(1, 8);
 
     li.each {
         printf("(%d)\n", it);
