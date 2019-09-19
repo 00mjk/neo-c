@@ -1268,10 +1268,9 @@ int main()
     struct GenericsTest3 <T>
     {
         union {
-            T a;
-            T b;
+            int a;
+            long b;
         } a;
-        
         T b;
     };
 
@@ -1281,17 +1280,19 @@ int main()
     data5.b = 6;
 
     xassert("union test6", data5.a.a == 5 && data5.b == 6);
+    xassert("union test6", data5.a.a == 5 && data5.b == 6);
 
     struct GenericsTest4 <T>
     {
         struct {
-            T a;
-            T b;
+            int a;
+            int b;
         } a;
 
         union {
-            T a;
-            T b; } b;
+            int a;
+            int b; 
+        } b;
     };
 
     var data6 = new GenericsTest4<long>;

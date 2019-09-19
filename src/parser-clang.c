@@ -618,7 +618,7 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
             memset(&cinfo, 0, sizeof(sCompileInfo));
             cinfo.no_output = TRUE;
 
-            if(!create_llvm_struct_type(struct_type, TRUE, &cinfo))
+            if(!create_llvm_struct_type(struct_type, struct_type, TRUE, &cinfo))
             {
                 parser_err_msg(info, "Can't create llvm struct from this node type");
                 show_node_type(struct_type);
@@ -759,7 +759,7 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
             memset(&cinfo, 0, sizeof(sCompileInfo));
             cinfo.no_output = TRUE;
 
-            if(!create_llvm_union_type(union_type, &cinfo))
+            if(!create_llvm_union_type(union_type, union_type, &cinfo))
             {
                 parser_err_msg(info, "Can't create llvm union from this node type");
                 show_node_type(union_type);
@@ -1718,7 +1718,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         memset(&cinfo, 0, sizeof(sCompileInfo));
         cinfo.no_output = TRUE;
 
-        if(!create_llvm_struct_type(*result_type, FALSE, &cinfo))
+        if(!create_llvm_struct_type(*result_type, *result_type, FALSE, &cinfo))
         {
             parser_err_msg(info, "Can't create llvm struct from this node type");
             show_node_type(*result_type);
@@ -1731,7 +1731,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         memset(&cinfo, 0, sizeof(sCompileInfo));
         cinfo.no_output = TRUE;
 
-        if(!create_llvm_union_type(*result_type, &cinfo))
+        if(!create_llvm_union_type(*result_type, *result_type, &cinfo))
         {
             parser_err_msg(info, "Can't create llvm union from this node type");
             show_node_type(*result_type);
@@ -4270,7 +4270,7 @@ BOOL parse_class_name_expression(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_typedef(unsigned int* node, sParserInfo* info)
+BOOL parse_typedef(unsigned int* node, sParserInfo* info)
 {
     unsigned int nodes[IMPL_DEF_MAX];
     memset(nodes, 0, sizeof(unsigned int)*IMPL_DEF_MAX);

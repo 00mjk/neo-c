@@ -471,7 +471,7 @@ int get_field_index(sCLClass* klass, char* var_name, int* parent_field_index)
         int i;
         for(i=0; i<klass->mNumFields; i++) {
             if(parent_field_index) {
-                sNodeType* field_type = klass->mFields[i];
+                sNodeType* field_type = clone_node_type(klass->mFields[i]);
 
                 sCLClass* field_class = field_type->mClass;
 

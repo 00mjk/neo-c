@@ -3,6 +3,17 @@
 extern "C"
 {
 #include <stdio.h>
+#include <string.h>
+
+inline bool funX(int a, int b)
+{
+    return a == b;
+}
+
+void puts2(char* str)
+{
+    puts(str);
+}
 }
 
 struct StructTest {
@@ -41,13 +52,28 @@ def main():int
 
     li.push_back(0);
     li.push_back(1);
-    li.insert(2, 7);
 
-    li.insert(1, 8);
+    var li2 = new list<int>.initialize();
 
-    li.each {
-        printf("(%d)\n", it);
-    }
+    li2.push_back(0);
+    li2.push_back(1);
+
+    xassert("list test1", li.equals(li2));
+    li.insert(1, 7);
+
+    xassert("list test2", li.equals(list!(0, 7, 1)));
+    
+    var li3 = list!(string("aaa"), string("bbb"));
+
+    li3.insert(0, string("ccc"));
+
+    xassert("list test3", li3.equals(list!(string("ccc"), string("aaa"), string("bbb"))));
+
+/*
+    var tu = tuple!(1,2,string("str"));
+
+    printf("tu.v1 %d tu.v2 %d tu.v3 %s\n", tu.v1, tu.v2, tu.v3);
+*/
     
     0
 }

@@ -379,12 +379,12 @@ void free_objects(sVarTable* table, sCompileInfo* info)
             sNodeType* node_type = p->mType;
             sCLClass* klass = node_type->mClass;
 
-            if(node_type->mHeap)
+            if(node_type->mHeap && !node_type->mManaged)
             {
                 if(p->mLLVMValue)
                 {
 #ifdef MDEBUG
-printf("free %s %s in vtable\n", p->mName, CLASS_NAME(node_type->mClass));
+printf("free %s %s in vtable. address %p\n", p->mName, CLASS_NAME(node_type->mClass), p);
 #endif
                     free_object(p->mType, p->mLLVMValue, info);
                     p->mLLVMValue = NULL;

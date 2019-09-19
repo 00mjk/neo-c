@@ -190,7 +190,7 @@ static BOOL parse_struct(unsigned int* node, sParserInfo* info)
         memset(&cinfo, 0, sizeof(sCompileInfo));
         cinfo.no_output = TRUE;
 
-        if(!create_llvm_struct_type(struct_type, TRUE, &cinfo))
+        if(!create_llvm_struct_type(struct_type, struct_type, TRUE, &cinfo))
         {
             parser_err_msg(info, "Can't create llvm struct from this node type");
             show_node_type(struct_type);
@@ -410,6 +410,23 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         }
     }
 
+    if(strcmp(type_name, "typeof") == 0 && *info->p == '(')
+    {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        unsigned int node = 0;
+        if(!expression(&node, info)) {
+            return FALSE;
+        }
+
+        *result_type = create_node_type_with_class_name("TYPEOF");
+
+        expect_next_character_with_one_forward(")", info);
+
+        (*result_type)->mTypeOfExpression = node;
+    }
+
     if(*result_type == NULL || (*result_type)->mClass == NULL) {
         parser_err_msg(info, "%s is not defined class(2)", type_name);
         info->err_num++;
@@ -586,7 +603,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         memset(&cinfo, 0, sizeof(sCompileInfo));
         cinfo.no_output = TRUE;
 
-        if(!create_llvm_struct_type(*result_type, FALSE, &cinfo))
+        if(!create_llvm_struct_type(*result_type, *result_type, FALSE, &cinfo))
         {
             parser_err_msg(info, "Can't create llvm struct from this node type");
             show_node_type(*result_type);
@@ -2131,27 +2148,6 @@ static BOOL parse_clone(unsigned int* node, sParserInfo* info)
     }
 
     *node = sNodeTree_create_clone(*node, info);
-
-    return TRUE;
-}
-
-
-static BOOL parse_typedef(unsigned int* node, sParserInfo* info)
-{
-    char buf[VAR_NAME_MAX];
-
-    if(!parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE))
-    {
-        return FALSE;
-    }
-
-    sNodeType* node_type = NULL;
-    if(!parse_type(&node_type, info))
-    {
-        return FALSE;
-    }
-
-    *node = sNodeTree_create_typedef(buf, node_type, info);
 
     return TRUE;
 }

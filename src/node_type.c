@@ -445,12 +445,12 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
             if(heap) {
                 (*node_type)->mHeap = heap;
             }
-            if(managed) {
-                (*node_type)->mManaged = managed;
-            }
             if(no_heap) {
                 (*node_type)->mHeap = FALSE;
                 (*node_type)->mManaged = FALSE;
+            }
+            if(managed) {
+                (*node_type)->mManaged = managed;
             }
             if(nullable) {
                 (*node_type)->mNullable = nullable;
@@ -471,7 +471,8 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
             
             int i;
             for(i=0; i<klass->mNumFields; i++) {
-                if(!solve_generics(&klass->mFields[i], generics_type))
+                sNodeType* node_type = clone_node_type(klass->mFields[i]);
+                if(!solve_generics(&node_type, generics_type))
                 {
                     return FALSE;
                 }
@@ -486,6 +487,11 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
                 return FALSE;
             }
         }
+    }
+
+    if((*node_type)->mPointerNum == 0) {
+        (*node_type)->mHeap = FALSE;
+        (*node_type)->mManaged = FALSE;
     }
 
     return TRUE;
@@ -694,7 +700,7 @@ BOOL included_generics_type(sNodeType* node_type)
             int i;
             
             for(i=0; i<klass->mNumFields; i++) {
-                sNodeType* field_type = klass->mFields[i];
+                sNodeType* field_type = clone_node_type(klass->mFields[i]);
 
                 if(field_type->mClass == klass ||included_generics_type(field_type))
                 {

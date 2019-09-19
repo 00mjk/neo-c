@@ -373,7 +373,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
         }
 
         Type* llvm_var_type;
-        if(!create_llvm_type_from_node_type(&llvm_var_type, left_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_var_type, left_type, left_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(10)");
             show_node_type(left_type);
@@ -503,7 +503,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
         }
 
         Type* llvm_var_type;
-        if(!create_llvm_type_from_node_type(&llvm_var_type, left_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_var_type, left_type, left_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(10)");
             show_node_type(left_type);
@@ -1364,7 +1364,7 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
     }
 
     Type* llvm_var_type;
-    if(!create_llvm_type_from_node_type(&llvm_var_type, var_type, info))
+    if(!create_llvm_type_from_node_type(&llvm_var_type, var_type, var_type, info))
     {
         compile_err_msg(info, "Getting llvm type failed(1)");
         show_node_type(var_type);
@@ -1391,7 +1391,7 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
         element_type->mPointerNum--;
 
         Type* llvm_element_type;
-        if(!create_llvm_type_from_node_type(&llvm_element_type, element_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_element_type, element_type, element_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(1)");
             show_node_type(element_type);
@@ -1596,7 +1596,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         }
 
         Type* llvm_var_type;
-        if(!create_llvm_type_from_node_type(&llvm_var_type, left_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_var_type, left_type, left_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(1)");
             show_node_type(left_type);
@@ -1847,7 +1847,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
 
         /// go ///
         Type* llvm_result_type;
-        if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, result_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(2)");
             show_node_type(result_type);
@@ -1871,7 +1871,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
             }
 
             Type* llvm_param_type;
-            if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, info))
+            if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, param_type, info))
             {
                 compile_err_msg(info, "Getting llvm type failed(3)");
                 show_node_type(param_type);
@@ -1965,7 +1965,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
         if(generics_type) {
             if(!solve_generics(&param->mType, generics_type)) 
             {
-                compile_err_msg(cinfo, "Can't solve generics types");
+                compile_err_msg(cinfo, "Can't solve generics types(1))");
                 show_node_type(param->mType);
                 show_node_type(generics_type);
                 info->err_num++;
@@ -2005,7 +2005,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     if(generics_type) {
         if(!solve_generics(&result_type, generics_type)) 
         {
-            compile_err_msg(cinfo, "Can't solve generics types");
+            compile_err_msg(cinfo, "Can't solve generics types(2)");
             show_node_type(result_type);
             show_node_type(generics_type);
             info->err_num++;
@@ -2158,7 +2158,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
         if(generics_type) {
             if(!solve_generics(&param->mType, generics_type)) 
             {
-                compile_err_msg(cinfo, "Can't solve generics types");
+                compile_err_msg(cinfo, "Can't solve generics types(3)");
                 show_node_type(param->mType);
                 show_node_type(generics_type);
                 info->err_num++;
@@ -2230,7 +2230,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     if(generics_type) {
         if(!solve_generics(&result_type, generics_type)) 
         {
-            compile_err_msg(cinfo, "Can't solve generics types");
+            compile_err_msg(cinfo, "Can't solve generics types(4))");
             show_node_type(result_type);
             show_node_type(generics_type);
             info->err_num++;
@@ -2320,7 +2320,7 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
         if(generics_type) {
             if(!solve_generics(&param->mType, generics_type)) 
             {
-                compile_err_msg(cinfo, "Can't solve generics types");
+                compile_err_msg(cinfo, "Can't solve generics types(5))");
                 show_node_type(param->mType);
                 show_node_type(generics_type);
                 info->err_num++;
@@ -2373,6 +2373,7 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
 
     info2.lv_table = init_block_vtable(old_table, FALSE);
     sVarTable* block_var_table = info2.lv_table;
+
     for(i=0; i<num_params; i++) {
         sParserParam param = params[i];
 
@@ -2484,7 +2485,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
     sNodeType* generics_type_before = info->generics_type;
     info->generics_type = generics_type;
-
     /// get real fun name ///
     char real_fun_name[REAL_FUN_NAME_MAX];
 
@@ -2953,6 +2953,35 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         }
     }
 
+    std::vector<Value*> inline_llvm_params;
+    if(fun.mInlineFunction) {
+        for(i=0; i<num_params; i++) {
+            sNodeType* var_type = fun_param_types[i];
+
+            Type* llvm_type;
+            if(!create_llvm_type_from_node_type(&llvm_type, var_type, var_type, info))
+            {
+                compile_err_msg(info, "Getting llvm type failed(6)");
+                show_node_type(var_type);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+            int alignment = get_llvm_alignment_from_node_type(var_type);
+
+            char* param_name = fun.mParamNames[i];
+
+            IRBuilder<> ir(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
+            Value* var_address = ir.CreateAlloca(llvm_type, 0, param_name);
+
+            Builder.CreateAlignedStore(llvm_params[i], var_address, alignment);
+
+            inline_llvm_params.push_back(var_address);
+        }
+    }
+
     /// std_move if the argument parametor and functiontion parametor is heap object ///
     for(i=0; i<num_params; i++) {
         LVALUE llvm_value = *lvalue_params[i];
@@ -3024,39 +3053,108 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         void* inline_func_end_before = info->inline_func_end;
         info->inline_func_end = BasicBlock::Create(TheContext, "inline_func_end", gFunction);
 
+/*
+        /// compile parametors ///
+        llvm_params.clear();
+
+        int i;
+        for(i=0; i<num_params; i++) {
+            params[i] = gNodes[node].uValue.sFunctionCall.mParams[i];
+            
+            if(!compile(params[i], info)) {
+                info->generics_type = generics_type_before;
+                return FALSE;
+            }
+
+            param_types[i] = clone_node_type(info->type);
+
+            LVALUE param = *get_value_from_stack(-1);
+
+            remove_from_right_value_object(param.value);
+        }
+
+        for(i=0; i<num_params; i++) {
+            LVALUE param = *get_value_from_stack(-num_params+i);
+
+            lvalue_params[i] = get_value_from_stack(-num_params+i);
+
+            if(i < fun.mNumParams) 
+            {
+                sNodeType* left_type = fun_params[i];
+                sNodeType* right_type = clone_node_type(param_types[i]);
+
+
+                if(auto_cast_posibility(left_type, right_type)) 
+                {
+                    if(!cast_right_type_to_left_type(left_type, &right_type, &param, info))
+                    {
+                        compile_err_msg(info, "Cast failed");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+                        info->generics_type = generics_type_before;
+
+                        return TRUE;
+                    }
+                }
+
+                sCLClass* left_class = left_type->mClass;
+                if(left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS)
+                {
+                    sNodeType* left_type = create_node_type_with_class_name("long");
+
+                    sNodeType* right_type2 = clone_node_type(right_type);
+                    LVALUE rvalue;
+                    rvalue.value = param.value;
+                    rvalue.type = right_type2;
+                    rvalue.address = nullptr;
+                    rvalue.var = nullptr;
+                    rvalue.binded_value = FALSE;
+
+                    if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+                    {
+                        compile_err_msg(info, "Cast failed");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+                        info->generics_type = generics_type_before;
+
+                        return TRUE;
+                    }
+
+                    param.value = rvalue.value;
+                }
+
+                llvm_params.push_back(param.value);
+
+                fun_param_types[i] = clone_node_type(left_type);
+            }
+            else {
+                LVALUE param = *get_value_from_stack(-num_params+i);
+                llvm_params.push_back(param.value);
+            }
+        }
+
+        dec_stack_ptr(num_params, info);*/
+
         sVarTable* lv_table = inline_block->mLVTable;
 
         for(i=0; i<num_params; i++) {
-            Value* param = llvm_params[i];
             char* param_name = fun.mParamNames[i];
+            sNodeType* param_type = fun_param_types[i];
+            int alignment = get_llvm_alignment_from_node_type(param_type);
+
+            Value* param = inline_llvm_params[i];
+            //Value* param = Builder.CreateAlignedLoad(inline_llvm_params[i], alignment, param_name);
 
             sVar* var = get_variable_from_table(lv_table, param_name);
 
-            sNodeType* var_type = param_types[i];
-
-            Type* llvm_type;
-            if(!create_llvm_type_from_node_type(&llvm_type, var_type, info))
-            {
-                compile_err_msg(info, "Getting llvm type failed(6)");
-                show_node_type(var_type);
-                info->err_num++;
-
-                info->type = create_node_type_with_class_name("int"); // dummy
-
-                return TRUE;
-            }
-
-            int alignment = get_llvm_alignment_from_node_type(var_type);
-
-            Value* address = Builder.CreateAlloca(llvm_type, 0, param_name);
-            var->mLLVMValue = address;
+            var->mLLVMValue = param;
 
             BOOL parent = FALSE;
             int index = get_variable_index(lv_table, param_name, &parent);
 
-            store_address_to_lvtable(index, address);
-
-            Builder.CreateAlignedStore(param,  address, alignment);
+            store_address_to_lvtable(index, param);
         }
 
         sNodeType* result_type = clone_node_type(fun.mResultType);
@@ -3084,7 +3182,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         if(generics_type) {
             if(!solve_generics(&result_type, generics_type))
             {
-                compile_err_msg(info, "Can't solve generics types");
+                compile_err_msg(info, "Can't solve generics types(6))");
                 show_node_type(result_type);
                 show_node_type(generics_type);
                 info->err_num++;
@@ -3097,7 +3195,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         }
 
         Type* llvm_type;
-        if(!create_llvm_type_from_node_type(&llvm_type, result_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_type, result_type, result_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(105)");
             show_node_type(result_type);
@@ -3189,7 +3287,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         if(generics_type) {
             if(!solve_generics(&result_type, generics_type))
             {
-                compile_err_msg(info, "Can't solve generics types");
+                compile_err_msg(info, "Can't solve generics types(7)");
                 show_node_type(result_type);
                 show_node_type(generics_type);
                 info->err_num++;
@@ -3340,7 +3438,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         sNodeType* param_type = params[i].mType;
 
         Type* llvm_param_type;
-        if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, param_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(5)");
             show_node_type(param_type);
@@ -3373,7 +3471,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
     Type* llvm_result_type;
-    if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, info))
+    if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, result_type, info))
     {
         compile_err_msg(info, "Getting llvm type failed(4)");
         show_node_type(result_type);
@@ -3449,7 +3547,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         sNodeType* var_type = var->mType;
 
         Type* llvm_type;
-        if(!create_llvm_type_from_node_type(&llvm_type, var_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_type, var_type, var_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(6)");
             show_node_type(var_type);
@@ -3568,7 +3666,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         result_type = block_result_type;
 
         Type* llvm_result_type;
-        if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, result_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(4)");
             show_node_type(result_type);
@@ -3626,7 +3724,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
             sNodeType* var_type = var->mType;
 
             Type* llvm_type;
-            if(!create_llvm_type_from_node_type(&llvm_type, var_type, info))
+            if(!create_llvm_type_from_node_type(&llvm_type, var_type, var_type, info))
             {
                 compile_err_msg(info, "Getting llvm type failed(6)");
                 show_node_type(var_type);
@@ -4249,7 +4347,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         LVALUE llvm_value = *get_value_from_stack(-1);
 
         Type* llvm_result_type;
-        if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, result_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(7)");
             show_node_type(result_type);
@@ -4586,7 +4684,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
     if(info->pinfo->mGenericsType) {
         if(!solve_generics(&node_type2, info->pinfo->mGenericsType)) {
-            compile_err_msg(info, "Can't solve generics types");
+            compile_err_msg(info, "Can't solve generics types(8)");
             show_node_type(node_type2);
             show_node_type(info->pinfo->mGenericsType);
             info->err_num++;
@@ -4663,7 +4761,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     node_type2->mPointerNum++;
 
     Type* llvm_type;
-    if(!create_llvm_type_from_node_type(&llvm_type, node_type2, info))
+    if(!create_llvm_type_from_node_type(&llvm_type, node_type2, node_type2, info))
     {
         compile_err_msg(info, "Getting llvm type failed(9)");
         show_node_type(node_type2);
@@ -4835,7 +4933,7 @@ static BOOL compile_stack_object(unsigned int node, sCompileInfo* info)
 
     if(info->pinfo->mGenericsType) {
         if(!solve_generics(&node_type2, info->pinfo->mGenericsType)) {
-            compile_err_msg(info, "Can't solve generics types");
+            compile_err_msg(info, "Can't solve generics types(9)");
             show_node_type(node_type2);
             show_node_type(info->pinfo->mGenericsType);
             info->err_num++;
@@ -4847,7 +4945,7 @@ static BOOL compile_stack_object(unsigned int node, sCompileInfo* info)
     }
 
     Type* llvm_var_type;
-    if(!create_llvm_type_from_node_type(&llvm_var_type, node_type, info))
+    if(!create_llvm_type_from_node_type(&llvm_var_type, node_type, node_type, info))
     {
         compile_err_msg(info, "Getting llvm type failed(10)");
         show_node_type(node_type);
@@ -4928,7 +5026,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* left_type = info->type;
+    sNodeType* left_type = clone_node_type(info->type);
 
     if(!(left_type->mClass->mFlags & CLASS_FLAGS_STRUCT) && !(left_type->mClass->mFlags & CLASS_FLAGS_UNION)) {
         compile_err_msg(info, "This is not struct type");
@@ -4983,7 +5081,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         }
 
         if(!solve_generics(&parent_field_type, left_type)) {
-            compile_err_msg(info, "Can't solve generics types");
+            compile_err_msg(info, "Can't solve generics types(10)");
             show_node_type(field_type);
             show_node_type(left_type);
             info->err_num++;
@@ -5037,7 +5135,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         left_type2->mPointerNum = 0;
 
         Type* llvm_struct_type;
-        if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, info))
+        if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, left_type2, info))
         {
             compile_err_msg(info, "Getting llvm type failed(11)");
             show_node_type(left_type2);
@@ -5049,7 +5147,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         }
 
         Type* llvm_field_type;
-        if(!create_llvm_type_from_node_type(&llvm_field_type, parent_field_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_field_type, parent_field_type, parent_field_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(12)");
             show_node_type(field_type);
@@ -5107,7 +5205,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         }
 
         if(!solve_generics(&field_type, left_type)) {
-            compile_err_msg(info, "Can't solve generics types");
+            compile_err_msg(info, "Can't solve generics types(11)");
             show_node_type(field_type);
             show_node_type(left_type);
             info->err_num++;
@@ -5161,7 +5259,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     left_type2->mPointerNum = 0;
 
     Type* llvm_struct_type;
-    if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, info))
+    if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, left_type2, info))
     {
         compile_err_msg(info, "Getting llvm type failed(11)");
         show_node_type(left_type2);
@@ -5173,7 +5271,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     }
 
     Type* llvm_field_type;
-    if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, info))
+    if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info))
     {
         compile_err_msg(info, "Getting llvm type failed(12)");
         show_node_type(field_type);
@@ -5309,7 +5407,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         }
 
         if(!solve_generics(&parent_field_type, left_type)) {
-            compile_err_msg(info, "Can't solve generics types");
+            compile_err_msg(info, "Can't solve generics types(12)");
             show_node_type(parent_field_type);
             show_node_type(left_type);
             info->err_num++;
@@ -5320,7 +5418,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         }
 
         Type* llvm_field_type;
-        if(!create_llvm_type_from_node_type(&llvm_field_type, parent_field_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_field_type, parent_field_type, parent_field_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(13)");
             show_node_type(parent_field_type);
@@ -5337,7 +5435,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         left_type2->mPointerNum = 0;
 
         Type* llvm_struct_type;
-        if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, info))
+        if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, left_type2, info))
         {
             compile_err_msg(info, "Getting llvm type failed(14)");
             show_node_type(left_type2);
@@ -5406,7 +5504,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     }
 
     if(!solve_generics(&field_type, left_type)) {
-        compile_err_msg(info, "Can't solve generics types");
+        compile_err_msg(info, "Can't solve generics types(13)");
         show_node_type(field_type);
         show_node_type(left_type);
         info->err_num++;
@@ -5417,7 +5515,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     }
 
     Type* llvm_field_type;
-    if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, info))
+    if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info))
     {
         compile_err_msg(info, "Getting llvm type failed(13)");
         show_node_type(field_type);
@@ -5434,7 +5532,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     left_type2->mPointerNum = 0;
 
     Type* llvm_struct_type;
-    if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, info))
+    if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, left_type2, info))
     {
         compile_err_msg(info, "Getting llvm type failed(14)");
         show_node_type(left_type2);
@@ -6262,7 +6360,7 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
     if(info->generics_type) {
         if(!solve_generics(&lambda_type, info->generics_type))
         {
-            compile_err_msg(info, "Can't solve generics types");
+            compile_err_msg(info, "Can't solve generics types(14)");
             show_node_type(lambda_type);
             show_node_type(info->generics_type);
             info->err_num++;
@@ -6645,7 +6743,7 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
         var_type2->mPointerNum++;
 
         Type* llvm_var_type;
-        if(!create_llvm_type_from_node_type(&llvm_var_type, var_type2, info))
+        if(!create_llvm_type_from_node_type(&llvm_var_type, var_type2, var_type2, info))
         {
             compile_err_msg(info, "Getting llvm type failed(10)");
             show_node_type(var_type2);
@@ -6814,7 +6912,7 @@ BOOL compile_store_element(unsigned int node, sCompileInfo* info)
         var_type2->mPointerNum++;
 
         Type* llvm_var_type;
-        if(!create_llvm_type_from_node_type(&llvm_var_type, var_type2, info))
+        if(!create_llvm_type_from_node_type(&llvm_var_type, var_type2, var_type2, info))
         {
             compile_err_msg(info, "Getting llvm type failed(11)");
             show_node_type(var_type2);
@@ -7527,7 +7625,9 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
 
         prevent_from_right_object_free(&llvm_value, info);
 
-        restore_lvtable((Value*)info->function_lvtable);
+        if(info->inline_func_end == NULL) {
+            restore_lvtable((Value*)info->function_lvtable);
+        }
 
         free_right_value_objects(info);
         free_objects(info->pinfo->lv_table, info);
@@ -7561,7 +7661,9 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        restore_lvtable((Value*)info->function_lvtable);
+        if(info->inline_func_end == NULL) {
+            restore_lvtable((Value*)info->function_lvtable);
+        }
 
         free_right_value_objects(info);
         free_objects(info->pinfo->lv_table, info);
@@ -7921,7 +8023,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
         sNodeType* var_type = var->mType;
 
         Type* llvm_var_type;
-        if(!create_llvm_type_from_node_type(&llvm_var_type, var_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_var_type, var_type, var_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(1)");
             show_node_type(var_type);
@@ -7971,7 +8073,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
                     init_data[i] = ConstantInt::get(Type::getInt8Ty(TheContext), 0);
 
                     Type* var_llvm_element_type;
-                    if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, info))
+                    if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, var_element_type, info))
                     {
                         compile_err_msg(info, "Getting llvm type failed(12)");
                         show_node_type(var_element_type);
@@ -8046,7 +8148,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
                     }
 
                     Type* var_llvm_element_type;
-                    if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, info))
+                    if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, var_element_type, info))
                     {
                         compile_err_msg(info, "Getting llvm type failed(13)");
                         show_node_type(var_element_type);
@@ -8359,7 +8461,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
         sNodeType* var_type = var->mType;
 
         Type* llvm_var_type;
-        if(!create_llvm_type_from_node_type(&llvm_var_type, var_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_var_type, var_type, var_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(2)");
             show_node_type(var_type);
@@ -8480,7 +8582,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
         left_type2->mPointerNum = 0;
 
         Type* llvm_struct_type;
-        if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, info))
+        if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, left_type2, info))
         {
             compile_err_msg(info, "Getting llvm type failed(15)");
             show_node_type(left_type2);
@@ -8511,7 +8613,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
                 return TRUE;
             }
 
-            sNodeType* field_type = klass->mFields[i];
+            sNodeType* field_type = clone_node_type(klass->mFields[i]);
 
             if(!type_identify(field_type, right_type))
             {
@@ -8607,7 +8709,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
         sCLClass* klass = var_type->mClass;
 
         Type* llvm_struct_type;
-        if(!create_llvm_type_from_node_type(&llvm_struct_type, var_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_struct_type, var_type, var_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(16)");
             show_node_type(var_type);
@@ -8638,7 +8740,7 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
                 return TRUE;
             }
 
-            sNodeType* field_type = klass->mFields[i];
+            sNodeType* field_type = clone_node_type(klass->mFields[i]);
 
             if(!type_identify(field_type, right_type))
             {
@@ -9101,7 +9203,7 @@ BOOL compile_is_heap_expression(unsigned int node, sCompileInfo* info)
 
     dec_stack_ptr(1, info);
 
-    BOOL value = node_type->mHeap;
+    BOOL value = node_type->mHeap && node_type->mPointerNum > 0;
 
     LVALUE llvm_value;
     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value, true)); 
@@ -9140,7 +9242,7 @@ BOOL compile_is_heap(unsigned int node, sCompileInfo* info)
     sNodeType* node_type = gNodes[node].uValue.sIsHeap.mType;
     sNodeType* node_type2 = clone_node_type(node_type);
 
-    BOOL value = node_type2->mHeap;
+    BOOL value = node_type2->mHeap && node_type2->mPointerNum > 0;
 
     LVALUE llvm_value;
     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value, true)); 
@@ -9190,7 +9292,7 @@ BOOL compile_is_managed_expression(unsigned int node, sCompileInfo* info)
 
     dec_stack_ptr(1, info);
 
-    BOOL value = node_type->mManaged;
+    BOOL value = node_type->mManaged && node_type->mPointerNum > 0;
 
     LVALUE llvm_value;
     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value, true)); 
@@ -9229,7 +9331,7 @@ BOOL compile_is_managed(unsigned int node, sCompileInfo* info)
     sNodeType* node_type = gNodes[node].uValue.sIsManaged.mType;
     sNodeType* node_type2 = clone_node_type(node_type);
 
-    BOOL value = node_type2->mManaged;
+    BOOL value = node_type2->mManaged && node_type2->mPointerNum > 0;
 
     LVALUE llvm_value;
     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value, true)); 
@@ -9372,7 +9474,7 @@ static BOOL compile_va_arg(unsigned int node, sCompileInfo* info)
     sNodeType* node_type = gNodes[node].uValue.sVaArg.mNodeType;
 
     Type* llvm_type;
-    if(!create_llvm_type_from_node_type(&llvm_type, node_type, info))
+    if(!create_llvm_type_from_node_type(&llvm_type, node_type, node_type, info))
     {
         compile_err_msg(info, "Getting llvm type failed(17)");
         show_node_type(node_type);
@@ -9515,7 +9617,7 @@ static BOOL compile_conditional(unsigned int node, sCompileInfo* info)
         sNodeType* value1_result_type = clone_node_type(info->type);
 
         Type* llvm_result_type;
-        if(!create_llvm_type_from_node_type(&llvm_result_type, value1_result_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_result_type, value1_result_type, value1_result_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(99)");
             show_node_type(value1_result_type);

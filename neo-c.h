@@ -15,6 +15,23 @@ char*% xasprintf(char* str, ...);
 extern string operator+(char* left, char* right);
 extern string string(char* str);
 
+/// int ///
+impl int
+{
+    inline bool equals(int left, int right) {
+        return left == right;
+    }
+}
+
+/// string ///
+impl char
+{
+    inline bool equals(char* left, char* right)
+    {
+        return strcmp(left, right) == 0;
+    }
+}
+
 /// vector ///
 struct vector<T> 
 {
@@ -76,6 +93,72 @@ impl vector<T>
 
         result
     }
+
+    bool equals(vector<T>* left, vector<T>* right)
+    {
+        if(left.len != right.len) {
+            return false;
+        }
+
+        for(int i=0; i<left.len; i++) {
+            if(!left.item(i).equals(right.item(i)))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+ruby_macro vec {
+    params = [];
+    param = "";
+    dquort = false;
+    squort = false;
+    param_line = ENV['PARAMS'];
+    n = 0;
+    while(n < param_line.length()) do
+        c = param_line[n];
+        n = n + 1;
+
+        if (dquort || squort) && c == "\\"
+            param.concat(c);
+            
+            c = param_line[n];
+            n = n + 1;
+
+            param.concat(c);
+        elsif c == "\""
+            param.concat(c);
+            dquort = !dquort
+        elsif c == "'"
+            param.concat(c);
+            squort = !squort
+        elsif dquort || squort
+            param.concat(c);
+        elsif c == ","
+            if param.length() > 0
+                params.push(param); param = ""
+            end
+        else
+            param.concat(c);
+        end
+    end
+
+    if param.length() != 0
+        params.push(param);
+    end
+
+    puts("{");
+    puts("var result = new vector<typeof(#{params[0]})>.initialize();");
+
+    params.each do |param|
+        puts("result.push_back(#{param});");
+    end
+
+    puts("result");
+    puts("}");
 }
 
 struct list_item<T>
@@ -103,7 +186,7 @@ impl list <T>
     finalize() {
         var it = self.head;
         while(it != null) {
-            if(isheap(it.item)) {
+            if(ismanaged(it.item)) {
                 delete it.item;
             }
             var prev_it = it;
@@ -113,27 +196,24 @@ impl list <T>
     }
 
     void push_back(list<T>* self, T item) {
-        if(self.head == self.tail)
-        {
-            if(self.head == null) 
-            {
-                var litem = new list_item<T>;
-                litem.prev = null;
-                litem.next = null;
-                litem.item = item;
-                
-                self.tail = litem;
-                self.head = litem;
-            }
-            else {
-                var litem = new list_item<T>;
-                litem.prev = self.head;
-                litem.next = null;
-                litem.item = item;
-                
-                self.tail = litem;
-                self.head.next = litem;
-            }
+        if(self.length == 0) {
+            list_item<T>*$ litem = new list_item<T>;
+            litem.prev = null;
+            litem.next = null;
+            litem.item = item;
+            
+            self.tail = litem;
+            self.head = litem;
+        }
+        else if(self.length == 1) {
+            list_item<T>*$ litem = new list_item<T>;
+
+            litem.prev = self.head;
+            litem.next = null;
+            litem.item = item;
+            
+            self.tail = litem;
+            self.head.next = litem;
         }
         else {
             list_item<T>*$ litem = new list_item<T>;
@@ -164,12 +244,13 @@ impl list <T>
         }
 
         if(position == 0) {
-            var litem = new list_item<T>;
+            list_item<T>$* litem = new list_item<T>;
 
             litem.prev = null;
             litem.next = self.head;
             litem.item = item;
             
+            self.head.prev = litem;
             self.head = litem;
 
             self.length++;
@@ -233,9 +314,30 @@ impl list <T>
             i++;
         };
     }
+
+    bool equals(list<T>* left, list<T>* right)
+    {
+/*
+        if(left.length != right.length) {
+            return false;
+        }
+*/
+
+        list_item<T>?* it = left.head;
+        list_item<T>?* it2 = right.head;
+
+//        while(it != null) {
+            it.item.equals(it2.item);
+
+            it = it.next;
+            it2 = it2.next;
+//        }
+
+        return true;
+    }
 }
 
-ruby_macro vec {
+ruby_macro list {
     params = [];
     param = "";
     dquort = false;
@@ -274,8 +376,8 @@ ruby_macro vec {
         params.push(param);
     end
 
-    puts("extern \"C\" {");
-    puts("var result = new vector<typeof(#{params[0]})>.initialize();");
+    puts("{");
+    puts("var result = new list<typeof(#{params[0]})>.initialize();");
 
     params.each do |param|
         puts("result.push_back(#{param});");
@@ -283,6 +385,192 @@ ruby_macro vec {
 
     puts("result");
     puts("}");
+}
+
+
+struct tuple1<T>
+{
+    T&$ v1;
+}
+
+impl tuple1 <T>
+{
+    initialize() {
+    }
+
+    finalize() {
+        if(ismanaged(self.v1)))
+        {
+            delete self.v1;
+        }
+    }
+}
+
+struct tuple2<T, T2>
+{
+    T&$ v1;
+    T2&$ v2;
+}
+
+impl tuple2 <T, T2>
+{
+    initialize() {
+    }
+
+    finalize() {
+        if(ismanaged(self.v1)))
+        {
+            delete self.v1;
+        }
+        if(ismanaged(self.v2)))
+        {
+            delete self.v2;
+        }
+    }
+}
+
+struct tuple3<T, T2, T3>
+{
+    T&$ v1;
+    T2&$ v2;
+    T3&$ v3;
+}
+
+impl tuple3 <T, T2, T3>
+{
+    initialize() {
+    }
+
+    finalize() {
+        if(ismanaged(self.v1)) {
+            delete self.v1;
+        }
+        if(ismanaged(self.v2)) {
+            delete self.v2;
+        }
+        if(ismanaged(self.v3)) {
+            delete self.v3;
+        }
+    }
+}
+
+struct tuple4<T, T2, T3, T4>
+{
+    T&$ v1;
+    T2&$ v2;
+    T3&$ v3;
+    T4&$ v3;
+}
+
+impl tuple4 <T, T2, T3, T4>
+{
+    initialize() {
+    }
+
+    finalize() {
+        if(ismanaged(self.v1)) {
+            delete self.v1;
+        }
+        if(ismanaged(self.v2)) {
+            delete self.v2;
+        }
+        if(ismanaged(self.v3)) {
+            delete self.v3;
+        }
+        if(ismanaged(self.v4)) {
+            delete self.v4;
+        }
+    }
+}
+
+ruby_macro tuple {
+    params = [];
+    param = "";
+    dquort = false;
+    squort = false;
+    param_line = ENV['PARAMS'];
+    n = 0;
+    while(n < param_line.length()) do
+        c = param_line[n];
+        n = n + 1;
+
+        if (dquort || squort) && c == "\\"
+            param.concat(c);
+            
+            c = param_line[n];
+            n = n + 1;
+
+            param.concat(c);
+        elsif c == "\""
+            param.concat(c);
+            dquort = !dquort
+        elsif c == "'"
+            param.concat(c);
+            squort = !squort
+        elsif dquort || squort
+            param.concat(c);
+        elsif c == ","
+            if param.length() > 0
+                params.push(param); param = ""
+            end
+        else
+            param.concat(c);
+        end
+    end
+
+    if param.length() != 0
+        params.push(param);
+    end
+
+    if params.length() == 1
+    then
+        puts("{");
+        puts("var result = new tuple1<typeof(#{params[0]})>;");
+
+        puts("result.v1 = #{params[0]};");
+
+        puts("result");
+        puts("}");
+    end
+
+    if params.length() == 2 
+    then
+        puts("{");
+        puts("var result = new tuple2<typeof(#{params[0]}),typeof(#{params[1]})>;");
+
+        puts("result.v1 = #{params[0]};");
+        puts("result.v2 = #{params[1]};");
+
+        puts("result");
+        puts("}");
+    end
+
+    if params.length() == 3
+    then
+        puts("{");
+        puts("var result = new tuple3<typeof(#{params[0]}),typeof(#{params[1]}),typeof(#{params[2]})>;");
+
+        puts("result.v1 = #{params[0]};");
+        puts("result.v2 = #{params[1]};");
+        puts("result.v3 = #{params[2]};");
+
+        puts("result");
+        puts("}");
+    end
+
+    if params.length() == 4
+    then
+        puts("{");
+        puts("var result = new tuple4<typeof(#{params[0]}),typeof(#{params[1]}),typeof(#{params[2]}),typeof(#{params[3]})>;");
+
+        puts("result.v1 = #{params[0]};");
+        puts("result.v2 = #{params[1]};");
+        puts("result.v3 = #{params[2]};");
+        puts("result.v4 = #{params[3]};");
+
+        puts("result");
+        puts("}");
+    end
 }
 
 /// others ///

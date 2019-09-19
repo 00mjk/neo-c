@@ -746,8 +746,8 @@ void arrange_stack(sCompileInfo* info, int top);
 void start_neo_c_main_function();
 void finish_neo_c_main_function();
 void free_object(sNodeType* node_type, void* address, sCompileInfo* info);
-BOOL create_llvm_struct_type(sNodeType* node_type, BOOL new_create, sCompileInfo* info);
-BOOL create_llvm_union_type(sNodeType* node_type, sCompileInfo* info);
+BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOOL new_create, sCompileInfo* info);
+BOOL create_llvm_union_type(sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info);
 void create_undefined_llvm_struct_type(sNodeType* node_type);
 BOOL get_const_value_from_node(int* array_size, unsigned int array_size_node, sParserInfo* info);
 void create_anonymous_union_var_name(char* name, int size_name);
@@ -767,6 +767,7 @@ BOOL parse_macro(unsigned int* node, sParserInfo* info);
 BOOL parse_ruby_macro(unsigned int* node, sParserInfo* info, BOOL really_appended);
 BOOL parse_delete(unsigned int* node, sParserInfo* info);
 BOOL parse_borrow(unsigned int* node, sParserInfo* info);
+BOOL parse_typedef(unsigned int* node, sParserInfo* info);
 
 #endif
 

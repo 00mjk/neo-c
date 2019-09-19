@@ -76,7 +76,7 @@ static Type* get_lvtable_type()
     sNodeType* lvtable_node_type = create_node_type_with_class_name(buf);
 
     Type* lvtable_type;
-    if(!create_llvm_type_from_node_type(&lvtable_type, lvtable_node_type, NULL))
+    if(!create_llvm_type_from_node_type(&lvtable_type, lvtable_node_type, lvtable_node_type, NULL))
     {
         fprintf(stderr, "unexpected err\n");
         exit(2);
@@ -155,7 +155,7 @@ Value* load_address_to_lvtable(int index, sNodeType* var_type, sCompileInfo* inf
     int alignment = get_llvm_alignment_from_node_type(var_type);
 
     Type* llvm_type;
-    (void)create_llvm_type_from_node_type(&llvm_type, var_type, info);
+    (void)create_llvm_type_from_node_type(&llvm_type, var_type, var_type, info);
 
     Value* pointer_value2 = Builder.CreateCast(Instruction::BitCast, pointer_value, PointerType::get(llvm_type, 0));
 
@@ -685,7 +685,7 @@ void create_undefined_llvm_struct_type(sNodeType* node_type)
     }
 }
 
-BOOL create_llvm_struct_type(sNodeType* node_type, BOOL new_create, sCompileInfo* info)
+BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOOL new_create, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
 
@@ -702,9 +702,9 @@ BOOL create_llvm_struct_type(sNodeType* node_type, BOOL new_create, sCompileInfo
 
         int i;
         for(i=0; i<klass->mNumFields; i++) {
-            sNodeType* field = klass->mFields[i];
+            sNodeType* field = clone_node_type(klass->mFields[i]);
 
-            if(!solve_generics(&field, node_type))
+            if(!solve_generics(&field, generics_type))
             {
                 return FALSE;
             }
@@ -715,7 +715,7 @@ BOOL create_llvm_struct_type(sNodeType* node_type, BOOL new_create, sCompileInfo
             }
 
             Type* field_type;
-            if(!create_llvm_type_from_node_type(&field_type, field, info))
+            if(!create_llvm_type_from_node_type(&field_type, field, generics_type, info))
             {
                 return FALSE;
             }
@@ -741,9 +741,9 @@ BOOL create_llvm_struct_type(sNodeType* node_type, BOOL new_create, sCompileInfo
 
         int i;
         for(i=0; i<klass->mNumFields; i++) {
-            sNodeType* field = klass->mFields[i];
+            sNodeType* field = clone_node_type(klass->mFields[i]);
 
-            if(!solve_generics(&field, node_type))
+            if(!solve_generics(&field, generics_type))
             {
                 return FALSE;
             }
@@ -754,7 +754,7 @@ BOOL create_llvm_struct_type(sNodeType* node_type, BOOL new_create, sCompileInfo
             }
 
             Type* field_type;
-            if(!create_llvm_type_from_node_type(&field_type, field, info))
+            if(!create_llvm_type_from_node_type(&field_type, field, generics_type, info))
             {
                 return FALSE;
             }
@@ -770,7 +770,7 @@ BOOL create_llvm_struct_type(sNodeType* node_type, BOOL new_create, sCompileInfo
     return TRUE;
 }
 
-BOOL create_llvm_union_type(sNodeType* node_type, sCompileInfo* info)
+BOOL create_llvm_union_type(sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
 
@@ -791,15 +791,15 @@ BOOL create_llvm_union_type(sNodeType* node_type, sCompileInfo* info)
 
         int i;
         for(i=0; i<klass->mNumFields; i++) {
-            sNodeType* field = klass->mFields[i];
+            sNodeType* field = clone_node_type(klass->mFields[i]);
 
-            if(!solve_generics(&field, node_type))
+            if(!solve_generics(&field, generics_type))
             {
                 return FALSE;
             }
 
             Type* field_type;
-            if(!create_llvm_type_from_node_type(&field_type, field, info))
+            if(!create_llvm_type_from_node_type(&field_type, field, generics_type, info))
             {
                 return FALSE;
             }
@@ -840,15 +840,15 @@ BOOL create_llvm_union_type(sNodeType* node_type, sCompileInfo* info)
 
         int i;
         for(i=0; i<klass->mNumFields; i++) {
-            sNodeType* field = klass->mFields[i];
+            sNodeType* field = clone_node_type(klass->mFields[i]);
 
-            if(!solve_generics(&field, node_type))
+            if(!solve_generics(&field, generics_type))
             {
                 return FALSE;
             }
 
             Type* field_type;
-            if(!create_llvm_type_from_node_type(&field_type, field, info))
+            if(!create_llvm_type_from_node_type(&field_type, field, generics_type, info))
             {
                 return FALSE;
             }
@@ -886,7 +886,7 @@ static void create_real_union_name(char* real_union_name, int size_real_union_na
 }
 
 
-BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, sCompileInfo* info)
+BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
 
@@ -910,7 +910,7 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
 
         if(gLLVMStructType[real_struct_name].first == nullptr) 
         {
-            if(!create_llvm_struct_type(node_type, TRUE, info))
+            if(!create_llvm_struct_type(node_type, generics_type, TRUE, info))
             {
                 return FALSE;
             }
@@ -936,7 +936,8 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
 
         if(gLLVMStructType[real_struct_name].first == nullptr) 
         {
-            if(!create_llvm_struct_type(node_type, TRUE, info))
+            if(!create_llvm_union_type(node_type, generics_type, info))
+            //if(!create_llvm_struct_type(node_type, generics_type, TRUE, info))
             {
                 return FALSE;
             }
@@ -1012,7 +1013,7 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
         sNodeType* fun_result_type = node_type->mResultType;
 
         Type* llvm_result_type;
-        if(!create_llvm_type_from_node_type(&llvm_result_type, fun_result_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_result_type, fun_result_type, generics_type, info))
         {
             return FALSE;
         }
@@ -1024,7 +1025,7 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
             sNodeType* param_type = node_type->mParamTypes[i];
 
             Type* llvm_param_type;
-            if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, info))
+            if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, generics_type, info))
             {
                 return FALSE;
             }
@@ -1095,7 +1096,7 @@ int get_llvm_alignment_from_node_type(sNodeType* node_type)
 Value* get_dummy_value(sNodeType* node_type, sCompileInfo* info)
 {
     Type* llvm_type;
-    if(!create_llvm_type_from_node_type(&llvm_type, node_type, info))
+    if(!create_llvm_type_from_node_type(&llvm_type, node_type, node_type, info))
     {
         return FALSE;
     }
@@ -1117,7 +1118,7 @@ BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sCompileInf
     }
 
     Type* llvm_type;
-    if(!create_llvm_type_from_node_type(&llvm_type, node_type2, info))
+    if(!create_llvm_type_from_node_type(&llvm_type, node_type2, node_type2, info))
     {
         return FALSE;
     }
@@ -1170,7 +1171,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     {
         if(rvalue) {
             Type* llvm_type;
-            if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
+            if(!create_llvm_type_from_node_type(&llvm_type, left_type, left_type, info))
             {
                 return FALSE;
             }
@@ -1185,7 +1186,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     {
         if(rvalue) {
             Type* llvm_type;
-            if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
+            if(!create_llvm_type_from_node_type(&llvm_type, left_type, left_type, info))
             {
                 return FALSE;
             }
@@ -1201,7 +1202,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         if((left_type->mPointerNum-1 == (*right_type)->mPointerNum) && (*right_type)->mArrayNum > 0) {
             if(rvalue) {
                 Type* llvm_type;
-                if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
+                if(!create_llvm_type_from_node_type(&llvm_type, left_type, left_type, info))
                 {
                     return FALSE;
                 }
@@ -1215,7 +1216,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         else if((*right_type)->mPointerNum > 0) {
             if(rvalue) {
                 Type* llvm_type;
-                if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
+                if(!create_llvm_type_from_node_type(&llvm_type, left_type, left_type, info))
                 {
                     return FALSE;
                 }
@@ -1230,7 +1231,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     else if(type_identify_with_class_name(left_type, "lambda")) {
         if(rvalue) {
             Type* llvm_type;
-            if(!create_llvm_type_from_node_type(&llvm_type, left_type, info))
+            if(!create_llvm_type_from_node_type(&llvm_type, left_type, left_type, info))
             {
                 return FALSE;
             }
@@ -1350,7 +1351,9 @@ void append_heap_object_to_right_value(LVALUE* llvm_value)
             gRightValueObjects[llvm_value->value] = pair_value;
 
 #ifdef MDEBUG
+/*
 printf("append object to right heap value %p %s*\n", llvm_value->value, CLASS_NAME(llvm_value->type->mClass));
+*/
 #endif
         }
     }
@@ -1371,7 +1374,7 @@ void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL all
         sNodeType* rvalue_type = rvalue->type;
 
         if((lvar_type->mManaged || lvar_type->mHeap) && rvalue_type->mHeap) {
-            if(!lvar_type->mManaged && lvar_type->mHeap && var_address && !alloc) {
+            if(!lvar_type->mManaged && lvar_type->mHeap && var_address && !alloc && lvar_type->mPointerNum > 0) {
                 free_object(lvar_type, var_address, info);
             }
 
@@ -1385,7 +1388,9 @@ void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL all
             if(gRightValueObjects.count(rvalue->value) > 0)
             {
 #ifdef MDEBUG
+/*
 printf("remove from right value object %p %s\n", rvalue->value, CLASS_NAME(lvar_type->mClass));
+*/
 #endif
                 gRightValueObjects.erase(rvalue->value);
             }
@@ -1400,7 +1405,9 @@ void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info)
             if(gRightValueObjects.count(llvm_value->value) > 0) 
             {
 #ifdef MDEBUG
+/*
 printf("remove from right value%p\n", llvm_value->value);
+*/
 #endif
                 //gRightValueObjects[llvm_value->value].second = 1;
                 gRightValueObjects.erase(llvm_value->value);
@@ -1470,17 +1477,17 @@ printf("free rigt value object %p type %s*\n", obj, CLASS_NAME(node_type->mClass
     node_type2->mPointerNum = 0;
 
     Type* llvm_struct_type;
-    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, info);
+    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info);
 
     int i;
     for(i=0; i<klass->mNumFields; i++) {
-        sNodeType* field_type = klass->mFields[i];
+        sNodeType* field_type = clone_node_type(klass->mFields[i]);
         sCLClass* field_class = field_type->mClass;
 
         Type* llvm_field_type;
-        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, info);
+        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, node_type2, info);
 
-        if(field_type->mHeap)
+        if(field_type->mHeap && field_type->mPointerNum > 0)
         {
 #ifdef MDEBUG
 printf("free right value object field %d %s*\n", i, CLASS_NAME(field_type->mClass));
@@ -1561,11 +1568,11 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
         node_type2->mPointerNum = 0;
 
         Type* llvm_struct_type;
-        (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, info);
+        (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info);
 
         int i;
         for(i=0; i<klass->mNumFields; i++) {
-            sNodeType* field_type = klass->mFields[i];
+            sNodeType* field_type = clone_node_type(klass->mFields[i]);
             (void)solve_generics(&field_type, node_type);
             sCLClass* field_class = field_type->mClass;
 
@@ -1576,9 +1583,9 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
             }
 
             Type* llvm_field_type;
-            (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, info);
+            (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info);
 
-            if(field_type->mHeap)
+            if(field_type->mHeap && field_type->mPointerNum > 0)
             {
 #if LLVM_VERSION_MAJOR >= 7
                 Value* field_address = Builder.CreateStructGEP(obj, i);
@@ -1628,7 +1635,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
     Value* address2 = Builder.CreateCall(fun, params2);
 
     Type* llvm_obj_type;
-    (void)create_llvm_type_from_node_type(&llvm_obj_type, node_type, info);
+    (void)create_llvm_type_from_node_type(&llvm_obj_type, node_type, node_type, info);
 
     Value* address3 = Builder.CreateCast(Instruction::BitCast, address2, llvm_obj_type);
 
@@ -1636,7 +1643,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
     node_type2->mPointerNum = 0;
 
     Type* llvm_struct_type;
-    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, info);
+    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info);
 
 /*
     Value* dest_obj = Builder.CreateAlignedLoad(address3, 8);
@@ -1644,11 +1651,11 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
 
     int i;
     for(i=0; i<klass->mNumFields; i++) {
-        sNodeType* field_type = klass->mFields[i];
+        sNodeType* field_type = clone_node_type(klass->mFields[i]);
         sCLClass* field_class = field_type->mClass;
 
         Type* llvm_field_type;
-        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, info);
+        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, node_type2, info);
 
         int alignment = get_llvm_alignment_from_node_type(field_type);
 
