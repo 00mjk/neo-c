@@ -15,6 +15,11 @@ struct StructData1
 
 impl StructData1
 {
+    initialize() {
+        self.a = 1;
+        self.b = 2;
+        self.c = 3;
+    }
     def fun(self:StructData1*) {
         inherit(self);
         printf("c %d\n", self.c);
@@ -23,7 +28,7 @@ impl StructData1
 
 def main():int 
 {
-    var data = new StructData1;
+    var data = new StructData1.initialize();
 
     data.fun();
 

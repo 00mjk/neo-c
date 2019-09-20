@@ -317,21 +317,19 @@ impl list <T>
 
     bool equals(list<T>* left, list<T>* right)
     {
-/*
         if(left.length != right.length) {
             return false;
         }
-*/
 
         list_item<T>?* it = left.head;
         list_item<T>?* it2 = right.head;
 
-//        while(it != null) {
+        while(it != null) {
             it.item.equals(it2.item);
 
             it = it.next;
             it2 = it2.next;
-//        }
+        }
 
         return true;
     }
@@ -399,10 +397,19 @@ impl tuple1 <T>
     }
 
     finalize() {
-        if(ismanaged(self.v1)))
+        if(ismanaged(self.v1))
         {
             delete self.v1;
         }
+    }
+
+    bool equals(tuple1<T>* left, tuple1<T>* right)
+    {
+        if(!left.v1.equals(right.v1)) {
+            return false;
+        }
+
+        return true;
     }
 }
 
@@ -418,14 +425,26 @@ impl tuple2 <T, T2>
     }
 
     finalize() {
-        if(ismanaged(self.v1)))
+        if(ismanaged(self.v1))
         {
             delete self.v1;
         }
-        if(ismanaged(self.v2)))
+        if(ismanaged(self.v2))
         {
             delete self.v2;
         }
+    }
+
+    bool equals(tuple2<T, T2>* left, tuple2<T, T2>* right)
+    {
+        if(!left.v1.equals(right.v1)) {
+            return false;
+        }
+        if(!left.v2.equals(right.v2)) {
+            return false;
+        }
+
+        return true;
     }
 }
 
@@ -451,6 +470,21 @@ impl tuple3 <T, T2, T3>
         if(ismanaged(self.v3)) {
             delete self.v3;
         }
+    }
+
+    bool equals(tuple3<T, T2, T3>* left, tuple3<T, T2, T3>* right)
+    {
+        if(!left.v1.equals(right.v1)) {
+            return false;
+        }
+        if(!left.v2.equals(right.v2)) {
+            return false;
+        }
+        if(!left.v3.equals(right.v3)) {
+            return false;
+        }
+
+        return true;
     }
 }
 
@@ -480,6 +514,24 @@ impl tuple4 <T, T2, T3, T4>
         if(ismanaged(self.v4)) {
             delete self.v4;
         }
+    }
+
+    bool equals(tuple4<T, T2, T3, T4>* left, tuple4<T, T2, T3, T4>* right)
+    {
+        if(!left.v1.equals(right.v1)) {
+            return false;
+        }
+        if(!left.v2.equals(right.v2)) {
+            return false;
+        }
+        if(!left.v3.equals(right.v3)) {
+            return false;
+        }
+        if(!left.v4.equals(right.v4)) {
+            return false;
+        }
+
+        return true;
     }
 }
 

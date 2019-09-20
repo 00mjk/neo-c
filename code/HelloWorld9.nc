@@ -69,12 +69,10 @@ def main():int
 
     xassert("list test3", li3.equals(list!(string("ccc"), string("aaa"), string("bbb"))));
 
-/*
     var tu = tuple!(1,2,string("str"));
 
-    printf("tu.v1 %d tu.v2 %d tu.v3 %s\n", tu.v1, tu.v2, tu.v3);
-*/
-    
+    xassert("tuple test", tu.equals(tuple!(1, 2, string("str"))));
+
     0
 }
 

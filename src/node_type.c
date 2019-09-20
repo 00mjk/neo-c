@@ -352,6 +352,24 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
             return TRUE;
         }
     }
+    else if(type_identify(left_type, right_type) && (left_type->mNumGenericsTypes > 0 || right_type->mNumGenericsTypes > 0))
+    {
+        if(left_type->mNumGenericsTypes != right_type->mNumGenericsTypes)
+        {
+            return FALSE;
+        }
+
+        int i;
+        for(i=0; i<left_type->mNumGenericsTypes; i++)
+        {
+            if(!substitution_posibility(left_type->mGenericsTypes[i], right_type->mGenericsTypes[i], info))
+            {
+                return FALSE;
+            }
+        }
+
+        return TRUE;
+    }
     else if(type_identify(left_type, right_type)) {
         if((left_type->mPointerNum-1 == right_type->mPointerNum) && right_type->mArrayNum > 0)
         {

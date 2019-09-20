@@ -12,7 +12,7 @@ struct StructData1
 
 impl StructData1
 {
-    def fun(self:StructData1) {
+    def fun(self:StructData1*) {
         printf("a %d\n", self.a);
     }
 }
