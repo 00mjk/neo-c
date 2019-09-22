@@ -2176,7 +2176,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     xstrncpy(info2.sname, sname, PATH_MAX);
     info2.source = buf;
     info2.module_name = info->module_name;
-    info2.sline = sline;
+    info2.sline = sline-2;
     info2.parse_phase = info->parse_phase;
     info2.lv_table = info->lv_table;
     info2.in_clang = in_clang;
@@ -3461,7 +3461,6 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     else {
         create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
     }
-
 
     char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
     memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);

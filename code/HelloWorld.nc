@@ -2006,7 +2006,7 @@ label1:
     StructTest3 data8;
 
     data8.a = 1;
-    data8.b = 2
+    data8.b = 2;
 
     xassert("struct test", data8.a == 1 && data8.b == 2);
 
