@@ -5882,6 +5882,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
 
+
             if(name[0] != '\0') {
                 BOOL extern_ = FALSE;
                 if(!parse_variable(node, result_type, name, extern_, info, FALSE)) 

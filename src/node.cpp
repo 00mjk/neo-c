@@ -1927,7 +1927,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, sNodeType* generics_type, sParserInfo* info, sCompileInfo* cinfo, BOOL in_clang)
+static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, sNodeType* generics_type, sParserInfo* info, sCompileInfo* cinfo, int num_generics, char generics_type_names[PARAMS_MAX][VAR_NAME_MAX], BOOL in_clang)
 {
     sNodeType* lambda_type = fun->mParamTypes[fun->mNumParams-1];
 
@@ -1987,6 +1987,16 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     info2.parse_phase = info->parse_phase;
     info2.lv_table = info->lv_table;
     info2.in_clang = in_clang;
+
+    info2.mNumGenerics = num_generics;
+    for(i=0; i<num_generics; i++)
+    {
+        xstrncpy(info2.mGenericsTypeNames[i], generics_type_names[i], VAR_NAME_MAX);
+    }
+
+    if(generics_type) {
+        info2.mGenericsType = clone_node_type(generics_type);
+    }
 
     sNodeType* result_type = clone_node_type(lambda_type->mResultType);
 
@@ -2417,6 +2427,12 @@ unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params
     
     gNodes[node].mNodeType = kNodeTypeFunctionCall;
 
+    gNodes[node].uValue.sFunctionCall.mNumGenerics = info->mNumGenerics;
+    for(i=0; i<info->mNumGenerics; i++)
+    {
+        xstrncpy(gNodes[node].uValue.sFunctionCall.mGenericsTypeNames[i], info->mGenericsTypeNames[i], VAR_NAME_MAX);
+    }
+
     xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
@@ -2436,6 +2452,15 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     unsigned int params[PARAMS_MAX];
     BOOL method = gNodes[node].uValue.sFunctionCall.mMethod;
     BOOL inherit = gNodes[node].uValue.sFunctionCall.mInherit;
+
+    int num_generics = gNodes[node].uValue.sFunctionCall.mNumGenerics;
+    char generics_type_names[PARAMS_MAX][VAR_NAME_MAX];
+
+    int i;
+    for(i=0; i<num_generics; i++)
+    {
+        xstrncpy(generics_type_names[i], gNodes[node].uValue.sFunctionCall.mGenericsTypeNames[i], VAR_NAME_MAX);
+    }
 
     if(strcmp(fun_name, "__builtin_va_start") == 0) {
         xstrncpy(fun_name, "llvm.va_start", VAR_NAME_MAX);
@@ -2532,7 +2557,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     }
 
     /// compile parametors ///
-    int i;
     for(i=1; i<num_params2; i++) {
         params[i] = gNodes[node].uValue.sFunctionCall.mParams[i];
         
@@ -2561,7 +2585,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         BOOL in_clang = fun.mInCLang;
 
         unsigned int node = 0;
-        if(!parse_simple_lambda_param(&node, buf, &fun, sname, sline, generics_type, info->pinfo, info, in_clang))
+        if(!parse_simple_lambda_param(&node, buf, &fun, sname, sline, generics_type, info->pinfo, info, num_generics, generics_type_names, in_clang))
         {
             info->generics_type = generics_type_before;
             return FALSE;
@@ -3042,223 +3066,202 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     dec_stack_ptr(num_params, info);
 
     if(fun.mInlineFunction) {
-        BasicBlock* inline_func_begin = BasicBlock::Create(TheContext, fun_name, gFunction);
+        if(inline_block) {
+            BasicBlock* inline_func_begin = BasicBlock::Create(TheContext, fun_name, gFunction);
 
-        free_right_value_objects(info);
-        Builder.CreateBr(inline_func_begin);
+            free_right_value_objects(info);
+            Builder.CreateBr(inline_func_begin);
 
-        BasicBlock* current_block_before;
-        llvm_change_block(inline_func_begin, &current_block_before, info, FALSE);
+            BasicBlock* current_block_before;
+            llvm_change_block(inline_func_begin, &current_block_before, info, FALSE);
 
-        void* inline_func_end_before = info->inline_func_end;
-        info->inline_func_end = BasicBlock::Create(TheContext, "inline_func_end", gFunction);
+            void* inline_func_end_before = info->inline_func_end;
+            info->inline_func_end = BasicBlock::Create(TheContext, "inline_func_end", gFunction);
 
-/*
-        /// compile parametors ///
-        llvm_params.clear();
+            sVarTable* lv_table = inline_block->mLVTable;
 
-        int i;
-        for(i=0; i<num_params; i++) {
-            params[i] = gNodes[node].uValue.sFunctionCall.mParams[i];
-            
-            if(!compile(params[i], info)) {
-                info->generics_type = generics_type_before;
+            for(i=0; i<num_params; i++) {
+                char* param_name = fun.mParamNames[i];
+                sNodeType* param_type = fun_param_types[i];
+                int alignment = get_llvm_alignment_from_node_type(param_type);
+
+                Value* param = inline_llvm_params[i];
+                //Value* param = Builder.CreateAlignedLoad(inline_llvm_params[i], alignment, param_name);
+
+                sVar* var = get_variable_from_table(lv_table, param_name);
+
+                var->mLLVMValue = param;
+
+                BOOL parent = FALSE;
+                int index = get_variable_index(lv_table, param_name, &parent);
+
+                store_address_to_lvtable(index, param);
+            }
+
+            sNodeType* result_type = clone_node_type(fun.mResultType);
+
+            if(is_typeof_type(result_type))
+            {
+                if(!solve_typeof(&result_type, info)) 
+                {
+                    compile_err_msg(info, "Can't solve typeof types");
+                    show_node_type(result_type); 
+                    info->err_num++;
+                    return TRUE;
+                }
+            }
+
+            if(!solve_method_generics(&result_type, num_method_generics_types, method_generics_types))
+            {
+                compile_err_msg(info, "Can't solve method generics type");
+                show_node_type(result_type);
+                info->err_num++;
+
                 return FALSE;
             }
 
-            param_types[i] = clone_node_type(info->type);
-
-            LVALUE param = *get_value_from_stack(-1);
-
-            remove_from_right_value_object(param.value);
-        }
-
-        for(i=0; i<num_params; i++) {
-            LVALUE param = *get_value_from_stack(-num_params+i);
-
-            lvalue_params[i] = get_value_from_stack(-num_params+i);
-
-            if(i < fun.mNumParams) 
-            {
-                sNodeType* left_type = fun_params[i];
-                sNodeType* right_type = clone_node_type(param_types[i]);
-
-
-                if(auto_cast_posibility(left_type, right_type)) 
+            if(generics_type) {
+                if(!solve_generics(&result_type, generics_type))
                 {
-                    if(!cast_right_type_to_left_type(left_type, &right_type, &param, info))
-                    {
-                        compile_err_msg(info, "Cast failed");
-                        info->err_num++;
+                    compile_err_msg(info, "Can't solve generics types(6))");
+                    show_node_type(result_type);
+                    show_node_type(generics_type);
+                    info->err_num++;
 
-                        info->type = create_node_type_with_class_name("int"); // dummy
-                        info->generics_type = generics_type_before;
+                    info->type = create_node_type_with_class_name("int"); // dummy
 
-                        return TRUE;
-                    }
+                    info->generics_type = generics_type_before;
+                    return TRUE;
                 }
-
-                sCLClass* left_class = left_type->mClass;
-                if(left_class->mFlags & CLASS_FLAGS_METHOD_GENERICS)
-                {
-                    sNodeType* left_type = create_node_type_with_class_name("long");
-
-                    sNodeType* right_type2 = clone_node_type(right_type);
-                    LVALUE rvalue;
-                    rvalue.value = param.value;
-                    rvalue.type = right_type2;
-                    rvalue.address = nullptr;
-                    rvalue.var = nullptr;
-                    rvalue.binded_value = FALSE;
-
-                    if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
-                    {
-                        compile_err_msg(info, "Cast failed");
-                        info->err_num++;
-
-                        info->type = create_node_type_with_class_name("int"); // dummy
-                        info->generics_type = generics_type_before;
-
-                        return TRUE;
-                    }
-
-                    param.value = rvalue.value;
-                }
-
-                llvm_params.push_back(param.value);
-
-                fun_param_types[i] = clone_node_type(left_type);
             }
-            else {
-                LVALUE param = *get_value_from_stack(-num_params+i);
-                llvm_params.push_back(param.value);
-            }
-        }
 
-        dec_stack_ptr(num_params, info);*/
-
-        sVarTable* lv_table = inline_block->mLVTable;
-
-        for(i=0; i<num_params; i++) {
-            char* param_name = fun.mParamNames[i];
-            sNodeType* param_type = fun_param_types[i];
-            int alignment = get_llvm_alignment_from_node_type(param_type);
-
-            Value* param = inline_llvm_params[i];
-            //Value* param = Builder.CreateAlignedLoad(inline_llvm_params[i], alignment, param_name);
-
-            sVar* var = get_variable_from_table(lv_table, param_name);
-
-            var->mLLVMValue = param;
-
-            BOOL parent = FALSE;
-            int index = get_variable_index(lv_table, param_name, &parent);
-
-            store_address_to_lvtable(index, param);
-        }
-
-        sNodeType* result_type = clone_node_type(fun.mResultType);
-
-        if(is_typeof_type(result_type))
-        {
-            if(!solve_typeof(&result_type, info)) 
+            Type* llvm_type;
+            if(!create_llvm_type_from_node_type(&llvm_type, result_type, result_type, info))
             {
-                compile_err_msg(info, "Can't solve typeof types");
-                show_node_type(result_type); 
-                info->err_num++;
-                return TRUE;
-            }
-        }
-
-        if(!solve_method_generics(&result_type, num_method_generics_types, method_generics_types))
-        {
-            compile_err_msg(info, "Can't solve method generics type");
-            show_node_type(result_type);
-            info->err_num++;
-
-            return FALSE;
-        }
-
-        if(generics_type) {
-            if(!solve_generics(&result_type, generics_type))
-            {
-                compile_err_msg(info, "Can't solve generics types(6))");
+                compile_err_msg(info, "Getting llvm type failed(105)");
                 show_node_type(result_type);
-                show_node_type(generics_type);
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
 
-                info->generics_type = generics_type_before;
                 return TRUE;
             }
+
+            sNodeType* result_type_before = info->result_type;
+            info->result_type = clone_node_type(result_type);
+
+            Value* result_variable = NULL;
+            if(!type_identify_with_class_name(result_type, "void"))
+            {
+                IRBuilder<> ir(&gFunction->getEntryBlock()
+                                , gFunction->getEntryBlock().begin());
+                result_variable = ir.CreateAlloca(llvm_type, 0, "result_variable");
+            }
+
+            void* result_variable_before = info->result_variable;
+            info->result_variable = result_variable;
+
+            BOOL last_expression_is_return_before = info->last_expression_is_return;
+            info->last_expression_is_return = FALSE;
+
+            if(!compile_block(inline_block, info, result_type, TRUE))
+            {
+                return FALSE;
+            }
+
+            if(!info->last_expression_is_return) {
+                free_right_value_objects(info);
+                Builder.CreateBr((BasicBlock*)info->inline_func_end);
+            }
+
+            llvm_change_block((BasicBlock*)info->inline_func_end, &current_block_before, info, FALSE);
+
+            if(!type_identify_with_class_name(result_type, "void"))
+            {
+                int alignment = get_llvm_alignment_from_node_type(result_type);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateAlignedLoad(result_variable, alignment, "result_variable");
+                llvm_value.type = result_type;
+                llvm_value.address = result_variable;
+                llvm_value.var = NULL;
+                llvm_value.binded_value = FALSE;
+
+                push_value_to_stack_ptr(&llvm_value, info);
+
+                if(llvm_value.type->mHeap) {
+                    append_heap_object_to_right_value(&llvm_value);
+                }
+            }
+
+            info->type = result_type;
+
+            info->last_expression_is_return = last_expression_is_return_before;
+            info->result_variable = result_variable_before;
+            info->result_type = result_type_before;
+            info->inline_func_end = inline_func_end_before;
         }
+        else {
+            sNodeType* result_type = clone_node_type(fun.mResultType);
 
-        Type* llvm_type;
-        if(!create_llvm_type_from_node_type(&llvm_type, result_type, result_type, info))
-        {
-            compile_err_msg(info, "Getting llvm type failed(105)");
-            show_node_type(result_type);
-            info->err_num++;
+            if(is_typeof_type(result_type))
+            {
+                if(!solve_typeof(&result_type, info)) 
+                {
+                    compile_err_msg(info, "Can't solve typeof types");
+                    show_node_type(result_type); 
+                    info->err_num++;
+                    return TRUE;
+                }
+            }
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            if(!solve_method_generics(&result_type, num_method_generics_types, method_generics_types))
+            {
+                compile_err_msg(info, "Can't solve method generics type");
+                show_node_type(result_type);
+                info->err_num++;
 
-            return TRUE;
-        }
+                return FALSE;
+            }
 
-        sNodeType* result_type_before = info->result_type;
-        info->result_type = clone_node_type(result_type);
+            if(generics_type) {
+                if(!solve_generics(&result_type, generics_type))
+                {
+                    compile_err_msg(info, "Can't solve generics types(6))");
+                    show_node_type(result_type);
+                    show_node_type(generics_type);
+                    info->err_num++;
 
-        Value* result_variable = NULL;
-        if(!type_identify_with_class_name(result_type, "void"))
-        {
-            IRBuilder<> ir(&gFunction->getEntryBlock()
-                            , gFunction->getEntryBlock().begin());
-            result_variable = ir.CreateAlloca(llvm_type, 0, "result_variable");
-        }
+                    info->type = create_node_type_with_class_name("int"); // dummy
 
-        void* result_variable_before = info->result_variable;
-        info->result_variable = result_variable;
+                    info->generics_type = generics_type_before;
+                    return TRUE;
+                }
+            }
 
-        BOOL last_expression_is_return_before = info->last_expression_is_return;
-        info->last_expression_is_return = FALSE;
+            Type* llvm_type;
+            if(!create_llvm_type_from_node_type(&llvm_type, result_type, result_type, info))
+            {
+                compile_err_msg(info, "Getting llvm type failed(105)");
+                show_node_type(result_type);
+                info->err_num++;
 
-        if(!compile_block(inline_block, info, result_type, TRUE))
-        {
-            return FALSE;
-        }
+                info->type = create_node_type_with_class_name("int"); // dummy
 
-        if(!info->last_expression_is_return) {
-            free_right_value_objects(info);
-            Builder.CreateBr((BasicBlock*)info->inline_func_end);
-        }
-
-        llvm_change_block((BasicBlock*)info->inline_func_end, &current_block_before, info, FALSE);
-
-        if(!type_identify_with_class_name(result_type, "void"))
-        {
-            int alignment = get_llvm_alignment_from_node_type(result_type);
+                return TRUE;
+            }
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateAlignedLoad(result_variable, alignment, "result_variable");
+            llvm_value.value = get_dummy_value(result_type, info);
             llvm_value.type = result_type;
-            llvm_value.address = result_variable;
-            llvm_value.var = NULL;
+            llvm_value.address = nullptr;
+            llvm_value.var = nullptr;
             llvm_value.binded_value = FALSE;
 
             push_value_to_stack_ptr(&llvm_value, info);
 
-            if(llvm_value.type->mHeap) {
-                append_heap_object_to_right_value(&llvm_value);
-            }
+            info->type = result_type;
         }
-
-        info->type = result_type;
-
-        info->last_expression_is_return = last_expression_is_return_before;
-        info->result_variable = result_variable_before;
-        info->result_type = result_type_before;
-        info->inline_func_end = inline_func_end_before;
     }
     else if(type_identify_with_class_name(fun.mResultType, "void"))
     {
@@ -5660,7 +5663,7 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     info->num_loop++;
 
     if(info->num_loop >= LOOP_NEST_MAX) {
-        compile_err_msg(info, "Over flow loop number");
+        compile_err_msg(info, "Over flow loop number. Loop number is %d. while(1)", info->num_loop);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5672,7 +5675,7 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     info->num_loop2++;
 
     if(info->num_loop2 >= LOOP_NEST_MAX) {
-        compile_err_msg(info, "Over flow loop number");
+        compile_err_msg(info, "Over flow loop number. Loop number is %d. while(2)", info->num_loop2);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5698,6 +5701,9 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
         free_right_value_objects(info);
         Builder.CreateBr(loop_top_block);
     }
+
+    info->num_loop--;
+    info->num_loop2--;
 
     info->last_expression_is_return = last_expression_is_return_before;
 
@@ -5742,7 +5748,7 @@ static BOOL compile_do_while_expression(unsigned int node, sCompileInfo* info)
     info->num_loop2++;
 
     if(info->num_loop2 >= LOOP_NEST_MAX) {
-        compile_err_msg(info, "Over flow loop number");
+        compile_err_msg(info, "Over flow loop number. Loop number is %d. do while", info->num_loop2);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5756,7 +5762,7 @@ static BOOL compile_do_while_expression(unsigned int node, sCompileInfo* info)
     info->num_loop++;
 
     if(info->num_loop >= LOOP_NEST_MAX) {
-        compile_err_msg(info, "Over flow loop number");
+        compile_err_msg(info, "Over flow loop number. Loop number is %d. do while", info->num_loop);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -6255,7 +6261,7 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     info->num_loop++;
 
     if(info->num_loop >= LOOP_NEST_MAX) {
-        compile_err_msg(info, "Over flow loop number");
+        compile_err_msg(info, "Over flow loop number. Loop number is %d. for", info->num_loop);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -6267,7 +6273,7 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     info->num_loop2++;
 
     if(info->num_loop2 >= LOOP_NEST_MAX) {
-        compile_err_msg(info, "Over flow loop number");
+        compile_err_msg(info, "Over flow loop number. Loop number is %d. for", info->num_loop2);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -8858,7 +8864,7 @@ BOOL compile_switch_expression(unsigned int node, sCompileInfo* info)
     info->num_loop++;
 
     if(info->num_loop >= LOOP_NEST_MAX) {
-        compile_err_msg(info, "Over flow loop number");
+        compile_err_msg(info, "Over flow loop number. Loop number is %d. switch", info->num_loop);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy

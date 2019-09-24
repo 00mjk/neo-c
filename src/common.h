@@ -487,6 +487,9 @@ struct sNodeTreeStruct
             BOOL mMethod;
             BOOL mInCLang;
             BOOL mInherit;
+
+            int mNumGenerics;
+            char mGenericsTypeNames[PARAMS_MAX][VAR_NAME_MAX];
         } sFunctionCall;
 
         struct {

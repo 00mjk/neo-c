@@ -73,6 +73,38 @@ def main():int
 
     xassert("tuple test", tu.equals(tuple!(1, 2, string("str"))));
 
+    var map1 = new map<char*, int>.initialize();
+
+    map1.insert("aaa", 1);
+    map1.insert("bbb", 2);
+    map1.insert("ccc", 3);
+
+    map1.each {
+        printf("%s %d\n", it, it2);
+    }
+
+    xassert("map test", map1.at("aaa", -1) == 1);
+
+    xassert("map test2", map1.find("bbb"));
+
+    var map2 = new map<char*, int>.initialize();
+
+    map2.insert("aaa", 1);
+    map2.insert("bbb", 2);
+    map2.insert("ccc", 3);
+
+    xassert("map test3", map1.equals(map2));
+
+    xassert("map test4", map!("AAA":1, "BBB":2).equals(map!("AAA":1, "BBB":2)));
+
+
+/*
+    int result;
+    map1.at("aaa", &result);
+
+    printf("%d\n", result);
+*/
+
     0
 }
 

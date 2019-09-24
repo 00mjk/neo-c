@@ -1,5 +1,9 @@
 extern "C"
 {
+#include <stdio.h>
+#include <stdlib.h>
+
+
 typedef char*% string;
 
 void*% xcalloc(int num, long size);
@@ -21,6 +25,11 @@ impl int
     inline bool equals(int left, int right) {
         return left == right;
     }
+
+    inline int get_hash_key(int value)
+    {
+        return value;
+    }
 }
 
 /// string ///
@@ -29,6 +38,17 @@ impl char
     inline bool equals(char* left, char* right)
     {
         return strcmp(left, right) == 0;
+    }
+
+    inline int get_hash_key(char* value)
+    {
+        int result = 0;
+        char* p = value;
+        while(*p) {
+            result += (*p);
+            p++;
+        }
+        return result;
     }
 }
 
@@ -150,15 +170,17 @@ ruby_macro vec {
         params.push(param);
     end
 
-    puts("{");
-    puts("var result = new vector<typeof(#{params[0]})>.initialize();");
+    if params.length() > 0
+        puts("{");
+        puts("var result = new vector<typeof(#{params[0]})>.initialize();");
 
-    params.each do |param|
-        puts("result.push_back(#{param});");
+        params.each do |param|
+            puts("result.push_back(#{param});");
+        end
+
+        puts("result");
+        puts("}");
     end
-
-    puts("result");
-    puts("}");
 }
 
 struct list_item<T>
@@ -186,7 +208,7 @@ impl list <T>
     finalize() {
         var it = self.head;
         while(it != null) {
-            if(ismanaged(it.item)) {
+            if(ismanaged(T) || isheap(T)) {
                 delete it.item;
             }
             var prev_it = it;
@@ -374,15 +396,17 @@ ruby_macro list {
         params.push(param);
     end
 
-    puts("{");
-    puts("var result = new list<typeof(#{params[0]})>.initialize();");
+    if params.length() > 0
+        puts("{");
+        puts("var result = new list<typeof(#{params[0]})>.initialize();");
 
-    params.each do |param|
-        puts("result.push_back(#{param});");
+        params.each do |param|
+            puts("result.push_back(#{param});");
+        end
+
+        puts("result");
+        puts("}");
     end
-
-    puts("result");
-    puts("}");
 }
 
 
@@ -397,7 +421,7 @@ impl tuple1 <T>
     }
 
     finalize() {
-        if(ismanaged(self.v1))
+        if(ismanaged(T) || isheap(T))
         {
             delete self.v1;
         }
@@ -425,11 +449,11 @@ impl tuple2 <T, T2>
     }
 
     finalize() {
-        if(ismanaged(self.v1))
+        if(ismanaged(T) || isheap(T))
         {
             delete self.v1;
         }
-        if(ismanaged(self.v2))
+        if(ismanaged(T2) || isheap(T2))
         {
             delete self.v2;
         }
@@ -461,13 +485,13 @@ impl tuple3 <T, T2, T3>
     }
 
     finalize() {
-        if(ismanaged(self.v1)) {
+        if(ismanaged(T) || isheap(T)) {
             delete self.v1;
         }
-        if(ismanaged(self.v2)) {
+        if(ismanaged(T2) || isheap(T2)) {
             delete self.v2;
         }
-        if(ismanaged(self.v3)) {
+        if(ismanaged(T3) || isheap(T3)) {
             delete self.v3;
         }
     }
@@ -502,16 +526,16 @@ impl tuple4 <T, T2, T3, T4>
     }
 
     finalize() {
-        if(ismanaged(self.v1)) {
+        if(ismanaged(T) || isheap(T)) {
             delete self.v1;
         }
-        if(ismanaged(self.v2)) {
+        if(ismanaged(T2) || isheap(T2)) {
             delete self.v2;
         }
-        if(ismanaged(self.v3)) {
+        if(ismanaged(T3) || isheap(T3)) {
             delete self.v3;
         }
-        if(ismanaged(self.v4)) {
+        if(ismanaged(T4) || isheap(T4)) {
             delete self.v4;
         }
     }
@@ -619,6 +643,283 @@ ruby_macro tuple {
         puts("result.v2 = #{params[1]};");
         puts("result.v3 = #{params[2]};");
         puts("result.v4 = #{params[3]};");
+
+        puts("result");
+        puts("}");
+    end
+}
+
+struct map<T, T2>
+{
+    T&*$ keys;
+    bool* item_existance;
+    T2&*$ items;
+    int size;
+    int len;
+}
+
+#define MAP_TABLE_DEFAULT_SIZE 128
+
+impl map <T, T2>
+{
+    initialize() {
+        self.keys = new T[MAP_TABLE_DEFAULT_SIZE];
+        self.items = new T2[MAP_TABLE_DEFAULT_SIZE];
+        self.item_existance = new bool[MAP_TABLE_DEFAULT_SIZE];
+
+        self.size = MAP_TABLE_DEFAULT_SIZE;
+        self.len = 0;
+    }
+
+    finalize() {
+        for(int i=0; i<self.size; i++) {
+            if(ismanaged(T2) || isheap(T2)) {
+                delete self.items[i];
+            }
+        }
+        delete self.items;
+
+        delete self.item_existance;
+
+        for(int i=0; i<self.size; i++) {
+            if(ismanaged(T) || isheap(T)) {
+                delete self.keys[i];
+            }
+        }
+        delete self.keys;
+    }
+
+    void each(map<T, T2>* self, void lambda(T&,T2&) block) 
+    {
+        for(int i=0; i<self.size; i++) {
+            if(self.item_existance[i]) {
+                block(self.keys[i], self.items[i]);
+            }
+        }
+    }
+
+    void rehash(map<T,T2>* self) {
+        int size = self.size * 3;
+        T&*$ keys = new T[size];
+        T2&*$ items = new T2[size];
+        bool* item_existance = new bool[size];
+
+        int len = 0;
+
+        self.each {
+            int hash = it.get_hash_key() % size;
+            int n = hash;
+
+            while(true) {
+                if(item_existance[n])
+                {
+                    n++;
+
+                    if(n >= size) {
+                        n = 0;
+                    }
+                    else if(n == hash) {
+                        fprintf(stderr, "unexpected error in map.rehash\n");
+                        exit(2);
+                    }
+                }
+                else {
+                    item_existance[n] = true;
+                    keys[n] = it;
+                    items[n] = it2;
+
+                    len++;
+                }
+            }
+        }
+
+        delete self.items;
+        delete self.item_existance;
+        delete self.keys;
+
+        self.keys = keys;
+        self.items = items;
+        self.item_existance = item_existance;
+
+        self.size = size;
+        self.len = len;
+    }
+
+    bool find(map<T, T2>* self, T& key) {
+        int hash = key.get_hash_key() % self.size;
+        int it = hash;
+
+        while(true) {
+            if(self.item_existance[it])
+            {
+                if(self.keys[it].equals(key))
+                {
+                    return true;
+                }
+
+                it++;
+
+                if(it >= self.size) {
+                    it = 0;
+                }
+                else if(it == hash) {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    T2 at(map<T, T2>* self, T& key, T2 default_value) 
+    {
+        int hash = key.get_hash_key() % self.size;
+        int it = hash;
+
+        while(true) {
+            if(self.item_existance[it])
+            {
+                if(self.keys[it].equals(key))
+                {
+                    return self.items[it];
+                }
+
+                it++;
+
+                if(it >= self.size) {
+                    it = 0;
+                }
+                else if(it == hash) {
+                    return default_value;
+                }
+            }
+            else {
+                return default_value;
+            }
+        }
+
+        return default_value;
+    }
+
+    void insert(map<T,T2>* self, T&$ key, T2&$ item) 
+    {
+        if(self.len*2 >= self.size) {
+            self.rehash();
+        }
+
+        int hash = key.get_hash_key() % self.size;
+        int it = hash;
+
+        while(true) {
+            if(self.item_existance[it])
+            {
+                it++;
+
+                if(it >= self.size) {
+                    it = 0;
+                }
+                else if(it == hash) {
+                    fprintf(stderr, "unexpected error in map.insert\n");
+                    exit(2);
+                }
+            }
+            else {
+                self.item_existance[it] = true;
+                self.keys[it] = key;
+                self.items[it] = item;
+
+                self.len++;
+
+                break;
+            }
+        }
+    }
+
+    bool equals(map<T, T2>* left, map<T, T2>* right)
+    {
+        if(left.len != right.len) {
+            return false;
+        }
+
+        bool result = true;
+        left.each {
+            if(right.find(it)) {
+                T2 default_value;
+                T2 item = right.at(it, default_value);
+                if(!it2.equals(item)) {
+                    result = false;
+                }
+            }
+            else {
+                result = false;
+            }
+        }
+
+        return result;
+    }
+}
+
+ruby_macro map {
+    params = [];
+    param = "";
+    dquort = false;
+    squort = false;
+    param_line = ENV['PARAMS'];
+    n = 0;
+    while(n < param_line.length()) do
+        c = param_line[n];
+        n = n + 1;
+
+        if (dquort || squort) && c == "\\"
+            param.concat(c);
+            
+            c = param_line[n];
+            n = n + 1;
+
+            param.concat(c);
+        elsif c == "\""
+            param.concat(c);
+            dquort = !dquort
+        elsif c == "'"
+            param.concat(c);
+            squort = !squort
+        elsif dquort || squort
+            param.concat(c);
+        elsif c == ","
+            if param.length() > 0
+                params.push(param); param = ""
+            end
+        elsif c == ":"
+            if param.length() > 0
+                params.push(param); param = ""
+            end
+        else
+            param.concat(c);
+        end
+    end
+
+    if param.length() != 0
+        params.push(param);
+    end
+
+    if params.length() >= 2
+    then
+        puts("{");
+        puts("var result = new map<typeof(#{params[0]}), typeof(#{params[1]})>.initialize();");
+
+        key = nil;
+        for it in params do
+            if key == nil
+            then
+                key = it;
+            else
+                puts("result.insert(#{key}, #{it});");
+                key = nil;
+            end
+        end
 
         puts("result");
         puts("}");
