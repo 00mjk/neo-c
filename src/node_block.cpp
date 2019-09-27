@@ -396,6 +396,10 @@ BOOL skip_block(sParserInfo* info)
             }
         }
     }
+    else {
+        parser_err_msg(info, "Require block");
+        info->err_num++;
+    }
 
     return TRUE;
 }

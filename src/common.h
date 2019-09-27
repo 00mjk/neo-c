@@ -305,6 +305,9 @@ struct sParserInfoStruct
     char parse_struct_name[VAR_NAME_MAX];
 
     BOOL automatically_header;
+
+    int mFunVersion;
+    int mImplVersion;
 };
 
 typedef struct sParserInfoStruct sParserInfo;
@@ -473,6 +476,7 @@ struct sNodeTreeStruct
             int mSLine;
             BOOL mInCLang;
             BOOL mParseStructPhase;
+            int mVersion;
         } sFunction;
 
         struct {
@@ -490,6 +494,7 @@ struct sNodeTreeStruct
 
             int mNumGenerics;
             char mGenericsTypeNames[PARAMS_MAX][VAR_NAME_MAX];
+            int mVersion;
         } sFunctionCall;
 
         struct {
@@ -612,13 +617,13 @@ unsigned int sNodeTree_create_not_equals(unsigned int left, unsigned int right, 
 
 unsigned int sNodeTree_create_store_variable(char* var_name, int right, BOOL alloc, sParserInfo* info);
 
-unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, char* struct_name, BOOL operator_fun, sParserInfo* info);
+unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, char* struct_name, BOOL operator_fun, int version, sParserInfo* info);
 
 unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, int sline, sParserInfo* info);
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg);
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg, int version);
 
-unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, BOOL inherit, sParserInfo* info);
+unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, BOOL inherit, int version, sParserInfo* info);
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
 unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED struct sNodeBlockStruct* if_node_block, unsigned int* elif_expression_nodes, MANAGED struct sNodeBlockStruct** elif_node_blocks, int elif_num, MANAGED struct sNodeBlockStruct* else_node_block, sParserInfo* info, char* sname, int sline);
 unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* sname, int sline, BOOL anonymous);
@@ -656,7 +661,7 @@ unsigned int sNodeTree_create_mult(unsigned int left, unsigned int right, unsign
 unsigned int sNodeTree_create_div(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_mod(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_cast(sNodeType* left_type, unsigned int left_node, sParserInfo* info);
-unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, BOOL va_arg, sParserInfo* info);
+unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, BOOL va_arg, int version, sParserInfo* info);
 unsigned int sNodeTree_create_inline_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, BOOL var_arg, sParserInfo* info);
 unsigned int sNodeTree_create_impl(unsigned int* nodes, int num_nodes, sParserInfo* info);
 unsigned int sNodeTree_create_typedef(char* name, sNodeType* node_type, sParserInfo* info);
@@ -717,6 +722,7 @@ struct sNodeBlockStruct
 
 typedef struct sNodeBlockStruct sNodeBlock;
 
+//void parse_version(int* version, sParserInfo* info);
 BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_clang, sParserInfo* info);
 BOOL parse_block(sNodeBlock* node_block, BOOL extern_clang, sParserInfo* info);
 BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type, BOOL free_var_object);

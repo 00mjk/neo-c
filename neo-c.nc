@@ -28,6 +28,8 @@ string string(char* str)
 
     strcpy(result, str);
 
+printf("string %p\n", result);
+
     result
 }
 
@@ -40,6 +42,18 @@ void xassert(char* msg, bool exp)
         exit(2);
     }
     puts("OK");
+}
+
+impl char
+{
+    string subString(string str, int head, int tail)
+    {
+        string result = new char[tail-head+1];
+        memcpy(result, str + head, tail-head);
+        result[tail-head] = '\0';
+
+        return result;
+    }
 }
 
 }

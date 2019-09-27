@@ -25,7 +25,7 @@ struct Data
 
 impl Data 
 {
-    def fun(self:Data*) {
+    def fun(self:Data*) version 2 {
         inherit(self);
         self.b = 7;
     }
@@ -44,6 +44,10 @@ impl Data2<T>
     def fun(self:Data2<T>*) {
         self.a = 123;
     }
+
+    def show(self:Data2<T>*) {
+        printf("self.a %d\n", self.a);
+    }
 }
 
 struct Data2<T>
@@ -51,7 +55,7 @@ struct Data2<T>
     b:T;
 }
 
-impl Data2<T>
+impl Data2<T> version 2
 {
     def fun(self:Data2<T>*) {
         inherit(self);
@@ -59,7 +63,8 @@ impl Data2<T>
     }
 
     def show(self:Data2<T>*) {
-        printf("self.a %d self.b %d\n", self.a, self.b);
+        inherit(self);
+        printf("self.b %d\n", self.b);
     }
 }
 
@@ -86,7 +91,7 @@ struct Data3
     c:int;
 }
 
-impl Data3
+impl Data3 version 2
 {
     initialize() {
         inherit(self);
@@ -108,6 +113,10 @@ impl Data4<T>
     initialize() {
         self.a = 123;
     }
+
+    def show(self:Data4<T>*) {
+        printf("self.a %d\n", self.a);
+    }
 }
 
 struct Data4<T>
@@ -115,7 +124,7 @@ struct Data4<T>
     b:T;
 }
 
-impl Data4<T>
+impl Data4<T> version 2
 {
     initialize() {
         inherit(self);
@@ -123,9 +132,11 @@ impl Data4<T>
     }
 
     def show(self:Data4<T>*) {
-        printf("self.a %d self.b %d\n", self.a, self.b);
+        inherit(self);
+        printf("self.b %d\n", self.b);
     }
 }
+
 
 def main():int
 {
@@ -145,3 +156,4 @@ def main():int
 
     0
 }
+

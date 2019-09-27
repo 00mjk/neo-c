@@ -1303,12 +1303,6 @@ int main()
 
     xassert("union test7", data6.a.a == 111 && data6.a.b == 222 && data6.b.a == 666);
 
-    extern char* malloc(long size);
-    extern void free(char* mem);
-
-    char* mem = malloc(1);
-    free(mem);
-
     xassert("extern test2", gGlobalVar == 1);
 
     inline void inline_fun1() {
@@ -1335,17 +1329,6 @@ int main()
     }
 
     xassert("inline function test2", inline_fun4(2, 3) == 5);
-
-    inline <T> T inline_fun5(T x, T y) 
-    {
-        x + y;
-
-        T z = x + y;
-
-        z
-    }
-
-    xassert("inline function test3", inline_fun5(2, 3) == 5);
 
     struct StructTest2 <T>
     {
@@ -1997,6 +1980,22 @@ label1:
 
     xassert("oct test", xyzY == 8);
 
+    inline <T> T inline_fun5(T x, T y) 
+    {
+        x + y;
+
+        T z = x + y;
+
+        z
+    }
+
+    xassert("inline function test3", inline_fun5(2, 3) == 5);
+
+    0
+}
+
+void unsupported_function()
+{
 /*
     struct StructTest3 {
         int a;
@@ -2026,12 +2025,6 @@ label1:
 
     funXYZ(*data9);
 */
-
-    0
-}
-
-void unsupported_function()
-{
 /*
     const int const_a = 1;
 

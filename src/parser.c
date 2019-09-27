@@ -813,6 +813,23 @@ static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* inf
     return TRUE;
 }
 
+static void parse_version(int* version, sParserInfo* info)
+{
+    if(memcmp(info->p, "version", 7) == 0) {
+        info->p += 7;
+        skip_spaces_and_lf(info);
+
+        *version = 0;
+        while(isdigit(*info->p)) {
+            *version = *version * 10 + (*info->p - '0');
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+
+        skip_spaces_and_lf(info);
+    }
+}
+
 
 static BOOL parse_generics_function(unsigned int* node, char* struct_name, sParserInfo* info)
 {
@@ -857,6 +874,11 @@ static BOOL parse_generics_function(unsigned int* node, char* struct_name, sPars
         result_type = create_node_type_with_class_name("void");
     }
 
+    int version = info->mImplVersion;
+    parse_version(&version, info);
+    info->mFunVersion = version;
+    skip_spaces_and_lf(info);
+
     char sname[PATH_MAX];
     xstrncpy(sname, info->sname, PATH_MAX);
 
@@ -878,7 +900,7 @@ static BOOL parse_generics_function(unsigned int* node, char* struct_name, sPars
 
     sBuf_append_str(&buf, "}");
 
-    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
+    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, version, info);
 
     if(info->automatically_header) 
     {
@@ -991,6 +1013,11 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
         result_type = create_node_type_with_class_name("void");
     }
 
+    int version = info->mImplVersion;
+    parse_version(&version, info);
+    info->mFunVersion = version;
+    skip_spaces_and_lf(info);
+
     char sname[PATH_MAX];
     xstrncpy(sname, info->sname, PATH_MAX);
 
@@ -1012,7 +1039,7 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
 
     sBuf_append_str(&buf, "}");
 
-    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
+    *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, version, info);
 
     if(info->automatically_header) 
     {
@@ -1120,6 +1147,11 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
         result_type = create_node_type_with_class_name("void");
     }
 
+    int version = info->mImplVersion;
+    parse_version(&version, info);
+    info->mFunVersion = version;
+    skip_spaces_and_lf(info);
+
     if(*info->p == ';') {
         info->p++;
         skip_spaces_and_lf(info);
@@ -1127,7 +1159,7 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
         if(info->parse_struct_phase) {
         }
         else {
-            *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, info);
+            *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, version, info);
         }
     }
     else {
@@ -1193,7 +1225,7 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
             BOOL simple_lambda_param = FALSE;
             BOOL construct_fun = FALSE;
 
-            *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, FALSE, var_arg);
+            *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, FALSE, var_arg, version);
         }
     }
 
@@ -1263,6 +1295,11 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
         }
     }
 
+    int version = info->mImplVersion;
+    parse_version(&version, info);
+    info->mFunVersion = version;
+    skip_spaces_and_lf(info);
+
     if(info->mNumGenerics > 0) {
         char sname[PATH_MAX];
         xstrncpy(sname, info->sname, PATH_MAX);
@@ -1287,7 +1324,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
 
         sBuf_append_str(&buf, "}");
 
-        *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
+        *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, version, info);
 
         if(info->automatically_header) 
         {
@@ -1337,7 +1374,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
             info->p++;
             skip_spaces_and_lf(info);
 
-            *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, info);
+            *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, version, info);
         }
         else {
             sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
@@ -1393,7 +1430,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
 
             BOOL generics_function = info->mNumGenerics > 0;
 
-            *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE);
+            *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE, version);
         }
     }
 
@@ -1450,6 +1487,11 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
         return FALSE;
     }
 
+    int version = info->mImplVersion;
+    parse_version(&version, info);
+    info->mFunVersion = version;
+    skip_spaces_and_lf(info);
+
     if(info->mNumGenerics > 0) {
         char sname[PATH_MAX];
         xstrncpy(sname, info->sname, PATH_MAX);
@@ -1476,7 +1518,7 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
 
         sBuf_append_str(&buf, "}");
 
-        *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
+        *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, version, info);
 
         //info->mNumMethodGenerics = 0;
 
@@ -1528,7 +1570,7 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
             info->p++;
             skip_spaces_and_lf(info);
 
-            *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, info);
+            *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, version, info);
         }
         else {
             sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
@@ -1589,7 +1631,7 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
 
             BOOL generics_function = info->mNumGenerics > 0;
 
-            *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE);
+            *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE, version);
         }
     }
 
@@ -2013,7 +2055,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
     BOOL construct_fun = FALSE;
     BOOL operator_fun = FALSE;
 
-    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, construct_fun, simple_lambda_param, info, FALSE, FALSE);
+    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, construct_fun, simple_lambda_param, info, FALSE, FALSE, 0);
 
     return TRUE;
 }
@@ -2361,6 +2403,12 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
         info->mNumGenerics = num_generics;
     }
 
+    int version = 0;
+    parse_version(&version, info);
+    skip_spaces_and_lf(info);
+
+    info->mImplVersion = version;
+
     expect_next_character_with_one_forward("{", info);
 
     if(info->automatically_header) 
@@ -2533,7 +2581,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                         return FALSE;
                     }
 
-                    *node = sNodeTree_create_function_call(fun_name, params, num_params, TRUE, FALSE, info);
+                    *node = sNodeTree_create_function_call(fun_name, params, num_params, TRUE, FALSE, info->mFunVersion, info);
                 }
                 /// access fields ///
                 else {
@@ -2891,7 +2939,7 @@ static BOOL parse_inherit(unsigned int* node, sParserInfo* info)
             num_params = 1;
         }
 
-        *node = sNodeTree_create_function_call(fun_name, params, num_params, TRUE, TRUE, info);
+        *node = sNodeTree_create_function_call(fun_name, params, num_params, TRUE, TRUE, info->mFunVersion, info);
     }
 
     return TRUE;
@@ -4110,7 +4158,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     num_params = 1;
                 }
 
-                *node = sNodeTree_create_function_call(fun_name, params, num_params, FALSE, FALSE, info);
+                *node = sNodeTree_create_function_call(fun_name, params, num_params, FALSE, FALSE, info->mFunVersion, info);
             }
             else {
                 *node = sNodeTree_create_load_function(buf, info);

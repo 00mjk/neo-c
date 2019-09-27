@@ -12,7 +12,6 @@ void*% xmemdup(void* mem);
 void xfree(void*% mem);
 
 char* xmemcpy(void* mem, void* mem2, long size);
-char* memcpy(void* mem, void* mem2, long size);
 
 char*% xasprintf(char* str, ...);
 
@@ -39,6 +38,8 @@ impl char
     {
         return strcmp(left, right) == 0;
     }
+
+    extern string subString(string str, int head, int tail);
 
     inline int get_hash_key(char* value)
     {
@@ -71,7 +72,7 @@ impl vector<T>
 
     finalize()
     {
-        if(isheap(T)) {
+        if(isheap(T) || ismanaged(T)) {
             for(int i=0; i<self.len; i++) {
                 delete self.items[i];
 

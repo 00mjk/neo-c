@@ -85,8 +85,8 @@ uninstall:
 	rmdir "$(DESTDIR)"/share/doc/neo-c
 	rm -f "$(DESTDIR)"/include/neo-c.h
 	rm -f "$(DESTDIR)"/share/man/man1/neo-c.1.gz
-	rm -f "$(DESTDIR)/memalloc-stdc.o"
-	rm -f "$(DESTDIR)/neo-c.o"
+	rm -f "$(DESTDIR)/lib/memalloc-stdc.o"
+	rm -f "$(DESTDIR)/lib/neo-c.o"
 
 ###################################################
 # permission
@@ -102,7 +102,7 @@ permission:
 # clean
 ###################################################
 clean:
-	rm -fR code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 code/HelloWorld8 code/HelloWorld9 neo-c neo-c.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out code/*.nc.tmp *.nc.tmp *.out
+	rm -fR code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 code/HelloWorld8 code/HelloWorld9 neo-c neo-c.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out code/*.nc.tmp *.nc.tmp *.out memalloc-stdc.o memalloc.o
 	rm -fR code/*.ll code/*.bc code/*.s
 
 distclean: clean

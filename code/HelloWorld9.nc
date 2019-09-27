@@ -47,6 +47,7 @@ def main():int
         printf("%s\n", it);
     }
 */
+/*
     
     var li = new list<int>.initialize();
 
@@ -96,6 +97,13 @@ def main():int
     xassert("map test3", map1.equals(map2));
 
     xassert("map test4", map!("AAA":1, "BBB":2).equals(map!("AAA":1, "BBB":2)));
+*/
+
+    var sub_str = string("ABC").subString(0,1);
+
+printf("sub_str %p\n", sub_str);
+
+    xassert("string test", strcmp(sub_str, "A") == 0);
 
 
 /*

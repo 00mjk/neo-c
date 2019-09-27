@@ -20,7 +20,7 @@ impl StructData1
         self.b = 2;
         self.c = 3;
     }
-    def fun(self:StructData1*) {
+    def fun(self:StructData1*) version 3 {
         inherit(self);
         printf("c %d\n", self.c);
     }
