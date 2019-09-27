@@ -271,6 +271,17 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                         return TRUE;
                     }
 
+                    if(llvm_value.binded_value) {
+                        if(llvm_value.var) {
+                            sVar* var = llvm_value.var;
+
+                            if(is_included_var_from_this_table_only(info->pinfo->lv_table, var))
+                            {
+                                llvm_value.binded_value = FALSE;
+                            }
+                        }
+                    }
+
                     prevent_from_right_object_free(&llvm_value, info);
 
                     push_value_to_stack_ptr(&llvm_value, info);

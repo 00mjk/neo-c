@@ -1309,6 +1309,9 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
 void append_heap_object_to_right_value(LVALUE* llvm_value)
 {
+#ifdef MDEBUG
+printf("append_heap_object_to_right_value %p\n", llvm_value->value);
+#endif
     if(llvm_value->type->mHeap) {
         if(gRightValueObjects.count(llvm_value->value) == 0)
         {
@@ -1323,9 +1326,7 @@ void append_heap_object_to_right_value(LVALUE* llvm_value)
             gRightValueObjects[llvm_value->value] = pair_value;
 
 #ifdef MDEBUG
-/*
 printf("append object to right heap value %p %s*\n", llvm_value->value, CLASS_NAME(llvm_value->type->mClass));
-*/
 #endif
         }
     }
@@ -1336,11 +1337,17 @@ void remove_from_right_value_object(Value* value)
     if(gRightValueObjects.count(value) > 0)
     {
         gRightValueObjects.erase(value);
+#ifdef MDEBUG
+printf("remove right heap object %p*\n", value);
+#endif
     }
 }
 
 void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL alloc, sCompileInfo* info)
 {
+#ifdef MDEBUG
+printf("std_move %p %s\n", rvalue->value, CLASS_NAME(rvalue->type->mClass));
+#endif
     if(!info->no_output) {
         sVar* rvar = rvalue->var;
         sNodeType* rvalue_type = rvalue->type;
@@ -1360,9 +1367,7 @@ void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL all
             if(gRightValueObjects.count(rvalue->value) > 0)
             {
 #ifdef MDEBUG
-/*
-printf("remove from right value object %p %s\n", rvalue->value, CLASS_NAME(lvar_type->mClass));
-*/
+printf("remove from right value object %p %s on the std_move\n", rvalue->value, CLASS_NAME(lvar_type->mClass));
 #endif
                 gRightValueObjects.erase(rvalue->value);
             }
@@ -1377,9 +1382,7 @@ void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info)
             if(gRightValueObjects.count(llvm_value->value) > 0) 
             {
 #ifdef MDEBUG
-/*
 printf("remove from right value%p\n", llvm_value->value);
-*/
 #endif
                 //gRightValueObjects[llvm_value->value].second = 1;
                 gRightValueObjects.erase(llvm_value->value);
@@ -1432,7 +1435,7 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
 static void free_right_value_object(sNodeType* node_type, void* obj, sCompileInfo* info)
 {
 #ifdef MDEBUG
-printf("free rigt value object %p type %s*\n", obj, CLASS_NAME(node_type->mClass));
+printf("free right value object %p type %s*\n", obj, CLASS_NAME(node_type->mClass));
 #endif
 
     Value* obj2 = (Value*)obj;

@@ -233,6 +233,7 @@ typedef struct sVarTableStruct sVarTable;
 void init_vtable();
 void final_vtable();
 
+BOOL is_included_var_from_this_table_only(sVarTable* table, sVar* var);
 sVarTable* init_block_vtable(sVarTable* lv_table, BOOL no_increment_block_level);
 
 sVarTable* init_var_table();

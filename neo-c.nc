@@ -28,9 +28,12 @@ string string(char* str)
 
     strcpy(result, str);
 
-printf("string %p\n", result);
-
     result
+}
+
+void p(char* str)
+{
+    puts(str);
 }
 
 /// others ///

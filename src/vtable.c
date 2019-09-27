@@ -239,6 +239,25 @@ sVar* get_variable_from_this_table_only(sVarTable* table, char* name)
     }
 }
 
+BOOL is_included_var_from_this_table_only(sVarTable* table, sVar* var)
+{
+    int hash_value = 0;
+
+    sVar* p = table->mLocalVariables + hash_value;
+
+    while(1) {
+        if(p == var) {
+            return TRUE;
+        }
+
+        p++;
+
+        if(p == table->mLocalVariables + LOCAL_VARIABLE_MAX) {
+            return FALSE;
+        }
+    }
+}
+
 
 
 void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info)

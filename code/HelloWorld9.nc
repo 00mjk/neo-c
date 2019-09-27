@@ -22,7 +22,6 @@ struct StructTest {
 
 def main():int 
 {
-/*
     var str = string("HELLO WORLD");
 
     str[0] = 'h';
@@ -46,8 +45,6 @@ def main():int
     v3.each {
         printf("%s\n", it);
     }
-*/
-/*
     
     var li = new list<int>.initialize();
 
@@ -60,6 +57,7 @@ def main():int
     li2.push_back(1);
 
     xassert("list test1", li.equals(li2));
+
     li.insert(1, 7);
 
     xassert("list test2", li.equals(list!(0, 7, 1)));
@@ -97,21 +95,10 @@ def main():int
     xassert("map test3", map1.equals(map2));
 
     xassert("map test4", map!("AAA":1, "BBB":2).equals(map!("AAA":1, "BBB":2)));
-*/
 
-    var sub_str = string("ABC").subString(0,1);
-
-printf("sub_str %p\n", sub_str);
+    var sub_str = string("ABC").subString(0, 1);
 
     xassert("string test", strcmp(sub_str, "A") == 0);
-
-
-/*
-    int result;
-    map1.at("aaa", &result);
-
-    printf("%d\n", result);
-*/
 
     0
 }

@@ -452,7 +452,7 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
 
         info->type = clone_node_type(fun->mResultType);
 
-        if(llvm_value.type->mHeap && !llvm_value.binded_value) 
+        if(llvm_value.type->mHeap && !llvm_value.binded_value &&& llvm_value.var) 
         {
             append_heap_object_to_right_value(&llvm_value);
         }
@@ -532,10 +532,13 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
+        sNodeType* left_type2 = clone_node_type(left_type);
+        left_type2->mHeap = FALSE;
+
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateAdd(left_value, right_value, "addtmp", false, true);
         llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type);
-        llvm_value.type = clone_node_type(left_type);
+        llvm_value.type = clone_node_type(left_type2);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
         llvm_value.binded_value = FALSE;
@@ -543,7 +546,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
 
-        info->type = left_type;
+        info->type = clone_node_type(left_type2);
     }
     else if(is_number_type(left_type) && is_number_type(right_type))
     {
@@ -557,7 +560,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
 
-        info->type = llvm_value.type;
+        info->type = clone_node_type(llvm_value.type);
     }
     else {
         int num_params = 2;
@@ -662,10 +665,13 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
+        sNodeType* left_type2 = clone_node_type(left_type);
+        left_type2->mHeap = FALSE;
+
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateSub(left_value, right_value, "subtmp", false, true);
         llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type);
-        llvm_value.type = clone_node_type(left_type);
+        llvm_value.type = clone_node_type(left_type2);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
         llvm_value.binded_value = FALSE;
@@ -673,7 +679,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
         dec_stack_ptr(2, info);
         push_value_to_stack_ptr(&llvm_value, info);
 
-        info->type = left_type;
+        info->type = clone_node_type(left_type2);
     }
     else if(is_number_type(left_type) && is_number_type(right_type))
     {
@@ -3161,13 +3167,17 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             }
             else if((left_type->mHeap || left_type->mManaged) && (right_type->mHeap || right_type->mManaged))
             {
-                if(llvm_value.binded_value)
+                if(llvm_value.binded_value && llvm_value.var)
                 {
                     std_move(NULL, left_type, &llvm_value, FALSE, info);
                 }
                 else {
                     remove_from_right_value_object(llvm_value.value);
                 }
+            }
+            else if(right_type->mHeap && !llvm_value.binded_value) 
+            {
+                append_heap_object_to_right_value(&llvm_value);
             }
         }
         else {
@@ -6877,7 +6887,7 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
     llvm_value.type = clone_node_type(var_type);
     llvm_value.address = load_element_addresss;
     llvm_value.var = nullptr;
-    llvm_value.binded_value = lvalue.binded_value;
+    llvm_value.binded_value = FALSE;
 
     dec_stack_ptr(2, info);
     push_value_to_stack_ptr(&llvm_value, info);

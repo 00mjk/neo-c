@@ -18,6 +18,8 @@ char*% xasprintf(char* str, ...);
 extern string operator+(char* left, char* right);
 extern string string(char* str);
 
+void p(char* str);
+
 /// int ///
 impl int
 {
