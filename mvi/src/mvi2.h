@@ -1,5 +1,5 @@
 struct win {
-    win:WINDOW;
+    win:WINDOW*;
 
 }
 
@@ -21,9 +21,9 @@ struct mvi {
     b:int;
 }
 
-impl mvi {
+impl mvi version 2 {
     initialize() ;
 finalize() ;
-def main(self:mvi):int ;
+def main(self:mvi*):int ;
 
 }

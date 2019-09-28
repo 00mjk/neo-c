@@ -27,8 +27,8 @@ int xgetmaxy()
 }
 
 struct win {
-    win:WINDOW;
-//    texts:list<string>;
+    win:WINDOW*;
+    texts:list<int>*;
 }
 
 impl win {
@@ -36,7 +36,7 @@ impl win {
 //        self.texts = new list<string>.initialize();
         var maxx = xgetmaxx();
         var maxy = xgetmaxy();
-        self.win = newwin(0,0, maxx-1, maxy-1);
+//        self.win = newwin(0,0, maxx-1, maxy-1);
     }
 
     def view() {
@@ -46,20 +46,27 @@ impl win {
 struct mvi {
     numWinHeight:int;
     numWinWidth:int;
+
+//    windows:vector<win*%>%*;
 }
 
 impl mvi {
     initialize() {
         puts("mvi initialize");
+
         self.numWinHeight = 1;
         self.numWinWidth = 1;
+
+//        var win = new win.initialize();
+
+//        self.windows.push_back(win);
     }
 
     finalize() {
         puts("mvi initialize");
     }
 
-    def main(self:mvi):int {
+    def main(self:mvi*):int {
         initscr();
         clear();
         refresh();

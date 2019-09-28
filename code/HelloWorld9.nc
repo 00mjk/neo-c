@@ -20,6 +20,10 @@ struct StructTest {
     abc:string;
 }
 
+struct ListTest {
+    li:list<int>*;
+}
+
 def main():int 
 {
     var str = string("HELLO WORLD");

@@ -13,7 +13,7 @@ struct mvi {
     b:int;
 }
 
-impl mvi {
+impl mvi version 2 {
     initialize() {
         inherit(self);
         puts("initialize mvi2");
@@ -24,7 +24,7 @@ impl mvi {
         puts("finalize mvi2");
     }
 
-    def main(self:mvi):int {
+    def main(self:mvi*):int {
         inherit(self);
 
         puts("finish app");
