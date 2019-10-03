@@ -303,6 +303,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL automatically
                 cinfo.sline = gNodes[node].mLine;
                 xstrncpy(cinfo.sname, gNodes[node].mSName, PATH_MAX);
 
+
                 if(!compile(node, &cinfo)) {
                     return FALSE;
                 }

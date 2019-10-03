@@ -43,6 +43,12 @@ void skip_spaces(sParserInfo* info)
 
 BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf)
 {
+    if(*info->p == '#') {
+        if(!parse_sharp(info)) {
+            return FALSE;
+        }
+    }
+
     buf[0] = 0;
 
     char* p2 = buf;
@@ -3266,6 +3272,13 @@ static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, s
                     skip_spaces_and_lf(info);
                 }
 
+                if(*info->p == '#') {
+                    if(!parse_sharp(info)) {
+                        return FALSE;
+                    }
+                }
+
+
                 if(*info->p == ',') {
                     info->p++;
                     skip_spaces_and_lf(info);
@@ -3281,7 +3294,7 @@ static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, s
                     break;
                 }
                 else {
-                    parser_err_msg(info, "neo-c requires , or ) for method call");
+                    parser_err_msg(info, "neo-c requires , or ) for method call. it is %c", *info->p);
                     info->err_num++;
                     break;
                 }

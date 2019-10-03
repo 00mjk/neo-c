@@ -91,7 +91,7 @@ def main():int
     map1.insert("ccc", 3);
 
     map1.each {
-        printf("%s %d\n", it, it2);
+        printf("map1 %s %d\n", it, it2);
     }
 
     xassert("map test", map1.at("aaa", -1) == 1);

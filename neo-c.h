@@ -2,18 +2,19 @@ extern "C"
 {
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 typedef char*% string;
 
-void*% xcalloc(int num, long size);
-void*% xmalloc(long size);
-void*% xmemdup(void* mem);
-void xfree(void*% mem);
+void*% nccalloc(int num, long size);
+void*% ncmalloc(long size);
+void*% ncmemdup(void* mem);
+void ncfree(void*% mem);
 
-char* xmemcpy(void* mem, void* mem2, long size);
+char* ncmemcpy(void* mem, void* mem2, long size);
 
-char*% xasprintf(char* str, ...);
+char*% ncasprintf(char* str, ...);
 
 extern string operator+(char* left, char* right);
 extern string string(char* str);
@@ -655,7 +656,7 @@ ruby_macro tuple {
 struct map<T, T2>
 {
     T&*$ keys;
-    bool* item_existance;
+    bool*$ item_existance;
     T2&*$ items;
     int size;
     int len;
@@ -670,26 +671,35 @@ impl map <T, T2>
         self.items = new T2[MAP_TABLE_DEFAULT_SIZE];
         self.item_existance = new bool[MAP_TABLE_DEFAULT_SIZE];
 
+        for(int i=0; i<MAP_TABLE_DEFAULT_SIZE; i++)
+        {
+            self.item_existance[i] = false;
+        }
+
         self.size = MAP_TABLE_DEFAULT_SIZE;
         self.len = 0;
     }
 
     finalize() {
         for(int i=0; i<self.size; i++) {
-            if(ismanaged(T2) || isheap(T2)) {
-                delete self.items[i];
+            if(self.item_existance[i]) {
+                if(ismanaged(T2) || isheap(T2)) {
+                    delete self.items[i];
+                }
             }
         }
         delete self.items;
 
-        delete self.item_existance;
-
         for(int i=0; i<self.size; i++) {
-            if(ismanaged(T) || isheap(T)) {
-                delete self.keys[i];
+            if(self.item_existance[i]) {
+                if(ismanaged(T) || isheap(T)) {
+                    delete self.keys[i];
+                }
             }
         }
         delete self.keys;
+
+        delete self.item_existance;
     }
 
     void each(map<T, T2>* self, void lambda(T&,T2&) block) 
@@ -779,21 +789,33 @@ impl map <T, T2>
 
     T2 at(map<T, T2>* self, T& key, T2 default_value) 
     {
+puts("1");
         int hash = key.get_hash_key() % self.size;
+puts("2");
         int it = hash;
+puts("3");
 
         while(true) {
+puts("4");
             if(self.item_existance[it])
             {
+puts("5");
+printf("%d %d\n", it, self.size);
+printf("%d\n", self.items[it]);
+puts("5.1");
+
                 if(self.keys[it].equals(key))
                 {
+puts("5.5");
                     return self.items[it];
                 }
 
+puts("6");
                 it++;
 
                 if(it >= self.size) {
                     it = 0;
+puts("7");
                 }
                 else if(it == hash) {
                     return default_value;
@@ -802,6 +824,7 @@ impl map <T, T2>
             else {
                 return default_value;
             }
+puts("8");
         }
 
         return default_value;

@@ -412,6 +412,7 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
     std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
 
     if(funcs.size() == 0) {
+        compile_err_msg(info, "function not found(%s) 1", real_fun_name);
         dec_stack_ptr(num_params, info);
         return FALSE;
     }
@@ -2652,7 +2653,9 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     /// get function ///
     std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
 
+
     if(funcs.size() == 0) {
+        compile_err_msg(info, "function not found(%s) 2", real_fun_name);
         return FALSE;
     }
 
@@ -2683,7 +2686,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     }
 
     if(fun->mResultType == nullptr) {
-        compile_err_msg(info, "function not found %s\n", real_fun_name);
+        compile_err_msg(info, "function not found(1) %s\n", real_fun_name);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2877,6 +2880,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             std::vector<sFunction*>& funcs2 = gFuncs[real_fun_name];
 
             if(funcs2.size() == 0) {
+                compile_err_msg(info, "function not found(%s) 3", real_fun_name);
                 return FALSE;
             }
 
@@ -4721,6 +4725,7 @@ static BOOL create_generics_finalize_method(sNodeType* node_type2, sCompileInfo*
     std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
 
     if(funcs.size() == 0) {
+        compile_err_msg(info, "function not found(%s) 4", real_fun_name);
         return TRUE;
     }
 
@@ -4858,7 +4863,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    Function* fun = TheModule->getFunction("xcalloc");
+    Function* fun = TheModule->getFunction("nccalloc");
 
     if(fun == nullptr) {
         fprintf(stderr, "require xcalloc\n");
@@ -8064,6 +8069,7 @@ static BOOL compile_load_function(unsigned int node, sCompileInfo* info)
     std::vector<sFunction*>& funcs = gFuncs[fun_name];
 
     if(funcs.size() == 0) {
+        compile_err_msg(info, "function not found(%s) 5", fun_name);
         return FALSE;
     }
 
@@ -8446,10 +8452,10 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
 
             LVALUE rvalue = *get_value_from_stack(-1);
 
-            Function* fun = TheModule->getFunction("xmemcpy");
+            Function* fun = TheModule->getFunction("ncmemcpy");
 
             if(fun == nullptr) {
-                fprintf(stderr, "require xmemcpy\n");
+                fprintf(stderr, "require ncmemcpy\n");
                 exit(2);
             }
 

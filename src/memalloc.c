@@ -20,7 +20,7 @@ struct header_t *get_free_block(size_t size)
     return NULL;
 }
 
-void xfree(void *block)
+void ncfree(void *block)
 {
     struct header_t *header, *tmp;
     /* program break is the end of the process's data segment */
@@ -68,7 +68,7 @@ void xfree(void *block)
     header->is_free = 1;
 }
 
-void *xmalloc(size_t size)
+void *ncmalloc(size_t size)
 {
     size_t total_size;
     void *block;
@@ -99,7 +99,7 @@ void *xmalloc(size_t size)
     return (void*)(header + 1);
 }
 
-void *xcalloc(size_t num, size_t nsize)
+void *nccalloc(size_t num, size_t nsize)
 {
     size_t size;
     char *block;
@@ -112,7 +112,7 @@ void *xcalloc(size_t num, size_t nsize)
     /* check mul overflow */
     if (nsize != size / num)
         return NULL;
-    block = xmalloc(size);
+    block = ncmalloc(size);
     if (!block)
         return NULL;
 
@@ -124,7 +124,7 @@ void *xcalloc(size_t num, size_t nsize)
     return block;
 }
 
-void *xrealloc(char *block, size_t size)
+void *ncrealloc(char *block, size_t size)
 {
     struct header_t *header;
     char *ret;
@@ -132,11 +132,11 @@ void *xrealloc(char *block, size_t size)
     char* p2;
 
     if (!block || !size)
-        return xmalloc(size);
+        return ncmalloc(size);
     header = (struct header_t*)block - 1;
     if (header->size >= size)
         return block;
-    ret = xmalloc(size);
+    ret = ncmalloc(size);
     if (ret) {
         // Relocate contents to the new bigger block
         p = ret;
@@ -146,12 +146,12 @@ void *xrealloc(char *block, size_t size)
         }
 
         // Free the old memory block
-        xfree(block);
+        ncfree(block);
     }
     return ret;
 }
 
-void *xmemdup(char *block)
+void *ncmemdup(char *block)
 {
     struct header_t *header;
     char *ret;
@@ -164,7 +164,7 @@ void *xmemdup(char *block)
 
     if (!block) return (void*)0;
 
-    ret = xmalloc(size);
+    ret = ncmalloc(size);
     if (ret) {
         p = ret;
         p2 = block;
@@ -176,7 +176,7 @@ void *xmemdup(char *block)
 }
 
 
-char* xmemcpy(char* mem, char* mem2, int size)
+char* ncmemcpy(char* mem, char* mem2, int size)
 {
     int i;
 

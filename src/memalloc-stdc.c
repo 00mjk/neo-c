@@ -7,7 +7,7 @@
 int gNumMemAlloc = 0;
 #endif
 
-void xfree(void *block)
+void ncfree(void *block)
 {
 #ifdef MDEBUG
 if(block) gNumMemAlloc--;
@@ -16,7 +16,7 @@ printf("\nruntime free %p %d\n", block, gNumMemAlloc);
     free(block);
 }
 
-void *xmalloc(size_t size)
+void *ncmalloc(size_t size)
 {
     void* result = malloc(size);
 #ifdef MDEBUG
@@ -26,9 +26,11 @@ printf("\nruntime alloc %p %d\n", result, gNumMemAlloc);
     return result;
 }
 
-void *xcalloc(size_t num, size_t nsize)
+void *nccalloc(size_t num, size_t nsize)
 {
     void* result = calloc(num, nsize);
+
+    memset(result, 0, num*nsize);
 
 #ifdef MDEBUG
 gNumMemAlloc++;
@@ -38,18 +40,18 @@ printf("runtime calloc %p %d\n", result, gNumMemAlloc);
     return result;
 }
 
-void *xrealloc(void *block, size_t size)
+void *ncrealloc(void *block, size_t size)
 {
     return realloc(block, size);
 }
 
-void *xmemdup(void *block)
+void *ncmemdup(void *block)
 {
-    fprintf(stderr, "no support xmemdup\n");
+    fprintf(stderr, "no support ncmemdup\n");
     exit(1);
 }
 
-void *xasprintf(char* msg, ...)
+void *ncasprintf(char* msg, ...)
 {
 #ifdef MDEBUG
 gNumMemAlloc++;
@@ -67,7 +69,7 @@ printf("runtime asprintf %p %d\n", tmp, gNumMemAlloc);
 }
 
 
-void* xmemcpy(void* mem, void* mem2, size_t size)
+void* ncmemcpy(void* mem, void* mem2, size_t size)
 {
     return memcpy(mem, mem2, size);
 }

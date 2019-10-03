@@ -9,9 +9,7 @@ ALLOC	src/xfunc.h	4;"	d
 BOOL	src/xfunc.h	7;"	d
 BUFFER_H	src/buffer.h	2;"	d
 CC	Makefile	/^CC=clang$/;"	m
-CC	mvi/Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
-CFLAGS	mvi/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
 CLASS_FLAGS_ANONYMOUS	src/common.h	85;"	d
 CLASS_FLAGS_ANONYMOUS_VAR_NAME	src/common.h	87;"	d
 CLASS_FLAGS_ENUM	src/common.h	86;"	d
@@ -31,42 +29,32 @@ CONS_str	src/common.h	61;"	d
 CXX	Makefile	/^CXX=clang++$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . -I src -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
-DESTDIR	mvi/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 ELIF_NUM_MAX	src/common.h	29;"	d
 EXTERNAL_OBJECT_MAX	src/common.h	34;"	d
 FALSE	src/xfunc.h	9;"	d
 GENERICS_TYPES_MAX	src/common.h	19;"	d
 HAVE_ICONV_H	config.h	3;"	d
 HAVE_ICONV_H	config.h	5;"	d
-HAVE_ICONV_H	mvi/config.h	3;"	d
-HAVE_ICONV_H	mvi/config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
-HAVE_MATH_H	mvi/config.h	2;"	d
-HAVE_NCURSESW_H	mvi/config.h	8;"	d
 HAVE_PCRE_H	config.h	6;"	d
-HAVE_PCRE_H	mvi/config.h	6;"	d
 HAVE_PTHREAD_H	config.h	11;"	d
 IMPL_DEF_MAX	src/common.h	33;"	d
 INIT_ARRAY_MAX	src/common.h	35;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
-INSTALL	mvi/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 LIBS	Makefile	/^LIBS= -lutil -lpthread -ldl -lm -lpcre -lrt$/;"	m
-LIBS	mvi/Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lncursesw -lrt$/;"	m
 LLVM_COMMON_H	src/llvm_common.hpp	2;"	d
 LOCAL_VARIABLE_MAX	src/common.h	25;"	d
 LOOP_NEST_MAX	src/common.h	36;"	d
 LVALUE	src/llvm_common.hpp	/^typedef struct LVALUEStruct LVALUE;$/;"	t	typeref:struct:LVALUEStruct
 LVALUEStruct	src/llvm_common.hpp	/^struct LVALUEStruct {$/;"	s
 MANAGED	src/xfunc.h	5;"	d
-MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	664;"	d
-MAP_TABLE_DEFAULT_SIZE	neo-c.h	664;"	d
+MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	665;"	d
+MAP_TABLE_DEFAULT_SIZE	neo-c.h	665;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
-NCC	mvi/Makefile	/^NCC=neo-c$/;"	m
 NEO_C_STACK_SIZE	src/common.h	24;"	d
 NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
 OBJS	Makefile	/^OBJS=src\/source_compiler.o src\/parser.o src\/parser-clang.o src\/node.o src\/klass.o src\/node_type.o src\/typedef.o src\/constant.o src\/llvm.o src\/vtable.o src\/node_block.o src\/node_alloc.o src\/macro.o$/;"	m
 OS	Makefile	/^OS=LINUX$/;"	m
-OS	mvi/Makefile	/^OS=LINUX$/;"	m
 PARAMS_MAX	src/common.h	26;"	d
 PARSER_ERR_MSG_MAX	src/common.h	22;"	d
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c -c code\/External.nc$/;"	m
@@ -96,9 +84,7 @@ TheModule	src/llvm.cpp	/^Module* TheModule;$/;"	v
 VAR_NAME_MAX	src/common.h	20;"	d
 XFUNC_H	src/xfunc.h	2;"	d
 __64BIT_CPU__	config.h	18;"	d
-__64BIT_CPU__	mvi/config.h	18;"	d
 __LINUX__	config.h	16;"	d
-__LINUX__	mvi/config.h	16;"	d
 __sbrk	src/sbrk.c	/^void * __sbrk (intptr_t increment)$/;"	f
 a	code/HelloWorld5.h	/^    a:int;$/;"	m	struct:StructData1
 ac_fn_c_check_func	configure	/^ac_fn_c_check_func ()$/;"	f
@@ -140,29 +126,23 @@ append_str_to_constant_pool	src/constant.c	/^unsigned int append_str_to_constant
 append_wstr_to_constant_pool	src/constant.c	/^unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
 as_fn_append	mvi/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	mvi/configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	mvi/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	mvi/configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
 as_fn_error	mvi/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	mvi/configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	mvi/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	mvi/configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	mvi/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	mvi/configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	mvi/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	mvi/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	mvi/configure	/^as_fn_mkdir_p ()$/;"	f
@@ -170,13 +150,11 @@ as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_failure	mvi/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	mvi/configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	mvi/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	mvi/configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	mvi/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	mvi/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	mvi/configure	/^as_fn_unset ()$/;"	f
@@ -188,7 +166,6 @@ b	code/HelloWorld6.h	/^    b:int;$/;"	m	struct:StructData1
 b	mvi/mvi2.h	/^    b:int;$/;"	m	struct:mvi
 binded_value	src/llvm_common.hpp	/^    BOOL binded_value;$/;"	m	struct:LVALUEStruct
 bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
-bindir	mvi/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 c	code/neo-c.h	/^            c = param_line[n];$/;"	m	struct:list
 c	code/neo-c.h	/^            c = param_line[n];$/;"	m	struct:map
 c	code/neo-c.h	/^            c = param_line[n];$/;"	m	struct:tuple
@@ -326,14 +303,11 @@ create_type_name_from_node_type	src/node_type.c	/^void create_type_name_from_nod
 create_undefined_llvm_struct_type	src/llvm.cpp	/^void create_undefined_llvm_struct_type(sNodeType* node_type)$/;"	f
 current_block	src/common.h	/^    void* current_block;$/;"	m	struct:sCompileInfoStruct
 datadir	Makefile	/^datadir=${datarootdir}$/;"	m
-datadir	mvi/Makefile	/^datadir=${datarootdir}$/;"	m
 datarootdir	Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
-datarootdir	mvi/Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
 dec_stack_ptr	src/llvm.cpp	/^void dec_stack_ptr(int value, sCompileInfo* info)$/;"	f
 declare_builtin_functions	src/llvm.cpp	/^void declare_builtin_functions()$/;"	f
 delete_comment	src/source_compiler.c	/^BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
-docdir	mvi/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 dquort	code/neo-c.h	/^            dquort = !dquort$/;"	m	struct:list
 dquort	code/neo-c.h	/^            dquort = !dquort$/;"	m	struct:map
 dquort	code/neo-c.h	/^            dquort = !dquort$/;"	m	struct:tuple
@@ -483,7 +457,6 @@ header_t	src/memalloc.c	/^struct header_t {$/;"	s	file:
 in_clang	src/common.h	/^    BOOL in_clang;$/;"	m	struct:sParserInfoStruct
 included_generics_type	src/node_type.c	/^BOOL included_generics_type(sNodeType* node_type)$/;"	f
 includedir	Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
-includedir	mvi/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 init_block_vtable	src/vtable.c	/^sVarTable* init_block_vtable(sVarTable* lv_table, BOOL no_increment_block_level)$/;"	f
 init_node_types	src/node_type.c	/^void init_node_types()$/;"	f
 init_nodes	src/node_alloc.c	/^void init_nodes()$/;"	f
@@ -519,8 +492,8 @@ item	code/neo-c.h	/^    T&$ item;$/;"	m	struct:list_item
 item	code/neo-c.h	/^    bool item(list<T>* self, int position, T* result) {$/;"	f	struct:list
 item	neo-c.h	/^    T&$ item;$/;"	m	struct:list_item
 item	neo-c.h	/^    bool item(list<T>* self, int position, T* result) {$/;"	f	struct:list
-item_existance	code/neo-c.h	/^    bool* item_existance;$/;"	m	struct:map
-item_existance	neo-c.h	/^    bool* item_existance;$/;"	m	struct:map
+item_existance	code/neo-c.h	/^    bool*$ item_existance;$/;"	m	struct:map
+item_existance	neo-c.h	/^    bool*$ item_existance;$/;"	m	struct:map
 items	code/neo-c.h	/^    T*% items;$/;"	m	struct:vector
 items	code/neo-c.h	/^    T2&*$ items;$/;"	m	struct:map
 items	neo-c.h	/^    T*% items;$/;"	m	struct:vector
@@ -620,7 +593,6 @@ len	neo-c.h	/^    int len;$/;"	m	struct:vector
 length	code/neo-c.h	/^    int length;$/;"	m	struct:list
 length	neo-c.h	/^    int length;$/;"	m	struct:list
 libdir	Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
-libdir	mvi/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 list	code/neo-c.h	/^impl list <T>$/;"	s
 list	code/neo-c.h	/^ruby_macro list {$/;"	s
 list	code/neo-c.h	/^struct list<T>$/;"	s
@@ -847,7 +819,6 @@ main	a.cpp	/^int main()$/;"	f
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
 main	src/preprocessor.c	/^int main(int argc, char* argv[])$/;"	f
 mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
-mandir	mvi/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 map	code/neo-c.h	/^impl map <T, T2>$/;"	s
 map	code/neo-c.h	/^ruby_macro map {$/;"	s
 map	code/neo-c.h	/^struct map<T, T2>$/;"	s
@@ -877,6 +848,19 @@ n	neo-c.h	/^        n = n + 1;$/;"	m	struct:tuple
 n	neo-c.h	/^    n = 0;$/;"	m	struct:list
 n	neo-c.h	/^    n = 0;$/;"	m	struct:map
 n	neo-c.h	/^    n = 0;$/;"	m	struct:tuple
+ncasprintf	src/memalloc-stdc.c	/^void *ncasprintf(char* msg, ...)$/;"	f
+nccalloc	src/memalloc-stdc.c	/^void *nccalloc(size_t num, size_t nsize)$/;"	f
+nccalloc	src/memalloc.c	/^void *nccalloc(size_t num, size_t nsize)$/;"	f
+ncfree	src/memalloc-stdc.c	/^void ncfree(void *block)$/;"	f
+ncfree	src/memalloc.c	/^void ncfree(void *block)$/;"	f
+ncmalloc	src/memalloc-stdc.c	/^void *ncmalloc(size_t size)$/;"	f
+ncmalloc	src/memalloc.c	/^void *ncmalloc(size_t size)$/;"	f
+ncmemcpy	src/memalloc-stdc.c	/^void* ncmemcpy(void* mem, void* mem2, size_t size)$/;"	f
+ncmemcpy	src/memalloc.c	/^char* ncmemcpy(char* mem, char* mem2, int size)$/;"	f
+ncmemdup	src/memalloc-stdc.c	/^void *ncmemdup(void *block)$/;"	f
+ncmemdup	src/memalloc.c	/^void *ncmemdup(char *block)$/;"	f
+ncrealloc	src/memalloc-stdc.c	/^void *ncrealloc(void *block, size_t size)$/;"	f
+ncrealloc	src/memalloc.c	/^void *ncrealloc(char *block, size_t size)$/;"	f
 next	code/neo-c.h	/^    struct list_item<T>*?$ next;$/;"	m	struct:list_item	typeref:struct:list_item::$
 next	neo-c.h	/^    struct list_item<T>*?$ next;$/;"	m	struct:list_item	typeref:struct:list_item::$
 next	src/memalloc.c	/^    struct header_t *next;$/;"	m	struct:header_t	typeref:struct:header_t::header_t	file:
@@ -1012,7 +996,6 @@ pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileI
 postposition_operator	src/parser-clang.c	/^static BOOL postposition_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 prefix	Makefile	/^prefix=\/usr\/local$/;"	m
-prefix	mvi/Makefile	/^prefix=\/usr\/local exec_prefix=${prefix}$/;"	m
 preprocess_source	src/preprocessor.c	/^static BOOL preprocess_source(char* sname, char* output_sname)$/;"	f	file:
 preprocessor	src/preprocessor.c	/^static BOOL preprocessor(sBuf* source, sBuf* source2)$/;"	f	file:
 preprocessor_final	src/preprocessor.c	/^static void preprocessor_final()$/;"	f	file:
@@ -1197,7 +1180,6 @@ sWhile	src/common.h	/^        } sWhile;$/;"	m	union:sNodeTreeStruct::__anon2	typ
 search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size, int version)$/;"	f	file:
 set_max_block_var_num	src/vtable.c	/^void set_max_block_var_num(sVarTable* lv_table, sVarTable* old_table)$/;"	f
 sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
-sharedstatedir	mvi/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 show_node	src/node.cpp	/^void show_node(unsigned int node)$/;"	f
 show_node_type	src/node_type.c	/^void show_node_type(sNodeType* node_type)$/;"	f
 show_vtable	src/vtable.c	/^void show_vtable(sVarTable* table)$/;"	f
@@ -1243,7 +1225,6 @@ substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType
 switch_expression	src/common.h	/^    void* switch_expression;$/;"	m	struct:sCompileInfoStruct
 switch_nest	src/common.h	/^    int switch_nest;$/;"	m	struct:sParserInfoStruct
 sysconfdir	Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
-sysconfdir	mvi/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
 tail	code/neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
 tail	neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
 tail	src/memalloc.c	/^struct header_t *head = NULL, *tail = NULL;$/;"	v	typeref:struct:
@@ -1302,21 +1283,8 @@ version	mvi/mvi2.h	/^impl mvi version 2 {$/;"	s
 win	mvi/mvi.h	/^    win:WINDOW*;$/;"	m	struct:editor_win
 win	mvi/mvi2.h	/^    win:WINDOW*;$/;"	m	struct:editor_win
 write_to_automatically_header	src/parser.c	/^static BOOL write_to_automatically_header(sBuf* buf)$/;"	f	file:
-xasprintf	src/memalloc-stdc.c	/^void *xasprintf(char* msg, ...)$/;"	f
-xcalloc	src/memalloc-stdc.c	/^void *xcalloc(size_t num, size_t nsize)$/;"	f
-xcalloc	src/memalloc.c	/^void *xcalloc(size_t num, size_t nsize)$/;"	f
 xcalloc	src/xfunc.c	/^ALLOC void* xcalloc(size_t count, size_t size)$/;"	f
-xfree	src/memalloc-stdc.c	/^void xfree(void *block)$/;"	f
-xfree	src/memalloc.c	/^void xfree(void *block)$/;"	f
-xmalloc	src/memalloc-stdc.c	/^void *xmalloc(size_t size)$/;"	f
-xmalloc	src/memalloc.c	/^void *xmalloc(size_t size)$/;"	f
 xmalloc	src/xfunc.c	/^ALLOC void* xmalloc(size_t size)$/;"	f
-xmemcpy	src/memalloc-stdc.c	/^void* xmemcpy(void* mem, void* mem2, size_t size)$/;"	f
-xmemcpy	src/memalloc.c	/^char* xmemcpy(char* mem, char* mem2, int size)$/;"	f
-xmemdup	src/memalloc-stdc.c	/^void *xmemdup(void *block)$/;"	f
-xmemdup	src/memalloc.c	/^void *xmemdup(char *block)$/;"	f
-xrealloc	src/memalloc-stdc.c	/^void *xrealloc(void *block, size_t size)$/;"	f
-xrealloc	src/memalloc.c	/^void *xrealloc(char *block, size_t size)$/;"	f
 xrealloc	src/xfunc.c	/^ALLOC void* xrealloc(void* ptr, size_t size)$/;"	f
 xstrdup	src/xfunc.c	/^ALLOC char* xstrdup(char* str)$/;"	f
 xstrncat	src/xfunc.c	/^char* xstrncat(char* des, char* str, int size)$/;"	f
