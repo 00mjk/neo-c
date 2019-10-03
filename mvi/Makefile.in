@@ -29,14 +29,14 @@ DESTDIR=@DESTDIR@
 ##########################################
 all: mvi
 
-mvi: config.h src/main.nc src/mvi.o src/mvi2.o
-	neo-c -o mvi src/main.nc src/mvi.o src/mvi2.o $(CFLAGS) $(LIBS)
+mvi: config.h main.nc mvi.o mvi2.o
+	neo-c -o mvi main.nc mvi.o mvi2.o $(CFLAGS) $(LIBS)
 
-src/mvi.o: config.h src/mvi.ncc
-	neo-c -c src/mvi.ncc $(CFLAGS) $(LIBS)
+mvi.o: config.h mvi.ncc
+	neo-c -c mvi.ncc $(CFLAGS) $(LIBS)
 
-src/mvi2.o: config.h src/mvi2.ncc
-	neo-c -c src/mvi2.ncc $(CFLAGS) $(LIBS)
+mvi2.o: config.h mvi2.ncc
+	neo-c -c mvi2.ncc $(CFLAGS) $(LIBS)
 
 
 #########################################
@@ -57,16 +57,16 @@ uninstall:
 #########################################
 permission:
 	chmod 644 *
-	chmod 755 .git man src configure
-	chmod 644 src/*.nc
-	chmod 644 src/*.h
+	chmod 755 .git man configure
+	chmod 644 *.nc
+	chmod 644 *.h
 	chmod 755 update_mvi-c.sh
 
 #########################################
 # clean
 #########################################
 clean:
-	rm -fR src/*.ll src/*.bc src/*.nc.tmp src/*.out src/*.o
+	rm -fR *.ll *.bc *.nc.tmp *.out *.o
 	rm -fR mvi
 
 distclean: clean

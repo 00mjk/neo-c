@@ -184,6 +184,7 @@ static BOOL parse_struct(unsigned int* node, sParserInfo* info)
 
     *node = sNodeTree_struct(struct_type, info, sname, sline, anonymous);
 
+/*
     if(info->parse_struct_phase && !included_generics_type(struct_type)) 
     {
         sCompileInfo cinfo;
@@ -197,6 +198,7 @@ static BOOL parse_struct(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
+*/
 
     if(info->automatically_header)
     {
@@ -587,7 +589,8 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
     if(info->mGenericsType && info->mGenericsType->mNumGenericsTypes > 0)
     {
-        if(!solve_generics(result_type, info->mGenericsType))
+        BOOL success_solve;
+        if(!solve_generics(result_type, info->mGenericsType, &success_solve))
         {
             parser_err_msg(info, "Can't solve generics type");
             show_node_type(*result_type);
@@ -595,22 +598,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
             info->err_num++;
         }
     }
-
-/*
-    if(((*result_type)->mClass->mFlags & CLASS_FLAGS_STRUCT))
-    {
-        sCompileInfo cinfo;
-        memset(&cinfo, 0, sizeof(sCompileInfo));
-        cinfo.no_output = TRUE;
-
-        if(!create_llvm_struct_type(*result_type, *result_type, FALSE, &cinfo))
-        {
-            parser_err_msg(info, "Can't create llvm struct from this node type");
-            show_node_type(*result_type);
-            info->err_num++;
-        }
-    }
-*/
 
     return TRUE;
 }

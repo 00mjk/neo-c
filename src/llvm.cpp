@@ -658,6 +658,30 @@ void create_undefined_llvm_struct_type(sNodeType* node_type)
     }
 }
 
+static BOOL is_generics_type(sNodeType* node_type)
+{
+    sCLClass* klass = node_type->mClass;
+
+    if(klass->mFlags & CLASS_FLAGS_GENERICS)
+    {
+        return TRUE;
+    }
+    else {
+        int i;
+        for(i=0; i<node_type->mNumGenericsTypes; i++)
+        {
+            sNodeType* node_type2 = node_type->mGenericsTypes[i];
+
+            if(is_generics_type(node_type2))
+            {
+                return TRUE;
+            }
+        }
+    }
+
+    return FALSE;
+}
+
 BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOOL new_create, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
@@ -677,9 +701,20 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOO
         for(i=0; i<klass->mNumFields; i++) {
             sNodeType* field = clone_node_type(klass->mFields[i]);
 
-            if(!solve_generics(&field, generics_type))
+            sNodeType* generics_type2 = generics_type;
+
+            if(!is_generics_type(field) && field->mNumGenericsTypes > 0)
             {
-                return FALSE;
+                generics_type2 = clone_node_type(field);
+            }
+            else {
+                BOOL success_solve;
+                (void)solve_generics(&field, field, &success_solve);
+
+                if(!solve_generics(&field, generics_type, &success_solve))
+                {
+                    return FALSE;
+                }
             }
 
             if(field->mClass == klass && field->mPointerNum == 0)
@@ -688,8 +723,11 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOO
             }
 
             Type* field_type;
-            if(!create_llvm_type_from_node_type(&field_type, field, generics_type, info))
+            if(!create_llvm_type_from_node_type(&field_type, field, generics_type2, info))
             {
+                compile_err_msg(info, "Getting llvm type failed(100)");
+                show_node_type(field);
+                show_node_type(generics_type2);
                 return FALSE;
             }
 
@@ -716,19 +754,32 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOO
         for(i=0; i<klass->mNumFields; i++) {
             sNodeType* field = clone_node_type(klass->mFields[i]);
 
-            if(!solve_generics(&field, generics_type))
+            sNodeType* generics_type2 = generics_type;
+
+            if(!is_generics_type(field) && field->mNumGenericsTypes > 0)
             {
-                return FALSE;
+                generics_type2 = clone_node_type(field);
+            }
+            else {
+                BOOL success_solve;
+                (void)solve_generics(&field, field, &success_solve);
+
+                if(!solve_generics(&field, generics_type, &success_solve))
+                {
+                    return FALSE;
+                }
             }
 
             if(field->mClass == klass && field->mPointerNum == 0)
             {
                 return FALSE;
             }
-
             Type* field_type;
-            if(!create_llvm_type_from_node_type(&field_type, field, generics_type, info))
+            if(!create_llvm_type_from_node_type(&field_type, field, generics_type2, info))
             {
+                compile_err_msg(info, "Getting llvm type failed(100)");
+                show_node_type(field);
+                show_node_type(generics_type2);
                 return FALSE;
             }
 
@@ -766,13 +817,27 @@ BOOL create_llvm_union_type(sNodeType* node_type, sNodeType* generics_type, sCom
         for(i=0; i<klass->mNumFields; i++) {
             sNodeType* field = clone_node_type(klass->mFields[i]);
 
-            if(!solve_generics(&field, generics_type))
+            sNodeType* generics_type2 = generics_type;
+
+            BOOL success_solve;
+            (void)solve_generics(&field, field, &success_solve);
+
+            if(success_solve)
             {
-                return FALSE;
+                generics_type2 = field;
+            }
+
+            if(!success_solve) {
+                (void)solve_generics(&field, generics_type, &success_solve);
+
+                if(success_solve)
+                {
+                    generics_type2 = generics_type;
+                }
             }
 
             Type* field_type;
-            if(!create_llvm_type_from_node_type(&field_type, field, generics_type, info))
+            if(!create_llvm_type_from_node_type(&field_type, field, generics_type2, info))
             {
                 return FALSE;
             }
@@ -815,13 +880,27 @@ BOOL create_llvm_union_type(sNodeType* node_type, sNodeType* generics_type, sCom
         for(i=0; i<klass->mNumFields; i++) {
             sNodeType* field = clone_node_type(klass->mFields[i]);
 
-            if(!solve_generics(&field, generics_type))
+            sNodeType* generics_type2 = generics_type;
+
+            BOOL success_solve;
+            (void)solve_generics(&field, field, &success_solve);
+
+            if(success_solve)
             {
-                return FALSE;
+                generics_type2 = field;
+            }
+
+            if(!success_solve) {
+                (void)solve_generics(&field, generics_type, &success_solve);
+
+                if(success_solve)
+                {
+                    generics_type2 = generics_type;
+                }
             }
 
             Type* field_type;
-            if(!create_llvm_type_from_node_type(&field_type, field, generics_type, info))
+            if(!create_llvm_type_from_node_type(&field_type, field, generics_type2, info))
             {
                 return FALSE;
             }
@@ -1548,7 +1627,9 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
         int i;
         for(i=0; i<klass->mNumFields; i++) {
             sNodeType* field_type = clone_node_type(klass->mFields[i]);
-            (void)solve_generics(&field_type, node_type);
+
+            BOOL success_solve;
+            (void)solve_generics(&field_type, node_type, &success_solve);
             sCLClass* field_class = field_type->mClass;
 
             if(type_identify(node_type, field_type))

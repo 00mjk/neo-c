@@ -4,6 +4,10 @@ extern "C"
 {
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <ncurses.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 inline bool funX(int a, int b)
 {
@@ -22,6 +26,10 @@ struct StructTest {
 
 struct ListTest {
     li:list<int>*;
+}
+
+struct win {
+    texts:list<int>*;
 }
 
 def main():int 
@@ -103,6 +111,8 @@ def main():int
     var sub_str = string("ABC").subString(0, 1);
 
     xassert("string test", strcmp(sub_str, "A") == 0);
+
+    var wi = new win;
 
     0
 }

@@ -190,7 +190,7 @@ BOOL type_identify(sNodeType* left, sNodeType* right);
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
 BOOL is_number_type(sNodeType* node_type);
 void show_node_type(sNodeType* node_type);
-BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type);
+BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type, BOOL* success_solve);
 BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX]);
 BOOL solve_typeof(sNodeType** node_type, struct sCompileInfoStruct* info);
 BOOL is_typeof_type(sNodeType* node_type);

@@ -2074,7 +2074,8 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
             }
         }
         if(generics_type) {
-            if(!solve_generics(&param->mType, generics_type)) 
+            BOOL success_solve;
+            if(!solve_generics(&param->mType, generics_type, &success_solve)) 
             {
                 compile_err_msg(cinfo, "Can't solve generics types(1))");
                 show_node_type(param->mType);
@@ -2124,7 +2125,8 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     }
 
     if(generics_type) {
-        if(!solve_generics(&result_type, generics_type)) 
+        BOOL success_solve;
+        if(!solve_generics(&result_type, generics_type, &success_solve)) 
         {
             compile_err_msg(cinfo, "Can't solve generics types(2)");
             show_node_type(result_type);
@@ -2277,7 +2279,8 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
         }
 
         if(generics_type) {
-            if(!solve_generics(&param->mType, generics_type)) 
+            BOOL success_solve;
+            if(!solve_generics(&param->mType, generics_type, &success_solve)) 
             {
                 compile_err_msg(cinfo, "Can't solve generics types(3)");
                 show_node_type(param->mType);
@@ -2349,7 +2352,8 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     }
 
     if(generics_type) {
-        if(!solve_generics(&result_type, generics_type)) 
+        BOOL success_solve;
+        if(!solve_generics(&result_type, generics_type, &success_solve)) 
         {
             compile_err_msg(cinfo, "Can't solve generics types(4))");
             show_node_type(result_type);
@@ -2439,7 +2443,8 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
         }
 
         if(generics_type) {
-            if(!solve_generics(&param->mType, generics_type)) 
+            BOOL success_solve;
+            if(!solve_generics(&param->mType, generics_type, &success_solve)) 
             {
                 compile_err_msg(cinfo, "Can't solve generics types(5))");
                 show_node_type(param->mType);
@@ -2935,7 +2940,8 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 }
             }
 
-            if(!solve_generics(&left_type, generics_type)) {
+            BOOL success_solve;
+            if(!solve_generics(&left_type, generics_type, &success_solve)) {
                 found = FALSE;
             }
 
@@ -3271,7 +3277,8 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             }
 
             if(generics_type) {
-                if(!solve_generics(&result_type, generics_type))
+                BOOL success_solve;
+                if(!solve_generics(&result_type, generics_type, &success_solve))
                 {
                     compile_err_msg(info, "Can't solve generics types(6))");
                     show_node_type(result_type);
@@ -3375,7 +3382,8 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             }
 
             if(generics_type) {
-                if(!solve_generics(&result_type, generics_type))
+                BOOL success_solve;
+                if(!solve_generics(&result_type, generics_type, &success_solve))
                 {
                     compile_err_msg(info, "Can't solve generics types(6))");
                     show_node_type(result_type);
@@ -3438,7 +3446,8 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         }
 
         if(generics_type) {
-            if(!solve_generics(&result_type, generics_type))
+            BOOL success_solve;
+            if(!solve_generics(&result_type, generics_type, &success_solve))
             {
                 compile_err_msg(info, "Can't solve generics types(7)");
                 show_node_type(result_type);
@@ -3595,7 +3604,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         Type* llvm_param_type;
         if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, param_type, info))
         {
-            compile_err_msg(info, "Getting llvm type failed(5)");
+            compile_err_msg(info, "Getting llvm type failed(5) %s.%s param#%d", struct_name, fun_name, i);
             show_node_type(param_type);
             info->err_num++;
 
@@ -4790,7 +4799,8 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     }
 
     if(info->pinfo->mGenericsType) {
-        if(!solve_generics(&node_type2, info->pinfo->mGenericsType)) {
+        BOOL success_solve;
+        if(!solve_generics(&node_type2, info->pinfo->mGenericsType, &success_solve)) {
             compile_err_msg(info, "Can't solve generics types(8)");
             show_node_type(node_type2);
             show_node_type(info->pinfo->mGenericsType);
@@ -5039,7 +5049,8 @@ static BOOL compile_stack_object(unsigned int node, sCompileInfo* info)
     }
 
     if(info->pinfo->mGenericsType) {
-        if(!solve_generics(&node_type2, info->pinfo->mGenericsType)) {
+        BOOL success_solve;
+        if(!solve_generics(&node_type2, info->pinfo->mGenericsType, &success_solve)) {
             compile_err_msg(info, "Can't solve generics types(9)");
             show_node_type(node_type2);
             show_node_type(info->pinfo->mGenericsType);
@@ -5187,7 +5198,8 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
             }
         }
 
-        if(!solve_generics(&parent_field_type, left_type)) {
+        BOOL success_solve;
+        if(!solve_generics(&parent_field_type, left_type, &success_solve)) {
             compile_err_msg(info, "Can't solve generics types(10)");
             show_node_type(field_type);
             show_node_type(left_type);
@@ -5311,7 +5323,8 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
             }
         }
 
-        if(!solve_generics(&field_type, left_type)) {
+        BOOL success_solve;
+        if(!solve_generics(&field_type, left_type, &success_solve)) {
             compile_err_msg(info, "Can't solve generics types(11)");
             show_node_type(field_type);
             show_node_type(left_type);
@@ -5513,7 +5526,8 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
             }
         }
 
-        if(!solve_generics(&parent_field_type, left_type)) {
+        BOOL success_solve;
+        if(!solve_generics(&parent_field_type, left_type, &success_solve)) {
             compile_err_msg(info, "Can't solve generics types(12)");
             show_node_type(parent_field_type);
             show_node_type(left_type);
@@ -5610,7 +5624,8 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         }
     }
 
-    if(!solve_generics(&field_type, left_type)) {
+    BOOL success_solve;
+    if(!solve_generics(&field_type, left_type, &success_solve)) {
         compile_err_msg(info, "Can't solve generics types(13)");
         show_node_type(field_type);
         show_node_type(left_type);
@@ -6468,7 +6483,8 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
 
 /*
     if(info->generics_type) {
-        if(!solve_generics(&lambda_type, info->generics_type))
+        BOOL success_solve;
+        if(!solve_generics(&lambda_type, info->generics_type, &success_solve))
         {
             compile_err_msg(info, "Can't solve generics types(14)");
             show_node_type(lambda_type);

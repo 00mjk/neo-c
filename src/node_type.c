@@ -416,13 +416,15 @@ BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)
     return type_identify(left, right);
 }
 
-BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
+BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type, BOOL* success_volve)
 {
+    *success_volve = FALSE;
+
     sCLClass* klass = (*node_type)->mClass;
 
     if(type_identify_with_class_name(*node_type, "lambda")) 
     {
-        if(!solve_generics(&(*node_type)->mResultType, generics_type))
+        if(!solve_generics(&(*node_type)->mResultType, generics_type, success_volve))
         {
             return FALSE;
         }
@@ -430,7 +432,7 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
         int i;
         for(i=0; i<(*node_type)->mNumParams; i++)
         {
-            if(!solve_generics(&(*node_type)->mParamTypes[i], generics_type))
+            if(!solve_generics(&(*node_type)->mParamTypes[i], generics_type, success_volve))
             {
                 return FALSE;
             }
@@ -479,6 +481,8 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
             if(pointer_num > 0) {
                 (*node_type)->mPointerNum += pointer_num;
             }
+
+            *success_volve = TRUE;
         }
     }
     else {
@@ -490,7 +494,7 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
             int i;
             for(i=0; i<klass->mNumFields; i++) {
                 sNodeType* node_type = clone_node_type(klass->mFields[i]);
-                if(!solve_generics(&node_type, generics_type))
+                if(!solve_generics(&node_type, generics_type, success_volve))
                 {
                     return FALSE;
                 }
@@ -500,7 +504,7 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type)
         int i;
         for(i=0; i<(*node_type)->mNumGenericsTypes; i++)
         {
-            if(!solve_generics(&(*node_type)->mGenericsTypes[i], generics_type))
+            if(!solve_generics(&(*node_type)->mGenericsTypes[i], generics_type, success_volve))
             {
                 return FALSE;
             }

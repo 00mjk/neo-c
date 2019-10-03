@@ -1,6 +1,6 @@
-###################################################
+#########################################
 # installed directories
-###################################################
+#########################################
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 bindir=@bindir@
@@ -14,9 +14,9 @@ docdir=@datadir@/doc
 libdir=@libdir@
 
 
-###################################################
+#########################################
 # environmnet variables
-###################################################
+#########################################
 CC=@CC@
 CXX=@CXX@
 INSTALL=@INSTALL@
@@ -29,9 +29,9 @@ OBJS=@OBJS@
 RUNTIME_OBJS=@RUNTIME_OBJS@
 COMMON_OBJS=@COMMON_OBJS@
 
-###################################################
+#########################################
 # main
-###################################################
+#########################################
 all: neo-c neo-c.o
 	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
@@ -47,18 +47,18 @@ memalloc.o: src/memalloc.c
 memalloc-stdc.o: src/memalloc-stdc.c
 	$(CC) -c -o memalloc-stdc.o src/memalloc-stdc.c $(CFLAGS)
 
-###################################################
+#########################################
 # Object files
-###################################################
+#########################################
 $(OBJS): src/*.h Makefile configure
 
 $(COMMON_OBJS): src/*.h Makefile configure
 
 $(RUNTIME_OBJS): src/*.h Makefile configure
 
-###################################################
+#########################################
 # install
-###################################################
+#########################################
 install:
 	mkdir -p $(DESTDIR)/lib
 	$(INSTALL) -m 644 ./memalloc-stdc.o $(DESTDIR)/lib
@@ -76,9 +76,9 @@ install:
 	mkdir -p $(DESTDIR)/share/doc/neo-c
 #	$(INSTALL) -m 644 ./manual/*.md "$(DESTDIR)/share/doc/neo-c"
 
-###################################################
+#########################################
 # uninstall
-###################################################
+#########################################
 uninstall:
 	rm -f "$(DESTDIR)"/bin/neo-c
 	rm -f "$(DESTDIR)"/share/doc/neo-c/*
@@ -88,9 +88,9 @@ uninstall:
 	rm -f "$(DESTDIR)/lib/memalloc-stdc.o"
 	rm -f "$(DESTDIR)/lib/neo-c.o"
 
-###################################################
+#########################################
 # permission
-###################################################
+#########################################
 permission:
 	chmod 644 *
 	chmod 755 .git man src configure
@@ -98,9 +98,9 @@ permission:
 	chmod 644 src/*.h
 	chmod 755 update_neo-c.sh
 
-###################################################
+#########################################
 # clean
-###################################################
+#########################################
 clean:
 	rm -fR code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 code/HelloWorld8 code/HelloWorld9 neo-c neo-c.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out code/*.nc.tmp *.nc.tmp *.out memalloc-stdc.o memalloc.o
 	rm -fR code/*.ll code/*.bc code/*.s
@@ -108,9 +108,9 @@ clean:
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache 
 
-###################################################
+#########################################
 # test
-###################################################
+#########################################
 test: 
 	@echo "Compile to test code..."
 	PWD=`pwd` ./neo-c -c code/External.nc
@@ -130,3 +130,9 @@ test:
 	./code/HelloWorld8
 	PWD=`pwd` ./neo-c code/HelloWorld9.nc
 	./code/HelloWorld9
+
+mvi: mvi/mvi
+
+mvi/mvi: mvi/configure mvi/Makefile
+	(cd mvi; make)
+

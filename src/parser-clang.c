@@ -1703,7 +1703,8 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
     if(info->mGenericsType && info->mGenericsType->mNumGenericsTypes > 0)
     {
-        if(!solve_generics(result_type, info->mGenericsType))
+        BOOL success_solve;
+        if(!solve_generics(result_type, info->mGenericsType, &success_solve))
         {
             parser_err_msg(info, "Can't solve generics type");
             show_node_type(*result_type);

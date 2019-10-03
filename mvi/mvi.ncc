@@ -26,17 +26,19 @@ int xgetmaxy()
 
 }
 
-struct win {
+struct editor_win {
     win:WINDOW*;
     texts:list<int>*;
 }
 
-impl win {
+impl editor_win {
     initialize() {
-//        self.texts = new list<string>.initialize();
+/*
+        self.texts = new list<int>.initialize();
         var maxx = xgetmaxx();
         var maxy = xgetmaxy();
-//        self.win = newwin(0,0, maxx-1, maxy-1);
+        self.win = newwin(0,0, maxx-1, maxy-1);
+*/
     }
 
     def view() {
