@@ -373,7 +373,8 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
     else if(type_identify(left_type, right_type)) {
         if((left_type->mPointerNum-1 == right_type->mPointerNum) && right_type->mArrayNum > 0)
         {
-            if(left_type->mHeap || left_type->mManaged) {
+            if(left_type->mHeap || left_type->mManaged) 
+            {
                 if(right_type->mHeap || right_type->mManaged)
                 {
                     return TRUE;

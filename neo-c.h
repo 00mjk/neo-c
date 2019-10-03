@@ -789,33 +789,21 @@ impl map <T, T2>
 
     T2 at(map<T, T2>* self, T& key, T2 default_value) 
     {
-puts("1");
         int hash = key.get_hash_key() % self.size;
-puts("2");
         int it = hash;
-puts("3");
 
         while(true) {
-puts("4");
             if(self.item_existance[it])
             {
-puts("5");
-printf("%d %d\n", it, self.size);
-printf("%d\n", self.items[it]);
-puts("5.1");
-
                 if(self.keys[it].equals(key))
                 {
-puts("5.5");
                     return self.items[it];
                 }
 
-puts("6");
                 it++;
 
                 if(it >= self.size) {
                     it = 0;
-puts("7");
                 }
                 else if(it == hash) {
                     return default_value;
@@ -824,7 +812,6 @@ puts("7");
             else {
                 return default_value;
             }
-puts("8");
         }
 
         return default_value;
