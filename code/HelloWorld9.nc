@@ -114,6 +114,8 @@ def main():int
 
     var wi = new win;
 
+    puts(string("AAA"));
+
     0
 }
 

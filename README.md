@@ -1,6 +1,8 @@
 # neo c compiler language
 
-version 0.5.5
+This is constructing. Maybe unstable for use.
+
+version 0.6.0
 
 ./configure --with-optimize
 make

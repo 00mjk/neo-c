@@ -1991,6 +1991,8 @@ label1:
 
     xassert("inline function test3", inline_fun5(2, 3) == 5);
 
+    char* aaaaxxxx = string("AAA");
+
     0
 }
 
