@@ -98,7 +98,6 @@ def main():int
         printf("%s\n", it);
     }
 
-/*
     var tu = tuple!(1,2,string("str"));
 
     xassert("tuple test", tu.equals(tuple!(1, 2, string("str"))));
@@ -134,7 +133,6 @@ def main():int
     var wi = new win.initialize();
 
     printf("%s\n", wi.texts.item(0, null));
-*/
 
     0
 }
