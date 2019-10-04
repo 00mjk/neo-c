@@ -1,16 +1,8 @@
-code/HelloWorld9 no comment out wo hazusu
 
-malloc de jidou free suruka douka
-
-managed 変数 &で削除
-
-borrowでヒープの代入を簡単にする
-
-list
-
-vector
+Genericsやinlineのエラーメッセージがバグっている。行番号が
 
 collection
+
 double, floatの値の表現、8進数、16進数
 
 2次元配列

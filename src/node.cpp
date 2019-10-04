@@ -3,9 +3,8 @@
 std::map<std::string, std::vector<sFunction*>> gFuncs;
 std::map<std::string, BasicBlock*> gLabels;
 std::vector<sFunction> gFunctionStack;
-std::map<std::string, int> gFinalizeGenericsFunNum;
 
-static int gGenericsFunNum = 0;
+int gGenericsFunNum = 0;
 
 BOOL is_function_name(char* name)
 {
@@ -404,7 +403,7 @@ static void create_operator_fun_name(char* real_fun_name, size_t size_real_fun_n
     }
 }
 
-BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, sCompileInfo* info)
+BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, BOOL no_err_output, sCompileInfo* info)
 {
     char real_fun_name[REAL_FUN_NAME_MAX];
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
@@ -412,7 +411,9 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
     std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
 
     if(funcs.size() == 0) {
-        compile_err_msg(info, "function not found(%s) 1", real_fun_name);
+        if(!no_err_output) {
+            compile_err_msg(info, "function not found(%s) 1", real_fun_name);
+        }
         dec_stack_ptr(num_params, info);
         return FALSE;
     }
@@ -455,7 +456,7 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
 
         if(llvm_value.type->mHeap && !llvm_value.binded_value &&& llvm_value.var) 
         {
-            append_heap_object_to_right_value(&llvm_value);
+            append_heap_object_to_right_value(&llvm_value, info);
         }
     }
 
@@ -580,7 +581,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
 
         create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_add", param_types, num_params);
 
-        if(!call_function(real_fun_name, params, num_params, "", info))
+        if(!call_function(real_fun_name, params, num_params, "", FALSE, info))
         {
             compile_err_msg(info, "Not found found operator + for\n");
             show_node_type(left_type);
@@ -713,7 +714,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
 
         create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_sub", param_types, num_params);
 
-        if(!call_function(real_fun_name, params, num_params, "", info))
+        if(!call_function(real_fun_name, params, num_params, "", FALSE, info))
         {
             compile_err_msg(info, "Not found found operator - for\n");
             show_node_type(left_type);
@@ -806,7 +807,7 @@ static BOOL compile_mult(unsigned int node, sCompileInfo* info)
 
         create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_mult", param_types, num_params);
 
-        if(!call_function(real_fun_name, params, num_params, "", info))
+        if(!call_function(real_fun_name, params, num_params, "", FALSE, info))
         {
             compile_err_msg(info, "Not found found operator * for\n");
             show_node_type(left_type);
@@ -899,7 +900,7 @@ static BOOL compile_div(unsigned int node, sCompileInfo* info)
 
         create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_div", param_types, num_params);
 
-        if(!call_function(real_fun_name, params, num_params, "", info))
+        if(!call_function(real_fun_name, params, num_params, "", FALSE, info))
         {
             compile_err_msg(info, "Not found found operator / for\n");
             show_node_type(left_type);
@@ -992,7 +993,7 @@ static BOOL compile_mod(unsigned int node, sCompileInfo* info)
 
         create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_mod", param_types, num_params);
 
-        if(!call_function(real_fun_name, params, num_params, "", info))
+        if(!call_function(real_fun_name, params, num_params, "", FALSE, info))
         {
             compile_err_msg(info, "Not found found operator % for\n");
             show_node_type(left_type);
@@ -2624,7 +2625,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         LVALUE param = *get_value_from_stack(-1);
 
-        remove_from_right_value_object(param.value);
+        remove_from_right_value_object(param.value, info);
     }
 
     sNodeType* generics_type_before = info->generics_type;
@@ -2708,7 +2709,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
         LVALUE param = *get_value_from_stack(-1);
 
-        remove_from_right_value_object(param.value);
+        remove_from_right_value_object(param.value, info);
     }
 
     /// compile simple lambda param ///
@@ -2739,6 +2740,16 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         }
 
         param_types[num_params2] = info->type;
+    }
+
+    if(!(fun->mNumParams == num_params || (fun->mVarArg && num_params >= fun->mNumParams)))
+    {
+        compile_err_msg(info, "invalid function parametor number. (%s), The prametor number of definition is %d, but the calling with parametor is %d.", fun_name, fun->mNumParams, num_params);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
     }
 
     /// generics ///
@@ -2823,6 +2834,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             num_method_generics_types = i;
 
             int generics_fun_num = gGenericsFunNum;
+
             gGenericsFunNum++;
             create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun->mName, method_generics_types, num_method_generics_types, generics_type, struct_name, generics_fun_num);
 
@@ -2836,8 +2848,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 fun2 = funcs[funcs.size()-1];
             }
 
-            if(fun2 == nullptr 
-                    || fun2->mResultType == nullptr) 
+            if(fun2 == nullptr || fun2->mResultType == nullptr) 
             {
                 LVALUE* llvm_stack = gLLVMStack;
                 int stack_num = info->stack_num;
@@ -3173,7 +3184,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             BOOL self_in_inherit = inherit && strcmp(fun_name, "initialize") == 0 && i == 0;
 
             if(self_in_inherit) {
-                remove_from_right_value_object(llvm_value.value);
+                remove_from_right_value_object(llvm_value.value, info);
             }
             else if((left_type->mHeap || left_type->mManaged) && (right_type->mHeap || right_type->mManaged))
             {
@@ -3182,12 +3193,12 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                     std_move(NULL, left_type, &llvm_value, FALSE, info);
                 }
                 else {
-                    remove_from_right_value_object(llvm_value.value);
+                    remove_from_right_value_object(llvm_value.value, info);
                 }
             }
             else if(right_type->mHeap && !llvm_value.binded_value) 
             {
-                append_heap_object_to_right_value(&llvm_value);
+                append_heap_object_to_right_value(&llvm_value, info);
             }
         }
         else {
@@ -3195,7 +3206,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             if(right_type->mHeap && !llvm_value.binded_value) 
             {
-                append_heap_object_to_right_value(&llvm_value);
+                append_heap_object_to_right_value(&llvm_value, info);
             }
         }
     }
@@ -3210,7 +3221,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             if(!left_type->mHeap && right_type->mHeap && !llvm_value.binded_value)
             {
-                append_heap_object_to_right_value(&llvm_value);
+                append_heap_object_to_right_value(&llvm_value, info);
             }
         }
         else {
@@ -3218,7 +3229,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             if(right_type->mHeap && !llvm_value.binded_value) 
             {
-                append_heap_object_to_right_value(&llvm_value);
+                append_heap_object_to_right_value(&llvm_value, info);
             }
         }
     }
@@ -3351,7 +3362,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 push_value_to_stack_ptr(&llvm_value, info);
 
                 if(llvm_value.type->mHeap) {
-                    append_heap_object_to_right_value(&llvm_value);
+                    append_heap_object_to_right_value(&llvm_value, info);
                 }
             }
 
@@ -3485,7 +3496,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             if(!initialize_inherit) {
                 if(llvm_value.type->mHeap) {
-                    append_heap_object_to_right_value(&llvm_value);
+                    append_heap_object_to_right_value(&llvm_value, info);
                 }
             }
 
@@ -3558,6 +3569,8 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
 
 BOOL compile_function(unsigned int node, sCompileInfo* info)
 {
+    void* right_value_objects = new_right_value_objects_container(info);
+
     BOOL parse_struct_phase = gNodes[node].uValue.sFunction.mParseStructPhase;
 
     BOOL in_clang = gNodes[node].uValue.sFunction.mInCLang;
@@ -3946,6 +3959,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     BasicBlock* current_block_before2;
     llvm_change_block(current_block_before, &current_block_before2, info, TRUE);
+    restore_right_value_objects_container(right_value_objects, info);
 
     return TRUE;
 }
@@ -4637,7 +4651,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         push_value_to_stack_ptr(&llvm_value, info);
 
         if(llvm_value.type->mHeap) {
-            append_heap_object_to_right_value(&llvm_value);
+            append_heap_object_to_right_value(&llvm_value, info);
         }
     }
     else {
@@ -4713,77 +4727,6 @@ unsigned int sNodeTree_create_object(sNodeType* node_type, unsigned int object_n
     return node;
 }
 
-static BOOL create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info)
-{
-    int generics_fun_num = ++gGenericsFunNum;
-
-    char* struct_name = CLASS_NAME(node_type2->mClass);
-
-    char real_fun_name[REAL_FUN_NAME_MAX];
-    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", struct_name);
-
-    std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
-
-    if(funcs.size() == 0) {
-        compile_err_msg(info, "function not found(%s) 4", real_fun_name);
-        return TRUE;
-    }
-
-    sFunction* fun = funcs[funcs.size()-1];
-
-    if(fun->mResultType != nullptr) {
-        /// get function ///
-        int num_method_generics_types = 0;
-        sNodeType* method_generics_types[GENERICS_TYPES_MAX];
-        memset(method_generics_types, 0, sizeof(sNodeType*)*GENERICS_TYPES_MAX);
-
-        sNodeType* generics_type = clone_node_type(node_type2);
-
-        LVALUE* llvm_stack = gLLVMStack;
-        int stack_num = info->stack_num;
-
-        char* buf = fun->mBlockText;
-
-        char sname[PATH_MAX];
-        xstrncpy(sname, fun->mSName, PATH_MAX);
-
-        int sline = fun->mSLine;
-
-        BOOL in_clang = fun->mInCLang;
-        BOOL var_arg = fun->mVarArg;
-
-        unsigned int node = 0;
-        if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg))
-        {
-            gLLVMStack = llvm_stack;
-            info->stack_num = stack_num;
-            return FALSE;
-        }
-
-        gNodes[node].mLine = info->pinfo->sline;
-        xstrncpy(gNodes[node].mSName, info->pinfo->sname, PATH_MAX);
-
-        if(!compile(node, info)) {
-            gLLVMStack = llvm_stack;
-            info->stack_num = stack_num;
-            return FALSE;
-        }
-
-        info->stack_num = stack_num;
-        gLLVMStack = llvm_stack;
-
-        char type_name[1024];
-        type_name[0] = '\0';
-        sNodeType* node_type3 = clone_node_type(node_type2);
-        node_type3->mPointerNum++;
-        type_name[0] = '\0';
-        create_type_name_from_node_type(type_name, 1024, node_type3, FALSE);
-
-        gFinalizeGenericsFunNum[type_name] = generics_fun_num;
-    }
-
-    return TRUE;
-}
 
 static BOOL compile_object(unsigned int node, sCompileInfo* info)
 {
@@ -4814,13 +4757,6 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
             info->type = create_node_type_with_class_name("int"); // dummy
 
             return TRUE;
-        }
-    }
-
-    /// generate finalize function for generics ///
-    if(node_type2->mNumGenericsTypes > 0) {
-        if(!create_generics_finalize_method(node_type2, info)) {
-            return FALSE;
         }
     }
 
@@ -4907,7 +4843,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     push_value_to_stack_ptr(&llvm_value, info);
 
     if(!info->no_output) {
-        append_heap_object_to_right_value(&llvm_value);
+        append_heap_object_to_right_value(&llvm_value, info);
     }
 
     info->type = clone_node_type(node_type2);
@@ -4962,7 +4898,7 @@ static BOOL compile_delete(unsigned int node, sCompileInfo* info)
     }
 */
 
-    free_object(node_type, llvm_value.address, info);
+    free_object(node_type, llvm_value.address, TRUE, info);
 
     info->type = create_node_type_with_class_name("void");
 
@@ -5007,7 +4943,7 @@ static BOOL compile_borrow(unsigned int node, sCompileInfo* info)
 
     llvm_value.type->mHeap = FALSE;
 
-    remove_from_right_value_object(llvm_value.value);
+    remove_from_right_value_object(llvm_value.value, info);
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -6006,6 +5942,7 @@ static BOOL compile_null(unsigned int node, sCompileInfo* info)
 {
     LVALUE llvm_value;
     llvm_value.value = ConstantInt::get(Type::getInt1Ty(TheContext), 0);
+    llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
     llvm_value.type = create_node_type_with_class_name("void*");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
@@ -7313,7 +7250,7 @@ static BOOL compile_left_shift(unsigned int node, sCompileInfo* info)
 
         create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_lshift", param_types, num_params);
 
-        if(!call_function(real_fun_name, params, num_params, "", info))
+        if(!call_function(real_fun_name, params, num_params, "", FALSE, info))
         {
             compile_err_msg(info, "Not found found operator << for\n");
             show_node_type(left_type);
@@ -7406,7 +7343,7 @@ static BOOL compile_right_shift(unsigned int node, sCompileInfo* info)
 
         create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_rshift", param_types, num_params);
 
-        if(!call_function(real_fun_name, params, num_params, "", info))
+        if(!call_function(real_fun_name, params, num_params, "", FALSE, info))
         {
             compile_err_msg(info, "Not found found operator >> for\n");
             show_node_type(left_type);
@@ -7499,7 +7436,7 @@ static BOOL compile_and(unsigned int node, sCompileInfo* info)
 
         create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_and", param_types, num_params);
 
-        if(!call_function(real_fun_name, params, num_params, "", info))
+        if(!call_function(real_fun_name, params, num_params, "", FALSE, info))
         {
             compile_err_msg(info, "Not found found operator & for\n");
             show_node_type(left_type);
@@ -7592,7 +7529,7 @@ static BOOL compile_xor(unsigned int node, sCompileInfo* info)
 
         create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_xor", param_types, num_params);
 
-        if(!call_function(real_fun_name, params, num_params, "", info))
+        if(!call_function(real_fun_name, params, num_params, "", FALSE, info))
         {
             compile_err_msg(info, "Not found found operator ^ for\n");
             show_node_type(left_type);
@@ -7685,7 +7622,7 @@ static BOOL compile_or(unsigned int node, sCompileInfo* info)
 
         create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_or", param_types, num_params);
 
-        if(!call_function(real_fun_name, params, num_params, "", info))
+        if(!call_function(real_fun_name, params, num_params, "", FALSE, info))
         {
             compile_err_msg(info, "Not found found operator | for\n");
             show_node_type(left_type);
@@ -8960,7 +8897,7 @@ BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
         LVALUE llvm_value = *get_value_from_stack(-1);
 
         if(llvm_value.type->mHeap) {
-            append_heap_object_to_right_value(&llvm_value);
+            append_heap_object_to_right_value(&llvm_value, info);
         }
     }
 
@@ -9822,7 +9759,7 @@ static BOOL compile_conditional(unsigned int node, sCompileInfo* info)
     }
 
     if(llvm_value.type->mHeap) {
-        append_heap_object_to_right_value(&llvm_value);
+        append_heap_object_to_right_value(&llvm_value, info);
     }
 
     return TRUE;
@@ -10353,3 +10290,65 @@ BOOL compile(unsigned int node, sCompileInfo* info)
     return node;
 }
 
+int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info)
+{
+    int generics_fun_num = gGenericsFunNum++;
+
+    char* struct_name = CLASS_NAME(node_type2->mClass);
+
+    char real_fun_name[REAL_FUN_NAME_MAX];
+    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", struct_name);
+
+
+    std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
+
+    if(funcs.size() == 0) {
+        return -1;
+    }
+
+    sFunction* fun = funcs[funcs.size()-1];
+
+    if(fun->mResultType != nullptr) {
+        /// get function ///
+        int num_method_generics_types = 0;
+        sNodeType* method_generics_types[GENERICS_TYPES_MAX];
+        memset(method_generics_types, 0, sizeof(sNodeType*)*GENERICS_TYPES_MAX);
+
+        sNodeType* generics_type = clone_node_type(node_type2);
+
+        LVALUE* llvm_stack = gLLVMStack;
+        int stack_num = info->stack_num;
+
+        char* buf = fun->mBlockText;
+
+        char sname[PATH_MAX];
+        xstrncpy(sname, fun->mSName, PATH_MAX);
+
+        int sline = fun->mSLine;
+
+        BOOL in_clang = fun->mInCLang;
+        BOOL var_arg = fun->mVarArg;
+
+        unsigned int node = 0;
+        if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg))
+        {
+            gLLVMStack = llvm_stack;
+            info->stack_num = stack_num;
+            return -1;
+        }
+
+        gNodes[node].mLine = info->pinfo->sline;
+        xstrncpy(gNodes[node].mSName, info->pinfo->sname, PATH_MAX);
+
+        if(!compile(node, info)) {
+            gLLVMStack = llvm_stack;
+            info->stack_num = stack_num;
+            return -1;
+        }
+
+        info->stack_num = stack_num;
+        gLLVMStack = llvm_stack;
+    }
+
+    return generics_fun_num;
+}

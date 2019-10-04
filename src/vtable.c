@@ -405,7 +405,7 @@ void free_objects(sVarTable* table, sCompileInfo* info)
 #ifdef MDEBUG
 printf("free %s %s in vtable. address %p\n", p->mName, CLASS_NAME(node_type->mClass), p);
 #endif
-                    free_object(p->mType, p->mLLVMValue, info);
+                    free_object(p->mType, p->mLLVMValue, FALSE, info);
                     p->mLLVMValue = NULL;
                 }
             }

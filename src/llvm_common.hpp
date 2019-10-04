@@ -73,7 +73,6 @@ extern Function* gFunction;
 extern Module* TheModule;
 extern std::unique_ptr<FunctionPassManager> TheFPM;
 extern FunctionAnalysisManager TheFAM;
-extern std::map<std::string, int> gFinalizeGenericsFunNum;
 
 struct LVALUEStruct {
     sNodeType* type;
@@ -132,6 +131,7 @@ LVALUE* get_value_from_stack(int offset);
 
 int get_llvm_alignment_from_node_type(sNodeType* node_type);
 BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info);
+BOOL create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info);
 
 Value* llvm_create_string(char* str);
 BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info);
@@ -140,19 +140,20 @@ Value* load_address_to_lvtable(int index, sNodeType* var_type, sCompileInfo* inf
 BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sCompileInfo* info);
 void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL alloc, sCompileInfo* info);
 void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info);
-void remove_from_right_value_object(Value* value);
+void remove_from_right_value_object(Value* value, sCompileInfo* info);
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info);
 void free_right_value_objects(sCompileInfo* info);
 void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info, BOOL no_free_right_objects);
 Value* store_lvtable();
 void restore_lvtable(Value* lvtable);
 Value* get_dummy_value(sNodeType* node_type, sCompileInfo* info);
-BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, sCompileInfo* info);
-void append_heap_object_to_right_value(LVALUE* llvm_value);
+BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, BOOL no_err_output, sCompileInfo* info);
+void append_heap_object_to_right_value(LVALUE* llvm_value, sCompileInfo* info);
 }
 BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param);
 void create_generics_fun_name(char* real_fun_name, int size_real_fun_name, char* fun_name, sNodeType** method_generics_types, int num_method_generics_types, sNodeType* generics_type, char* struct_name, int generics_fun_num);
 BOOL get_const_bool_value_from_llvm_value(BOOL* result, LVALUE* llvm_value);
+int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info);
 
 #endif
 

@@ -98,8 +98,18 @@ impl vector<T>
         self.len++;
     }
 
-    T& item(vector<T>* self, int index) {
-        self.items[index]
+    T& item(vector<T>* self, int index, T& default_value) 
+    {
+        if(index < 0) {
+            index += self.len;
+        }
+
+        if(index >= 0 && index < self.len)
+        {
+            return self.items[index];
+        }
+
+        return default_value;
     }
     void each(vector<T>*  self, void lambda(T&,int) block) {
         for(int i=0; i<self.len; i++) {
@@ -125,7 +135,7 @@ impl vector<T>
         }
 
         for(int i=0; i<left.len; i++) {
-            if(!left.item(i).equals(right.item(i)))
+            if(!left.items[i].equals(right.items[i]))
             {
                 return false;
             }
@@ -198,7 +208,7 @@ struct list<T>
 {
     list_item<T>*?$ head;
     list_item<T>*? tail;
-    int length;
+    int len;
 }
 
 impl list <T>
@@ -206,11 +216,11 @@ impl list <T>
     initialize() {
         self.head = null;
         self.tail = null;
-        self.length = 0;
+        self.len = 0;
     }
 
     finalize() {
-        var it = self.head;
+        list_item<T>* it = self.head;
         while(it != null) {
             if(ismanaged(T) || isheap(T)) {
                 delete it.item;
@@ -222,7 +232,7 @@ impl list <T>
     }
 
     void push_back(list<T>* self, T item) {
-        if(self.length == 0) {
+        if(self.len == 0) {
             list_item<T>*$ litem = new list_item<T>;
             litem.prev = null;
             litem.next = null;
@@ -231,7 +241,7 @@ impl list <T>
             self.tail = litem;
             self.head = litem;
         }
-        else if(self.length == 1) {
+        else if(self.len == 1) {
             list_item<T>*$ litem = new list_item<T>;
 
             litem.prev = self.head;
@@ -252,18 +262,18 @@ impl list <T>
             self.tail = litem;
         }
 
-        self.length++;
+        self.len++;
     }
 
     void insert(list<T>* self, int position, T item)
     {
         if(position < 0) {
-            position += self.length + 1;
+            position += self.len + 1;
         }
         if(position < 0) {
             position = 0;
         }
-        if(self.length == 0 || position >= self.length) 
+        if(self.len == 0 || position >= self.len) 
         {
             self.push_back(item);
             return;
@@ -279,9 +289,9 @@ impl list <T>
             self.head.prev = litem;
             self.head = litem;
 
-            self.length++;
+            self.len++;
         }
-        else if(self.length == 1) {
+        else if(self.len == 1) {
             var litem = new list_item<T>;
 
             litem.prev = self.head;
@@ -291,7 +301,7 @@ impl list <T>
             self.tail.prev = litem;
             self.head.next = litem;
 
-            self.length++;
+            self.len++;
         }
         else {
             list_item<T>?* it = self.head;
@@ -307,7 +317,7 @@ impl list <T>
                     it.prev.next = litem;
                     it.prev = litem;
 
-                    self.length++;
+                    self.len++;
                 }
 
                 it = it.next;
@@ -316,19 +326,23 @@ impl list <T>
         }
     }
     
-    bool item(list<T>* self, int position, T* result) {
+    T item(list<T>* self, int position, T& default_value) 
+    {
+        if(position < 0) {
+            position += self.len;
+        }
+
         list_item<T>?* it = self.head;
         var i = 0;
         while(it != null) {
             if(position == i) {
-                *result = it.item;
-                return true;
+                return it.item;
             }
             it = it.next;
             i++;
         };
 
-        return false;
+        return default_value;
     }
     
     void each(list<T>* self, void lambda(T&,int) block) {
@@ -343,7 +357,7 @@ impl list <T>
 
     bool equals(list<T>* left, list<T>* right)
     {
-        if(left.length != right.length) {
+        if(left.len != right.len) {
             return false;
         }
 

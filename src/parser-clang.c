@@ -622,6 +622,9 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
         {
             sCompileInfo cinfo;
             memset(&cinfo, 0, sizeof(sCompileInfo));
+
+            new_right_value_objects_container(&cinfo);
+
             cinfo.no_output = TRUE;
 
             if(!create_llvm_struct_type(struct_type, struct_type, TRUE, &cinfo))
@@ -765,6 +768,8 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
             memset(&cinfo, 0, sizeof(sCompileInfo));
             cinfo.no_output = TRUE;
 
+            new_right_value_objects_container(&cinfo);
+
             if(!create_llvm_union_type(union_type, union_type, &cinfo))
             {
                 parser_err_msg(info, "Can't create llvm union from this node type");
@@ -826,6 +831,8 @@ static BOOL parse_anonymous_enum(unsigned int* node, sParserInfo* info)
 
             sCompileInfo cinfo;
             memset(&cinfo, 0, sizeof(sCompileInfo));
+
+            new_right_value_objects_container(&cinfo);
 
             cinfo.pinfo = info;
 
@@ -905,6 +912,8 @@ static BOOL parse_enum(unsigned int* node, char* name, sParserInfo* info)
 
             sCompileInfo cinfo;
             memset(&cinfo, 0, sizeof(sCompileInfo));
+
+            new_right_value_objects_container(&cinfo);
 
             cinfo.pinfo = info;
 
@@ -1725,6 +1734,8 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         memset(&cinfo, 0, sizeof(sCompileInfo));
         cinfo.no_output = TRUE;
 
+        new_right_value_objects_container(&cinfo);
+
         if(!create_llvm_struct_type(*result_type, *result_type, FALSE, &cinfo))
         {
             parser_err_msg(info, "Can't create llvm struct from this node type");
@@ -1737,6 +1748,8 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         sCompileInfo cinfo;
         memset(&cinfo, 0, sizeof(sCompileInfo));
         cinfo.no_output = TRUE;
+
+        new_right_value_objects_container(&cinfo);
 
         if(!create_llvm_union_type(*result_type, *result_type, &cinfo))
         {

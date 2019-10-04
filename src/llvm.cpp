@@ -12,7 +12,6 @@ ModuleAnalysisManager moduleAnalysisManager(false);
 std::map<std::string, std::pair<Type*, sNodeType*>> gLLVMStructType;
 
 GlobalVariable* gLVTableValue;
-std::map<Value*, std::pair<sNodeType*, int>> gRightValueObjects;
 
 #if LLVM_VERSION_MAJOR >= 7
 LoopAnalysisManager loopAnalysisManager(false);
@@ -1386,15 +1385,17 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     return TRUE;
 }
 
-void append_heap_object_to_right_value(LVALUE* llvm_value)
+void append_heap_object_to_right_value(LVALUE* llvm_value, sCompileInfo* info)
 {
 #ifdef MDEBUG
 printf("append_heap_object_to_right_value %p\n", llvm_value->value);
 #endif
     if(llvm_value->type->mHeap) {
-        if(gRightValueObjects.count(llvm_value->value) == 0)
+        std::map<Value*, std::pair<sNodeType*, int>>* right_value_objects = (std::map<Value*, std::pair<sNodeType*, int>>*)info->right_value_objects;
+
+        if(right_value_objects->count(llvm_value->value) == 0)
         {
-            int flg = gRightValueObjects[llvm_value->value].second;
+            int flg = (*right_value_objects)[llvm_value->value].second;
 
             flg = 1;
 
@@ -1402,7 +1403,7 @@ printf("append_heap_object_to_right_value %p\n", llvm_value->value);
             pair_value.first = clone_node_type(llvm_value->type);
             pair_value.second = 0;
 
-            gRightValueObjects[llvm_value->value] = pair_value;
+            (*right_value_objects)[llvm_value->value] = pair_value;
 
 #ifdef MDEBUG
 printf("append object to right heap value %p %s*\n", llvm_value->value, CLASS_NAME(llvm_value->type->mClass));
@@ -1411,11 +1412,12 @@ printf("append object to right heap value %p %s*\n", llvm_value->value, CLASS_NA
     }
 }
 
-void remove_from_right_value_object(Value* value)
+void remove_from_right_value_object(Value* value, sCompileInfo* info)
 {
-    if(gRightValueObjects.count(value) > 0)
+    std::map<Value*, std::pair<sNodeType*, int>>* right_value_objects = (std::map<Value*, std::pair<sNodeType*, int>>*)info->right_value_objects;
+    if(right_value_objects->count(value) > 0)
     {
-        gRightValueObjects.erase(value);
+        right_value_objects->erase(value);
 #ifdef MDEBUG
 printf("remove right heap object %p*\n", value);
 #endif
@@ -1433,7 +1435,7 @@ printf("std_move %p %s\n", rvalue->value, CLASS_NAME(rvalue->type->mClass));
 
         if((lvar_type->mManaged || lvar_type->mHeap) && rvalue_type->mHeap) {
             if(!lvar_type->mManaged && lvar_type->mHeap && var_address && !alloc && lvar_type->mPointerNum > 0) {
-                free_object(lvar_type, var_address, info);
+                free_object(lvar_type, var_address, FALSE, info);
             }
 
             if(rvar) {
@@ -1443,12 +1445,13 @@ printf("std_move %p %s\n", rvalue->value, CLASS_NAME(rvalue->type->mClass));
 
         if(lvar_type->mHeap || lvar_type->mManaged) 
         {
-            if(gRightValueObjects.count(rvalue->value) > 0)
+            std::map<Value*, std::pair<sNodeType*, int>>* right_value_objects = (std::map<Value*, std::pair<sNodeType*, int>>*)info->right_value_objects;
+            if(right_value_objects->count(rvalue->value) > 0)
             {
 #ifdef MDEBUG
 printf("remove from right value object %p %s on the std_move\n", rvalue->value, CLASS_NAME(lvar_type->mClass));
 #endif
-                gRightValueObjects.erase(rvalue->value);
+                right_value_objects->erase(rvalue->value);
             }
         }
     }
@@ -1458,13 +1461,13 @@ void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info)
 {
     if(!info->no_output) {
         if(llvm_value->type->mHeap) {
-            if(gRightValueObjects.count(llvm_value->value) > 0) 
+            std::map<Value*, std::pair<sNodeType*, int>>* right_value_objects = (std::map<Value*, std::pair<sNodeType*, int>>*)info->right_value_objects;
+            if(right_value_objects->count(llvm_value->value) > 0) 
             {
 #ifdef MDEBUG
 printf("remove from right value%p\n", llvm_value->value);
 #endif
-                //gRightValueObjects[llvm_value->value].second = 1;
-                gRightValueObjects.erase(llvm_value->value);
+                right_value_objects->erase(llvm_value->value);
             }
 
             sVar* var = llvm_value->var;
@@ -1475,39 +1478,61 @@ printf("remove from right value%p\n", llvm_value->value);
     }
 }
 
+
 static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
 {
-    Value* params[PARAMS_MAX];
+    if(node_type->mNumGenericsTypes > 0) 
+    {
+        int finalize_generics_fun_num = create_generics_finalize_method(node_type, info);
 
-    params[0] = obj;
+        if(finalize_generics_fun_num != -1)
+        {
+            Value* params[PARAMS_MAX];
 
-    LVALUE llvm_value;
-    llvm_value.value = obj;
-    llvm_value.type = clone_node_type(node_type);
-    llvm_value.address = nullptr;
-    llvm_value.var = nullptr;
-    llvm_value.binded_value = FALSE;
+            params[0] = obj;
 
-    push_value_to_stack_ptr(&llvm_value, info);
+            LVALUE llvm_value;
+            llvm_value.value = obj;
+            llvm_value.type = clone_node_type(node_type);
+            llvm_value.address = nullptr;
+            llvm_value.var = nullptr;
+            llvm_value.binded_value = FALSE;
 
-    int num_params = 1;
+            push_value_to_stack_ptr(&llvm_value, info);
 
-    char* struct_name = CLASS_NAME(node_type->mClass);
+            int num_params = 1;
 
-    if(node_type->mNumGenericsTypes > 0) {
-        char type_name[1024];
-        type_name[0] = '\0';
-        create_type_name_from_node_type(type_name, 1024, node_type, FALSE);
+            char* struct_name = CLASS_NAME(node_type->mClass);
 
-        int finalize_generics_fun_num = gFinalizeGenericsFunNum[type_name];
+            char type_name[1024];
+            type_name[0] = '\0';
+            create_type_name_from_node_type(type_name, 1024, node_type, FALSE);
 
-        char real_fun_name[REAL_FUN_NAME_MAX];
-        create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", NULL, 0, node_type, struct_name, finalize_generics_fun_num);
+            char real_fun_name[REAL_FUN_NAME_MAX];
+            create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", NULL, 0, node_type, struct_name, finalize_generics_fun_num);
 
-        (void)call_function(real_fun_name, params, num_params, "", info);
+            (void)call_function(real_fun_name, params, num_params, "", TRUE, info);
+        }
     }
     else {
-        (void)call_function("finalize", params, num_params, struct_name, info);
+        Value* params[PARAMS_MAX];
+
+        params[0] = obj;
+
+        LVALUE llvm_value;
+        llvm_value.value = obj;
+        llvm_value.type = clone_node_type(node_type);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
+
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        int num_params = 1;
+
+        char* struct_name = CLASS_NAME(node_type->mClass);
+
+        (void)call_function("finalize", params, num_params, struct_name, TRUE, info);
     }
 }
 
@@ -1573,14 +1598,17 @@ printf("free right value object field %d %s*\n", i, CLASS_NAME(field_type->mClas
     params2.push_back(param);
     Builder.CreateCall(fun, params2);
     
-    gRightValueObjects.erase(obj2);
+    std::map<Value*, std::pair<sNodeType*, int>>* right_value_objects = (std::map<Value*, std::pair<sNodeType*, int>>*)info->right_value_objects;
+    right_value_objects->erase(obj2);
 }
 
 void free_right_value_objects(sCompileInfo* info)
 {
-    std::map<Value*, std::pair<sNodeType*, int>> old_heap_objects(gRightValueObjects);
+    std::map<Value*, std::pair<sNodeType*, int>>* right_value_objects = (std::map<Value*, std::pair<sNodeType*, int>>*)info->right_value_objects;
 
-    gRightValueObjects.clear();
+    std::map<Value*, std::pair<sNodeType*, int>> old_heap_objects(*right_value_objects);
+
+    right_value_objects->clear();
 
     for(std::pair<Value*, std::pair<sNodeType*, int>> it: old_heap_objects) 
     {
@@ -1599,17 +1627,17 @@ void free_right_value_objects(sCompileInfo* info)
             pair_value.first = clone_node_type(node_type);
             pair_value.second = flag;
 
-            gRightValueObjects[address] = pair_value;
+            (*right_value_objects)[address] = pair_value;
         }
     }
 }
 
-void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
+void free_object(sNodeType* node_type, void* address, BOOL force_delete, sCompileInfo* info)
 {
     sCLClass* klass = node_type->mClass;
 
     Value* obj = NULL;
-    if((node_type->mHeap || node_type->mManaged) && node_type->mPointerNum > 0) {
+    if((force_delete || node_type->mHeap || node_type->mManaged) && node_type->mPointerNum > 0) {
         //obj = (Value*)address;
         obj = Builder.CreateAlignedLoad((Value*)address, 8);
 
@@ -1648,13 +1676,13 @@ void free_object(sNodeType* node_type, void* address, sCompileInfo* info)
 #else
                 Value* field_address = Builder.CreateStructGEP(llvm_struct_type, obj, i);
 #endif
-                free_object(field_type, field_address, info);
+                free_object(field_type, field_address, FALSE, info);
             }
         }
     }
 
     /// free ///
-    if((node_type->mHeap || node_type->mManaged) && node_type->mPointerNum > 0) {
+    if((force_delete || node_type->mHeap || node_type->mManaged) && node_type->mPointerNum > 0) {
         Function* fun = TheModule->getFunction("ncfree");
 
         if(fun == nullptr) {
@@ -1749,6 +1777,8 @@ BOOL get_const_value_from_node(int* array_size, unsigned int array_size_node, sP
 
     memset(&cinfo, 0, sizeof(sCompileInfo));
 
+    new_right_value_objects_container(&cinfo);
+
     cinfo.pinfo = info;
 
     if(!compile(array_size_node, &cinfo)) {
@@ -1780,6 +1810,19 @@ void create_anonymous_union_var_name(char* name, int size_name)
     char* prefix_name = "anon.union.var";
     static int num = 0;
     snprintf(name, size_name, "%s%d", prefix_name, num);
+}
+
+void* new_right_value_objects_container(sCompileInfo* info)
+{
+    void* result = (void*)info->right_value_objects;
+    info->right_value_objects = (void*)new std::map<Value*, std::pair<sNodeType*, int>>;
+
+    return result;
+}
+
+void restore_right_value_objects_container(void* right_value_objects, sCompileInfo* info)
+{
+    info->right_value_objects = right_value_objects;
 }
 
 }

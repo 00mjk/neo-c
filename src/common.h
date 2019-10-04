@@ -395,6 +395,8 @@ struct sCompileInfoStruct
     int mBlockLevel;
 
     BOOL prevent_from_free_right_value_objects;
+
+    void* right_value_objects;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;
@@ -755,13 +757,15 @@ extern int gResultCode;
 void arrange_stack(sCompileInfo* info, int top);
 void start_neo_c_main_function();
 void finish_neo_c_main_function();
-void free_object(sNodeType* node_type, void* address, sCompileInfo* info);
+void free_object(sNodeType* node_type, void* address, BOOL force_delete, sCompileInfo* info);
 BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOOL new_create, sCompileInfo* info);
 BOOL create_llvm_union_type(sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info);
 void create_undefined_llvm_struct_type(sNodeType* node_type);
 BOOL get_const_value_from_node(int* array_size, unsigned int array_size_node, sParserInfo* info);
 void create_anonymous_union_var_name(char* name, int size_name);
 void dec_stack_ptr(int value, sCompileInfo* info);
+void* new_right_value_objects_container(sCompileInfo* info);
+void restore_right_value_objects_container(void* right_value_objects, sCompileInfo* info);
 
 /// typedef.cpp ///
 void add_typedef(char* name, sNodeType* node_type);

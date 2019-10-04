@@ -28,8 +28,22 @@ struct ListTest {
     li:list<int>*;
 }
 
+
 struct win {
-    texts:list<int>*;
+    texts:list<char*>*$;
+}
+
+impl win {
+    initialize() {
+        self.texts = new list<char*$>.initialize();
+
+        self.texts.push_back(string("aaa"));
+    }
+
+    finalize() {
+puts("win.finalize");
+        delete self.texts;
+    }
 }
 
 def main():int 
@@ -80,6 +94,11 @@ def main():int
 
     xassert("list test3", li3.equals(list!(string("ccc"), string("aaa"), string("bbb"))));
 
+    li3.each {
+        printf("%s\n", it);
+    }
+
+/*
     var tu = tuple!(1,2,string("str"));
 
     xassert("tuple test", tu.equals(tuple!(1, 2, string("str"))));
@@ -112,9 +131,10 @@ def main():int
 
     xassert("string test", strcmp(sub_str, "A") == 0);
 
-    var wi = new win;
+    var wi = new win.initialize();
 
-    puts(string("AAA"));
+    printf("%s\n", wi.texts.item(0, null));
+*/
 
     0
 }

@@ -1,9 +1,9 @@
-struct editor_win {
+struct win {
     win:WINDOW*;
     texts:list<int>*;
 }
 
-impl editor_win {
+impl win {
     initialize() ;
 
 }
@@ -11,7 +11,7 @@ struct mvi {
     numWinHeight:int;
     numWinWidth:int;
 
-
+    wins:vector<win*$>%*;
 }
 
 impl mvi {

@@ -191,6 +191,8 @@ static BOOL parse_struct(unsigned int* node, sParserInfo* info)
         memset(&cinfo, 0, sizeof(sCompileInfo));
         cinfo.no_output = TRUE;
 
+        new_right_value_objects_container(&cinfo);
+
         if(!create_llvm_struct_type(struct_type, struct_type, TRUE, &cinfo))
         {
             parser_err_msg(info, "Can't create llvm struct from this node type");

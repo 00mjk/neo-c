@@ -1087,9 +1087,9 @@ int main()
     v.push_back(2);
     v.push_back(3);
 
-    printf("%d\n", v.item(0));
-    printf("%d\n", v.item(1));
-    printf("%d\n", v.item(2));
+    printf("%d\n", v.item(0, -1));
+    printf("%d\n", v.item(1, -1));
+    printf("%d\n", v.item(2, -1));
 
     v.each {
         printf("%d --> %d\n", it2, it);
@@ -1941,9 +1941,9 @@ label1:
     vv4.push_back(2);
     vv4.push_back(3);
 
-    printf("vv4 %d\n", vv4.item(0));
-    printf("vv4 %d\n", vv4.item(1));
-    printf("vv4 %d\n", vv4.item(2));
+    printf("vv4 %d\n", vv4.item(0, -1));
+    printf("vv4 %d\n", vv4.item(1, -1));
+    printf("vv4 %d\n", vv4.item(2, -1));
 
     vv4.each {
         printf("vv4 %d\n", it);
@@ -1955,9 +1955,9 @@ label1:
         result + "aaa"
     });
 
-    printf("vv5 %s\n", vv5.item(0));
-    printf("vv5 %s\n", vv5.item(1));
-    printf("vv5 %s\n", vv5.item(2));
+    printf("vv5 %s\n", vv5.item(0, null));
+    printf("vv5 %s\n", vv5.item(1, null));
+    printf("vv5 %s\n", vv5.item(2, null));
 
     vv5.each {
         printf("%s\n", it);

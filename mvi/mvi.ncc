@@ -26,19 +26,18 @@ int xgetmaxy()
 
 }
 
-struct editor_win {
+struct win {
     win:WINDOW*;
     texts:list<int>*;
 }
 
-impl editor_win {
+impl win {
     initialize() {
-/*
         self.texts = new list<int>.initialize();
         var maxx = xgetmaxx();
         var maxy = xgetmaxy();
-        self.win = newwin(0,0, maxx-1, maxy-1);
-*/
+
+//        self.win = newwin(0,0, maxx-1, maxy-1);
     }
 
     def view() {
@@ -49,7 +48,7 @@ struct mvi {
     numWinHeight:int;
     numWinWidth:int;
 
-//    windows:vector<win*%>%*;
+    wins:vector<win*$>$*;
 }
 
 impl mvi {
@@ -59,9 +58,12 @@ impl mvi {
         self.numWinHeight = 1;
         self.numWinWidth = 1;
 
-//        var win = new win.initialize();
+        self.wins = new vector<win*$>.initialize();
+        delete self.wins;
 
-//        self.windows.push_back(win);
+        //var win = new win.initialize();
+
+        //self.wins.push_back(win);
     }
 
     finalize() {
@@ -69,6 +71,7 @@ impl mvi {
     }
 
     def main(self:mvi*):int {
+/*
         initscr();
         clear();
         refresh();
@@ -76,6 +79,7 @@ impl mvi {
         var key = getch();
 
         endwin();
+*/
 
         0
     }

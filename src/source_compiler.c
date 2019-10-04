@@ -170,6 +170,9 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL automatically
     sCompileInfo cinfo;
     memset(&cinfo, 0, sizeof(sCompileInfo));
 
+    new_right_value_objects_container(&cinfo);
+
+
     xstrncpy(cinfo.fun_name, fname, VAR_NAME_MAX);
 
     cinfo.pinfo = &info;
@@ -255,6 +258,9 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL automatically
     info.module_name = module_name3;
 
     memset(&cinfo, 0, sizeof(sCompileInfo));
+
+    new_right_value_objects_container(&cinfo);
+
 
     xstrncpy(cinfo.fun_name, fname, VAR_NAME_MAX);
     cinfo.pinfo = &info;
