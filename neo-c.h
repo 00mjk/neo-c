@@ -59,7 +59,7 @@ impl char
 /// vector ///
 struct vector<T> 
 {
-    T*% items;
+    T&*$ items;
     int len;
     int size;
 };
@@ -81,6 +81,7 @@ impl vector<T>
 
             }
         }
+        delete self.items;
     }
     
     void push_back(vector<T>* self, T item) {
@@ -326,7 +327,7 @@ impl list <T>
         }
     }
     
-    T item(list<T>* self, int position, T& default_value) 
+    T& item(list<T>* self, int position, T& default_value) 
     {
         if(position < 0) {
             position += self.len;

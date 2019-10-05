@@ -11,7 +11,7 @@ struct mvi {
     numWinHeight:int;
     numWinWidth:int;
 
-    wins:vector<win*$>%*;
+    wins:vector<win*%>%*;
 }
 
 impl mvi {

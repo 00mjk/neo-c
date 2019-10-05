@@ -136,3 +136,13 @@ mvi: mvi/mvi
 mvi/mvi: mvi/configure mvi/Makefile
 	(cd mvi; make)
 
+mvi-clean: mvi/Makefile
+	(cd mvi; make clean)
+
+mvi-test: mvi/Makefile
+	./mvi/mvi
+
+mvi/Makefile: mvi/Makefile.in
+	(cd mvi; ./configure --prefix=$(HOME))
+
+

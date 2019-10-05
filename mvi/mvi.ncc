@@ -48,7 +48,7 @@ struct mvi {
     numWinHeight:int;
     numWinWidth:int;
 
-    wins:vector<win*$>$*;
+    wins:vector<win*%>%*;
 }
 
 impl mvi {
@@ -58,12 +58,11 @@ impl mvi {
         self.numWinHeight = 1;
         self.numWinWidth = 1;
 
-        self.wins = new vector<win*$>.initialize();
-        delete self.wins;
+        self.wins = new vector<win*%>.initialize();
 
-        //var win = new win.initialize();
+        var win = new win.initialize();
 
-        //self.wins.push_back(win);
+        self.wins.push_back(win);
     }
 
     finalize() {
