@@ -27,30 +27,26 @@ DESTDIR=@DESTDIR@
 #########################################
 # main
 ##########################################
-all: mvi
+all: vivi
 
-mvi: config.h main.nc mvi.o mvi2.o
-	neo-c -o mvi main.nc mvi.o mvi2.o $(CFLAGS) $(LIBS)
+vivi: config.h main.nc vivi.o
+	neo-c -o vivi main.nc vivi.o $(CFLAGS) $(LIBS)
 
-mvi.o: config.h mvi.ncc
-	neo-c -c mvi.ncc $(CFLAGS) $(LIBS)
-
-mvi2.o: config.h mvi2.ncc
-	neo-c -c mvi2.ncc $(CFLAGS) $(LIBS)
-
+vivi.o: config.h vivi.ncc
+	neo-c -c vivi.ncc $(CFLAGS) $(LIBS)
 
 #########################################
 # install
 #########################################
 install:
 	mkdir -p "$(DESTDIR)/bin"
-	$(INSTALL) -m 755 ./mvi "$(DESTDIR)/bin"
+	$(INSTALL) -m 755 ./vivi "$(DESTDIR)/bin"
 
 #########################################
 # uninstall
 #########################################
 uninstall:
-	rm -f "$(DESTDIR)"/bin/mvi
+	rm -f "$(DESTDIR)"/bin/vivi
 
 #########################################
 # permission
@@ -60,14 +56,14 @@ permission:
 	chmod 755 .git man configure
 	chmod 644 *.nc
 	chmod 644 *.h
-	chmod 755 update_mvi-c.sh
+	chmod 755 update_vivi-c.sh
 
 #########################################
 # clean
 #########################################
 clean:
 	rm -fR *.ll *.bc *.nc.tmp *.out *.o
-	rm -fR mvi
+	rm -fR vivi
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache 

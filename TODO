@@ -1,3 +1,5 @@
+fieldの自動free 好きにアドレスを使いたい場合はborrowで%で自動free $の概念はなくす
+
 
 Genericsやinlineのエラーメッセージがバグっている。行番号が
 

@@ -30,24 +30,24 @@ struct ListTest {
 
 
 struct win {
-    texts:list<char*>*$;
+    texts:list<char*>*;
 }
 
 impl win {
     initialize() {
-        self.texts = new list<char*$>.initialize();
+        self.texts = borrow new list<char*>.initialize();
 
         self.texts.push_back(string("aaa"));
     }
 
     finalize() {
-puts("win.finalize");
         delete self.texts;
     }
 }
 
 def main():int 
 {
+/*
     var str = string("HELLO WORLD");
 
     str[0] = 'h';
@@ -87,6 +87,7 @@ def main():int
     li.insert(1, 7);
 
     xassert("list test2", li.equals(list!(0, 7, 1)));
+*/
     
     var li3 = list!(string("aaa"), string("bbb"));
 

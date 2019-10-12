@@ -7,11 +7,10 @@ extern "C"
 #include <ncurses.h>
 }
 
-#include "mvi2.h"
+#include "vivi.h"
 
 def main():int
 {
-    var mvi = new mvi.initialize();
-
-    mvi.main()
+    var vivi = new vivi.initialize();
+    vivi.main_loop()
 }

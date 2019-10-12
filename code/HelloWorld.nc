@@ -811,18 +811,21 @@ int main()
     xassert("std::move test", xobj2.a == 111);
 
     struct Data2 {
-        Data*% a;
+        Data* a;
         int b;
     };
 
     impl Data2 {
         initialize() {
-            self.a = new Data;
+            self.a = borrow new Data;
 
             self.a.a = 123;
             self.a.b = 234;
 
             self.b = 123;
+        }
+        finalize() {
+            delete self.a;
         }
     }
 
@@ -858,11 +861,17 @@ int main()
     };
 
     struct Data11 {
-        Data10*% a;
+        Data10* a;
         int b;
     };
 
-    new Data11.a = new Data10;
+    impl Data11 {
+        finalize() {
+            delete self.a;
+        }
+    }
+
+    new Data11.a = borrow new Data10;
 
     printf("1 + 1 == %d\n", 1 + 1);
     printf("(%s)\n", "AAA" + "BBB");
@@ -976,22 +985,25 @@ int main()
     };
 
     struct HeapTest<T> {
-        T*% a;
+        T&* a;
         int b;
-        HeapTest2*% c;
+        HeapTest2* c;
     };
 
     impl HeapTest<T> {
-        void initialize(HeapTest<T>* self)
+        initialize()
         {
-            self.a = new T[5];
+            self.a = borrow new T[5];
+        }
+        finalize()
+        {
+            delete self.a;
+            delete self.c;
         }
 
         template <R> HeapTest<R>*% map(HeapTest<T>* self, T data, R data2)
         {
-            var result = new HeapTest<R>;
-
-            result.initialize();
+            var result = new HeapTest<R>.initialize();
 
             snprintf(result.a, 5, "%d", data);
 
@@ -999,9 +1011,7 @@ int main()
         }
     }
 
-    var ax = new HeapTest<int>;
-
-    ax.initialize();
+    var ax = new HeapTest<int>.initialize();
 
     var bx = ax.map(1, 'a');
 
@@ -1033,7 +1043,7 @@ int main()
 
     struct Hello2<T>
     {
-        T a;
+        T& a;
     };
 
     impl Hello2<T> {
@@ -1048,6 +1058,12 @@ int main()
         initialize()
         {
             self.a = 3;
+        }
+
+        finalize() {
+            if(isheap(T)) {
+                delete self.a;
+            }
         }
 
         template <R> Hello2<R>*% test(Hello2<T>* self, R lambda(T) block)

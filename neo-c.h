@@ -59,7 +59,7 @@ impl char
 /// vector ///
 struct vector<T> 
 {
-    T&*$ items;
+    T&* items;
     int len;
     int size;
 };
@@ -70,13 +70,14 @@ impl vector<T>
     {
         self.size = 16;
         self.len = 0;
-        self.items = new T[self.size];
+        self.items = borrow new T[self.size];
     }
 
     finalize()
     {
-        if(isheap(T) || ismanaged(T)) {
-            for(int i=0; i<self.len; i++) {
+        if(isheap(T)) {
+            for(int i=0; i<self.len; i++) 
+            {
                 delete self.items[i];
 
             }
@@ -85,11 +86,13 @@ impl vector<T>
     }
     
     void push_back(vector<T>* self, T item) {
+        managed item;
+
         if(self.len == self.size) {
             var new_size = self.size;
             var items = self.items;
 
-            self.items = new T[new_size];
+            self.items = borrow new T[new_size];
 
             memcpy((char*)self.items, (char*)items, 8*self.size);
             self.size = new_size;
@@ -200,14 +203,14 @@ ruby_macro vec {
 
 struct list_item<T>
 {
-    T&$ item;
+    T& item;
     struct list_item<T>*? prev;
-    struct list_item<T>*?$ next;
+    struct list_item<T>*? next;
 }
 
 struct list<T>
 {
-    list_item<T>*?$ head;
+    list_item<T>*? head;
     list_item<T>*? tail;
     int len;
 }
@@ -223,7 +226,7 @@ impl list <T>
     finalize() {
         list_item<T>* it = self.head;
         while(it != null) {
-            if(ismanaged(T) || isheap(T)) {
+            if(isheap(T)) {
                 delete it.item;
             }
             var prev_it = it;
@@ -232,9 +235,12 @@ impl list <T>
         }
     }
 
-    void push_back(list<T>* self, T item) {
+    void push_back(list<T>* self, T item) 
+    {
+        managed item;
+
         if(self.len == 0) {
-            list_item<T>*$ litem = new list_item<T>;
+            list_item<T>* litem = borrow new list_item<T>;
             litem.prev = null;
             litem.next = null;
             litem.item = item;
@@ -243,7 +249,7 @@ impl list <T>
             self.head = litem;
         }
         else if(self.len == 1) {
-            list_item<T>*$ litem = new list_item<T>;
+            list_item<T>* litem = borrow new list_item<T>;
 
             litem.prev = self.head;
             litem.next = null;
@@ -253,7 +259,7 @@ impl list <T>
             self.head.next = litem;
         }
         else {
-            list_item<T>*$ litem = new list_item<T>;
+            list_item<T>* litem = borrow new list_item<T>;
 
             litem.prev = self.tail;
             litem.next = null;
@@ -280,8 +286,10 @@ impl list <T>
             return;
         }
 
+        managed item;
+
         if(position == 0) {
-            list_item<T>$* litem = new list_item<T>;
+            list_item<T>* litem = borrow new list_item<T>;
 
             litem.prev = null;
             litem.next = self.head;
@@ -293,7 +301,7 @@ impl list <T>
             self.len++;
         }
         else if(self.len == 1) {
-            var litem = new list_item<T>;
+            var litem = borrow new list_item<T>;
 
             litem.prev = self.head;
             litem.next = self.tail;
@@ -309,7 +317,7 @@ impl list <T>
             var i = 0;
             while(it != null) {
                 if(position == i) {
-                    list_item<T>$* litem = new list_item<T>;
+                    list_item<T>* litem = borrow new list_item<T>;
 
                     litem.prev = it.prev;
                     litem.next = it;
@@ -431,19 +439,12 @@ ruby_macro list {
 
 struct tuple1<T>
 {
-    T&$ v1;
+    T v1;
 }
 
 impl tuple1 <T>
 {
     initialize() {
-    }
-
-    finalize() {
-        if(ismanaged(T) || isheap(T))
-        {
-            delete self.v1;
-        }
     }
 
     bool equals(tuple1<T>* left, tuple1<T>* right)
@@ -458,24 +459,13 @@ impl tuple1 <T>
 
 struct tuple2<T, T2>
 {
-    T&$ v1;
-    T2&$ v2;
+    T v1;
+    T2 v2;
 }
 
 impl tuple2 <T, T2>
 {
     initialize() {
-    }
-
-    finalize() {
-        if(ismanaged(T) || isheap(T))
-        {
-            delete self.v1;
-        }
-        if(ismanaged(T2) || isheap(T2))
-        {
-            delete self.v2;
-        }
     }
 
     bool equals(tuple2<T, T2>* left, tuple2<T, T2>* right)
@@ -493,26 +483,14 @@ impl tuple2 <T, T2>
 
 struct tuple3<T, T2, T3>
 {
-    T&$ v1;
-    T2&$ v2;
-    T3&$ v3;
+    T v1;
+    T2 v2;
+    T3 v3;
 }
 
 impl tuple3 <T, T2, T3>
 {
     initialize() {
-    }
-
-    finalize() {
-        if(ismanaged(T) || isheap(T)) {
-            delete self.v1;
-        }
-        if(ismanaged(T2) || isheap(T2)) {
-            delete self.v2;
-        }
-        if(ismanaged(T3) || isheap(T3)) {
-            delete self.v3;
-        }
     }
 
     bool equals(tuple3<T, T2, T3>* left, tuple3<T, T2, T3>* right)
@@ -533,30 +511,15 @@ impl tuple3 <T, T2, T3>
 
 struct tuple4<T, T2, T3, T4>
 {
-    T&$ v1;
-    T2&$ v2;
-    T3&$ v3;
-    T4&$ v3;
+    T v1;
+    T2 v2;
+    T3 v3;
+    T4 v3;
 }
 
 impl tuple4 <T, T2, T3, T4>
 {
     initialize() {
-    }
-
-    finalize() {
-        if(ismanaged(T) || isheap(T)) {
-            delete self.v1;
-        }
-        if(ismanaged(T2) || isheap(T2)) {
-            delete self.v2;
-        }
-        if(ismanaged(T3) || isheap(T3)) {
-            delete self.v3;
-        }
-        if(ismanaged(T4) || isheap(T4)) {
-            delete self.v4;
-        }
     }
 
     bool equals(tuple4<T, T2, T3, T4>* left, tuple4<T, T2, T3, T4>* right)
@@ -670,9 +633,9 @@ ruby_macro tuple {
 
 struct map<T, T2>
 {
-    T&*$ keys;
-    bool*$ item_existance;
-    T2&*$ items;
+    T&* keys;
+    bool* item_existance;
+    T2&* items;
     int size;
     int len;
 }
@@ -682,9 +645,9 @@ struct map<T, T2>
 impl map <T, T2>
 {
     initialize() {
-        self.keys = new T[MAP_TABLE_DEFAULT_SIZE];
-        self.items = new T2[MAP_TABLE_DEFAULT_SIZE];
-        self.item_existance = new bool[MAP_TABLE_DEFAULT_SIZE];
+        self.keys = borrow new T[MAP_TABLE_DEFAULT_SIZE];
+        self.items = borrow new T2[MAP_TABLE_DEFAULT_SIZE];
+        self.item_existance = borrow new bool[MAP_TABLE_DEFAULT_SIZE];
 
         for(int i=0; i<MAP_TABLE_DEFAULT_SIZE; i++)
         {
@@ -698,7 +661,7 @@ impl map <T, T2>
     finalize() {
         for(int i=0; i<self.size; i++) {
             if(self.item_existance[i]) {
-                if(ismanaged(T2) || isheap(T2)) {
+                if(isheap(T2)) {
                     delete self.items[i];
                 }
             }
@@ -707,7 +670,7 @@ impl map <T, T2>
 
         for(int i=0; i<self.size; i++) {
             if(self.item_existance[i]) {
-                if(ismanaged(T) || isheap(T)) {
+                if(isheap(T)) {
                     delete self.keys[i];
                 }
             }
@@ -728,9 +691,9 @@ impl map <T, T2>
 
     void rehash(map<T,T2>* self) {
         int size = self.size * 3;
-        T&*$ keys = new T[size];
-        T2&*$ items = new T2[size];
-        bool* item_existance = new bool[size];
+        T&* keys = borrow new T[size];
+        T2&* items = borrow new T2[size];
+        bool* item_existance = borrow new bool[size];
 
         int len = 0;
 
@@ -802,7 +765,7 @@ impl map <T, T2>
         return false;
     }
 
-    T2 at(map<T, T2>* self, T& key, T2 default_value) 
+    T2& at(map<T, T2>* self, T& key, T2& default_value) 
     {
         int hash = key.get_hash_key() % self.size;
         int it = hash;
@@ -832,8 +795,11 @@ impl map <T, T2>
         return default_value;
     }
 
-    void insert(map<T,T2>* self, T&$ key, T2&$ item) 
+    void insert(map<T,T2>* self, T key, T2 item) 
     {
+        managed key;
+        managed item;
+
         if(self.len*2 >= self.size) {
             self.rehash();
         }

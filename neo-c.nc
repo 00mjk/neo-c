@@ -52,6 +52,7 @@ impl char
     string subString(string str, int head, int tail)
     {
         string result = new char[tail-head+1];
+
         memcpy(result, str + head, tail-head);
         result[tail-head] = '\0';
 

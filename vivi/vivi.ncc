@@ -1,0 +1,112 @@
+#include "neo-c.h"
+
+extern "C"
+{
+#include <stdio.h>
+#include <stdlib.h>
+#include <ncurses.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+int xgetmaxx() 
+{
+    var ws = new winsize;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
+
+    return ws.ws_col
+}
+
+int xgetmaxy() 
+{
+    var ws = new winsize;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
+
+    return ws.ws_row
+}
+
+}
+
+struct win {
+    win:WINDOW*;
+    texts:list<string>*%;
+}
+
+impl win {
+    initialize(width:int, height:int) {
+        //keypad(self.win, 4);
+
+        self.texts = new list<string>.initialize();
+
+/*
+        var win = newwin(width, height, 0, 0);
+
+        self.win = win;
+*/
+    }
+
+    finalize() {
+        //delete self.texts;
+        //delwin(self.win);
+    }
+
+    def view(self:win*) {
+        werase(self.win);
+
+        self.texts.each {
+            mvwprintw(self.win, it2, 0, it);
+        }
+
+        wrefresh(self.win);
+    }
+
+    def input(self:win*) {
+        var key = wgetch(self.win);
+    }
+}
+
+struct vivi {
+    wins:vector<win*%>*%;
+    active_win:win*;
+}
+
+impl vivi {
+    initialize() {
+        /*
+        initscr();
+        noecho();
+        */
+
+        self.wins = new vector<win*%>.initialize();
+
+        var maxx = xgetmaxx();
+        var maxy = xgetmaxy();
+
+        var win = new win.initialize(maxx-1, maxy);
+
+        win.texts.push_back(string("aaa"));
+        win.texts.push_back(string("bbb"));
+        win.texts.push_back(string("ccc"));
+
+        self.active_win = win;
+
+        self.wins.push_back(win);
+    }
+
+    finalize() {
+        //endwin();
+    }
+
+    def main_loop(self:vivi*):int {
+/*
+        erase();
+
+        self.wins.each {
+            it.view();
+        }
+
+        self.active_win.input();
+*/
+
+        0
+    }
+}

@@ -131,18 +131,18 @@ test:
 	PWD=`pwd` ./neo-c code/HelloWorld9.nc
 	./code/HelloWorld9
 
-mvi: mvi/mvi
+vivi: vivi/vivi
 
-mvi/mvi: mvi/configure mvi/Makefile
-	(cd mvi; make)
+vivi/vivi: vivi/configure vivi/Makefile
+	(cd vivi; make)
 
-mvi-clean: mvi/Makefile
-	(cd mvi; make clean)
+vivi-clean: vivi/Makefile
+	(cd vivi; make clean)
 
-mvi-test: mvi/Makefile
-	./mvi/mvi
+vivi-test: vivi/Makefile
+	./vivi/vivi
 
-mvi/Makefile: mvi/Makefile.in
-	(cd mvi; ./configure --prefix=$(HOME))
+vivi/Makefile: vivi/Makefile.in
+	(cd vivi; ./configure --prefix=$(HOME))
 
 

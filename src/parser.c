@@ -402,7 +402,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
             unsigned_ = (*result_type)->mUnsigned;
             static_ = (*result_type)->mStatic;
             no_heap = (*result_type)->mNoHeap;
-            managed = (*result_type)->mManaged;
         }
     }
 
@@ -578,7 +577,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     (*result_type)->mVolatile = FALSE;
     (*result_type)->mStatic = static_;
     (*result_type)->mNoHeap = no_heap;
-    (*result_type)->mManaged = managed;
 
     if(info->mNumMethodGenericsTypes > 0) {
         if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))
@@ -1146,6 +1144,7 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
         skip_spaces_and_lf(info);
 
         if(info->parse_struct_phase) {
+            *node = sNodeTree_create_null(info);
         }
         else {
             *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, version, info);
@@ -3184,43 +3183,6 @@ static BOOL parse_is_heap(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_is_managed(unsigned int* node, sParserInfo* info)
-{
-    expect_next_character_with_one_forward("(", info);
-
-    char* p_before = info->p;
-    int sline_before = info->sline;
-
-    char buf[VAR_NAME_MAX+1];
-    (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
-
-    info->p = p_before;
-    info->sline = sline_before;
-
-    if(is_type_name(buf, info)) {
-        sNodeType* node_type = NULL;
-
-        if(!parse_type(&node_type, info)) {
-            return FALSE;
-        }
-
-        expect_next_character_with_one_forward(")", info);
-
-        *node = sNodeTree_create_is_managed(node_type, info);
-    }
-    else {
-        if(!expression(node, info)) {
-            return FALSE;
-        }
-
-        expect_next_character_with_one_forward(")", info);
-
-        *node = sNodeTree_create_is_managed_expression(*node, info);
-    }
-
-    return TRUE;
-}
-
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
     if(*info->p == '#') {
@@ -3715,6 +3677,16 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "borrow") == 0) {
+            if(!parse_borrow(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "managed") == 0) {
+            if(!parse_managed(node, info)) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "alloca") == 0) {
             if(!parse_alloca(node, info)) {
                 return FALSE;
@@ -3733,11 +3705,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "isheap") == 0) {
             if(!parse_is_heap(node, info)) {
-                return FALSE;
-            }
-        }
-        else if(strcmp(buf, "ismanaged") == 0) {
-            if(!parse_is_managed(node, info)) {
                 return FALSE;
             }
         }

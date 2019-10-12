@@ -1433,8 +1433,8 @@ printf("std_move %p %s\n", rvalue->value, CLASS_NAME(rvalue->type->mClass));
         sVar* rvar = rvalue->var;
         sNodeType* rvalue_type = rvalue->type;
 
-        if((lvar_type->mManaged || lvar_type->mHeap) && rvalue_type->mHeap) {
-            if(!lvar_type->mManaged && lvar_type->mHeap && var_address && !alloc && lvar_type->mPointerNum > 0) {
+        if(lvar_type->mHeap && rvalue_type->mHeap) {
+            if(lvar_type->mHeap && var_address && !alloc && lvar_type->mPointerNum > 0) {
                 free_object(lvar_type, var_address, FALSE, info);
             }
 
@@ -1443,7 +1443,7 @@ printf("std_move %p %s\n", rvalue->value, CLASS_NAME(rvalue->type->mClass));
             }
         }
 
-        if(lvar_type->mHeap || lvar_type->mManaged) 
+        if(lvar_type->mHeap)
         {
             std::map<Value*, std::pair<sNodeType*, int>>* right_value_objects = (std::map<Value*, std::pair<sNodeType*, int>>*)info->right_value_objects;
             if(right_value_objects->count(rvalue->value) > 0)
@@ -1478,6 +1478,45 @@ printf("remove from right value%p\n", llvm_value->value);
     }
 }
 
+static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
+{
+    sCLClass* klass = node_type->mClass;
+
+    sNodeType* node_type2 = clone_node_type(node_type);
+    node_type2->mPointerNum = 0;
+
+    Type* llvm_struct_type;
+    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info);
+
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        sNodeType* field_type = clone_node_type(klass->mFields[i]);
+
+        BOOL success_solve;
+        (void)solve_generics(&field_type, node_type, &success_solve);
+        sCLClass* field_class = field_type->mClass;
+
+        if(field_type->mHeap && field_type->mPointerNum > 0)
+        {
+            if(type_identify(node_type, field_type))
+            {
+                compile_err_msg(info,"infinity recursive on free object. The same type of object type and field type. %s. You shoud delete the object manually.\n", CLASS_NAME(field_class));
+                show_node_type(node_type);
+                info->err_num++;
+            }
+
+            Type* llvm_field_type;
+            (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info);
+
+#if LLVM_VERSION_MAJOR >= 7
+            Value* field_address = Builder.CreateStructGEP(obj, i);
+#else
+            Value* field_address = Builder.CreateStructGEP(llvm_struct_type, obj, i);
+#endif
+            free_object(field_type, field_address, FALSE, info);
+        }
+    }
+}
 
 static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
 {
@@ -1536,68 +1575,41 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
     }
 }
 
-static void free_right_value_object(sNodeType* node_type, void* obj, sCompileInfo* info)
+static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_delete, sCompileInfo* info)
 {
 #ifdef MDEBUG
 printf("free right value object %p type %s*\n", obj, CLASS_NAME(node_type->mClass));
 #endif
 
     Value* obj2 = (Value*)obj;
+
     sCLClass* klass = node_type->mClass;
 
-    sNodeType* node_type2 = clone_node_type(node_type);
-
-    if(node_type2->mHeap && node_type2->mPointerNum > 0) {
-        //Value* obj3 = Builder.CreateAlignedLoad((Value*)obj2, 8);
-
-        call_destructor(obj2, node_type2, info);
-    }
-
-    node_type2->mPointerNum = 0;
-
-    Type* llvm_struct_type;
-    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info);
-
-    int i;
-    for(i=0; i<klass->mNumFields; i++) {
-        sNodeType* field_type = clone_node_type(klass->mFields[i]);
-        sCLClass* field_class = field_type->mClass;
-
-        Type* llvm_field_type;
-        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, node_type2, info);
-
-        if(field_type->mHeap && field_type->mPointerNum > 0)
+    if((force_delete || node_type->mHeap ) && node_type->mPointerNum > 0) 
+    {
+        if(node_type->mPointerNum == 1)
         {
-#ifdef MDEBUG
-printf("free right value object field %d %s*\n", i, CLASS_NAME(field_type->mClass));
-#endif
-
-#if LLVM_VERSION_MAJOR >= 7
-            Value* field_address = Builder.CreateStructGEP(obj2, i);
-#else
-            Value* field_address = Builder.CreateStructGEP(llvm_struct_type, obj2, i);
-#endif
-
-            Value* field_obj = Builder.CreateAlignedLoad(field_address, 8);
-
-            free_right_value_object(field_type, field_obj, info);
+            call_destructor(obj2, node_type, info);
+            call_field_destructor(obj2, node_type, info);
         }
     }
 
     /// free ///
-    Function* fun = TheModule->getFunction("ncfree");
+    if((force_delete || node_type->mHeap ) && node_type->mPointerNum > 0) {
+        Function* fun = TheModule->getFunction("ncfree");
 
-    if(fun == nullptr) {
-        fprintf(stderr, "require ncfree\n");
-        exit(2);
+        if(fun == nullptr) {
+            fprintf(stderr, "require ncfree\n");
+            exit(2);
+        }
+
+        std::vector<Value*> params2;
+        Value* param = Builder.CreateCast(Instruction::BitCast, obj2, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+        params2.push_back(param);
+        Builder.CreateCall(fun, params2);
     }
 
-    std::vector<Value*> params2;
-    Value* param = Builder.CreateCast(Instruction::BitCast, obj2, PointerType::get(IntegerType::get(TheContext, 8), 0));
-
-    params2.push_back(param);
-    Builder.CreateCall(fun, params2);
-    
     std::map<Value*, std::pair<sNodeType*, int>>* right_value_objects = (std::map<Value*, std::pair<sNodeType*, int>>*)info->right_value_objects;
     right_value_objects->erase(obj2);
 }
@@ -1618,7 +1630,7 @@ void free_right_value_objects(sCompileInfo* info)
         int flag = it.second.second;
 
         if(flag <= 0) {
-            free_right_value_object(node_type, address, info);
+            free_right_value_object(node_type, address, FALSE, info);
         }
         else {
             flag--;
@@ -1634,68 +1646,9 @@ void free_right_value_objects(sCompileInfo* info)
 
 void free_object(sNodeType* node_type, void* address, BOOL force_delete, sCompileInfo* info)
 {
-    sCLClass* klass = node_type->mClass;
+    Value* obj = Builder.CreateAlignedLoad((Value*)address, 8);
 
-    Value* obj = NULL;
-    if((force_delete || node_type->mHeap || node_type->mManaged) && node_type->mPointerNum > 0) {
-        //obj = (Value*)address;
-        obj = Builder.CreateAlignedLoad((Value*)address, 8);
-
-        call_destructor(obj, node_type, info);
-    }
-
-    if(node_type->mHeap && !node_type->mManaged && node_type->mPointerNum > 0) 
-    {
-        sNodeType* node_type2 = clone_node_type(node_type);
-        node_type2->mPointerNum = 0;
-
-        Type* llvm_struct_type;
-        (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info);
-
-        int i;
-        for(i=0; i<klass->mNumFields; i++) {
-            sNodeType* field_type = clone_node_type(klass->mFields[i]);
-
-            BOOL success_solve;
-            (void)solve_generics(&field_type, node_type, &success_solve);
-            sCLClass* field_class = field_type->mClass;
-
-            if(type_identify(node_type, field_type))
-            {
-                compile_err_msg(info,"infinity recursive on free object. The same type of object type and field type. %s\n", CLASS_NAME(field_class));
-                exit(1);
-            }
-
-            Type* llvm_field_type;
-            (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info);
-
-            if(field_type->mHeap && field_type->mPointerNum > 0)
-            {
-#if LLVM_VERSION_MAJOR >= 7
-                Value* field_address = Builder.CreateStructGEP(obj, i);
-#else
-                Value* field_address = Builder.CreateStructGEP(llvm_struct_type, obj, i);
-#endif
-                free_object(field_type, field_address, FALSE, info);
-            }
-        }
-    }
-
-    /// free ///
-    if((force_delete || node_type->mHeap || node_type->mManaged) && node_type->mPointerNum > 0) {
-        Function* fun = TheModule->getFunction("ncfree");
-
-        if(fun == nullptr) {
-            fprintf(stderr, "require ncfree\n");
-            exit(2);
-        }
-
-        std::vector<Value*> params2;
-        Value* param = Builder.CreateCast(Instruction::BitCast, obj, PointerType::get(IntegerType::get(TheContext, 8), 0));
-
-        params2.push_back(param);
-        Builder.CreateCall(fun, params2);
-    }
+    free_right_value_object(node_type, obj, force_delete, info);
 }
 
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
@@ -1743,7 +1696,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
 
         int alignment = get_llvm_alignment_from_node_type(field_type);
 
-        if(field_type->mHeap || field_type->mManaged) 
+        if(field_type->mHeap) 
         {
 #if LLVM_VERSION_MAJOR >= 7
            Value* field_address = Builder.CreateStructGEP(address3, i);

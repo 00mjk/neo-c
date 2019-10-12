@@ -2184,13 +2184,15 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
 
 void create_generics_fun_name(char* real_fun_name, int size_real_fun_name, char* fun_name, sNodeType** method_generics_types, int num_method_generics_types, sNodeType* generics_type, char* struct_name, int generics_fun_num)
 {
+    xstrncpy(real_fun_name, "", size_real_fun_name);
+
     if(struct_name && strcmp(struct_name, "") != 0) {
-        xstrncpy(real_fun_name, struct_name, size_real_fun_name);
+        xstrncat(real_fun_name, struct_name, size_real_fun_name);
 
         xstrncat(real_fun_name, "_", size_real_fun_name);
     }
     else {
-        xstrncpy(real_fun_name, "", size_real_fun_name);
+        xstrncat(real_fun_name, "", size_real_fun_name);
     }
 
     xstrncat(real_fun_name, fun_name, size_real_fun_name);
@@ -2242,6 +2244,10 @@ void create_generics_fun_name(char* real_fun_name, int size_real_fun_name, char*
     snprintf(buf, 128, "%d", generics_fun_num);
 
     xstrncat(real_fun_name, buf, size_real_fun_name);
+
+    xstrncat(real_fun_name, "_", size_real_fun_name);
+
+    xstrncat(real_fun_name, gMainModulePath, size_real_fun_name);
 }
 
 static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, char* struct_name, sNodeType* generics_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX],  int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], sParserInfo* info, sCompileInfo* cinfo, int generics_fun_num, BOOL in_clang, int version, BOOL var_arg)
@@ -3186,7 +3192,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             if(self_in_inherit) {
                 remove_from_right_value_object(llvm_value.value, info);
             }
-            else if((left_type->mHeap || left_type->mManaged) && (right_type->mHeap || right_type->mManaged))
+            else if(left_type->mHeap && right_type->mHeap)
             {
                 if(llvm_value.binded_value && llvm_value.var)
                 {
@@ -4889,15 +4895,6 @@ static BOOL compile_delete(unsigned int node, sCompileInfo* info)
 
     sNodeType* node_type = clone_node_type(info->type);
 
-/*
-    if(!node_type->mHeap && !node_type->mManaged) {
-        compile_err_msg(info, "Can't delete this memory.");
-        show_node_type(node_type); 
-        info->err_num++;
-        return TRUE;
-    }
-*/
-
     free_object(node_type, llvm_value.address, TRUE, info);
 
     info->type = create_node_type_with_class_name("void");
@@ -4948,6 +4945,57 @@ static BOOL compile_borrow(unsigned int node, sCompileInfo* info)
     push_value_to_stack_ptr(&llvm_value, info);
 
     info->type = clone_node_type(llvm_value.type);
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_managed(char* var_name, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeManaged;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    xstrncpy(gNodes[node].uValue.sManaged.mVarName, var_name, VAR_NAME_MAX);
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+
+static BOOL compile_managed(unsigned int node, sCompileInfo* info)
+{
+    char* var_name = gNodes[node].uValue.sLoadVariable.mVarName;
+
+    sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
+
+    if(var == NULL) {
+        compile_err_msg(info, "undeclared variable %s(99)", var_name);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    sNodeType* var_type = clone_node_type(var->mType);
+
+    if(var_type == NULL || var_type->mClass == NULL) 
+    {
+        compile_err_msg(info, "null type %s", var_name);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    var->mType->mHeap = FALSE;
+
+    info->type = create_node_type_with_class_name("void"); // dummy
 
     return TRUE;
 }
@@ -5150,23 +5198,6 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
             return TRUE;
         }
-
-/*
-        if(!type_identify_with_class_name(right_type, "void*"))
-        {
-            if((field_type->mHeap != right_type->mHeap) && field_type->mManaged) 
-            {
-                compile_err_msg(info, "Require heap attribute for field.");
-                show_node_type(field_type);
-                show_node_type(right_type);
-                info->err_num++;
-
-                info->type = create_node_type_with_class_name("int"); // dummy
-
-                return TRUE;
-            }
-        }
-*/
 
         if(auto_cast_posibility(field_type, right_type)) {
             if(!cast_right_type_to_left_type(field_type, &right_type, &rvalue, info))
@@ -6690,7 +6721,7 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
 
     sNodeType* left_type = info->type;
 
-    if(!left_type->mHeap && !left_type->mManaged) {
+    if(!left_type->mHeap) {
         compile_err_msg(info, "Can't clone this value");
         show_node_type(left_type);
         info->err_num++;
@@ -6800,7 +6831,6 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
 
     if(var_type->mPointerNum == 0) {
         var_type->mHeap = FALSE;
-        var_type->mManaged = FALSE;
     }
 
     /// go ///
@@ -9334,95 +9364,6 @@ BOOL compile_is_heap(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_is_managed_expression(unsigned int lnode, sParserInfo* info)
-{
-    unsigned int node = alloc_node();
-
-    gNodes[node].mNodeType = kNodeTypeIsManagedExpression;
-
-    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
-    gNodes[node].mLine = info->sline;
-
-    gNodes[node].mLeft = lnode;
-    gNodes[node].mRight = 0;
-    gNodes[node].mMiddle = 0;
-
-    return node;
-}
-
-BOOL compile_is_managed_expression(unsigned int node, sCompileInfo* info)
-{
-    unsigned int lnode = gNodes[node].mLeft;
-
-    BOOL no_output = info->no_output;
-    info->no_output = TRUE;
-
-    if(!compile(lnode, info)) {
-        info->no_output = FALSE;
-        return FALSE;
-    }
-
-    info->no_output = no_output;
-
-    sNodeType* node_type = clone_node_type(info->type);
-
-    dec_stack_ptr(1, info);
-
-    BOOL value = node_type->mManaged && node_type->mPointerNum > 0;
-
-    LVALUE llvm_value;
-    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value, true)); 
-    llvm_value.type = create_node_type_with_class_name("bool");
-    llvm_value.address = nullptr;
-    llvm_value.var = nullptr;
-    llvm_value.binded_value = FALSE;
-
-    push_value_to_stack_ptr(&llvm_value, info);
-
-    info->type = create_node_type_with_class_name("bool");
-
-    return TRUE;
-}
-
-unsigned int sNodeTree_create_is_managed(sNodeType* node_type, sParserInfo* info)
-{
-    unsigned int node = alloc_node();
-
-    gNodes[node].mNodeType = kNodeTypeIsManaged;
-
-    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
-    gNodes[node].mLine = info->sline;
-
-    gNodes[node].uValue.sIsManaged.mType = clone_node_type(node_type);
-
-    gNodes[node].mLeft = 0;
-    gNodes[node].mRight = 0;
-    gNodes[node].mMiddle = 0;
-
-    return node;
-}
-
-BOOL compile_is_managed(unsigned int node, sCompileInfo* info)
-{
-    sNodeType* node_type = gNodes[node].uValue.sIsManaged.mType;
-    sNodeType* node_type2 = clone_node_type(node_type);
-
-    BOOL value = node_type2->mManaged && node_type2->mPointerNum > 0;
-
-    LVALUE llvm_value;
-    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value, true)); 
-    llvm_value.type = create_node_type_with_class_name("bool");
-    llvm_value.address = nullptr;
-    llvm_value.var = nullptr;
-    llvm_value.binded_value = FALSE;
-
-    push_value_to_stack_ptr(&llvm_value, info);
-
-    info->type = create_node_type_with_class_name("bool");
-
-    return TRUE;
-}
-
 unsigned int sNodeTree_create_class_name_expression(unsigned int lnode, sParserInfo* info)
 {
     unsigned int node = alloc_node();
@@ -10210,20 +10151,6 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
-        case kNodeTypeIsManaged:
-            if(!compile_is_managed(node, info))
-            {
-                return FALSE;
-            }
-            break;
-
-        case kNodeTypeIsManagedExpression:
-            if(!compile_is_managed_expression(node, info))
-            {
-                return FALSE;
-            }
-            break;
-
         case kNodeTypeSizeOfExpression:
             if(!compile_sizeof_expression(node, info))
             {
@@ -10251,7 +10178,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
-
+        
+        case kNodeTypeManaged:
+            if(!compile_managed(node, info))
+            {
+                return FALSE;
+            }
+            break;
 
         case kNodeTypeClassNameExpression:
             if(!compile_class_name_expression(node, info)) {
