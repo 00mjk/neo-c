@@ -4,9 +4,9 @@ if [ -e Makefile ]
 then
     make distclean
 fi
-if [ -e mvi/Makefile ]
+if [ -e vivi/Makefile ]
 then
-    (cd mvi; make distclean)
+    (cd vivi; make distclean)
 fi
 
 if [ ! -e Makefile ]

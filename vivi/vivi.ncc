@@ -33,20 +33,17 @@ struct win {
 
 impl win {
     initialize(width:int, height:int) {
-        //keypad(self.win, 4);
+        keypad(self.win, 4);
 
         self.texts = new list<string>.initialize();
 
-/*
         var win = newwin(width, height, 0, 0);
 
         self.win = win;
-*/
     }
 
     finalize() {
-        //delete self.texts;
-        //delwin(self.win);
+        delwin(self.win);
     }
 
     def view(self:win*) {
@@ -71,10 +68,8 @@ struct vivi {
 
 impl vivi {
     initialize() {
-        /*
         initscr();
         noecho();
-        */
 
         self.wins = new vector<win*%>.initialize();
 
@@ -93,11 +88,10 @@ impl vivi {
     }
 
     finalize() {
-        //endwin();
+        endwin();
     }
 
     def main_loop(self:vivi*):int {
-/*
         erase();
 
         self.wins.each {
@@ -105,7 +99,6 @@ impl vivi {
         }
 
         self.active_win.input();
-*/
 
         0
     }
