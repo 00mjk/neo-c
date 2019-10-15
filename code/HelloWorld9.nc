@@ -45,9 +45,15 @@ impl win {
     }
 }
 
+struct TestStruct {
+    a:int;
+    b:char;
+    c:long;
+    d:int;
+}
+
 def main():int 
 {
-/*
     var str = string("HELLO WORLD");
 
     str[0] = 'h';
@@ -87,7 +93,6 @@ def main():int
     li.insert(1, 7);
 
     xassert("list test2", li.equals(list!(0, 7, 1)));
-*/
     
     var li3 = list!(string("aaa"), string("bbb"));
 
@@ -134,6 +139,27 @@ def main():int
     var wi = new win.initialize();
 
     printf("%s\n", wi.texts.item(0, null));
+
+    var v4 = new vector<string>.initialize_with_values(3, string("aaa"));
+
+    xassert("vector test", v4.equals(vec!(string("aaa"), string("aaa"), string("aaa"))));
+
+    var str2 = string("XYZ");
+
+    var str3 = clone str2;
+
+    xassert("clone test", str3.equals(str2));
+
+    var data = new TestStruct;
+
+    data.a = 123;
+    data.b = 245;
+    data.c = 111;
+    data.d = 222;
+
+    var data2 = clone data;
+
+    xassert("clone test2", data2.a == 123 && data2.b == 245 && data2.c == 111 && data2.d == 222);
 
     0
 }

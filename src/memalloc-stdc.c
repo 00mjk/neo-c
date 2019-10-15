@@ -45,12 +45,6 @@ void *ncrealloc(void *block, size_t size)
     return realloc(block, size);
 }
 
-void *ncmemdup(void *block)
-{
-    fprintf(stderr, "no support ncmemdup\n");
-    exit(1);
-}
-
 void *ncasprintf(char* msg, ...)
 {
 #ifdef MDEBUG
@@ -74,3 +68,21 @@ void* ncmemcpy(void* mem, void* mem2, size_t size)
     return memcpy(mem, mem2, size);
 }
 
+void *ncmemdup(void *block)
+{
+    size_t size = malloc_usable_size(block);
+
+    if (!block) return (void*)0;
+
+    char* ret = ncmalloc(size);
+
+    if (ret) {
+        char* p = ret;
+        char* p2 = block;
+        while(p - ret < size) {
+            *p++ = *p2++;
+        }
+    }
+
+    return ret;
+}

@@ -4300,7 +4300,7 @@ static BOOL parse_alignof(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_clone(unsigned int* node, sParserInfo* info)
+BOOL parse_clone(unsigned int* node, sParserInfo* info)
 {
     if(!expression(node, info)) {
         return FALSE;
@@ -5789,6 +5789,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "new") == 0) {
             if(!parse_new(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "clone") == 0) {
+            if(!parse_clone(node, info)) {
                 return FALSE;
             }
         }

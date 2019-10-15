@@ -33,7 +33,7 @@
 #define IMPL_DEF_MAX 512
 #define EXTERNAL_OBJECT_MAX 4096
 #define INIT_ARRAY_MAX 128
-#define LOOP_NEST_MAX 32
+#define LOOP_NEST_MAX 1024
 
 
 
@@ -339,6 +339,7 @@ BOOL expression(unsigned int* node, sParserInfo* info);
 BOOL clang_expression(unsigned int* node, sParserInfo* info);
 BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly_brace);
 BOOL parse_sharp(sParserInfo* info);
+BOOL parse_clone(unsigned int* node, sParserInfo* info);
 BOOL parse_class_name_expression(unsigned int* node, sParserInfo* info);
 BOOL get_hex_number(unsigned int* node, sParserInfo* info);
 BOOL get_oct_number(unsigned int* node, sParserInfo* info);

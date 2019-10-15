@@ -6721,6 +6721,7 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
 
     sNodeType* left_type = info->type;
 
+/*
     if(!left_type->mHeap) {
         compile_err_msg(info, "Can't clone this value");
         show_node_type(left_type);
@@ -6729,19 +6730,28 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
         info->type = create_node_type_with_class_name("int"); // dummy
         return TRUE;
     }
+*/
+
+    sNodeType* left_type2 = clone_node_type(left_type);
+    left_type2->mHeap = TRUE;
 
     Value* obj = clone_object(left_type, lvalue.address, info);
 
     LVALUE llvm_value;
     llvm_value.value = obj;
-    llvm_value.type = left_type;
+    llvm_value.type = clone_node_type(left_type2);
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
     llvm_value.binded_value = FALSE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
-    info->type = left_type;
+    info->type = clone_node_type(left_type2);
+
+    if(!info->no_output) {
+        append_heap_object_to_right_value(&llvm_value, info);
+    }
+
 
     return TRUE;
 }

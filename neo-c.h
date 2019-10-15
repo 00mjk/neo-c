@@ -72,6 +72,23 @@ impl vector<T>
         self.len = 0;
         self.items = borrow new T[self.size];
     }
+    vector<T>%* initialize_with_values(vector<T>%* self, int len, T& value) 
+    {
+        self.size = len;
+        self.len = len;
+        self.items = borrow new T[self.size];
+
+        for(int i=0; i<len; i++) {
+            if(isheap(T)) {
+                self.items[i] = clone value;
+            }
+            else {
+                self.items[i] = value;
+            }
+        }
+
+        return self;
+    }
 
     finalize()
     {
@@ -146,6 +163,22 @@ impl vector<T>
         }
 
         return true;
+    }
+
+    bool replace(vector<T>* self, int index, T value) 
+    {
+        if(index < 0) {
+            index += self.len;
+        }
+
+        if(index >= 0 && index < self.len)
+        {
+            self.items[index] = value;
+
+            return true;
+        }
+
+        return false;
     }
 }
 

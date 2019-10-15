@@ -2165,23 +2165,6 @@ static BOOL parse_sizeof(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_clone(unsigned int* node, sParserInfo* info)
-{
-    if(!expression(node, info)) {
-        return FALSE;
-    }
-
-    if(*node == 0) {
-        parser_err_msg(info, "Require expression for clone");
-        info->err_num++;
-        return TRUE;
-    }
-
-    *node = sNodeTree_create_clone(*node, info);
-
-    return TRUE;
-}
-
 static BOOL parse_switch(unsigned int* node, sParserInfo* info)
 {
     expect_next_character_with_one_forward("(", info);

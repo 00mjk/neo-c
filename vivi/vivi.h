@@ -1,3 +1,7 @@
+def xgetmaxx(): int
+;
+def xgetmaxy(): int
+;
 struct win {
     win:WINDOW*;
     texts:list<string>*%;

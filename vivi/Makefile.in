@@ -29,11 +29,14 @@ DESTDIR=@DESTDIR@
 ##########################################
 all: vivi
 
-vivi: config.h main.nc vivi.o
-	neo-c -o vivi main.nc vivi.o $(CFLAGS) $(LIBS)
+vivi: config.h main.nc vivi.o vivi2.o
+	neo-c -o vivi main.nc vivi.o vivi2.o $(CFLAGS) $(LIBS)
 
 vivi.o: config.h vivi.ncc
 	neo-c -c vivi.ncc $(CFLAGS) $(LIBS)
+
+vivi2.o: config.h vivi2.ncc
+	neo-c -c vivi2.ncc $(CFLAGS) $(LIBS)
 
 #########################################
 # install
