@@ -34,6 +34,11 @@ struct win {
     height:int;
 }
 
+struct vivi {
+    wins:vector<win*%>*%;
+    active_win:win*;
+}
+
 impl win {
     initialize(y:int, x:int, width:int, height:int) {
         keypad(self.win, 4);
@@ -64,27 +69,22 @@ impl win {
         wrefresh(self.win);
     }
 
-    def input(self:win*) {
+    def input(self:win*, vivi:vivi*) {
         var key = wgetch(self.win);
     }
 }
 
-struct vivi {
-    wins:vector<win*%>*%;
-    active_win:win*;
-}
-
 impl vivi {
-    def init_curses() {
+    def init_curses(self:vivi*) {
         initscr();
         noecho();
-        setEscapeDelay(0);
+        //setEscapeDelay(0);
         keypad(stdscr, true);
         raw();
     }
 
     initialize() {
-        init_curses();
+        self.init_curses();
 
         self.wins = new vector<win*%>.initialize();
 
@@ -113,7 +113,7 @@ impl vivi {
             it.view();
         }
 
-        self.active_win.input();
+        self.active_win.input(self);
 
         0
     }

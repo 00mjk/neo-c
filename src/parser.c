@@ -405,14 +405,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         }
     }
 
-    if(*result_type == NULL) {
-        sCLClass* klass = get_class(type_name);
-
-        if(klass) {
-            *result_type = create_node_type_with_class_name(type_name);
-        }
-    }
-
     if(strcmp(type_name, "typeof") == 0 && *info->p == '(')
     {
         info->p++;
@@ -428,6 +420,77 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         expect_next_character_with_one_forward(")", info);
 
         (*result_type)->mTypeOfExpression = node;
+    }
+
+    if(strcmp(type_name, "lambda") == 0) 
+    {
+        *result_type = create_node_type_with_class_name("lambda");
+
+        if(*info->p == '(') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(*info->p == ')') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else {
+                while(1) {
+                    sNodeType* node_type = NULL;
+                    if(!parse_type(&node_type, info))
+                    {
+                        return FALSE;
+                    }
+
+                    (*result_type)->mParamTypes[(*result_type)->mNumParams] = node_type;
+
+                    (*result_type)->mNumParams++;
+
+                    if((*result_type)->mNumParams >= PARAMS_MAX) {
+                        parser_err_msg(info, "oveflow type params");
+                        return FALSE;
+                    }
+
+                    if(*info->p == ')') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                        break;
+                    }
+                    else if(*info->p == ',') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                    }
+                    else {
+                        parser_err_msg(info, "invalid character in lambda type name(%c)", *info->p);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if(*info->p == ':') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            sNodeType* node_type = NULL;
+            if(!parse_type(&node_type, info))
+            {
+                return FALSE;
+            }
+
+            (*result_type)->mResultType = node_type;
+        }
+        else {
+            (*result_type)->mResultType = create_node_type_with_class_name("void");
+        }
+    }
+
+    if(*result_type == NULL) {
+        sCLClass* klass = get_class(type_name);
+
+        if(klass) {
+            *result_type = create_node_type_with_class_name(type_name);
+        }
     }
 
     if(*result_type == NULL || (*result_type)->mClass == NULL) {
@@ -473,60 +536,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         }
 
         (*result_type)->mNumGenericsTypes = generics_num;
-    }
-
-    if(memcmp(info->p, "lambda", 6) == 0) 
-    {
-        info->p += 6;
-        skip_spaces_and_lf(info);
-
-        sNodeType* node_type = clone_node_type(*result_type);
-
-        *result_type = create_node_type_with_class_name("lambda");
-
-        (*result_type)->mResultType = node_type;
-
-        if(*info->p == '(') {
-            info->p++;
-            skip_spaces_and_lf(info);
-
-            if(*info->p == ')') {
-                info->p++;
-                skip_spaces_and_lf(info);
-            }
-            else {
-                while(1) {
-                    sNodeType* node_type = NULL;
-                    if(!parse_type(&node_type, info))
-                    {
-                        return FALSE;
-                    }
-
-                    (*result_type)->mParamTypes[(*result_type)->mNumParams] = node_type;
-
-                    (*result_type)->mNumParams++;
-
-                    if((*result_type)->mNumParams >= PARAMS_MAX) {
-                        parser_err_msg(info, "oveflow type params");
-                        return FALSE;
-                    }
-
-                    if(*info->p == ')') {
-                        info->p++;
-                        skip_spaces_and_lf(info);
-                        break;
-                    }
-                    else if(*info->p == ',') {
-                        info->p++;
-                        skip_spaces_and_lf(info);
-                    }
-                    else {
-                        parser_err_msg(info, "invalid character in lambda type name(%c)", *info->p);
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     /// pointer ///
@@ -3777,7 +3786,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
         }
-        else if(*info->p == '!') {
+        else if(*info->p == '!' && (*(info->p+1) == '(' || *(info->p+1) == '{' || *(info->p+1) == '[' || *(info->p+1) == '<'))
+        {
             info->p++;
             skip_spaces_and_lf(info);
 

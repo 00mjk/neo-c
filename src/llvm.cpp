@@ -1589,8 +1589,8 @@ printf("free right value object %p type %s*\n", obj, CLASS_NAME(node_type->mClas
     {
         if(node_type->mPointerNum == 1)
         {
-            call_destructor(obj2, node_type, info);
             call_field_destructor(obj2, node_type, info);
+            call_destructor(obj2, node_type, info);
         }
     }
 

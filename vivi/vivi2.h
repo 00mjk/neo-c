@@ -1,7 +1,3 @@
-def xgetmaxx(): int
-;
-def xgetmaxy(): int
-;
 struct win {
     win:WINDOW*;
     texts:list<string>*%;
@@ -19,14 +15,24 @@ struct vivi {
 impl win {
     initialize(y:int, x:int, width:int, height:int) ;
 finalize() ;
-def view(self:win*) ;
-def input(self:win*, vivi:vivi*) ;
 
 }
 impl vivi {
-    def init_curses(self:vivi*) ;
-initialize() ;
+    initialize() ;
 finalize() ;
+
+}
+impl win version 2 {
+    def input(self:win*, vivi:vivi*) ;
+
+}
+struct vivi {
+    events: vector<lambda(vivi*, int)>*%;
+    app_end: _Bool;
+}
+
+impl vivi version 2 {
+    initialize() ;
 def main_loop(self:vivi*):int ;
 
 }

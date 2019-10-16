@@ -7,7 +7,7 @@ extern "C"
 #include <ncurses.h>
 }
 
-#include "vivi.h"
+#include "vivi2.h"
 
 def main():int
 {
