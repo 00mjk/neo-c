@@ -51,15 +51,10 @@ impl vivi version 2 {
 
         self.events = new vector<lambda(vivi*, int)>.initialize_with_values(KEY_MAX, null);
 
-        self.events.replace('q') {
-            it.app_end = true;
-        }
-/*
         self.events.replace('q', lambda(self:vivi*, key:int) 
         {
             self.app_end = true;
         });
-*/
     }
 
     def main_loop(self:vivi*):int {
