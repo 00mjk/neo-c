@@ -5,13 +5,14 @@
 
 #ifdef MDEBUG
 int gNumMemAlloc = 0;
+int gMaxMemAlloc = 0;
 #endif
 
 void ncfree(void *block)
 {
 #ifdef MDEBUG
 if(block) gNumMemAlloc--;
-printf("\nruntime free %p %d\n", block, gNumMemAlloc);
+printf("\nruntime free %p %d max %d\n", block, gNumMemAlloc, gMaxMemAlloc);
 #endif
     free(block);
 }
@@ -21,6 +22,7 @@ void *ncmalloc(size_t size)
     void* result = malloc(size);
 #ifdef MDEBUG
 gNumMemAlloc++;
+if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
 printf("\nruntime alloc %p %d\n", result, gNumMemAlloc);
 #endif
     return result;
@@ -34,6 +36,7 @@ void *nccalloc(size_t num, size_t nsize)
 
 #ifdef MDEBUG
 gNumMemAlloc++;
+if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
 printf("runtime calloc %p %d\n", result, gNumMemAlloc);
 #endif
 
@@ -49,6 +52,7 @@ void *ncasprintf(char* msg, ...)
 {
 #ifdef MDEBUG
 gNumMemAlloc++;
+if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
 #endif
     va_list args;
     va_start(args, msg);

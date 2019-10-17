@@ -1199,7 +1199,29 @@ static BOOL parse_function(unsigned int* node, char* struct_name, sParserInfo* i
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(info->parse_struct_phase) {
+        if(info->automatically_header) 
+        {
+            if(info->parse_struct_phase) 
+            {
+                sBuf buf;
+                sBuf_init(&buf);
+
+                int source_size = info->p - function_head;
+
+                sBuf_append_str(&buf, "def ");
+                sBuf_append(&buf, function_head, source_size);
+
+                if(!write_to_automatically_header(&buf))
+                {
+                    return FALSE;
+                }
+
+                free(buf.mBuf);
+            }
+        }
+
+        if(info->parse_struct_phase) 
+        {
             *node = sNodeTree_create_null(info);
         }
         else {
