@@ -28,7 +28,11 @@ impl win version 2 {
 }
 struct vivi version 2 {
     events: vector<lambda(vivi*, int)>*%;
-    app_end: _Bool;
+    app_end: 
+# 31 "vivi2.ncc" 3 4
+            _Bool
+# 31 "vivi2.ncc"
+                ;
 }
 
 impl vivi version 2 {

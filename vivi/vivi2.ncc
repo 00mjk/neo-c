@@ -15,7 +15,6 @@ impl win version 2 {
     def input(self:win*, vivi:vivi*) {
         var key = wgetch(self.win);
 
-
         var event = vivi.events.item(key, null);
 
         if(event != null) {

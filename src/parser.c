@@ -169,7 +169,19 @@ static BOOL parse_struct(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
 
+        if(*info->p == '#') {
+            if(!parse_sharp(info)) {
+                return FALSE;
+            }
+        }
+
         expect_next_character_with_one_forward(":", info);
+
+        if(*info->p == '#') {
+            if(!parse_sharp(info)) {
+                return FALSE;
+            }
+        }
 
         sNodeType* field = NULL;
         if(!parse_type(&field, info)) {
@@ -185,6 +197,12 @@ static BOOL parse_struct(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
 
+        if(*info->p == '#') {
+            if(!parse_sharp(info)) {
+                return FALSE;
+            }
+        }
+
         if(*info->p == ';') {
             info->p++;
             skip_spaces_and_lf(info);
@@ -194,17 +212,6 @@ static BOOL parse_struct(unsigned int* node, sParserInfo* info)
             info->p++;
             skip_spaces_and_lf(info);
             break;
-        }
-        else if(*info->p == '#') {
-            if(!parse_sharp(info)) {
-                return FALSE;
-            }
-
-            if(*info->p == '}') {
-                info->p++;
-                skip_spaces_and_lf(info);
-                break;
-            }
         }
     }
 
@@ -377,6 +384,12 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
             return FALSE;
         }
 
+        if(*info->p == '#') {
+            if(!parse_sharp(info)) {
+                return FALSE;
+            }
+        }
+
         if(strcmp(type_name, "const") == 0) {
             constant = TRUE;
         }
@@ -396,6 +409,12 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
     {
         return FALSE;
+    }
+
+    if(*info->p == '#') {
+        if(!parse_sharp(info)) {
+            return FALSE;
+        }
     }
 
     if(*result_type == NULL) {
@@ -442,9 +461,21 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         info->p++;
         skip_spaces_and_lf(info);
 
+        if(*info->p == '#') {
+            if(!parse_sharp(info)) {
+                return FALSE;
+            }
+        }
+
         unsigned int node = 0;
         if(!expression(&node, info)) {
             return FALSE;
+        }
+
+        if(*info->p == '#') {
+            if(!parse_sharp(info)) {
+                return FALSE;
+            }
         }
 
         *result_type = create_node_type_with_class_name("TYPEOF");
@@ -1665,6 +1696,12 @@ static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, s
         }
         else {
             while(1) {
+                if(*info->p == '#') {
+                    if(!parse_sharp(info)) {
+                        return FALSE;
+                    }
+                }
+
                 unsigned int node = 0;
                 if(!expression(&node, info)) {
                     return FALSE;
@@ -1692,6 +1729,12 @@ static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, s
                     skip_spaces_and_lf(info);
                 }
 
+                if(*info->p == '#') {
+                    if(!parse_sharp(info)) {
+                        return FALSE;
+                    }
+                }
+
                 if(*info->p == ',') {
                     info->p++;
                     skip_spaces_and_lf(info);
@@ -1707,7 +1750,7 @@ static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, s
                     break;
                 }
                 else {
-                    parser_err_msg(info, "neo-c requires , or ) for method call");
+                    parser_err_msg(info, "neo-c requires , or ) for method call. it is %c", *info->p);
                     info->err_num++;
                     break;
                 }

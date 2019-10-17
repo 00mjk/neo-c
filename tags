@@ -11,7 +11,7 @@ BUFFER_H	src/buffer.h	2;"	d
 CC	Makefile	/^CC=clang$/;"	m
 CC	vivi/Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -g -DMDEBUG -Qunused-arguments$/;"	m
-CFLAGS	vivi/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/data\/data\/com.termux\/files\/home\/include -L\/data\/data\/com.termux\/files\/home\/lib -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
+CFLAGS	vivi/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
 CLASS_FLAGS_ANONYMOUS	src/common.h	85;"	d
 CLASS_FLAGS_ANONYMOUS_VAR_NAME	src/common.h	87;"	d
 CLASS_FLAGS_ENUM	src/common.h	86;"	d
@@ -22,7 +22,7 @@ CLASS_FLAGS_PRIMITIVE	src/common.h	78;"	d
 CLASS_FLAGS_STRUCT	src/common.h	79;"	d
 CLASS_FLAGS_UNION	src/common.h	84;"	d
 CLASS_FLAGS_UNSIGNED_NUMBER	src/common.h	81;"	d
-CLASS_NAME	src/common.h	109;"	d
+CLASS_NAME	src/common.h	111;"	d
 CLASS_NUM_MAX	src/common.h	21;"	d
 COMMON_H	src/common.h	2;"	d
 COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/xfunc.o src\/alignment.o$/;"	m
@@ -31,7 +31,7 @@ CONS_str	src/common.h	61;"	d
 CXX	Makefile	/^CXX=clang++$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g -I . -I src -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
-DESTDIR	vivi/Makefile	/^DESTDIR=\/data\/data\/com.termux\/files\/home$/;"	m
+DESTDIR	vivi/Makefile	/^DESTDIR=\/home\/ab25cq$/;"	m
 ELIF_NUM_MAX	src/common.h	29;"	d
 EXTERNAL_OBJECT_MAX	src/common.h	34;"	d
 FALSE	src/xfunc.h	9;"	d
@@ -49,17 +49,17 @@ HAVE_PTHREAD_H	config.h	11;"	d
 IMPL_DEF_MAX	src/common.h	33;"	d
 INIT_ARRAY_MAX	src/common.h	35;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
-INSTALL	vivi/Makefile	/^INSTALL=\/data\/data\/com.termux\/files\/usr\/bin\/install -c$/;"	m
+INSTALL	vivi/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 LIBS	Makefile	/^LIBS= -lutil -lpthread -ldl -lm -lpcre -lrt$/;"	m
-LIBS	vivi/Makefile	/^LIBS= -ldl -lm -lpcre -lncursesw -lrt$/;"	m
+LIBS	vivi/Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lncursesw -lrt$/;"	m
 LLVM_COMMON_H	src/llvm_common.hpp	2;"	d
 LOCAL_VARIABLE_MAX	src/common.h	25;"	d
 LOOP_NEST_MAX	src/common.h	36;"	d
 LVALUE	src/llvm_common.hpp	/^typedef struct LVALUEStruct LVALUE;$/;"	t	typeref:struct:LVALUEStruct
 LVALUEStruct	src/llvm_common.hpp	/^struct LVALUEStruct {$/;"	s
 MANAGED	src/xfunc.h	5;"	d
-MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	643;"	d
-MAP_TABLE_DEFAULT_SIZE	neo-c.h	643;"	d
+MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	676;"	d
+MAP_TABLE_DEFAULT_SIZE	neo-c.h	676;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
 NCC	vivi/Makefile	/^NCC=neo-c$/;"	m
 NEO_C_STACK_SIZE	src/common.h	24;"	d
@@ -87,7 +87,6 @@ SOURCE_EXPRESSION_MAX	src/common.h	28;"	d
 STRUCT_FIELD_MAX	src/common.h	30;"	d
 StructData1	code/HelloWorld5.h	/^impl StructData1$/;"	s
 StructData1	code/HelloWorld5.h	/^struct StructData1$/;"	s
-StructData1	code/HelloWorld6.h	/^struct StructData1$/;"	s
 TRUE	src/xfunc.h	8;"	d
 TheContext	src/llvm.cpp	/^LLVMContext TheContext;$/;"	v
 TheFPM	src/llvm.cpp	/^std::unique_ptr<FunctionPassManager> TheFPM;$/;"	v
@@ -95,8 +94,8 @@ TheLabels	src/llvm.cpp	/^std::map<std::string, BasicBlock*> TheLabels;$/;"	v
 TheModule	src/llvm.cpp	/^Module* TheModule;$/;"	v
 VAR_NAME_MAX	src/common.h	20;"	d
 XFUNC_H	src/xfunc.h	2;"	d
-__32BIT_CPU__	vivi/config.h	19;"	d
 __64BIT_CPU__	config.h	18;"	d
+__64BIT_CPU__	vivi/config.h	18;"	d
 __LINUX__	config.h	16;"	d
 __LINUX__	vivi/config.h	16;"	d
 __sbrk	src/sbrk.c	/^void * __sbrk (intptr_t increment)$/;"	f
@@ -116,6 +115,7 @@ ac_fn_c_try_link	vivi/configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_run	configure	/^ac_fn_c_try_run ()$/;"	f
 ac_fn_c_try_run	vivi/configure	/^ac_fn_c_try_run ()$/;"	f
 active_win	vivi/vivi.h	/^    active_win:win*;$/;"	m	struct:vivi
+active_win	vivi/vivi2.h	/^    active_win:win*;$/;"	m	struct:vivi
 add_fields_to_struct	src/klass.c	/^void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
 add_fields_to_union	src/klass.c	/^void add_fields_to_union(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
 add_function	src/node.cpp	/^BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param)$/;"	f
@@ -131,6 +131,7 @@ alloc_node	src/node_alloc.c	/^unsigned int alloc_node()$/;"	f
 alloc_node_type	src/node_type.c	/^static sNodeType* alloc_node_type()$/;"	f	file:
 alloc_struct	src/klass.c	/^sCLClass* alloc_struct(char* class_name, BOOL anonymous)$/;"	f
 alloc_union	src/klass.c	/^sCLClass* alloc_union(char* class_name, BOOL anonymous, BOOL anonymous_var_name)$/;"	f
+app_end	vivi/vivi2.h	/^    app_end: $/;"	m	struct:version
 append_double_value_to_constant_pool	src/constant.c	/^unsigned int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output)$/;"	f
 append_float_value_to_constant_pool	src/constant.c	/^unsigned int append_float_value_to_constant_pool(sConst* constant, float n, BOOL no_output)$/;"	f
 append_heap_object_to_right_value	src/llvm.cpp	/^void append_heap_object_to_right_value(LVALUE* llvm_value, sCompileInfo* info)$/;"	f
@@ -177,7 +178,7 @@ at	code/neo-c.h	/^    T2& at(map<T, T2>* self, T& key, T2& default_value) $/;"	f
 at	neo-c.h	/^    T2& at(map<T, T2>* self, T& key, T2& default_value) $/;"	f	struct:map
 auto_cast_posibility	src/node_type.c	/^BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)$/;"	f
 automatically_header	src/common.h	/^    BOOL automatically_header;$/;"	m	struct:sParserInfoStruct
-b	code/HelloWorld6.h	/^    b:int;$/;"	m	struct:StructData1
+b	code/HelloWorld6.h	/^    b:int;$/;"	m	struct:version
 binded_value	src/llvm_common.hpp	/^    BOOL binded_value;$/;"	m	struct:LVALUEStruct
 bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	vivi/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
@@ -357,6 +358,7 @@ equals	neo-c.h	/^    bool equals(tuple3<T, T2, T3>* left, tuple3<T, T2, T3>* rig
 equals	neo-c.h	/^    bool equals(tuple4<T, T2, T3, T4>* left, tuple4<T, T2, T3, T4>* right)$/;"	f	struct:tuple4
 err_num	src/common.h	/^    int err_num;$/;"	m	struct:sCompileInfoStruct
 err_num	src/common.h	/^    int err_num;$/;"	m	struct:sParserInfoStruct
+events	vivi/vivi2.h	/^    events: vector<lambda(vivi*, int)>*%;$/;"	m	struct:version
 exec_prefix	Makefile	/^exec_prefix=${prefix}$/;"	m
 expect_next_character_with_one_forward	src/parser-clang.c	/^void expect_next_character_with_one_forward(char* characters, sParserInfo* info)$/;"	f
 expression	src/parser.c	/^BOOL expression(unsigned int* node, sParserInfo* info) $/;"	f
@@ -458,6 +460,8 @@ head	code/neo-c.h	/^    list_item<T>*? head;$/;"	m	struct:list
 head	neo-c.h	/^    list_item<T>*? head;$/;"	m	struct:list
 head	src/memalloc.c	/^struct header_t *head = NULL, *tail = NULL;$/;"	v	typeref:struct:header_t
 header_t	src/memalloc.c	/^struct header_t {$/;"	s	file:
+height	vivi/vivi.h	/^    height:int;$/;"	m	struct:win
+height	vivi/vivi2.h	/^    height:int;$/;"	m	struct:win
 in_clang	src/common.h	/^    BOOL in_clang;$/;"	m	struct:sParserInfoStruct
 included_generics_type	src/node_type.c	/^BOOL included_generics_type(sNodeType* node_type)$/;"	f
 includedir	Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
@@ -818,6 +822,7 @@ mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sVarTableStruct
 mVarTable	src/common.h	/^            sVarTable* mVarTable;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon11
 mVersion	src/common.h	/^            int mVersion;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon11
 mVersion	src/common.h	/^            int mVersion;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon13
+mVersion	src/common.h	/^    int mVersion;$/;"	m	struct:sCLClassStruct
 mVersion	src/llvm_common.hpp	/^    int mVersion;$/;"	m	struct:sFunctionStruct
 mVolatile	src/common.h	/^    BOOL mVolatile;$/;"	m	struct:sNodeTypeStruct
 mWhileNodeBlock	src/common.h	/^            MANAGED struct sNodeBlockStruct* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon15	typeref:struct:sNodeTreeStruct::__anon2::__anon15::sNodeBlockStruct
@@ -911,8 +916,7 @@ parse_case	src/parser-clang.c	/^static BOOL parse_case(unsigned int* node, sPars
 parse_case	src/parser.c	/^static BOOL parse_case(unsigned int* node, sParserInfo* info)$/;"	f	file:
 parse_class_name	src/node_type.c	/^static sNodeType* parse_class_name(char** p, char** p2, char* buf)$/;"	f	file:
 parse_class_name_expression	src/parser-clang.c	/^BOOL parse_class_name_expression(unsigned int* node, sParserInfo* info)$/;"	f
-parse_clone	src/parser-clang.c	/^static BOOL parse_clone(unsigned int* node, sParserInfo* info)$/;"	f	file:
-parse_clone	src/parser.c	/^static BOOL parse_clone(unsigned int* node, sParserInfo* info)$/;"	f	file:
+parse_clone	src/parser-clang.c	/^BOOL parse_clone(unsigned int* node, sParserInfo* info)$/;"	f
 parse_constructor	src/parser-clang.c	/^static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo* info) $/;"	f	file:
 parse_constructor	src/parser.c	/^static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo* info) $/;"	f	file:
 parse_default	src/parser-clang.c	/^static BOOL parse_default(unsigned int* node, sParserInfo* info)$/;"	f	file:
@@ -996,7 +1000,7 @@ pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileI
 postposition_operator	src/parser-clang.c	/^static BOOL postposition_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 prefix	Makefile	/^prefix=\/usr\/local$/;"	m
-prefix	vivi/Makefile	/^prefix=\/data\/data\/com.termux\/files\/home exec_prefix=${prefix}$/;"	m
+prefix	vivi/Makefile	/^prefix=\/home\/ab25cq exec_prefix=${prefix}$/;"	m
 preprocess_source	src/preprocessor.c	/^static BOOL preprocess_source(char* sname, char* output_sname)$/;"	f	file:
 preprocessor	src/preprocessor.c	/^static BOOL preprocessor(sBuf* source, sBuf* source2)$/;"	f	file:
 preprocessor_final	src/preprocessor.c	/^static void preprocessor_final()$/;"	f	file:
@@ -1234,6 +1238,7 @@ tail	code/neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
 tail	neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
 tail	src/memalloc.c	/^struct header_t *head = NULL, *tail = NULL;$/;"	v	typeref:struct:
 texts	vivi/vivi.h	/^    texts:list<string>*%;$/;"	m	struct:win
+texts	vivi/vivi2.h	/^    texts:list<string>*%;$/;"	m	struct:win
 tuple	code/neo-c.h	/^ruby_macro tuple {$/;"	s
 tuple	neo-c.h	/^ruby_macro tuple {$/;"	s
 tuple1	code/neo-c.h	/^impl tuple1 <T>$/;"	s
@@ -1283,16 +1288,32 @@ var	src/llvm_common.hpp	/^    sVar* var;$/;"	m	struct:LVALUEStruct
 vector	code/neo-c.h	/^struct vector<T> $/;"	s
 vector	neo-c.h	/^struct vector<T> $/;"	s
 version	code/HelloWorld6.h	/^impl StructData1 version 2$/;"	s
+version	code/HelloWorld6.h	/^struct StructData1 version 2$/;"	s
+version	vivi/vivi2.h	/^impl vivi version 2 {$/;"	s
+version	vivi/vivi2.h	/^impl win version 2 {$/;"	s
+version	vivi/vivi2.h	/^struct vivi version 2 {$/;"	s
 vivi	vivi/vivi.h	/^impl vivi {$/;"	s
 vivi	vivi/vivi.h	/^struct vivi {$/;"	s
+vivi	vivi/vivi2.h	/^impl vivi {$/;"	s
+vivi	vivi/vivi2.h	/^struct vivi {$/;"	s
+width	vivi/vivi.h	/^    width:int;$/;"	m	struct:win
+width	vivi/vivi2.h	/^    width:int;$/;"	m	struct:win
 win	vivi/vivi.h	/^    win:WINDOW*;$/;"	m	struct:win
 win	vivi/vivi.h	/^impl win {$/;"	s
 win	vivi/vivi.h	/^struct win {$/;"	s
+win	vivi/vivi2.h	/^    win:WINDOW*;$/;"	m	struct:win
+win	vivi/vivi2.h	/^impl win {$/;"	s
+win	vivi/vivi2.h	/^struct win {$/;"	s
 wins	vivi/vivi.h	/^    wins:vector<win*%>*%;$/;"	m	struct:vivi
+wins	vivi/vivi2.h	/^    wins:vector<win*%>*%;$/;"	m	struct:vivi
 write_to_automatically_header	src/parser.c	/^static BOOL write_to_automatically_header(sBuf* buf)$/;"	f	file:
+x	vivi/vivi.h	/^    x:int;$/;"	m	struct:win
+x	vivi/vivi2.h	/^    x:int;$/;"	m	struct:win
 xcalloc	src/xfunc.c	/^ALLOC void* xcalloc(size_t count, size_t size)$/;"	f
 xmalloc	src/xfunc.c	/^ALLOC void* xmalloc(size_t size)$/;"	f
 xrealloc	src/xfunc.c	/^ALLOC void* xrealloc(void* ptr, size_t size)$/;"	f
 xstrdup	src/xfunc.c	/^ALLOC char* xstrdup(char* str)$/;"	f
 xstrncat	src/xfunc.c	/^char* xstrncat(char* des, char* str, int size)$/;"	f
 xstrncpy	src/xfunc.c	/^char* xstrncpy(char* des, char* src, int size)$/;"	f
+y	vivi/vivi.h	/^    y:int;$/;"	m	struct:win
+y	vivi/vivi2.h	/^    y:int;$/;"	m	struct:win

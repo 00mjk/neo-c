@@ -43,7 +43,7 @@ void skip_spaces(sParserInfo* info)
 
 BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf)
 {
-    if(*info->p == '#') {
+    while(*info->p == '#') {
         if(!parse_sharp(info)) {
             return FALSE;
         }
@@ -91,6 +91,13 @@ BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_m
 
         info->p++;
     }
+
+    while(*info->p == '#') {
+        if(!parse_sharp(info)) {
+            return FALSE;
+        }
+    }
+
 
     return TRUE;
 }
@@ -3256,6 +3263,12 @@ static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, s
         }
         else {
             while(1) {
+                if(*info->p == '#') {
+                    if(!parse_sharp(info)) {
+                        return FALSE;
+                    }
+                }
+
                 unsigned int node = 0;
                 if(!expression(&node, info)) {
                     return FALSE;
