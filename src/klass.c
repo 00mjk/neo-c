@@ -317,6 +317,8 @@ static sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_, BO
     klass->mMethodGenericsNum = method_generics_number;
     klass->mUndefinedStructType = NULL;
 
+    klass->mVersion = 0;
+
     if(!put_class_to_table(class_name, klass)) {
         fprintf(stderr, "overflow class number\n");
         exit(1);

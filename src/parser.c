@@ -45,6 +45,22 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
     return klass || node_type || generics_type_name || method_type_name || (strcmp(buf, "const") == 0) || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "static") == 0);
 }
 
+static void parse_version(int* version, sParserInfo* info)
+{
+    if(memcmp(info->p, "version", 7) == 0) {
+        info->p += 7;
+        skip_spaces_and_lf(info);
+
+        *version = 0;
+        while(isdigit(*info->p)) {
+            *version = *version * 10 + (*info->p - '0');
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+
+        skip_spaces_and_lf(info);
+    }
+}
 
 static BOOL parse_type(sNodeType** result_type, sParserInfo* info);
 
@@ -115,6 +131,10 @@ static BOOL parse_struct(unsigned int* node, sParserInfo* info)
         info->mNumGenerics = num_generics;
     }
 
+    int version = 0;
+    parse_version(&version, info);
+
+
     expect_next_character_with_one_forward("{", info);
 
     sCLClass* struct_class = get_class(struct_name);
@@ -122,6 +142,18 @@ static BOOL parse_struct(unsigned int* node, sParserInfo* info)
     BOOL anonymous = FALSE;
     if(struct_class == NULL) {
         struct_class = alloc_struct(struct_name, anonymous);
+    }
+    else {
+        if(info->parse_struct_phase) {
+            if(version <= struct_class->mVersion)
+            {
+                parser_err_msg(info, "Redifineded the same struct version");
+                info->err_num++;
+            }
+            else {
+                struct_class->mVersion = version;
+            }
+        }
     }
 
     int n = 0;
@@ -809,22 +841,6 @@ static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* inf
     return TRUE;
 }
 
-static void parse_version(int* version, sParserInfo* info)
-{
-    if(memcmp(info->p, "version", 7) == 0) {
-        info->p += 7;
-        skip_spaces_and_lf(info);
-
-        *version = 0;
-        while(isdigit(*info->p)) {
-            *version = *version * 10 + (*info->p - '0');
-            info->p++;
-            skip_spaces_and_lf(info);
-        }
-
-        skip_spaces_and_lf(info);
-    }
-}
 
 
 static BOOL parse_generics_function(unsigned int* node, char* struct_name, sParserInfo* info)

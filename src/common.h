@@ -104,6 +104,8 @@ struct sCLClassStruct {
     int mNumFields;
 
     void* mUndefinedStructType;
+
+    int mVersion;
 };
 
 #define CLASS_NAME(klass) (CONS_str((&(klass)->mConst), (klass)->mClassNameOffset))

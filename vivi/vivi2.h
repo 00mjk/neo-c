@@ -26,7 +26,7 @@ impl win version 2 {
     def input(self:win*, vivi:vivi*) ;
 
 }
-struct vivi {
+struct vivi version 2 {
     events: vector<lambda(vivi*, int)>*%;
     app_end: _Bool;
 }

@@ -8,7 +8,7 @@ extern "C"
 #include "HelloWorld5.h"
 #include "HelloWorld6.h"
 
-struct StructData1
+struct StructData1 version 3
 {
     c:int;
 }

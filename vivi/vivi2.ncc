@@ -24,7 +24,7 @@ impl win version 2 {
     }
 }
 
-struct vivi {
+struct vivi version 2 {
     events: vector<lambda(vivi*, int)>*%;
     app_end: bool;
 }

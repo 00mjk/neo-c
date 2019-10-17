@@ -7,7 +7,7 @@ extern "C"
 
 #include "HelloWorld5.h"
 
-struct StructData1
+struct StructData1 version 2
 {
     b:int;
 }

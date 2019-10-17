@@ -18,7 +18,7 @@ impl Data
     }
 }
 
-struct Data
+struct Data version 2
 {
     b:int;
 }
@@ -50,7 +50,7 @@ impl Data2<T>
     }
 }
 
-struct Data2<T>
+struct Data2<T> version2 
 {
     b:T;
 }
@@ -86,7 +86,7 @@ impl Data3
     }
 }
 
-struct Data3
+struct Data3 version 2
 {
     c:int;
 }
@@ -119,7 +119,7 @@ impl Data4<T>
     }
 }
 
-struct Data4<T>
+struct Data4<T> version 2
 {
     b:T;
 }
