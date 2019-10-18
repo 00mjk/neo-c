@@ -45,6 +45,8 @@ def getCursorLineLength(self:win*):int
     ;
 def forward(self:win*) ;
 def backward(self:win*) ;
+def prevLine(self:win*) ;
+def nextLine(self:win*) ;
 
 }
 struct vig version 2 {

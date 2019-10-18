@@ -54,10 +54,10 @@ impl char
         int len = strlen(str);
 
         if(head < 0) {
-            head += len;
+            head += len + 1;
         }
         if(tail < 0) {
-            tail += len;
+            tail += len + 1;
         }
 
         if(head < 0) {

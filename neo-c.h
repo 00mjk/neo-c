@@ -185,6 +185,11 @@ impl vector<T>
 
         return false;
     }
+
+    int length(vector<T>* self)
+    {
+        return self.len;
+    }
 }
 
 ruby_macro vec {
@@ -419,6 +424,11 @@ impl list <T>
         }
 
         return true;
+    }
+
+    int length(list<T>* self)
+    {
+        return self.len;
     }
 }
 

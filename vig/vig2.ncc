@@ -23,9 +23,9 @@ impl win version 2 {
         self.texts.each {
             if(self.curs_y == it2) {
                 mvwprintw(self.win, it2, 0, "%s", it.subString(0, self.curs_x));
-                //wattron(self.win, A_REVERSE);
+                wattron(self.win, A_REVERSE);
                 mvwprintw(self.win, it2, self.curs_x, "%s", it.subString(self.curs_x, self.curs_x+1));
-                //wattroff(self.win, A_REVERSE);
+                wattroff(self.win, A_REVERSE);
                 mvwprintw(self.win, it2, self.curs_x+1, "%s", it.subString(self.curs_x+1, -1));
             }
             else {
@@ -78,6 +78,23 @@ impl win version 2 {
             self.curs_x = 0;
         }
     }
+
+    def prevLine(self:win*) {
+        self.curs_y--;
+
+        if(self.curs_y < 0) {
+            self.curs_y = 0;
+        }
+    }
+
+    def nextLine(self:win*) {
+        self.curs_y++;
+
+        if(self.curs_y >= self.texts.length())
+        {
+            self.curs_y = self.texts.length()-1;
+        }
+    }
 }
 
 struct vig version 2 {
@@ -96,9 +113,9 @@ impl vig version 2 {
 
         var win = new win.initialize(0,0, maxx-1, maxy);
 
-        win.texts.push_back(string("aaa"));
-        win.texts.push_back(string("bbb"));
-        win.texts.push_back(string("ccc"));
+        win.texts.push_back(string("123"));
+        win.texts.push_back(string("456"));
+        win.texts.push_back(string("789"));
 
         self.active_win = win;
 
@@ -119,6 +136,14 @@ impl vig version 2 {
         self.events.replace('h', lambda(self:vig*, key:int) 
         {
             self.active_win.backward();
+        });
+        self.events.replace('j', lambda(self:vig*, key:int) 
+        {
+            self.active_win.nextLine();
+        });
+        self.events.replace('k', lambda(self:vig*, key:int) 
+        {
+            self.active_win.prevLine();
         });
     }
 
