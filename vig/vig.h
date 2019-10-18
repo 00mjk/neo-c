@@ -11,7 +11,7 @@ struct win {
     height:int;
 }
 
-struct vivi {
+struct vig {
     wins:vector<win*%>*%;
     active_win:win*;
 }
@@ -20,13 +20,13 @@ impl win {
     initialize(y:int, x:int, width:int, height:int) ;
 finalize() ;
 def view(self:win*) ;
-def input(self:win*, vivi:vivi*) ;
+def input(self:win*, vig:vig*) ;
 
 }
-impl vivi {
-    def init_curses(self:vivi*) ;
+impl vig {
+    def init_curses(self:vig*) ;
 initialize() ;
 finalize() ;
-def main_loop(self:vivi*):int ;
+def main_loop(self:vig*):int ;
 
 }

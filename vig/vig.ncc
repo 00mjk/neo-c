@@ -34,7 +34,7 @@ struct win {
     height:int;
 }
 
-struct vivi {
+struct vig {
     wins:vector<win*%>*%;
     active_win:win*;
 }
@@ -69,13 +69,13 @@ impl win {
         wrefresh(self.win);
     }
 
-    def input(self:win*, vivi:vivi*) {
+    def input(self:win*, vig:vig*) {
         var key = wgetch(self.win);
     }
 }
 
-impl vivi {
-    def init_curses(self:vivi*) {
+impl vig {
+    def init_curses(self:vig*) {
         initscr();
         noecho();
         //setEscapeDelay(0);
@@ -106,7 +106,7 @@ impl vivi {
         endwin();
     }
 
-    def main_loop(self:vivi*):int {
+    def main_loop(self:vig*):int {
         erase();
 
         self.wins.each {
@@ -115,6 +115,6 @@ impl vivi {
 
         self.active_win.input(self);
 
-        0
+        1
     }
 }

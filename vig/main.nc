@@ -7,10 +7,10 @@ extern "C"
 #include <ncurses.h>
 }
 
-#include "vivi2.h"
+#include "vig2.h"
 
 def main():int
 {
-    var vivi = new vivi.initialize();
-    vivi.main_loop()
+    var vig = new vig.initialize();
+    vig.main_loop()
 }

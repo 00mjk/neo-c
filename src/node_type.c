@@ -280,6 +280,11 @@ BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)
     {
         return TRUE;
     }
+    /// NULL in clang is defined int type, so this is required
+    else if(left_type->mPointerNum > 0 && type_identify_with_class_name(right_type, "int")) 
+    {
+        return TRUE;
+    }
     //else if(left_type->mNullable && type_identify_with_class_name(left_type, "lambda") && type_identify_with_class_name(right_type, "void*")) 
     else if(type_identify_with_class_name(left_type, "lambda") && type_identify_with_class_name(right_type, "void*")) 
     {

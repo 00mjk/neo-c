@@ -49,8 +49,29 @@ void xassert(char* msg, bool exp)
 
 impl char
 {
-    string subString(string str, int head, int tail)
+    string subString(char* str, int head, int tail)
     {
+        int len = strlen(str);
+
+        if(head < 0) {
+            head += len;
+        }
+        if(tail < 0) {
+            tail += len;
+        }
+
+        if(head < 0) {
+            head = 0;
+        }
+
+        if(tail >= len) {
+            tail = len;
+        }
+
+        if(str == null || head >= tail) {
+            return string("");
+        }
+
         string result = new char[tail-head+1];
 
         memcpy(result, str + head, tail-head);

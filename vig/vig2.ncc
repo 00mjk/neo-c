@@ -1,0 +1,138 @@
+#include "neo-c.h"
+
+extern "C"
+{
+#include <stdio.h>
+#include <stdlib.h>
+#include <ncurses.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+}
+
+#include "vig.h"
+
+struct win version 2 {
+    curs_y:int;
+    curs_x:int;
+}
+
+impl win version 2 {
+    def view(self:win*) {
+        werase(self.win);
+
+        self.texts.each {
+            if(self.curs_y == it2) {
+                mvwprintw(self.win, it2, 0, "%s", it.subString(0, self.curs_x));
+                //wattron(self.win, A_REVERSE);
+                mvwprintw(self.win, it2, self.curs_x, "%s", it.subString(self.curs_x, self.curs_x+1));
+                //wattroff(self.win, A_REVERSE);
+                mvwprintw(self.win, it2, self.curs_x+1, "%s", it.subString(self.curs_x+1, -1));
+            }
+            else {
+                mvwprintw(self.win, it2, 0, "%s", it);
+            }
+        }
+
+        wattron(self.win, A_REVERSE);
+        mvwprintw(self.win, self.height-1, 0, "x %d y %d", self.curs_x, self.curs_y);
+        wattroff(self.win, A_REVERSE);
+
+        wrefresh(self.win);
+    }
+
+    def input(self:win*, vig:vig*) {
+        var key = wgetch(self.win);
+
+        var event = vig.events.item(key, null);
+
+        if(event != null) {
+            event(vig, key);
+        }
+    }
+
+    def getCursorLine(self:win*):char* {
+        return self.texts.item(self.curs_y, "");
+    }
+
+    def getCursorLineLength(self:win*):int 
+    {
+        return strlen(self.getCursorLine());
+    }
+
+    def forward(self:win*) {
+        self.curs_x++;
+
+        var line_max = self.getCursorLineLength();
+
+        if(self.curs_x >= line_max)
+        {
+            self.curs_x = line_max-1;
+        }
+    }
+
+    def backward(self:win*) {
+        self.curs_x--;
+
+        if(self.curs_x < 0)
+        {
+            self.curs_x = 0;
+        }
+    }
+}
+
+struct vig version 2 {
+    events: vector<lambda(vig*, int)>*%;
+    app_end: bool;
+}
+
+impl vig version 2 {
+    initialize() {
+        self.init_curses();
+
+        self.wins = new vector<win*%>.initialize();
+
+        var maxx = xgetmaxx();
+        var maxy = xgetmaxy();
+
+        var win = new win.initialize(0,0, maxx-1, maxy);
+
+        win.texts.push_back(string("aaa"));
+        win.texts.push_back(string("bbb"));
+        win.texts.push_back(string("ccc"));
+
+        self.active_win = win;
+
+        self.wins.push_back(win);
+
+        self.app_end = false;
+
+        self.events = new vector<lambda(vig*, int)>.initialize_with_values(KEY_MAX, null);
+
+        self.events.replace('q', lambda(self:vig*, key:int) 
+        {
+            self.app_end = true;
+        });
+        self.events.replace('l', lambda(self:vig*, key:int) 
+        {
+            self.active_win.forward();
+        });
+        self.events.replace('h', lambda(self:vig*, key:int) 
+        {
+            self.active_win.backward();
+        });
+    }
+
+    def main_loop(self:vig*):int {
+        while(!self.app_end) {
+            erase();
+
+            self.wins.each {
+                it.view();
+            }
+
+            self.active_win.input(self);
+        }
+
+        0
+    }
+}

@@ -3280,6 +3280,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
 
+        info->p = p_before;
+        info->sline = sline_before;
+
         if(is_type_name(buf, info)) {
             sNodeType* node_type = NULL;
             if(!parse_type(&node_type, info))

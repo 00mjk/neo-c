@@ -155,8 +155,17 @@ BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
         }
         *p2 = 0;
         skip_spaces_and_lf(info);
-        
-        *node = sNodeTree_create_int_value(atoi(buf), info);
+
+        if(*info->p == 'u' || *info->p == 'U')
+        {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_uint_value(atoi(buf), info);
+        }
+        else {
+            *node = sNodeTree_create_int_value(atoi(buf), info);
+        }
     }
     else {
         parser_err_msg(info, "require digits after + or -");
@@ -4992,10 +5001,10 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
 
-        if(is_type_name(buf, info)) {
-            info->p = p_before;
-            info->sline = sline_before;
+        info->p = p_before;
+        info->sline = sline_before;
 
+        if(is_type_name(buf, info)) {
             sNodeType* node_type = NULL;
             if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE))
             {
@@ -5016,9 +5025,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             *node = sNodeTree_create_cast(node_type, *node, info);
         }
         else {
-            info->p = p_before;
-            info->sline = sline_before;
-
             if(!expression(node, info)) {
                 return FALSE;
             }

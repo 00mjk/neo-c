@@ -371,6 +371,46 @@ static BOOL compile_int_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_uint_value(int value, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeUIntValue;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.mIntValue = value;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_uint_value(unsigned int node, sCompileInfo* info)
+{
+    int value = gNodes[node].uValue.mIntValue;
+
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, false)); 
+    llvm_value.type = create_node_type_with_class_name("int");
+    llvm_value.type->mUnsigned = TRUE;
+
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("int");
+    info->type->mUnsigned = TRUE;
+
+    return TRUE;
+}
+
+
 static void create_real_fun_name(char* real_fun_name, size_t size_real_fun_name, char* fun_name, char* struct_name)
 {
     if(strcmp(struct_name, "") == 0) {
@@ -498,15 +538,18 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
-    if(auto_cast_posibility(left_type, right_type)) {
-        if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
-        {
-            compile_err_msg(info, "Cast failed");
-            info->err_num++;
+    if(!(left_type->mPointerNum > 0 && is_number_type(right_type)))
+    {
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int"); // dummy
 
-            return TRUE;
+                return TRUE;
+            }
         }
     }
 
@@ -631,15 +674,18 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
-    if(auto_cast_posibility(left_type, right_type)) {
-        if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
-        {
-            compile_err_msg(info, "Cast failed");
-            info->err_num++;
+    if(!(left_type->mPointerNum > 0 && is_number_type(right_type)))
+    {
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int"); // dummy
 
-            return TRUE;
+                return TRUE;
+            }
         }
     }
 
@@ -9743,6 +9789,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeIntValue:
             if(!compile_int_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeUIntValue:
+            if(!compile_uint_value(node, info)) {
                 return FALSE;
             }
             break;

@@ -1277,6 +1277,25 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
             *right_type = clone_node_type(left_type);
         }
+        else if((*right_type)->mPointerNum == 0) {
+            if(rvalue) {
+                if(!type_identify_with_class_name(*right_type, "long"))
+                {
+                    rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 64));
+                }
+
+                Type* llvm_type;
+                if(!create_llvm_type_from_node_type(&llvm_type, left_type, left_type, info))
+                {
+                    return FALSE;
+                }
+
+                rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, llvm_type);
+                rvalue->type = clone_node_type(left_type);
+            }
+
+            *right_type = clone_node_type(left_type);
+        }
     }
     else if(type_identify_with_class_name(left_type, "lambda")) {
         if(rvalue) {

@@ -42,7 +42,12 @@ impl char
         return strcmp(left, right) == 0;
     }
 
-    extern string subString(string str, int head, int tail);
+    extern string subString(char* str, int head, int tail);
+
+    inline int length(char* str)
+    {
+        return strlen(str);
+    }
 
     inline int get_hash_key(char* value)
     {

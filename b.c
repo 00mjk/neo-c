@@ -1,1 +1,0 @@
-int gGlobalVar = 2;
