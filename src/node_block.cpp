@@ -44,12 +44,16 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
         info->mBlockLevel++;
     }
 
+    BOOL parse_block = info->parse_block;
+    info->parse_block = TRUE;
+
     char* source_head = info->p;
     BOOL has_result = FALSE;
 
     while(1) {
         if(*info->p == '#') {
             if(!parse_sharp(info)) {
+                info->parse_block = parse_block;
                 return FALSE;
             }
         }
@@ -64,6 +68,7 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
             if(!extern_c_lang) {
                 info->mBlockLevel--;
             }
+            info->parse_block = parse_block;
             return TRUE;
         }
 
@@ -79,6 +84,7 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
 
         if(*info->p == '#') {
             if(!parse_sharp(info)) {
+                info->parse_block = parse_block;
                 return FALSE;
             }
         }
@@ -87,6 +93,7 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
                 if(!extern_c_lang) {
                     info->mBlockLevel--;
                 }
+                info->parse_block = parse_block;
                 return FALSE;
             }
 
@@ -136,6 +143,7 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
             if(!extern_c_lang) {
                 info->mBlockLevel--;
             }
+            info->parse_block = parse_block;
             return TRUE;
         }
     }
@@ -161,6 +169,8 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
     if(!extern_c_lang) {
         info->mBlockLevel--;
     }
+
+    info->parse_block = parse_block;
 
     return TRUE;
 }

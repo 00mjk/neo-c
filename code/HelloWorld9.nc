@@ -1,7 +1,4 @@
 #include "neo-c.h"
-
-extern "C"
-{
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -18,20 +15,19 @@ void puts2(char* str)
 {
     puts(str);
 }
-}
 
 struct StructTest {
-    abc:string;
-}
+    string abc;
+};
 
 struct ListTest {
-    li:list<int>*;
-}
+    list<int>* li;
+};
 
 
 struct win {
-    texts:list<char*>*;
-}
+    list<char*>* texts;
+};
 
 impl win {
     initialize() {
@@ -46,13 +42,13 @@ impl win {
 }
 
 struct TestStruct {
-    a:int;
-    b:char;
-    c:long;
-    d:int;
-}
+    int a;
+    char b;
+    long c;
+    int d;
+};
 
-def main():int 
+int main()
 {
     var str = string("HELLO WORLD");
 

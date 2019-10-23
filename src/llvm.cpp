@@ -650,6 +650,7 @@ void create_undefined_llvm_struct_type(sNodeType* node_type)
         std::pair<Type*, sNodeType*> pair_value;
         pair_value.first = struct_type;
         pair_value.second = clone_node_type(node_type);
+        pair_value.second->mNumFields = node_type->mClass->mNumFields;
 
         gLLVMStructType[real_struct_name] = pair_value;
 
@@ -692,7 +693,8 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOO
 
     create_real_struct_name(real_struct_name, size_real_struct_name, class_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
 
-    if(klass->mUndefinedStructType) {
+
+    if(klass->mUndefinedStructType && node_type->mPointerNum == 0) {
         StructType* struct_type = (StructType*)klass->mUndefinedStructType;
         std::vector<Type*> fields;
 
@@ -739,13 +741,15 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOO
 
         klass->mUndefinedStructType = NULL;
     }
-    else if(gLLVMStructType[real_struct_name].first == nullptr || new_create) {
+    else if(gLLVMStructType[real_struct_name].first == nullptr || (info->pinfo && info->pinfo->parse_struct_phase && (!check_the_same_fields(node_type, gLLVMStructType[real_struct_name].second) || node_type->mClass->mNumFields != gLLVMStructType[real_struct_name].second->mNumFields)))
+    {
         StructType* struct_type = StructType::create(TheContext, real_struct_name);
         std::vector<Type*> fields;
 
         std::pair<Type*, sNodeType*> pair_value;
         pair_value.first = struct_type;
         pair_value.second = clone_node_type(node_type);
+        pair_value.second->mNumFields = node_type->mClass->mNumFields;
 
         gLLVMStructType[real_struct_name] = pair_value;
 
@@ -774,6 +778,7 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOO
                 return FALSE;
             }
             Type* field_type;
+
             if(!create_llvm_type_from_node_type(&field_type, field, generics_type2, info))
             {
                 compile_err_msg(info, "Getting llvm type failed(100)");
@@ -865,6 +870,7 @@ BOOL create_llvm_union_type(sNodeType* node_type, sNodeType* generics_type, sCom
         std::pair<Type*, sNodeType*> pair_value;
         pair_value.first = struct_type;
         pair_value.second = clone_node_type(node_type);
+        pair_value.second->mNumFields = node_type->mClass->mNumFields;
 
         gLLVMStructType[real_struct_name] = pair_value;
     }
@@ -959,13 +965,15 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
 
         create_real_struct_name(real_struct_name, size_real_struct_name, class_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
 
+/*
         if(gLLVMStructType[real_struct_name].first == nullptr) 
         {
+*/
             if(!create_llvm_struct_type(node_type, generics_type, TRUE, info))
             {
                 return FALSE;
             }
-        }
+//        }
 
         *result_type = gLLVMStructType[real_struct_name].first;
     }

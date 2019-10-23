@@ -271,7 +271,7 @@ CFLAGS="$CFLAGS -Qunused-arguments"
 
 COMMON_OBJS="src/buffer.o src/xfunc.o src/alignment.o"
 
-OBJS="src/source_compiler.o src/parser.o src/parser-clang.o src/node.o src/klass.o src/node_type.o src/typedef.o src/constant.o src/llvm.o src/vtable.o src/node_block.o src/node_alloc.o src/macro.o"
+OBJS="src/source_compiler.o src/parser.o src/node.o src/klass.o src/node_type.o src/typedef.o src/constant.o src/llvm.o src/vtable.o src/node_block.o src/node_alloc.o src/macro.o"
 
 RUNTIME_OBJS=""
 

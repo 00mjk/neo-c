@@ -1,17 +1,13 @@
 #include "neo-c.h"
-
-extern "C"
-{
 #include <stdio.h>
-}
 
 #include "HelloWorld5.h"
 #include "HelloWorld6.h"
 
 struct StructData1 version 3
 {
-    c:int;
-}
+    int c;
+};
 
 impl StructData1
 {
@@ -20,13 +16,13 @@ impl StructData1
         self.b = 2;
         self.c = 3;
     }
-    def fun(self:StructData1*) version 3 {
+    void fun(StructData1* self) version 3 {
         inherit(self);
         printf("c %d\n", self.c);
     }
 }
 
-def main():int 
+int main()
 {
     var data = new StructData1.initialize();
 

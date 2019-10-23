@@ -1,18 +1,14 @@
 #include "neo-c.h"
-
-extern "C"
-{
 #include <stdio.h>
-}
 
 struct StructData1
 {
-    a:int;
-}
+    int a;
+};
 
 impl StructData1
 {
-    def fun(self:StructData1*) {
+    void fun(StructData1* self) {
         printf("a %d\n", self.a);
     }
 }

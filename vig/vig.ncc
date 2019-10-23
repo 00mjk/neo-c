@@ -59,7 +59,7 @@ impl win {
         delwin(self.win);
     }
 
-    def view(self:win*) {
+    def view(self:win*, vig:vig*) {
         werase(self.win);
 
         self.texts.each {
@@ -110,7 +110,7 @@ impl vig {
         erase();
 
         self.wins.each {
-            it.view();
+            it.view(self);
         }
 
         self.active_win.input(self);

@@ -172,12 +172,16 @@ struct sNodeTypeStruct {
     unsigned int mTypeOfExpression;
 
     int mFinalizeGenericsFunNum;
+
+    int mNumFields;
 };
 
 typedef struct sNodeTypeStruct sNodeType;
 
 void init_node_types();
 void free_node_types();
+
+BOOL check_the_same_fields(sNodeType* left_node, sNodeType* right_node);
 
 sNodeType* clone_node_type(sNodeType* node_type);
 sNodeType* create_node_type_with_class_name(char* class_name);
@@ -310,6 +314,8 @@ struct sParserInfoStruct
 
     int mFunVersion;
     int mImplVersion;
+
+    BOOL parse_block;
 };
 
 typedef struct sParserInfoStruct sParserInfo;
@@ -338,7 +344,7 @@ void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module
 extern int gNumLambdaName;
 
 BOOL expression(unsigned int* node, sParserInfo* info);
-BOOL clang_expression(unsigned int* node, sParserInfo* info);
+BOOL expression(unsigned int* node, sParserInfo* info);
 BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly_brace);
 BOOL parse_sharp(sParserInfo* info);
 BOOL parse_clone(unsigned int* node, sParserInfo* info);
@@ -784,6 +790,7 @@ BOOL call_macro(unsigned int* node, char* name, char* params, sParserInfo* info)
 /// parser.c ///
 BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info);
 BOOL parse_macro(unsigned int* node, sParserInfo* info);
+BOOL parse_enum(unsigned int* node, char* name, sParserInfo* info);
 BOOL parse_ruby_macro(unsigned int* node, sParserInfo* info, BOOL really_appended);
 BOOL parse_delete(unsigned int* node, sParserInfo* info);
 BOOL parse_borrow(unsigned int* node, sParserInfo* info);

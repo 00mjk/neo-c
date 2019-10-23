@@ -17,7 +17,7 @@ struct win version 2 {
 }
 
 impl win version 2 {
-    def view(self:win*) {
+    def view(self:win*, vig:vig*) {
         werase(self.win);
 
         self.texts.each {
@@ -51,7 +51,7 @@ impl win version 2 {
     }
 
     def getCursorLine(self:win*):char* {
-        return self.texts.item(self.curs_y, "");
+        return self.texts.item(self.curs_y, string(""));
     }
 
     def getCursorLineLength(self:win*):int 
@@ -152,7 +152,7 @@ impl vig version 2 {
             erase();
 
             self.wins.each {
-                it.view();
+                it.view(self);
             }
 
             self.active_win.input(self);

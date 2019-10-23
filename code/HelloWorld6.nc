@@ -1,20 +1,16 @@
 #include "neo-c.h"
-
-extern "C"
-{
 #include <stdio.h>
-}
 
 #include "HelloWorld5.h"
 
 struct StructData1 version 2
 {
-    b:int;
-}
+    int b;
+};
 
 impl StructData1 version 2
 {
-    def fun(self:StructData1*) {
+    void fun(StructData1* self) {
         inherit(self);
         printf("b %d\n", self.b);
     }

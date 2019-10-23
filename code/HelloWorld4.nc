@@ -1,68 +1,67 @@
 #include "neo-c.h"
 
-extern "C"
-{
 #include <stdio.h>
 #include <stdlib.h>
-}
 
 struct Data 
 {
-    a:int;
-}
+    int a;
+};
 
 impl Data 
 {
-    def fun(self:Data*) {
+    void fun(Data* self) {
         self.a = 1;
     }
 }
 
 struct Data version 2
 {
-    b:int;
-}
+    int b;
+};
 
 impl Data 
 {
-    def fun(self:Data*) version 2 {
+    void fun(Data* self) version 2 {
         inherit(self);
         self.b = 7;
     }
-    def show(self:Data*) {
+    void show(Data* self) 
+    {
         printf("self.a %d self.b %d\n", self.a, self.b);
     }
 }
 
+/*
 struct Data2<T>
 {
-    a:T;
-}
+    T a;
+};
 
 impl Data2<T>
 {
-    def fun(self:Data2<T>*) {
+    void fun(Data2<T>* self) {
         self.a = 123;
     }
 
-    def show(self:Data2<T>*) {
+    void show(Data2<T>* self) {
         printf("self.a %d\n", self.a);
     }
 }
 
-struct Data2<T> version2 
+struct Data2<T> version 2 
 {
-    b:T;
-}
+    T b;
+};
 
 impl Data2<T> version 2
 {
-    def fun(self:Data2<T>*) {
+    void fun(Data2<T>* self) {
         inherit(self);
         self.b = 234;
     }
 
-    def show(self:Data2<T>*) {
+    void show(Data2<T>* self) {
         inherit(self);
         printf("self.b %d\n", self.b);
     }
@@ -70,9 +69,9 @@ impl Data2<T> version 2
 
 struct Data3
 {
-    a:int;
-    b:int;
-}
+    int a;
+    int b;
+};
 
 impl Data3
 {
@@ -81,15 +80,15 @@ impl Data3
         self.b = 222;
     }
 
-    def show(self:Data3*) {
+    void show(Data3* self) {
         printf("self.a %d self.b %d\n", self.a, self.b);
     }
-}
+};
 
 struct Data3 version 2
 {
-    c:int;
-}
+    int c;
+};
 
 impl Data3 version 2
 {
@@ -98,15 +97,15 @@ impl Data3 version 2
         self.c = 333;
     }
 
-    def show(self:Data3*) {
+    void show(Data3* self) {
         printf("self.a %d self.b %d self.c %d\n", self.a, self.b, self.c);
     }
 }
 
 struct Data4<T>
 {
-    a:T;
-}
+    T a;
+};
 
 impl Data4<T>
 {
@@ -114,15 +113,15 @@ impl Data4<T>
         self.a = 123;
     }
 
-    def show(self:Data4<T>*) {
+    void show(Data4<T>* self) {
         printf("self.a %d\n", self.a);
     }
 }
 
 struct Data4<T> version 2
 {
-    b:T;
-}
+    T b;
+};
 
 impl Data4<T> version 2
 {
@@ -131,15 +130,16 @@ impl Data4<T> version 2
         self.b = 234;
     }
 
-    def show(self:Data4<T>*) {
+    void show(Data4<T>* self) {
         inherit(self);
         printf("self.b %d\n", self.b);
     }
 }
+*/
 
-
-def main():int
+int main()
 {
+/*
     var data = new Data;
     data.fun();
     data.show();
@@ -153,6 +153,7 @@ def main():int
 
     var data4 = new Data4<int>.initialize();
     data4.show();
+*/
 
     0
 }

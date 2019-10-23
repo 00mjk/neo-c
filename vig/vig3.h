@@ -23,12 +23,14 @@ def view(self:win*, vig:vig*) ;
 def input(self:win*, vig:vig*) ;
 
 
+
 }
 impl vig {
     def init_curses(self:vig*) ;
 initialize() ;
 finalize() ;
 def main_loop(self:vig*):int ;
+
 
 
 }
@@ -48,6 +50,7 @@ def backward(self:win*) ;
 def prevLine(self:win*) ;
 def nextLine(self:win*) ;
 
+
 }
 struct vig version 2 {
     events: vector<lambda(vig*, int)>*%;
@@ -55,6 +58,26 @@ struct vig version 2 {
 }
 
 impl vig version 2 {
+    initialize() ;
+def main_loop(self:vig*):int ;
+
+
+}
+impl win version 3 {
+    def insertModeView(self:win*, vig:vig*)
+    ;
+def view(self:win*, vig:vig*) ;
+def insertText(self:win*, key:string) ;
+def inputInsertMode(self:win*, vig:vig*)
+    ;
+def input(self:win*, vig:vig*) ;
+
+}
+struct vig version 3 {
+    mode:int;
+}
+
+impl vig version 3 {
     initialize() ;
 def main_loop(self:vig*):int ;
 

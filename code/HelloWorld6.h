@@ -1,10 +1,10 @@
 
 struct StructData1 version 2
 {
-    b:int;
+    int b;
 }
 
 impl StructData1 version 2
 {
-    def fun(self:StructData1*);
+    void fun(StructData1* self);
 }

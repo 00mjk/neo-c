@@ -1,5 +1,3 @@
-extern "C"
-{
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +22,8 @@ void p(char* str);
 /// int ///
 impl int
 {
-    inline bool equals(int left, int right) {
+    inline bool equals(int left, int right) 
+    {
         return left == right;
     }
 
@@ -178,6 +177,10 @@ impl vector<T>
 
         if(index >= 0 && index < self.len)
         {
+            if(isheap(T)) {
+                delete self.items[index];
+            }
+
             self.items[index] = value;
 
             return true;
@@ -376,6 +379,30 @@ impl list <T>
                 i++;
             }
         }
+    }
+
+    void replace(list<T>* self, int position, T value)
+    {
+        if(position < 0) {
+            position += self.len;
+        }
+
+        list_item<T>?* it = self.head;
+        var i = 0;
+        while(it != null) {
+            if(position == i) {
+/*
+                if(isheap(T)) {
+                    delete it.item;
+                }
+*/
+
+                it.item = value;
+                break;
+            }
+            it = it.next;
+            i++;
+        };
     }
     
     T& item(list<T>* self, int position, T& default_value) 
@@ -970,4 +997,3 @@ ruby_macro map {
 
 /// others ///
 extern void xassert(char* msg, bool exp);
-}

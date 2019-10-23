@@ -1,8 +1,5 @@
 #include "neo-c.h"
 
-extern "C"
-{
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -561,6 +558,397 @@ enum
 
   };
 
+struct OpTest 
+{
+    int a;
+    int b;
+};
+
+struct TestData 
+{
+    int a;
+    int b;
+};
+
+struct Data {
+    int a;
+    int b;
+};
+
+impl Data {
+    initialize() {
+        self.a = 111;
+        self.b = 123;
+    }
+}
+
+struct Data2 {
+    Data* a;
+    int b;
+};
+
+impl Data2 {
+    initialize() {
+        self.a = borrow new Data;
+
+        self.a.a = 123;
+        self.a.b = 234;
+
+        self.b = 123;
+    }
+    finalize() {
+        delete self.a;
+    }
+}
+
+struct Data3 {
+    int a;
+    int b;
+};
+
+struct Data4 {
+    Data3 a;
+    int b;
+};
+
+struct Data10 {
+    int a;
+    int b;
+};
+
+struct Data11 {
+    Data10* a;
+    int b;
+};
+
+impl Data11 {
+    finalize() {
+        delete self.a;
+    }
+}
+
+struct GenericsTest <T, T2> {
+    T a;
+    T2 b;
+    T lambda(T,T) c;
+};
+
+struct GenericsTest2<T> {
+    T a;
+    T b;
+};
+
+impl GenericsTest2<T> {
+    T add(GenericsTest2<T>* self, T a, T b) {
+        a + b
+    }
+}
+
+struct MapTest2<T> {
+    T a;
+};
+
+struct MapTest<T,T2> {
+    T a;
+    T2 b;
+};
+
+impl MapTest<T,T2> {
+    template <R> MapTest2<R>%* fun(MapTest<T,T2>* self, R a, int b)
+    {
+        var result = new MapTest2<R>;
+        result.a = 1;
+
+        result
+    }
+    
+    template <R> R fun2(MapTest<T,T2>* self, R a, void lambda(R) block)
+    {
+        puts("AAA");
+        1
+    }
+}
+
+struct HeapTest2 {
+    int a;
+    int b;
+};
+
+struct HeapTest<T> {
+    T&* a;
+    int b;
+    HeapTest2* c;
+};
+
+impl HeapTest<T> {
+    initialize()
+    {
+        self.a = borrow new T[5];
+    }
+    finalize()
+    {
+        delete self.a;
+        delete self.c;
+    }
+
+    template <R> HeapTest<R>*% map(HeapTest<T>* self, T data, R data2)
+    {
+        var result = new HeapTest<R>.initialize();
+
+        snprintf(result.a, 5, "%d", data);
+
+        result
+    }
+}
+
+struct Hello<T>
+{
+    T a;
+};
+
+impl Hello<T> {
+    void loop(Hello<T>* self, void lambda() block)
+    {
+        for(int i=0; i < self.a; i++)
+        {
+            block();
+        }
+    }
+
+    template <R> R test(Hello<T>* self, R lambda() block) 
+    {
+        self.a = 3;
+        self.loop {
+            puts("HO!");
+        }
+        block()
+    }
+}
+
+struct Hello2<T>
+{
+    T& a;
+};
+
+impl Hello2<T> {
+    void loop(Hello2<T>* self, void lambda() block)
+    {
+        for(int i=0; i < self.a; i++)
+        {
+            block();
+        }
+    }
+
+    initialize()
+    {
+        self.a = 3;
+    }
+
+    finalize() {
+        if(isheap(T)) {
+            delete self.a;
+        }
+    }
+
+    template <R> Hello2<R>*% test(Hello2<T>* self, R lambda(T) block)
+    {
+        var result = new Hello2<R>.initialize();
+
+        result.loop {
+            puts("HO!");
+        }
+
+        block(string("aaa"));
+
+        result
+    }
+}
+
+struct {
+    int a;
+    int b;
+} var_x;
+
+struct StructTest {
+    struct {
+        int a;
+        int b;
+    } B;
+
+    int c;
+    int d;
+};
+
+union UnionTest2 {
+    struct {
+        long a;
+        long b;
+    } a;
+    long b;
+    struct {
+        long a;
+        long b;
+        long c;
+    } c;
+};
+
+union {
+    struct {
+        int a;
+        int b;
+    } a;
+    long b;
+} data3;
+
+struct UnionTest3 {
+    union {
+        long a;
+        long b;
+    } a;
+
+    int b;
+};
+
+struct GenericsTest3 <T>
+{
+    union {
+        int a;
+        long b;
+    } a;
+    T b;
+};
+
+struct GenericsTest4 <T>
+{
+    struct {
+        int a;
+        int b;
+    } a;
+
+    union {
+        int a;
+        int b; 
+    } b;
+};
+
+struct StructTest2 <T>
+{
+    T a;
+    T b;
+};
+
+impl StructTest2 <T> {
+    inline T fun(StructTest2<T>* self, T a, T b) {
+        self.a = a;
+        self.b = b
+
+        T c = self.a + self.b
+
+        c
+    }
+}
+
+struct StructTest4 {
+    int a;
+    int b;
+};
+
+impl StructTest4 {
+    initialize() {
+        self.a = 111;
+        self.b = 123;
+    }
+
+    finalize() {
+        xassert("struct test13", self.a == 111 && self.b == 123);
+        puts("calling finalize");
+    }
+}
+
+struct StructTest5 {
+    int a[123];
+};
+
+struct StructTest6 {
+    int a;
+    int b;
+};
+
+struct StructTest7 {
+    int a;
+    struct StructTest7* data;
+};
+
+struct StructTest8;
+
+struct StructTest8* struct_test_var2;
+
+struct StructTest8 {
+    int a;
+    int b;
+};
+
+struct sStruct {
+    int a;
+    int b;
+};
+
+struct StructTest9 {
+   int a[3+1+sizeof(int)];
+   double aaa;
+};
+
+struct AAAAAAA {
+    int a;
+    int b;
+} abcabc;
+
+union BBBBBBBBB {
+    int a;
+    int b;
+} abcabc2;
+
+struct aaaxxx
+{
+    int a;
+
+    union
+    {
+        double y;
+        int x;
+    };
+};
+
+struct yyyxxx 
+{
+    struct {
+        int b;
+        int c;
+    };
+    int a;
+};
+
+struct StructTest10 {
+    struct StructTest11* data[10];
+};
+
+struct StructTest11 {
+    int a;
+    int b;
+};
+
+struct Data5 {
+    int a;
+    int b;
+};
+
+impl Data5 {
+    initialize() {
+        self.a = 111;
+        self.b = 222;
+    }
+}
+
 int main()
 {
     if(1 == 1) {
@@ -655,12 +1043,6 @@ int main()
     i = 124;
     xassert("operator test5", --i == 123 && i == 123);
 
-    struct OpTest 
-    {
-        int a;
-        int b;
-    };
-
     OpTest* obj = alloca OpTest;
 
     obj.a = 123;
@@ -717,12 +1099,6 @@ int main()
     }
 
     xassert("if test", xa == 222);
-
-    struct TestData 
-    {
-        int a;
-        int b;
-    };
 
     TestData* test11 = alloca TestData;
     test11.a = 123;
@@ -790,18 +1166,6 @@ int main()
 
     xassert("simple lambda param test2", mm == 7 && xmm == 9);
 
-    struct Data {
-        int a;
-        int b;
-    };
-
-    impl Data {
-        initialize() {
-            self.a = 111;
-            self.b = 123;
-        }
-    }
-
     Data*% ya = new Data;
 
     Data*% xobj = ya.initialize();
@@ -809,25 +1173,6 @@ int main()
     Data*% xobj2 = xobj;
 
     xassert("std::move test", xobj2.a == 111);
-
-    struct Data2 {
-        Data* a;
-        int b;
-    };
-
-    impl Data2 {
-        initialize() {
-            self.a = borrow new Data;
-
-            self.a.a = 123;
-            self.a.b = 234;
-
-            self.b = 123;
-        }
-        finalize() {
-            delete self.a;
-        }
-    }
 
     var yb = new Data2.initialize();
 
@@ -839,37 +1184,11 @@ int main()
 
     puts(str);
 
-    struct Data3 {
-        int a;
-        int b;
-    };
-
-    struct Data4 {
-        Data3 a;
-        int b;
-    };
-
     var za = new Data4;
 
     za.a.a = 123;
 
     xassert("struct test X", za.a.a == 123);
-
-    struct Data10 {
-        int a;
-        int b;
-    };
-
-    struct Data11 {
-        Data10* a;
-        int b;
-    };
-
-    impl Data11 {
-        finalize() {
-            delete self.a;
-        }
-    }
 
     new Data11.a = borrow new Data10;
 
@@ -894,12 +1213,6 @@ int main()
     }
 
     xassert("lambda test X", lll(1,2) == 3);
-
-    struct GenericsTest <T, T2> {
-        T a;
-        T2 b;
-        T lambda(T,T) c;
-    };
 
     var gvar = new GenericsTest<int, char>;
 
@@ -926,45 +1239,9 @@ int main()
 
     xassert("method generics test3", method_generics_fun2(2, 3) == 5);
 
-    struct GenericsTest2<T> {
-        T a;
-        T b;
-    };
-
-    impl GenericsTest2<T> {
-        T add(GenericsTest2<T>* self, T a, T b) {
-            a + b
-        }
-    }
-
     var generics_test = new GenericsTest2<int>;
 
     xassert("generics test", generics_test.add(1,2) == 3);
-
-    struct MapTest2<T> {
-        T a;
-    };
-
-    struct MapTest<T,T2> {
-        T a;
-        T2 b;
-    };
-
-    impl MapTest<T,T2> {
-        template <R> MapTest2<R>%* fun(MapTest<T,T2>* self, R a, int b)
-        {
-            var result = new MapTest2<R>;
-            result.a = 1;
-
-            result
-        }
-        
-        template <R> R fun2(MapTest<T,T2>* self, R a, void lambda(R) block)
-        {
-            puts("AAA");
-            1
-        }
-    }
 
     var map_test = new MapTest<int, int>;
 
@@ -979,106 +1256,11 @@ int main()
 
     xassert("method generics test X", aaa.a == 1);
 
-    struct HeapTest2 {
-        int a;
-        int b;
-    };
-
-    struct HeapTest<T> {
-        T&* a;
-        int b;
-        HeapTest2* c;
-    };
-
-    impl HeapTest<T> {
-        initialize()
-        {
-            self.a = borrow new T[5];
-        }
-        finalize()
-        {
-            delete self.a;
-            delete self.c;
-        }
-
-        template <R> HeapTest<R>*% map(HeapTest<T>* self, T data, R data2)
-        {
-            var result = new HeapTest<R>.initialize();
-
-            snprintf(result.a, 5, "%d", data);
-
-            result
-        }
-    }
-
     var ax = new HeapTest<int>.initialize();
 
     var bx = ax.map(1, 'a');
 
     puts(bx.a);
-
-    struct Hello<T>
-    {
-        T a;
-    };
-
-    impl Hello<T> {
-        void loop(Hello<T>* self, void lambda() block)
-        {
-            for(int i=0; i < self.a; i++)
-            {
-                block();
-            }
-        }
-
-        template <R> R test(Hello<T>* self, R lambda() block) 
-        {
-            self.a = 3;
-            self.loop {
-                puts("HO!");
-            }
-            block()
-        }
-    }
-
-    struct Hello2<T>
-    {
-        T& a;
-    };
-
-    impl Hello2<T> {
-        void loop(Hello2<T>* self, void lambda() block)
-        {
-            for(int i=0; i < self.a; i++)
-            {
-                block();
-            }
-        }
-
-        initialize()
-        {
-            self.a = 3;
-        }
-
-        finalize() {
-            if(isheap(T)) {
-                delete self.a;
-            }
-        }
-
-        template <R> Hello2<R>*% test(Hello2<T>* self, R lambda(T) block)
-        {
-            var result = new Hello2<R>.initialize();
-
-            result.loop {
-                puts("HO!");
-            }
-
-            block(string("aaa"));
-
-            result
-        }
-    }
 
     var aaa3 = new Hello<int>;
 
@@ -1185,25 +1367,10 @@ int main()
 
     xassert("global constant int", GlobalConstantInt == 123);
 
-    struct {
-        int a;
-        int b;
-    } var_x;
-
     var_x.a = 1;
     var_x.b = 2;
 
     xassert("anonymous struct test", var_x.a == 1 && var_x.b == 2);
-
-    struct StructTest {
-        struct {
-            int a;
-            int b;
-        } B;
-
-        int c;
-        int d;
-    };
 
     StructTest*% axz = new StructTest;
 
@@ -1229,19 +1396,6 @@ int main()
 
     xassert("union test2", data.b == 2);
 
-    union UnionTest2 {
-        struct {
-            long a;
-            long b;
-        } a;
-        long b;
-        struct {
-            long a;
-            long b;
-            long c;
-        } c;
-    };
-
     var data2 = new UnionTest2;
 
     data2.c.a = 1;
@@ -1249,28 +1403,11 @@ int main()
     data2.c.c = 3;
 
     xassert("union test3", data2.c.a == 1 && data2.c.b == 2 && data2.c.c == 3);
-    
-    union {
-        struct {
-            int a;
-            int b;
-        } a;
-        long b;
-    } data3;
 
     data3.a.a = 1;
     data3.a.b = 2;
 
     xassert("union test4", data3.a.a == 1 && data3.a.b == 2);
-    
-    struct UnionTest3 {
-        union {
-            long a;
-            long b;
-        } a;
-
-        int b;
-    };
 
     var data4 = new UnionTest3;
 
@@ -1281,15 +1418,6 @@ int main()
 
     xassert("union test5", data4.a.a == 2 && data4.a.b == 2 && data4.b == 3);
 
-    struct GenericsTest3 <T>
-    {
-        union {
-            int a;
-            long b;
-        } a;
-        T b;
-    };
-
     var data5 = new GenericsTest3<long>;
 
     data5.a.a = 5;
@@ -1297,19 +1425,6 @@ int main()
 
     xassert("union test6", data5.a.a == 5 && data5.b == 6);
     xassert("union test6", data5.a.a == 5 && data5.b == 6);
-
-    struct GenericsTest4 <T>
-    {
-        struct {
-            int a;
-            int b;
-        } a;
-
-        union {
-            int a;
-            int b; 
-        } b;
-    };
 
     var data6 = new GenericsTest4<long>;
 
@@ -1345,23 +1460,6 @@ int main()
     }
 
     xassert("inline function test2", inline_fun4(2, 3) == 5);
-
-    struct StructTest2 <T>
-    {
-        T a;
-        T b;
-    };
-
-    impl StructTest2 <T> {
-        inline T fun(StructTest2<T>* self, T a, T b) {
-            self.a = a;
-            self.b = b
-
-            T c = self.a + self.b
-
-            c
-        }
-    }
 
     var data7 = new StructTest2<int>;
 
@@ -1454,23 +1552,6 @@ int main()
 
     fun11(null);
 
-    struct StructTest4 {
-        int a;
-        int b;
-    };
-
-    impl StructTest4 {
-        initialize() {
-            self.a = 111;
-            self.b = 123;
-        }
-
-        finalize() {
-            xassert("struct test13", self.a == 111 && self.b == 123);
-            puts("calling finalize");
-        }
-    }
-
     var struct_var = new StructTest4.initialize();
 
     xassert("struct test12", struct_var.a == 111 && struct_var.b == 123);
@@ -1525,10 +1606,6 @@ int main()
 
     xassert("func(void)", funcXXX() == 111);
 
-    struct StructTest5 {
-        int a[123];
-    };
-
     StructTest5 astruct1;
 
     int aaaray[123];
@@ -1579,11 +1656,6 @@ int main()
 
     xassert("avalue", *aptr == 111 && *bptr == 222 && *cptr == 333);
 
-    struct StructTest6 {
-        int a;
-        int b;
-    };
-
     struct StructTest6 sxdata;
 
     sxdata.a = 111;
@@ -1610,11 +1682,6 @@ int main()
 
     xassert("function pointer test", fp(1,2) == 3);
 
-    struct StructTest7 {
-        int a;
-        struct StructTest7* data;
-    };
-
     struct StructTest7* struct_test_var = alloca StructTest7;
 
     struct_test_var.a = 111;
@@ -1624,15 +1691,6 @@ int main()
     struct_test_var.data.a = 222;
 
     xassert("self-refference struct", struct_test_var.a == 111 && struct_test_var.data.a == 222);
-
-    struct StructTest8;
-
-    struct StructTest8* struct_test_var2;
-
-    struct StructTest8 {
-        int a;
-        int b;
-    };
 
     struct_test_var2 = alloca StructTest8;
 
@@ -1704,12 +1762,6 @@ int main()
     }
 
     xassert("new array initializer", aaadata[0] == 1 && aaadata[1] == 2 && aaadata[2] == 3);
-
-
-    struct sStruct {
-        int a;
-        int b;
-    };
 
     struct sStruct sssdata = {
         111, 222
@@ -1785,11 +1837,6 @@ label1:
 
     xassert("array test", bxxx[0] == 123);
 
-    struct StructTest9 {
-       int a[3+1+sizeof(int)];
-       double aaa;
-    };
-
     StructTest9* data10 = new StructTest9;
 
     data10.a[0] = 123;
@@ -1825,51 +1872,21 @@ label1:
     eEnumX enum_value2 = kTypedefEnumC;
     xassert("typedef enum test", enum_value2 == kTypedefEnumC);
 
-    struct AAAAAAA {
-        int a;
-        int b;
-    } abcabc;
-
     abcabc.a = 111;
     abcabc.b = 222;
 
     xassert("struct test", abcabc.a == 111 && abcabc.b == 222);
-
-    union BBBBBBBBB {
-        int a;
-        int b;
-    } abcabc2;
 
     abcabc2.a = 111;
     abcabc2.b = 222;
 
     xassert("union test", abcabc2.a == 222 && abcabc2.b == 222);
 
-    struct aaaxxx
-    {
-        int a;
-
-        union
-        {
-            double y;
-            int x;
-        };
-    };
-
     struct aaaxxx data11;
 
     data11.x = 123;
 
     xassert("AnonymousUnion", data11.x == 123);
-
-    struct yyyxxx 
-    {
-        struct {
-            int b;
-            int c;
-        };
-        int a;
-    };
 
     struct yyyxxx data12;
 
@@ -1889,15 +1906,6 @@ label1:
     int none_heap = 123;
 
     xassert("is heap test4", !isheap(none_heap));
-
-    struct StructTest10 {
-        struct StructTest11* data[10];
-    };
-
-    struct StructTest11 {
-        int a;
-        int b;
-    };
 
     var llll = new StructTest10;
 
@@ -1931,18 +1939,6 @@ label1:
     var gxll2 = new StructTest2<int>;
 
     xassert("class name test3", strcmp(class_name(gxll2), "StructTest2*%<int>") == 0);
-
-    struct Data5 {
-        int a;
-        int b;
-    };
-
-    impl Data5 {
-        initialize() {
-            self.a = 111;
-            self.b = 222;
-        }
-    }
 
 
     string zz8 = "AAA" + "BBB"
@@ -2119,6 +2115,4 @@ void unsupported_function()
 
     fun_test_borrow(zz6);
 */
-}
-
 }

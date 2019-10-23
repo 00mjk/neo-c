@@ -19,7 +19,7 @@ struct vig {
 impl win {
     initialize(y:int, x:int, width:int, height:int) ;
 finalize() ;
-def view(self:win*) ;
+def view(self:win*, vig:vig*) ;
 def input(self:win*, vig:vig*) ;
 
 }

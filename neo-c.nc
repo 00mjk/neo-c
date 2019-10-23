@@ -1,7 +1,5 @@
 #include "neo-c.h"
 
-extern "C"
-{
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -81,4 +79,3 @@ impl char
     }
 }
 
-}

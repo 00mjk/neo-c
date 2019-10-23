@@ -7,7 +7,7 @@ extern "C"
 #include <ncurses.h>
 }
 
-#include "vig2.h"
+#include "vig3.h"
 
 def main():int
 {

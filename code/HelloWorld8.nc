@@ -1,9 +1,5 @@
 #include "neo-c.h"
-
-extern "C"
-{
 #include <stdio.h>
-}
 
 macro hello {
 ruby <<'EOS'
@@ -24,7 +20,7 @@ ruby_macro hello3 {
     print "123"
 }
 
-def main():int 
+int main()
 {
     var str = string("HELLO WORLD");
 
@@ -42,9 +38,7 @@ def main():int
         printf("%d\n", it);
     }
 
-    var mmmzzz = extern "C" {
-        345
-    };
+    var mmmzzz = 345;
 
     xassert("c lang result value", mmmzzz == 345);
 
@@ -57,11 +51,7 @@ def main():int
 
     xassert("macro result test", nnn == 123);
 
-    var ggg =  extern "C" {
-        extern "C" {
-            111
-        }
-    }
+    var ggg =  111;
 
     xassert("extern C test", ggg == 111);
     

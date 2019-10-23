@@ -100,6 +100,8 @@ sNodeType* clone_node_type(sNodeType* node_type)
         node_type2->mParamTypes[i] = clone_node_type(node_type->mParamTypes[i]);
     }
 
+    node_type2->mNumFields = node_type->mNumFields;
+
     return node_type2;
 }
 
@@ -264,6 +266,35 @@ sNodeType* create_node_type_with_class_pointer(sCLClass* klass)
 BOOL is_number_type(sNodeType* node_type)
 {
     return (node_type->mClass->mFlags & CLASS_FLAGS_NUMBER) && node_type->mPointerNum == 0;
+}
+
+BOOL check_the_same_fields(sNodeType* left_node, sNodeType* right_node)
+{
+    sCLClass* left_class = left_node->mClass;
+    sCLClass* right_class = right_node->mClass;
+
+    if(left_class->mNumFields != right_class->mNumFields)
+    {
+        return FALSE;
+    }
+
+    if(left_class->mNumFields == 0) {
+        return FALSE;
+    }
+
+    int i;
+    for(i=0; i<left_class->mNumFields; i++) {
+        sNodeType* left_field = left_class->mFields[i];
+        sNodeType* right_field = right_class->mFields[i];
+
+        if(!type_identify(left_field, right_field))
+        {
+            return FALSE;
+        }
+
+    }
+
+    return TRUE;
 }
 
 BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)
