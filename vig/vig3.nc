@@ -1,20 +1,16 @@
 #include "neo-c.h"
-
-extern "C"
-{
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-}
 
 #include "vig2.h"
 
-enum eMode { kEditMode, kInsertMode }
+enum eMode { kEditMode, kInsertMode };
 
 impl win version 3 {
-    def insertModeView(self:win*, vig:vig*)
+    void insertModeView(self:win*, vig:vig*)
     {
         werase(self.win);
 
@@ -38,7 +34,7 @@ impl win version 3 {
         wrefresh(self.win);
     }
 
-    def view(self:win*, vig:vig*) {
+    void view(win* self, vig* vig) {
         if(vig.mode == kInsertMode) {
             self.insertModeView(vig);
         }
@@ -47,7 +43,7 @@ impl win version 3 {
         }
     }
 
-    def insertText(self:win*, key:string) {
+    void insertText(win* self, string key) {
         var old_line = self.texts.item(self.curs_y, string(""));
 
         var new_line = old_line.subString(0, self.curs_x) + key + old_line.subString(self.curs_x, -1);
@@ -55,7 +51,7 @@ impl win version 3 {
         self.texts.replace(self.curs_y, new_line);
     }
 
-    def inputInsertMode(self:win*, vig:vig*)
+    void inputInsertMode(win* self, vig* vig)
     {
         var key = wgetch(self.win);
 
@@ -67,7 +63,7 @@ impl win version 3 {
         }
     }
 
-    def input(self:win*, vig:vig*) {
+    void input(win* self, vig* vig) {
         if(vig.mode == kInsertMode) {
             self.inputInsertMode(vig);
         }
@@ -78,8 +74,8 @@ impl win version 3 {
 }
 
 struct vig version 3 {
-    mode:int;
-}
+    int mode;
+};
 
 impl vig version 3 {
     initialize() {
@@ -93,7 +89,7 @@ impl vig version 3 {
         });
     }
 
-    def main_loop(self:vig*):int {
+    int main_loop(vig* self) {
         while(!self.app_end) {
             erase();
 

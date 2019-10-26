@@ -20,7 +20,7 @@ static void compiler_final()
     parser_final();
 }
 
-static BOOL compiler(char* fname, BOOL optimize, BOOL automatically_header)
+static BOOL compiler(char* fname, BOOL optimize)
 {
     if(access(fname, F_OK) != 0) {
         fprintf(stderr, "%s doesn't exist\n", fname);
@@ -69,7 +69,7 @@ static BOOL compiler(char* fname, BOOL optimize, BOOL automatically_header)
         return FALSE;
     }
 
-    if(!compile_source(fname, source2.mBuf, optimize, automatically_header)) {
+    if(!compile_source(fname, source2.mBuf, optimize)) {
         free(source.mBuf);
         free(source2.mBuf);
         return FALSE;
@@ -110,8 +110,6 @@ int main(int argc, char** argv)
     char program_name[PATH_MAX];
     program_name[0] = '\0';
 
-    BOOL automatically_header = FALSE;
-
     int i;
     for(i=1; i<argc; i++) {
         if(strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "-V") == 0)
@@ -126,10 +124,6 @@ int main(int argc, char** argv)
         else if(strcmp(argv[i], "-O") == 0)
         {
             optimize = TRUE;
-        }
-        else if(strcmp(argv[i], "-h") == 0)
-        {
-            automatically_header = TRUE;
         }
         else if(strcmp(argv[i], "-I") == 0)
         {
@@ -191,25 +185,9 @@ int main(int argc, char** argv)
     char ext_name[PATH_MAX];
     xstrncpy(ext_name, p+1, PATH_MAX);
 
-    if(strcmp(ext_name, "ncc") == 0) {
-        automatically_header = TRUE;
-    }
-
-    if(automatically_header) {
-        char cmd[PATH_MAX+128];
-
-        snprintf(cmd, PATH_MAX+128, "rm -f '%s.h'", gMainModulePath);
-
-        int rc = system(cmd);
-        if(rc != 0) {
-            fprintf(stderr, "faield to remove automatically header target file\n");
-            exit(2);
-        }
-    }
-
     compiler_init();
 
-    if(!compiler(sname, optimize, automatically_header)) {
+    if(!compiler(sname, optimize)) {
         fprintf(stderr, "neo-c can't compile %s\n", sname);
         compiler_final();
         return 1;

@@ -310,8 +310,6 @@ struct sParserInfoStruct
 
     char parse_struct_name[VAR_NAME_MAX];
 
-    BOOL automatically_header;
-
     int mFunVersion;
     int mImplVersion;
 
@@ -357,7 +355,7 @@ BOOL get_oct_number(unsigned int* node, sParserInfo* info);
 //////////////////////////////
 BOOL delete_comment(sBuf* source, sBuf* source2);
 BOOL read_source(char* fname, sBuf* source);
-BOOL compile_source(char* fname, char* source, BOOL optimize, BOOL automatically_header);
+BOOL compile_source(char* fname, char* source, BOOL optimize);
 
 extern char gMainModulePath[PATH_MAX];
 

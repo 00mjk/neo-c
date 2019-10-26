@@ -1,61 +1,28 @@
-def xgetmaxx(): int
-;
-def xgetmaxy(): int
-;
-struct win {
-    win:WINDOW*;
-    texts:list<string>*%;
-    y:int;
-    x:int;
-    width:int;
-    height:int;
+#include "vig.h"
+
+struct VigWin version 2 {
+    int curs_y;
+    int curs_x;
+};
+
+impl VigWin version 2 {
+    void view(VigWin* self, Vig* vig);
+    void input(VigWin* self, Vig* vig);
+    char* getCursorLine(VigWin* self);
+    int getCursorLineLength(VigWin* self);
+    void forward(VigWin* self);
+    void backward(VigWin* self);
+    void prevLine(VigWin* self);
+    void nextLine(VigWin* self);
 }
 
-struct vig {
-    wins:vector<win*%>*%;
-    active_win:win*;
+struct Vig version 2 {
+    vector<void lambda(Vig*, int)>*% events;
+    bool app_end;
 }
 
-impl win {
-    initialize(y:int, x:int, width:int, height:int) ;
-finalize() ;
-def view(self:win*, vig:vig*) ;
-def input(self:win*, vig:vig*) ;
+impl Vig version 2 {
+    initialize();
 
-
-}
-impl vig {
-    def init_curses(self:vig*) ;
-initialize() ;
-finalize() ;
-def main_loop(self:vig*):int ;
-
-
-}
-struct win version 2 {
-    curs_y:int;
-    curs_x:int;
-}
-
-impl win version 2 {
-    def view(self:win*, vig:vig*) ;
-def input(self:win*, vig:vig*) ;
-def getCursorLine(self:win*):char* ;
-def getCursorLineLength(self:win*):int
-    ;
-def forward(self:win*) ;
-def backward(self:win*) ;
-def prevLine(self:win*) ;
-def nextLine(self:win*) ;
-
-}
-struct vig version 2 {
-    events: vector<lambda(vig*, int)>*%;
-    app_end: _Bool;
-}
-
-impl vig version 2 {
-    initialize() ;
-def main_loop(self:vig*):int ;
-
+    int main_loop(Vig* self);
 }

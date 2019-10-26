@@ -905,7 +905,10 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
 
         undefined_struct = struct_class->mUndefinedStructType != NULL;
 
-        add_fields_to_struct(struct_class, num_fields, field_names, fields);
+        if(info->parse_block || info->parse_struct_phase)  
+        {
+            add_fields_to_struct(struct_class, num_fields, field_names, fields);
+        }
 
         sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
 
@@ -930,26 +933,6 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
                     return FALSE;
                 }
             }
-        }
-    }
-
-    if(info->automatically_header)
-    {
-        if(info->parse_struct_phase) {
-            sBuf buf;
-            sBuf_init(&buf);
-
-            int source_size = info->p - head_of_struct;
-
-            sBuf_append_str(&buf, "struct ");
-            sBuf_append(&buf, head_of_struct, source_size);
-
-            if(!write_to_automatically_header(&buf))
-            {
-                return FALSE;
-            }
-
-            free(buf.mBuf);
         }
     }
 
@@ -2865,27 +2848,6 @@ static BOOL parse_generics_function(unsigned int* node, sNodeType* result_type, 
 
     //info->mNumMethodGenerics = 0;
 
-    if(info->automatically_header) 
-    {
-        if(info->parse_struct_phase) 
-        {
-            sBuf buf;
-            sBuf_init(&buf);
-
-            int source_size = info->p - function_head;
-
-            sBuf_append_str(&buf, "def ");
-            sBuf_append(&buf, function_head, source_size);
-
-            if(!write_to_automatically_header(&buf))
-            {
-                return FALSE;
-            }
-
-            free(buf.mBuf);
-        }
-    }
-
     return TRUE;
 }
 
@@ -3012,27 +2974,6 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
 
     //info->mNumMethodGenerics = 0;
 
-    if(info->automatically_header) 
-    {
-        if(info->parse_struct_phase) 
-        {
-            sBuf buf;
-            sBuf_init(&buf);
-
-            int source_size = info->p - function_head;
-
-            sBuf_append_str(&buf, "def ");
-            sBuf_append(&buf, function_head, source_size);
-
-            if(!write_to_automatically_header(&buf))
-            {
-                return FALSE;
-            }
-
-            free(buf.mBuf);
-        }
-    }
-
     return TRUE;
 }
 
@@ -3113,52 +3054,9 @@ static BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(info->automatically_header) 
-        {
-            if(info->parse_struct_phase) 
-            {
-                sBuf buf;
-                sBuf_init(&buf);
-
-                int source_size = info->p - function_head;
-
-                sBuf_append_str(&buf, "def ");
-                sBuf_append(&buf, function_head, source_size);
-
-                if(!write_to_automatically_header(&buf))
-                {
-                    return FALSE;
-                }
-
-                free(buf.mBuf);
-            }
-        }
-
         *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, version, info);
     }
     else {
-        if(info->automatically_header) 
-        {
-            if(info->parse_struct_phase) 
-            {
-                sBuf buf;
-                sBuf_init(&buf);
-
-                int source_size = info->p - function_head;
-
-                sBuf_append_str(&buf, "def ");
-                sBuf_append(&buf, function_head, source_size);
-                sBuf_append_str(&buf, ";\n");
-
-                if(!write_to_automatically_header(&buf))
-                {
-                    return FALSE;
-                }
-
-                free(buf.mBuf);
-            }
-        }
-
         if(info->parse_struct_phase) {
             if(!skip_block(info)) {
                 return FALSE;
@@ -3432,50 +3330,8 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
         *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, version, info);
 
         //info->mNumMethodGenerics = 0;
-        
-        if(info->automatically_header) 
-        {
-            if(info->parse_struct_phase) 
-            {
-                sBuf buf;
-                sBuf_init(&buf);
-
-                int source_size = info->p - function_head;
-
-                sBuf_append_str(&buf, "initialize");
-                sBuf_append(&buf, function_head, source_size);
-
-                if(!write_to_automatically_header(&buf))
-                {
-                    return FALSE;
-                }
-
-                free(buf.mBuf);
-            }
-        }
     }
     else {
-        if(info->automatically_header) 
-        {
-            if(info->parse_struct_phase) 
-            {
-                sBuf buf;
-                sBuf_init(&buf);
-
-                int source_size = info->p - function_head;
-
-                sBuf_append_str(&buf, "initialize");
-                sBuf_append(&buf, function_head, source_size);
-                sBuf_append_str(&buf, ";\n");
-
-                if(!write_to_automatically_header(&buf))
-                {
-                    return FALSE;
-                }
-
-                free(buf.mBuf);
-            }
-        }
         if(*info->p == ';') {
             info->p++;
             skip_spaces_and_lf(info);
@@ -3647,50 +3503,8 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
         *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, version, info);
 
         //info->mNumMethodGenerics = 0;
-
-        if(info->automatically_header) 
-        {
-            if(info->parse_struct_phase) 
-            {
-                sBuf buf;
-                sBuf_init(&buf);
-
-                int source_size = info->p - function_head;
-
-                sBuf_append_str(&buf, "finalize");
-                sBuf_append(&buf, function_head, source_size);
-
-                if(!write_to_automatically_header(&buf))
-                {
-                    return FALSE;
-                }
-
-                free(buf.mBuf);
-            }
-        }
     }
     else {
-        if(info->automatically_header) 
-        {
-            if(info->parse_struct_phase) 
-            {
-                sBuf buf;
-                sBuf_init(&buf);
-
-                int source_size = info->p - function_head;
-
-                sBuf_append_str(&buf, "finalize");
-                sBuf_append(&buf, function_head, source_size);
-                sBuf_append_str(&buf, ";\n");
-
-                if(!write_to_automatically_header(&buf))
-                {
-                    return FALSE;
-                }
-
-                free(buf.mBuf);
-            }
-        }
         if(*info->p == ';') {
             info->p++;
             skip_spaces_and_lf(info);
@@ -5036,27 +4850,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
     expect_next_character_with_one_forward("{", info);
 
-    if(info->automatically_header) 
-    {
-        if(info->parse_struct_phase) 
-        {
-            sBuf buf;
-            sBuf_init(&buf);
-
-            int source_size = info->p - impl_head;
-
-            sBuf_append_str(&buf, "impl ");
-            sBuf_append(&buf, impl_head, source_size);
-
-            if(!write_to_automatically_header(&buf))
-            {
-                return FALSE;
-            }
-
-            free(buf.mBuf);
-        }
-    }
-
     unsigned int nodes[IMPL_DEF_MAX];
     memset(nodes, 0, sizeof(unsigned int)*IMPL_DEF_MAX);
     int num_nodes = 0;
@@ -5240,23 +5033,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
     }
 
     *node = sNodeTree_create_impl(nodes, num_nodes, info);
-
-    if(info->automatically_header)
-    {
-        if(info->parse_struct_phase) {
-            sBuf buf2;
-            sBuf_init(&buf2);
-
-            sBuf_append_str(&buf2, "\n}\n");
-
-            if(!write_to_automatically_header(&buf2))
-            {
-                return FALSE;
-            }
-
-            free(buf2.mBuf);
-        }
-    }
 
     return TRUE;
 }

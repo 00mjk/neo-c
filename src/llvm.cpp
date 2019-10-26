@@ -1513,14 +1513,22 @@ static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo
     node_type2->mPointerNum = 0;
 
     Type* llvm_struct_type;
-    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info);
+    if(!create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info))
+    {
+        fprintf(stderr, "%s %d: The error at create_llvm_type_from_node_type\n", info->sname, info->sline);
+        return;
+    }
 
     int i;
     for(i=0; i<klass->mNumFields; i++) {
         sNodeType* field_type = clone_node_type(klass->mFields[i]);
 
         BOOL success_solve;
-        (void)solve_generics(&field_type, node_type, &success_solve);
+        if(!solve_generics(&field_type, node_type, &success_solve))
+        {
+            fprintf(stderr, "%s %d: The error at solve_generics\n", info->sname, info->sline);
+            return;
+        }
         sCLClass* field_class = field_type->mClass;
 
         if(field_type->mHeap && field_type->mPointerNum > 0)
@@ -1533,7 +1541,11 @@ static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo
             }
 
             Type* llvm_field_type;
-            (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info);
+            if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info))
+            {
+                fprintf(stderr, "%s %d: The error at create_llvm_type_from_node_type\n", info->sname, info->sline);
+                return;
+            }
 
 #if LLVM_VERSION_MAJOR >= 7
             Value* field_address = Builder.CreateStructGEP(obj, i);

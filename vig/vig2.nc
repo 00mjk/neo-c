@@ -1,23 +1,19 @@
 #include "neo-c.h"
-
-extern "C"
-{
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-}
 
 #include "vig.h"
 
-struct win version 2 {
-    curs_y:int;
-    curs_x:int;
-}
+struct VigWin version 2 {
+    int curs_y;
+    int curs_x;
+};
 
-impl win version 2 {
-    def view(self:win*, vig:vig*) {
+impl VigWin version 2 {
+    void view(VigWin* self, Vig* vig) {
         werase(self.win);
 
         self.texts.each {
@@ -40,7 +36,7 @@ impl win version 2 {
         wrefresh(self.win);
     }
 
-    def input(self:win*, vig:vig*) {
+    void input(VigWin* self, Vig* vig) {
         var key = wgetch(self.win);
 
         var event = vig.events.item(key, null);
@@ -50,16 +46,16 @@ impl win version 2 {
         }
     }
 
-    def getCursorLine(self:win*):char* {
+    char* getCursorLine(VigWin* self) {
         return self.texts.item(self.curs_y, string(""));
     }
 
-    def getCursorLineLength(self:win*):int 
+    int getCursorLineLength(VigWin* self) 
     {
         return strlen(self.getCursorLine());
     }
 
-    def forward(self:win*) {
+    void forward(VigWin* self) {
         self.curs_x++;
 
         var line_max = self.getCursorLineLength();
@@ -70,7 +66,7 @@ impl win version 2 {
         }
     }
 
-    def backward(self:win*) {
+    void backward(VigWin* self) {
         self.curs_x--;
 
         if(self.curs_x < 0)
@@ -79,7 +75,7 @@ impl win version 2 {
         }
     }
 
-    def prevLine(self:win*) {
+    void prevLine(VigWin* self) {
         self.curs_y--;
 
         if(self.curs_y < 0) {
@@ -87,7 +83,7 @@ impl win version 2 {
         }
     }
 
-    def nextLine(self:win*) {
+    void nextLine(VigWin* self) {
         self.curs_y++;
 
         if(self.curs_y >= self.texts.length())
@@ -97,21 +93,21 @@ impl win version 2 {
     }
 }
 
-struct vig version 2 {
-    events: vector<lambda(vig*, int)>*%;
-    app_end: bool;
-}
+struct Vig version 2 {
+    vector<void lambda(Vig*, int)>*% events;
+    bool app_end;
+};
 
-impl vig version 2 {
+impl Vig version 2 {
     initialize() {
         self.init_curses();
 
-        self.wins = new vector<win*%>.initialize();
+        self.wins = new vector<VigWin*%>.initialize();
 
         var maxx = xgetmaxx();
         var maxy = xgetmaxy();
 
-        var win = new win.initialize(0,0, maxx-1, maxy);
+        var win = new VigWin.initialize(0,0, maxx-1, maxy);
 
         win.texts.push_back(string("123"));
         win.texts.push_back(string("456"));
@@ -123,31 +119,31 @@ impl vig version 2 {
 
         self.app_end = false;
 
-        self.events = new vector<lambda(vig*, int)>.initialize_with_values(KEY_MAX, null);
+        self.events = new vector<void lambda(Vig*, int)>.initialize_with_values(KEY_MAX, null);
 
-        self.events.replace('q', lambda(self:vig*, key:int) 
+        self.events.replace('q', lambda(Vig* self, int key) 
         {
             self.app_end = true;
         });
-        self.events.replace('l', lambda(self:vig*, key:int) 
+        self.events.replace('l', lambda(Vig* self, int key) 
         {
             self.active_win.forward();
         });
-        self.events.replace('h', lambda(self:vig*, key:int) 
+        self.events.replace('h', lambda(Vig* self, int key) 
         {
             self.active_win.backward();
         });
-        self.events.replace('j', lambda(self:vig*, key:int) 
+        self.events.replace('j', lambda(Vig* self, int key) 
         {
             self.active_win.nextLine();
         });
-        self.events.replace('k', lambda(self:vig*, key:int) 
+        self.events.replace('k', lambda(Vig* self, int key) 
         {
             self.active_win.prevLine();
         });
     }
 
-    def main_loop(self:vig*):int {
+    int main_loop(Vig* self) {
         while(!self.app_end) {
             erase();
 

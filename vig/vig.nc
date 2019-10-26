@@ -1,15 +1,11 @@
 #include "neo-c.h"
-
-extern "C"
-{
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-}
 
-def xgetmaxx(): int
+int xgetmaxx()
 {
     var ws = new winsize;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
@@ -17,7 +13,7 @@ def xgetmaxx(): int
     return ws.ws_col;
 }
 
-def xgetmaxy(): int
+int xgetmaxy()
 {
     var ws = new winsize;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
@@ -25,22 +21,23 @@ def xgetmaxy(): int
     return ws.ws_row;
 }
 
-struct win {
-    win:WINDOW*;
-    texts:list<string>*%;
-    y:int;
-    x:int;
-    width:int;
-    height:int;
-}
+struct VigWin {
+    WINDOW* win;
+    list<string>*% texts;
+    int y;
+    int x;
+    int width;
+    int height;
+};
 
-struct vig {
-    wins:vector<win*%>*%;
-    active_win:win*;
-}
+struct Vig {
+    vector<VigWin*%>*% wins;
+    VigWin* active_win;
+};
 
-impl win {
-    initialize(y:int, x:int, width:int, height:int) {
+impl VigWin {
+    initialize(int y, int x, int width, int height) 
+    {
         keypad(self.win, 4);
 
         self.texts = new list<string>.initialize();
@@ -59,7 +56,7 @@ impl win {
         delwin(self.win);
     }
 
-    def view(self:win*, vig:vig*) {
+    void view(VigWin* self, Vig* vig) {
         werase(self.win);
 
         self.texts.each {
@@ -69,13 +66,13 @@ impl win {
         wrefresh(self.win);
     }
 
-    def input(self:win*, vig:vig*) {
+    void input(VigWin* self, Vig* vig) {
         var key = wgetch(self.win);
     }
 }
 
-impl vig {
-    def init_curses(self:vig*) {
+impl Vig {
+    void init_curses(Vig* self) {
         initscr();
         noecho();
         //setEscapeDelay(0);
@@ -86,12 +83,12 @@ impl vig {
     initialize() {
         self.init_curses();
 
-        self.wins = new vector<win*%>.initialize();
+        self.wins = new vector<VigWin*%>.initialize();
 
         var maxx = xgetmaxx();
         var maxy = xgetmaxy();
 
-        var win = new win.initialize(0,0, maxx-1, maxy);
+        var win = new VigWin.initialize(0,0, maxx-1, maxy);
 
         win.texts.push_back(string("aaa"));
         win.texts.push_back(string("bbb"));
@@ -106,7 +103,7 @@ impl vig {
         endwin();
     }
 
-    def main_loop(self:vig*):int {
+    int main_loop(Vig* self) {
         erase();
 
         self.wins.each {
