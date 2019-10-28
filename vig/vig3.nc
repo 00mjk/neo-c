@@ -9,8 +9,8 @@
 
 enum eMode { kEditMode, kInsertMode };
 
-impl win version 3 {
-    void insertModeView(self:win*, vig:vig*)
+impl VigWin version 3 {
+    void insertModeView(VigWin* self, Vig* vig)
     {
         werase(self.win);
 
@@ -28,13 +28,13 @@ impl win version 3 {
         }
 
         wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "x %d y %d", self.curs_x, self.curs_y);
+        mvwprintw(self.win, self.height-1, 0, "INSERT MODE x %d y %d", self.curs_x, self.curs_y);
         wattroff(self.win, A_REVERSE);
 
         wrefresh(self.win);
     }
 
-    void view(win* self, vig* vig) {
+    void view(VigWin* self, Vig* vig) {
         if(vig.mode == kInsertMode) {
             self.insertModeView(vig);
         }
@@ -43,15 +43,16 @@ impl win version 3 {
         }
     }
 
-    void insertText(win* self, string key) {
+    void insertText(VigWin* self, string key) {
         var old_line = self.texts.item(self.curs_y, string(""));
 
         var new_line = old_line.subString(0, self.curs_x) + key + old_line.subString(self.curs_x, -1);
 
         self.texts.replace(self.curs_y, new_line);
+        self.curs_x++;
     }
 
-    void inputInsertMode(win* self, vig* vig)
+    void inputInsertMode(VigWin* self, Vig* vig)
     {
         var key = wgetch(self.win);
 
@@ -63,7 +64,7 @@ impl win version 3 {
         }
     }
 
-    void input(win* self, vig* vig) {
+    void input(VigWin* self, Vig* vig) {
         if(vig.mode == kInsertMode) {
             self.inputInsertMode(vig);
         }
@@ -73,23 +74,23 @@ impl win version 3 {
     }
 }
 
-struct vig version 3 {
+struct Vig version 3 {
     int mode;
 };
 
-impl vig version 3 {
+impl Vig version 3 {
     initialize() {
         inherit(self);
 
         self.mode = kEditMode;
 
-        self.events.replace('i', lambda(self:vig*, key:int) 
+        self.events.replace('i', lambda(Vig* self, int key) 
         {
             self.mode = kInsertMode;
         });
     }
 
-    int main_loop(vig* self) {
+    int main_loop(Vig* self) {
         while(!self.app_end) {
             erase();
 

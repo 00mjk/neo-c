@@ -47,7 +47,7 @@ impl VigWin {
         self.width = width;
         self.height = height;
 
-        var win = newwin(width, height, y, x);
+        var win = newwin(height, width, y, x);
 
         self.win = win;
     }
@@ -75,9 +75,10 @@ impl Vig {
     void init_curses(Vig* self) {
         initscr();
         noecho();
-        //setEscapeDelay(0);
         keypad(stdscr, true);
         raw();
+
+        //setEscapeDelay(0);
     }
 
     initialize() {

@@ -381,8 +381,10 @@ impl list <T>
         }
     }
 
-    void replace(list<T>* self, int position, T value)
+    void replace(list<T>* self, int position, T item)
     {
+        managed item;
+
         if(position < 0) {
             position += self.len;
         }
@@ -391,13 +393,11 @@ impl list <T>
         var i = 0;
         while(it != null) {
             if(position == i) {
-/*
                 if(isheap(T)) {
                     delete it.item;
                 }
-*/
 
-                it.item = value;
+                it.item = item;
                 break;
             }
             it = it.next;
