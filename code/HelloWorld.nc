@@ -832,7 +832,7 @@ int main()
 
     int nx = 123;
 
-    string str = ncasprintf("abc %d", nx);
+    string str = xasprintf("abc %d", nx);
 
     puts(str);
 

@@ -5,14 +5,14 @@
 
 typedef char*% string;
 
-void*% nccalloc(int num, long size);
-void*% ncmalloc(long size);
-void*% ncmemdup(void* mem);
-void ncfree(void*% mem);
+void*% xcalloc(int num, long size);
+void*% xmalloc(long size);
+void*% xmemdup(void* mem);
+void xfree(void*% mem);
 
-char* ncmemcpy(void* mem, void* mem2, long size);
+char* xmemcpy(void* mem, void* mem2, long size);
 
-char*% ncasprintf(char* str, ...);
+char*% xasprintf(char* str, ...);
 
 extern string operator+(char* left, char* right);
 extern string string(char* str);
@@ -92,6 +92,21 @@ impl vector<T>
         }
 
         return self;
+    }
+
+    vector<T>%* clone(vector<T>* self) {
+        var result = new vector<T>.initialize();
+
+        self.each {
+            if(isheap(T)) {
+                result.push_back(clone it);
+            }
+            else {
+                result.push_back(heap it);
+            }
+        }
+
+        return result;
     }
 
     finalize()
@@ -279,6 +294,21 @@ impl list <T>
             it = it.next;
             delete prev_it;
         }
+    }
+
+    list<T>*% clone(list<T>* self) {
+        var result = new list<T>.initialize();
+
+        self.each {
+            if(isheap(T)) {
+                result.push_back(clone it);
+            }
+            else {
+                result.push_back(heap it);
+            }
+        }
+
+        return result;
     }
 
     void push_back(list<T>* self, T item) 
@@ -755,6 +785,32 @@ impl map <T, T2>
         delete self.item_existance;
     }
 
+    map<T, T2>*% clone(map<T, T2>* self)
+    {
+        var result = new map<T,T2>.initialize();
+
+        self.each {
+            if(isheap(T)) {
+                if(isheap(T2)) {
+                    result.insert(clone it, clone it2);
+                }
+                else {
+                    result.insert(clone it, heap it2);
+                }
+            }
+            else {
+                if(isheap(T2)) {
+                    result.insert(heap it, clone it2);
+                }
+                else {
+                    result.insert(heap it, heap it2);
+                }
+            }
+        }
+
+        return result;
+    }
+
     void each(map<T, T2>* self, void lambda(T&,T2&) block) 
     {
         for(int i=0; i<self.size; i++) {
@@ -916,8 +972,8 @@ impl map <T, T2>
         bool result = true;
         left.each {
             if(right.find(it)) {
-                T2 default_value;
-                T2 item = right.at(it, default_value);
+                T2& default_value;
+                T2& item = right.at(it, default_value);
                 if(!it2.equals(item)) {
                     result = false;
                 }

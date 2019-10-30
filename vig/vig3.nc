@@ -52,15 +52,31 @@ impl VigWin version 3 {
         self.curs_x++;
     }
 
+    void enterNewLine(VigWin* self)
+    {
+        var old_line = self.texts.item(self.curs_y, string(""));
+
+        var new_line1 = old_line.subString(0, self.curs_x);
+        var new_line2 = old_line.subString(self.curs_x, -1);
+
+        self.texts.replace(self.curs_y, new_line1);
+        self.texts.insert(self.curs_y+1, new_line2);
+        self.curs_y++;
+        self.curs_x = 0;
+    }
+
     void inputInsertMode(VigWin* self, Vig* vig)
     {
         var key = wgetch(self.win);
 
-        if(key == 27) {
+        if(key == 3 || key == 27) {
             vig.mode = kEditMode;
         }
+        else if(key == 10) {
+            self.enterNewLine();
+        }
         else {
-            self.insertText(ncasprintf("%c", key));
+            self.insertText(xasprintf("%c", key));
         }
     }
 
@@ -87,6 +103,16 @@ impl Vig version 3 {
         self.events.replace('i', lambda(Vig* self, int key) 
         {
             self.mode = kInsertMode;
+        });
+        self.events.replace('a', lambda(Vig* self, int key) 
+        {
+            self.mode = kInsertMode;
+            self.active_win.curs_x++;
+        });
+        self.events.replace('o', lambda(Vig* self, int key) 
+        {
+            self.mode = kInsertMode;
+            self.active_win.enterNewLine();
         });
     }
 

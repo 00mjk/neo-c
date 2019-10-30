@@ -157,6 +157,66 @@ int main()
 
     xassert("clone test2", data2.a == 123 && data2.b == 245 && data2.c == 111 && data2.d == 222);
 
+    var v5 = vec!(string("aaa"), string("bbb"));
+
+    var v6 = clone v5;
+
+    xassert("clone test3", v6.equals(vec!(string("aaa"), string("bbb"))));
+
+    var li4 = list!(string("aaa"), string("bbb"));
+
+    var li5 = clone li4;
+
+    xassert("clone test4", li5.equals(list!(string("aaa"), string("bbb"))));
+
+    var map3 = map!(string("aaa"):1, string("bbb"):2);
+
+    var map4 = clone map3;
+
+    xassert("clone test5", map4.equals(map!(string("aaa"):1, string("bbb"):2)));
+
+    var map5 = map!(string("aaa"):string("a"), string("bbb"):string("b"));
+
+    var map6 = clone map5;
+
+    xassert("clone test6", map6.equals(map!(string("aaa"):string("a"), string("bbb"):string("b"))));
+
+    var map7 = map!("aaa":string("a"), "bbb":string("b"));
+
+    var map8 = clone map7;
+
+    xassert("clone test7", map8.equals(map!("aaa":string("a"), "bbb":string("b"))));
+    var map9 = map!("aaa":1, "bbb":2);
+
+    var map10 = clone map9;
+
+    xassert("clone test8", map10.equals(map!("aaa":1, "bbb":2)));
+
+    var v7 = vec!("aaa", "bbb");
+
+    var v8 = clone v7;
+
+    xassert("clone test9", v8.equals(vec!("aaa", "bbb")));
+
+    var v9 = vec!(1, 2);
+
+    var v10 = clone v9;
+
+    xassert("clone test10", v10.equals(vec!(1, 2)));
+
+    var li6 = list!("aaa", "bbb");
+
+    var li7 = clone li6;
+
+    xassert("clone test11", li7.equals(list!("aaa", "bbb")));
+
+    var li8 = list!(1, 2);
+
+    var li9 = clone li8;
+
+    xassert("clone test12", li9.equals(list!(1, 2)));
+
+
     0
 }
 

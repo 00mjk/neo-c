@@ -410,7 +410,31 @@ BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
             info->p++;
             skip_spaces_and_lf(info);
 
-            *node = sNodeTree_create_uint_value(atoi(buf), info);
+            if(*info->p == 'L' || *info->p == 'l')
+            {
+                info->p++;
+                skip_spaces_and_lf(info);
+
+                *node = sNodeTree_create_ulong_value(atoll(buf), info);
+            }
+            else {
+                *node = sNodeTree_create_uint_value(atoi(buf), info);
+            }
+        }
+        else if(*info->p == 'L' || *info->p == 'l') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(*info->p == 'U' || *info->p == 'u')
+            {
+                info->p++;
+                skip_spaces_and_lf(info);
+
+                *node = sNodeTree_create_ulong_value(atoll(buf), info);
+            }
+            else {
+                *node = sNodeTree_create_long_value(atoll(buf), info);
+            }
         }
         else {
             *node = sNodeTree_create_int_value(atoi(buf), info);
@@ -4538,6 +4562,18 @@ BOOL parse_borrow(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+BOOL parse_heap(unsigned int* node, sParserInfo* info)
+{
+    unsigned int object_node;
+    if(!expression(&object_node, info)) {
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_heap(object_node, info);
+
+    return TRUE;
+}
+
 BOOL parse_managed(unsigned int* node, sParserInfo* info)
 {
     char buf[VAR_NAME_MAX+1];
@@ -6202,6 +6238,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "borrow") == 0) {
             if(!parse_borrow(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "heap") == 0) {
+            if(!parse_heap(node, info)) {
                 return FALSE;
             }
         }

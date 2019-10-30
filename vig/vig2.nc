@@ -76,10 +76,17 @@ impl VigWin version 2 {
     }
 
     void prevLine(VigWin* self) {
+        var cursor_line = self.getCursorLine();
+
         self.curs_y--;
 
         if(self.curs_y < 0) {
             self.curs_y = 0;
+        }
+
+        if(self.curs_x >= self.getCursorLineLength())
+        {
+            self.curs_x = self.getCursorLineLength()-1;
         }
     }
 
@@ -89,6 +96,11 @@ impl VigWin version 2 {
         if(self.curs_y >= self.texts.length())
         {
             self.curs_y = self.texts.length()-1;
+        }
+
+        if(self.curs_x >= self.getCursorLineLength())
+        {
+            self.curs_x = self.getCursorLineLength()-1;
         }
     }
 }
