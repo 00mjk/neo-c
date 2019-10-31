@@ -34,8 +34,8 @@
 #define EXTERNAL_OBJECT_MAX 4096
 #define INIT_ARRAY_MAX 128
 #define LOOP_NEST_MAX 1024
-
-
+#define TYPEDEF_MAX 4096
+#define MACRO_MAX 1024
 
 #define clint64 long long      // for 32 bit cpu
 
@@ -782,11 +782,17 @@ void dec_stack_ptr(int value, sCompileInfo* info);
 void* new_right_value_objects_container(sCompileInfo* info);
 void restore_right_value_objects_container(void* right_value_objects, sCompileInfo* info);
 
-/// typedef.cpp ///
+/// typedef.c ///
+void init_typedef();
+
 void add_typedef(char* name, sNodeType* node_type);
 sNodeType* get_typedef(char* name);
 
 /// macro ///
+void init_macro();
+void finalize_macro();
+
+char* get_macro(char* name);
 void append_macro(char* name, char* body);
 BOOL call_macro(unsigned int* node, char* name, char* params, sParserInfo* info);
 

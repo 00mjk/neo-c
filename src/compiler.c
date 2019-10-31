@@ -2,6 +2,8 @@
 
 static void compiler_init()
 {
+    init_macro();
+    init_typedef();
     parser_init();
     init_node_types();
     class_init();
@@ -12,6 +14,7 @@ static void compiler_init()
 
 static void compiler_final()
 {
+    finalize_macro();
     final_vtable();
     llvm_final();
     free_nodes();

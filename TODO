@@ -1,9 +1,6 @@
-fieldの自動free 好きにアドレスを使いたい場合はborrowで%で自動free $の概念はなくす
+macro.cppのC化
 
-
-Genericsやinlineのエラーメッセージがバグっている。行番号が
-
-collection
+Genericsやinlineのエラーメッセージがバグっている。行番号
 
 double, floatの値の表現、8進数、16進数
 
@@ -14,7 +11,9 @@ casts全サポート
 メソッドの関数ポインタ
 
 ----------------------
+collection
 
+fieldの自動free 好きにアドレスを使いたい場合はborrowで%で自動free $の概念はなくす
 
 mips64el, mips64(Bit endian), s390xでのテストの実行
 isHeap(変数名) 演算子

@@ -1,5 +1,3 @@
-extern "C"
-{
 #include "common.h"
 #include <stdlib.h>
 #include <limits.h>
@@ -9,28 +7,91 @@ extern "C"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+
+struct sMacro {
+    char mName[VAR_NAME_MAX];
+    sBuf mBody;
+};
+
+struct sMacro gMacros[MACRO_MAX];
+
+void init_macro()
+{
+    memset(gMacros, 0, sizeof(struct sMacro)*MACRO_MAX);
 }
 
-#include <string>
-#include <map>
-
-using namespace std;
-
-typedef struct {
-    string mName;
-    string mBody;
-} sMacro;
-
-map <string, sMacro> gMacros;
+void finalize_macro()
+{
+    int i;
+    for(i=0; i<MACRO_MAX; i++) {
+        if(strcmp(gMacros[i].mName, "") != 0) 
+        {
+            free(gMacros[i].mBody.mBuf);
+        }
+    }
+}
 
 void append_macro(char* name, char* body)
 {
-    sMacro macro;
-    
-    macro.mName = string(name);
-    macro.mBody = string(body);
+    unsigned int hash_value = get_hash_key(name, MACRO_MAX);
 
-    gMacros[name] = macro;
+    struct sMacro* it = gMacros + hash_value;
+
+    while(1) {
+        if(strcmp(it->mName, "") == 0) {
+            xstrncpy(it->mName, name, VAR_NAME_MAX);
+            sBuf_init(&it->mBody.mBuf);
+            sBuf_append_str(&it->mBody.mBuf, body);
+            break;
+        }
+        else {
+            it++;
+
+            if(it == gMacros + MACRO_MAX)
+            {
+                it = gMacros;
+            }
+            else if(it == gMacros + hash_value)
+            {
+                fprintf(stderr, "overflow macro number\n");
+                exit(2);
+            }
+        }
+    }
+}
+
+char* get_macro(char* name)
+{
+    char* result = NULL;
+
+    if(strcmp(name, "") == 0) {
+        return NULL;
+    }
+
+    unsigned int hash_value = get_hash_key(name, MACRO_MAX);
+
+    struct sMacro* it = gMacros + hash_value;
+
+    while(1) {
+        if(strcmp(it->mName, name) == 0) {
+            result = it->mBody.mBuf;
+            break;
+        }
+        else {
+            it++;
+
+            if(it == gMacros + MACRO_MAX)
+            {
+                it = gMacros;
+            }
+            else if(it == gMacros + hash_value)
+            {
+                break;
+            }
+        }
+    }
+
+    return result;
 }
 
 static BOOL get_command_result(sBuf* command_result, char* macro_name, char* cmdline, char* params)
@@ -69,9 +130,9 @@ static BOOL get_command_result(sBuf* command_result, char* macro_name, char* cmd
 
 BOOL call_macro(unsigned * node, char* name, char* params, sParserInfo* info)
 {
-    char* cmdline = (char*)gMacros[name].mBody.c_str();
+    char* cmdline = get_macro(name);
 
-    if(gMacros[name].mName == "") {
+    if(cmdline == NULL) {
         fprintf(stderr, "invalid macro. %s\n", name);
         return FALSE;
     }
