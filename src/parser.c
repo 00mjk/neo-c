@@ -778,26 +778,31 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
 
         if(struct_class == NULL) {
             struct_class = alloc_struct(struct_name, anonymous);
-        }
 
-        if(info->parse_struct_phase) {
-            if(version < struct_class->mVersion)
-            {
-                parser_err_msg(info, "Redifineded the same struct version %s", struct_name);
-                info->err_num++;
+            if(info->parse_struct_phase) {
+                if(version < struct_class->mVersion)
+                {
+                    parser_err_msg(info, "Redifineded the same struct version %s", struct_name);
+                    info->err_num++;
+                }
+                else {
+                    struct_class->mVersion = version;
+                }
             }
-            else {
-                struct_class->mVersion = version;
-            }
+
+            xstrncpy(info->parse_struct_name, struct_name, VAR_NAME_MAX);
+
+            sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
+
+            create_undefined_llvm_struct_type(struct_type);
+
+            *node = sNodeTree_struct(struct_type, info, sname, sline, anonymous);
         }
+        else {
+            sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
 
-        xstrncpy(info->parse_struct_name, struct_name, VAR_NAME_MAX);
-
-        sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
-
-        create_undefined_llvm_struct_type(struct_type);
-
-        *node = sNodeTree_struct(struct_type, info, sname, sline, anonymous);
+            *node = sNodeTree_struct(struct_type, info, sname, sline, anonymous);
+        }
     }
     else {
         expect_next_character_with_one_forward("{", info);
@@ -806,17 +811,6 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
 
         if(struct_class == NULL) {
             struct_class = alloc_struct(struct_name, anonymous);
-        }
-
-        if(info->parse_struct_phase) {
-            if(version < struct_class->mVersion)
-            {
-                parser_err_msg(info, "Redifineded the same struct version %s", struct_name);
-                info->err_num++;
-            }
-            else {
-                struct_class->mVersion = version;
-            }
         }
 
         xstrncpy(info->parse_struct_name, struct_name, VAR_NAME_MAX);
@@ -929,9 +923,20 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
 
         undefined_struct = struct_class->mUndefinedStructType != NULL;
 
-        if(info->parse_block || info->parse_struct_phase)  
+        if((info->parse_block || info->parse_struct_phase) && (struct_class->mNumFields == 0 || version > struct_class->mVersion))  
         {
             add_fields_to_struct(struct_class, num_fields, field_names, fields);
+        }
+
+        if(info->parse_struct_phase) {
+            if(version < struct_class->mVersion)
+            {
+                parser_err_msg(info, "Redifineded the same struct version %s", struct_name);
+                info->err_num++;
+            }
+            else {
+                struct_class->mVersion = version;
+            }
         }
 
         sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
@@ -1004,13 +1009,18 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
 
         if(union_class == NULL) {
             union_class = alloc_union(union_name, anonymous, FALSE);
+
+            sNodeType* union_type = create_node_type_with_class_pointer(union_class);
+
+            create_undefined_llvm_struct_type(union_type);
+
+            *node = sNodeTree_union(union_type, info, sname, sline, anonymous);
         }
+        else {
+            sNodeType* union_type = create_node_type_with_class_pointer(union_class);
 
-        sNodeType* union_type = create_node_type_with_class_pointer(union_class);
-
-        create_undefined_llvm_struct_type(union_type);
-
-        *node = sNodeTree_union(union_type, info, sname, sline, anonymous);
+            *node = sNodeTree_union(union_type, info, sname, sline, anonymous);
+        }
     }
     else {
         expect_next_character_with_one_forward("{", info);
@@ -1567,7 +1577,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
             sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
 
-            //create_undefined_llvm_struct_type(struct_type);
             unsigned int node = 0;
 
             if(!parse_struct(&node, type_name, VAR_NAME_MAX, info)) {
@@ -1588,7 +1597,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
             sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
 
-            //create_undefined_llvm_struct_type(struct_type);
             unsigned int node = 0;
 
             if(!parse_union(&node, type_name, VAR_NAME_MAX, info)) {
@@ -1600,13 +1608,16 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
             if(struct_class == NULL) {
                 struct_class = alloc_struct(type_name, FALSE);
+
+                xstrncpy(info->parse_struct_name, type_name, VAR_NAME_MAX);
+
+                sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
+
+                create_undefined_llvm_struct_type(struct_type);
             }
-
-            xstrncpy(info->parse_struct_name, type_name, VAR_NAME_MAX);
-
-            sNodeType* struct_type = create_node_type_with_class_pointer(struct_class);
-
-            create_undefined_llvm_struct_type(struct_type);
+            else {
+                xstrncpy(info->parse_struct_name, type_name, VAR_NAME_MAX);
+            }
         }
         else if(strcmp(type_name, "struct") == 0 && *info->p == '{') {
             unsigned int node = 0;

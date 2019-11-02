@@ -95,9 +95,9 @@ permission:
 # clean
 #########################################
 clean:
-	rm -fR code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 code/HelloWorld8 code/HelloWorld9 c-neo-c c-neo-c.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out code/*.nc.tmp *.nc.tmp *.out memalloc-stdc.o memalloc.o
+	rm -fR code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 code/HelloWorld8 code/HelloWorld9 neo-c c-neo-c.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out code/*.nc.tmp *.nc.tmp *.out memalloc-stdc.o memalloc.o
 	rm -fR code/*.ll code/*.bc code/*.s
-	(if test -e vig/Makefile; then cd vig && make dist-clean; fi)
+	(if test -e vig/Makefile; then cd vig && make distclean; fi)
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache 

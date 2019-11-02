@@ -694,7 +694,8 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOO
     create_real_struct_name(real_struct_name, size_real_struct_name, class_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
 
 
-    if(klass->mUndefinedStructType && node_type->mPointerNum == 0) {
+    if(klass->mUndefinedStructType && node_type->mPointerNum == 0) 
+    {
         StructType* struct_type = (StructType*)klass->mUndefinedStructType;
         std::vector<Type*> fields;
 
@@ -741,57 +742,61 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOO
 
         klass->mUndefinedStructType = NULL;
     }
-    else if(gLLVMStructType[real_struct_name].first == nullptr || (info->pinfo && info->pinfo->parse_struct_phase && (!check_the_same_fields(node_type, gLLVMStructType[real_struct_name].second) || node_type->mClass->mNumFields != gLLVMStructType[real_struct_name].second->mNumFields)))
+    else if(gLLVMStructType[real_struct_name].first == nullptr || (info->pinfo && info->pinfo->parse_struct_phase && (node_type->mClass->mNumFields != gLLVMStructType[real_struct_name].second->mNumFields)))
     {
-        StructType* struct_type = StructType::create(TheContext, real_struct_name);
-        std::vector<Type*> fields;
+        if(TheModule->getTypeByName(real_struct_name) == nullptr || (info->pinfo && info->pinfo->parse_struct_phase && (node_type->mClass->mNumFields != gLLVMStructType[real_struct_name].second->mNumFields)))
+        {
+            StructType* struct_type = StructType::create(TheContext, real_struct_name);
+            std::vector<Type*> fields;
 
-        std::pair<Type*, sNodeType*> pair_value;
-        pair_value.first = struct_type;
-        pair_value.second = clone_node_type(node_type);
-        pair_value.second->mNumFields = node_type->mClass->mNumFields;
+            std::pair<Type*, sNodeType*> pair_value;
+            pair_value.first = struct_type;
+            pair_value.second = clone_node_type(node_type);
+            pair_value.second->mNumFields = node_type->mClass->mNumFields;
 
-        gLLVMStructType[real_struct_name] = pair_value;
+            gLLVMStructType[real_struct_name] = pair_value;
 
-        int i;
-        for(i=0; i<klass->mNumFields; i++) {
-            sNodeType* field = clone_node_type(klass->mFields[i]);
+            int i;
+            for(i=0; i<klass->mNumFields; i++) {
+                sNodeType* field = clone_node_type(klass->mFields[i]);
 
-            sNodeType* generics_type2 = generics_type;
+                sNodeType* generics_type2 = generics_type;
 
-            if(!is_generics_type(field) && field->mNumGenericsTypes > 0)
-            {
-                generics_type2 = clone_node_type(field);
-            }
-            else {
-                BOOL success_solve;
-                (void)solve_generics(&field, field, &success_solve);
+                if(!is_generics_type(field) && field->mNumGenericsTypes > 0)
+                {
+                    generics_type2 = clone_node_type(field);
+                }
+                else {
+                    BOOL success_solve;
+                    (void)solve_generics(&field, field, &success_solve);
 
-                if(!solve_generics(&field, generics_type, &success_solve))
+                    if(!solve_generics(&field, generics_type, &success_solve))
+                    {
+                        return FALSE;
+                    }
+                }
+
+                if(field->mClass == klass && field->mPointerNum == 0)
                 {
                     return FALSE;
                 }
+                Type* field_type;
+
+                if(!create_llvm_type_from_node_type(&field_type, field, generics_type2, info))
+                {
+                    compile_err_msg(info, "Getting llvm type failed(100)");
+                    show_node_type(field);
+                    show_node_type(generics_type2);
+                    return FALSE;
+                }
+
+                fields.push_back(field_type);
             }
 
-            if(field->mClass == klass && field->mPointerNum == 0)
+            if(struct_type->isOpaque()) 
             {
-                return FALSE;
+                struct_type->setBody(fields, false);
             }
-            Type* field_type;
-
-            if(!create_llvm_type_from_node_type(&field_type, field, generics_type2, info))
-            {
-                compile_err_msg(info, "Getting llvm type failed(100)");
-                show_node_type(field);
-                show_node_type(generics_type2);
-                return FALSE;
-            }
-
-            fields.push_back(field_type);
-        }
-
-        if(struct_type->isOpaque()) {
-            struct_type->setBody(fields, false);
         }
     }
 
