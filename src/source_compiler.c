@@ -133,15 +133,14 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
     return TRUE;
 }
 
-BOOL compile_source(char* fname, char* source, BOOL optimize)
+BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_var_table)
 {
     sParserInfo info;
     memset(&info, 0, sizeof(sParserInfo));
-
     info.p = source;
     info.source = source;
     xstrncpy(info.sname, fname, PATH_MAX);
-    info.lv_table = init_var_table();
+    info.lv_table = module_var_table;
     info.sline = 1;
     info.parse_struct_phase = TRUE;
 
@@ -175,8 +174,6 @@ BOOL compile_source(char* fname, char* source, BOOL optimize)
     xstrncpy(cinfo.fun_name, fname, VAR_NAME_MAX);
 
     cinfo.pinfo = &info;
-
-    start_to_make_native_code(fname);
 
     while(*info.p) {
         skip_spaces_and_lf(&info);
@@ -243,8 +240,6 @@ BOOL compile_source(char* fname, char* source, BOOL optimize)
         return FALSE;
     }
 
-    sVarTable* var_table = info.lv_table;
-
     memset(&info, 0, sizeof(sParserInfo));
 
     info.p = source;
@@ -252,14 +247,13 @@ BOOL compile_source(char* fname, char* source, BOOL optimize)
     xstrncpy(info.sname, fname, PATH_MAX);
     info.sline = 1;
     info.parse_struct_phase = FALSE;
-    info.lv_table = var_table;
+    info.lv_table = module_var_table;
 
     info.module_name = module_name3;
 
     memset(&cinfo, 0, sizeof(sCompileInfo));
 
     new_right_value_objects_container(&cinfo);
-
 
     xstrncpy(cinfo.fun_name, fname, VAR_NAME_MAX);
     cinfo.pinfo = &info;
@@ -328,8 +322,6 @@ BOOL compile_source(char* fname, char* source, BOOL optimize)
         fprintf(stderr, "Parser error number is %d. Compile error number is %d\n", info.err_num, cinfo.err_num);
         return FALSE;
     }
-
-    output_native_code(fname, optimize);
 
     return TRUE;
 }

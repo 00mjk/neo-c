@@ -150,6 +150,7 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL 
         }
         else {
             if(strcmp(p->mName, name) == 0) {
+                return TRUE;
                 if(p->mBlockLevel < table->mBlockLevel) {
                     xstrncpy(p->mName, name, VAR_NAME_MAX);
                     p->mIndex = table->mVarNum++;
@@ -264,7 +265,7 @@ void check_already_added_variable(sVarTable* table, char* name, struct sParserIn
 {
     sVar* var = get_variable_from_this_table_only(table, name);
     
-    if(var != NULL) {
+    if(var != NULL && !var->mGlobal) {
         parser_err_msg(info, "Variable (%s) has already_added in this variable table", name);
         info->err_num++;
     }
@@ -403,7 +404,7 @@ void free_objects(sVarTable* table, sCompileInfo* info)
                 if(p->mLLVMValue)
                 {
 #ifdef MDEBUG
-printf("free %s %s in vtable. address %p\n", p->mName, CLASS_NAME(node_type->mClass), p);
+    printf("free %s %s in vtable. address %p\n", p->mName, CLASS_NAME(node_type->mClass), p);
 #endif
                     free_object(p->mType, p->mLLVMValue, FALSE, info);
                     p->mLLVMValue = NULL;

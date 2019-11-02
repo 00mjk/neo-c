@@ -1351,7 +1351,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         char* p_before = info->p;
         int sline_before = info->sline;
 
-        if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
+        if(!parse_word(type_name, VAR_NAME_MAX, info, FALSE, FALSE)) 
         {
             return FALSE;
         }
@@ -1381,7 +1381,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             break;
         }
     }
-
 
     BOOL only_signed_unsigned = FALSE;
     if(unsigned_ || signed_) {
@@ -5493,6 +5492,22 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
 
         *node = sNodeTree_create_logical_denial(*node, 0, 0, info);
+    }
+    else if(*info->p == '~') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!expression_node(node, info))
+        {
+            return FALSE;
+        }
+
+        if(*node == 0) {
+            parser_err_msg(info, "require value for operator ~");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_complement(*node, info);
     }
     else if(*info->p == '+' && *(info->p+1) == '+')
     {

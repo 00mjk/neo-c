@@ -1,0 +1,68 @@
+# 1 "src/alignment.c"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 31 "<command-line>"
+# 1 "/usr/include/stdc-predef.h" 1 3 4
+
+# 1 "/usr/include/stdc-predef.h" 3 4
+/* Copyright (C) 1991-2016 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
+
+
+
+
+/* This header is separate from features.h so that the compiler can
+   include it implicitly at the start of every compilation.  It must
+   not itself include <features.h> or any other header that includes
+   <features.h> because the implicit include comes before any feature
+   test macros that may be defined in a source file before it first
+   explicitly includes a system header.  GCC knows the name of this
+   header in order to preinclude it.  */
+
+/* glibc's intent is to support the IEC 559 math functionality, real
+   and complex.  If the GCC (4.9 and later) predefined macros
+   specifying compiler intent are available, use them to determine
+   whether the overall intent is to support these features; otherwise,
+   presume an older compiler has intent to support these features and
+   define these macros by default.  */
+# 52 "/usr/include/stdc-predef.h" 3 4
+/* wchar_t uses Unicode 9.0.0.  Version 9.0 of the Unicode Standard is
+   synchronized with ISO/IEC 10646:2014, fourth edition, plus
+   Amd. 1  and Amd. 2 and 273 characters from forthcoming  10646, fifth edition.
+   (Amd. 2 was published 2016-05-01,
+   see https://www.iso.org/obp/ui/#iso:std:iso-iec:10646:ed-4:v1:amd:2:v1:en) */
+
+
+/* We do not support C11 <threads.h>.  */
+# 32 "<command-line>" 2
+# 1 "src/alignment.c"
+
+
+# 2 "src/alignment.c"
+void alignment(unsigned int* size)
+{
+    *size = (*size + 3) & ~3;
+}
+
+void alignment_pointer(char** p, char* head)
+{
+    unsigned int len = *p - head;
+
+    alignment(&len);
+
+    *p = head + len;
+}

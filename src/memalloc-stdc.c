@@ -11,8 +11,8 @@ int gMaxMemAlloc = 0;
 void xfree(void *block)
 {
 #ifdef MDEBUG
-if(block) gNumMemAlloc--;
-printf("\nruntime free %p %d max %d\n", block, gNumMemAlloc, gMaxMemAlloc);
+    if(block) gNumMemAlloc--;
+    printf("\nruntime free %p %d max %d\n", block, gNumMemAlloc, gMaxMemAlloc);
 #endif
     free(block);
 }
@@ -21,9 +21,9 @@ void *xmalloc(size_t size)
 {
     void* result = malloc(size);
 #ifdef MDEBUG
-gNumMemAlloc++;
-if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
-printf("\nruntime alloc %p %d\n", result, gNumMemAlloc);
+    gNumMemAlloc++;
+    if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
+    printf("\nruntime alloc %p %d\n", result, gNumMemAlloc);
 #endif
     return result;
 }
@@ -35,9 +35,9 @@ void *xcalloc(size_t num, size_t nsize)
     memset(result, 0, num*nsize);
 
 #ifdef MDEBUG
-gNumMemAlloc++;
-if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
-printf("runtime calloc %p %d\n", result, gNumMemAlloc);
+    gNumMemAlloc++;
+    if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
+    printf("runtime calloc %p %d\n", result, gNumMemAlloc);
 #endif
 
     return result;
@@ -60,7 +60,7 @@ if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
     int len = vasprintf(&tmp, msg, args);
     va_end(args);
 #ifdef MDEBUG
-printf("runtime asprintf %p %d\n", tmp, gNumMemAlloc);
+    printf("runtime asprintf %p %d\n", tmp, gNumMemAlloc);
 #endif
 
     return tmp;

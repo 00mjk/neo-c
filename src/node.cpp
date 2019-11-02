@@ -1937,32 +1937,37 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
     }
     else if(global) {
         if(extern_) {
-            GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, true);
+            if(var->mLLVMValue == NULL && TheModule->getNamedGlobal(var_name) == nullptr)
+            {
+                GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, true);
 
-            address->setAlignment(alignment);
+                address->setAlignment(alignment);
+                var->mLLVMValue = address;
 
-            var->mLLVMValue = address;
+                BOOL parent = FALSE;
+                int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
 
-            BOOL parent = FALSE;
-            int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
-
-            store_address_to_lvtable(index, address);
+                store_address_to_lvtable(index, address);
+            }
         }
         else {
-            GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
+            if(var->mLLVMValue == NULL && TheModule->getNamedGlobal(var_name) == nullptr)
+            {
+                GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
 
-            address->setAlignment(alignment);
+                address->setAlignment(alignment);
 
-            ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
+                ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
 
-            address->setInitializer(initializer);
+                address->setInitializer(initializer);
 
-            var->mLLVMValue = address;
+                var->mLLVMValue = address;
 
-            BOOL parent = FALSE;
-            int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+                BOOL parent = FALSE;
+                int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
 
-            store_address_to_lvtable(index, address);
+                store_address_to_lvtable(index, address);
+            }
         }
     }
     else {
@@ -2154,30 +2159,33 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
             }
             else {
                 if(global) {
-                    GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant, GlobalValue::ExternalLinkage, 0, var_name);
-                    address->setAlignment(alignment);
+                    if(var->mLLVMValue == NULL && TheModule->getNamedGlobal(var_name) == nullptr)
+                    {
+                        GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant, GlobalValue::ExternalLinkage, 0, var_name);
+                        address->setAlignment(alignment);
 
-                    Value* rvalue2 = rvalue.value;
+                        Value* rvalue2 = rvalue.value;
 
-                    if(dyn_cast<Constant>(rvalue2)) {
-                        Constant* rvalue3 = dyn_cast<Constant>(rvalue2);
-                        address->setInitializer(rvalue3);
+                        if(dyn_cast<Constant>(rvalue2)) {
+                            Constant* rvalue3 = dyn_cast<Constant>(rvalue2);
+                            address->setInitializer(rvalue3);
+                        }
+                        else {
+                            compile_err_msg(info, "Invalid Global Variable Initializer. Require Constant Value");
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            return TRUE;
+                        }
+
+                        var->mLLVMValue = address;
+
+                        BOOL parent = FALSE;
+                        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+                        store_address_to_lvtable(index, address);
                     }
-                    else {
-                        compile_err_msg(info, "Invalid Global Variable Initializer. Require Constant Value");
-                        info->err_num++;
-
-                        info->type = create_node_type_with_class_name("int"); // dummy
-
-                        return TRUE;
-                    }
-
-                    var->mLLVMValue = address;
-
-                    BOOL parent = FALSE;
-                    int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
-
-                    store_address_to_lvtable(index, address);
                 }
                 else {
                     Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
@@ -8419,135 +8427,141 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
             else {
                 if(type_identify_with_class_name(var_type, "char*"))
                 {
-                    sNodeType* var_element_type = clone_node_type(var_type);
-                    var_element_type->mPointerNum--;
-
-                    GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
-
-                    unsigned int element_node = initialize_array_value[0];
-
-                    if(gNodes[element_node].mNodeType != kNodeTypeCString)
+                    if(var->mLLVMValue == NULL && TheModule->getNamedGlobal(var_name) == nullptr)
                     {
-                        compile_err_msg(info, "Require char* type");
-                        info->err_num++;
+                        sNodeType* var_element_type = clone_node_type(var_type);
+                        var_element_type->mPointerNum--;
 
-                        info->type = create_node_type_with_class_name("int"); // dummy
+                        GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
 
-                        return TRUE;
+                        unsigned int element_node = initialize_array_value[0];
+
+                        if(gNodes[element_node].mNodeType != kNodeTypeCString)
+                        {
+                            compile_err_msg(info, "Require char* type");
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            return TRUE;
+                        }
+
+                        char* str = gNodes[element_node].uValue.sString.mString;
+
+                        int len = strlen(str);
+
+                        std::vector<Constant *> init_data(len+1);
+
+                        int i;
+                        for(i=0; i<len; i++) {
+                            init_data[i] = ConstantInt::get(Type::getInt8Ty(TheContext), str[i]);
+                        }
+                        init_data[i] = ConstantInt::get(Type::getInt8Ty(TheContext), 0);
+
+                        Type* var_llvm_element_type;
+                        if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, var_element_type, info))
+                        {
+                            compile_err_msg(info, "Getting llvm type failed(12)");
+                            show_node_type(var_element_type);
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            return TRUE;
+                        }
+
+                        Constant* constant_array = ConstantArray::get(ArrayType::get(var_llvm_element_type, len), init_data);
+                        address->setAlignment(alignment);
+
+                        ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
+
+                        address->setInitializer(constant_array);
+
+                        var->mLLVMValue = address;
+
+                        BOOL parent = FALSE;
+                        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+                        store_address_to_lvtable(index, address);
                     }
-
-                    char* str = gNodes[element_node].uValue.sString.mString;
-
-                    int len = strlen(str);
-
-                    std::vector<Constant *> init_data(len+1);
-
-                    int i;
-                    for(i=0; i<len; i++) {
-                        init_data[i] = ConstantInt::get(Type::getInt8Ty(TheContext), str[i]);
-                    }
-                    init_data[i] = ConstantInt::get(Type::getInt8Ty(TheContext), 0);
-
-                    Type* var_llvm_element_type;
-                    if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, var_element_type, info))
-                    {
-                        compile_err_msg(info, "Getting llvm type failed(12)");
-                        show_node_type(var_element_type);
-                        info->err_num++;
-
-                        info->type = create_node_type_with_class_name("int"); // dummy
-
-                        return TRUE;
-                    }
-
-                    Constant* constant_array = ConstantArray::get(ArrayType::get(var_llvm_element_type, len), init_data);
-                    address->setAlignment(alignment);
-
-                    ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
-
-                    address->setInitializer(constant_array);
-
-                    var->mLLVMValue = address;
-
-                    BOOL parent = FALSE;
-                    int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
-
-                    store_address_to_lvtable(index, address);
                 }
                 else {
-                    sNodeType* var_element_type = clone_node_type(var_type);
-                    var_element_type->mPointerNum--;
-
-                    GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
-
-                    std::vector<Constant *> init_data(num_initialize_array_value);
-
-                    int i;
-                    for(i=0; i<num_initialize_array_value; i++) {
-                        /// compile node ///
-                        unsigned int element_node = initialize_array_value[i];
-
-                        if(!compile(element_node, info)) {
-                            return FALSE;
-                        }
-
-                        sNodeType* right_type = info->type;
-
-                        if(!type_identify(var_element_type, right_type))
-                        {
-                            compile_err_msg(info, "The different type between left type and right type. array with initialization");
-                            show_node_type(var_element_type);
-                            show_node_type(right_type);
-                            info->err_num++;
-
-                            info->type = create_node_type_with_class_name("int"); // dummy
-
-                            return TRUE;
-                        }
-
-                        LVALUE rvalue = *get_value_from_stack(-1);
-
-                        if(dyn_cast<Constant>(rvalue.value)) 
-                        {
-                            init_data[i] = dyn_cast<Constant>(rvalue.value);
-                        }
-                        else {
-                            compile_err_msg(info, "Require Constant Value");
-                            info->err_num++;
-
-                            info->type = create_node_type_with_class_name("int"); // dummy
-
-                            return TRUE;
-                        }
-
-                        dec_stack_ptr(1, info);
-                    }
-
-                    Type* var_llvm_element_type;
-                    if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, var_element_type, info))
+                    if(var->mLLVMValue == NULL && TheModule->getNamedGlobal(var_name) == nullptr)
                     {
-                        compile_err_msg(info, "Getting llvm type failed(13)");
-                        show_node_type(var_element_type);
-                        info->err_num++;
+                        sNodeType* var_element_type = clone_node_type(var_type);
+                        var_element_type->mPointerNum--;
 
-                        info->type = create_node_type_with_class_name("int"); // dummy
+                        GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
 
-                        return TRUE;
+                        std::vector<Constant *> init_data(num_initialize_array_value);
+
+                        int i;
+                        for(i=0; i<num_initialize_array_value; i++) {
+                            /// compile node ///
+                            unsigned int element_node = initialize_array_value[i];
+
+                            if(!compile(element_node, info)) {
+                                return FALSE;
+                            }
+
+                            sNodeType* right_type = info->type;
+
+                            if(!type_identify(var_element_type, right_type))
+                            {
+                                compile_err_msg(info, "The different type between left type and right type. array with initialization");
+                                show_node_type(var_element_type);
+                                show_node_type(right_type);
+                                info->err_num++;
+
+                                info->type = create_node_type_with_class_name("int"); // dummy
+
+                                return TRUE;
+                            }
+
+                            LVALUE rvalue = *get_value_from_stack(-1);
+
+                            if(dyn_cast<Constant>(rvalue.value)) 
+                            {
+                                init_data[i] = dyn_cast<Constant>(rvalue.value);
+                            }
+                            else {
+                                compile_err_msg(info, "Require Constant Value");
+                                info->err_num++;
+
+                                info->type = create_node_type_with_class_name("int"); // dummy
+
+                                return TRUE;
+                            }
+
+                            dec_stack_ptr(1, info);
+                        }
+
+                        Type* var_llvm_element_type;
+                        if(!create_llvm_type_from_node_type(&var_llvm_element_type, var_element_type, var_element_type, info))
+                        {
+                            compile_err_msg(info, "Getting llvm type failed(13)");
+                            show_node_type(var_element_type);
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            return TRUE;
+                        }
+
+                        Constant* constant_array = ConstantArray::get(ArrayType::get(var_llvm_element_type, num_initialize_array_value), init_data);
+                        address->setAlignment(alignment);
+
+                        ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
+
+                        address->setInitializer(constant_array);
+
+                        var->mLLVMValue = address;
+
+                        BOOL parent = FALSE;
+                        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+                        store_address_to_lvtable(index, address);
                     }
-
-                    Constant* constant_array = ConstantArray::get(ArrayType::get(var_llvm_element_type, num_initialize_array_value), init_data);
-                    address->setAlignment(alignment);
-
-                    ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
-
-                    address->setInitializer(constant_array);
-
-                    var->mLLVMValue = address;
-
-                    BOOL parent = FALSE;
-                    int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
-
-                    store_address_to_lvtable(index, address);
                 }
             }
         }
@@ -8855,69 +8869,72 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
                 assert(0);
             }
             else {
-                GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
+                if(var->mLLVMValue == NULL && TheModule->getNamedGlobal(var_name) == nullptr)
+                {
+                    GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
 
-                std::vector<Constant *> init_data(num_initialize_array_value);
+                    std::vector<Constant *> init_data(num_initialize_array_value);
 
-                sCLClass* klass = var_type->mClass;
+                    sCLClass* klass = var_type->mClass;
 
-                int i;
-                for(i=0; i<num_initialize_array_value; i++) {
-                    /// compile node ///
-                    unsigned int element_node = initialize_array_value[i];
+                    int i;
+                    for(i=0; i<num_initialize_array_value; i++) {
+                        /// compile node ///
+                        unsigned int element_node = initialize_array_value[i];
 
-                    if(!compile(element_node, info)) {
-                        return FALSE;
+                        if(!compile(element_node, info)) {
+                            return FALSE;
+                        }
+
+                        sNodeType* right_type = info->type;
+
+                        sNodeType* var_element_type = clone_node_type(klass->mFields[i]);
+
+                        if(!type_identify(var_element_type, right_type))
+                        {
+                            compile_err_msg(info, "The different type between left type and right type. struct with initialization");
+                            show_node_type(var_element_type);
+                            show_node_type(right_type);
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            return TRUE;
+                        }
+
+                        LVALUE rvalue = *get_value_from_stack(-1);
+
+                        if(dyn_cast<Constant>(rvalue.value)) {
+                            init_data[i] = dyn_cast<Constant>(rvalue.value);
+                        }
+                        else {
+                            compile_err_msg(info, "Require Constant Value");
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            return TRUE;
+                        }
+
+                        init_data[i] = (Constant*)rvalue.value;
+
+                        dec_stack_ptr(1, info);
                     }
 
-                    sNodeType* right_type = info->type;
+                    Constant* constant_struct = ConstantStruct::get((StructType*)llvm_var_type, init_data);
+                    address->setAlignment(alignment);
 
-                    sNodeType* var_element_type = clone_node_type(klass->mFields[i]);
+                    ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
 
-                    if(!type_identify(var_element_type, right_type))
-                    {
-                        compile_err_msg(info, "The different type between left type and right type. struct with initialization");
-                        show_node_type(var_element_type);
-                        show_node_type(right_type);
-                        info->err_num++;
+                    address->setInitializer(constant_struct);
 
-                        info->type = create_node_type_with_class_name("int"); // dummy
+                    var->mLLVMValue = address;
 
-                        return TRUE;
-                    }
+                    BOOL parent = FALSE;
+                    int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
 
-                    LVALUE rvalue = *get_value_from_stack(-1);
-
-                    if(dyn_cast<Constant>(rvalue.value)) {
-                        init_data[i] = dyn_cast<Constant>(rvalue.value);
-                    }
-                    else {
-                        compile_err_msg(info, "Require Constant Value");
-                        info->err_num++;
-
-                        info->type = create_node_type_with_class_name("int"); // dummy
-
-                        return TRUE;
-                    }
-
-                    init_data[i] = (Constant*)rvalue.value;
-
-                    dec_stack_ptr(1, info);
+                    store_address_to_lvtable(index, address);
                 }
-
-                Constant* constant_struct = ConstantStruct::get((StructType*)llvm_var_type, init_data);
-                address->setAlignment(alignment);
-
-                ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
-
-                address->setInitializer(constant_struct);
-
-                var->mLLVMValue = address;
-
-                BOOL parent = FALSE;
-                int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
-
-                store_address_to_lvtable(index, address);
             }
         }
         else {
@@ -9976,6 +9993,96 @@ static BOOL compile_conditional(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_complement(unsigned int left_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeComplement;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_complement(unsigned int node, sCompileInfo* info)
+{
+    int expression_node = gNodes[node].mLeft;
+
+    if(!compile(expression_node, info))
+    {
+        return FALSE;
+    }
+
+    sNodeType* left_node_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+    
+    if(type_identify_with_class_name(left_node_type, "char"))
+    {
+        LVALUE rvalue;
+        rvalue.value = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0xFF);
+
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateXor(lvalue.value, rvalue.value, "xortmp");
+        llvm_value.type = clone_node_type(left_node_type);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
+        push_value_to_stack_ptr(&llvm_value, info);
+    }
+    else if(type_identify_with_class_name(left_node_type, "short"))
+    {
+        LVALUE rvalue;
+        rvalue.value = ConstantInt::get(Type::getInt16Ty(TheContext), (uint16_t)0xFFFF);
+
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateXor(lvalue.value, rvalue.value, "xortmp");
+        llvm_value.type = clone_node_type(left_node_type);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
+        push_value_to_stack_ptr(&llvm_value, info);
+    }
+    else if(type_identify_with_class_name(left_node_type, "int"))
+    {
+        LVALUE rvalue;
+        rvalue.value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0xFFFFFFFF);
+
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateXor(lvalue.value, rvalue.value, "xortmp");
+        llvm_value.type = clone_node_type(left_node_type);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
+        push_value_to_stack_ptr(&llvm_value, info);
+    }
+    else if(type_identify_with_class_name(left_node_type, "long"))
+    {
+        LVALUE rvalue;
+        rvalue.value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0xFFFFFFFFFFFFFFFF);
+
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateXor(lvalue.value, rvalue.value, "xortmp");
+        llvm_value.type = clone_node_type(left_node_type);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
+        push_value_to_stack_ptr(&llvm_value, info);
+    }
+    else {
+        compile_err_msg(info, "Invalid type for complement operator");
+        info->err_num++;
+    }
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -10510,6 +10617,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeULongValue:
             if(!compile_ulong_value(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeComplement:
+            if(!compile_complement(node, info))
             {
                 return FALSE;
             }

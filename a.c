@@ -1,8 +1,6 @@
 int main() 
 {
-    long a = 1L;
-
-    printf("%ld\n", a);
+    puts("AAA");
 
     exit(0);
 }

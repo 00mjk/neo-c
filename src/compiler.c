@@ -1,4 +1,5 @@
 #include "common.h"
+#include <libgen.h>
 
 static void compiler_init()
 {
@@ -23,7 +24,7 @@ static void compiler_final()
     parser_final();
 }
 
-static BOOL compiler(char* fname, BOOL optimize)
+static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BOOL neo_c_header)
 {
     if(access(fname, F_OK) != 0) {
         fprintf(stderr, "%s doesn't exist\n", fname);
@@ -34,28 +35,45 @@ static BOOL compiler(char* fname, BOOL optimize)
     sBuf_init(&source);
 
     char fname2[PATH_MAX];
-    xstrncpy(fname2, fname, PATH_MAX);
 
-    char* p = fname2 + strlen(fname2);
-    while(p >= fname2) {
-        if(*p == '.') {
-            *p = '\0';
-            break;
-        }
-        else {
-            p--;
+    if(neo_c_header) {
+        char* base_fname = basename(fname);
+        xstrncpy(fname2, base_fname, PATH_MAX);
+        xstrncat(fname2, ".out", PATH_MAX);
+
+        char cmd[1024];
+        snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
+
+        int rc = system(cmd);
+
+        if(rc != 0) {
+            fprintf(stderr, "faield to cpp\n");
+            exit(2);
         }
     }
+    else {
+        xstrncpy(fname2, fname, PATH_MAX);
+        xstrncat(fname2, ".out", PATH_MAX);
 
-    xstrncat(fname2, ".out", PATH_MAX);
+        char cmd[1024];
+        snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
 
-    char cmd[1024];
-    snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
+        int rc = system(cmd);
+        if(rc != 0) {
+            char* base_fname = basename(fname);
+            xstrncpy(fname2, base_fname, PATH_MAX);
+            xstrncat(fname2, ".out", PATH_MAX);
 
-    int rc = system(cmd);
-    if(rc != 0) {
-        fprintf(stderr, "faield to cpp\n");
-        exit(2);
+            char cmd[1024];
+            snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
+
+            rc = system(cmd);
+
+            if(rc != 0) {
+                fprintf(stderr, "faield to cpp\n");
+                exit(2);
+            }
+        }
     }
 
     if(!read_source(fname2, &source)) {
@@ -72,7 +90,8 @@ static BOOL compiler(char* fname, BOOL optimize)
         return FALSE;
     }
 
-    if(!compile_source(fname, source2.mBuf, optimize)) {
+    if(!compile_source(fname, source2.mBuf, optimize, module_var_table)) 
+    {
         free(source.mBuf);
         free(source2.mBuf);
         return FALSE;
@@ -128,6 +147,11 @@ int main(int argc, char** argv)
         {
             optimize = TRUE;
         }
+        else if(strstr(argv[i], "-I") == argv[i])
+        {
+            xstrncat(c_include_path, ":", max_c_include_path);
+            xstrncat(c_include_path, argv[i]+2, max_c_include_path);
+        }
         else if(strcmp(argv[i], "-I") == 0)
         {
             if(i + 1 < argc) {
@@ -157,7 +181,6 @@ int main(int argc, char** argv)
     }
 
     setenv("C_INCLUDE_PATH", c_include_path, 1);
-
 
     char* p = sname + strlen(sname);
 
@@ -190,11 +213,35 @@ int main(int argc, char** argv)
 
     compiler_init();
 
-    if(!compiler(sname, optimize)) {
+    char neo_c_header_path[PATH_MAX];
+
+    snprintf(neo_c_header_path, PATH_MAX, "./neo-c.h");
+
+    if(access(neo_c_header_path, R_OK) != 0)
+    {
+        snprintf(neo_c_header_path, PATH_MAX, "%s/include/neo-c.h", PREFIX);
+    }
+
+    sVarTable* module_var_table = init_var_table();
+
+    start_to_make_native_code(sname);
+
+    if(!compiler(neo_c_header_path, optimize, module_var_table, TRUE)) 
+    {
+        fprintf(stderr, "neo-c can't compile %s\n", neo_c_header_path);
+
+        compiler_final();
+        return 1;
+    }
+
+    if(!compiler(sname, optimize, module_var_table, FALSE))
+    {
         fprintf(stderr, "neo-c can't compile %s\n", sname);
         compiler_final();
         return 1;
     }
+
+    output_native_code(sname, optimize);
 
     compiler_final();
 
