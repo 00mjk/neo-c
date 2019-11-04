@@ -558,6 +558,9 @@ enum
 
   };
 
+
+void unsupported_function();
+
 int main()
 {
     if(1 == 1) {
@@ -2006,12 +2009,12 @@ label1:
 
     char* aaaaxxxx = string("AAA");
 
-    0
-}
+    char* straaaaaaaaa = "ABC";
 
-void unsupported_function()
-{
-/*
+    char** p111111 = &straaaaaaaaa;
+
+    xassert("pointer operator", *p111111 - straaaaaaaaa == 0);
+
     struct StructTest3 {
         int a;
         int b;
@@ -2023,7 +2026,6 @@ void unsupported_function()
     data8.b = 2;
 
     xassert("struct test", data8.a == 1 && data8.b == 2);
-
     void funXYZ(StructTest3 data) 
     {
         xassert("struct test2", data8.a == 1 && data8.b == 2);
@@ -2039,43 +2041,7 @@ void unsupported_function()
     xassert("struct test3", data9->a == 1 && data9->b == 2);
 
     funXYZ(*data9);
-*/
-/*
-    const int const_a = 1;
 
-    xassert("local constant int", const_a == 1);
-
-    void constant_test_fun(const int a) {
-        xassert("constant test", a == 1);
-    }
-
-    constant_test_fun(1);
-*/
-/*
-    void va_list_test(char* str, ...)
-    {
-        va_list vlist;
-
-        va_start(vlist, str);
-        vprintf(str, vlist);
-        va_end(vlist);
-    }
-
-    va_list_test("aaa %d\n", 1);
-
-    void va_list_test2(int num_args, ...)
-    {
-        int sum = 0;
-        va_list vlist;
-
-        va_start(vlist, num_args);
-        int n = va_arg(vlist, int);
-        va_end(vlist);
-    }
-
-    va_list_test2(2, 1, 2);
-*/
-/*
     var zz = new Data5.initialize();
 
     var zz2 = clone zz;
@@ -2115,5 +2081,52 @@ void unsupported_function()
     }
 
     fun_test_borrow(zz6);
+
+    int aaaaaaaxxxxxx = 1111;
+
+    int* bbbbbbxxxxxxx = &aaaaaaaxxxxxx;
+
+    *bbbbbbxxxxxxx = 123;
+
+    xassert("derefference test", *bbbbbbxxxxxxx == 123);
+
+    0
+}
+
+void unsupported_function()
+{
+/*
+    const int const_a = 1;
+
+    xassert("local constant int", const_a == 1);
+
+    void constant_test_fun(const int a) {
+        xassert("constant test", a == 1);
+    }
+
+    constant_test_fun(1);
+
+    void va_list_test(char* str, ...)
+    {
+        va_list vlist;
+
+        va_start(vlist, str);
+        vprintf(str, vlist);
+        va_end(vlist);
+    }
+
+    va_list_test("aaa %d\n", 1);
+
+    void va_list_test2(int num_args, ...)
+    {
+        int sum = 0;
+        va_list vlist;
+
+        va_start(vlist, num_args);
+        int n = va_arg(vlist, int);
+        va_end(vlist);
+    }
+
+    va_list_test2(2, 1, 2);
 */
 }

@@ -3832,7 +3832,7 @@ static BOOL parse_if(unsigned int* node, sParserInfo* info)
 }
 
 
-static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
+static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sParserInfo* info)
 {
     if(*node == 0) {
         return TRUE;
@@ -3880,7 +3880,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                 }
                 /// access fields ///
                 else {
-                    if(*info->p == '=' && *(info->p +1) != '=') {
+                    if(enable_assginment && *info->p == '=' && *(info->p +1) != '=') {
                         info->p++;
                         skip_spaces_and_lf(info);
 
@@ -5389,7 +5389,7 @@ static BOOL parse_inherit(unsigned int* node, sParserInfo* info)
 }
 
 
-static BOOL expression_node(unsigned int* node, sParserInfo* info)
+static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserInfo* info)
 {
     if(*info->p == '#') {
         if(!parse_sharp(info)) {
@@ -5424,7 +5424,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
 
             expect_next_character_with_one_forward(")", info);
-            if(!expression_node(node, info)) 
+            if(!expression_node(node, TRUE, info)) 
             {
                 return FALSE;
             }
@@ -5463,7 +5463,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(!expression_node(node, info)) {
+        if(!expression_node(node, FALSE, info)) 
+        {
             return FALSE;
         }
 
@@ -5472,13 +5473,32 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             info->err_num++;
         }
 
-        *node = sNodeTree_create_dereffernce(*node, info);
+        if(*info->p == '=' && *(info->p+1) != '=') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int node2 = 0;
+            if(!expression_node(&node2, TRUE, info)) 
+            {
+                return FALSE;
+            }
+
+            if(*node == 0) {
+                parser_err_msg(info, "require value for *");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_store_address(*node, node2, info);
+        }
+        else {
+            *node = sNodeTree_create_dereffernce(*node, info);
+        }
     }
     else if(*info->p == '&') {
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(!expression_node(node, info)) {
+        if(!expression_node(node, TRUE, info)) {
             return FALSE;
         }
 
@@ -5493,7 +5513,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(!expression_node(node, info)) {
+        if(!expression_node(node, TRUE, info)) {
             return FALSE;
         }
 
@@ -5508,7 +5528,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(!expression_node(node, info))
+        if(!expression_node(node, TRUE, info))
         {
             return FALSE;
         }
@@ -5526,7 +5546,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         skip_spaces_and_lf(info);
 
         unsigned int exp = 0;
-        if(!expression_node(&exp, info)) {
+        if(!expression_node(&exp, TRUE, info)) {
             return FALSE;
         }
 
@@ -5571,7 +5591,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         skip_spaces_and_lf(info);
 
         unsigned int exp = 0;
-        if(!expression_node(&exp, info)) {
+        if(!expression_node(&exp, TRUE, info)) {
             return FALSE;
         }
 
@@ -5623,7 +5643,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else {
-                if(!expression_node(node, info)) {
+                if(!expression_node(node, TRUE, info)) {
                     return FALSE;
                 }
 
@@ -5643,7 +5663,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else {
-                if(!expression_node(node, info)) {
+                if(!expression_node(node, TRUE, info)) {
                     return FALSE;
                 }
 
@@ -6522,7 +6542,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             /// local variable ///
             if(get_variable_from_table(info->lv_table, buf))
             {
-                if(*info->p == '=' && *(info->p+1) != '=') {
+                if(enable_assginment && *info->p == '=' && *(info->p+1) != '=') {
                     info->p++;
                     skip_spaces_and_lf(info);
 
@@ -6866,7 +6886,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
     }
 
     /// post position expression ///
-    if(!postposition_operator(node, info))
+    if(!postposition_operator(node, enable_assginment, info))
     {
         return FALSE;
     }
@@ -6877,7 +6897,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 // from left to right order
 static BOOL expression_mult_div(unsigned int* node, sParserInfo* info)
 {
-    if(!expression_node(node, info)) {
+    if(!expression_node(node, TRUE, info)) {
         return FALSE;
     }
     if(*node == 0) {
@@ -6890,7 +6910,7 @@ static BOOL expression_mult_div(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_node(&right, info)) {
+            if(!expression_node(&right, TRUE, info)) {
                 return FALSE;
             }
 
@@ -6907,7 +6927,7 @@ static BOOL expression_mult_div(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_node(&right, info)) {
+            if(!expression_node(&right, TRUE, info)) {
                 return FALSE;
             }
 
