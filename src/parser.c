@@ -4207,6 +4207,20 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                 }
             }
         }
+        else if(*info->p == '+' && *(info->p+1) == '+')
+        {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            unsigned int left_node = sNodeTree_create_load_adress_value(*node, info);
+
+            unsigned int right_node = sNodeTree_create_int_value(1, info);
+
+            unsigned int value_node  = sNodeTree_create_add(left_node, right_node, 0, info);
+
+            unsigned int address_node = *node;
+            *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
+        }
         else {
             break;
         }
@@ -5488,7 +5502,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                 info->err_num++;
             }
 
-            *node = sNodeTree_create_store_address(*node, node2, info);
+            *node = sNodeTree_create_store_value_to_address(*node, node2, info);
         }
         else {
             *node = sNodeTree_create_dereffernce(*node, info);

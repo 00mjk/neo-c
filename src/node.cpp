@@ -896,6 +896,19 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
+        sNodeType* left_type3 = clone_node_type(left_type);
+        left_type3->mPointerNum--;
+
+        uint64_t alloc_size = 0;
+        if(!get_size_from_node_type(&alloc_size, left_type3, info))
+        {
+            return FALSE;
+        }
+
+        Value* alloc_size_value = ConstantInt::get(Type::getInt64Ty(TheContext), alloc_size);
+
+        right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
+
         sNodeType* left_type2 = clone_node_type(left_type);
         left_type2->mHeap = FALSE;
 
@@ -1032,6 +1045,19 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
+        sNodeType* left_type3 = clone_node_type(left_type);
+        left_type3->mPointerNum--;
+
+        uint64_t alloc_size = 0;
+        if(!get_size_from_node_type(&alloc_size, left_type3, info))
+        {
+            return FALSE;
+        }
+
+        Value* alloc_size_value = ConstantInt::get(Type::getInt64Ty(TheContext), alloc_size);
+
+        right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
+
         sNodeType* left_type2 = clone_node_type(left_type);
         left_type2->mHeap = FALSE;
 
@@ -1066,7 +1092,6 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
 
             return TRUE;
         }
-
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateSub(left_value, right_value, "subtmp", false, true);
         llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, llvm_var_type);
@@ -10115,7 +10140,7 @@ static BOOL compile_complement(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_store_address(unsigned int address_node, unsigned int right_node, sParserInfo* info)
+unsigned int sNodeTree_create_store_value_to_address(unsigned int address_node, unsigned int right_node, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -10163,12 +10188,84 @@ static BOOL compile_store_address(unsigned int node, sCompileInfo* info)
     LVALUE rvalue = *get_value_from_stack(-1);
     dec_stack_ptr(1, info);
 
+    left_type->mPointerNum--;
+
+    if(auto_cast_posibility(left_type, right_type)) {
+        if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+        {
+            compile_err_msg(info, "Cast failed");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+    }
+
     Value* address = lvalue.value;
     Value* value = rvalue.value;
 
     int alignment = get_llvm_alignment_from_node_type(right_type);
 
     Builder.CreateAlignedStore(value, address, alignment);
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_load_adress_value(unsigned int address_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeLoadAddressValue;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = address_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_load_address_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = clone_node_type(info->type);
+
+    if(left_type->mPointerNum == 0) {
+        compile_err_msg(info, "This is not pointer type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    sNodeType* left_type2 = clone_node_type(left_type);
+    left_type2->mPointerNum--;
+
+    Value* address = lvalue.value;
+
+    int alignment = get_llvm_alignment_from_node_type(left_type2);
+
+    LVALUE llvm_value;
+    llvm_value.value = Builder.CreateAlignedLoad(address, alignment);
+    llvm_value.type = clone_node_type(left_type2);
+    llvm_value.address = address;
+    llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = clone_node_type(llvm_value.type);
 
     return TRUE;
 }
@@ -10721,6 +10818,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeStoreAddress:
             if(!compile_store_address(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeLoadAddressValue:
+            if(!compile_load_address_value(node, info))
             {
                 return FALSE;
             }

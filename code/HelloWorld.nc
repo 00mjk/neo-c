@@ -2090,6 +2090,38 @@ label1:
 
     xassert("derefference test", *bbbbbbxxxxxxx == 123);
 
+    int bbxyz[4];
+
+    bbxyz[0] = 1;
+    bbxyz[1] = 2;
+
+    int* pbbxyz = bbxyz;
+
+    *pbbxyz = 3;
+    *(pbbxyz +1) = 4;
+
+    xassert("pointer test", bbxyz[0] == 3 && bbxyz[1] == 4);
+
+    int* pbbxyz2 = pbbxyz + 1;
+
+    *(pbbxyz2 -1 ) = 5;
+
+    xassert("pointer test2", bbxyz[0] == 5);
+
+    int* pbbxyz3 = bbxyz + 1;
+
+    *(pbbxyz3 -1 ) = 6;
+
+    xassert("pointer test3", bbxyz[0] == 6);
+
+    char*$ ppppx = string("abc");
+    char** ppppx2 = &ppppx;
+
+    (*ppppx2)++;
+
+    xassert("pointer test4", **ppppx2 == 'b');
+     
+
     0
 }
 
