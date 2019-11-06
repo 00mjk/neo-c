@@ -2114,19 +2114,13 @@ label1:
 
     xassert("pointer test3", bbxyz[0] == 6);
 
-    char*$ ppppx = string("abc");
-    char** ppppx2 = &ppppx;
+    char*$ ppppx = string("FTR");
+    char* ppppx2 = ppppx;
 
-    (*ppppx2)++;
+    ppppx2++;
+    *ppppx2 = 'X';
 
-    xassert("pointer test4", **ppppx2 == 'b');
-
-    ppppx2 = &ppppx;
-
-    (*ppppx2)+=2;
-
-    xassert("pointer test5", **ppppx2 == 'c');
-     
+    xassert("pointer test4", strcmp(ppppx, "FXR") == 0);
 
     0
 }
