@@ -2120,6 +2120,12 @@ label1:
     (*ppppx2)++;
 
     xassert("pointer test4", **ppppx2 == 'b');
+
+    ppppx2 = &ppppx;
+
+    (*ppppx2)+=2;
+
+    xassert("pointer test5", **ppppx2 == 'c');
      
 
     0

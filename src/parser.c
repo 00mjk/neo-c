@@ -4221,6 +4221,23 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
             unsigned int address_node = *node;
             *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
         }
+        else if(*info->p == '+' && *(info->p+1) == '=')
+        {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            unsigned int left_node = sNodeTree_create_load_adress_value(*node, info);
+
+            unsigned int right_node = 0;
+            if(!expression(&right_node, info)) {
+                return FALSE;
+            }
+
+            unsigned int value_node  = sNodeTree_create_add(left_node, right_node, 0, info);
+
+            unsigned int address_node = *node;
+            *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
+        }
         else {
             break;
         }
