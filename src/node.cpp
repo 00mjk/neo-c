@@ -10270,6 +10270,92 @@ static BOOL compile_load_address_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_plus_plus(unsigned int left_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypePlusPlus;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_plus_plus(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = sNodeTree_create_int_value(1, info->pinfo);
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(left_type->mPointerNum > 0) {
+        left_type->mPointerNum--;
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.value;
+        Value* value = rvalue.value;
+
+        int alignment = get_llvm_alignment_from_node_type(right_type);
+
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else {
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.value;
+        Value* value = rvalue.value;
+
+        int alignment = get_llvm_alignment_from_node_type(right_type);
+
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -10619,13 +10705,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
-        
+
         case kNodeTypeSizeOf:
             if(!compile_sizeof(node, info)) {
                 return FALSE;
             }
             break;
-    
+
         case kNodeTypeDefineVariables:
             if(!compile_define_variables(node, info)) {
                 return FALSE;
@@ -10664,14 +10750,14 @@ BOOL compile(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
-        
+
         case kNodeTypeBreak:
             if(!compile_break_expression(node, info))
             {
                 return FALSE;
             }
             break;
-        
+
         case kNodeTypeContinue:
             if(!compile_continue_expression(node, info))
             {
@@ -10734,28 +10820,28 @@ BOOL compile(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
-        
+
         case kNodeTypeDelete:
             if(!compile_delete(node, info))
             {
                 return FALSE;
             }
             break;
-        
+
         case kNodeTypeBorrow:
             if(!compile_borrow(node, info))
             {
                 return FALSE;
             }
             break;
-        
+
         case kNodeTypeHeap:
             if(!compile_heap(node, info))
             {
                 return FALSE;
             }
             break;
-        
+
         case kNodeTypeManaged:
             if(!compile_managed(node, info))
             {
@@ -10825,6 +10911,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeLoadAddressValue:
             if(!compile_load_address_value(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypePlusPlus:
+            if(!compile_plus_plus(node, info))
             {
                 return FALSE;
             }

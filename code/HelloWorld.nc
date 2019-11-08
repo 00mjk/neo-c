@@ -563,6 +563,7 @@ void unsupported_function();
 
 int main()
 {
+/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -2114,13 +2115,39 @@ label1:
 
     xassert("pointer test3", bbxyz[0] == 6);
 
+    int axv = 123;
+    axv++;
+    xassert("inc test", axv == 124);
+
     char*$ ppppx = string("FTR");
     char* ppppx2 = ppppx;
 
     ppppx2++;
     *ppppx2 = 'X';
 
-    xassert("pointer test4", strcmp(ppppx, "FXR") == 0);
+    xassert("inc test2", strcmp(ppppx, "FXR") == 0);
+*/
+
+    int aaarray[] = { 1, 2, 3 };
+
+    int* bbbbbbbbbbb = aaarray;
+
+printf("%p %d %p %d %p %p\n", bbbbbbbbbbb, *bbbbbbbbbbb, aaarray, *aaarray, aaarray, &*bbbbbbbbbbb);
+
+    (*bbbbbbbbbbb)++;
+
+printf("%d\n", aaarray[0]);
+
+    xassert("inc test3", aaarray[0] == 2);
+
+/*
+    (bbbbbbbbbbb+1)++;
+
+    xassert("inc test4", aaarray[1] == 3);
+    aaarray[0] ++;
+
+    xassert("inc test5", aaarray[0] == 2);
+*/
 
     0
 }
