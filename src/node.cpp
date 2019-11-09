@@ -10313,6 +10313,8 @@ static BOOL compile_plus_plus(unsigned int node, sCompileInfo* info)
     if(left_type->mPointerNum > 0) {
         left_type->mPointerNum--;
 
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
         if(auto_cast_posibility(left_type, right_type)) {
             if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
             {
@@ -10326,13 +10328,87 @@ static BOOL compile_plus_plus(unsigned int node, sCompileInfo* info)
         }
 
         Value* address = lvalue.value;
-        Value* value = rvalue.value;
 
-        int alignment = get_llvm_alignment_from_node_type(right_type);
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateAdd(add_lvalue, add_rvalue, "addtmp", false, true);
 
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.address;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateAdd(add_lvalue, add_rvalue, "addtmp", false, true);
+
+        Builder.CreateAlignedStore(value, address, 8);
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_minus_minus(unsigned int left_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeMinusMinus;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_minus_minus(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = sNodeTree_create_int_value(1, info->pinfo);
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(left_type->mPointerNum > 0) {
+        left_type->mPointerNum--;
+
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
         if(auto_cast_posibility(left_type, right_type)) {
             if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
             {
@@ -10346,11 +10422,976 @@ static BOOL compile_plus_plus(unsigned int node, sCompileInfo* info)
         }
 
         Value* address = lvalue.value;
-        Value* value = rvalue.value;
 
-        int alignment = get_llvm_alignment_from_node_type(right_type);
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "addtmp", false, true);
 
         Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else {
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.address;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "addtmp", false, true);
+
+        Builder.CreateAlignedStore(value, address, 8);
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_equal_plus(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeEqualPlus;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_equal_plus(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(left_type->mPointerNum > 0) {
+        left_type->mPointerNum--;
+
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.value;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateAdd(add_lvalue, add_rvalue, "addtmp", false, true);
+
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else {
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.address;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateAdd(add_lvalue, add_rvalue, "addtmp", false, true);
+
+        Builder.CreateAlignedStore(value, address, 8);
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_equal_minus(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeEqualMinus;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_equal_minus(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(left_type->mPointerNum > 0) {
+        left_type->mPointerNum--;
+
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.value;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "subtmp", false, true);
+
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else {
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.address;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "subtmp", false, true);
+
+        Builder.CreateAlignedStore(value, address, 8);
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_equal_mult(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeEqualMult;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_equal_mult(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(left_type->mPointerNum > 0) {
+        left_type->mPointerNum--;
+
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.value;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateMul(add_lvalue, add_rvalue, "multmp", false, true);
+
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else {
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.address;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateMul(add_lvalue, add_rvalue, "multmp", false, true);
+
+        Builder.CreateAlignedStore(value, address, 8);
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_equal_div(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeEqualDiv;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_equal_div(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(left_type->mPointerNum > 0) {
+        left_type->mPointerNum--;
+
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.value;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateSDiv(add_lvalue, add_rvalue, "divtmp");
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else {
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.address;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateSDiv(add_lvalue, add_rvalue, "divtmp");
+
+        Builder.CreateAlignedStore(value, address, 8);
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_equal_mod(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeEqualMod;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_equal_mod(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(left_type->mPointerNum > 0) {
+        left_type->mPointerNum--;
+
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.value;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateSRem(add_lvalue, add_rvalue, "remtmp");
+
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else {
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.address;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateSRem(add_lvalue, add_rvalue, "remtmp");
+
+        Builder.CreateAlignedStore(value, address, 8);
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_equal_lshift(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeEqualLShift;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_equal_lshift(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(left_type->mPointerNum > 0) {
+        left_type->mPointerNum--;
+
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.value;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateShl(add_lvalue, add_rvalue, "lshifttmp");
+
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else {
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.address;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateShl(add_lvalue, add_rvalue, "lshifttmp");
+
+        Builder.CreateAlignedStore(value, address, 8);
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_equal_rshift(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeEqualRShift;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_equal_rshift(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(left_type->mPointerNum > 0) {
+        left_type->mPointerNum--;
+
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.value;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateAShr(add_lvalue, add_rvalue, "rshifttmp");
+
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else {
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.address;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateAShr(add_lvalue, add_rvalue, "rshifttmp");
+
+        Builder.CreateAlignedStore(value, address, 8);
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_equal_and(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeEqualAnd;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_equal_and(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(left_type->mPointerNum > 0) {
+        left_type->mPointerNum--;
+
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.value;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateAnd(add_lvalue, add_rvalue, "andtmp");
+
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else {
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.address;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateAnd(add_lvalue, add_rvalue, "andtmp");
+
+        Builder.CreateAlignedStore(value, address, 8);
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_equal_xor(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeEqualXor;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_equal_xor(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(left_type->mPointerNum > 0) {
+        left_type->mPointerNum--;
+
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.value;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateXor(add_lvalue, add_rvalue, "xor");
+
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else {
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.address;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateXor(add_lvalue, add_rvalue, "xor");
+
+        Builder.CreateAlignedStore(value, address, 8);
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_equal_or(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeEqualOr;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_equal_or(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    LVALUE lvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    LVALUE rvalue = *get_value_from_stack(-1);
+    dec_stack_ptr(1, info);
+
+    if(left_type->mPointerNum > 0) {
+        left_type->mPointerNum--;
+
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.value;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateOr(add_lvalue, add_rvalue, "ortmp");
+
+        Builder.CreateAlignedStore(value, address, alignment);
+    }
+    else {
+        int alignment = get_llvm_alignment_from_node_type(left_type);
+
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
+        Value* address = lvalue.address;
+
+        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+        Value* add_rvalue = rvalue.value;
+
+        Value* value = Builder.CreateOr(add_lvalue, add_rvalue, "or");
+
+        Builder.CreateAlignedStore(value, address, 8);
     }
 
     return TRUE;
@@ -10923,6 +11964,82 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
+        case kNodeTypeMinusMinus:
+            if(!compile_minus_minus(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeEqualPlus:
+            if(!compile_equal_plus(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeEqualMinus:
+            if(!compile_equal_minus(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeEqualMult:
+            if(!compile_equal_mult(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeEqualDiv:
+            if(!compile_equal_div(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeEqualMod:
+            if(!compile_equal_mod(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeEqualLShift:
+            if(!compile_equal_lshift(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeEqualRShift:
+            if(!compile_equal_rshift(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeEqualAnd:
+            if(!compile_equal_and(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeEqualXor:
+            if(!compile_equal_xor(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeEqualOr:
+            if(!compile_equal_or(node, info))
+            {
+                return FALSE;
+            }
+            break;
     }
 
     return node;

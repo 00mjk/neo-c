@@ -4039,7 +4039,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                         }
                         else if(*info->p == '<' && *(info->p+1) == '<' && *(info->p+2) == '=')
                         {
-                            info->p+=2;
+                            info->p+=3;
                             skip_spaces_and_lf(info);
                             unsigned int right_node = 0;
                             if(!expression(&right_node, info)) {
@@ -4058,7 +4058,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                         }
                         else if(*info->p == '>' && *(info->p+1) == '>' && *(info->p+2) == '=')
                         {
-                            info->p+=2;
+                            info->p+=3;
                             skip_spaces_and_lf(info);
                             unsigned int right_node = 0;
                             if(!expression(&right_node, info)) {
@@ -4219,167 +4219,127 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
             info->p+=2;
             skip_spaces_and_lf(info);
 
-            unsigned int left_node = sNodeTree_create_load_adress_value(*node, info);
-
-            unsigned int right_node = sNodeTree_create_int_value(1, info);
-
-            unsigned int value_node  = sNodeTree_create_sub(left_node, right_node, 0, info);
-
-            unsigned int address_node = *node;
-            *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
+            *node = sNodeTree_create_minus_minus(*node, info);
         }
         else if(*info->p == '+' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
 
-            unsigned int left_node = sNodeTree_create_load_adress_value(*node, info);
+            unsigned int right_node = 0;
+            if(!expression(&right_node, info)) {
+                return FALSE;
+            }
+
+            *node  = sNodeTree_create_equal_plus(*node, right_node, info);
+        }
+        else if(*info->p == '-' && *(info->p+1) == '=')
+        {
+            info->p+=2;
+            skip_spaces_and_lf(info);
 
             unsigned int right_node = 0;
             if(!expression(&right_node, info)) {
                 return FALSE;
             }
 
-            unsigned int value_node  = sNodeTree_create_add(left_node, right_node, 0, info);
-
-            unsigned int address_node = *node;
-            *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
+            *node = sNodeTree_create_equal_minus(*node, right_node, info);
         }
         else if(*info->p == '*' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
 
-            unsigned int left_node = sNodeTree_create_load_adress_value(*node, info);
-
             unsigned int right_node = 0;
             if(!expression(&right_node, info)) {
                 return FALSE;
             }
 
-            unsigned int value_node  = sNodeTree_create_mult(left_node, right_node, 0, info);
-
-            unsigned int address_node = *node;
-            *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
+            *node  = sNodeTree_create_equal_mult(*node, right_node, info);
         }
         else if(*info->p == '/' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
 
-            unsigned int left_node = sNodeTree_create_load_adress_value(*node, info);
-
             unsigned int right_node = 0;
             if(!expression(&right_node, info)) {
                 return FALSE;
             }
 
-            unsigned int value_node  = sNodeTree_create_div(left_node, right_node, 0, info);
-
-            unsigned int address_node = *node;
-            *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
+            *node  = sNodeTree_create_equal_div(*node, right_node, info);
         }
         else if(*info->p == '%' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
 
-            unsigned int left_node = sNodeTree_create_load_adress_value(*node, info);
-
             unsigned int right_node = 0;
             if(!expression(&right_node, info)) {
                 return FALSE;
             }
 
-            unsigned int value_node  = sNodeTree_create_mod(left_node, right_node, 0, info);
-
-            unsigned int address_node = *node;
-            *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
+            *node  = sNodeTree_create_equal_mod(*node, right_node, info);
         }
         else if(*info->p == '<' && *(info->p+1) == '<' && *(info->p+2) == '=')
         {
-            info->p+=2;
+            info->p+=3;
             skip_spaces_and_lf(info);
-
-            unsigned int left_node = sNodeTree_create_load_adress_value(*node, info);
 
             unsigned int right_node = 0;
             if(!expression(&right_node, info)) {
                 return FALSE;
             }
 
-            unsigned int value_node  = sNodeTree_create_left_shift(left_node, right_node, 0, info);
-
-            unsigned int address_node = *node;
-            *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
+            *node  = sNodeTree_create_equal_lshift(*node, right_node, info);
         }
         else if(*info->p == '>' && *(info->p+1) == '>' && *(info->p+2) == '=')
         {
-            info->p+=2;
+            info->p+=3;
             skip_spaces_and_lf(info);
-
-            unsigned int left_node = sNodeTree_create_load_adress_value(*node, info);
 
             unsigned int right_node = 0;
             if(!expression(&right_node, info)) {
                 return FALSE;
             }
 
-            unsigned int value_node  = sNodeTree_create_right_shift(left_node, right_node, 0, info);
-
-            unsigned int address_node = *node;
-            *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
+            *node = sNodeTree_create_equal_rshift(*node, right_node, info);
         }
         else if(*info->p == '&' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
 
-            unsigned int left_node = sNodeTree_create_load_adress_value(*node, info);
-
             unsigned int right_node = 0;
             if(!expression(&right_node, info)) {
                 return FALSE;
             }
 
-            unsigned int value_node  = sNodeTree_create_and(left_node, right_node, 0, info);
-
-            unsigned int address_node = *node;
-            *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
+            *node = sNodeTree_create_equal_and(*node, right_node, info);
         }
         else if(*info->p == '^' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
 
-            unsigned int left_node = sNodeTree_create_load_adress_value(*node, info);
-
             unsigned int right_node = 0;
             if(!expression(&right_node, info)) {
                 return FALSE;
             }
 
-            unsigned int value_node  = sNodeTree_create_xor(left_node, right_node, 0, info);
-
-            unsigned int address_node = *node;
-            *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
+            *node = sNodeTree_create_equal_xor(*node, right_node, info);
         }
         else if(*info->p == '|' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
 
-            unsigned int left_node = sNodeTree_create_load_adress_value(*node, info);
-
             unsigned int right_node = 0;
             if(!expression(&right_node, info)) {
                 return FALSE;
             }
 
-            unsigned int value_node  = sNodeTree_create_or(left_node, right_node, 0, info);
-
-            unsigned int address_node = *node;
-            *node = sNodeTree_create_store_value_to_address(address_node, value_node, info);
+            *node = sNodeTree_create_equal_or(*node, right_node, info);
         }
         else {
             break;
@@ -6893,7 +6853,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                 }
                 else if(*info->p == '<' && *(info->p+1) == '<' && *(info->p+2) == '=')
                 {
-                    info->p+=2;
+                    info->p+=3;
                     skip_spaces_and_lf(info);
 
                     unsigned int right_node = 0;
@@ -6913,7 +6873,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                 }
                 else if(*info->p == '>' && *(info->p+1) == '>' && *(info->p+2) == '=')
                 {
-                    info->p+=2;
+                    info->p+=3;
                     skip_spaces_and_lf(info);
 
                     unsigned int right_node = 0;

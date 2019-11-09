@@ -563,7 +563,6 @@ void unsupported_function();
 
 int main()
 {
-/*
     if(1 == 1) {
         puts("TRUE");
     }
@@ -2126,28 +2125,21 @@ label1:
     *ppppx2 = 'X';
 
     xassert("inc test2", strcmp(ppppx, "FXR") == 0);
-*/
 
     int aaarray[] = { 1, 2, 3 };
 
     int* bbbbbbbbbbb = aaarray;
 
-printf("%p %d %p %d %p %p\n", bbbbbbbbbbb, *bbbbbbbbbbb, aaarray, *aaarray, aaarray, &*bbbbbbbbbbb);
-
     (*bbbbbbbbbbb)++;
-
-printf("%d\n", aaarray[0]);
 
     xassert("inc test3", aaarray[0] == 2);
 
-/*
     (bbbbbbbbbbb+1)++;
 
     xassert("inc test4", aaarray[1] == 3);
     aaarray[0] ++;
 
-    xassert("inc test5", aaarray[0] == 2);
-*/
+    xassert("inc test5", aaarray[0] == 3);
 
     0
 }
