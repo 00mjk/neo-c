@@ -433,6 +433,18 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
                 return TRUE;
             }
         }
+        else if(left_type->mPointerNum == right_type->mPointerNum+1 && right_type->mArrayNum == -1)
+        {
+            if(left_type->mHeap) {
+                if(right_type->mHeap)
+                {
+                    return TRUE;
+                }
+            }
+            else {
+                return TRUE;
+            }
+        }
     }
 
     return FALSE;

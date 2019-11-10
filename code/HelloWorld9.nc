@@ -114,6 +114,7 @@ int main()
         printf("map1 %s %d\n", it, it2);
     }
 
+/*
     xassert("map test", map1.at("aaa", -1) == 1);
 
     xassert("map test2", map1.find("bbb"));
@@ -215,6 +216,7 @@ int main()
     var li9 = clone li8;
 
     xassert("clone test12", li9.equals(list!(1, 2)));
+*/
 
 
     0
