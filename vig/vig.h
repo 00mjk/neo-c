@@ -2,7 +2,8 @@
 int xgetmaxx();
 int xgetmaxy();
 
-struct VigWin {
+struct VigWin 
+{
     WINDOW* win;
     list<string>*% texts;
     int y;
@@ -11,19 +12,22 @@ struct VigWin {
     int height;
 };
 
-struct Vig {
+struct Vig 
+{
     vector<VigWin*%>*% wins;
     VigWin* active_win;
 };
 
-impl VigWin {
+impl VigWin 
+{
     initialize(int y, int x, int width, int height);
     finalize();
     void view(VigWin* self, Vig* vig);
     void input(VigWin* self, Vig* vig);
 }
 
-impl Vig {
+impl Vig 
+{
     void init_curses(Vig* self);
     initialize();
     finalize();

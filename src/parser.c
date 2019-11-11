@@ -1672,6 +1672,8 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                 static_ = (*result_type)->mStatic;
                 no_heap = (*result_type)->mNoHeap;
                 pointer_num = (*result_type)->mPointerNum;
+
+                xstrncpy((*result_type)->mTypeName, type_name, VAR_NAME_MAX);
             }
         }
 

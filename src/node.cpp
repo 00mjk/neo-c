@@ -506,15 +506,29 @@ static void create_operator_fun_name(char* real_fun_name, size_t size_real_fun_n
     for(i=0; i<num_params; i++) {
         sNodeType* param_type = param_types[i];
 
-        char* class_name = CLASS_NAME(param_type->mClass);
+        char* class_name;
+/*
+        if(strcmp(param_type->mTypeName, "") == 0) 
+        {
+*/
+            class_name = CLASS_NAME(param_type->mClass);
 
-        xstrncat(real_fun_name, "_", size_real_fun_name);
-        xstrncat(real_fun_name, class_name, size_real_fun_name);
+            xstrncat(real_fun_name, "_", size_real_fun_name);
+            xstrncat(real_fun_name, class_name, size_real_fun_name);
 
-        int j;
-        for(j=0; j<param_type->mPointerNum; j++) {
-            xstrncat(real_fun_name, "p", size_real_fun_name);
+            int j;
+            for(j=0; j<param_type->mPointerNum; j++) {
+                xstrncat(real_fun_name, "p", size_real_fun_name);
+            }
+/*
         }
+        else {
+            class_name = param_type->mTypeName;
+
+            xstrncat(real_fun_name, "_", size_real_fun_name);
+            xstrncat(real_fun_name, class_name, size_real_fun_name);
+        }
+*/
     }
 }
 
@@ -2909,7 +2923,13 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     char struct_name[VAR_NAME_MAX];
     if(num_params2 > 0) {
         if(method) {
-            xstrncpy(struct_name, CLASS_NAME(param_types[0]->mClass), VAR_NAME_MAX);
+            if(strcmp(param_types[0]->mTypeName, "") == 0)
+            {
+                xstrncpy(struct_name, CLASS_NAME(param_types[0]->mClass), VAR_NAME_MAX);
+            }
+            else {
+                xstrncpy(struct_name,  param_types[0]->mTypeName, VAR_NAME_MAX);
+            }
 
             create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
         }
@@ -4542,7 +4562,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
             Value* var_address;
 
             if(var->mLLVMValue == NULL) {
-                compile_err_msg(info, "Invalid variable. %s. load variable", var_name);
+                compile_err_msg(info, "Invalid variable. %s. load variable(1)", var_name);
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
@@ -4552,7 +4572,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
             var_address = (Value*)var->mLLVMValue;
 
             if(var_address == nullptr) {
-                compile_err_msg(info, "Invalid variable. %s. load variable", var_name);
+                compile_err_msg(info, "Invalid variable. %s. load variable(2)", var_name);
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
@@ -4589,7 +4609,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
             }
 
             if(var_address == nullptr) {
-                compile_err_msg(info, "Invalid variable. %s. load variable", var_name);
+                compile_err_msg(info, "Invalid variable. %s. load variable(3)", var_name);
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
@@ -7032,7 +7052,15 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
     sNodeType* left_type = info->type;
 
     char real_fun_name[REAL_FUN_NAME_MAX];
-    char* struct_name = CLASS_NAME(left_type->mClass);
+
+    char* struct_name;
+    if(strcmp(left_type->mTypeName, "") == 0)
+    {
+        struct_name = CLASS_NAME(left_type->mClass);
+    }
+    else {
+        struct_name = left_type->mTypeName;
+    }
 
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "clone", struct_name);
 
@@ -12049,7 +12077,14 @@ int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info)
 {
     int generics_fun_num = gGenericsFunNum++;
 
-    char* struct_name = CLASS_NAME(node_type2->mClass);
+    char* struct_name;
+    if(strcmp(node_type2->mTypeName, "") == 0)
+    {
+        struct_name = CLASS_NAME(node_type2->mClass);
+    }
+    else {
+        struct_name = node_type2->mTypeName;
+    }
 
     char real_fun_name[REAL_FUN_NAME_MAX];
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", struct_name);

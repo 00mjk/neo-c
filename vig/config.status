@@ -435,7 +435,7 @@ gives unlimited permission to copy, distribute and modify it."
 
 ac_pwd='/data/data/com.termux/files/home/repo/neo-c/vig'
 srcdir='.'
-INSTALL='/data/data/com.termux/files/usr/bin/install -c'
+INSTALL='/data/data/com.termux/files/usr/bin/applets/install -c'
 test -n "$AWK" || AWK=awk
 # The default lists apply if the user does not specify any file.
 ac_need_defaults=:
@@ -622,7 +622,7 @@ S["CC"]="gcc"
 S["target_alias"]=""
 S["host_alias"]=""
 S["build_alias"]=""
-S["LIBS"]=" -ldl -lm -lpcre -lncursesw -lrt"
+S["LIBS"]=" -lutil -ldl -lm -lpcre -lncursesw -lrt"
 S["ECHO_T"]=""
 S["ECHO_N"]="-n"
 S["ECHO_C"]=""

@@ -1,11 +1,13 @@
 #include "vig.h"
 
-struct VigWin version 2 {
+struct VigWin version 2 
+{
     int curs_y;
     int curs_x;
 };
 
-impl VigWin version 2 {
+impl VigWin version 2 
+{
     void view(VigWin* self, Vig* vig);
     void input(VigWin* self, Vig* vig);
     char* getCursorLine(VigWin* self);
@@ -16,12 +18,14 @@ impl VigWin version 2 {
     void nextLine(VigWin* self);
 }
 
-struct Vig version 2 {
+struct Vig version 2 
+{
     vector<void lambda(Vig*, int)>*% events;
     bool app_end;
 }
 
-impl Vig version 2 {
+impl Vig version 2 
+{
     initialize();
 
     int main_loop(Vig* self);

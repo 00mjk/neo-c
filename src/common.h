@@ -174,6 +174,8 @@ struct sNodeTypeStruct {
     int mFinalizeGenericsFunNum;
 
     int mNumFields;
+
+    char mTypeName[VAR_NAME_MAX];
 };
 
 typedef struct sNodeTypeStruct sNodeType;

@@ -100,6 +100,7 @@ int main()
         printf("%s\n", it);
     }
 
+/*
     var tu = tuple!(1,2,string("str"));
 
     xassert("tuple test", tu.equals(tuple!(1, 2, string("str"))));
@@ -114,7 +115,6 @@ int main()
         printf("map1 %s %d\n", it, it2);
     }
 
-/*
     xassert("map test", map1.at("aaa", -1) == 1);
 
     xassert("map test2", map1.find("bbb"));
@@ -217,7 +217,6 @@ int main()
 
     xassert("clone test12", li9.equals(list!(1, 2)));
 */
-
 
     0
 }

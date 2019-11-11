@@ -6,12 +6,14 @@
 
 #include "vig.h"
 
-struct VigWin version 2 {
+struct VigWin version 2 
+{
     int curs_y;
     int curs_x;
 };
 
-impl VigWin version 2 {
+impl VigWin version 2 
+{
     void view(VigWin* self, Vig* vig) {
         werase(self.win);
 
@@ -102,14 +104,32 @@ impl VigWin version 2 {
             self.curs_x = self.getCursorLineLength()-1;
         }
     }
+
+    void moveAtHead(VigWin* self) {
+        self.curs_x = 0;
+    }
+
+    void moveAtTail(VigWin* self) {
+        self.curs_x = 0;
+
+        var line_max = self.getCursorLineLength();
+
+        self.curs_x = line_max-1;
+
+        if(self.curs_x < 0) {
+            self.curs_x = 0;
+        }
+    }
 }
 
-struct Vig version 2 {
+struct Vig version 2 
+{
     vector<void lambda(Vig*, int)>*% events;
     bool app_end;
 };
 
-impl Vig version 2 {
+impl Vig version 2 
+{
     initialize() {
         self.init_curses();
 
@@ -151,6 +171,14 @@ impl Vig version 2 {
         self.events.replace('k', lambda(Vig* self, int key) 
         {
             self.active_win.prevLine();
+        });
+        self.events.replace('0', lambda(Vig* self, int key) 
+        {
+            self.active_win.moveAtHead();
+        });
+        self.events.replace('$', lambda(Vig* self, int key) 
+        {
+            self.active_win.moveAtTail();
         });
     }
 

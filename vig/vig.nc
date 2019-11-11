@@ -20,7 +20,8 @@ int xgetmaxy()
     return ws.ws_row;
 }
 
-struct VigWin {
+struct VigWin 
+{
     WINDOW* win;
     list<string>*% texts;
     int y;
@@ -29,14 +30,15 @@ struct VigWin {
     int height;
 };
 
-struct Vig {
+struct Vig 
+{
     vector<VigWin*%>*% wins;
     VigWin* active_win;
 };
 
-impl VigWin {
-    initialize(int y, int x, int width, int height) 
-    {
+impl VigWin 
+{
+    initialize(int y, int x, int width, int height) {
         keypad(self.win, 4);
 
         self.texts = new list<string>.initialize();
@@ -70,7 +72,8 @@ impl VigWin {
     }
 }
 
-impl Vig {
+impl Vig 
+{
     void init_curses(Vig* self) {
         initscr();
         noecho();

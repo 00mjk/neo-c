@@ -8,7 +8,8 @@
 
 enum eMode { kEditMode, kInsertMode };
 
-impl VigWin version 3 {
+impl VigWin version 3 
+{
     void insertModeView(VigWin* self, Vig* vig)
     {
         werase(self.win);
@@ -89,11 +90,13 @@ impl VigWin version 3 {
     }
 }
 
-struct Vig version 3 {
+struct Vig version 3 
+{
     int mode;
 };
 
-impl Vig version 3 {
+impl Vig version 3 
+{
     initialize() {
         inherit(self);
 

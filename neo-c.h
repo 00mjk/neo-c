@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 #define __STDC_LIMIT_MACROS 1
 #define __STDC_CONSTANT_MACROS 1
@@ -8,6 +9,7 @@
 #include <stdint.h>
 
 typedef char*% string;
+typedef wchar_t*% wstring;
 
 void*% xcalloc(int num, long size);
 void*% xmalloc(long size);
@@ -19,7 +21,12 @@ char* xmemcpy(void* mem, void* mem2, long size);
 char*% xasprintf(char* str, ...);
 
 extern string operator+(char* left, char* right);
+extern string operator+(string left, string right);
 extern string string(char* str);
+
+extern wstring operator+(wchar_t* left, wchar_t* right);
+extern wstring operator+(wstring left, wstring right);
+extern wstring wstring(char* str);
 
 void p(char* str);
 
@@ -37,7 +44,7 @@ impl int
     }
 }
 
-/// string ///
+/// char* ///
 impl char
 {
     inline bool equals(char* left, char* right)
@@ -56,6 +63,87 @@ impl char
     {
         int result = 0;
         char* p = value;
+        while(*p) {
+            result += (*p);
+            p++;
+        }
+        return result;
+    }
+}
+
+/// string ///
+impl string
+{
+    inline bool equals(char* left, char* right)
+    {
+        return strcmp(left, right) == 0;
+    }
+
+    extern string subString(char* str, int head, int tail);
+
+    inline int length(string str)
+    {
+        return strlen(str);
+    }
+
+    inline int get_hash_key(char* value)
+    {
+        int result = 0;
+        char* p = value;
+        while(*p) {
+            result += (*p);
+            p++;
+        }
+        return result;
+    }
+}
+
+/// wchar_t ///
+impl wchar_t
+{
+    inline bool equals(wchar_t* left, wchar_t* right)
+    {
+        return wcscmp(left, right) == 0;
+    }
+
+    extern wstring subString(wchar_t* str, int head, int tail);
+
+    inline int length(wchar_t* str)
+    {
+        return wcslen(str);
+    }
+
+    inline int get_hash_key(wchar_t* value)
+    {
+        int result = 0;
+        wchar_t* p = value;
+        while(*p) {
+            result += (*p);
+            p++;
+        }
+        return result;
+    }
+}
+
+/// wstring ///
+impl wstring
+{
+    inline bool equals(wchar_t* left, wchar_t* right)
+    {
+        return wcscmp(left, right) == 0;
+    }
+
+    extern wstring subString(wchar_t* str, int head, int tail);
+
+    inline int length(wchar_t* str)
+    {
+        return wcslen(str);
+    }
+
+    inline int get_hash_key(wchar_t* value)
+    {
+        int result = 0;
+        wchar_t* p = value;
         while(*p) {
             result += (*p);
             p++;
@@ -179,7 +267,7 @@ impl vector<T>
         }
 
         for(int i=0; i<left.len; i++) {
-            if(!left.items[i].equals(right.items[i]))
+            if(!((T)left.items[i]).equals(((T)right.items[i])))
             {
                 return false;
             }
@@ -478,7 +566,7 @@ impl list <T>
         list_item<T>?* it2 = right.head;
 
         while(it != null) {
-            it.item.equals(it2.item);
+            ((T)it.item).equals(((T)it2.item));
 
             it = it.next;
             it2 = it2.next;
@@ -833,7 +921,7 @@ impl map <T, T2>
         int len = 0;
 
         self.each {
-            int hash = it.get_hash_key() % size;
+            int hash = ((T)it).get_hash_key() % size;
             int n = hash;
 
             while(true) {
@@ -872,13 +960,13 @@ impl map <T, T2>
     }
 
     bool find(map<T, T2>* self, T& key) {
-        int hash = key.get_hash_key() % self.size;
+        int hash = ((T)key).get_hash_key() % self.size;
         int it = hash;
 
         while(true) {
             if(self.item_existance[it])
             {
-                if(self.keys[it].equals(key))
+                if(((T)self.keys[it]).equals(((T)key)))
                 {
                     return true;
                 }
@@ -902,13 +990,13 @@ impl map <T, T2>
 
     T2& at(map<T, T2>* self, T& key, T2& default_value) 
     {
-        int hash = key.get_hash_key() % self.size;
+        int hash = ((T)key).get_hash_key() % self.size;
         int it = hash;
 
         while(true) {
             if(self.item_existance[it])
             {
-                if(self.keys[it].equals(key))
+                if(((T)self.keys[it]).equals(((T)key)))
                 {
                     return self.items[it];
                 }
@@ -939,7 +1027,7 @@ impl map <T, T2>
             self.rehash();
         }
 
-        int hash = key.get_hash_key() % self.size;
+        int hash = ((T)key).get_hash_key() % self.size;
         int it = hash;
 
         while(true) {
@@ -978,7 +1066,7 @@ impl map <T, T2>
             if(right.find(it)) {
                 T2& default_value;
                 T2& item = right.at(it, default_value);
-                if(!it2.equals(item)) {
+                if(!((T2)it2).equals((T2)item))) {
                     result = false;
                 }
             }
