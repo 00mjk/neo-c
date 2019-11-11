@@ -507,10 +507,8 @@ static void create_operator_fun_name(char* real_fun_name, size_t size_real_fun_n
         sNodeType* param_type = param_types[i];
 
         char* class_name;
-/*
         if(strcmp(param_type->mTypeName, "") == 0) 
         {
-*/
             class_name = CLASS_NAME(param_type->mClass);
 
             xstrncat(real_fun_name, "_", size_real_fun_name);
@@ -520,7 +518,6 @@ static void create_operator_fun_name(char* real_fun_name, size_t size_real_fun_n
             for(j=0; j<param_type->mPointerNum; j++) {
                 xstrncat(real_fun_name, "p", size_real_fun_name);
             }
-/*
         }
         else {
             class_name = param_type->mTypeName;
@@ -528,7 +525,6 @@ static void create_operator_fun_name(char* real_fun_name, size_t size_real_fun_n
             xstrncat(real_fun_name, "_", size_real_fun_name);
             xstrncat(real_fun_name, class_name, size_real_fun_name);
         }
-*/
     }
 }
 

@@ -8,9 +8,6 @@
 
 #include <stdint.h>
 
-typedef char*% string;
-typedef wchar_t*% wstring;
-
 void*% xcalloc(int num, long size);
 void*% xmalloc(long size);
 void*% xmemdup(void* mem);
@@ -20,12 +17,10 @@ char* xmemcpy(void* mem, void* mem2, long size);
 
 char*% xasprintf(char* str, ...);
 
-extern string operator+(char* left, char* right);
-extern string operator+(string left, string right);
-extern string string(char* str);
+typedef char*% string;
+typedef wchar_t*% wstring;
 
-extern wstring operator+(wchar_t* left, wchar_t* right);
-extern wstring operator+(wstring left, wstring right);
+extern string string(char* str);
 extern wstring wstring(char* str);
 
 void p(char* str);
@@ -45,6 +40,8 @@ impl int
 }
 
 /// char* ///
+extern string operator+(char* left, char* right);
+
 impl char
 {
     inline bool equals(char* left, char* right)
@@ -71,34 +68,9 @@ impl char
     }
 }
 
-/// string ///
-impl string
-{
-    inline bool equals(char* left, char* right)
-    {
-        return strcmp(left, right) == 0;
-    }
-
-    extern string subString(char* str, int head, int tail);
-
-    inline int length(string str)
-    {
-        return strlen(str);
-    }
-
-    inline int get_hash_key(char* value)
-    {
-        int result = 0;
-        char* p = value;
-        while(*p) {
-            result += (*p);
-            p++;
-        }
-        return result;
-    }
-}
-
 /// wchar_t ///
+extern wstring operator+(wchar_t* left, wchar_t* right);
+
 impl wchar_t
 {
     inline bool equals(wchar_t* left, wchar_t* right)
@@ -125,22 +97,53 @@ impl wchar_t
     }
 }
 
+/// string ///
+extern string operator+(string& left, string& right);
+
+impl string
+{
+    inline bool equals(string& left, string& right)
+    {
+        return strcmp(left, right) == 0;
+    }
+
+    extern string subString(string& str, int head, int tail);
+
+    inline int length(string& str)
+    {
+        return strlen(str);
+    }
+
+    inline int get_hash_key(string& value)
+    {
+        int result = 0;
+        char* p = value;
+        while(*p) {
+            result += (*p);
+            p++;
+        }
+        return result;
+    }
+}
+
 /// wstring ///
+extern wstring operator+(wstring& left, wstring& right);
+
 impl wstring
 {
-    inline bool equals(wchar_t* left, wchar_t* right)
+    inline bool equals(wstring& left, wstring& right)
     {
         return wcscmp(left, right) == 0;
     }
 
-    extern wstring subString(wchar_t* str, int head, int tail);
+    extern wstring subString(wstring& str, int head, int tail);
 
-    inline int length(wchar_t* str)
+    inline int length(wstring& str)
     {
         return wcslen(str);
     }
 
-    inline int get_hash_key(wchar_t* value)
+    inline int get_hash_key(wstring& value)
     {
         int result = 0;
         wchar_t* p = value;

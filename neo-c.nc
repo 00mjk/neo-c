@@ -21,33 +21,6 @@ void p(char* str)
 }
 
 /// string ///
-string operator+(char* left, char* right)
-{
-    int len1 = strlen(left);
-    int len2 = strlen(right);
-
-    string result = new char[len1 + len2 + 1];
-
-    strcpy(result, left);
-    strcat(result, right);
-
-    result
-}
-
-string operator+(char* left, char* right)
-{
-    int len1 = strlen(left);
-    int len2 = strlen(right);
-
-    string result = new char[len1 + len2 + 1];
-
-    strcpy(result, left);
-    strcat(result, right);
-
-    result
-}
-
-
 string string(char* str)
 {
     int len = strlen(str);
@@ -55,6 +28,19 @@ string string(char* str)
     string result = new char[len + 1];
 
     strcpy(result, str);
+
+    result
+}
+
+string operator+(char* left, char* right)
+{
+    int len1 = strlen(left);
+    int len2 = strlen(right);
+
+    string result = new char[len1 + len2 + 1];
+
+    strcpy(result, left);
+    strcat(result, right);
 
     result
 }
@@ -93,9 +79,22 @@ impl char
     }
 }
 
+string operator+(string& left, string& right)
+{
+    int len1 = strlen(left);
+    int len2 = strlen(right);
+
+    string result = new char[len1 + len2 + 1];
+
+    strcpy(result, left);
+    strcat(result, right);
+
+    result
+}
+
 impl string
 {
-    string subString(char* str, int head, int tail)
+    string subString(string& str, int head, int tail)
     {
         int len = strlen(str);
 
@@ -128,32 +127,6 @@ impl string
 }
 
 /// wstring ///
-wstring operator+(wchar_t* left, wchar_t* right)
-{
-    int len1 = wcslen(left);
-    int len2 = wcslen(right);
-
-    wstring result = new wchar_t[len1 + len2 + 1];
-
-    wcscpy(result, left);
-    wcscat(result, right);
-
-    result
-}
-
-wstring operator+(wchar_t* left, wchar_t* right)
-{
-    int len1 = wcslen(left);
-    int len2 = wcslen(right);
-
-    wstring result = new wchar_t[len1 + len2 + 1];
-
-    wcscpy(result, left);
-    wcscat(result, right);
-
-    result
-}
-
 wstring wstring(char* str)
 {
     int len = strlen(str);
@@ -167,6 +140,32 @@ wstring wstring(char* str)
     }
 
     return wstr;
+}
+
+wstring operator+(wchar_t* left, wchar_t* right)
+{
+    int len1 = wcslen(left);
+    int len2 = wcslen(right);
+
+    wstring result = new wchar_t[len1 + len2 + 1];
+
+    wcscpy(result, left);
+    wcscat(result, right);
+
+    result
+}
+
+wstring operator+(wstring& left, wstring& right)
+{
+    int len1 = wcslen(left);
+    int len2 = wcslen(right);
+
+    wstring result = new wchar_t[len1 + len2 + 1];
+
+    wcscpy(result, left);
+    wcscat(result, right);
+
+    result
 }
 
 impl wchar_t
@@ -206,7 +205,7 @@ impl wchar_t
 
 impl wstring
 {
-    wstring subString(wchar_t* str, int head, int tail)
+    wstring subString(wstring& str, int head, int tail)
     {
         int len = wcslen(str);
 
