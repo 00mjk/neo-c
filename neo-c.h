@@ -13,6 +13,8 @@ void*% xmalloc(long size);
 void*% xmemdup(void* mem);
 void xfree(void*% mem);
 
+char* xstrncpy(char* des, char* src, int size);
+char* xstrncat(char* des, char* str, int size);
 char* xmemcpy(void* mem, void* mem2, long size);
 
 char*% xasprintf(char* str, ...);
@@ -95,6 +97,20 @@ impl wchar_t
         }
         return result;
     }
+
+    inline string toUtf8String(wchar_t* self) 
+    {
+        int len = MB_LEN_MAX*(wcslen(self)+1);
+
+        string result = new char[len];
+
+        if(wcstombs(result, self, len) < 0) 
+        {
+            xstrncpy(result, "", len);
+        }
+
+        result
+    }
 }
 
 /// string ///
@@ -152,6 +168,20 @@ impl wstring
             p++;
         }
         return result;
+    }
+
+    inline string toUtf8String(wstring& self) 
+    {
+        int len = MB_LEN_MAX*(wcslen(self)+1);
+
+        string result = new char[len];
+
+        if(wcstombs(result, self, len) < 0) 
+        {
+            xstrncpy(result, "", len);
+        }
+
+        result
     }
 }
 

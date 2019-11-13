@@ -23,7 +23,7 @@ int xgetmaxy()
 struct VigWin 
 {
     WINDOW* win;
-    list<string>*% texts;
+    list<wstring>*% texts;
     int y;
     int x;
     int width;
@@ -41,7 +41,7 @@ impl VigWin
     initialize(int y, int x, int width, int height) {
         keypad(self.win, 4);
 
-        self.texts = new list<string>.initialize();
+        self.texts = new list<wstring>.initialize();
 
         self.y = y;
         self.x = x;
@@ -61,7 +61,7 @@ impl VigWin
         werase(self.win);
 
         self.texts.each {
-            mvwprintw(self.win, it2, 0, it);
+            mvwprintw(self.win, it2, 0, it.toUtf8String());
         }
 
         wrefresh(self.win);
@@ -93,9 +93,9 @@ impl Vig
 
         var win = new VigWin.initialize(0,0, maxx-1, maxy);
 
-        win.texts.push_back(string("aaa"));
-        win.texts.push_back(string("bbb"));
-        win.texts.push_back(string("ccc"));
+        win.texts.push_back(wstring("aaa"));
+        win.texts.push_back(wstring("bbb"));
+        win.texts.push_back(wstring("ccc"));
 
         self.active_win = win;
 

@@ -5,7 +5,7 @@ int xgetmaxy();
 struct VigWin 
 {
     WINDOW* win;
-    list<string>*% texts;
+    list<wstring>*% texts;
     int y;
     int x;
     int width;

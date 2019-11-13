@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <locale.h>
 
 #include "vig.h"
 
@@ -19,14 +20,35 @@ impl VigWin version 2
 
         self.texts.each {
             if(self.curs_y == it2) {
-                mvwprintw(self.win, it2, 0, "%s", it.subString(0, self.curs_x));
-                wattron(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, self.curs_x, "%s", it.subString(self.curs_x, self.curs_x+1));
-                wattroff(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, self.curs_x+1, "%s", it.subString(self.curs_x+1, -1));
+                int x = 0;
+                wstring head_string = it.subString(0, self.curs_x);
+                if(!head_string.equals(wstring("")))
+                {
+                    mvwprintw(self.win, it2, 0, "%s", head_string.toUtf8String());
+                }
+
+                x += wcswidth(head_string, head_string.length());
+
+                wstring cursor_string = it.subString(self.curs_x, self.curs_x+1);
+
+                if(!cursor_string.equals(wstring("")))
+                {
+                    wattron(self.win, A_REVERSE);
+                    mvwprintw(self.win, it2, x, "%s", cursor_string.toUtf8String());
+                    wattroff(self.win, A_REVERSE);
+                }
+
+                x += wcswidth(cursor_string, cursor_string.length());
+
+                wstring tail_string = it.subString(self.curs_x+1, -1);
+
+                if(!tail_string.equals(wstring("")))
+                {
+                    mvwprintw(self.win, it2, x, "%s", tail_string.toUtf8String());
+                }
             }
             else {
-                mvwprintw(self.win, it2, 0, "%s", it);
+                mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
             }
         }
 
@@ -47,13 +69,13 @@ impl VigWin version 2
         }
     }
 
-    char* getCursorLine(VigWin* self) {
-        return self.texts.item(self.curs_y, string(""));
+    wchar_t* getCursorLine(VigWin* self) {
+        return self.texts.item(self.curs_y, wstring(""));
     }
 
     int getCursorLineLength(VigWin* self) 
     {
-        return strlen(self.getCursorLine());
+        return wcslen(self.getCursorLine());
     }
 
     void forward(VigWin* self) {
@@ -77,8 +99,6 @@ impl VigWin version 2
     }
 
     void prevLine(VigWin* self) {
-        var cursor_line = self.getCursorLine();
-
         self.curs_y--;
 
         if(self.curs_y < 0) {
@@ -131,6 +151,8 @@ struct Vig version 2
 impl Vig version 2 
 {
     initialize() {
+        setlocale(LC_ALL, "");
+        
         self.init_curses();
 
         self.wins = new vector<VigWin*%>.initialize();
@@ -140,9 +162,10 @@ impl Vig version 2
 
         var win = new VigWin.initialize(0,0, maxx-1, maxy);
 
-        win.texts.push_back(string("123"));
-        win.texts.push_back(string("456"));
-        win.texts.push_back(string("789"));
+        win.texts.push_back(wstring("123"));
+        win.texts.push_back(wstring("456"));
+        win.texts.push_back(wstring("789"));
+        win.texts.push_back(wstring("あいうえお"));
 
         self.active_win = win;
 
