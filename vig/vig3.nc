@@ -16,14 +16,35 @@ impl VigWin version 3
 
         self.texts.each {
             if(self.curs_y == it2) {
-                mvwprintw(self.win, it2, 0, "%s", it.subString(0, self.curs_x));
-                wattron(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, self.curs_x, "%s", it.subString(self.curs_x, self.curs_x+1));
-                wattroff(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, self.curs_x+1, "%s", it.subString(self.curs_x+1, -1));
+                int x = 0;
+                wstring head_string = it.subString(0, self.curs_x);
+                if(!head_string.equals(wstring("")))
+                {
+                    mvwprintw(self.win, it2, 0, "%s", head_string.toUtf8String());
+                }
+
+                x += wcswidth(head_string, head_string.length());
+
+                wstring cursor_string = it.subString(self.curs_x, self.curs_x+1);
+
+                if(!cursor_string.equals(wstring("")))
+                {
+                    wattron(self.win, A_REVERSE);
+                    mvwprintw(self.win, it2, x, "%s", cursor_string.toUtf8String());
+                    wattroff(self.win, A_REVERSE);
+                }
+
+                x += wcswidth(cursor_string, cursor_string.length());
+
+                wstring tail_string = it.subString(self.curs_x+1, -1);
+
+                if(!tail_string.equals(wstring("")))
+                {
+                    mvwprintw(self.win, it2, x, "%s", tail_string.toUtf8String());
+                }
             }
             else {
-                mvwprintw(self.win, it2, 0, "%s", it);
+                mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
             }
         }
 
@@ -43,8 +64,8 @@ impl VigWin version 3
         }
     }
 
-    void insertText(VigWin* self, string key) {
-        var old_line = self.texts.item(self.curs_y, string(""));
+    void insertText(VigWin* self, wstring key) {
+        var old_line = self.texts.item(self.curs_y, wstring(""));
 
         var new_line = old_line.subString(0, self.curs_x) + key + old_line.subString(self.curs_x, -1);
 
@@ -54,7 +75,7 @@ impl VigWin version 3
 
     void enterNewLine(VigWin* self)
     {
-        var old_line = self.texts.item(self.curs_y, string(""));
+        var old_line = self.texts.item(self.curs_y, wstring(""));
 
         var new_line1 = old_line.subString(0, self.curs_x);
         var new_line2 = old_line.subString(self.curs_x, -1);
@@ -75,8 +96,26 @@ impl VigWin version 3
         else if(key == 10) {
             self.enterNewLine();
         }
+        else if(key == 127) {
+        }
+        else if(key > 127) {
+            var size = ((key & 0x80) >> 7) + ((key & 0x40) >> 6) + ((key & 0x20) >> 5) + ((key & 0x10) >> 4);
+
+            char keys[MB_LEN_MAX];
+
+            keys[0] = key;
+
+            int i;
+            for(i = 1; i<size; i++)
+            {
+                keys[i] = wgetch(self.win);
+            }
+            keys[i] = '\0';
+
+            self.insertText(wstring(keys));
+        }
         else {
-            self.insertText(xasprintf("%c", key));
+            self.insertText(wstring(xasprintf("%c", key)));
         }
     }
 

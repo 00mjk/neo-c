@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
-#include "vig2.h"
+#include "vig3.h"
 
 int main()
 {

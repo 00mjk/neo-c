@@ -10,7 +10,7 @@ impl VigWin version 2
 {
     void view(VigWin* self, Vig* vig);
     void input(VigWin* self, Vig* vig);
-    char* getCursorLine(VigWin* self);
+    wchar_t* getCursorLine(VigWin* self);
     int getCursorLineLength(VigWin* self);
     void forward(VigWin* self);
     void backward(VigWin* self);
