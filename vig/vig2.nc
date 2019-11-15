@@ -86,6 +86,10 @@ impl VigWin version 2
         if(self.curs_x >= line_max)
         {
             self.curs_x = line_max-1;
+
+            if(self.curs_x < 0) {
+                self.curs_x = 0;
+            }
         }
     }
 
@@ -108,6 +112,10 @@ impl VigWin version 2
         if(self.curs_x >= self.getCursorLineLength())
         {
             self.curs_x = self.getCursorLineLength()-1;
+
+            if(self.curs_x < 0) {
+                self.curs_x = 0;
+            }
         }
     }
 
@@ -122,6 +130,10 @@ impl VigWin version 2
         if(self.curs_x >= self.getCursorLineLength())
         {
             self.curs_x = self.getCursorLineLength()-1;
+
+            if(self.curs_x < 0) {
+                self.curs_x = 0;
+            }
         }
     }
 
