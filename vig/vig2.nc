@@ -20,31 +20,38 @@ impl VigWin version 2
 
         self.texts.each {
             if(self.curs_y == it2) {
-                int x = 0;
-                wstring head_string = it.subString(0, self.curs_x);
-                if(!head_string.equals(wstring("")))
-                {
-                    mvwprintw(self.win, it2, 0, "%s", head_string.toUtf8String());
-                }
-
-                x += wcswidth(head_string, head_string.length());
-
-                wstring cursor_string = it.subString(self.curs_x, self.curs_x+1);
-
-                if(!cursor_string.equals(wstring("")))
-                {
+                if(it.length() == 0) {
                     wattron(self.win, A_REVERSE);
-                    mvwprintw(self.win, it2, x, "%s", cursor_string.toUtf8String());
+                    mvwprintw(self.win, it2, 0, " ");
                     wattroff(self.win, A_REVERSE);
                 }
+                else {
+                    int x = 0;
+                    wstring head_string = it.subString(0, self.curs_x);
+                    if(!head_string.equals(wstring("")))
+                    {
+                        mvwprintw(self.win, it2, 0, "%s", head_string.toUtf8String());
+                    }
 
-                x += wcswidth(cursor_string, cursor_string.length());
+                    x += wcswidth(head_string, head_string.length());
 
-                wstring tail_string = it.subString(self.curs_x+1, -1);
+                    wstring cursor_string = it.subString(self.curs_x, self.curs_x+1);
 
-                if(!tail_string.equals(wstring("")))
-                {
-                    mvwprintw(self.win, it2, x, "%s", tail_string.toUtf8String());
+                    if(!cursor_string.equals(wstring("")))
+                    {
+                        wattron(self.win, A_REVERSE);
+                        mvwprintw(self.win, it2, x, "%s", cursor_string.toUtf8String());
+                        wattroff(self.win, A_REVERSE);
+                    }
+
+                    x += wcswidth(cursor_string, cursor_string.length());
+
+                    wstring tail_string = it.subString(self.curs_x+1, -1);
+
+                    if(!tail_string.equals(wstring("")))
+                    {
+                        mvwprintw(self.win, it2, x, "%s", tail_string.toUtf8String());
+                    }
                 }
             }
             else {
