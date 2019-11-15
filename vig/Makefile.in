@@ -29,8 +29,8 @@ DESTDIR=@DESTDIR@
 ##########################################
 all: vig
 
-vig: config.h main.nc vig.o vig2.o vig3.o
-	neo-c -o vig main.nc vig.o vig2.o vig3.o $(CFLAGS) $(LIBS)
+vig: config.h main.nc vig.o vig2.o vig3.o vig4.o
+	neo-c -o vig main.nc vig.o vig2.o vig3.o vig4.o $(CFLAGS) $(LIBS)
 
 vig.o: config.h vig.nc
 	neo-c -c vig.nc $(CFLAGS) $(LIBS)
@@ -40,6 +40,9 @@ vig2.o: config.h vig2.nc vig.h
 
 vig3.o: config.h vig3.nc vig2.h
 	neo-c -c vig3.nc $(CFLAGS) $(LIBS)
+
+vig4.o: config.h vig4.nc vig3.h
+	neo-c -c vig4.nc $(CFLAGS) $(LIBS)
 
 #########################################
 # install

@@ -162,6 +162,9 @@ impl Vig version 2
 
         var win = new VigWin.initialize(0,0, maxx-1, maxy);
 
+        win.texts.push_back(wstring("abc"));
+        win.texts.push_back(wstring("def"));
+        win.texts.push_back(wstring("ghi"));
         win.texts.push_back(wstring("123"));
         win.texts.push_back(wstring("456"));
         win.texts.push_back(wstring("789"));
