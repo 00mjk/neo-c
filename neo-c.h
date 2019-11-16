@@ -1,8 +1,26 @@
+#include <limits.h>
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#ifndef __USE_XOPEN
+#define __USE_XOPEN
+#endif
+#ifndef _USE_MISC
+#define _USE_MISC
+#endif
+#ifndef __USE_BSD
+#define __USE_BSD
+#endif
+
+#include <wchar.h>
+
+#include <unistd.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
-#include <limits.h>
 
 #define __STDC_LIMIT_MACROS 1
 #define __STDC_CONSTANT_MACROS 1

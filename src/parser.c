@@ -663,10 +663,12 @@ BOOL parse_sharp(sParserInfo* info)
             info->change_sline = TRUE;
 
             skip_spaces_and_lf(info);
+/*
             if(*info->p == ';') {
                 info->p++;
                 skip_spaces_and_lf(info);
             }
+*/
         }
         else {
             while(TRUE) {

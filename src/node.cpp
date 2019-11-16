@@ -4786,9 +4786,9 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    Value* result_value;
+    Value* result_value = nullptr;
     int result_value_alignment;
-    result_type = info->type;
+    result_type = clone_node_type(info->type);
 
     if(type_identify_with_class_name(info->type, "void"))
     {
@@ -4897,10 +4897,12 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
-            if(result_value) {
+            if(result_value != nullptr) {
                 if(!type_identify(info->type, result_type))
                 {
-                    compile_err_msg(info, "Different result type for if/else block. If you avoid this and don't need result value for if expression, append ; at the end of block");
+                    compile_err_msg(info, "Different result type for if/else block. If you avoid this and don't need result value for if expression, append ; at the end of block(1)");
+                    show_node_type(info->type);
+                    show_node_type(result_type);
                     info->err_num++;
 
                     info->type = create_node_type_with_class_name("int"); // dummy
@@ -4934,11 +4936,13 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        if(result_value) {
+        if(result_value != nullptr) {
             if(!type_identify(info->type, result_type))
             {
-                compile_err_msg(info, "Different result type for if/else block. If you avoid this and don't need result value for if expression, append ; at the end of block");
+                compile_err_msg(info, "Different result type for if/else block. If you avoid this and don't need result value for if expression, append ; at the end of block(2)");
                 info->err_num++;
+                show_node_type(info->type);
+                show_node_type(result_type);
 
                 info->type = create_node_type_with_class_name("int"); // dummy
 
@@ -4961,7 +4965,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     BasicBlock* current_block_before2;
     llvm_change_block(cond_end_block, &current_block_before2, info, FALSE);
 
-    if(result_value) {
+    if(result_value != nullptr) {
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateAlignedLoad(result_value, result_value_alignment);
         llvm_value.type = result_type;

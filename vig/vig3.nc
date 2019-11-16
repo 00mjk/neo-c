@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include "vig2.h"
 

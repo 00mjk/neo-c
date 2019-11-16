@@ -51,11 +51,9 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
     BOOL has_result = FALSE;
 
     while(1) {
-        if(*info->p == '#') {
-            if(!parse_sharp(info)) {
-                info->parse_block = parse_block;
-                return FALSE;
-            }
+        if(!parse_sharp(info)) {
+            info->parse_block = parse_block;
+            return FALSE;
         }
 
         if(*info->p == '}') {
@@ -82,42 +80,44 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
 
         info->sline_top = sline;
 
-        if(*info->p == '#') {
-            if(!parse_sharp(info)) {
-                info->parse_block = parse_block;
-                return FALSE;
+        if(!parse_sharp(info)) {
+            info->parse_block = parse_block;
+            return FALSE;
+        }
+
+        if(!expression(&node, info)) {
+            if(!extern_c_lang) {
+                info->mBlockLevel--;
             }
+            info->parse_block = parse_block;
+            return FALSE;
+        }
+
+        if(node == 0) {
+            parser_err_msg(info, "require an expression");
+            info->err_num++;
+        }
+
+        if(info->change_sline) {
+            info->change_sline = FALSE;
+
+            gNodes[node].mLine = info->sline;
+            xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+
+            info->sline_top = info->sline;
         }
         else {
-            if(!expression(&node, info)) {
-                if(!extern_c_lang) {
-                    info->mBlockLevel--;
-                }
-                info->parse_block = parse_block;
-                return FALSE;
-            }
+            gNodes[node].mLine = sline;
+            xstrncpy(gNodes[node].mSName, sname, PATH_MAX);
+        }
 
-            if(node == 0) {
-                parser_err_msg(info, "require an expression");
-                info->err_num++;
-            }
+        if(info->err_num == 0) {
+            append_node_to_node_block(node_block, node);
+        }
 
-            if(info->change_sline) {
-                info->change_sline = FALSE;
-
-                gNodes[node].mLine = info->sline;
-                xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
-
-                info->sline_top = info->sline;
-            }
-            else {
-                gNodes[node].mLine = sline;
-                xstrncpy(gNodes[node].mSName, sname, PATH_MAX);
-            }
-
-            if(info->err_num == 0) {
-                append_node_to_node_block(node_block, node);
-            }
+        if(!parse_sharp(info)) {
+            info->parse_block = parse_block;
+            return FALSE;
         }
 
         if(*info->p == ';') {

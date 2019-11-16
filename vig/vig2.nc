@@ -51,7 +51,7 @@ impl VigWin version 2
                     if(!tail_string.equals(wstring("")))
                     {
                         mvwprintw(self.win, it2, x, "%s", tail_string.toUtf8String());
-                    }
+                    };
                 }
             }
             else {
