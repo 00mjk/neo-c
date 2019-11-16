@@ -445,6 +445,17 @@ void start_to_make_native_code(char* sname)
     declare_builtin_functions();
 }
 
+#if LLVM_VERSION_MAJOR < 4
+struct MyModulePass : ModulePass {
+    MyModulePass(char id) : ModulePass(id) {
+    }
+
+    virtual bool runOnModule(Module &M) {
+        return false;
+    }
+};
+#endif
+
 void output_native_code(char* sname, BOOL optimize)
 {
     free(gLLVMStack);
@@ -511,6 +522,10 @@ void output_native_code(char* sname, BOOL optimize)
 
     std::string err_str;
     raw_string_ostream err_ostream(err_str);
+
+//TheModule->print(llvm::errs(), nullptr);
+    TheModule->print(output_stream, nullptr);
+    output_stream.flush();
 #elif LLVM_VERSION_MAJOR >= 4
     char path[PATH_MAX]; 
     snprintf(path, PATH_MAX, "%s.ll", sname2);
@@ -522,6 +537,9 @@ void output_native_code(char* sname, BOOL optimize)
 
     std::string err_str;
     raw_string_ostream err_ostream(err_str);
+
+    TheModule->print(output_stream, nullptr);
+    output_stream.flush();
 #else
     char path[PATH_MAX];
     snprintf(path, PATH_MAX, "%s.ll", sname2);
@@ -533,14 +551,12 @@ void output_native_code(char* sname, BOOL optimize)
 
     std::string err_str;
     raw_string_ostream err_ostream(err_str);
+
+    TheModule->print(output_stream, nullptr);
+    output_stream.flush();
+
+    verifyModule(*TheModule);
 #endif
-
-
-
-
-//TheModule->print(llvm::errs(), nullptr);
-TheModule->print(output_stream, nullptr);
-output_stream.flush();
     }
 
 #if LLVM_VERSION_MAJOR >= 7
@@ -586,7 +602,7 @@ output_stream.flush();
     std::string err_str;
     raw_string_ostream err_ostream(err_str);
 
-    verifyModule(*TheModule);
+    //verifyModule(*TheModule);
 
     llvm::WriteBitcodeToFile(TheModule, output_stream, true);
     output_stream.flush();
@@ -601,11 +617,23 @@ output_stream.flush();
         exit(2);
     }
 
-    snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.ll", sname2, sname2);
+    snprintf(command, PATH_MAX+128, "which clang-7");
     rc = system(command);
-    if(rc != 0) {
-        fprintf(stderr, "faield to compile\n");
-        exit(2);
+    if(rc == 0) {
+        snprintf(command, PATH_MAX+128, "clang-7 -c -o %s.o %s.ll", sname2, sname2);
+        rc = system(command);
+        if(rc != 0) {
+            fprintf(stderr, "faield to compile\n");
+            exit(2);
+        }
+    }
+    else {
+        snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.ll", sname2, sname2);
+        rc = system(command);
+        if(rc != 0) {
+            fprintf(stderr, "faield to compile\n");
+            exit(2);
+        }
     }
 
     delete TheModule;
@@ -1709,6 +1737,8 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
 
         std::vector<Value*> params2;
         Value* param = Builder.CreateCast(Instruction::BitCast, obj2, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+printf("free_right_value_objects %p\n", obj2);
 
         params2.push_back(param);
         Builder.CreateCall(fun, params2);

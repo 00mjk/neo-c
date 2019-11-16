@@ -6,6 +6,11 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+template <R> void method_generics_test(R& a)
+{
+    printf("%ls\n", a);
+}
+
 int main()
 {
     wstring wstr = wstring("ABC");
@@ -15,6 +20,8 @@ int main()
     xassert("wstring test2", wstr.equals(wstring("ABC")));
 
     printf("%s\n", wstring("あいうえお").toUtf8String());
+
+    method_generics_test(wstr);
 
     0
 }

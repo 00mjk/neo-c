@@ -94,6 +94,27 @@ string operator+(string& left, string& right)
 
 impl string
 {
+    bool equals(string& left, string& right)
+    {
+        return strcmp(left, right) == 0;
+    }
+
+    int length(string& str)
+    {
+        return strlen(str);
+    }
+
+    int get_hash_key(string& value)
+    {
+        int result = 0;
+        char* p = value;
+        while(*p) {
+            result += (*p);
+            p++;
+        }
+        return result;
+    }
+
     string subString(string& str, int head, int tail)
     {
         int len = strlen(str);
@@ -205,6 +226,41 @@ impl wchar_t
 
 impl wstring
 {
+    bool equals(wstring& left, wstring& right)
+    {
+        return wcscmp(left, right) == 0;
+    }
+
+    int length(wstring& str)
+    {
+        return wcslen(str);
+    }
+
+    int get_hash_key(wstring& value)
+    {
+        int result = 0;
+        wchar_t* p = value;
+        while(*p) {
+            result += (*p);
+            p++;
+        }
+        return result;
+    }
+
+    string toUtf8String(wstring& self) 
+    {
+        int len = MB_LEN_MAX*(wcslen(self)+1);
+
+        string result = new char[len];
+
+        if(wcstombs(result, self, len) < 0) 
+        {
+            xstrncpy(result, "", len);
+        }
+
+        result
+    }
+
     wstring subString(wstring& str, int head, int tail)
     {
         int len = wcslen(str);

@@ -18,6 +18,8 @@ extern "C"
 #include "llvm/IR/Type.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/IR/Attributes.h"
+#include "llvm/IR/PassManager.h"
+#include "llvm/IR/Verifier.h"
 
 #include "llvm/ExecutionEngine/ExecutionEngine.h"
 #include "llvm/Passes/PassBuilder.h"
@@ -26,7 +28,17 @@ extern "C"
 #include "llvm/Bitcode/BitcodeWriter.h"
 #else
 #include "llvm/Bitcode/ReaderWriter.h"
+//#include "llvm/Assembly/PrintModulePass.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/Pass.h"
 #endif
+
+
+//#include "llvm/Module.h"
+//#include "llvm/Function.h"
+
+using namespace llvm;
 
 //#include "llvm/IR/LegacyPassManager.h"
 //#include "llvm/IR/DerivedTypes.h"

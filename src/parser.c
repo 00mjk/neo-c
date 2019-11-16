@@ -5538,6 +5538,11 @@ static BOOL parse_inherit(unsigned int* node, sParserInfo* info)
 
 static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserInfo* info)
 {
+    if(!parse_sharp(info)) {
+        return FALSE;
+    }
+
+/*
     if(*info->p == '#') {
         if(!parse_sharp(info)) {
             return FALSE;
@@ -5547,7 +5552,9 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
             return FALSE;
         }
     }
-    else if(*info->p == '(') {
+    else 
+*/
+    if(*info->p == '(') {
         info->p++;
         skip_spaces_and_lf(info);
 
@@ -7035,6 +7042,10 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
     /// post position expression ///
     if(!postposition_operator(node, enable_assginment, info))
     {
+        return FALSE;
+    }
+
+    if(!parse_sharp(info)) {
         return FALSE;
     }
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+#include <limits.h>
 
 #define __STDC_LIMIT_MACROS 1
 #define __STDC_CONSTANT_MACROS 1
@@ -100,7 +101,7 @@ impl wchar_t
 
     inline string toUtf8String(wchar_t* self) 
     {
-        int len = MB_LEN_MAX*(wcslen(self)+1);
+        int len = MB_LEN_MAX * (wcslen(self)+1);
 
         string result = new char[len];
 
@@ -118,28 +119,10 @@ extern string operator+(string& left, string& right);
 
 impl string
 {
-    inline bool equals(string& left, string& right)
-    {
-        return strcmp(left, right) == 0;
-    }
-
+    extern bool equals(string& left, string& right);
+    extern int length(string& str);
+    extern int get_hash_key(string& value);
     extern string subString(string& str, int head, int tail);
-
-    inline int length(string& str)
-    {
-        return strlen(str);
-    }
-
-    inline int get_hash_key(string& value)
-    {
-        int result = 0;
-        char* p = value;
-        while(*p) {
-            result += (*p);
-            p++;
-        }
-        return result;
-    }
 }
 
 /// wstring ///
@@ -147,42 +130,13 @@ extern wstring operator+(wstring& left, wstring& right);
 
 impl wstring
 {
-    inline bool equals(wstring& left, wstring& right)
-    {
-        return wcscmp(left, right) == 0;
-    }
-
+    extern bool equals(wstring& left, wstring& right);
     extern wstring subString(wstring& str, int head, int tail);
 
-    inline int length(wstring& str)
-    {
-        return wcslen(str);
-    }
+    extern int length(wstring& str);
+    extern int get_hash_key(wstring& value);
 
-    inline int get_hash_key(wstring& value)
-    {
-        int result = 0;
-        wchar_t* p = value;
-        while(*p) {
-            result += (*p);
-            p++;
-        }
-        return result;
-    }
-
-    inline string toUtf8String(wstring& self) 
-    {
-        int len = MB_LEN_MAX*(wcslen(self)+1);
-
-        string result = new char[len];
-
-        if(wcstombs(result, self, len) < 0) 
-        {
-            xstrncpy(result, "", len);
-        }
-
-        result
-    }
+    extern string toUtf8String(wstring& self);
 }
 
 /// vector ///

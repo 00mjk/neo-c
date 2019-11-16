@@ -3484,16 +3484,34 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                     remove_from_right_value_object(llvm_value.value, info);
                 }
             }
-            else if(right_type->mHeap && !llvm_value.binded_value) 
+            else if(right_type->mHeap && !llvm_value.binded_value)
             {
+                if(fun->mInlineFunction) {
+                    compile_err_msg(info, "Inline function can't have a parametor of heap type");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    return TRUE;
+                }
+
                 append_heap_object_to_right_value(&llvm_value, info);
             }
         }
         else {
             sNodeType* right_type = lvalue_params[i]->type;
 
-            if(right_type->mHeap && !llvm_value.binded_value) 
+            if(right_type->mHeap && !llvm_value.binded_value)
             {
+                if(fun->mInlineFunction) {
+                    compile_err_msg(info, "Inline function can't have a parametor of heap type");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    return TRUE;
+                }
+
                 append_heap_object_to_right_value(&llvm_value, info);
             }
         }
@@ -3509,14 +3527,32 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             if(!left_type->mHeap && right_type->mHeap && !llvm_value.binded_value)
             {
+                if(fun->mInlineFunction) {
+                    compile_err_msg(info, "Inline function can't have a parametor of heap type");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    return TRUE;
+                }
+
                 append_heap_object_to_right_value(&llvm_value, info);
             }
         }
         else {
             sNodeType* right_type = lvalue_params[i]->type;
 
-            if(right_type->mHeap && !llvm_value.binded_value) 
+            if(right_type->mHeap && !llvm_value.binded_value)
             {
+                if(fun->mInlineFunction) {
+                    compile_err_msg(info, "Inline function can't have a parametor of heap type");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    return TRUE;
+                }
+
                 append_heap_object_to_right_value(&llvm_value, info);
             }
         }
