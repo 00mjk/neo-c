@@ -155,6 +155,7 @@ wstring wstring(char* str)
     wstring wstr = new wchar_t[len + 1];
 
     int ret = mbstowcs(wstr, str, len+1);
+    wstr[ret] = '\0';
 
     if(ret < 0) {
         wstr[0] = '\0';

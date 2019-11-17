@@ -1738,8 +1738,6 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
         std::vector<Value*> params2;
         Value* param = Builder.CreateCast(Instruction::BitCast, obj2, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
-printf("free_right_value_objects %p\n", obj2);
-
         params2.push_back(param);
         Builder.CreateCall(fun, params2);
     }
