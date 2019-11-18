@@ -187,6 +187,7 @@ Value* store_lvtable()
     Value* param3 = ConstantInt::get(TheContext, llvm::APInt(64, sizeof(char*)*LOCAL_VARIABLE_MAX, true));
     params2.push_back(param3);
 
+printf("10 call %s\n", fun->getName().data());
     Builder.CreateCall(fun, params2);
 
     return lvtable;
@@ -214,6 +215,7 @@ void restore_lvtable(Value* lvtable)
     Value* param3 = ConstantInt::get(TheContext, llvm::APInt(64, sizeof(char*)*LOCAL_VARIABLE_MAX, true));
     params2.push_back(param3);
 
+printf("11 call %s\n", fun->getName().data());
     Builder.CreateCall(fun, params2);
 }
 
@@ -1739,6 +1741,7 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
         Value* param = Builder.CreateCast(Instruction::BitCast, obj2, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
         params2.push_back(param);
+printf("12 call %s\n", fun->getName().data());
         Builder.CreateCall(fun, params2);
     }
 
@@ -1817,6 +1820,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
     Value* param = rvalue.value;
     params2.push_back(param);
 
+printf("13 call %s\n", fun->getName().data());
     Value* address2 = Builder.CreateCall(fun, params2);
 
     sNodeType* left_type2 = clone_node_type(node_type);

@@ -7,6 +7,11 @@
 
 #include "vig2.h"
 
+impl Vig version 3 
+{
+    extern void exitFromInsertMode(Vig* self);
+}
+
 enum eMode { kEditMode, kInsertMode };
 
 impl VigWin version 3 
@@ -65,10 +70,10 @@ impl VigWin version 3
         }
     }
 
-    void insertText(VigWin* self, wstring key) {
+    void insertText(VigWin* self, wstring text) {
         var old_line = self.texts.item(self.curs_y, wstring(""));
 
-        var new_line = old_line.subString(0, self.curs_x) + key + old_line.subString(self.curs_x, -1);
+        var new_line = old_line.subString(0, self.curs_x) + text + old_line.subString(self.curs_x, -1);
 
         self.texts.replace(self.curs_y, new_line);
         self.curs_x++;
@@ -92,7 +97,7 @@ impl VigWin version 3
         var key = wgetch(self.win);
 
         if(key == 3 || key == 27) {
-            vig.mode = kEditMode;
+            vig.exitFromInsertMode();
         }
         else if(key == 10) {
             self.enterNewLine();
@@ -137,6 +142,13 @@ struct Vig version 3
 
 impl Vig version 3 
 {
+    void enterInsertMode(Vig* self) {
+        self.mode = kInsertMode;
+    }
+    void exitFromInsertMode(Vig* self) {
+        self.mode = kEditMode;
+    }
+
     initialize() {
         inherit(self);
 
@@ -144,16 +156,16 @@ impl Vig version 3
 
         self.events.replace('i', lambda(Vig* self, int key) 
         {
-            self.mode = kInsertMode;
+            self.enterInsertMode();
         });
         self.events.replace('a', lambda(Vig* self, int key) 
         {
-            self.mode = kInsertMode;
+            self.enterInsertMode();
             self.active_win.curs_x++;
         });
         self.events.replace('o', lambda(Vig* self, int key) 
         {
-            self.mode = kInsertMode;
+            self.enterInsertMode();
             self.active_win.enterNewLine();
         });
     }

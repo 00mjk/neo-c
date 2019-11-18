@@ -1642,9 +1642,9 @@ label1:
     0
 }
 
+/*
 void unsupported_function()
 {
-/*
     const int const_a = 1;
 
     xassert("local constant int", const_a == 1);
@@ -1677,5 +1677,5 @@ void unsupported_function()
     }
 
     va_list_test2(2, 1, 2);
-*/
 }
+*/

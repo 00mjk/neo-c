@@ -168,40 +168,93 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
 
     if(simple_lambda_param) {
         funcs.clear();
-    }
-    else if(funcs.size() > 0 && fun->mVersion == 0) {
-        sFunction* parent_fun = funcs[funcs.size()-1];
 
-        if(!check_same_params(parent_fun->mNumParams, parent_fun->mParamTypes, num_params, param_types))
+        Type* llvm_result_type;
+
+        if(!create_llvm_type_from_node_type(&llvm_result_type, clone_node_type(result_type), clone_node_type(result_type), info))
         {
-            compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
+            compile_err_msg(info, "Can't llvm type(3)");
+            show_node_type(result_type);
             info->err_num++;
 
             return FALSE;
         }
 
-        if(!type_identify(parent_fun->mResultType, result_type))
-        {
-            compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
-            info->err_num++;
+        std::vector<Type *> llvm_param_types;
 
-            return FALSE;
+        for(i=0; i<num_params; i++) {
+            sNodeType* param_type = param_types[i];
+
+            Type* llvm_param_type;
+            if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, param_type, info))
+            {
+                compile_err_msg(info, "Can't llvm type(4)");
+                show_node_type(param_type);
+                info->err_num++;
+
+                return FALSE;
+            }
+            llvm_param_types.push_back(llvm_param_type);
         }
 
-        Function* llvm_fun = parent_fun->mLLVMFunction;
+        FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
+        *llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
+        fun->mLLVMFunction = *llvm_fun;
 
-        if(llvm_fun) {
-            llvm_fun->eraseFromParent();
-        }
-
-        funcs.clear();
+        funcs.push_back(fun);
     }
-
-    if(funcs.size() > 0) {
-        if(info && !inline_function && !generics_function) {
+    else if(inline_function || generics_function)
+    {
+        if(funcs.size() == 0) {
+            fun->mLLVMFunction = nullptr;
+            funcs.push_back(fun);
+            *llvm_fun = nullptr;
+        }
+    }
+    else if(fun->mVersion == 0) {
+        if(funcs.size() == 0) {
             Type* llvm_result_type;
 
-            if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, result_type, info))
+            if(!create_llvm_type_from_node_type(&llvm_result_type, clone_node_type(result_type), result_type, info))
+            {
+                compile_err_msg(info, "Can't llvm type(1)");
+                show_node_type(result_type);
+                info->err_num++;
+
+                return FALSE;
+            }
+
+            std::vector<Type *> llvm_param_types;
+
+            for(i=0; i<num_params; i++) 
+            {
+                sNodeType* param_type = param_types[i];
+
+                Type* llvm_param_type;
+                if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, param_type, info))
+                {
+                    compile_err_msg(info, "Can't llvm type(2)");
+                    show_node_type(param_type);
+                    info->err_num++;
+
+                    return FALSE;
+                }
+                llvm_param_types.push_back(llvm_param_type);
+            }
+
+            FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
+            *llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
+
+            fun->mLLVMFunction = *llvm_fun;
+
+            funcs.push_back(fun);
+        }
+    }
+    else {
+        if(funcs.size() == 0) {
+            Type* llvm_result_type;
+
+            if(!create_llvm_type_from_node_type(&llvm_result_type, clone_node_type(result_type), result_type, info))
             {
                 compile_err_msg(info, "Can't llvm type(1)");
                 show_node_type(result_type);
@@ -235,64 +288,46 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
             FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
             *llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name2, TheModule);
 
+printf("create fun %s %d %d\n", (*llvm_fun)->getName().data(), version, external);
+
             fun->mLLVMFunction = *llvm_fun;
+            funcs.push_back(fun);
         }
         else {
-            fun->mLLVMFunction = nullptr;
-        }
+            sFunction* parent_fun = funcs[funcs.size()-1];
 
-        sFunction* parent_fun = funcs[funcs.size()-1];
+            if(!check_same_params(parent_fun->mNumParams, parent_fun->mParamTypes, num_params, param_types))
+            {
+                compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
+                info->err_num++;
 
-        if(!check_same_params(parent_fun->mNumParams, parent_fun->mParamTypes, num_params, param_types))
-        {
-            compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
-            info->err_num++;
-
-            return FALSE;
-        }
-
-        if(!type_identify(parent_fun->mResultType, result_type))
-        {
-            compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
-            info->err_num++;
-
-            return FALSE;
-        }
-
-        if(parent_fun->mVersion == version)
-        {
-            Function* llvm_fun = parent_fun->mLLVMFunction;
-
-            if(llvm_fun) {
-                llvm_fun->eraseFromParent();
+                return FALSE;
             }
 
-            funcs.pop_back();
-            funcs.push_back(fun);
-        }
-        else if(parent_fun->mVersion > version)
-        {
-            compile_err_msg(info, "Invalid version number. parent function version is %d, the function version is %d", parent_fun->mVersion, version);
-            info->err_num++;
+            if(!type_identify(parent_fun->mResultType, result_type))
+            {
+                compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
+                info->err_num++;
 
-            return FALSE;
-        }
-        else {
-            funcs.push_back(fun);
-        }
-    }
-    else {
-        if(inline_function || generics_function) 
-        {
-            fun->mLLVMFunction = nullptr;
-        }
-        else {
-            if(info) {
+                return FALSE;
+            }
+
+            if(parent_fun->mVersion == version)
+            {
+            }
+            else if(parent_fun->mVersion > version)
+            {
+                compile_err_msg(info, "Invalid version number. parent function version is %d, the function version is %d", parent_fun->mVersion, version);
+                info->err_num++;
+
+                return FALSE;
+            }
+            else {
                 Type* llvm_result_type;
 
                 if(!create_llvm_type_from_node_type(&llvm_result_type, clone_node_type(result_type), clone_node_type(result_type), info))
                 {
-                    compile_err_msg(info, "Can't llvm type(3)");
+                    compile_err_msg(info, "Can't llvm type(1)");
                     show_node_type(result_type);
                     info->err_num++;
 
@@ -301,35 +336,34 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
 
                 std::vector<Type *> llvm_param_types;
 
-                for(i=0; i<num_params; i++) {
+                for(i=0; i<num_params; i++) 
+                {
                     sNodeType* param_type = param_types[i];
 
                     Type* llvm_param_type;
                     if(!create_llvm_type_from_node_type(&llvm_param_type, param_type, param_type, info))
                     {
-                        compile_err_msg(info, "Can't llvm type(4)");
+                        compile_err_msg(info, "Can't llvm type(2)");
                         show_node_type(param_type);
                         info->err_num++;
 
                         return FALSE;
                     }
+
                     llvm_param_types.push_back(llvm_param_type);
                 }
 
+                char real_fun_name2[REAL_FUN_NAME_MAX];
+
+                snprintf(real_fun_name2, REAL_FUN_NAME_MAX, "%s-%d", real_fun_name, fun->mVersion);
+
                 FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
-                *llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name, TheModule);
+                *llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name2, TheModule);
 
                 fun->mLLVMFunction = *llvm_fun;
-            }
-            else {
-                fun->mLLVMFunction = nullptr;
+                funcs.push_back(fun);
             }
         }
-
-        std::vector<sFunction*> funcs;
-        funcs.push_back(fun);
-
-        gFuncs[real_fun_name] = funcs;
     }
 
     return TRUE;
@@ -807,12 +841,14 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
 
     if(type_identify_with_class_name(fun->mResultType, "void"))
     {
+printf("1 call %s\n", llvm_fun->getName().data());
         Builder.CreateCall(llvm_fun, llvm_params);
 
         info->type = clone_node_type(fun->mResultType);
     }
     else {
         LVALUE llvm_value;
+printf("1 call %s\n", llvm_fun->getName().data());
         llvm_value.value = Builder.CreateCall(llvm_fun, llvm_params);
         llvm_value.type = clone_node_type(fun->mResultType);
         llvm_value.address = nullptr;
@@ -2942,6 +2978,17 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     /// get function ///
     std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
 
+if(strcmp(fun_name, "initialize") == 0)
+{
+printf("%s %d\n", info->sname, info->sline);
+puts(real_fun_name);
+}
+if(strcmp(fun_name, "exitFromInsertMode") == 0)
+{
+printf("%s %d\n", info->sname, info->sline);
+puts(real_fun_name);
+}
+
 
     if(funcs.size() == 0) {
         compile_err_msg(info, "function not found(%s) 2", real_fun_name);
@@ -2983,6 +3030,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         info->generics_type = generics_type_before;
         return TRUE;
     }
+if(fun && fun->mLLVMFunction) printf("%s\n", fun->mLLVMFunction->getName().data());
 
     /// compile parametors ///
     for(i=1; i<num_params2; i++) {
@@ -3765,6 +3813,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         Function* llvm_fun = fun->mLLVMFunction;
 
         if(!info->no_output) {
+printf("call %s\n", llvm_fun->getName().data());
             Builder.CreateCall(llvm_fun, llvm_params);
         }
 
@@ -3808,6 +3857,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             }
 
             LVALUE llvm_value;
+printf("call %s\n", llvm_fun->getName().data());
             llvm_value.value = Builder.CreateCall(llvm_fun, llvm_params);
             llvm_value.type = result_type;
             llvm_value.address = nullptr;
@@ -3974,6 +4024,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
+printf("compile function %s\n", real_fun_name);
     Function* fun;
     if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, FALSE, version, &fun, info, FALSE))
     {
@@ -4074,15 +4125,26 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
         free_right_value_objects(info);
 
+
+if(strcmp(fun_name, "main") == 0)
+{
+show_node_type(result_type);
+}
         // Finish off the function.
         if(type_identify_with_class_name(result_type, "void"))
         {
+puts("aaaa");
+puts(fun_name);
             Value* ret_value = nullptr;
 
             Builder.CreateRet(ret_value);
         }
         else {
+puts("bbbb");
+puts(fun_name);
             LVALUE ret_value = *get_value_from_stack(-1);
+
+ret_value.value->print(llvm::errs(), nullptr);
 
             Builder.CreateRet(ret_value.value);
 
@@ -5142,6 +5204,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     Value* param2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)size);
     params2.push_back(param2);
 
+printf("2 call %s\n", fun->getName().data());
     Value* address = Builder.CreateCall(fun, params2);
 
     node_type2->mPointerNum++;
@@ -6894,12 +6957,14 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
 
     if(type_identify_with_class_name(lambda_type->mResultType, "void"))
     {
+printf("lambdacall %s\n", lambda_value.value->getName().data());
         Builder.CreateCall(lambda_value.value, llvm_params);
 
         info->type = lambda_type->mResultType;
     }
     else {
         LVALUE llvm_value;
+printf("lambdacall %s\n", lambda_value.value->getName().data());
         llvm_value.value = Builder.CreateCall(lambda_value.value, llvm_params);
         llvm_value.type = lambda_type->mResultType;
         llvm_value.address = nullptr;
@@ -8869,6 +8934,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
 
             params2.push_back(param3);
 
+printf("4 fun %s\n", fun->getName().data());
             Builder.CreateCall(fun, params2);
 
             dec_stack_ptr(1, info);
