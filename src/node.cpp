@@ -212,7 +212,10 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
         }
     }
     else if(fun->mVersion == 0) {
-        if(funcs.size() == 0) {
+        if(funcs.size() == 1) {
+            *llvm_fun = funcs[funcs.size()-1]->mLLVMFunction;
+        }
+        else if(funcs.size() == 0) {
             Type* llvm_result_type;
 
             if(!create_llvm_type_from_node_type(&llvm_result_type, clone_node_type(result_type), result_type, info))
@@ -288,8 +291,6 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
             FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
             *llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name2, TheModule);
 
-printf("create fun %s %d %d\n", (*llvm_fun)->getName().data(), version, external);
-
             fun->mLLVMFunction = *llvm_fun;
             funcs.push_back(fun);
         }
@@ -314,6 +315,7 @@ printf("create fun %s %d %d\n", (*llvm_fun)->getName().data(), version, external
 
             if(parent_fun->mVersion == version)
             {
+                *llvm_fun = funcs[funcs.size()-1]->mLLVMFunction;
             }
             else if(parent_fun->mVersion > version)
             {
@@ -841,14 +843,12 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
 
     if(type_identify_with_class_name(fun->mResultType, "void"))
     {
-printf("1 call %s\n", llvm_fun->getName().data());
         Builder.CreateCall(llvm_fun, llvm_params);
 
         info->type = clone_node_type(fun->mResultType);
     }
     else {
         LVALUE llvm_value;
-printf("1 call %s\n", llvm_fun->getName().data());
         llvm_value.value = Builder.CreateCall(llvm_fun, llvm_params);
         llvm_value.type = clone_node_type(fun->mResultType);
         llvm_value.address = nullptr;
@@ -2978,18 +2978,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     /// get function ///
     std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
 
-if(strcmp(fun_name, "initialize") == 0)
-{
-printf("%s %d\n", info->sname, info->sline);
-puts(real_fun_name);
-}
-if(strcmp(fun_name, "exitFromInsertMode") == 0)
-{
-printf("%s %d\n", info->sname, info->sline);
-puts(real_fun_name);
-}
-
-
     if(funcs.size() == 0) {
         compile_err_msg(info, "function not found(%s) 2", real_fun_name);
         return FALSE;
@@ -3030,7 +3018,6 @@ puts(real_fun_name);
         info->generics_type = generics_type_before;
         return TRUE;
     }
-if(fun && fun->mLLVMFunction) printf("%s\n", fun->mLLVMFunction->getName().data());
 
     /// compile parametors ///
     for(i=1; i<num_params2; i++) {
@@ -3813,7 +3800,6 @@ if(fun && fun->mLLVMFunction) printf("%s\n", fun->mLLVMFunction->getName().data(
         Function* llvm_fun = fun->mLLVMFunction;
 
         if(!info->no_output) {
-printf("call %s\n", llvm_fun->getName().data());
             Builder.CreateCall(llvm_fun, llvm_params);
         }
 
@@ -3857,7 +3843,6 @@ printf("call %s\n", llvm_fun->getName().data());
             }
 
             LVALUE llvm_value;
-printf("call %s\n", llvm_fun->getName().data());
             llvm_value.value = Builder.CreateCall(llvm_fun, llvm_params);
             llvm_value.type = result_type;
             llvm_value.address = nullptr;
@@ -4024,7 +4009,6 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
-printf("compile function %s\n", real_fun_name);
     Function* fun;
     if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, FALSE, version, &fun, info, FALSE))
     {
@@ -4125,26 +4109,15 @@ printf("compile function %s\n", real_fun_name);
 
         free_right_value_objects(info);
 
-
-if(strcmp(fun_name, "main") == 0)
-{
-show_node_type(result_type);
-}
         // Finish off the function.
         if(type_identify_with_class_name(result_type, "void"))
         {
-puts("aaaa");
-puts(fun_name);
             Value* ret_value = nullptr;
 
             Builder.CreateRet(ret_value);
         }
         else {
-puts("bbbb");
-puts(fun_name);
             LVALUE ret_value = *get_value_from_stack(-1);
-
-ret_value.value->print(llvm::errs(), nullptr);
 
             Builder.CreateRet(ret_value.value);
 
@@ -5204,7 +5177,6 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     Value* param2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)size);
     params2.push_back(param2);
 
-printf("2 call %s\n", fun->getName().data());
     Value* address = Builder.CreateCall(fun, params2);
 
     node_type2->mPointerNum++;
@@ -6957,14 +6929,12 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
 
     if(type_identify_with_class_name(lambda_type->mResultType, "void"))
     {
-printf("lambdacall %s\n", lambda_value.value->getName().data());
         Builder.CreateCall(lambda_value.value, llvm_params);
 
         info->type = lambda_type->mResultType;
     }
     else {
         LVALUE llvm_value;
-printf("lambdacall %s\n", lambda_value.value->getName().data());
         llvm_value.value = Builder.CreateCall(lambda_value.value, llvm_params);
         llvm_value.type = lambda_type->mResultType;
         llvm_value.address = nullptr;
@@ -8934,7 +8904,6 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
 
             params2.push_back(param3);
 
-printf("4 fun %s\n", fun->getName().data());
             Builder.CreateCall(fun, params2);
 
             dec_stack_ptr(1, info);

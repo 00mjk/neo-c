@@ -5229,6 +5229,8 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
     *node = sNodeTree_create_impl(nodes, num_nodes, info);
 
+    info->mImplVersion = 0;
+
     return TRUE;
 }
 
