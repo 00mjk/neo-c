@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <locale.h>
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -21,6 +22,8 @@
 int main() 
 {
     wchar_t aaa[128];
+
+    setlocale(LC_ALL, "");
 
     mbstowcs(aaa, "あいうえお", 128);
 
