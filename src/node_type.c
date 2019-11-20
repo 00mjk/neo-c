@@ -708,9 +708,6 @@ BOOL get_type_of_method_generics(sNodeType* method_generics_types[GENERICS_TYPES
             }
         }
     }
-    else {
-        return FALSE;
-    }
 
     if(type_identify_with_class_name(fun_param_type, "lambda") 
         && type_identify_with_class_name(param_type, "lambda"))

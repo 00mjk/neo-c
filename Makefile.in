@@ -147,8 +147,7 @@ vig/Makefile: vig/Makefile.in
 uninstall:
 	rm -f "$(DESTDIR)"/bin/neo-c
 	rm -f "$(DESTDIR)"/bin/c-neo-c
-	rm -f "$(DESTDIR)"/share/doc/neo-c/*
-	rmdir "$(DESTDIR)"/share/doc/neo-c
+	rm -rf "$(DESTDIR)"/share/doc/neo-c/
 	rm -f "$(DESTDIR)"/include/neo-c.h
 	rm -f "$(DESTDIR)"/share/man/man1/neo-c.1.gz
 	rm -f "$(DESTDIR)/lib/memalloc-stdc.o"

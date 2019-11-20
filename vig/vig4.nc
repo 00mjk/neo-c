@@ -4,8 +4,9 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <wctype.h>
+#include <ctype.h>
 
-#include "vig3.h"
+#include "vig.h"
 
 impl VigWin version 4
 {
@@ -39,6 +40,29 @@ impl VigWin version 4
             }
 
             self.curs_x = 0;
+        }
+        else if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+        {
+            while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+            {
+                p++;
+                self.curs_x++;
+
+                if(self.curs_x >= line.length())
+                {
+                    self.curs_y++;
+
+                    if(self.curs_y >= self.texts.length())
+                    {
+                        self.curs_y--;
+                        break;
+                    }
+
+                    line = self.texts.item(self.curs_y, wstring(""));
+                    p = line;
+                    self.curs_x = 0;
+                }
+            }
         }
         else if(iswalpha(*p)) {
             while(iswalpha(*p)) {
@@ -137,6 +161,38 @@ impl VigWin version 4
 
             if(self.curs_x < 0) {
                 self.curs_x = 0;
+            }
+        }
+        else if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+        {
+            while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+            {
+                p--;
+                self.curs_x--;
+
+                if(self.curs_x < 0)
+                {
+                    self.curs_x = 0;
+                    self.curs_y--;
+
+                    if(self.curs_y < 0)
+                    {
+                        self.curs_y++;
+                        break;
+                    }
+
+                    line = self.texts.item(self.curs_y, wstring(""));
+
+                    if(wcslen(line) == 0)
+                    {
+                        p = line;
+                        self.curs_x = 0;
+                    }
+                    else {
+                        self.curs_x = wcslen(line) -1;
+                        p = line + self.curs_x;
+                    }
+                }
             }
         }
         else if(iswalpha(*p)) {

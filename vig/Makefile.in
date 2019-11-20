@@ -29,11 +29,11 @@ DESTDIR=@DESTDIR@
 ##########################################
 all: vig
 
-vig: config.h main.nc vig.o vig2.o vig3.o vig4.o vig5.o
-	neo-c -o vig main.nc vig.o vig2.o vig3.o vig4.o vig5.o $(CFLAGS) $(LIBS)
+vig: config.h vig.nc vig1.o vig2.o vig3.o vig4.o vig5.o vig.h
+	neo-c -o vig vig.nc vig1.o vig2.o vig3.o vig4.o vig5.o $(CFLAGS) $(LIBS)
 
-vig.o: config.h vig.nc
-	neo-c -c vig.nc $(CFLAGS) $(LIBS)
+vig1.o: config.h vig1.nc
+	neo-c -c vig1.nc $(CFLAGS) $(LIBS)
 
 vig2.o: config.h vig2.nc vig.h
 	neo-c -c vig2.nc $(CFLAGS) $(LIBS)

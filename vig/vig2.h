@@ -1,4 +1,3 @@
-#include "vig.h"
 
 struct VigWin version 2 
 {

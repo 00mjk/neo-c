@@ -97,7 +97,7 @@ void compile_err_msg(sCompileInfo* info, const char* msg, ...)
     output_num++;
 }
 
-static BOOL check_same_params(int num_params, sNodeType** param_types, int num_params2, sNodeType** param_types2)
+static BOOL check_same_params(int num_params, sNodeType** param_types, int num_params2, sNodeType** param_types2, sCompileInfo* info)
 {
     if(num_params != num_params2) {
         return FALSE;
@@ -106,6 +106,9 @@ static BOOL check_same_params(int num_params, sNodeType** param_types, int num_p
     for(i=0; i<num_params; i++) {
         if(!type_identify(param_types[i], param_types2[i]))
         {
+            compile_err_msg(info, "Invalid Function parametor error(%d)", i);
+            show_node_type(param_types[i]);
+            show_node_type(param_types2[i]);
             return FALSE;
         }
     }
@@ -211,6 +214,7 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
             *llvm_fun = nullptr;
         }
     }
+/*
     else if(fun->mVersion == 0) {
         if(funcs.size() == 1) {
             *llvm_fun = funcs[funcs.size()-1]->mLLVMFunction;
@@ -253,6 +257,7 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
             funcs.push_back(fun);
         }
     }
+*/
     else {
         if(funcs.size() == 0) {
             Type* llvm_result_type;
@@ -285,8 +290,12 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
             }
 
             char real_fun_name2[REAL_FUN_NAME_MAX];
-
-            snprintf(real_fun_name2, REAL_FUN_NAME_MAX, "%s-%d", real_fun_name, fun->mVersion);
+            if(fun->mVersion == 0) {
+                snprintf(real_fun_name2, REAL_FUN_NAME_MAX, "%s", real_fun_name);
+            }
+            else {
+                snprintf(real_fun_name2, REAL_FUN_NAME_MAX, "%s-%d", real_fun_name, fun->mVersion);
+            }
 
             FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
             *llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name2, TheModule);
@@ -295,36 +304,66 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
             funcs.push_back(fun);
         }
         else {
-            sFunction* parent_fun = funcs[funcs.size()-1];
-
-            if(!check_same_params(parent_fun->mNumParams, parent_fun->mParamTypes, num_params, param_types))
+            /// check type of function ///
+            int i;
+            for(i=0; i<funcs.size(); i++)
             {
-                compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
-                info->err_num++;
+                sFunction* it = funcs[i];
 
-                return FALSE;
+                if(!check_same_params(it->mNumParams, it->mParamTypes, num_params, param_types, info))
+                {
+                    compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
+                    info->err_num++;
+
+                    return FALSE;
+                }
+
+                if(!type_identify(it->mResultType, result_type))
+                {
+                    compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
+                    info->err_num++;
+
+                    return FALSE;
+                }
             }
 
-            if(!type_identify(parent_fun->mResultType, result_type))
+            BOOL function_found = FALSE;
+            for(i=0; i<funcs.size(); i++)
             {
-                compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
-                info->err_num++;
+                sFunction* it = funcs[i];
 
-                return FALSE;
+                if(it->mVersion == version) {
+                    *llvm_fun = it->mLLVMFunction;
+
+                    function_found =TRUE;
+                }
             }
 
-            if(parent_fun->mVersion == version)
-            {
-                *llvm_fun = funcs[funcs.size()-1]->mLLVMFunction;
-            }
-            else if(parent_fun->mVersion > version)
-            {
-                compile_err_msg(info, "Invalid version number. parent function version is %d, the function version is %d", parent_fun->mVersion, version);
-                info->err_num++;
+            if(!function_found) {
+/*
+                int max_version = 0;
+                int i;
+                for(i=0; i<funcs.size(); i++)
+                {
+                    sFunction* it = funcs[i];
 
-                return FALSE;
-            }
-            else {
+                    if(!it->mExternal) {
+                        if(max_version < it->mVersion)
+                        {
+                            max_version = it->mVersion;
+                        }
+                    }
+                }
+
+                if(max_version > version)
+                {
+                    compile_err_msg(info, "Invalid version number. parent function version is %d, the function version is %d", max_version, version);
+                    info->err_num++;
+
+                    return FALSE;
+                }
+*/
+
                 Type* llvm_result_type;
 
                 if(!create_llvm_type_from_node_type(&llvm_result_type, clone_node_type(result_type), clone_node_type(result_type), info))
@@ -356,8 +395,13 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
                 }
 
                 char real_fun_name2[REAL_FUN_NAME_MAX];
-
-                snprintf(real_fun_name2, REAL_FUN_NAME_MAX, "%s-%d", real_fun_name, fun->mVersion);
+                if(fun->mVersion == 0) 
+                {
+                    snprintf(real_fun_name2, REAL_FUN_NAME_MAX, "%s", real_fun_name);
+                }
+                else {
+                    snprintf(real_fun_name2, REAL_FUN_NAME_MAX, "%s-%d", real_fun_name, fun->mVersion);
+                }
 
                 FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
                 *llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name2, TheModule);
@@ -2991,12 +3035,10 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         for(i=0; i<funcs.size(); i++) {
             sFunction* fun = funcs[i];
 
-            if(fun->mVersion >= version) 
+            if(fun->mVersion < version) 
             {
-                break;
+                fun_before = fun;
             }
-
-            fun_before = fun;
         }
         
         if(fun_before == nullptr) {
@@ -3094,7 +3136,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 if(fun_param_type && param_type) {
                     if(!get_type_of_method_generics(method_generics_types, fun_param_type, param_type))
                     {
-                        compile_err_msg(info, "method generics getting type error");
+                        compile_err_msg(info, "method generics getting type error(%s)", fun_name);
                         info->err_num++;
 
                         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3137,7 +3179,9 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 if(fun_param_type && param_type) {
                     if(!get_type_of_method_generics(method_generics_types, fun_param_type, param_type))
                     {
-                        compile_err_msg(info, "method generics getting type error");
+                        compile_err_msg(info, "method generics getting type error(%s)", fun_name);
+                        show_node_type(fun_param_type);
+                        show_node_type(param_type);
                         info->err_num++;
 
                         info->type = create_node_type_with_class_name("int"); // dummy
@@ -7551,7 +7595,9 @@ BOOL compile_cast(unsigned int node, sCompileInfo* info)
     LVALUE lvalue = *get_value_from_stack(-1);
     dec_stack_ptr(1, info);
 
+/*
     if(cast_posibility(left_type, right_type)) {
+*/
         if(!cast_right_type_to_left_type(right_type, &left_type, &lvalue, info))
         {
             compile_err_msg(info, "Cast failed");
@@ -7561,7 +7607,7 @@ BOOL compile_cast(unsigned int node, sCompileInfo* info)
 
             return TRUE;
         }
-    }
+//    }
 
     push_value_to_stack_ptr(&lvalue, info);
 

@@ -1,36 +1,13 @@
 
-int xgetmaxx();
-int xgetmaxy();
+#include <stdio.h>
+#include <stdlib.h>
+#include <ncurses.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
-struct VigWin 
-{
-    WINDOW* win;
-    list<wstring>*% texts;
-    int y;
-    int x;
-    int width;
-    int height;
-};
-
-struct Vig 
-{
-    vector<VigWin*%>*% wins;
-    VigWin* active_win;
-};
-
-impl VigWin 
-{
-    initialize(int y, int x, int width, int height);
-    finalize();
-    void view(VigWin* self, Vig* vig);
-    void input(VigWin* self, Vig* vig);
-}
-
-impl Vig 
-{
-    void init_curses(Vig* self);
-    initialize();
-    finalize();
-    int main_loop(Vig* self);
-}
+#include "vig1.h"
+#include "vig2.h"
+#include "vig3.h"
+#include "vig4.h"
+#include "vig5.h"
 

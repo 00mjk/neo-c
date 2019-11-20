@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "vig2.h"
+#include "vig.h"
 
 impl Vig version 3 
 {
@@ -16,6 +16,10 @@ enum eMode { kEditMode, kInsertMode };
 
 impl VigWin version 3 
 {
+    initialize(int y, int x, int width, int height) 
+    {
+        inherit(self, y, x, width, height);
+    }
     void insertModeView(VigWin* self, Vig* vig)
     {
         werase(self.win);
@@ -134,11 +138,6 @@ impl VigWin version 3
         }
     }
 }
-
-struct Vig version 3 
-{
-    int mode;
-};
 
 impl Vig version 3 
 {

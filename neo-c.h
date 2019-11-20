@@ -445,6 +445,52 @@ impl list <T>
         self.len++;
     }
 
+    T pop_back(list<T>* self, T default_value)
+    {
+        if(self.len == 0) {
+            return default_value;
+        }
+        else if(self.len == 1) {
+            T result = (T)self.head.item;
+
+            delete self.head;
+
+            self.head = null;
+            self.tail = null;
+
+            self.len--;
+
+            return result;
+        }
+        else if(self.len == 2) {
+            T result = (T)self.tail.item;
+
+            delete self.tail;
+
+            self.tail = self.head;
+            self.head.next = null;
+            self.head.prev = null;
+
+            self.len--;
+
+            return result;
+        }
+        else {
+            T result = (T)self.tail.item;
+
+            list_item<T>* it = self.tail;
+
+            self.tail = self.tail.prev;
+            self.tail.next = null;
+
+            delete it;
+
+            self.len--;
+
+            return result;
+        }
+    }
+
     void insert(list<T>* self, int position, T item)
     {
         if(position < 0) {

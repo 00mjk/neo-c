@@ -11,7 +11,7 @@ BUFFER_H	src/buffer.h	2;"	d
 CC	Makefile	/^CC=clang$/;"	m
 CC	vig/Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
-CFLAGS	vig/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
+CFLAGS	vig/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
 CLASS_FLAGS_ANONYMOUS	src/common.h	85;"	d
 CLASS_FLAGS_ANONYMOUS_VAR_NAME	src/common.h	87;"	d
 CLASS_FLAGS_ENUM	src/common.h	86;"	d
@@ -31,7 +31,7 @@ CONS_str	src/common.h	61;"	d
 CXX	Makefile	/^CXX=clang++-7$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . -I src -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
-DESTDIR	vig/Makefile	/^DESTDIR=\/usr\/local$/;"	m
+DESTDIR	vig/Makefile	/^DESTDIR=\/home\/ab25cq$/;"	m
 ELIF_NUM_MAX	src/common.h	29;"	d
 EXTERNAL_OBJECT_MAX	src/common.h	34;"	d
 FALSE	src/xfunc.h	9;"	d
@@ -59,8 +59,8 @@ LVALUE	src/llvm_common.hpp	/^typedef struct LVALUEStruct LVALUE;$/;"	t	typeref:s
 LVALUEStruct	src/llvm_common.hpp	/^struct LVALUEStruct {$/;"	s
 MACRO_MAX	src/common.h	38;"	d
 MANAGED	src/xfunc.h	5;"	d
-MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	845;"	d
-MAP_TABLE_DEFAULT_SIZE	neo-c.h	845;"	d
+MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	891;"	d
+MAP_TABLE_DEFAULT_SIZE	neo-c.h	891;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
@@ -97,11 +97,13 @@ TheFPM	src/llvm.cpp	/^std::unique_ptr<FunctionPassManager> TheFPM;$/;"	v
 TheLabels	src/llvm.cpp	/^std::map<std::string, BasicBlock*> TheLabels;$/;"	v
 TheModule	src/llvm.cpp	/^Module* TheModule;$/;"	v
 VAR_NAME_MAX	src/common.h	20;"	d
-Vig	vig/vig.h	/^struct Vig $/;"	s
-VigWin	vig/vig.h	/^struct VigWin $/;"	s
+Vig	vig/vig1.h	/^struct Vig $/;"	s
+VigWin	vig/vig1.h	/^struct VigWin $/;"	s
 XFUNC_H	src/xfunc.h	2;"	d
+_GNU_SOURCE	a.c	7;"	d	file:
 _GNU_SOURCE	code/neo-c.h	4;"	d
 _GNU_SOURCE	neo-c.h	4;"	d
+_USE_MISC	a.c	14;"	d	file:
 _USE_MISC	code/neo-c.h	11;"	d
 _USE_MISC	neo-c.h	11;"	d
 __64BIT_CPU__	config.h	18;"	d
@@ -112,8 +114,10 @@ __STDC_CONSTANT_MACROS	code/neo-c.h	26;"	d
 __STDC_CONSTANT_MACROS	neo-c.h	26;"	d
 __STDC_LIMIT_MACROS	code/neo-c.h	25;"	d
 __STDC_LIMIT_MACROS	neo-c.h	25;"	d
+__USE_BSD	a.c	17;"	d	file:
 __USE_BSD	code/neo-c.h	14;"	d
 __USE_BSD	neo-c.h	14;"	d
+__USE_XOPEN	a.c	11;"	d	file:
 __USE_XOPEN	code/neo-c.h	8;"	d
 __USE_XOPEN	neo-c.h	8;"	d
 __sbrk	src/sbrk.c	/^void * __sbrk (intptr_t increment)$/;"	f
@@ -132,7 +136,7 @@ ac_fn_c_try_link	configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_link	vig/configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_run	configure	/^ac_fn_c_try_run ()$/;"	f
 ac_fn_c_try_run	vig/configure	/^ac_fn_c_try_run ()$/;"	f
-active_win	vig/vig.h	/^    VigWin* active_win;$/;"	m	struct:Vig
+active_win	vig/vig1.h	/^    VigWin* active_win;$/;"	m	struct:Vig
 add_fields_to_struct	src/klass.c	/^void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
 add_fields_to_union	src/klass.c	/^void add_fields_to_union(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
 add_function	src/node.cpp	/^BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param)$/;"	f
@@ -221,7 +225,7 @@ cast_posibility	src/node_type.c	/^BOOL cast_posibility(sNodeType* left_type, sNo
 cast_right_type_to_left_type	src/llvm.cpp	/^BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info)$/;"	f
 change_sline	src/common.h	/^    BOOL change_sline;$/;"	m	struct:sParserInfoStruct
 check_already_added_variable	src/vtable.c	/^void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info)$/;"	f
-check_same_params	src/node.cpp	/^static BOOL check_same_params(int num_params, sNodeType** param_types, int num_params2, sNodeType** param_types2)$/;"	f	file:
+check_same_params	src/node.cpp	/^static BOOL check_same_params(int num_params, sNodeType** param_types, int num_params2, sNodeType** param_types2, sCompileInfo* info)$/;"	f	file:
 check_the_same_fields	src/node_type.c	/^BOOL check_the_same_fields(sNodeType* left_node, sNodeType* right_node)$/;"	f
 class_final	src/klass.c	/^void class_final()$/;"	f
 class_init	src/klass.c	/^void class_init()$/;"	f
@@ -493,7 +497,7 @@ head	code/neo-c.h	/^    list_item<T>*? head;$/;"	m	struct:list
 head	neo-c.h	/^    list_item<T>*? head;$/;"	m	struct:list
 head	src/memalloc.c	/^struct header_t *head = NULL, *tail = NULL;$/;"	v	typeref:struct:header_t
 header_t	src/memalloc.c	/^struct header_t {$/;"	s	file:
-height	vig/vig.h	/^    int height;$/;"	m	struct:VigWin
+height	vig/vig1.h	/^    int height;$/;"	m	struct:VigWin
 in_clang	src/common.h	/^    BOOL in_clang;$/;"	m	struct:sParserInfoStruct
 included_generics_type	src/node_type.c	/^BOOL included_generics_type(sNodeType* node_type)$/;"	f
 includedir	Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
@@ -1016,9 +1020,11 @@ parser_err_msg	src/parser.c	/^void parser_err_msg(sParserInfo* info, const char*
 parser_final	src/parser.c	/^void parser_final()$/;"	f
 parser_init	src/parser.c	/^void parser_init()$/;"	f
 pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sParserInfoStruct
+pop_back	code/neo-c.h	/^    T pop_back(list<T>* self, T default_value)$/;"	f	struct:list
+pop_back	neo-c.h	/^    T pop_back(list<T>* self, T default_value)$/;"	f	struct:list
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sParserInfo* info)$/;"	f	file:
 prefix	Makefile	/^prefix=\/usr\/local$/;"	m
-prefix	vig/Makefile	/^prefix=\/usr\/local exec_prefix=${prefix}$/;"	m
+prefix	vig/Makefile	/^prefix=\/home\/ab25cq exec_prefix=${prefix}$/;"	m
 preprocess_source	src/preprocessor.c	/^static BOOL preprocess_source(char* sname, char* output_sname)$/;"	f	file:
 preprocessor	src/preprocessor.c	/^static BOOL preprocessor(sBuf* source, sBuf* source2)$/;"	f	file:
 preprocessor_final	src/preprocessor.c	/^static void preprocessor_final()$/;"	f	file:
@@ -1278,7 +1284,7 @@ sysconfdir	vig/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
 tail	code/neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
 tail	neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
 tail	src/memalloc.c	/^struct header_t *head = NULL, *tail = NULL;$/;"	v	typeref:struct:
-texts	vig/vig.h	/^    list<wstring>*% texts;$/;"	m	struct:VigWin
+texts	vig/vig1.h	/^    list<wstring>*% texts;$/;"	m	struct:VigWin
 tuple	code/neo-c.h	/^ruby_macro tuple {$/;"	s
 tuple	neo-c.h	/^ruby_macro tuple {$/;"	s
 tuple1	code/neo-c.h	/^impl tuple1 <T>$/;"	s
@@ -1302,6 +1308,7 @@ type	src/llvm_common.hpp	/^    sNodeType* type;$/;"	m	struct:LVALUEStruct
 type_identify	src/node_type.c	/^BOOL type_identify(sNodeType* left, sNodeType* right)$/;"	f
 type_identify_with_class_name	src/node_type.c	/^BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
 uValue	src/common.h	/^    } uValue;$/;"	m	struct:sNodeTreeStruct	typeref:union:sNodeTreeStruct::__anon1
+undo	vig/vig5.h	/^    vector<list<wstring>*%>*% undo;$/;"	m	struct:version
 v1	code/neo-c.h	/^    T v1;$/;"	m	struct:tuple1
 v1	code/neo-c.h	/^    T v1;$/;"	m	struct:tuple2
 v1	code/neo-c.h	/^    T v1;$/;"	m	struct:tuple3
@@ -1332,13 +1339,14 @@ version	vig/vig2.h	/^impl Vig version 2 $/;"	s
 version	vig/vig2.h	/^struct Vig version 2 $/;"	s
 version	vig/vig2.h	/^struct VigWin version 2 $/;"	s
 version	vig/vig3.h	/^struct Vig version 3 $/;"	s
-width	vig/vig.h	/^    int width;$/;"	m	struct:VigWin
-win	vig/vig.h	/^    WINDOW* win;$/;"	m	struct:VigWin
-wins	vig/vig.h	/^    vector<VigWin*%>*% wins;$/;"	m	struct:Vig
+version	vig/vig5.h	/^struct VigWin version 5$/;"	s
+width	vig/vig1.h	/^    int width;$/;"	m	struct:VigWin
+win	vig/vig1.h	/^    WINDOW* win;$/;"	m	struct:VigWin
+wins	vig/vig1.h	/^    vector<VigWin*%>*% wins;$/;"	m	struct:Vig
 write_to_automatically_header	src/parser.c	/^static BOOL write_to_automatically_header(sBuf* buf)$/;"	f	file:
 wstring	code/neo-c.h	/^typedef wchar_t*% wstring;$/;"	t
 wstring	neo-c.h	/^typedef wchar_t*% wstring;$/;"	t
-x	vig/vig.h	/^    int x;$/;"	m	struct:VigWin
+x	vig/vig1.h	/^    int x;$/;"	m	struct:VigWin
 xasprintf	src/memalloc-stdc.c	/^void *xasprintf(char* msg, ...)$/;"	f
 xcalloc	src/memalloc-stdc.c	/^void *xcalloc(size_t num, size_t nsize)$/;"	f
 xcalloc	src/memalloc.c	/^void *xcalloc(size_t num, size_t nsize)$/;"	f
@@ -1358,4 +1366,4 @@ xrealloc	src/xfunc.c	/^ALLOC void* xrealloc(void* ptr, size_t size)$/;"	f
 xstrdup	src/xfunc.c	/^ALLOC char* xstrdup(char* str)$/;"	f
 xstrncat	src/xfunc.c	/^char* xstrncat(char* des, char* str, int size)$/;"	f
 xstrncpy	src/xfunc.c	/^char* xstrncpy(char* des, char* src, int size)$/;"	f
-y	vig/vig.h	/^    int y;$/;"	m	struct:VigWin
+y	vig/vig1.h	/^    int y;$/;"	m	struct:VigWin

@@ -23,6 +23,39 @@ int main()
 
     method_generics_test(wstr);
 
+    var li = list!(string("aaa"), string("bbb"), string("ccc"));
+
+    var item = li.pop_back(null);
+
+    printf("item %s\n", class_name(item));
+
+    xassert("list test", item.equals("ccc"));
+
+    li.each {
+        printf("%s\n", it);
+    }
+
+    var item2 = li.pop_back(null);
+
+    printf("item2 %s\n", class_name(item2));
+
+    xassert("list test", item2.equals("bbb"));
+
+    li.each {
+        printf("%s\n", it);
+    }
+
+    var item3 = li.pop_back(null);
+
+    printf("item3 %s\n", class_name(item3));
+
+    xassert("list test", item3.equals("aaa"));
+
+    li.each {
+        printf("%s\n", it);
+    }
+
+
     0
 }
 
