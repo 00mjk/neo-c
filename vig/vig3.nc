@@ -7,19 +7,10 @@
 
 #include "vig.h"
 
-impl Vig version 3 
-{
-    extern void exitFromInsertMode(Vig* self);
-}
-
 enum eMode { kEditMode, kInsertMode };
 
 impl VigWin version 3 
 {
-    initialize(int y, int x, int width, int height) 
-    {
-        inherit(self, y, x, width, height);
-    }
     void insertModeView(VigWin* self, Vig* vig)
     {
         werase(self.win);

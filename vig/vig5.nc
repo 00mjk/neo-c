@@ -15,10 +15,9 @@ impl VigWin version 5
         self.undo = new vector<list<wstring>*%>;
     }
 
-    void pushUndo(VigWin* self) {
-    }
-
     void undo(VigWin* self) {
+    }
+    void pushUndo(VigWin* self) {
     }
 }
 
@@ -35,5 +34,8 @@ impl Vig version 5
     void enterInsertMode(Vig* self) {
         inherit(self);
         self.active_win.pushUndo();
+    }
+    void exitFromInsertMode(Vig* self) {
+        inherit(self);
     }
 }

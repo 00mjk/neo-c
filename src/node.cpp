@@ -106,7 +106,7 @@ static BOOL check_same_params(int num_params, sNodeType** param_types, int num_p
     for(i=0; i<num_params; i++) {
         if(!type_identify(param_types[i], param_types2[i]))
         {
-            compile_err_msg(info, "Invalid Function parametor error(%d)", i);
+            compile_err_msg(info, "Invalid Function parametor error(parametor number is %d)", i);
             show_node_type(param_types[i]);
             show_node_type(param_types2[i]);
             return FALSE;
@@ -312,7 +312,7 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
 
                 if(!check_same_params(it->mNumParams, it->mParamTypes, num_params, param_types, info))
                 {
-                    compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
+                    compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration. (function name is %s. version is %d)", name, it->mVersion);
                     info->err_num++;
 
                     return FALSE;
@@ -3031,13 +3031,15 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
     if(inherit) {
         sFunction* fun_before = nullptr;
+        int max_version = -1;
         int i;
         for(i=0; i<funcs.size(); i++) {
             sFunction* fun = funcs[i];
 
-            if(fun->mVersion < version) 
+            if(fun->mVersion < version && fun->mVersion > max_version) 
             {
                 fun_before = fun;
+                max_version = fun->mVersion;
             }
         }
         

@@ -15,6 +15,8 @@ impl VigWin version 2
     void backward(VigWin* self);
     void prevLine(VigWin* self);
     void nextLine(VigWin* self);
+    void moveAtHead(VigWin* self);
+    void moveAtTail(VigWin* self);
 }
 
 struct Vig version 2 
