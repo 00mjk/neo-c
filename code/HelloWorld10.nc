@@ -55,6 +55,17 @@ int main()
         printf("%s\n", it);
     }
 
+    var li2 = new list<wstring>.initialize();
+
+    li2.push_back(wstring("aaa"));
+    li2.push_back(wstring("bbb"));
+    li2.push_back(wstring("ccc"));
+
+    var li3 = new list<list<wstring>*%>.initialize();
+
+    li3.push_back(clone li2);
+    li3.push_back(clone li2);
+    li3.push_back(clone li2);
 
     0
 }

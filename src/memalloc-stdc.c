@@ -12,7 +12,9 @@ void xfree(void *block)
 {
 #ifdef MDEBUG
     if(block) gNumMemAlloc--;
-    printf("\nruntime free %p %d max %d\n", block, gNumMemAlloc, gMaxMemAlloc);
+    FILE* f = fopen("memleack_debug.txt", "a");
+    fprintf(f, "\nruntime free %p %d max %d\n", block, gNumMemAlloc, gMaxMemAlloc);
+    fclose(f);
 #endif
     free(block);
 }
@@ -20,10 +22,24 @@ void xfree(void *block)
 void *xmalloc(size_t size)
 {
     void* result = malloc(size);
+
+    if(result == NULL) {
+#ifdef MDEBUG
+        FILE* f = fopen("memleack_debug.txt", "a");
+        fprintf(f, "can't get heap memory\n");
+        fclose(f);
+#else
+        fprintf(stderr, "can't get heap memory\n");
+#endif
+        exit(2);
+    }
+
 #ifdef MDEBUG
     gNumMemAlloc++;
     if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
-    printf("\nruntime alloc %p %d\n", result, gNumMemAlloc);
+    FILE* f = fopen("memleack_debug.txt", "a");
+    fprintf(f, "\nruntime alloc %p %d\n", result, gNumMemAlloc);
+    fclose(f);
 #endif
     return result;
 }
@@ -32,12 +48,25 @@ void *xcalloc(size_t num, size_t nsize)
 {
     void* result = calloc(num, nsize);
 
+    if(result == NULL) {
+#ifdef MDEBUG
+        FILE* f = fopen("memleack_debug.txt", "a");
+        fprintf(f, "can't get heap memory\n");
+        fclose(f);
+#else
+        fprintf(stderr, "can't get heap memory\n");
+#endif
+        exit(2);
+    }
+
     memset(result, 0, num*nsize);
 
 #ifdef MDEBUG
     gNumMemAlloc++;
     if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
-    printf("runtime calloc %p %d\n", result, gNumMemAlloc);
+    FILE* f = fopen("memleack_debug.txt", "a");
+    fprintf(f, "runtime calloc %p %d\n", result, gNumMemAlloc);
+    fclose(f);
 #endif
 
     return result;
@@ -45,7 +74,20 @@ void *xcalloc(size_t num, size_t nsize)
 
 void *xrealloc(void *block, size_t size)
 {
-    return realloc(block, size);
+    void* result =  realloc(block, size);
+
+    if(result == NULL) {
+#ifdef MDEBUG
+        FILE* f = fopen("memleack_debug.txt", "a");
+        fprintf(f, "can't get heap memory\n");
+        fclose(f);
+#else
+        fprintf(stderr, "can't get heap memory\n");
+#endif
+        exit(2);
+    }
+
+    return result;
 }
 
 void *xasprintf(char* msg, ...)
@@ -59,8 +101,22 @@ if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
     char* tmp;
     int len = vasprintf(&tmp, msg, args);
     va_end(args);
+
+    if(len < 0) {
 #ifdef MDEBUG
-    printf("runtime asprintf %p %d\n", tmp, gNumMemAlloc);
+        FILE* f = fopen("memleack_debug.txt", "a");
+        fprintf(f, "can't get heap memory\n");
+        fclose(f);
+#else
+        fprintf(stderr, "can't get heap memory\n");
+#endif
+        exit(2);
+    }
+
+#ifdef MDEBUG
+    FILE* f = fopen("memleack_debug.txt", "a");
+    fprintf(f, "runtime asprintf %p %d\n", tmp, gNumMemAlloc);
+    fclose(f);
 #endif
 
     return tmp;

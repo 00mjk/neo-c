@@ -12,12 +12,13 @@ impl VigWin version 5
     initialize(int y, int x, int width, int height) 
     {
         inherit(self, y, x, width, height);
-        self.undo = new vector<list<wstring>*%>;
+        self.undo = new vector<list<wstring>*%>.initialize();
     }
 
     void undo(VigWin* self) {
     }
     void pushUndo(VigWin* self) {
+        self.undo.push_back(clone self.texts);
     }
 }
 
