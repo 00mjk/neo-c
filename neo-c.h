@@ -222,12 +222,19 @@ impl vector<T>
         managed item;
 
         if(self.len == self.size) {
-            var new_size = self.size;
+            var new_size = self.size * 2;
             var items = self.items;
 
             self.items = borrow new T[new_size];
 
-            memcpy((char*)self.items, (char*)items, 8*self.size);
+            int i;
+            for(i=0; i<self.size; i++) {
+                self.items[i] = items[i];
+            }
+            for(i=self.size; i<new_size; i++) {
+                self.items[i] = 0;
+            }
+
             self.size = new_size;
         }
 

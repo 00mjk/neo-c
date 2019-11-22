@@ -74,9 +74,13 @@ permission:
 # clean
 #########################################
 clean:
-	rm -fR *.ll *.bc *.nc.tmp *.out *.o
+	rm -fR *.ll *.bc *.nc.tmp *.out *.o valgrind.txt memleack_debug.txt
 	rm -fR vig
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache 
+
+test:
+	rm -f valgrind.txt memleack_debug.txt
+	valgrind --log-file=valgrind.txt ./vig
 
