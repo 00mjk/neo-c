@@ -10,161 +10,161 @@
 impl VigWin version 4
 {
     void forwardWord(VigWin* self) {
-        wchar_t* line = self.texts.item(self.curs_y, wstring(""));
+        wchar_t* line = self.texts.item(self.cursorY, wstring(""));
 
-        wchar_t* p = line + self.curs_x;
+        wchar_t* p = line + self.cursorX;
 
-        if(self.curs_x == wcslen(line)) 
+        if(self.cursorX == wcslen(line)) 
         {
-            self.curs_x--;
+            self.cursorX--;
             p--;
 
-            if(self.curs_x < 0) {
-                self.curs_x++;
+            if(self.cursorX < 0) {
+                self.cursorX++;
                 p++;
             }
         }
 
         if(wcslen(line) == 0) {
             while(wcslen(line) == 0) {
-                self.curs_y++;
+                self.cursorY++;
 
-                if(self.curs_y >= self.texts.length())
+                if(self.cursorY >= self.texts.length())
                 {
-                    self.curs_y--;
+                    self.cursorY--;
                     break;
                 }
 
-                line = self.texts.item(self.curs_y, wstring(""));
+                line = self.texts.item(self.cursorY, wstring(""));
             }
 
-            self.curs_x = 0;
+            self.cursorX = 0;
         }
         else if(iswalpha(*p)) {
             while(iswalpha(*p)) {
                 p++;
-                self.curs_x++;
+                self.cursorX++;
 
-                if(self.curs_x >= line.length())
+                if(self.cursorX >= line.length())
                 {
-                    self.curs_y++;
+                    self.cursorY++;
 
-                    if(self.curs_y >= self.texts.length())
+                    if(self.cursorY >= self.texts.length())
                     {
-                        self.curs_y--;
+                        self.cursorY--;
                         break;
                     }
 
-                    line = self.texts.item(self.curs_y, wstring(""));
+                    line = self.texts.item(self.cursorY, wstring(""));
                     p = line;
-                    self.curs_x = 0;
+                    self.cursorX = 0;
                 }
             }
         }
         else if(iswblank(*p)) {
             while(iswblank(*p)) {
                 p++;
-                self.curs_x++;
+                self.cursorX++;
 
-                if(self.curs_x >= line.length())
+                if(self.cursorX >= line.length())
                 {
-                    self.curs_y++;
+                    self.cursorY++;
 
-                    if(self.curs_y >= self.texts.length())
+                    if(self.cursorY >= self.texts.length())
                     {
-                        self.curs_y--;
+                        self.cursorY--;
                         break;
                     }
 
-                    line = self.texts.item(self.curs_y, wstring(""));
+                    line = self.texts.item(self.cursorY, wstring(""));
                     p = line;
-                    self.curs_x = 0;
+                    self.cursorX = 0;
                 }
             }
         }
         else if(iswdigit(*p)) {
             while(iswdigit(*p)) {
                 p++;
-                self.curs_x++;
+                self.cursorX++;
 
-                if(self.curs_x >= line.length())
+                if(self.cursorX >= line.length())
                 {
-                    self.curs_y++;
+                    self.cursorY++;
 
-                    if(self.curs_y >= self.texts.length())
+                    if(self.cursorY >= self.texts.length())
                     {
-                        self.curs_y--;
+                        self.cursorY--;
                         break;
                     }
 
-                    line = self.texts.item(self.curs_y, wstring(""));
+                    line = self.texts.item(self.cursorY, wstring(""));
                     p = line;
-                    self.curs_x = 0;
+                    self.cursorX = 0;
                 }
             }
         }
     }
     void backwardWord(VigWin* self) {
 
-        wchar_t* line = self.texts.item(self.curs_y, wstring(""));
+        wchar_t* line = self.texts.item(self.cursorY, wstring(""));
 
-        wchar_t* p = line + self.curs_x;
+        wchar_t* p = line + self.cursorX;
 
-        if(self.curs_x == wcslen(line)) 
+        if(self.cursorX == wcslen(line)) 
         {
-            self.curs_x--;
+            self.cursorX--;
             p--;
 
-            if(self.curs_x < 0) {
-                self.curs_x++;
+            if(self.cursorX < 0) {
+                self.cursorX++;
                 p++;
             }
         }
 
         if(wcslen(line) == 0) {
             while(wcslen(line) == 0) {
-                self.curs_y--;
+                self.cursorY--;
 
-                if(self.curs_y < 0) {
-                    self.curs_y++;
+                if(self.cursorY < 0) {
+                    self.cursorY++;
                     break;
                 }
 
-                line = self.texts.item(self.curs_y, wstring(""));
+                line = self.texts.item(self.cursorY, wstring(""));
             }
 
-            self.curs_x = wcslen(self.texts.item(self.curs_y, wstring(""))) -1;
+            self.cursorX = wcslen(self.texts.item(self.cursorY, wstring(""))) -1;
 
-            if(self.curs_x < 0) {
-                self.curs_x = 0;
+            if(self.cursorX < 0) {
+                self.cursorX = 0;
             }
         }
         else if(iswalpha(*p)) {
             while(iswalpha(*p)) {
                 p--;
-                self.curs_x--;
+                self.cursorX--;
 
-                if(self.curs_x < 0)
+                if(self.cursorX < 0)
                 {
-                    self.curs_x = 0;
-                    self.curs_y--;
+                    self.cursorX = 0;
+                    self.cursorY--;
 
-                    if(self.curs_y < 0)
+                    if(self.cursorY < 0)
                     {
-                        self.curs_y++;
+                        self.cursorY++;
                         break;
                     }
 
-                    line = self.texts.item(self.curs_y, wstring(""));
+                    line = self.texts.item(self.cursorY, wstring(""));
 
                     if(wcslen(line) == 0)
                     {
                         p = line;
-                        self.curs_x = 0;
+                        self.cursorX = 0;
                     }
                     else {
-                        self.curs_x = wcslen(line) -1;
-                        p = line + self.curs_x;
+                        self.cursorX = wcslen(line) -1;
+                        p = line + self.cursorX;
                     }
                 }
             }
@@ -172,29 +172,29 @@ impl VigWin version 4
         else if(iswdigit(*p)) {
             while(iswdigit(*p)) {
                 p--;
-                self.curs_x--;
+                self.cursorX--;
 
-                if(self.curs_x < 0)
+                if(self.cursorX < 0)
                 {
-                    self.curs_x = 0;
-                    self.curs_y--;
+                    self.cursorX = 0;
+                    self.cursorY--;
 
-                    if(self.curs_y < 0)
+                    if(self.cursorY < 0)
                     {
-                        self.curs_y++;
+                        self.cursorY++;
                         break;
                     }
 
-                    line = self.texts.item(self.curs_y, wstring(""));
+                    line = self.texts.item(self.cursorY, wstring(""));
 
                     if(wcslen(line) == 0)
                     {
                         p = line;
-                        self.curs_x = 0;
+                        self.cursorX = 0;
                     }
                     else {
-                        self.curs_x = wcslen(line) -1;
-                        p = line + self.curs_x;
+                        self.cursorX = wcslen(line) -1;
+                        p = line + self.cursorX;
                     }
                 }
             }
@@ -202,29 +202,29 @@ impl VigWin version 4
         else if(iswblank(*p)) {
             while(iswblank(*p)) {
                 p--;
-                self.curs_x--;
+                self.cursorX--;
 
-                if(self.curs_x < 0)
+                if(self.cursorX < 0)
                 {
-                    self.curs_x = 0;
-                    self.curs_y--;
+                    self.cursorX = 0;
+                    self.cursorY--;
 
-                    if(self.curs_y < 0)
+                    if(self.cursorY < 0)
                     {
-                        self.curs_y++;
+                        self.cursorY++;
                         break;
                     }
 
-                    line = self.texts.item(self.curs_y, wstring(""));
+                    line = self.texts.item(self.cursorY, wstring(""));
 
                     if(wcslen(line) == 0)
                     {
                         p = line;
-                        self.curs_x = 0;
+                        self.cursorX = 0;
                     }
                     else {
-                        self.curs_x = wcslen(line) -1;
-                        p = line + self.curs_x;
+                        self.cursorX = wcslen(line) -1;
+                        p = line + self.cursorX;
                     }
                 }
             }
@@ -239,11 +239,11 @@ impl Vig version 4
 
         self.events.replace('w', lambda(Vig* self, int key) 
         {
-            self.active_win.forwardWord();
+            self.activeWin.forwardWord();
         });
         self.events.replace('b', lambda(Vig* self, int key) 
         {
-            self.active_win.backwardWord();
+            self.activeWin.backwardWord();
         });
     }
 }

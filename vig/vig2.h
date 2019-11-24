@@ -1,8 +1,8 @@
 
 struct VigWin version 2 
 {
-    int curs_y;
-    int curs_x;
+    int cursorY;
+    int cursorX;
 };
 
 impl VigWin version 2 
@@ -22,7 +22,7 @@ impl VigWin version 2
 struct Vig version 2 
 {
     vector<void lambda(Vig*, int)>*% events;
-    bool app_end;
+    bool appEnd;
 }
 
 impl Vig version 2 

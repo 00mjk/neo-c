@@ -29,17 +29,10 @@ impl VigWin
         self.height = height;
 
         var win = newwin(height, width, y, x);
-FILE* f = fopen("aaa", "a");
-fprintf(f, "newwin\n");
-fclose(f);
-
         self.win = win;
     }
 
     finalize() {
-FILE* f = fopen("aaa", "a");
-fprintf(f, "delwin\n");
-fclose(f);
         delwin(self.win);
     }
 
@@ -83,7 +76,7 @@ impl Vig
         win.texts.push_back(wstring("bbb"));
         win.texts.push_back(wstring("ccc"));
 
-        self.active_win = win;
+        self.activeWin = win;
 
         self.wins.push_back(win);
     }
@@ -99,7 +92,7 @@ impl Vig
             it.view(self);
         }
 
-        self.active_win.input(self);
+        self.activeWin.input(self);
 
         1
     }

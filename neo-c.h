@@ -247,6 +247,19 @@ impl vector<T>
         self.len++;
     }
 
+    T pop_back(vector<T>* self, T default_value)
+    {
+        if(self.len == 0) {
+            return default_value;
+        }
+
+        T result = (T)self.items[self.len-1];
+
+        self.len--;
+
+        return result;
+    }
+
     T& item(vector<T>* self, int index, T& default_value) 
     {
         if(index < 0) {

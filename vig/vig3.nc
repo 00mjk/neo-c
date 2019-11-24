@@ -16,9 +16,9 @@ impl VigWin version 3
         werase(self.win);
 
         self.texts.each {
-            if(self.curs_y == it2) {
+            if(self.cursorY == it2) {
                 int x = 0;
-                wstring head_string = it.subString(0, self.curs_x);
+                wstring head_string = it.subString(0, self.cursorX);
                 if(!head_string.equals(wstring("")))
                 {
                     mvwprintw(self.win, it2, 0, "%s", head_string.toUtf8String());
@@ -26,7 +26,7 @@ impl VigWin version 3
 
                 x += wcswidth(head_string, head_string.length());
 
-                wstring cursor_string = it.subString(self.curs_x, self.curs_x+1);
+                wstring cursor_string = it.subString(self.cursorX, self.cursorX+1);
 
                 if(!cursor_string.equals(wstring("")))
                 {
@@ -37,7 +37,7 @@ impl VigWin version 3
 
                 x += wcswidth(cursor_string, cursor_string.length());
 
-                wstring tail_string = it.subString(self.curs_x+1, -1);
+                wstring tail_string = it.subString(self.cursorX+1, -1);
 
                 if(!tail_string.equals(wstring("")))
                 {
@@ -50,7 +50,7 @@ impl VigWin version 3
         }
 
         wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "INSERT MODE x %d y %d", self.curs_x, self.curs_y);
+        mvwprintw(self.win, self.height-1, 0, "INSERT MODE x %d y %d", self.cursorX, self.cursorY);
         wattroff(self.win, A_REVERSE);
 
         wrefresh(self.win);
@@ -66,25 +66,25 @@ impl VigWin version 3
     }
 
     void insertText(VigWin* self, wstring text) {
-        var old_line = self.texts.item(self.curs_y, wstring(""));
+        var old_line = self.texts.item(self.cursorY, wstring(""));
 
-        var new_line = old_line.subString(0, self.curs_x) + text + old_line.subString(self.curs_x, -1);
+        var new_line = old_line.subString(0, self.cursorX) + text + old_line.subString(self.cursorX, -1);
 
-        self.texts.replace(self.curs_y, new_line);
-        self.curs_x++;
+        self.texts.replace(self.cursorY, new_line);
+        self.cursorX++;
     }
 
     void enterNewLine(VigWin* self)
     {
-        var old_line = self.texts.item(self.curs_y, wstring(""));
+        var old_line = self.texts.item(self.cursorY, wstring(""));
 
-        var new_line1 = old_line.subString(0, self.curs_x);
-        var new_line2 = old_line.subString(self.curs_x, -1);
+        var new_line1 = old_line.subString(0, self.cursorX);
+        var new_line2 = old_line.subString(self.cursorX, -1);
 
-        self.texts.replace(self.curs_y, new_line1);
-        self.texts.insert(self.curs_y+1, new_line2);
-        self.curs_y++;
-        self.curs_x = 0;
+        self.texts.replace(self.cursorY, new_line1);
+        self.texts.insert(self.cursorY+1, new_line2);
+        self.cursorY++;
+        self.cursorX = 0;
     }
 
     void inputInsertMode(VigWin* self, Vig* vig)
@@ -151,24 +151,24 @@ impl Vig version 3
         self.events.replace('a', lambda(Vig* self, int key) 
         {
             self.enterInsertMode();
-            self.active_win.curs_x++;
+            self.activeWin.cursorX++;
         });
         self.events.replace('o', lambda(Vig* self, int key) 
         {
             self.enterInsertMode();
-            self.active_win.enterNewLine();
+            self.activeWin.enterNewLine();
         });
     }
 
     int main_loop(Vig* self) {
-        while(!self.app_end) {
+        while(!self.appEnd) {
             erase();
 
             self.wins.each {
                 it.view(self);
             }
 
-            self.active_win.input(self);
+            self.activeWin.input(self);
         }
 
         0

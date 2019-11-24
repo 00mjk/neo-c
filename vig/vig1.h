@@ -15,7 +15,7 @@ struct VigWin
 struct Vig 
 {
     vector<VigWin*%>*% wins;
-    VigWin* active_win;
+    VigWin* activeWin;
 };
 
 impl VigWin 

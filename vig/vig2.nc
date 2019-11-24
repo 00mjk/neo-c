@@ -13,7 +13,7 @@ impl VigWin version 2
         werase(self.win);
 
         self.texts.each {
-            if(self.curs_y == it2) {
+            if(self.cursorY == it2) {
                 if(it.length() == 0) {
                     wattron(self.win, A_REVERSE);
                     mvwprintw(self.win, it2, 0, " ");
@@ -21,7 +21,7 @@ impl VigWin version 2
                 }
                 else {
                     int x = 0;
-                    wstring head_string = it.subString(0, self.curs_x);
+                    wstring head_string = it.subString(0, self.cursorX);
                     if(!head_string.equals(wstring("")))
                     {
                         mvwprintw(self.win, it2, 0, "%s", head_string.toUtf8String());
@@ -29,7 +29,7 @@ impl VigWin version 2
 
                     x += wcswidth(head_string, head_string.length());
 
-                    wstring cursor_string = it.subString(self.curs_x, self.curs_x+1);
+                    wstring cursor_string = it.subString(self.cursorX, self.cursorX+1);
 
                     if(!cursor_string.equals(wstring("")))
                     {
@@ -40,7 +40,7 @@ impl VigWin version 2
 
                     x += wcswidth(cursor_string, cursor_string.length());
 
-                    wstring tail_string = it.subString(self.curs_x+1, -1);
+                    wstring tail_string = it.subString(self.cursorX+1, -1);
 
                     if(!tail_string.equals(wstring("")))
                     {
@@ -54,7 +54,7 @@ impl VigWin version 2
         }
 
         wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "x %d y %d", self.curs_x, self.curs_y);
+        mvwprintw(self.win, self.height-1, 0, "x %d y %d", self.cursorX, self.cursorY);
         wattroff(self.win, A_REVERSE);
 
         wrefresh(self.win);
@@ -71,7 +71,7 @@ impl VigWin version 2
     }
 
     wchar_t* getCursorLine(VigWin* self) {
-        return self.texts.item(self.curs_y, wstring(""));
+        return self.texts.item(self.cursorY, wstring(""));
     }
 
     int getCursorLineLength(VigWin* self) 
@@ -80,77 +80,77 @@ impl VigWin version 2
     }
 
     void forward(VigWin* self) {
-        self.curs_x++;
+        self.cursorX++;
 
         var line_max = self.getCursorLineLength();
 
-        if(self.curs_x >= line_max)
+        if(self.cursorX >= line_max)
         {
-            self.curs_x = line_max-1;
+            self.cursorX = line_max-1;
 
-            if(self.curs_x < 0) {
-                self.curs_x = 0;
+            if(self.cursorX < 0) {
+                self.cursorX = 0;
             }
         }
     }
 
     void backward(VigWin* self) {
-        self.curs_x--;
+        self.cursorX--;
 
-        if(self.curs_x < 0)
+        if(self.cursorX < 0)
         {
-            self.curs_x = 0;
+            self.cursorX = 0;
         }
     }
 
     void prevLine(VigWin* self) {
-        self.curs_y--;
+        self.cursorY--;
 
-        if(self.curs_y < 0) {
-            self.curs_y = 0;
+        if(self.cursorY < 0) {
+            self.cursorY = 0;
         }
 
-        if(self.curs_x >= self.getCursorLineLength())
+        if(self.cursorX >= self.getCursorLineLength())
         {
-            self.curs_x = self.getCursorLineLength()-1;
+            self.cursorX = self.getCursorLineLength()-1;
 
-            if(self.curs_x < 0) {
-                self.curs_x = 0;
+            if(self.cursorX < 0) {
+                self.cursorX = 0;
             }
         }
     }
 
     void nextLine(VigWin* self) {
-        self.curs_y++;
+        self.cursorY++;
 
-        if(self.curs_y >= self.texts.length())
+        if(self.cursorY >= self.texts.length())
         {
-            self.curs_y = self.texts.length()-1;
+            self.cursorY = self.texts.length()-1;
         }
 
-        if(self.curs_x >= self.getCursorLineLength())
+        if(self.cursorX >= self.getCursorLineLength())
         {
-            self.curs_x = self.getCursorLineLength()-1;
+            self.cursorX = self.getCursorLineLength()-1;
 
-            if(self.curs_x < 0) {
-                self.curs_x = 0;
+            if(self.cursorX < 0) {
+                self.cursorX = 0;
             }
         }
     }
 
     void moveAtHead(VigWin* self) {
-        self.curs_x = 0;
+        self.cursorX = 0;
     }
 
     void moveAtTail(VigWin* self) {
-        self.curs_x = 0;
+        self.cursorX = 0;
 
         var line_max = self.getCursorLineLength();
 
-        self.curs_x = line_max-1;
+        self.cursorX = line_max-1;
 
-        if(self.curs_x < 0) {
-            self.curs_x = 0;
+        if(self.cursorX < 0) {
+            self.cursorX = 0;
         }
     }
 }
@@ -177,53 +177,53 @@ impl Vig version 2
         win.texts.push_back(wstring("789"));
         win.texts.push_back(wstring("あいうえお"));
 
-        self.active_win = win;
+        self.activeWin = win;
 
         self.wins.push_back(win);
 
-        self.app_end = false;
+        self.appEnd = false;
 
         self.events = new vector<void lambda(Vig*, int)>.initialize_with_values(KEY_MAX, null);
 
         self.events.replace('q', lambda(Vig* self, int key) 
         {
-            self.app_end = true;
+            self.appEnd = true;
         });
         self.events.replace('l', lambda(Vig* self, int key) 
         {
-            self.active_win.forward();
+            self.activeWin.forward();
         });
         self.events.replace('h', lambda(Vig* self, int key) 
         {
-            self.active_win.backward();
+            self.activeWin.backward();
         });
         self.events.replace('j', lambda(Vig* self, int key) 
         {
-            self.active_win.nextLine();
+            self.activeWin.nextLine();
         });
         self.events.replace('k', lambda(Vig* self, int key) 
         {
-            self.active_win.prevLine();
+            self.activeWin.prevLine();
         });
         self.events.replace('0', lambda(Vig* self, int key) 
         {
-            self.active_win.moveAtHead();
+            self.activeWin.moveAtHead();
         });
         self.events.replace('$', lambda(Vig* self, int key) 
         {
-            self.active_win.moveAtTail();
+            self.activeWin.moveAtTail();
         });
     }
 
     int main_loop(Vig* self) {
-        while(!self.app_end) {
+        while(!self.appEnd) {
             erase();
 
             self.wins.each {
                 it.view(self);
             }
 
-            self.active_win.input(self);
+            self.activeWin.input(self);
         }
 
         0
