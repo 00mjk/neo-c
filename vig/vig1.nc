@@ -29,11 +29,17 @@ impl VigWin
         self.height = height;
 
         var win = newwin(height, width, y, x);
+FILE* f = fopen("aaa", "a");
+fprintf(f, "newwin\n");
+fclose(f);
 
         self.win = win;
     }
 
     finalize() {
+FILE* f = fopen("aaa", "a");
+fprintf(f, "delwin\n");
+fclose(f);
         delwin(self.win);
     }
 

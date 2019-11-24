@@ -49,8 +49,8 @@ LVALUE	src/llvm_common.hpp	/^typedef struct LVALUEStruct LVALUE;$/;"	t	typeref:s
 LVALUEStruct	src/llvm_common.hpp	/^struct LVALUEStruct {$/;"	s
 MACRO_MAX	src/common.h	38;"	d
 MANAGED	src/xfunc.h	5;"	d
-MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	898;"	d
-MAP_TABLE_DEFAULT_SIZE	neo-c.h	898;"	d
+MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	903;"	d
+MAP_TABLE_DEFAULT_SIZE	neo-c.h	903;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
@@ -139,6 +139,7 @@ alloc_node_type	src/node_type.c	/^static sNodeType* alloc_node_type()$/;"	f	file
 alloc_struct	src/klass.c	/^sCLClass* alloc_struct(char* class_name, BOOL anonymous)$/;"	f
 alloc_union	src/klass.c	/^sCLClass* alloc_union(char* class_name, BOOL anonymous, BOOL anonymous_var_name)$/;"	f
 app_end	vig/vig2.h	/^    bool app_end;$/;"	m	struct:version
+append_debug_heap_memory	src/memalloc-stdc.c	/^static void append_debug_heap_memory(void* mem, char* type_name, char* sname, int sline, int calloc_num, size_t calloc_size, char* fun_name, char* real_fun_name)$/;"	f	file:
 append_double_value_to_constant_pool	src/constant.c	/^unsigned int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output)$/;"	f
 append_float_value_to_constant_pool	src/constant.c	/^unsigned int append_float_value_to_constant_pool(sConst* constant, float n, BOOL no_output)$/;"	f
 append_heap_object_to_right_value	src/llvm.cpp	/^void append_heap_object_to_right_value(LVALUE* llvm_value, sCompileInfo* info)$/;"	f
@@ -149,23 +150,29 @@ append_str_to_constant_pool	src/constant.c	/^unsigned int append_str_to_constant
 append_wstr_to_constant_pool	src/constant.c	/^unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
+as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
 as_fn_append	vig/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	vig/configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	vig/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	vig/configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
 as_fn_error	vig/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	vig/configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	vig/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	vig/configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	vig/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	vig/configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	vig/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	vig/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	vig/configure	/^as_fn_mkdir_p ()$/;"	f
@@ -173,11 +180,13 @@ as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_failure	vig/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	vig/configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	vig/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	vig/configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	vig/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	vig/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	vig/configure	/^as_fn_unset ()$/;"	f
@@ -204,6 +213,8 @@ call_field_destructor	src/llvm.cpp	/^static void call_field_destructor(Value* ob
 call_function	src/node.cpp	/^BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, BOOL no_err_output, sNodeType* generics_type, sCompileInfo* info)$/;"	f
 call_macro	src/macro.c	/^BOOL call_macro(unsigned * node, char* name, char* params, sParserInfo* info)$/;"	f
 call_preprocessor	src/preprocessor.c	/^static BOOL call_preprocessor(sBuf* command, sBuf* output)$/;"	f	file:
+calloc_num	src/memalloc-stdc.c	/^    int calloc_num;$/;"	m	struct:sHeapDebug	file:
+calloc_size	src/memalloc-stdc.c	/^    size_t calloc_size;$/;"	m	struct:sHeapDebug	file:
 case_else_block	src/common.h	/^    void* case_else_block;$/;"	m	struct:sCompileInfoStruct
 case_then_block	src/common.h	/^    void* case_then_block;$/;"	m	struct:sCompileInfoStruct
 cast_posibility	src/node_type.c	/^BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)$/;"	f
@@ -350,9 +361,12 @@ curs_x	vig/vig2.h	/^    int curs_x;$/;"	m	struct:version
 curs_y	vig/vig2.h	/^    int curs_y;$/;"	m	struct:version
 datadir	Makefile	/^datadir=${datarootdir}$/;"	m
 datarootdir	Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
+debug_show_none_freed_heap_memory	src/memalloc-stdc.c	/^void debug_show_none_freed_heap_memory() $/;"	f
+debug_xcalloc	src/memalloc-stdc.c	/^void *debug_xcalloc(int num, size_t nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name)$/;"	f
 dec_stack_ptr	src/llvm.cpp	/^void dec_stack_ptr(int value, sCompileInfo* info)$/;"	f
 declare_builtin_functions	src/llvm.cpp	/^void declare_builtin_functions()$/;"	f
 delete_comment	src/source_compiler.c	/^BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f
+delete_debug_heap_memory	src/memalloc-stdc.c	/^static void delete_debug_heap_memory(void* mem)$/;"	f	file:
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 dquort	code/neo-c.h	/^            dquort = !dquort$/;"	m	struct:list
 dquort	code/neo-c.h	/^            dquort = !dquort$/;"	m	struct:map
@@ -417,8 +431,10 @@ free_object	src/llvm.cpp	/^void free_object(sNodeType* node_type, void* address,
 free_objects	src/vtable.c	/^void free_objects(sVarTable* table, sCompileInfo* info)$/;"	f
 free_right_value_object	src/llvm.cpp	/^static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_delete, sCompileInfo* info)$/;"	f	file:
 free_right_value_objects	src/llvm.cpp	/^void free_right_value_objects(sCompileInfo* info)$/;"	f
+freed	src/memalloc-stdc.c	/^    int freed;$/;"	m	struct:sHeapDebug	file:
 fun_name	src/common.h	/^    char fun_name[VAR_NAME_MAX];$/;"	m	struct:sCompileInfoStruct
 fun_name	src/common.h	/^    char fun_name[VAR_NAME_MAX];$/;"	m	struct:sParserInfoStruct
+fun_name	src/memalloc-stdc.c	/^    char fun_name[128];$/;"	m	struct:sHeapDebug	file:
 function_lvtable	src/common.h	/^    void* function_lvtable;$/;"	m	struct:sCompileInfoStruct
 gARGC	src/compiler.c	/^int gARGC;$/;"	v
 gARGV	src/compiler.c	/^char** gARGV;$/;"	v
@@ -429,6 +445,7 @@ gFunctionStack	src/node.cpp	/^std::vector<sFunction> gFunctionStack;$/;"	v
 gGenericsFunNum	src/node.cpp	/^int gGenericsFunNum = 0;$/;"	v
 gHeadClassTable	src/klass.c	/^sClassTable* gHeadClassTable = NULL;$/;"	v
 gHeadVTable	src/vtable.c	/^sVarTable* gHeadVTable;$/;"	v
+gHeapDebugs	src/memalloc-stdc.c	/^struct sHeapDebug* gHeapDebugs = NULL;$/;"	v	typeref:struct:sHeapDebug
 gLLVMStack	src/llvm.cpp	/^LVALUE* gLLVMStack;$/;"	v
 gLLVMStructType	src/llvm.cpp	/^std::map<std::string, std::pair<Type*, sNodeType*>> gLLVMStructType;$/;"	v
 gLVTableValue	src/llvm.cpp	/^GlobalVariable* gLVTableValue;$/;"	v
@@ -438,9 +455,11 @@ gMainModulePath	src/compiler.c	/^char gMainModulePath[PATH_MAX];$/;"	v
 gMaxMemAlloc	src/memalloc-stdc.c	/^int gMaxMemAlloc = 0;$/;"	v
 gNodeTypes	src/node_type.c	/^static sNodeType** gNodeTypes = NULL;$/;"	v	file:
 gNodes	src/node_alloc.c	/^sNodeTree* gNodes;$/;"	v
+gNumHeapDebugs	src/memalloc-stdc.c	/^int gNumHeapDebugs = 0;$/;"	v
 gNumLambdaName	src/parser.c	/^int gNumLambdaName = 0;$/;"	v
 gNumMemAlloc	src/memalloc-stdc.c	/^int gNumMemAlloc = 0;$/;"	v
 gPreprocessorFunctions	src/preprocessor.c	/^sPreprocessorFunction gPreprocessorFunctions[PREPROCESSOR_FUN_MAX];$/;"	v
+gSizeHeapDebugs	src/memalloc-stdc.c	/^int gSizeHeapDebugs = 0;$/;"	v
 gSizeNodes	src/node_alloc.c	/^int gSizeNodes = 0;$/;"	v
 gSizePageNodeTypes	src/node_type.c	/^static int gSizePageNodeTypes = 0;$/;"	v	file:
 gTypeDefTable	src/typedef.c	/^static struct sTypeDefTable gTypeDefTable[TYPEDEF_MAX];$/;"	v	typeref:struct:sTypeDefTable	file:
@@ -880,6 +899,7 @@ map	code/neo-c.h	/^struct map<T, T2>$/;"	s
 map	neo-c.h	/^impl map <T, T2>$/;"	s
 map	neo-c.h	/^ruby_macro map {$/;"	s
 map	neo-c.h	/^struct map<T, T2>$/;"	s
+mem	src/memalloc-stdc.c	/^    void* mem;$/;"	m	struct:sHeapDebug	file:
 mode	vig/vig3.h	/^    int mode;$/;"	m	struct:version
 module_name	src/common.h	/^    char* module_name;$/;"	m	struct:sParserInfoStruct
 n	code/neo-c.h	/^            n = n + 1;$/;"	m	struct:list
@@ -1024,6 +1044,8 @@ read_from_file	src/klass.c	/^void read_from_file(char** p, void* buf, size_t siz
 read_int_from_file	src/klass.c	/^void read_int_from_file(char** p, int* n)$/;"	f
 read_long_from_file	src/klass.c	/^void read_long_from_file(char** p, clint64* n)$/;"	f
 read_source	src/source_compiler.c	/^BOOL read_source(char* fname, sBuf* source)$/;"	f
+real_fun_name	src/common.h	/^    char real_fun_name[VAR_NAME_MAX];$/;"	m	struct:sCompileInfoStruct
+real_fun_name	src/memalloc-stdc.c	/^    char real_fun_name[128];$/;"	m	struct:sHeapDebug	file:
 rehash	code/neo-c.h	/^    void rehash(map<T,T2>* self) {$/;"	f	struct:map
 rehash	neo-c.h	/^    void rehash(map<T,T2>* self) {$/;"	f	struct:map
 remove_class	src/klass.c	/^static void remove_class(char* class_name)$/;"	f	file:
@@ -1070,6 +1092,7 @@ sFunction	src/llvm_common.hpp	/^typedef struct sFunctionStruct sFunction;$/;"	t	
 sFunctionCall	src/common.h	/^        } sFunctionCall;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon12
 sFunctionStruct	src/llvm_common.hpp	/^struct sFunctionStruct {$/;"	s
 sGoto	src/common.h	/^        } sGoto;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon32
+sHeapDebug	src/memalloc-stdc.c	/^struct sHeapDebug {$/;"	s	file:
 sIf	src/common.h	/^        } sIf;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon13
 sImpl	src/common.h	/^        } sImpl;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon21
 sIsHeap	src/common.h	/^        } sIsHeap;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon25
@@ -1227,9 +1250,11 @@ skip_spaces_and_lf	src/parser.c	/^void skip_spaces_and_lf(sParserInfo* info)$/;"
 skip_spaces_for_parse_class_name	src/node_type.c	/^static void skip_spaces_for_parse_class_name(char** p) $/;"	f	file:
 sline	src/common.h	/^    int sline;$/;"	m	struct:sCompileInfoStruct
 sline	src/common.h	/^    int sline;$/;"	m	struct:sParserInfoStruct
+sline	src/memalloc-stdc.c	/^    int sline;$/;"	m	struct:sHeapDebug	file:
 sline_top	src/common.h	/^    int sline_top;$/;"	m	struct:sParserInfoStruct
 sname	src/common.h	/^    char sname[PATH_MAX];$/;"	m	struct:sCompileInfoStruct
 sname	src/common.h	/^    char sname[PATH_MAX];$/;"	m	struct:sParserInfoStruct
+sname	src/memalloc-stdc.c	/^    char sname[128];$/;"	m	struct:sHeapDebug	file:
 solve_generics	src/node_type.c	/^BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type, BOOL* success_volve)$/;"	f
 solve_method_generics	src/node_type.c	/^BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX])$/;"	f
 solve_typeof	src/node_type.c	/^BOOL solve_typeof(sNodeType** node_type, sCompileInfo* info)$/;"	f
@@ -1283,6 +1308,7 @@ type	src/common.h	/^    sNodeType* type;$/;"	m	struct:sCompileInfoStruct
 type	src/llvm_common.hpp	/^    sNodeType* type;$/;"	m	struct:LVALUEStruct
 type_identify	src/node_type.c	/^BOOL type_identify(sNodeType* left, sNodeType* right)$/;"	f
 type_identify_with_class_name	src/node_type.c	/^BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
+type_name	src/memalloc-stdc.c	/^    char type_name[128];$/;"	m	struct:sHeapDebug	file:
 uValue	src/common.h	/^    } uValue;$/;"	m	struct:sNodeTreeStruct	typeref:union:sNodeTreeStruct::__anon1
 undo	vig/vig5.h	/^    vector<list<wstring>*%>*% undo;$/;"	m	struct:version
 v1	code/neo-c.h	/^    T v1;$/;"	m	struct:tuple1

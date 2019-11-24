@@ -377,6 +377,7 @@ struct sCompileInfoStruct
     int stack_num;
 
     char fun_name[VAR_NAME_MAX];
+    char real_fun_name[VAR_NAME_MAX];
 
     void* current_block;
 

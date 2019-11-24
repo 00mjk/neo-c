@@ -44,6 +44,9 @@ typedef wchar_t*% wstring;
 extern string string(char* str);
 extern wstring wstring(char* str);
 
+void *% debug_xcalloc(int num, long nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name);
+void debug_show_none_freed_heap_memory();
+
 void p(char* str);
 
 /// int ///
@@ -236,6 +239,8 @@ impl vector<T>
             }
 
             self.size = new_size;
+
+            delete items;
         }
 
         self.items[self.len] = item;

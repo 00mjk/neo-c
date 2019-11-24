@@ -4048,6 +4048,11 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
     }
 
+    char real_fun_name_before[VAR_NAME_MAX];
+    xstrncpy(real_fun_name_before, info->real_fun_name, VAR_NAME_MAX);
+
+    xstrncpy(info->real_fun_name, real_fun_name, VAR_NAME_MAX);
+
     char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
     memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
@@ -4058,6 +4063,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     Function* fun;
     if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, FALSE, version, &fun, info, FALSE))
     {
+        xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
         return TRUE;
     }
 
@@ -4107,6 +4113,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
 
             info->function_lvtable = function_lvtable_before;
+            xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
             return TRUE;
         }
 
@@ -4142,6 +4149,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         info->function_lvtable = function_lvtable_before;
         info->result_type = result_type_before;
         xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
+        xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
         return FALSE;
     }
 
@@ -4149,8 +4157,20 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     sNodeType* block_result_type = info->type;
     info->function_lvtable = function_lvtable_before;
     xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
-
     if(!info->last_expression_is_return) {
+        if(strcmp(real_fun_name, "main") == 0) {
+            Function* fun2 = TheModule->getFunction("debug_show_none_freed_heap_memory");
+
+            if(fun2 == nullptr) {
+                fprintf(stderr, "require debug_show_none_freed_heap_memory\n");
+                exit(2);
+            }
+
+            std::vector<Value*> params2;
+
+            Builder.CreateCall(fun2, params2);
+        }
+
         restore_lvtable(lvtable);
 
         free_right_value_objects(info);
@@ -4219,6 +4239,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         BOOL var_arg = FALSE;
         if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, info->pinfo->in_clang, FALSE, version, &fun, info, TRUE))
         {
+            xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
             return TRUE;
         }
 
@@ -4268,6 +4289,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
 
                 info->function_lvtable = function_lvtable_before;
+                xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
                 return TRUE;
             }
 
@@ -4301,6 +4323,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         if(!compile_block(node_block, info, result_type, FALSE))
         {
             xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
+            xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
             return FALSE;
         }
 
@@ -4365,6 +4388,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     BasicBlock* current_block_before2;
     llvm_change_block(current_block_before, &current_block_before2, info, TRUE);
     restore_right_value_objects_container(right_value_objects, info);
+    xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
 
     return TRUE;
 }
@@ -5208,6 +5232,43 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+#ifdef MDEBUG
+    Function* fun = TheModule->getFunction("debug_xcalloc");
+
+    if(fun == nullptr) {
+        fprintf(stderr, "require xcalloc\n");
+        exit(2);
+    }
+
+    std::vector<Value*> params2;
+
+    Value* param = object_num;
+    params2.push_back(param);
+
+    Value* param2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)size);
+    params2.push_back(param2);
+
+    char type_name[128];
+    type_name[0] = '\0';
+    create_type_name_from_node_type(type_name, 128, node_type2, FALSE);
+
+    Value* param3 = llvm_create_string(type_name);
+    params2.push_back(param3);
+
+    Value* param4 = llvm_create_string(info->sname);
+    params2.push_back(param4);
+
+    Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)info->sline);
+    params2.push_back(param5);
+
+    Value* param6 = llvm_create_string(info->fun_name);
+    params2.push_back(param6);
+
+    Value* param7 = llvm_create_string(info->real_fun_name);
+    params2.push_back(param7);
+
+    Value* address = Builder.CreateCall(fun, params2);
+#else
     Function* fun = TheModule->getFunction("xcalloc");
 
     if(fun == nullptr) {
@@ -5224,6 +5285,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     params2.push_back(param2);
 
     Value* address = Builder.CreateCall(fun, params2);
+#endif
 
     node_type2->mPointerNum++;
 
@@ -8211,6 +8273,7 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
 
         free_right_value_objects(info);
         free_objects(info->pinfo->lv_table, info);
+
         
         if(info->inline_func_end) {
             int alignment = get_llvm_alignment_from_node_type(llvm_value.type);
@@ -8223,6 +8286,19 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
             Builder.CreateBr((BasicBlock*)info->inline_func_end);
         }
         else {
+            if(strcmp(info->real_fun_name, "main") == 0) {
+                Function* fun2 = TheModule->getFunction("debug_show_none_freed_heap_memory");
+
+                if(fun2 == nullptr) {
+                    fprintf(stderr, "require debug_show_none_freed_heap_memory\n");
+                    exit(2);
+                }
+
+                std::vector<Value*> params2;
+
+                Builder.CreateCall(fun2, params2);
+            }
+
             Builder.CreateRet(llvm_value.value);
 
             dec_stack_ptr(1, info);
@@ -8253,6 +8329,19 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
             Builder.CreateBr((BasicBlock*)info->inline_func_end);
         }
         else {
+            if(strcmp(info->real_fun_name, "main") == 0) {
+                Function* fun2 = TheModule->getFunction("debug_show_none_freed_heap_memory");
+
+                if(fun2 == nullptr) {
+                    fprintf(stderr, "require debug_show_none_freed_heap_memory\n");
+                    exit(2);
+                }
+
+                std::vector<Value*> params2;
+
+                Builder.CreateCall(fun2, params2);
+            }
+
             Builder.CreateRet(nullptr);
         }
 

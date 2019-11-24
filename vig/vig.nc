@@ -3,5 +3,6 @@
 int main()
 {
     var vig = new Vig.initialize();
-    vig.main_loop()
+    int result = vig.main_loop()
+    result
 }
