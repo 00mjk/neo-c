@@ -29,22 +29,22 @@ DESTDIR=@DESTDIR@
 ##########################################
 all: vig
 
-vig: config.h vig.nc vig1.o vig2.o vig3.o vig4.o vig5.o vig.h
+vig: configure Makefile config.h vig.nc vig1.o vig2.o vig3.o vig4.o vig5.o vig.h
 	neo-c -o vig vig.nc vig1.o vig2.o vig3.o vig4.o vig5.o $(CFLAGS) $(LIBS)
 
-vig1.o: config.h vig1.nc
+vig1.o: configure Makefile config.h vig1.nc vig1.h
 	neo-c -c vig1.nc $(CFLAGS) $(LIBS)
 
-vig2.o: config.h vig2.nc vig.h
+vig2.o: configure Makefile config.h vig1.nc vig2.nc vig1.h vig2.h
 	neo-c -c vig2.nc $(CFLAGS) $(LIBS)
 
-vig3.o: config.h vig3.nc vig2.h
+vig3.o: configure Makefile config.h vig1.nc vig2.nc vig3.nc vig1.h vig2.h vig3.h
 	neo-c -c vig3.nc $(CFLAGS) $(LIBS)
 
-vig4.o: config.h vig4.nc vig3.h
+vig4.o: configure Makefile config.h vig1.nc vig2.nc vig3.nc vig4.nc vig1.h vig2.h vig3.h vig4.h
 	neo-c -c vig4.nc $(CFLAGS) $(LIBS)
 
-vig5.o: config.h vig5.nc vig4.h
+vig5.o: configure config.h vig1.nc vig2.nc vig3.nc vig4.nc vig5.nc vig1.h vig2.h vig3.h vig4.h vig5.h
 	neo-c -c vig5.nc $(CFLAGS) $(LIBS)
 
 #########################################

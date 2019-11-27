@@ -12,33 +12,67 @@ impl VigWin version 5
     initialize(int y, int x, int width, int height) 
     {
         inherit(self, y, x, width, height);
-        self.undoData = new vector<UndoData*%>.initialize();
+        self.undo = new list<list<wstring>*%>.initialize();
+        self.undoCursorX = new list<int>.initialize();
+        self.undoCursorY = new list<int>.initialize();
+        self.undoIndex = 0;
+    }
+
+    void pushUndo(VigWin* self)
+    {
+        self.undo.delete_range(self.undoIndex, -1);
+        self.undoCursorX.delete_range(self.undoIndex, -1);
+        self.undoCursorY.delete_range(self.undoIndex, -1);
+
+        var undo = clone self.texts;
+
+
+        self.undo.push_back(undo);
+
+        self.undoCursorX.push_back(self.cursorX);
+        self.undoCursorY.push_back(self.cursorY);
+        self.undoIndex++;
+    }
+    
+    void redo(VigWin* self) {
+        if(self.undoIndex < self.undo.length()-1) 
+        {
+            self.undoIndex++;
+
+            var undo = self.undo.item(self.undoIndex, null);
+            var cursor_x = self.undoCursorX.item(self.undoIndex, -1);
+            var cursor_y = self.undoCursorY.item(self.undoIndex, -1);
+
+            if(undo != null && cursor_x != -1 && cursor_y != -1) 
+            {
+                self.texts = clone undo;
+                self.cursorX = cursor_x;
+                self.cursorY = cursor_y;
+            }
+        }
     }
 
     void undo(VigWin* self) {
-        var undo_data = self.undoData.pop_back(null);
-
-        if(undo_data != null) {
-            self.cursorX = undo_data.cursorX;
-            self.cursorY = undo_data.cursorY;
-
-            var old_line = self.texts.item(self.cursorY, null);
-
-            var new_line = old_line.subString(0, self.cursorX) + old_line.subString(self.cursorX + undo_data.text.length(), -1);
-
-            self.texts.replace(self.cursorY, new_line);
-        }
-    }
-
-    void insertText(VigWin* self, wstring text) 
-    {
-        var undo_data = self.undoData.item(-1, null);
-
-        if(undo_data != null) {
-            undo_data.text = undo_data.text + text;
+        if(self.undoIndex == self.undo.length())
+        {
+            self.pushUndo();
+            self.undoIndex--;
         }
 
-        inherit(self, text);
+        if(self.undoIndex > 0) {
+            self.undoIndex--;
+
+            var undo = self.undo.item(self.undoIndex, null);
+            var cursor_x = self.undoCursorX.item(self.undoIndex, -1);
+            var cursor_y = self.undoCursorY.item(self.undoIndex, -1);
+
+            if(undo != null && cursor_x != -1 && cursor_y != -1) 
+            {
+                self.texts = clone undo;
+                self.cursorX = cursor_x;
+                self.cursorY = cursor_y;
+            }
+        }
     }
 }
 
@@ -51,19 +85,15 @@ impl Vig version 5
         {
             self.activeWin.undo();
         });
+
+        self.events.replace('r'-'a'+1, lambda(Vig* self, int key) 
+        {
+            self.activeWin.redo();
+        });
     }
     void enterInsertMode(Vig* self) {
         inherit(self);
 
-        var undo_data = new UndoData;
-        undo_data.text = wstring("");
-
-        undo_data.cursorX = self.activeWin.cursorX;
-        undo_data.cursorY = self.activeWin.cursorY;
-
-        self.activeWin.undoData.push_back(undo_data);
-    }
-    void exitFromInsertMode(Vig* self) {
-        inherit(self);
+        self.activeWin.pushUndo();
     }
 }

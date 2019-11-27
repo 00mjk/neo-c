@@ -92,6 +92,7 @@ struct LVALUEStruct {
     Value* address;
     sVar* var;
     BOOL binded_value;
+    BOOL load_field;
 };
 
 typedef struct LVALUEStruct LVALUE;

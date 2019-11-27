@@ -148,8 +148,19 @@ impl Vig version 3
         {
             self.enterInsertMode();
         });
+        self.events.replace('I', lambda(Vig* self, int key) 
+        {
+            self.activeWin.moveAtHead();
+            self.enterInsertMode();
+        });
         self.events.replace('a', lambda(Vig* self, int key) 
         {
+            self.enterInsertMode();
+            self.activeWin.cursorX++;
+        });
+        self.events.replace('A', lambda(Vig* self, int key) 
+        {
+            self.activeWin.moveAtTail();
             self.enterInsertMode();
             self.activeWin.cursorX++;
         });

@@ -1,14 +1,10 @@
 
-struct UndoData
-{
-    int cursorX;
-    int cursorY;
-    wstring text;
-};
-
 struct VigWin version 5
 {
-    vector<UndoData*%>%* undoData;
+    list<list<wstring>*%>%* undo;
+    list<int>%* undoCursorX;
+    list<int>%* undoCursorY;
+    int undoIndex;
 };
 
 impl VigWin version 5
@@ -16,7 +12,7 @@ impl VigWin version 5
     initialize(int y, int x, int width, int height);
 
     void undo(VigWin* self);
-    void insertText(VigWin* self, wstring text);
+    void redo(VigWin* self);
 }
 
 impl Vig version 5
@@ -24,5 +20,4 @@ impl Vig version 5
     initialize();
 
     void enterInsertMode(Vig* self);
-    void exitFromInsertMode(Vig* self);
 }

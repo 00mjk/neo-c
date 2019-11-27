@@ -142,8 +142,8 @@ void xfree(void *block)
 
 void debug_show_none_freed_heap_memory() 
 {
-    if(gHeapDebugs != NULL) {
 #ifdef MDEBUG
+    if(gHeapDebugs != NULL) {
         FILE* f = fopen("memleack_debug.txt", "a");
         fprintf(f, "\nnone free memory lists\n");
         fclose(f);

@@ -433,6 +433,23 @@ impl list <T>
         return result;
     }
 
+    void clear(list<T>* self) {
+        list_item<T>* it = self.head;
+        while(it != null) {
+            if(isheap(T)) {
+                delete it.item;
+            }
+            var prev_it = it;
+            it = it.next;
+            delete prev_it;
+        }
+
+        self.head = null;
+        self.tail = null;
+
+        self.len = 0;
+    }
+
     void push_back(list<T>* self, T item) 
     {
         managed item;
@@ -575,6 +592,232 @@ impl list <T>
 
                 it = it.next;
                 i++;
+            }
+        }
+    }
+
+    void delete(list<T>* self, int position)
+    {
+        if(position < 0) {
+            position += self.len + 1;
+        }
+
+        if(position >= 0 && position < self.len)
+        {
+            if(self.len == 1) {
+                if(isheap(T)) {
+                    delete self.head.item;
+                }
+                delete self.head;
+
+                self.head = null;
+                self.tail = null;
+
+                self.len = 0;
+            }
+            else if(self.len == 2) {
+                if(position == 0) {
+                    list_item<T>?* it = self.head;
+                    self.head = it.next;
+
+                    self.tail = it.next;
+
+                    if(isheap(T)) {
+                        delete it.item;
+                    }
+                    delete it;
+
+                    self.len--;
+                }
+                else {
+                    list_item<T>?* it = self.tail;
+                    self.head.next = null;
+
+                    self.tail = self.head;
+
+                    if(isheap(T)) {
+                        delete it.item;
+                    }
+                    delete it;
+
+                    self.len--;
+                }
+            }
+            else {
+                list_item<T>?* it = self.head;
+                var i = 0;
+                while(it != null) {
+                    if(position == i) {
+                        if(i == 0) {
+                            self.head = it.next;
+                            self.head.prev = null;
+
+                            if(isheap(T)) {
+                                delete it.item;
+                            }
+                            delete it;
+
+                            self.len--;
+                        }
+                        else if(i == self.len-1)
+                        {
+                            self.tail = it.prev;
+                           if(isheap(T)) 
+                           {
+                                delete it.item;
+                            }
+                            delete it;
+
+                            self.len--;
+                        }
+                        else {
+                            it.prev.next = it.next;
+                            it.next.prev = it.prev;
+                            if(isheap(T)) {
+                                delete it.item;
+                            }
+                            delete it;
+
+                            self.len--;
+                        }
+                        break;
+                    }
+
+                    it = it.next;
+                    i++;
+                }
+            }
+        }
+    }
+
+    void delete_range(list<T>* self, int head, int tail)
+    {
+        if(head < 0) {
+            head += self.len;
+        }
+        if(tail < 0) {
+            tail += self.len + 1;
+        }
+
+        if(head > tail) {
+            int tmp = tail;
+            tail = head;
+            head = tmp;
+        }
+
+        if(head < 0) {
+            head = 0;
+        }
+
+        if(tail > self.len) {
+            tail = self.len;
+        }
+
+        if(head == tail) {
+            return;
+        }
+
+        if(head == 0 && tail == self.len) 
+        {
+            self.clear();
+        }
+        else if(head == 0) {
+            list_item<T>?* it = self.head;
+            var i = 0;
+            while(it != null) {
+                if(i < tail) {
+                    if(isheap(T)) {
+                        delete it.item;
+                    }
+                    list_item<T>?* prev_it = it;
+
+                    it = it.next;
+                    i++;
+
+                    delete prev_it;
+
+                    self.len--;
+                }
+                else if(i == tail) {
+                    self.head = it;
+                    self.head.prev = null;
+                    break;
+                }
+                else {
+                    it = it.next;
+                    i++;
+                }
+            }
+        }
+        else if(tail == self.len) {
+            list_item<T>?* it = self.head;
+            var i = 0;
+            while(it != null) {
+                if(i == head) {
+                    self.tail = it.prev;
+                    self.tail.next = null;
+                }
+
+                if(i >= head) {
+                    if(isheap(T)) {
+                        delete it.item;
+                    }
+                    list_item<T>?* prev_it = it;
+
+                    it = it.next;
+                    i++;
+
+                    delete prev_it;
+
+                    self.len--;
+                }
+                else {
+                    it = it.next;
+                    i++;
+                }
+            }
+        }
+        else {
+            list_item<T>?* it = self.head;
+
+            list_item<T>?* head_prev_it = null;
+            list_item<T>?* tail_it = null;
+
+
+            var i = 0;
+            while(it != null) {
+                if(i == head) {
+                    head_prev_it = it.prev;
+                }
+                if(i == tail) {
+                    tail_it = it;
+                }
+
+                if(i >= head && i < tail) 
+                {
+                    if(isheap(T)) {
+                        delete it.item;
+                    }
+                    list_item<T>?* prev_it = it;
+
+                    it = it.next;
+                    i++;
+
+                    delete prev_it;
+
+                    self.len--;
+                }
+                else {
+                    it = it.next;
+                    i++;
+                }
+            }
+
+            if(head_prev_it != null) {
+                head_prev_it.next = tail_it;
+            }
+            if(tail_it != null) {
+                tail_it.prev = head_prev_it;
             }
         }
     }

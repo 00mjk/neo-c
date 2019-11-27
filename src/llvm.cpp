@@ -639,20 +639,25 @@ void output_native_code(char* sname, BOOL optimize)
     delete TheModule;
 }
 
-static void create_real_struct_name(char* real_struct_name, int size_real_struct_name, char* struct_name, int num_generics, sNodeType* generics_types[GENERICS_TYPES_MAX])
+static void create_real_struct_name(char* real_struct_name, int size_real_struct_name, int num_generics, sNodeType* generics_types[GENERICS_TYPES_MAX])
 {
-    xstrncpy(real_struct_name, struct_name, size_real_struct_name);
-
     if(num_generics > 0) {
-        xstrncat(real_struct_name, "_", size_real_struct_name);
+        xstrncat(real_struct_name, "__", size_real_struct_name);
     }
 
     int i;
     for(i=0; i<num_generics; i++) {
         sNodeType* node_type = generics_types[i];
-        sCLClass* class_name = node_type->mClass;
 
-        xstrncat(real_struct_name, CLASS_NAME(class_name), size_real_struct_name);
+        xstrncat(real_struct_name, CLASS_NAME(node_type->mClass), size_real_struct_name);
+
+        int j;
+        for(j=0; j<node_type->mPointerNum; j++)
+        {
+            xstrncat(real_struct_name, "p", size_real_struct_name);
+        }
+
+        create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
 
         if(i != num_generics-1) {
             xstrncat(real_struct_name, "_", size_real_struct_name);
@@ -668,8 +673,9 @@ void create_undefined_llvm_struct_type(sNodeType* node_type)
 
     char real_struct_name[REAL_STRUCT_NAME_MAX];
     int size_real_struct_name = REAL_STRUCT_NAME_MAX;
+    xstrncpy(real_struct_name, class_name, size_real_struct_name);
 
-    create_real_struct_name(real_struct_name, size_real_struct_name, class_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
+    create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
 
     if(gLLVMStructType[real_struct_name].first == nullptr) 
     {
@@ -712,15 +718,30 @@ static BOOL is_generics_type(sNodeType* node_type)
 
 BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOOL new_create, sCompileInfo* info)
 {
+    int i;
+    for(i=0; i<generics_type->mNumGenericsTypes; i++)
+    {
+        sNodeType* node_type2 = generics_type->mGenericsTypes[i];
+
+        sCLClass* klass = node_type2->mClass;
+        if(klass->mFlags & CLASS_FLAGS_STRUCT)
+        {
+            if(!create_llvm_struct_type(node_type2, node_type2, new_create, info))
+            {
+                return FALSE;
+            }
+        }
+    }
+
     sCLClass* klass = node_type->mClass;
 
     char* class_name = CLASS_NAME(klass);
 
     char real_struct_name[REAL_STRUCT_NAME_MAX];
     int size_real_struct_name = REAL_STRUCT_NAME_MAX;
+    xstrncpy(real_struct_name, class_name, size_real_struct_name);
 
-    create_real_struct_name(real_struct_name, size_real_struct_name, class_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
-
+    create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
 
     if(klass->mUndefinedStructType && node_type->mPointerNum == 0) 
     {
@@ -788,6 +809,7 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOO
             for(i=0; i<klass->mNumFields; i++) {
                 sNodeType* field = clone_node_type(klass->mFields[i]);
 
+
                 sNodeType* generics_type2 = generics_type;
 
                 if(!is_generics_type(field) && field->mNumGenericsTypes > 0)
@@ -839,8 +861,9 @@ BOOL create_llvm_union_type(sNodeType* node_type, sNodeType* generics_type, sCom
 
     char real_struct_name[REAL_STRUCT_NAME_MAX];
     int size_real_struct_name = REAL_STRUCT_NAME_MAX;
+    xstrncpy(real_struct_name, class_name, size_real_struct_name);
 
-    create_real_struct_name(real_struct_name, size_real_struct_name, class_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
+    create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
 
     if(gLLVMStructType[real_struct_name].first == nullptr) 
     {
@@ -995,8 +1018,9 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
 
         char real_struct_name[REAL_STRUCT_NAME_MAX];
         int size_real_struct_name = REAL_STRUCT_NAME_MAX;
+        xstrncpy(real_struct_name, class_name, size_real_struct_name);
 
-        create_real_struct_name(real_struct_name, size_real_struct_name, class_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
+        create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
 
 /*
         if(gLLVMStructType[real_struct_name].first == nullptr) 
@@ -1023,8 +1047,9 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
 
         char real_struct_name[REAL_STRUCT_NAME_MAX];
         int size_real_struct_name = REAL_STRUCT_NAME_MAX;
+        xstrncpy(real_struct_name, class_name, size_real_struct_name);
 
-        create_real_struct_name(real_struct_name, size_real_struct_name, class_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
+        create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
 
         if(gLLVMStructType[real_struct_name].first == nullptr) 
         {
@@ -1668,6 +1693,7 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
             llvm_value.address = nullptr;
             llvm_value.var = nullptr;
             llvm_value.binded_value = FALSE;
+            llvm_value.load_field = FALSE;
 
             push_value_to_stack_ptr(&llvm_value, info);
 
@@ -1696,6 +1722,7 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
         llvm_value.binded_value = FALSE;
+        llvm_value.load_field = FALSE;
 
         push_value_to_stack_ptr(&llvm_value, info);
 
@@ -1798,6 +1825,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
     rvalue.address = nullptr;
     rvalue.var = nullptr;
     rvalue.binded_value = FALSE;
+    rvalue.load_field = FALSE;
 
     if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
     {
@@ -1828,6 +1856,7 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
     rvalue2.address = nullptr;
     rvalue2.var = nullptr;
     rvalue2.binded_value = FALSE;
+    rvalue2.load_field = FALSE;
 
     if(!cast_right_type_to_left_type(left_type2, &right_type2, &rvalue2, info))
     {
