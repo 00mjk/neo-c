@@ -16,14 +16,18 @@ impl VigWin version 4
 
         if(self.cursorX == wcslen(line)) 
         {
-            self.cursorX--;
-            p--;
+            self.cursorY++;
 
-            if(self.cursorX < 0) {
-                self.cursorX++;
-                p++;
+            if(self.cursorY >= self.texts.length())
+            {
+                self.cursorY--;
             }
+
+            line = self.texts.item(self.cursorY, wstring(""));
+
+            self.cursorX = 0;
         }
+
 
         if(wcslen(line) == 0) {
             while(wcslen(line) == 0) {
@@ -39,6 +43,52 @@ impl VigWin version 4
             }
 
             self.cursorX = 0;
+        }
+        else if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+        {
+            while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+            {
+                p++;
+                self.cursorX++;
+
+                if(self.cursorX >= line.length())
+                {
+                    self.cursorY++;
+
+                    if(self.cursorY >= self.texts.length())
+                    {
+                        self.cursorY--;
+                        break;
+                    }
+
+                    line = self.texts.item(self.cursorY, wstring(""));
+                    p = line;
+                    self.cursorX = 0;
+                }
+            }
+        }
+        else if((*p >= '!' && *p <= '/') || (*p >= ':' && *p <= '@') || (*p >= '{' && *p <= '~' ))
+        {
+            while((*p >= '!' && *p <= '/') || (*p >= ':' && *p <= '@') || (*p >= '{' && *p <= '~' ))
+            {
+                p++;
+                self.cursorX++;
+
+                if(self.cursorX >= line.length())
+                {
+                    self.cursorY++;
+
+                    if(self.cursorY >= self.texts.length())
+                    {
+                        self.cursorY--;
+                        break;
+                    }
+
+                    line = self.texts.item(self.cursorY, wstring(""));
+                    p = line;
+                    self.cursorX = 0;
+                }
+            }
         }
         else if(iswalpha(*p)) {
             while(iswalpha(*p)) {
@@ -137,6 +187,70 @@ impl VigWin version 4
 
             if(self.cursorX < 0) {
                 self.cursorX = 0;
+            }
+        }
+        else if((*p >= '!' && *p <= '/') || (*p >= ':' && *p <= '@') || (*p >= '{' && *p <= '~' ))
+        {
+            while((*p >= '!' && *p <= '/') || (*p >= ':' && *p <= '@') || (*p >= '{' && *p <= '~' ))
+            {
+                p--;
+                self.cursorX--;
+
+                if(self.cursorX < 0)
+                {
+                    self.cursorX = 0;
+                    self.cursorY--;
+
+                    if(self.cursorY < 0)
+                    {
+                        self.cursorY++;
+                        break;
+                    }
+
+                    line = self.texts.item(self.cursorY, wstring(""));
+
+                    if(wcslen(line) == 0)
+                    {
+                        p = line;
+                        self.cursorX = 0;
+                    }
+                    else {
+                        self.cursorX = wcslen(line) -1;
+                        p = line + self.cursorX;
+                    }
+                }
+            }
+        }
+        else if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+        {
+            while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+            {
+                p--;
+                self.cursorX--;
+
+                if(self.cursorX < 0)
+                {
+                    self.cursorX = 0;
+                    self.cursorY--;
+
+                    if(self.cursorY < 0)
+                    {
+                        self.cursorY++;
+                        break;
+                    }
+
+                    line = self.texts.item(self.cursorY, wstring(""));
+
+                    if(wcslen(line) == 0)
+                    {
+                        p = line;
+                        self.cursorX = 0;
+                    }
+                    else {
+                        self.cursorX = wcslen(line) -1;
+                        p = line + self.cursorX;
+                    }
+                }
             }
         }
         else if(iswalpha(*p)) {

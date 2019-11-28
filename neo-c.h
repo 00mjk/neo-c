@@ -433,7 +433,7 @@ impl list <T>
         return result;
     }
 
-    void clear(list<T>* self) {
+    void reset(list<T>* self) {
         list_item<T>* it = self.head;
         while(it != null) {
             if(isheap(T)) {
@@ -719,7 +719,7 @@ impl list <T>
 
         if(head == 0 && tail == self.len) 
         {
-            self.clear();
+            self.reset();
         }
         else if(head == 0) {
             list_item<T>?* it = self.head;

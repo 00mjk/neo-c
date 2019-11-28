@@ -10,4 +10,5 @@
 #include "vig3.h"
 #include "vig4.h"
 #include "vig5.h"
+#include "vig6.h"
 
