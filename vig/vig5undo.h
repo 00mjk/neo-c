@@ -11,6 +11,8 @@ impl VigWin version 5
 {
     initialize(int y, int x, int width, int height);
 
+    void pushUndo(VigWin* self);
+
     void undo(VigWin* self);
     void redo(VigWin* self);
 }

@@ -86,7 +86,7 @@ impl Vig
     }
 
     int main_loop(Vig* self) {
-        erase();
+        //erase();
 
         self.wins.each {
             it.view(self);

@@ -173,7 +173,7 @@ impl Vig version 3
 
     int main_loop(Vig* self) {
         while(!self.appEnd) {
-            erase();
+            //erase();
 
             self.wins.each {
                 it.view(self);

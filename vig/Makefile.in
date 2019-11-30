@@ -29,26 +29,29 @@ DESTDIR=@DESTDIR@
 ##########################################
 all: vig
 
-vig: configure Makefile config.h vig.nc vig1.o vig2.o vig3.o vig4.o vig5.o vig6.o vig.h
-	neo-c -o vig vig.nc vig1.o vig2.o vig3.o vig4.o vig5.o vig6.o $(CFLAGS) $(LIBS)
+vig: configure Makefile config.h vig.nc vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig.h
+	neo-c -o vig vig.nc vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o $(CFLAGS) $(LIBS)
 
-vig1.o: configure Makefile config.h vig1.nc vig1.h
-	neo-c -c vig1.nc $(CFLAGS) $(LIBS)
+vig1init.o: configure Makefile config.h vig1init.nc vig1init.h
+	neo-c -c vig1init.nc $(CFLAGS) $(LIBS)
 
-vig2.o: configure Makefile config.h vig1.nc vig2.nc vig1.h vig2.h
-	neo-c -c vig2.nc $(CFLAGS) $(LIBS)
+vig2base.o: configure Makefile config.h vig1init.nc vig2base.nc vig1init.h vig2base.h
+	neo-c -c vig2base.nc $(CFLAGS) $(LIBS)
 
-vig3.o: configure Makefile config.h vig1.nc vig2.nc vig3.nc vig1.h vig2.h vig3.h
-	neo-c -c vig3.nc $(CFLAGS) $(LIBS)
+vig3insert_mode.o: configure Makefile config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig1init.h vig2base.h vig3insert_mode.h
+	neo-c -c vig3insert_mode.nc $(CFLAGS) $(LIBS)
 
-vig4.o: configure Makefile config.h vig1.nc vig2.nc vig3.nc vig4.nc vig1.h vig2.h vig3.h vig4.h
-	neo-c -c vig4.nc $(CFLAGS) $(LIBS)
+vig4word.o: configure Makefile config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig1init.h vig2base.h vig3insert_mode.h vig4word.h
+	neo-c -c vig4word.nc $(CFLAGS) $(LIBS)
 
-vig5.o: configure config.h vig1.nc vig2.nc vig3.nc vig4.nc vig5.nc vig1.h vig2.h vig3.h vig4.h vig5.h
-	neo-c -c vig5.nc $(CFLAGS) $(LIBS)
+vig5undo.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig1init.h vig2base.h vig3insert_mode.h vig4word.h vig5undo.h
+	neo-c -c vig5undo.nc $(CFLAGS) $(LIBS)
 
-vig6.o: configure config.h vig1.nc vig2.nc vig3.nc vig4.nc vig5.nc vig6.nc vig1.h vig2.h vig3.h vig4.h vig5.h vig6.h
-	neo-c -c vig6.nc $(CFLAGS) $(LIBS)
+vig6file.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig1init.h vig2base.h vig3insert_mode.h vig4word.h vig5undo.h vig6file.h
+	neo-c -c vig6file.nc $(CFLAGS) $(LIBS)
+
+vig7yank.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig1init.h vig2base.h vig3insert_mode.h vig4word.h vig5undo.h vig6file.h vig7yank.h
+	neo-c -c vig7yank.nc $(CFLAGS) $(LIBS)
 
 #########################################
 # install
@@ -84,6 +87,7 @@ distclean: clean
 	rm -fR  config.h Makefile autom4te.cache 
 
 test:
-	rm -f valgrind.txt memleack_debug.txt
-	valgrind --log-file=valgrind.txt --leak-check=full --show-leak-kinds=all ./vig a.nc
+#	rm -f valgrind.txt memleack_debug.txt
+#	valgrind --log-file=valgrind.txt --leak-check=full --show-leak-kinds=all ./vig a.nc
+	./vig a.nc
 
