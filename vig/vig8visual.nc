@@ -25,6 +25,11 @@ impl VigWin version 8
                 mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
                 wattroff(self.win, A_REVERSE);
             }
+            else if(it2 <= self.visualModeHead && it2 >= self.cursorY) {
+                wattron(self.win, A_REVERSE);
+                mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
+                wattroff(self.win, A_REVERSE);
+            }
             else {
                 mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
             }
@@ -44,6 +49,40 @@ impl VigWin version 8
         else {
             inherit(self, vig);
         }
+    }
+
+    void yankOnVisualMode(VigWin* self, Vig* vig) {
+        int head = self.visualModeHead;
+        int tail = self.cursorY;
+
+        if(head >= tail) {
+            int tmp = tail;
+            tail = head;
+            head = tmp;
+        }
+
+        vig.yank.reset();
+        self.texts.sub_list(head, tail+1).each {
+            vig.yank.push_back(clone it);
+        }
+    }
+
+    void deleteOnVisualMode(VigWin* self, Vig* vig) {
+        self.pushUndo();
+
+        self.yankOnVisualMode(vig);
+
+        int head = self.visualModeHead;
+        int tail = self.cursorY;
+
+        if(head >= tail) {
+            int tmp = tail;
+            tail = head;
+            head = tmp;
+        }
+
+        self.texts.delete_range(head, tail+1);
+        self.cursorY -= tail - head;
     }
 
     void inputVisualMode(VigWin* self, Vig* vig)
@@ -76,6 +115,16 @@ impl VigWin version 8
                 break;
 
             case 'C'-'A'+1:
+                vig.exitFromVisualMode();
+                break;
+
+            case 'y':
+                self.yankOnVisualMode(vig);
+                vig.exitFromVisualMode();
+                break;
+
+            case 'd':
+                self.deleteOnVisualMode(vig);
                 vig.exitFromVisualMode();
                 break;
 

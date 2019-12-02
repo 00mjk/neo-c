@@ -875,6 +875,31 @@ impl list <T>
         };
     }
 
+    list<T>*% sub_list(list<T>* self, int begin, int tail) {
+        list<T>%* result = new list<T>.initialize();
+
+        if(begin < 0) {
+            begin += self.len;
+        }
+
+        if(tail < 0) {
+            tail += self.len + 1;
+        }
+
+
+        list_item<T>?* it = self.head;
+        var i = 0;
+        while(it != null) {
+            if(i >= begin && i < tail) {
+                result.push_back(clone it.item);
+            }
+            it = it.next;
+            i++;
+        };
+
+        return result;
+    }
+
     bool equals(list<T>* left, list<T>* right)
     {
         if(left.len != right.len) {
