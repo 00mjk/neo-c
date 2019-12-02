@@ -1,4 +1,6 @@
 
+enum eMode { kEditMode, kInsertMode };
+
 impl VigWin version 3 
 {
     void insertModeView(VigWin* self, Vig* vig);

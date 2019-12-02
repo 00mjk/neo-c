@@ -4994,6 +4994,8 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
     xstrncpy(struct_name, buf, VAR_NAME_MAX);
 
+    xstrncpy(info->impl_struct_name, struct_name, VAR_NAME_MAX);
+
     info->mNumGenerics = 0;
 
     if(*info->p == '<') {

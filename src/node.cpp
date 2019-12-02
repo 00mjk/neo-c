@@ -2939,6 +2939,8 @@ unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params
     xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
 
+    xstrncpy(gNodes[node].uValue.sFunctionCall.mImplStructName, info->impl_struct_name, VAR_NAME_MAX);
+
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
     gNodes[node].mMiddle = 0;
@@ -3019,26 +3021,32 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     char real_fun_name[REAL_FUN_NAME_MAX];
 
     char struct_name[VAR_NAME_MAX];
-    if(num_params2 > 0) {
-        if(method) {
-            if(strcmp(param_types[0]->mTypeName, "") == 0)
-            {
-                xstrncpy(struct_name, CLASS_NAME(param_types[0]->mClass), VAR_NAME_MAX);
+    if(inherit) {
+        xstrncpy(struct_name, gNodes[node].uValue.sFunctionCall.mImplStructName, VAR_NAME_MAX);
+        create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
+    }
+    else {
+        if(num_params2 > 0) {
+            if(method) {
+                if(strcmp(param_types[0]->mTypeName, "") == 0)
+                {
+                    xstrncpy(struct_name, CLASS_NAME(param_types[0]->mClass), VAR_NAME_MAX);
+                }
+                else {
+                    xstrncpy(struct_name,  param_types[0]->mTypeName, VAR_NAME_MAX);
+                }
+
+                create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
             }
             else {
-                xstrncpy(struct_name,  param_types[0]->mTypeName, VAR_NAME_MAX);
+                xstrncpy(struct_name, "", VAR_NAME_MAX);
+                create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
             }
-
-            create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
         }
         else {
             xstrncpy(struct_name, "", VAR_NAME_MAX);
             create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
         }
-    }
-    else {
-        xstrncpy(struct_name, "", VAR_NAME_MAX);
-        create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
     }
 
     /// get function ///
@@ -9618,6 +9626,8 @@ BOOL compile_switch_expression(unsigned int node, sCompileInfo* info)
 
     void* switch_expression_before = info->switch_expression;
     info->switch_expression = get_value_from_stack(-1)->value;
+    sNodeType* switch_expression_type_before = info->switch_expression_type;
+    info->switch_expression_type = clone_node_type(get_value_from_stack(-1)->type);
     dec_stack_ptr(1, info);
 
     info->case_else_block = nullptr;
@@ -9644,6 +9654,7 @@ BOOL compile_switch_expression(unsigned int node, sCompileInfo* info)
     }
 
     info->switch_expression = switch_expression_before;
+    info->switch_expression_type = switch_expression_type_before;
 
     free_right_value_objects(info);
     Builder.CreateBr(loop_end_block);
@@ -9721,6 +9732,7 @@ BOOL compile_case_expression(unsigned int node, sCompileInfo* info)
 
         dec_stack_ptr(1, info);
         Value* lvalue = (Value*)info->switch_expression;
+        sNodeType* left_type = info->switch_expression_type;
 
         if(lvalue == nullptr) {
             compile_err_msg(info, "No in the switch.");
@@ -9729,6 +9741,11 @@ BOOL compile_case_expression(unsigned int node, sCompileInfo* info)
             info->type = create_node_type_with_class_name("int"); // dummy
 
             return TRUE;
+        }
+
+        if(auto_cast_posibility(left_type, rvalue.type))
+        {
+            cast_right_type_to_left_type(left_type, &rvalue.type, &rvalue, info);
         }
 
         Value* conditional_value = Builder.CreateICmpEQ(lvalue, rvalue.value, "eqtmp");

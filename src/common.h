@@ -311,6 +311,7 @@ struct sParserInfoStruct
     char fun_name[VAR_NAME_MAX];
 
     char parse_struct_name[VAR_NAME_MAX];
+    char impl_struct_name[VAR_NAME_MAX];
 
     int mFunVersion;
     int mImplVersion;
@@ -397,6 +398,7 @@ struct sCompileInfoStruct
     int num_loop2;
 
     void* switch_expression;
+    sNodeType* switch_expression_type;
 
     void* case_else_block;
     void* case_then_block;
@@ -513,6 +515,7 @@ struct sNodeTreeStruct
             int mNumGenerics;
             char mGenericsTypeNames[PARAMS_MAX][VAR_NAME_MAX];
             int mVersion;
+            char mImplStructName[VAR_NAME_MAX];
         } sFunctionCall;
 
         struct {
