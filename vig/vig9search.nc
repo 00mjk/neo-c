@@ -66,18 +66,20 @@ impl VigWin version 9
     void search(VigWin* self, Vig* vig) {
         var cursor_line = self.texts.item(self.cursorY, null);
 
-        int x = cursor_line.index(vig.searchString, -1)
+        int x1 = cursor_line.substring(self.cursorX+1, -1).index(vig.searchString, -1)
 
-        if(x != -1) {
-            self.cursorX = x;
+        if(x1 != -1) {
+            x1 += self.cursorX + 1;
+            self.cursorX = x1;
         }
         else {
             self.texts.sublist(self.cursorY+1, -1).each {
-                int x = it.index(vig.searchString, -1)
+                int x = it.index(vig.searchString, -1);
 
                 if(x != -1) {
                     self.cursorY += it2 + 1;
                     self.cursorX = x;
+                    *it3 = true;
                     return;
                 }
             }
@@ -134,6 +136,11 @@ impl Vig version 9
         self.events.replace('/', lambda(Vig* self, int key) 
         {
             self.enterSearchMode();
+        });
+
+        self.events.replace('n', lambda(Vig* self, int key) 
+        {
+            self.activeWin.search(self);
         });
     }
 }

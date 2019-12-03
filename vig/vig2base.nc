@@ -54,7 +54,7 @@ impl VigWin version 2
         }
 
         wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "x %d y %d", self.cursorX, self.cursorY);
+        mvwprintw(self.win, self.height-1, 0, "x %d y %d search string %ls", self.cursorX, self.cursorY, vig.searchString);
         wattroff(self.win, A_REVERSE);
 
         wrefresh(self.win);

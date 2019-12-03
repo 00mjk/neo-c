@@ -275,9 +275,13 @@ impl vector<T>
 
         return default_value;
     }
-    void each(vector<T>*  self, void lambda(T&,int) block) {
+    void each(vector<T>*  self, void lambda(T&,int,bool*) block) {
         for(int i=0; i<self.len; i++) {
-            block(self.items[i], i);
+            bool end_flag = false;
+            block(self.items[i], i, &end_flag);
+            if(end_flag == true) {
+                break;
+            }
         };
     }
 
@@ -867,11 +871,16 @@ impl list <T>
         return default_value;
     }
     
-    void each(list<T>* self, void lambda(T&,int) block) {
+    void each(list<T>* self, void lambda(T&,int,bool*) block) {
         list_item<T>?* it = self.head;
         var i = 0;
         while(it != null) {
-            block(it.item, i);
+            bool end_flag = false;
+            block(it.item, i, &end_flag);
+
+            if(end_flag == true) {
+                break;
+            }
             it = it.next;
             i++;
         };
@@ -1249,11 +1258,15 @@ impl map <T, T2>
         return result;
     }
 
-    void each(map<T, T2>* self, void lambda(T&,T2&) block) 
+    void each(map<T, T2>* self, void lambda(T&,T2&,bool*) block) 
     {
         for(int i=0; i<self.size; i++) {
             if(self.item_existance[i]) {
-                block(self.keys[i], self.items[i]);
+                bool end_flag = false;
+                block(self.keys[i], self.items[i], &end_flag);
+                if(end_flag == true) {
+                    break;
+                }
             }
         }
     }
