@@ -62,7 +62,7 @@ impl VigWin version 8
         }
 
         vig.yank.reset();
-        self.texts.sub_list(head, tail+1).each {
+        self.texts.sublist(head, tail+1).each {
             vig.yank.push_back(clone it);
         }
     }
@@ -82,7 +82,10 @@ impl VigWin version 8
         }
 
         self.texts.delete_range(head, tail+1);
-        self.cursorY -= tail - head;
+
+        if(self.cursorY >= self.visualModeHead) {
+            self.cursorY -= tail - head;
+        }
     }
 
     void inputVisualMode(VigWin* self, Vig* vig)

@@ -47,7 +47,7 @@ string operator+(char* left, char* right)
 
 impl char
 {
-    string subString(char* str, int head, int tail)
+    string substring(char* str, int head, int tail)
     {
         int len = strlen(str);
 
@@ -115,7 +115,7 @@ impl string
         return result;
     }
 
-    string subString(string& str, int head, int tail)
+    string substring(string& str, int head, int tail)
     {
         int len = strlen(str);
 
@@ -144,6 +144,16 @@ impl string
         result[tail-head] = '\0';
 
         return result;
+    }
+    int index(string& str, char* search_str, int default_value)
+    {
+        char* head = strstr(str, search_str);
+
+        if(head == null) {
+            return default_value;
+        }
+
+        return head - str;
     }
 }
 
@@ -192,7 +202,7 @@ wstring operator+(wstring& left, wstring& right)
 
 impl wchar_t
 {
-    wstring subString(wchar_t* str, int head, int tail)
+    wstring substring(wchar_t* str, int head, int tail)
     {
         int len = wcslen(str);
 
@@ -262,7 +272,7 @@ impl wstring
         result
     }
 
-    wstring subString(wstring& str, int head, int tail)
+    wstring substring(wstring& str, int head, int tail)
     {
         int len = wcslen(str);
 
@@ -291,6 +301,17 @@ impl wstring
         result[tail-head] = '\0';
 
         return result;
+    }
+
+    int index(wstring& str, wchar_t* search_str, int default_value)
+    {
+        char* head = wcsstr(str, search_str);
+
+        if(head == null) {
+            return default_value;
+        }
+
+        return ((head - str) / sizeof(wchar_t));
     }
 }
 

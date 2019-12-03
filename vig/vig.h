@@ -13,4 +13,5 @@
 #include "vig6file.h"
 #include "vig7yank.h"
 #include "vig8visual.h"
+#include "vig9search.h"
 

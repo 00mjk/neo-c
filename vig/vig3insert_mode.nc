@@ -16,7 +16,7 @@ impl VigWin version 3
         self.texts.each {
             if(self.cursorY == it2) {
                 int x = 0;
-                wstring head_string = it.subString(0, self.cursorX);
+                wstring head_string = it.substring(0, self.cursorX);
                 if(!head_string.equals(wstring("")))
                 {
                     mvwprintw(self.win, it2, 0, "%s", head_string.toUtf8String());
@@ -24,7 +24,7 @@ impl VigWin version 3
 
                 x += wcswidth(head_string, head_string.length());
 
-                wstring cursor_string = it.subString(self.cursorX, self.cursorX+1);
+                wstring cursor_string = it.substring(self.cursorX, self.cursorX+1);
 
                 if(!cursor_string.equals(wstring("")))
                 {
@@ -35,7 +35,7 @@ impl VigWin version 3
 
                 x += wcswidth(cursor_string, cursor_string.length());
 
-                wstring tail_string = it.subString(self.cursorX+1, -1);
+                wstring tail_string = it.substring(self.cursorX+1, -1);
 
                 if(!tail_string.equals(wstring("")))
                 {
@@ -66,7 +66,7 @@ impl VigWin version 3
     void insertText(VigWin* self, wstring text) {
         var old_line = self.texts.item(self.cursorY, wstring(""));
 
-        var new_line = old_line.subString(0, self.cursorX) + text + old_line.subString(self.cursorX, -1);
+        var new_line = old_line.substring(0, self.cursorX) + text + old_line.substring(self.cursorX, -1);
 
         self.texts.replace(self.cursorY, new_line);
         self.cursorX++;
@@ -76,8 +76,8 @@ impl VigWin version 3
     {
         var old_line = self.texts.item(self.cursorY, wstring(""));
 
-        var new_line1 = old_line.subString(0, self.cursorX);
-        var new_line2 = old_line.subString(self.cursorX, -1);
+        var new_line1 = old_line.substring(0, self.cursorX);
+        var new_line2 = old_line.substring(self.cursorX, -1);
 
         self.texts.replace(self.cursorY, new_line1);
         self.texts.insert(self.cursorY+1, new_line2);

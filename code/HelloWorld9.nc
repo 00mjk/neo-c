@@ -129,7 +129,7 @@ int main()
 
     xassert("map test4", map!("AAA":1, "BBB":2).equals(map!("AAA":1, "BBB":2)));
 
-    var sub_str = string("ABC").subString(0, 1);
+    var sub_str = string("ABC").substring(0, 1);
 
     xassert("string test", strcmp(sub_str, "A") == 0);
 

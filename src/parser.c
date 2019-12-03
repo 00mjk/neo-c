@@ -2219,6 +2219,7 @@ static BOOL parse_return(unsigned int* node, sParserInfo* info)
         }
 
         expect_next_character_with_one_forward(")", info);
+        expect_next_character_with_one_forward(";", info);
     }
     else if(*info->p != ';') {
         if(!expression(node, info)) {

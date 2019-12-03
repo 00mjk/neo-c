@@ -21,7 +21,7 @@ impl VigWin version 2
                 }
                 else {
                     int x = 0;
-                    wstring head_string = it.subString(0, self.cursorX);
+                    wstring head_string = it.substring(0, self.cursorX);
                     if(!head_string.equals(wstring("")))
                     {
                         mvwprintw(self.win, it2, 0, "%s", head_string.toUtf8String());
@@ -29,7 +29,7 @@ impl VigWin version 2
 
                     x += wcswidth(head_string, head_string.length());
 
-                    wstring cursor_string = it.subString(self.cursorX, self.cursorX+1);
+                    wstring cursor_string = it.substring(self.cursorX, self.cursorX+1);
 
                     if(!cursor_string.equals(wstring("")))
                     {
@@ -40,7 +40,7 @@ impl VigWin version 2
 
                     x += wcswidth(cursor_string, cursor_string.length());
 
-                    wstring tail_string = it.subString(self.cursorX+1, -1);
+                    wstring tail_string = it.substring(self.cursorX+1, -1);
 
                     if(!tail_string.equals(wstring("")))
                     {

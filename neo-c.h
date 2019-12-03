@@ -73,7 +73,7 @@ impl char
         return strcmp(left, right) == 0;
     }
 
-    extern string subString(char* str, int head, int tail);
+    extern string substring(char* str, int head, int tail);
 
     inline int length(char* str)
     {
@@ -102,7 +102,7 @@ impl wchar_t
         return wcscmp(left, right) == 0;
     }
 
-    extern wstring subString(wchar_t* str, int head, int tail);
+    extern wstring substring(wchar_t* str, int head, int tail);
 
     inline int length(wchar_t* str)
     {
@@ -143,7 +143,8 @@ impl string
     extern bool equals(string& left, string& right);
     extern int length(string& str);
     extern int get_hash_key(string& value);
-    extern string subString(string& str, int head, int tail);
+    extern string substring(string& str, int head, int tail);
+    extern int index(string& str, char* search_str, int default_value);
 }
 
 /// wstring ///
@@ -152,12 +153,13 @@ extern wstring operator+(wstring& left, wstring& right);
 impl wstring
 {
     extern bool equals(wstring& left, wstring& right);
-    extern wstring subString(wstring& str, int head, int tail);
+    extern wstring substring(wstring& str, int head, int tail);
 
     extern int length(wstring& str);
     extern int get_hash_key(wstring& value);
 
     extern string toUtf8String(wstring& self);
+    extern int index(wstring& str, wchar_t* search_str, int default_value);
 }
 
 /// vector ///
@@ -875,7 +877,7 @@ impl list <T>
         };
     }
 
-    list<T>*% sub_list(list<T>* self, int begin, int tail) {
+    list<T>*% sublist(list<T>* self, int begin, int tail) {
         list<T>%* result = new list<T>.initialize();
 
         if(begin < 0) {

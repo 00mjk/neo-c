@@ -168,6 +168,9 @@ int main()
 
     var win = new VigWin.initialize();
 
+    xassert("string index test", string("ABC").index("B", -1) == 1);
+    xassert("wstring index test", wstring("ABC").index(wstring("C"), -1) == 2);
+
     0
 }
 

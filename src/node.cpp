@@ -1367,7 +1367,7 @@ static BOOL compile_div(unsigned int node, sCompileInfo* info)
     if(!compile(left_node, info)) {
         return FALSE;
     }
-    sNodeType* left_type = info->type;
+    sNodeType* left_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -1376,7 +1376,7 @@ static BOOL compile_div(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
