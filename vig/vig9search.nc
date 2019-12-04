@@ -66,11 +66,11 @@ impl VigWin version 9
     void search(VigWin* self, Vig* vig) {
         var cursor_line = self.texts.item(self.cursorY, null);
 
-        int x1 = cursor_line.substring(self.cursorX+1, -1).index(vig.searchString, -1)
+        int x = cursor_line.substring(self.cursorX+1, -1).index(vig.searchString, -1)
 
-        if(x1 != -1) {
-            x1 += self.cursorX + 1;
-            self.cursorX = x1;
+        if(x != -1) {
+            x += self.cursorX + 1;
+            self.cursorX = x;
         }
         else {
             self.texts.sublist(self.cursorY+1, -1).each {
@@ -78,6 +78,28 @@ impl VigWin version 9
 
                 if(x != -1) {
                     self.cursorY += it2 + 1;
+                    self.cursorX = x;
+                    *it3 = true;
+                    return;
+                }
+            }
+        }
+    }
+
+    void searchReverse(VigWin* self, Vig* vig) {
+        var cursor_line = self.texts.item(self.cursorY, null);
+
+        int x = cursor_line.substring(0, self.cursorX-1).rindex(vig.searchString, -1)
+
+        if(x != -1) {
+            self.cursorX = x;
+        }
+        else {
+            self.texts.sublist(0, self.cursorY).reverse().each {
+                int x = it.rindex(vig.searchString, -1);
+
+                if(x != -1) {
+                    self.cursorY = self.cursorY - it2 -1;
                     self.cursorX = x;
                     *it3 = true;
                     return;
@@ -141,6 +163,10 @@ impl Vig version 9
         self.events.replace('n', lambda(Vig* self, int key) 
         {
             self.activeWin.search(self);
+        });
+        self.events.replace('N', lambda(Vig* self, int key) 
+        {
+            self.activeWin.searchReverse(self);
         });
     }
 }

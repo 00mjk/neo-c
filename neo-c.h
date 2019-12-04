@@ -73,8 +73,6 @@ impl char
         return strcmp(left, right) == 0;
     }
 
-    extern string substring(char* str, int head, int tail);
-
     inline int length(char* str)
     {
         return strlen(str);
@@ -102,8 +100,6 @@ impl wchar_t
         return wcscmp(left, right) == 0;
     }
 
-    extern wstring substring(wchar_t* str, int head, int tail);
-
     inline int length(wchar_t* str)
     {
         return wcslen(str);
@@ -119,20 +115,6 @@ impl wchar_t
         }
         return result;
     }
-
-    inline string toUtf8String(wchar_t* self) 
-    {
-        int len = MB_LEN_MAX * (wcslen(self)+1);
-
-        string result = new char[len];
-
-        if(wcstombs(result, self, len) < 0) 
-        {
-            xstrncpy(result, "", len);
-        }
-
-        result
-    }
 }
 
 /// string ///
@@ -145,6 +127,7 @@ impl string
     extern int get_hash_key(string& value);
     extern string substring(string& str, int head, int tail);
     extern int index(string& str, char* search_str, int default_value);
+    extern int rindex(string& str, char* search_str, int default_value);
 }
 
 /// wstring ///
@@ -160,6 +143,7 @@ impl wstring
 
     extern string toUtf8String(wstring& self);
     extern int index(wstring& str, wchar_t* search_str, int default_value);
+    extern int rindex(wstring& str, wchar_t* search_str, int default_value);
 }
 
 /// vector ///
@@ -906,6 +890,18 @@ impl list <T>
             }
             it = it.next;
             i++;
+        };
+
+        return result;
+    }
+
+    list<T>*% reverse(list<T>* self) {
+        list<T>%* result = new list<T>.initialize();
+
+        list_item<T>?* it = self.tail;
+        while(it != null) {
+            result.push_back(clone it.item);
+            it = it.prev;
         };
 
         return result;

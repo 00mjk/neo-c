@@ -171,6 +171,13 @@ int main()
     xassert("string index test", string("ABC").index("B", -1) == 1);
     xassert("wstring index test", wstring("ABC").index(wstring("C"), -1) == 2);
 
+    xassert("string rindex test", string("ABCABC").rindex("BC", -1) == 4);
+    xassert("wstring rindex test", wstring("ABCABC").rindex(wstring("BC"), -1) == 4);
+
+    var li13 = list!("AAA", "BBB", "CCC");
+
+    xassert("list reverse test", li13.equals(list!("CCC", "BBB", "AAA")));
+
     0
 }
 

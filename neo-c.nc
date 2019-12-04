@@ -45,40 +45,6 @@ string operator+(char* left, char* right)
     result
 }
 
-impl char
-{
-    string substring(char* str, int head, int tail)
-    {
-        int len = strlen(str);
-
-        if(head < 0) {
-            head += len + 1;
-        }
-        if(tail < 0) {
-            tail += len + 1;
-        }
-
-        if(head < 0) {
-            head = 0;
-        }
-
-        if(tail >= len) {
-            tail = len;
-        }
-
-        if(str == null || head >= tail) {
-            return string("");
-        }
-
-        string result = new char[tail-head+1];
-
-        memcpy(result, str + head, tail-head);
-        result[tail-head] = '\0';
-
-        return result;
-    }
-}
-
 string operator+(string& left, string& right)
 {
     int len1 = strlen(left);
@@ -154,6 +120,21 @@ impl string
         }
 
         return head - str;
+    }
+    int rindex(string& str, char* search_str, int default_value)
+    {
+        int len = strlen(search_str);
+        char* p = str + strlen(str) - len;
+
+        while(p >= str) {
+            if(strncmp(p, search_str, len) == 0) {
+                return p - str;
+            }
+
+            p--;
+        }
+
+        return default_value;
     }
 }
 
@@ -312,6 +293,22 @@ impl wstring
         }
 
         return ((head - str) / sizeof(wchar_t));
+    }
+    int rindex(wstring& str, wchar_t* search_str, int default_value)
+    {
+        int len = wcslen(search_str);
+
+        wchar_t* p = str + wcslen(str) - len;
+
+        while(p >= str) {
+            if(wcsncmp(p, search_str, len) == 0) {
+                return ((p - str) / sizeof(wchar_t));
+            }
+
+            p--;
+        }
+
+        return default_value;
     }
 }
 
