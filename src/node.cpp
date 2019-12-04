@@ -670,7 +670,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     xstrncpy(info2.sname, sname, PATH_MAX);
     info2.source = buf;
     info2.module_name = info->module_name;
-    info2.sline = sline-2;
+    info2.sline = sline;
     info2.parse_phase = info->parse_phase;
     info2.lv_table = info->lv_table;
     info2.in_clang = in_clang;
