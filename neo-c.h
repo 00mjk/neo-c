@@ -128,6 +128,8 @@ impl string
     extern string substring(string& str, int head, int tail);
     extern int index(string& str, char* search_str, int default_value);
     extern int rindex(string& str, char* search_str, int default_value);
+    extern string&delete(string& str, int position);
+    extern string& delete_range(string& str, int head, int tail);
 }
 
 /// wstring ///
@@ -136,14 +138,15 @@ extern wstring operator+(wstring& left, wstring& right);
 impl wstring
 {
     extern bool equals(wstring& left, wstring& right);
-    extern wstring substring(wstring& str, int head, int tail);
-
     extern int length(wstring& str);
     extern int get_hash_key(wstring& value);
-
-    extern string toUtf8String(wstring& self);
+    extern wstring substring(wstring& str, int head, int tail);
     extern int index(wstring& str, wchar_t* search_str, int default_value);
     extern int rindex(wstring& str, wchar_t* search_str, int default_value);
+    extern wstring& delete(wstring& str, int position);
+    extern wstring& delete_range(wstring& str, int head, int tail);
+
+    extern string toUtf8String(wstring& self);
 }
 
 /// vector ///

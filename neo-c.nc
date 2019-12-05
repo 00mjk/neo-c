@@ -136,6 +136,20 @@ impl string
 
         return default_value;
     }
+    string& delete(string& str, int position) {
+        string sub_str = str.substring(position+1, -1);
+
+        memcpy(str + position, sub_str, sub_str.length()+1);
+
+        return str;
+    }
+    string& delete_range(string& str, int head, int tail) {
+        string sub_str = str.substring(tail, -1);
+
+        memcpy(str + head, sub_str, sub_str.length()+1);
+
+        return str;
+    }
 }
 
 /// wstring ///
@@ -309,6 +323,20 @@ impl wstring
         }
 
         return default_value;
+    }
+    wstring& delete(wstring& str, int position) {
+        wstring sub_str = str.substring(position+1, -1);
+
+        memcpy(str + position, sub_str, sizeof(wchar_t)*(sub_str.length()+1));
+
+        return str;
+    }
+    wstring& delete_range(wstring& str, int head, int tail) {
+        wstring sub_str = str.substring(tail, -1);
+
+        memcpy(str + head, sub_str, sizeof(wchar_t)*(sub_str.length()+1));
+
+        return str;
     }
 }
 

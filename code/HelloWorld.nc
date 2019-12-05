@@ -207,15 +207,6 @@ int main()
     xassert("lambda test", xxx == 7);
     xassert("lambda test2", bb == 2);
 
-    int xa = if(false) {
-        111
-    }
-    else {
-        222
-    }
-
-    xassert("if test", xa == 222);
-
     struct TestData 
     {
         int a;

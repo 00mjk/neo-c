@@ -211,8 +211,8 @@ void *xrealloc(void *block, size_t size)
 void *xasprintf(char* msg, ...)
 {
 #ifdef MDEBUG
-gNumMemAlloc++;
-if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
+    gNumMemAlloc++;
+    if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
 #endif
     va_list args;
     va_start(args, msg);

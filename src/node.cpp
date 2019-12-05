@@ -2217,7 +2217,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     {
         if(!solve_typeof(&left_type, info)) 
         {
-            compile_err_msg(info, "Can't solve typeof types");
+            compile_err_msg(info, "Can't solve typeof types.");
             show_node_type(left_type);
             info->err_num++;
 
@@ -2279,7 +2279,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
         if(!substitution_posibility(left_type, right_type, info)) 
         {
-            compile_err_msg(info, "The different type between left type and right type. store variable");
+            compile_err_msg(info, "The different type between left type and right type. store variable. var name is %s", var_name);
             show_node_type(left_type);
             show_node_type(right_type);
             info->err_num++;
@@ -2292,7 +2292,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         Type* llvm_var_type;
         if(!create_llvm_type_from_node_type(&llvm_var_type, left_type, left_type, info))
         {
-            compile_err_msg(info, "Getting llvm type failed(1)");
+            compile_err_msg(info, "Getting llvm type failed(1). var name is %s", var_name);
             show_node_type(left_type);
             info->err_num++;
 
@@ -4922,47 +4922,13 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     llvm_change_block(cond_then_block, &current_block_before, info, FALSE);
 
     sNodeBlock* if_block = gNodes[node].uValue.sIf.mIfNodeBlock;
-    sNodeType* result_type = create_node_type_with_class_name("any");
-    result_type->mHeap = TRUE;
+    sNodeType* result_type = create_node_type_with_class_name("void");
 
     BOOL last_expression_is_return_before = info->last_expression_is_return;
     info->last_expression_is_return = FALSE;
 
     if(!compile_block(if_block, info, result_type, TRUE)) {
         return FALSE;
-    }
-
-    Value* result_value = nullptr;
-    int result_value_alignment;
-    result_type = clone_node_type(info->type);
-
-    if(type_identify_with_class_name(info->type, "void"))
-    {
-        result_value = nullptr;
-        result_value_alignment = 0;
-    }
-    else {
-        LVALUE llvm_value = *get_value_from_stack(-1);
-
-        Type* llvm_result_type;
-        if(!create_llvm_type_from_node_type(&llvm_result_type, result_type, result_type, info))
-        {
-            compile_err_msg(info, "Getting llvm type failed(7)");
-            show_node_type(result_type);
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
-        IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
-
-        result_value = builder.CreateAlloca(llvm_result_type, 0, "if_result_value");
-
-        result_value_alignment = get_llvm_alignment_from_node_type(info->type);
-
-        Builder.CreateAlignedStore(llvm_value.value, result_value, result_value_alignment);
     }
 
     if(!info->last_expression_is_return) {
@@ -5043,24 +5009,6 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
-            if(result_value != nullptr) {
-                if(!type_identify(info->type, result_type))
-                {
-                    compile_err_msg(info, "Different result type for if/else block. If you avoid this and don't need result value for if expression, append ; at the end of block(1)");
-                    show_node_type(info->type);
-                    show_node_type(result_type);
-                    info->err_num++;
-
-                    info->type = create_node_type_with_class_name("int"); // dummy
-
-                    return TRUE;
-                }
-
-                LVALUE llvm_value = *get_value_from_stack(-1);
-
-                Builder.CreateAlignedStore(llvm_value.value, result_value, result_value_alignment);
-            }
-
             if(!info->last_expression_is_return) {
                 free_right_value_objects(info);
                 Builder.CreateBr(cond_end_block);
@@ -5082,24 +5030,6 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        if(result_value != nullptr) {
-            if(!type_identify(info->type, result_type))
-            {
-                compile_err_msg(info, "Different result type for if/else block. If you avoid this and don't need result value for if expression, append ; at the end of block(2)");
-                info->err_num++;
-                show_node_type(info->type);
-                show_node_type(result_type);
-
-                info->type = create_node_type_with_class_name("int"); // dummy
-
-                return TRUE;
-            }
-
-            LVALUE llvm_value = *get_value_from_stack(-1);
-
-            Builder.CreateAlignedStore(llvm_value.value, result_value, result_value_alignment);
-        }
-
         if(!info->last_expression_is_return) {
             free_right_value_objects(info);
             Builder.CreateBr(cond_end_block);
@@ -5111,27 +5041,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     BasicBlock* current_block_before2;
     llvm_change_block(cond_end_block, &current_block_before2, info, FALSE);
 
-    if(result_value != nullptr) {
-        LVALUE llvm_value;
-        llvm_value.value = Builder.CreateAlignedLoad(result_value, result_value_alignment);
-        llvm_value.type = result_type;
-        llvm_value.address = nullptr;
-        llvm_value.var = nullptr;
-        llvm_value.binded_value = FALSE;
-        llvm_value.load_field = FALSE;
-
-        info->type = result_type;
-
-        dec_stack_ptr(1, info);
-        push_value_to_stack_ptr(&llvm_value, info);
-
-        if(llvm_value.type->mHeap) {
-            append_heap_object_to_right_value(&llvm_value, info);
-        }
-    }
-    else {
-        info->type = create_node_type_with_class_name("void");
-    }
+    info->type = create_node_type_with_class_name("void");
 
     return TRUE;
 }
@@ -6358,6 +6268,8 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     BasicBlock* current_block_before3;
     llvm_change_block(cond_end_block, &current_block_before3, info, FALSE);
 
+    info->type = create_node_type_with_class_name("void");
+
     return TRUE;
 }
 
@@ -6473,6 +6385,7 @@ static BOOL compile_do_while_expression(unsigned int node, sCompileInfo* info)
 
     info->last_expression_is_return = last_expression_is_return_before;
 */
+    info->type = create_node_type_with_class_name("void");
 
     return TRUE;
 }
@@ -6974,6 +6887,8 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
 
     info->pinfo->lv_table = lv_table_before;
 
+    info->type = create_node_type_with_class_name("void");
+
     return TRUE;
 }
 
@@ -7220,7 +7135,7 @@ static BOOL compile_reffernce(unsigned int node, sCompileInfo* info)
     dec_stack_ptr(1, info);
 
     if(lvalue.address == nullptr) {
-        compile_err_msg(info, "Can't get address of this value");
+        compile_err_msg(info, "Can't get address of this value on & operator");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -7275,7 +7190,7 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
     LVALUE lvalue = *get_value_from_stack(-1);
 
     if(lvalue.address == nullptr) {
-        compile_err_msg(info, "Can't get address of this value");
+        compile_err_msg(info, "Can't get address of this value on clone operator");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy

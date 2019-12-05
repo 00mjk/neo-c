@@ -178,6 +178,12 @@ int main()
 
     xassert("list reverse test", li13.equals(list!("CCC", "BBB", "AAA")));
 
+    xassert("string delete test1", string("ABCDEFG").delete(2).equals("ABDEFG"));
+    xassert("string delete test2", string("ABCDEFG").delete_range(2, 4).equals("ABEFG"));
+
+    xassert("wstring delete test1", wstring("ABCDEFG").delete(2).equals(wstring("ABDEFG")));
+    xassert("wstring delete test2", wstring("ABCDEFG").delete_range(2, 4).equals(wstring("ABEFG")));
+
     0
 }
 

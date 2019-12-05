@@ -1612,6 +1612,7 @@ void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info)
 #ifdef MDEBUG
     printf("remove from right value%p\n", llvm_value->value);
 #endif
+
                 right_value_objects->erase(llvm_value->value);
             }
 

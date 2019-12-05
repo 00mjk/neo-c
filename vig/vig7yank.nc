@@ -19,6 +19,19 @@ impl VigWin version 7
                     clone it);
             }
         }
+        else {
+            self.pushUndo();
+
+            var line = self.texts.item(self.cursorY, null);
+
+            var yank_first_line = vig.yank.item(0, null);
+
+            var new_line = line.substring(0, self.cursorX+1) 
+                                + yank_first_line 
+                                + line.substring(self.cursorX-1, -1);
+
+            self.texts.replace(self.cursorY, clone new_line);
+        }
     }
 
     void pasteBeforeCursor(VigWin* self, Vig* vig) {
@@ -29,6 +42,19 @@ impl VigWin version 7
                     self.cursorY+it2, 
                     clone it);
             }
+        }
+        else {
+            self.pushUndo();
+
+            var line = self.texts.item(self.cursorY, null);
+
+            var yank_first_line = vig.yank.item(0, null);
+
+            var new_line = line.substring(0, self.cursorX) 
+                                + yank_first_line 
+                                + line.substring(self.cursorX, -1);
+
+            self.texts.replace(self.cursorY, clone new_line);
         }
     }
 }

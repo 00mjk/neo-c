@@ -260,9 +260,11 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                 }
                 else if(has_result) {
                     LVALUE llvm_value = *get_value_from_stack(-1);
-                    arrange_stack(info, stack_num_before);
 
-                    if(llvm_value.type == NULL || type_identify_with_class_name(llvm_value.type, "void")) {
+                    if(llvm_value.type == NULL 
+                        || type_identify_with_class_name(llvm_value.type, "void") 
+                        || (result_type && type_identify_with_class_name(result_type, "void")))
+                    {
                         arrange_stack(info, stack_num_before);
 
                         info->type = create_node_type_with_class_name("void");
@@ -270,6 +272,8 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                         llvm_value.type = info->type;
                     }
                     else {
+                        arrange_stack(info, stack_num_before);
+
                         if(auto_cast_posibility(result_type, llvm_value.type))
                         {
                             cast_right_type_to_left_type(result_type, &llvm_value.type, &llvm_value, info);
