@@ -262,41 +262,50 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                     LVALUE llvm_value = *get_value_from_stack(-1);
                     arrange_stack(info, stack_num_before);
 
-                    if(auto_cast_posibility(result_type, llvm_value.type))
-                    {
-                        cast_right_type_to_left_type(result_type, &llvm_value.type, &llvm_value, info);
+                    if(llvm_value.type == NULL || type_identify_with_class_name(llvm_value.type, "void")) {
+                        arrange_stack(info, stack_num_before);
+
+                        info->type = create_node_type_with_class_name("void");
+
+                        llvm_value.type = info->type;
                     }
-
-                    if(!substitution_posibility(result_type, llvm_value.type, info)) {
-                        compile_err_msg(info, "The different type between left type and right type.(1)");
-                        show_node_type(result_type);
-                        show_node_type(llvm_value.type);
-                        info->err_num++;
-
-                        info->type = create_node_type_with_class_name("int"); // dummy
-
-                        if(!extern_c_lang) {
-                            info->mBlockLevel--;
+                    else {
+                        if(auto_cast_posibility(result_type, llvm_value.type))
+                        {
+                            cast_right_type_to_left_type(result_type, &llvm_value.type, &llvm_value, info);
                         }
-                        return TRUE;
-                    }
 
-                    if(llvm_value.binded_value) {
-                        if(llvm_value.var) {
-                            sVar* var = llvm_value.var;
+                        if(!substitution_posibility(result_type, llvm_value.type, info)) {
+                            compile_err_msg(info, "The different type between left type and right type.(1)");
+                            show_node_type(result_type);
+                            show_node_type(llvm_value.type);
+                            info->err_num++;
 
-                            if(is_included_var_from_this_table_only(info->pinfo->lv_table, var))
-                            {
-                                llvm_value.binded_value = FALSE;
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            if(!extern_c_lang) {
+                                info->mBlockLevel--;
+                            }
+                            return TRUE;
+                        }
+
+                        if(llvm_value.binded_value) {
+                            if(llvm_value.var) {
+                                sVar* var = llvm_value.var;
+
+                                if(is_included_var_from_this_table_only(info->pinfo->lv_table, var))
+                                {
+                                    llvm_value.binded_value = FALSE;
+                                }
                             }
                         }
+
+                        prevent_from_right_object_free(&llvm_value, info);
+
+                        push_value_to_stack_ptr(&llvm_value, info);
+
+                        info->type = llvm_value.type;
                     }
-
-                    prevent_from_right_object_free(&llvm_value, info);
-
-                    push_value_to_stack_ptr(&llvm_value, info);
-
-                    info->type = llvm_value.type;
                 }
                 else {
                     arrange_stack(info, stack_num_before);

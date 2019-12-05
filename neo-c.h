@@ -867,7 +867,7 @@ impl list <T>
             }
             it = it.next;
             i++;
-        };
+        }
     }
 
     list<T>*% sublist(list<T>* self, int begin, int tail) {

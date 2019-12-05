@@ -14,4 +14,5 @@
 #include "vig7yank.h"
 #include "vig8visual.h"
 #include "vig9search.h"
+#include "vig10edit.h"
 
