@@ -9,14 +9,20 @@
 
 impl VigWin version 2 
 {
-    void view(VigWin* self, Vig* vig) {
-        werase(self.win);
-
+    void textsView(VigWin* self, Vig* vig)
+    {
         self.texts.each {
             if(self.cursorY == it2) {
                 if(it.length() == 0) {
                     wattron(self.win, A_REVERSE);
                     mvwprintw(self.win, it2, 0, " ");
+                    wattroff(self.win, A_REVERSE);
+                }
+                else if(self.cursorX == it.length())
+                {
+                    mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
+                    wattron(self.win, A_REVERSE);
+                    mvwprintw(self.win, it2, wcswidth(it, it.length()), " ");
                     wattroff(self.win, A_REVERSE);
                 }
                 else {
@@ -52,6 +58,12 @@ impl VigWin version 2
                 mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
             }
         }
+    }
+
+    void view(VigWin* self, Vig* vig) {
+        werase(self.win);
+
+        self.textsView(vig);
 
         wattron(self.win, A_REVERSE);
         mvwprintw(self.win, self.height-1, 0, "x %d y %d search string %ls", self.cursorX, self.cursorY, vig.searchString);

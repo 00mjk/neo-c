@@ -13,39 +13,7 @@ impl VigWin version 3
     {
         werase(self.win);
 
-        self.texts.each {
-            if(self.cursorY == it2) {
-                int x = 0;
-                wstring head_string = it.substring(0, self.cursorX);
-                if(!head_string.equals(wstring("")))
-                {
-                    mvwprintw(self.win, it2, 0, "%s", head_string.toUtf8String());
-                }
-
-                x += wcswidth(head_string, head_string.length());
-
-                wstring cursor_string = it.substring(self.cursorX, self.cursorX+1);
-
-                if(!cursor_string.equals(wstring("")))
-                {
-                    wattron(self.win, A_REVERSE);
-                    mvwprintw(self.win, it2, x, "%s", cursor_string.toUtf8String());
-                    wattroff(self.win, A_REVERSE);
-                }
-
-                x += wcswidth(cursor_string, cursor_string.length());
-
-                wstring tail_string = it.substring(self.cursorX+1, -1);
-
-                if(!tail_string.equals(wstring("")))
-                {
-                    mvwprintw(self.win, it2, x, "%s", tail_string.toUtf8String());
-                }
-            }
-            else {
-                mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
-            }
-        }
+        self.textsView(vig);
 
         wattron(self.win, A_REVERSE);
         mvwprintw(self.win, self.height-1, 0, "INSERT MODE x %d y %d", self.cursorX, self.cursorY);

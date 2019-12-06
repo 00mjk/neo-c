@@ -7,6 +7,7 @@ struct VigWin version 2
 
 impl VigWin version 2 
 {
+    void textsView(VigWin* self, Vig* vig);
     void view(VigWin* self, Vig* vig);
     void input(VigWin* self, Vig* vig);
     wchar_t* getCursorLine(VigWin* self);
