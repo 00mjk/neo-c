@@ -1314,7 +1314,15 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
         }
     }
 
-    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || (klass && *info->p == '(') || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0 || strcmp(buf, "__extension__") == 0 || strcmp(buf, "typeof") == 0;
+    BOOL string_function = strcmp(buf, "string") == 0 && *info->p == '(';
+    BOOL wstring_function = strcmp(buf, "wstring") == 0 && *info->p == '(';
+
+    if(string_function || wstring_function)
+    {
+        return FALSE;
+    }
+
+    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0 || strcmp(buf, "__extension__") == 0 || strcmp(buf, "typeof") == 0;
 }
 
 static BOOL is_premitive_type(char* buf, sParserInfo* info)
@@ -5574,10 +5582,10 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
             return FALSE;
         }
 
-        info->p = p_before;
-        info->sline = sline_before;
-
         if(is_type_name(buf, info)) {
+            info->p = p_before;
+            info->sline = sline_before;
+
             sNodeType* node_type = NULL;
             if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE))
             {
@@ -5598,6 +5606,9 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
             *node = sNodeTree_create_cast(node_type, *node, info);
         }
         else {
+            info->p = p_before;
+            info->sline = sline_before;
+
             if(!expression(node, info)) {
                 return FALSE;
             }

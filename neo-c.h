@@ -65,6 +65,7 @@ impl int
 
 /// char* ///
 extern string operator+(char* left, char* right);
+extern string operator*(char* left, int num);
 
 impl char
 {
@@ -92,6 +93,7 @@ impl char
 
 /// wchar_t ///
 extern wstring operator+(wchar_t* left, wchar_t* right);
+extern wstring operator*(wchar_t* left, int num);
 
 impl wchar_t
 {
@@ -119,6 +121,7 @@ impl wchar_t
 
 /// string ///
 extern string operator+(string& left, string& right);
+extern string operator*(string& left, int num);
 
 impl string
 {
@@ -134,6 +137,7 @@ impl string
 
 /// wstring ///
 extern wstring operator+(wstring& left, wstring& right);
+extern wstring operator*(wstring& left, int num);
 
 impl wstring
 {

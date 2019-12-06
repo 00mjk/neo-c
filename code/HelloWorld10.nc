@@ -184,6 +184,14 @@ int main()
     xassert("wstring delete test1", wstring("ABCDEFG").delete(2).equals(wstring("ABDEFG")));
     xassert("wstring delete test2", wstring("ABCDEFG").delete_range(2, 4).equals(wstring("ABEFG")));
 
+    var aaa = string("ABC") * 3;
+
+    puts(aaa);
+
+    xassert("string multiply test", (string("ABC") * 3).equals("ABCABCABC"));
+
+    xassert("wstring multiply test", (wstring("ABC") * 3).equals(wstring("ABCABCABC")));
+
     0
 }
 

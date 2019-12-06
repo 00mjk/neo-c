@@ -1286,15 +1286,18 @@ static BOOL compile_mult(unsigned int node, sCompileInfo* info)
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
-    if(auto_cast_posibility(left_type, right_type)) {
-        if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
-        {
-            compile_err_msg(info, "Cast failed");
-            info->err_num++;
+    if(!(left_type->mPointerNum > 0 && is_number_type(right_type)))
+    {
+        if(auto_cast_posibility(left_type, right_type)) {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int"); // dummy
 
-            return TRUE;
+                return TRUE;
+            }
         }
     }
 
@@ -1327,6 +1330,7 @@ static BOOL compile_mult(unsigned int node, sCompileInfo* info)
         params[1] = rvalue.value;
 
         char real_fun_name[REAL_FUN_NAME_MAX];
+
 
         create_operator_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "op_mult", param_types, num_params);
 

@@ -85,6 +85,27 @@ impl VigWin version 3
         self.cursorX = 0;
     }
 
+    void enterNewLine2(VigWin* self)
+    {
+        var line = self.texts.item(self.cursorY, null);
+        int num_spaces = 0;
+        for(int i=0; i<line.length(); i++)
+        {
+            if(line[i] == ' ') {
+                num_spaces++;
+            }
+            else {
+                break;
+            }
+        }
+
+        var new_line = wstring(" ") * num_spaces;
+
+        self.texts.insert(self.cursorY+1, new_line);
+        self.cursorY++;
+        self.cursorX = num_spaces;
+    }
+
     void inputInsertMode(VigWin* self, Vig* vig)
     {
         var key = wgetch(self.win);
@@ -165,7 +186,7 @@ impl Vig version 3
         self.events.replace('o', lambda(Vig* self, int key) 
         {
             self.enterInsertMode();
-            self.activeWin.enterNewLine();
+            self.activeWin.enterNewLine2();
         });
     }
 

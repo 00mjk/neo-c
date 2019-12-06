@@ -45,6 +45,21 @@ string operator+(char* left, char* right)
     result
 }
 
+string operator*(char* left, int num)
+{
+    int len = strlen(left);
+
+    string result = new char[len * num + 1];
+
+    result[0] = '\0';
+
+    for(int i=0; i<num; i++) {
+        strcat(result, left);
+    }
+
+    result
+}
+
 string operator+(string& left, string& right)
 {
     int len1 = strlen(left);
@@ -54,6 +69,21 @@ string operator+(string& left, string& right)
 
     strcpy(result, left);
     strcat(result, right);
+
+    result
+}
+
+string operator*(string& left, int num)
+{
+    int len = strlen(left);
+
+    string result = new char[len * num + 1];
+
+    result[0] = '\0';
+
+    for(int i=0; i<num; i++) {
+        strcat(result, left);
+    }
 
     result
 }
@@ -182,6 +212,21 @@ wstring operator+(wchar_t* left, wchar_t* right)
     result
 }
 
+wstring operator*(wchar_t* left, int num)
+{
+    int len = wcslen(left);
+
+    wstring result = new wchar_t[len * num + 1];
+
+    result[0] = '\0';
+
+    for(int i=0; i<num; i++) {
+        wcscat(result, left);
+    }
+
+    result
+}
+
 wstring operator+(wstring& left, wstring& right)
 {
     int len1 = wcslen(left);
@@ -191,6 +236,21 @@ wstring operator+(wstring& left, wstring& right)
 
     wcscpy(result, left);
     wcscat(result, right);
+
+    result
+}
+
+wstring operator*(wstring& left, int num)
+{
+    int len = wcslen(left);
+
+    wstring result = new wchar_t[len * num + 1];
+
+    result[0] = '\0';
+
+    for(int i=0; i<num; i++) {
+        wcscat(result, left);
+    }
 
     result
 }
