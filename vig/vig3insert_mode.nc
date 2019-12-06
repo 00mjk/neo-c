@@ -37,20 +37,33 @@ impl VigWin version 3
         var new_line = old_line.substring(0, self.cursorX) + text + old_line.substring(self.cursorX, -1);
 
         self.texts.replace(self.cursorY, new_line);
-        self.cursorX++;
+        self.cursorX += text.length();
     }
 
     void enterNewLine(VigWin* self)
     {
         var old_line = self.texts.item(self.cursorY, wstring(""));
 
+        int num_spaces = 0;
+        for(int i=0; i<old_line.length(); i++)
+        {
+            if(old_line[i] == ' ') {
+                num_spaces++;
+            }
+            else {
+                break;
+            }
+        }
+
+        var head_new_line = wstring(" ") * num_spaces;
+
         var new_line1 = old_line.substring(0, self.cursorX);
-        var new_line2 = old_line.substring(self.cursorX, -1);
+        var new_line2 = head_new_line + old_line.substring(self.cursorX, -1);
 
         self.texts.replace(self.cursorY, new_line1);
         self.texts.insert(self.cursorY+1, new_line2);
         self.cursorY++;
-        self.cursorX = 0;
+        self.cursorX = num_spaces;
     }
 
     void enterNewLine2(VigWin* self)
@@ -74,6 +87,15 @@ impl VigWin version 3
         self.cursorX = num_spaces;
     }
 
+    void backSpace(VigWin* self) {
+        var line = self.texts.item(self.cursorY, wstring(""));
+
+        if(line.length() > 0 && self.cursorX > 0) {
+            line.delete(self.cursorX-1);
+            self.cursorX--;
+        }
+    }
+
     void inputInsertMode(VigWin* self, Vig* vig)
     {
         var key = wgetch(self.win);
@@ -84,7 +106,11 @@ impl VigWin version 3
         else if(key == 10) {
             self.enterNewLine();
         }
-        else if(key == 127) {
+        else if(key == 8 || key == 127) {
+            self.backSpace();
+        }
+        else if(key == 9) {
+            self.insertText(wstring("    "));
         }
         else if(key > 127) {
             var size = ((key & 0x80) >> 7) + ((key & 0x40) >> 6) + ((key & 0x20) >> 5) + ((key & 0x10) >> 4);

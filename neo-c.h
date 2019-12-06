@@ -133,6 +133,7 @@ impl string
     extern int rindex(string& str, char* search_str, int default_value);
     extern string&delete(string& str, int position);
     extern string& delete_range(string& str, int head, int tail);
+    extern string printable(string& str);
 }
 
 /// wstring ///
@@ -151,6 +152,7 @@ impl wstring
     extern wstring& delete_range(wstring& str, int head, int tail);
 
     extern string toUtf8String(wstring& self);
+    extern wstring printable(wstring& str);
 }
 
 /// vector ///

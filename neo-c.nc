@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
+#include <wctype.h>
 
 /// others ///
 void xassert(char* msg, bool exp) 
@@ -179,6 +181,30 @@ impl string
         memcpy(str + head, sub_str, sub_str.length()+1);
 
         return str;
+    }
+    string printable(string& str)
+    {
+        int len = str.length();
+        string result = new char[len*2+1];
+
+        int n = 0;
+        for(int i=0; i<len; i++) {
+            char c = str[i];
+
+            if((c >= 0 && c < ' ') 
+                || c == 127)
+            {
+                result[n++] = '^';
+                result[n++] = c + 'A' - 1;
+            }
+            else {
+                result[n++] = c;
+            }
+        }
+
+        result[n] = '\0'
+
+        return result;
     }
 }
 
@@ -397,6 +423,30 @@ impl wstring
         memcpy(str + head, sub_str, sizeof(wchar_t)*(sub_str.length()+1));
 
         return str;
+    }
+    wstring printable(wstring& str)
+    {
+        int len = str.length();
+        wstring result = new wchar_t[len*2+1];
+
+        int n = 0;
+        for(int i=0; i<len; i++) {
+            wchar_t c = str[i];
+
+            if((c >= 0 && c < ' ') 
+                || c == 127)
+            {
+                result[n++] = '^';
+                result[n++] = c + 'A' - 1;
+            }
+            else {
+                result[n++] = c;
+            }
+        }
+
+        result[n] = '\0'
+
+        return result;
     }
 }
 

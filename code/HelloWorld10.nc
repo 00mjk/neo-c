@@ -192,6 +192,13 @@ int main()
 
     xassert("wstring multiply test", (wstring("ABC") * 3).equals(wstring("ABCABCABC")));
 
+    var bbb = string("ABC");
+
+    bbb[0] = 1;
+    bbb[1] = 2;
+
+    puts(bbb.printable());
+
     0
 }
 

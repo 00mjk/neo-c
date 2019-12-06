@@ -21,14 +21,7 @@
 
 int main() 
 {
-    wchar_t aaa[128];
-
-    setlocale(LC_ALL, "");
-
-    mbstowcs(aaa, "あいうえお", 128);
-
-    aaa[5] = '\0';
-    printf("key %d\n", wcswidth(aaa, 128));
+    printf("%d\n", '\t');
 
     exit(0);
 }

@@ -4,6 +4,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <locale.h>
+#include <wctype.h>
 
 #include "vig.h"
 
@@ -20,42 +21,38 @@ impl VigWin version 2
                 }
                 else if(self.cursorX == it.length())
                 {
-                    mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
+                    mvwprintw(self.win, it2, 0, "%ls", it);
+                    wstring line = it.printable();
+
                     wattron(self.win, A_REVERSE);
-                    mvwprintw(self.win, it2, wcswidth(it, it.length()), " ");
+                    mvwprintw(self.win, it2, wcswidth(line, line.length()), " ");
                     wattroff(self.win, A_REVERSE);
                 }
                 else {
                     int x = 0;
                     wstring head_string = it.substring(0, self.cursorX);
-                    if(!head_string.equals(wstring("")))
-                    {
-                        mvwprintw(self.win, it2, 0, "%s", head_string.toUtf8String());
-                    }
+                    wstring printable_head_string = head_string.printable();
 
-                    x += wcswidth(head_string, head_string.length());
+                    mvwprintw(self.win, it2, 0, "%ls", printable_head_string);
+
+                    x += wcswidth(printable_head_string, printable_head_string.length());
 
                     wstring cursor_string = it.substring(self.cursorX, self.cursorX+1);
+                    wstring printable_cursor_string = cursor_string.printable();
 
-                    if(!cursor_string.equals(wstring("")))
-                    {
-                        wattron(self.win, A_REVERSE);
-                        mvwprintw(self.win, it2, x, "%s", cursor_string.toUtf8String());
-                        wattroff(self.win, A_REVERSE);
-                    }
+                    wattron(self.win, A_REVERSE);
+                    mvwprintw(self.win, it2, x, "%ls", printable_cursor_string);
+                    wattroff(self.win, A_REVERSE);
 
-                    x += wcswidth(cursor_string, cursor_string.length());
+                    x += wcswidth(printable_cursor_string, printable_cursor_string.length());
 
                     wstring tail_string = it.substring(self.cursorX+1, -1);
 
-                    if(!tail_string.equals(wstring("")))
-                    {
-                        mvwprintw(self.win, it2, x, "%s", tail_string.toUtf8String());
-                    };
+                    mvwprintw(self.win, it2, x, "%ls", tail_string);
                 }
             }
             else {
-                mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
+                mvwprintw(self.win, it2, 0, "%ls", it);
             }
         }
     }
@@ -66,7 +63,7 @@ impl VigWin version 2
         self.textsView(vig);
 
         wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "x %d y %d search string %ls", self.cursorX, self.cursorY, vig.searchString);
+        mvwprintw(self.win, self.height-1, 0, "x %d y %d /%ls", self.cursorX, self.cursorY, vig.searchString);
         wattroff(self.win, A_REVERSE);
 
         wrefresh(self.win);
