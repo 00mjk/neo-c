@@ -35,7 +35,7 @@ impl VigWin version 10
         else {
             int x = self.cursorX;
 
-            wchar_t* p = line;
+            wchar_t* p = line + x;
 
             if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
             {
@@ -97,12 +97,17 @@ impl VigWin version 10
                 }
             }
 
-            self.pushUndo();
             vig.yank.reset();
-            vig.yank.push_back(line.substring(self.cursorX, x+1));
+            vig.yank.push_back(line.substring(self.cursorX, x));
             vig.yankKind = kYankKindNoLine;
-            line.delete_range(self.cursorX, x+1);
+            line.delete_range(self.cursorX, x);
         }
+    }
+    void deleteCursorCharactor(VigWin* self) {
+        self.pushUndo();
+
+        var line = self.texts.item(self.cursorY, null);
+        line.delete(self.cursorX);
     }
 }
 
@@ -120,6 +125,8 @@ impl Vig version 10
                     break;
                 
                 case 'w':
+                case 'e':
+                    self.activeWin.pushUndo();
                     self.activeWin.deleteWord(self);
                     break;
             }
@@ -130,10 +137,15 @@ impl Vig version 10
 
             switch(key2) {
                 case 'w':
+                case 'e':
+                    self.activeWin.pushUndo();
                     self.activeWin.deleteWord(self);
                     self.enterInsertMode();
                     break;
             }
+        });
+        self.events.replace('x', lambda(Vig* self, int key) {
+            self.activeWin.deleteCursorCharactor();
         });
     }
 }

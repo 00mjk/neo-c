@@ -355,6 +355,10 @@ impl Vig version 4
         {
             self.activeWin.forwardWord();
         });
+        self.events.replace('e', lambda(Vig* self, int key) 
+        {
+            self.activeWin.forwardWord();
+        });
         self.events.replace('b', lambda(Vig* self, int key) 
         {
             self.activeWin.backwardWord();
