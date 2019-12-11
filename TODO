@@ -1,6 +1,6 @@
-Genericsとinlineでエラー番号の行数が違う
+%, [[
 
-list pop_back
+Genericsとinlineでエラー番号の行数が違う
 
 リファレンスの代入
 
@@ -83,3 +83,5 @@ post_oprerator address ++ += --
 
 vig 日本語表示、編集
 左右のスクロール?折返し？
+list pop_back
+

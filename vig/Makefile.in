@@ -29,8 +29,8 @@ DESTDIR=@DESTDIR@
 ##########################################
 all: vig
 
-vig: configure Makefile config.h vig.nc vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig8visual.o vig9search.o vig10edit.o vig.h
-	neo-c -o vig vig.nc vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig8visual.o vig9search.o vig10edit.o $(CFLAGS) $(LIBS)
+vig: configure Makefile config.h vig.nc vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig8visual.o vig9search.o vig10edit.o vig11move.o vig.h
+	neo-c -o vig vig.nc vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig8visual.o vig9search.o vig10edit.o vig11move.o $(CFLAGS) $(LIBS)
 
 vig1init.o: configure Makefile config.h vig1init.nc vig1init.h
 	neo-c -c vig1init.nc $(CFLAGS) $(LIBS)
@@ -61,6 +61,9 @@ vig9search.o: configure config.h vig1init.o vig2base.o vig3insert_mode.o vig4wor
 
 vig10edit.o: configure config.h vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig8visual.o vig9search.o vig10edit.nc vig1init.h vig2base.h vig3insert_mode.h vig4word.h vig5undo.h vig6file.h vig7yank.h vig8visual.h vig9search.h vig10edit.h
 	neo-c -c vig10edit.nc $(CFLAGS) $(LIBS)
+
+vig11move.o: configure config.h vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig8visual.o vig9search.o vig10edit.nc vig11move.nc vig1init.h vig2base.h vig3insert_mode.h vig4word.h vig5undo.h vig6file.h vig7yank.h vig8visual.h vig9search.h vig10edit.h vig11move.h
+	neo-c -c vig11move.nc $(CFLAGS) $(LIBS)
 
 #########################################
 # install

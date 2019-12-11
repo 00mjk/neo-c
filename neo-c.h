@@ -915,6 +915,20 @@ impl list <T>
 
         return result;
     }
+    string join(list<string>* self, char* separator) {
+        string result = string("");
+
+        self.each {
+            if(it2 == self.length() - 1) {
+                result = result + it;
+            }
+            else {
+                result = result + it + string(separator);
+            }
+        }
+
+        return result;
+    }
 
     bool equals(list<T>* left, list<T>* right)
     {
@@ -1506,6 +1520,19 @@ ruby_macro map {
         puts("}");
     end
 }
+
+/// regex ///
+struct regex_struct {
+    bool global;
+    bool multiline;
+};
+
+typedef regex_struct% regex;
+
+extern regex regex(char* str);
+extern regex regex_g(char* str);
+extern regex regex_m(char* str);
+extern regex regex_gm(char* str);
 
 /// others ///
 extern void xassert(char* msg, bool exp);

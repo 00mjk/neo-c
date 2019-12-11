@@ -199,6 +199,10 @@ int main()
 
     puts(bbb.printable());
 
+    xassert("list join test", list!(string("aaa"), string("bbb"), string("ccc")).join(",").equals("aaa,bbb,ccc"));
+
+    xassert("string sub", string("abc").sub(regex("a"), "A").equals("Abc"));
+
     0
 }
 

@@ -96,12 +96,35 @@ impl VigWin version 3
         }
     }
 
+    void backIndent(VigWin* self) {
+        self.pushUndo();
+
+        var line = self.texts.item(self.cursorY, wstring(""));
+
+        if(line.length() >= 4) {
+            if(line.index(wstring("    "), -1) == 0) {
+                for(int i=0; i<4; i++) {
+                    line.delete(0);
+                    self.cursorX--;
+                    
+                    if(self.cursorX < 0) {
+                        self.cursorX = 0;
+                    }
+                }
+            }
+        }
+    }
+
+
     void inputInsertMode(VigWin* self, Vig* vig)
     {
         var key = wgetch(self.win);
 
         if(key == 3 || key == 27) {
             vig.exitFromInsertMode();
+        }
+        else if(key == 4) {
+            self.backIndent();
         }
         else if(key == 10) {
             self.enterNewLine();

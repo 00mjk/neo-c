@@ -469,3 +469,39 @@ char* xstrncat(char* des, char* str, int size)
 
     return result;
 }
+
+regex regex(char* str)
+{
+    var result = new regex_struct;
+
+    return result;
+}
+
+regex regex_g(char* str)
+{
+    var result = new regex_struct;
+    
+    result.global = true;
+
+    return result;
+}
+
+regex regex_m(char* str)
+{
+    var result = new regex_struct;
+    
+    result.multiline = true;
+
+    return result;
+}
+
+regex regex_gm(char* str)
+{
+    var result = new regex_struct;
+    
+    result.multiline = true;
+    result.global = true;
+
+    return result;
+}
+
