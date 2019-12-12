@@ -1316,8 +1316,9 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
 
     BOOL string_function = strcmp(buf, "string") == 0 && *info->p == '(';
     BOOL wstring_function = strcmp(buf, "wstring") == 0 && *info->p == '(';
+    BOOL regex_function = strcmp(buf, "regex") == 0 && *info->p == '(';
 
-    if(string_function || wstring_function)
+    if(string_function || wstring_function || regex_function)
     {
         return FALSE;
     }
@@ -1839,6 +1840,162 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         }
     }
 
+    /// generics ///
+    if(*info->p == '<' && *(info->p+1) != '<' && *(info->p+1) != '=') 
+    {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        int generics_num = 0;
+
+        while(1) {
+            if(!parse_type(&(*result_type)->mGenericsTypes[generics_num], info, NULL, FALSE, FALSE, parse_only)) {
+                return FALSE;
+            }
+
+            generics_num++;
+
+            if(generics_num >= GENERICS_TYPES_MAX) {
+                parser_err_msg(info, "overflow generics parametor number");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '>') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else {
+                parser_err_msg(info, "invalid character(%c) in generics types", *info->p);
+                info->err_num++;
+                break;
+            }
+        }
+
+        (*result_type)->mNumGenericsTypes = generics_num;
+    }
+
+    /// pointer ///
+    while(1) {
+        char* p_before = info->p;
+        int sline_before = info->sline;
+
+        char buf[VAR_NAME_MAX];
+        (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
+        if(strcmp(buf, "__restrict") == 0)
+        {
+        }
+        else if(strcmp(buf, "const") == 0)
+        {
+        }
+        else {
+            info->p = p_before;
+            info->sline = info->sline;
+        }
+
+        if(*info->p == '*') {
+            pointer_num++;
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+        else if(*info->p == '%') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            heap = TRUE;
+        }
+        else if(*info->p == '&') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            no_heap = TRUE;
+        }
+        else if(*info->p == '$') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            managed = TRUE;
+        }
+        else if(*info->p == '?') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            nullable = TRUE;
+        }
+        else {
+            break;
+        }
+    }
+
+    (*result_type)->mPointerNum = pointer_num;
+    (*result_type)->mHeap = heap;
+    (*result_type)->mNullable = nullable;
+    (*result_type)->mConstant = constant;
+    (*result_type)->mUnsigned = unsigned_;
+    (*result_type)->mRegister = register_;
+    (*result_type)->mVolatile = volatile_;
+    (*result_type)->mStatic = static_;
+    (*result_type)->mNoHeap = no_heap;
+
+/*
+    if(memcmp(info->p, "lambda", 6) == 0) 
+    {
+        info->p += 6;
+        skip_spaces_and_lf(info);
+
+        sNodeType* node_type = clone_node_type(*result_type);
+
+        *result_type = create_node_type_with_class_name("lambda");
+
+        (*result_type)->mResultType = node_type;
+
+        if(*info->p == '(') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(*info->p == ')') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else {
+                while(1) {
+                    sNodeType* node_type = NULL;
+                    if(!parse_type(&node_type, info, NULL, FALSE, FALSE, parse_only)) {
+                        return FALSE;
+                    }
+
+                    (*result_type)->mParamTypes[(*result_type)->mNumParams] = node_type;
+
+                    (*result_type)->mNumParams++;
+
+                    if((*result_type)->mNumParams >= PARAMS_MAX) {
+                        parser_err_msg(info, "oveflow type params");
+                        return FALSE;
+                    }
+
+                    if(*info->p == ')') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                        break;
+                    }
+                    else if(*info->p == ',') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                    }
+                    else {
+                        parser_err_msg(info, "invalid character in lambda type name(%c)", *info->p);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+*/
+
     if(*info->p == '(' && *(info->p+1) == '*' && func_pointer_name) {
         info->p += 2;
         skip_spaces_and_lf(info);
@@ -1925,159 +2082,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             }
         }
     }
-
-    if(*info->p == '<' && *(info->p+1) != '<' && *(info->p+1) != '=') 
-    {
-        info->p++;
-        skip_spaces_and_lf(info);
-
-        int generics_num = 0;
-
-        while(1) {
-            if(!parse_type(&(*result_type)->mGenericsTypes[generics_num], info, NULL, FALSE, FALSE, parse_only)) {
-                return FALSE;
-            }
-
-            generics_num++;
-
-            if(generics_num >= GENERICS_TYPES_MAX) {
-                parser_err_msg(info, "overflow generics parametor number");
-                return FALSE;
-            }
-
-            if(*info->p == ',') {
-                info->p++;
-                skip_spaces_and_lf(info);
-            }
-            else if(*info->p == '>') {
-                info->p++;
-                skip_spaces_and_lf(info);
-                break;
-            }
-            else {
-                parser_err_msg(info, "invalid character(%c) in generics types", *info->p);
-                info->err_num++;
-                break;
-            }
-        }
-
-        (*result_type)->mNumGenericsTypes = generics_num;
-    }
-
-    if(memcmp(info->p, "lambda", 6) == 0) 
-    {
-        info->p += 6;
-        skip_spaces_and_lf(info);
-
-        sNodeType* node_type = clone_node_type(*result_type);
-
-        *result_type = create_node_type_with_class_name("lambda");
-
-        (*result_type)->mResultType = node_type;
-
-        if(*info->p == '(') {
-            info->p++;
-            skip_spaces_and_lf(info);
-
-            if(*info->p == ')') {
-                info->p++;
-                skip_spaces_and_lf(info);
-            }
-            else {
-                while(1) {
-                    sNodeType* node_type = NULL;
-                    if(!parse_type(&node_type, info, NULL, FALSE, FALSE, parse_only)) {
-                        return FALSE;
-                    }
-
-                    (*result_type)->mParamTypes[(*result_type)->mNumParams] = node_type;
-
-                    (*result_type)->mNumParams++;
-
-                    if((*result_type)->mNumParams >= PARAMS_MAX) {
-                        parser_err_msg(info, "oveflow type params");
-                        return FALSE;
-                    }
-
-                    if(*info->p == ')') {
-                        info->p++;
-                        skip_spaces_and_lf(info);
-                        break;
-                    }
-                    else if(*info->p == ',') {
-                        info->p++;
-                        skip_spaces_and_lf(info);
-                    }
-                    else {
-                        parser_err_msg(info, "invalid character in lambda type name(%c)", *info->p);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    /// pointer ///
-    while(1) {
-        char* p_before = info->p;
-        int sline_before = info->sline;
-
-        char buf[VAR_NAME_MAX];
-        (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
-        if(strcmp(buf, "__restrict") == 0)
-        {
-        }
-        else if(strcmp(buf, "const") == 0)
-        {
-        }
-        else {
-            info->p = p_before;
-            info->sline = info->sline;
-        }
-
-        if(*info->p == '*') {
-            pointer_num++;
-            info->p++;
-            skip_spaces_and_lf(info);
-        }
-        else if(*info->p == '%') {
-            info->p++;
-            skip_spaces_and_lf(info);
-
-            heap = TRUE;
-        }
-        else if(*info->p == '&') {
-            info->p++;
-            skip_spaces_and_lf(info);
-
-            no_heap = TRUE;
-        }
-        else if(*info->p == '$') {
-            info->p++;
-            skip_spaces_and_lf(info);
-
-            managed = TRUE;
-        }
-        else if(*info->p == '?') {
-            info->p++;
-            skip_spaces_and_lf(info);
-
-            nullable = TRUE;
-        }
-        else {
-            break;
-        }
-    }
-
-    (*result_type)->mPointerNum = pointer_num;
-    (*result_type)->mHeap = heap;
-    (*result_type)->mNullable = nullable;
-    (*result_type)->mConstant = constant;
-    (*result_type)->mUnsigned = unsigned_;
-    (*result_type)->mRegister = register_;
-    (*result_type)->mVolatile = volatile_;
-    (*result_type)->mStatic = static_;
-    (*result_type)->mNoHeap = no_heap;
 
     if(info->mNumMethodGenericsTypes > 0) {
         if(!solve_method_generics(result_type, info->mNumMethodGenericsTypes, info->mMethodGenericsTypes))
@@ -2651,7 +2655,7 @@ static BOOL parse_param(sParserParam* param, sParserInfo* info)
         return FALSE;
     }
 
-    if(*info->p == ',' || *info->p == ')') {
+    if(param->mName[0] == 0 && (*info->p == ',' || *info->p == ')')) {
         param->mName[0] = '\0';
     }
     else {
@@ -2799,8 +2803,6 @@ static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* inf
         if(!parse_param(params + *num_params, info)) {
             return FALSE;
         }
-
-        sParserParam* param = params + *num_params;
 
         (*num_params)++;
 

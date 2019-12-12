@@ -201,7 +201,9 @@ int main()
 
     xassert("list join test", list!(string("aaa"), string("bbb"), string("ccc")).join(",").equals("aaa,bbb,ccc"));
 
-    xassert("string sub", string("abc").sub(regex("a"), "A").equals("Abc"));
+    var r = regex("aaa", true, false, false, false, false, false, false, false);
+
+    xassert("regex test", r.str.equals("aaa") && r.ignore_case);
 
     0
 }

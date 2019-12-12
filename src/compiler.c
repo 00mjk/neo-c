@@ -250,7 +250,7 @@ int main(int argc, char** argv)
     if(!output_object_file) {
         char command[4096*2];
 
-        snprintf(command, 4096*2, "clang -o %s %s.o ", program_name, main_module_name);
+        snprintf(command, 4096*2, "clang -o %s %s.o -lpcre ", program_name, main_module_name);
 
         char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s/lib/neo-c.o", PREFIX);
 

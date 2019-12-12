@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pcre.h>
 
 #define __STDC_LIMIT_MACROS 1
 #define __STDC_CONSTANT_MACROS 1
@@ -268,7 +269,7 @@ impl vector<T>
 
         return default_value;
     }
-    void each(vector<T>*  self, void lambda(T&,int,bool*) block) {
+    void each(vector<T>*  self, void (*block)(T&,int,bool*)) {
         for(int i=0; i<self.len; i++) {
             bool end_flag = false;
             block(self.items[i], i, &end_flag);
@@ -278,7 +279,7 @@ impl vector<T>
         };
     }
 
-    template <R> vector<R>*% map(vector<T>* self, R lambda(T&) block)
+    template <R> vector<R>*% map(vector<T>* self, R (*block)(T&))
     {
         var result = new vector<R>.initialize();
 
@@ -864,7 +865,7 @@ impl list <T>
         return default_value;
     }
     
-    void each(list<T>* self, void lambda(T&,int,bool*) block) {
+    void each(list<T>* self, void (*block)(T&,int,bool*)) {
         list_item<T>?* it = self.head;
         var i = 0;
         while(it != null) {
@@ -1277,7 +1278,7 @@ impl map <T, T2>
         return result;
     }
 
-    void each(map<T, T2>* self, void lambda(T&,T2&,bool*) block) 
+    void each(map<T, T2>* self, void (*block)(T&,T2&,bool*)) 
     {
         for(int i=0; i<self.size; i++) {
             if(self.item_existance[i]) {
@@ -1523,16 +1524,80 @@ ruby_macro map {
 
 /// regex ///
 struct regex_struct {
-    bool global;
+    string str;
+    pcre* regex;
+
+    bool ignore_case;
     bool multiline;
+    bool global;
+    bool extended;
+    bool dotall;
+    bool anchored;
+    bool dollar_endonly;
+    bool ungreedy;
 };
 
-typedef regex_struct% regex;
+typedef regex_struct*% regex;
 
-extern regex regex(char* str);
-extern regex regex_g(char* str);
-extern regex regex_m(char* str);
-extern regex regex_gm(char* str);
+regex regex(char* str, bool ignore_case, bool multiline, bool global, bool extended, bool dotall, bool anchored, bool dollar_endonly, bool ungreedy);
+
+ruby_macro regex {
+    param_line = ENV['PARAMS'];
+    n = 0;
+
+    if param_line[n] == "/"
+        n = n + 1
+    end
+
+    str = ""
+
+    ignore_case = false;
+    multiline = false;
+    global = false;
+    extended = false;
+    dotall = false;
+    anchored = false;
+    dollar_endonly = false;
+    ungreedy = false;
+
+    while(n < param_line.length()) do
+        c = param_line[n];
+
+        if c == "/"
+            n = n + 1;
+
+            while(n < param_line.length()) do
+                c = param_line[n];
+
+                if c == "i"
+                    ignore_case = true;
+                elsif c == "m"
+                    multiline = true;
+                elsif c == "g"
+                    global = true;
+                elsif c == "s"
+                    dotall = true;
+                elsif c == "A"
+                    anchoared = true;
+                elsif c == "D"
+                    dollar_endonly = true;
+                elsif c == "U"
+                    ungreedy = true;
+                elsif c == "x"
+                    extended = true;
+                end
+
+                n = n + 1;
+            end
+        else
+            str = str + c
+        end
+
+        n = n + 1;
+    end
+
+    puts("regex(\"#{str}\", #{ignore_case}, #{multiline}, #{global}, #{extended}, #{dotall}, #{anchored}, #{dollar_endonly}, #{ungreedy})");
+}
 
 /// others ///
 extern void xassert(char* msg, bool exp);

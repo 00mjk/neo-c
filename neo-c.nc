@@ -470,38 +470,26 @@ char* xstrncat(char* des, char* str, int size)
     return result;
 }
 
-regex regex(char* str)
+regex regex(char* str, bool ignore_case, bool multiline, bool global, bool extended, bool dotall, bool anchored, bool dollar_endonly, bool ungreedy)
 {
     var result = new regex_struct;
 
-    return result;
-}
+    const char* err;
+    int erro_ofs;
 
-regex regex_g(char* str)
-{
-    var result = new regex_struct;
-    
-    result.global = true;
+    int options = PCRE_UTF8 | (ignore_case ? PCRE_CASELESS:0) | (multiline ? PCRE_MULTILINE : 0) | (extended ? PCRE_EXTENDED :0) | (dotall ? PCRE_DOTALL :0) | (dollar_endonly ? PCRE_DOLLAR_ENDONLY:0) | (ungreedy ? PCRE_UNGREEDY:0);
 
-    return result;
-}
+    result.regex = pcre_compile(str, options, &err, &erro_ofs, NULL);
 
-regex regex_m(char* str)
-{
-    var result = new regex_struct;
-    
-    result.multiline = true;
-
-    return result;
-}
-
-regex regex_gm(char* str)
-{
-    var result = new regex_struct;
-    
-    result.multiline = true;
-    result.global = true;
+    result.str = string(str);
+    result.ignore_case = ignore_case;
+    result.multiline = multiline;
+    result.global = global;
+    result.extended = extended;
+    result.dotall = dotall;
+    result.anchored = anchored;
+    result.dollar_endonly = dollar_endonly;
+    result.ungreedy;
 
     return result;
 }
-

@@ -190,14 +190,14 @@ int main()
     int aa = 4;
     int bb = 1;
 
-    int lambda(int,int) fun = lambda(int x, int y):int {
+    int (*fun)(int,int) = lambda(int x, int y):int {
         bb = 2;
         x + y + aa
     }
 
     xassert("lambda test", fun(1,2) == 7 && bb == 2);
 
-    int fun5(int lambda(int,int) block)
+    int fun5(int (*block)(int,int))
     {
         block(1,2)
     }
@@ -240,7 +240,7 @@ int main()
     int nn = 0;
 
     impl int {
-        void times(int n, void lambda() block) 
+        void times(int n, void (*block)()) 
         {
             for(int i=0; i<n; i++) {
                 block();
@@ -267,7 +267,7 @@ int main()
 
     int xmm = 1;
 
-    int fun8(int lambda(int,int) block)
+    int fun8(int (*block)(int,int))
     {
         block(2,2)
     }
@@ -378,7 +378,7 @@ int main()
 
     printf("str[0] %c\n", str1[0]);
 
-    int lambda(int,int) lll = lambda(int a, int b):int {
+    int (*lll)(int,int) = lambda(int a, int b):int {
         a + b
     }
 
@@ -387,7 +387,7 @@ int main()
     struct GenericsTest <T, T2> {
         T a;
         T2 b;
-        T lambda(T,T) c;
+        T (*c)(T,T);
     };
 
     var gvar = new GenericsTest<int, char>;
@@ -448,7 +448,7 @@ int main()
             result
         }
         
-        template <R> R fun2(MapTest<T,T2>* self, R a, void lambda(R) block)
+        template <R> R fun2(MapTest<T,T2>* self, R a, void (*block)(R))
         {
             puts("AAA");
             1
@@ -512,7 +512,7 @@ int main()
     };
 
     impl Hello<T> {
-        void loop(Hello<T>* self, void lambda() block)
+        void loop(Hello<T>* self, void (*block)())
         {
             for(int i=0; i < self.a; i++)
             {
@@ -520,7 +520,7 @@ int main()
             }
         }
 
-        template <R> R test(Hello<T>* self, R lambda() block) 
+        template <R> R test(Hello<T>* self, R (*block)()) 
         {
             self.a = 3;
             self.loop {
@@ -536,7 +536,7 @@ int main()
     };
 
     impl Hello2<T> {
-        void loop(Hello2<T>* self, void lambda() block)
+        void loop(Hello2<T>* self, void (*block)())
         {
             for(int i=0; i < self.a; i++)
             {
@@ -555,7 +555,7 @@ int main()
             }
         }
 
-        template <R> Hello2<R>*% test(Hello2<T>* self, R lambda(T) block)
+        template <R> Hello2<R>*% test(Hello2<T>* self, R (*block)(T))
         {
             var result = new Hello2<R>.initialize();
 
