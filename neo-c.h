@@ -1539,14 +1539,15 @@ struct regex_struct {
 
 typedef regex_struct*% regex;
 
-regex regex(char* str, bool ignore_case, bool multiline, bool global, bool extended, bool dotall, bool anchored, bool dollar_endonly, bool ungreedy);
+extern regex regex(char* str, bool ignore_case, bool multiline, bool global, bool extended, bool dotall, bool anchored, bool dollar_endonly, bool ungreedy);
 
 ruby_macro regex {
     param_line = ENV['PARAMS'];
+
     n = 0;
 
     if param_line[n] == "/"
-        n = n + 1
+      n = n + 1
     end
 
     str = ""
@@ -1561,39 +1562,39 @@ ruby_macro regex {
     ungreedy = false;
 
     while(n < param_line.length()) do
-        c = param_line[n];
+      c = param_line[n];
 
-        if c == "/"
-            n = n + 1;
+      if c == "/"
+          n = n + 1;
 
-            while(n < param_line.length()) do
-                c = param_line[n];
+          while(n < param_line.length()) do
+              c = param_line[n];
 
-                if c == "i"
-                    ignore_case = true;
-                elsif c == "m"
-                    multiline = true;
-                elsif c == "g"
-                    global = true;
-                elsif c == "s"
-                    dotall = true;
-                elsif c == "A"
-                    anchoared = true;
-                elsif c == "D"
-                    dollar_endonly = true;
-                elsif c == "U"
-                    ungreedy = true;
-                elsif c == "x"
-                    extended = true;
-                end
+              if c == "i"
+                  ignore_case = true;
+              elsif c == "m"
+                  multiline = true;
+              elsif c == "g"
+                  global = true;
+              elsif c == "s"
+                  dotall = true;
+              elsif c == "A"
+                  anchoared = true;
+              elsif c == "D"
+                  dollar_endonly = true;
+              elsif c == "U"
+                  ungreedy = true;
+              elsif c == "x"
+                  extended = true;
+              end
 
-                n = n + 1;
-            end
-        else
-            str = str + c
-        end
+              n = n + 1;
+          end
+      else
+          str = str + c
+      end
 
-        n = n + 1;
+      n = n + 1;
     end
 
     puts("regex(\"#{str}\", #{ignore_case}, #{multiline}, #{global}, #{extended}, #{dotall}, #{anchored}, #{dollar_endonly}, #{ungreedy})");

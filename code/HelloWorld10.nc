@@ -205,6 +205,10 @@ int main()
 
     xassert("regex test", r.str.equals("aaa") && r.ignore_case);
 
+    var r2 = regex!(/abc/i);
+
+    xassert("regex test", r2.str.equals("abc") && r2.ignore_case);
+
     0
 }
 
