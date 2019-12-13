@@ -976,7 +976,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
             right_value = rvalue.value;
         }
         else {
-            right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64));
+            right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext1");
         }
 
         Type* llvm_var_type;
@@ -1127,7 +1127,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
             right_value = rvalue.value;
         }
         else {
-            right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64));
+            right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext2");
         }
 
         Type* llvm_var_type;
@@ -9021,7 +9021,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
             LVALUE llvm_value = *get_value_from_stack(-1);
 
             param3 = llvm_value.value;
-            param3 = Builder.CreateCast(Instruction::SExt, param3, IntegerType::get(TheContext, 64));
+            param3 = Builder.CreateCast(Instruction::SExt, param3, IntegerType::get(TheContext, 64), "sext3");
 
             dec_stack_ptr(1, info);
 

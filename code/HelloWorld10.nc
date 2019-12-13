@@ -32,6 +32,7 @@ template <R> void method_generics_test(R& a)
 
 int main()
 {
+/*
     wstring wstr = wstring("ABC");
 
     xassert("wstring test1", wstr.length() == 3);
@@ -236,6 +237,15 @@ int main()
     var s1 = string("ABC").sub(regex!(/(^.)(.)/), "x", group_strings);
 
     xassert("regex test3", s1.equals("xC") && group_strings.item(0, null).equals("A") && group_strings.item(1, null).equals("B"));
+
+    var group_strings2 = new list<string>.initialize();
+
+    xassert("regex teset4", string("ABC").match(regex!(/^(A)(.)/), group_strings2) && group_strings2.item(0, null).equals("A") && group_strings2.item(1, null).equals("B"));
+*/
+
+    printf("%d\n", string("ABC").scan(regex!(/./)).length())
+
+    xassert("regex teset5", string("ABC").scan(regex!(/./)).equals(list!(string("A"), string("B"), string("C"))));
 
     0
 }

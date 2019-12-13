@@ -247,7 +247,9 @@ impl string
     extern string&delete(string& str, int position);
     extern string& delete_range(string& str, int head, int tail);
     extern string printable(string& str);
-    string sub(string& self, regex reg, char* replace, list<string>?* group_strings);
+    extern string sub(string& self, regex reg, char* replace, list<string>?* group_strings);
+    extern bool match(string& self, regex reg, list<string>?* group_strings);
+    list<string>*% scan(string& self, regex reg);
 }
 
 /// wstring ///

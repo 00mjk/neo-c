@@ -341,6 +341,114 @@ impl string
 
         return result.to_string();
     }
+    bool match(string& self, regex reg, list<string>?* group_strings)
+    {
+        int offset = 0;
+
+        int ovec_max = 16;
+        int start[ovec_max];
+        int end[ovec_max];
+        int ovec_value[ovec_max * 3];
+
+        var result = new buffer.initialize();
+
+        while(true) {
+            int options = PCRE_NEWLINE_LF;
+            int len = strlen(self);
+            int regex_result = pcre_exec(reg.regex, 0, self, len, offset, options, ovec_value, ovec_max*3);
+
+            for(int i=0; i<ovec_max; i++) {
+                start[i] = ovec_value[i*2];
+            }
+            for(int i=0; i<ovec_max; i++) {
+                end[i] = ovec_value[i*2+1];
+            }
+
+            /// match and no group strings ///
+            if(regex_result == 1 || (group_strings == null && regex_result > 0)) 
+            {
+                return true;
+            }
+            /// group strings ///
+            else if(regex_result > 1) {
+                group_strings.reset();
+                for(int i = 1; i<regex_result; i++) {
+                    string match_string = self.substring(start[i], end[i]);
+                    group_strings.push_back(match_string);
+                }
+
+                return true;
+            }
+            /// no match ///
+            {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    list<string>*% scan(string& self, regex reg)
+    {
+        var result = new list<string>.initialize();
+
+        int offset = 0;
+
+        int ovec_max = 16;
+        int start[ovec_max];
+        int end[ovec_max];
+        int ovec_value[ovec_max * 3];
+
+        while(true) {
+            int options = PCRE_NEWLINE_LF;
+            int len = strlen(self);
+            int regex_result = pcre_exec(reg.regex, 0, self, len, offset, options, ovec_value, ovec_max*3);
+
+            for(int i=0; i<ovec_max; i++) {
+                start[i] = ovec_value[i*2];
+            }
+            for(int i=0; i<ovec_max; i++) {
+                end[i] = ovec_value[i*2+1];
+            }
+
+            /// match and no group strings ///
+            if(regex_result == 1)
+            {
+                string str = self.substring(start[0], end[0]);
+                result.push_back(str);
+
+                if(offset == end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = end[0];
+                }
+            }
+            /// group strings ///
+            else if(regex_result > 1) {
+                string str = self.substring(start[0], end[0]);
+                result.push_back(str);
+
+                if(offset == end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = end[0];
+                }
+
+                for(int i= 1; i<regex_result; i++) {
+                    string match_string = self.substring(start[i], end[i]);
+                    result.push_back(match_string);
+                }
+            }
+            /// no match ///
+            {
+                break;
+            }
+        }
+
+        return result;
+    }
 }
 
 /// wstring ///
