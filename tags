@@ -49,8 +49,8 @@ LVALUE	src/llvm_common.hpp	/^typedef struct LVALUEStruct LVALUE;$/;"	t	typeref:s
 LVALUEStruct	src/llvm_common.hpp	/^struct LVALUEStruct {$/;"	s
 MACRO_MAX	src/common.h	38;"	d
 MANAGED	src/xfunc.h	5;"	d
-MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	1312;"	d
-MAP_TABLE_DEFAULT_SIZE	neo-c.h	1312;"	d
+MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	1315;"	d
+MAP_TABLE_DEFAULT_SIZE	neo-c.h	1315;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:

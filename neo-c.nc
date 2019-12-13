@@ -67,6 +67,11 @@ impl buffer
     {
         self.append(str, strlen(str));
     }
+
+    string to_string(buffer* self)
+    {
+        return ((string)clone self.buf);
+    }
 }
 
 /// string ///
@@ -254,23 +259,21 @@ impl string
         return result;
     }
 
-    string sub(regex reg, char* replace, list<string>?* group_string)
+    string sub(string& self, regex reg, char* replace, list<string>?* group_strings)
     {
-
-        var result = string("");
-/*
         int offset = 0;
 
         int ovec_max = 16;
         int start[ovec_max];
         int end[ovec_max];
-
         int ovec_value[ovec_max * 3];
+
+        var result = new buffer.initialize();
 
         while(true) {
             int options = PCRE_NEWLINE_LF;
-            int len = strlen(str);
-            int regex_result = pcre_exec(reg.regex, 0, str, len, offset, options, ovec_value, ovec_max*3);
+            int len = strlen(self);
+            int regex_result = pcre_exec(reg.regex, 0, self, len, offset, options, ovec_value, ovec_max*3);
 
             for(int i=0; i<ovec_max; i++) {
                 start[i] = ovec_value[i*2];
@@ -283,60 +286,60 @@ impl string
             if(regex_result == 1 || (group_strings == null && regex_result > 0)) 
             {
                 string str = self.substring(offset, start[0]);
-                result = result + str;
-                result = result + replace;
 
-                if(offset == ovec.end[0]) {
+                result.append_str(str);
+                result.append_str(replace);
+
+                if(offset == end[0]) {
                     offset++;
                 }
                 else {
-                    offset = ovec.end[0];
+                    offset = end[0];
                 }
 
-                if(!regex_.global) {
-                    str:String = buffer.subBuffer(offset, -1).toString();
-                    result.append(str);
+                if(!reg.global) {
+                    string str = self.substring(offset, -1);
+                    result.append_str(str);
                     break;
                 }
             }
-            ### group strings ###
-            elif(regex_result > 1) {
-                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
-                result.append(str);
-                result.append(replace);
+            /// group strings ///
+            else if(regex_result > 1) {
+                string str = self.substring(offset, start[0]);
+                result.append_str(str);
+                result.append_str(replace);
 
-                if(offset == ovec.end[0]) {
+                if(offset == end[0]) {
                     offset++;
                 }
                 else {
-                    offset = ovec.end[0];
+                    offset = end[0];
                 }
 
-                if(!regex_.global) {
-                    group_strings.clear();
+                if(!reg.global) {
+                    group_strings.reset();
                 }
 
-                for(i:int = 1; i<regex_result; i++) {
-                    match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
-                    group_strings.add(match_string);
+                for(int i = 1; i<regex_result; i++) {
+                    string match_string = self.substring(start[i], end[i]);
+                    group_strings.push_back(match_string);
                 }
 
-                if(!regex_.global) {
-                    str:String = buffer.subBuffer(offset, -1).toString();
-                    result.append(str);
+                if(!reg.global) {
+                    string str = self.substring(offset, -1);
+                    result.append_str(str);
                     break;
                 }
             }
-            ### no match ###
-            else {
-                str:String = buffer.subBuffer(offset, -1).toString();
-                result.append(str);
+            /// no match ///
+            {
+                string str = self.substring(offset, -1);
+                result.append_str(str);
                 break;
             }
         }
 
-*/
-        return result;
+        return result.to_string();
     }
 }
 

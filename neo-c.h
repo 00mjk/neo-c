@@ -131,9 +131,12 @@ impl buffer
 {
     initialize();
     finalize();
+
     void append(buffer* self, char* mem, size_t size);
     void append_char(buffer* self, char c);
     void append_str(buffer* self, char* str);
+
+    string to_string(buffer* self);
 }
 
 /// regex ///
@@ -244,7 +247,7 @@ impl string
     extern string&delete(string& str, int position);
     extern string& delete_range(string& str, int head, int tail);
     extern string printable(string& str);
-    string sub(regex reg, char* replace, list<string>?* group_string);
+    string sub(string& self, regex reg, char* replace, list<string>?* group_strings);
 }
 
 /// wstring ///

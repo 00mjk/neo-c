@@ -219,6 +219,8 @@ int main()
 
     xassert("buffer test4", strcmp(b1.buf, "ABCDEFGXYZ") == 0);
 
+    xassert("buffer test5", strcmp(b1.to_string(), "ABCDEFGXYZ") == 0);
+
     var r = regex("aaa", true, false, false, false, false, false, false, false);
 
     xassert("regex test", r.str.equals("aaa") && r.ignore_case);
@@ -227,7 +229,13 @@ int main()
 
     xassert("regex test", r2.str.equals("abc") && r2.ignore_case);
 
-    //xassert("regex test2", string("ABC").sub(regex!(/A/), "x").equals("xBC"));
+    xassert("regex test2", string("ABC").sub(regex!(/A/), "x", null).equals("xBC"));
+
+    var group_strings = new list<string>.initialize();
+
+    var s1 = string("ABC").sub(regex!(/(^.)(.)/), "x", group_strings);
+
+    xassert("regex test3", s1.equals("xC") && group_strings.item(0, null).equals("A") && group_strings.item(1, null).equals("B"));
 
     0
 }
