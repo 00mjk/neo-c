@@ -120,6 +120,115 @@ impl wchar_t
     }
 }
 
+/// buffer ///
+struct buffer {
+    char* buf;
+    int len;
+    int size;
+};
+
+impl buffer 
+{
+    initialize();
+    finalize();
+    void append(buffer* self, char* mem, size_t size);
+    void append_char(buffer* self, char c);
+    void append_str(buffer* self, char* str);
+}
+
+/// regex ///
+struct regex_struct {
+    string str;
+    pcre* regex;
+
+    bool ignore_case;
+    bool multiline;
+    bool global;
+    bool extended;
+    bool dotall;
+    bool anchored;
+    bool dollar_endonly;
+    bool ungreedy;
+};
+
+typedef regex_struct*% regex;
+
+extern regex regex(char* str, bool ignore_case, bool multiline, bool global, bool extended, bool dotall, bool anchored, bool dollar_endonly, bool ungreedy);
+
+ruby_macro regex {
+    param_line = ENV['PARAMS'];
+
+    n = 0;
+
+    if param_line[n] == "/"
+      n = n + 1
+    end
+
+    str = ""
+
+    ignore_case = false;
+    multiline = false;
+    global = false;
+    extended = false;
+    dotall = false;
+    anchored = false;
+    dollar_endonly = false;
+    ungreedy = false;
+
+    while(n < param_line.length()) do
+      c = param_line[n];
+
+      if c == "/"
+          n = n + 1;
+
+          while(n < param_line.length()) do
+              c = param_line[n];
+
+              if c == "i"
+                  ignore_case = true;
+              elsif c == "m"
+                  multiline = true;
+              elsif c == "g"
+                  global = true;
+              elsif c == "s"
+                  dotall = true;
+              elsif c == "A"
+                  anchoared = true;
+              elsif c == "D"
+                  dollar_endonly = true;
+              elsif c == "U"
+                  ungreedy = true;
+              elsif c == "x"
+                  extended = true;
+              end
+
+              n = n + 1;
+          end
+      else
+          str = str + c
+      end
+
+      n = n + 1;
+    end
+
+    puts("regex(\"#{str}\", #{ignore_case}, #{multiline}, #{global}, #{extended}, #{dotall}, #{anchored}, #{dollar_endonly}, #{ungreedy})");
+}
+
+/// list ///
+struct list_item<T>
+{
+    T& item;
+    struct list_item<T>*? prev;
+    struct list_item<T>*? next;
+}
+
+struct list<T>
+{
+    list_item<T>*? head;
+    list_item<T>*? tail;
+    int len;
+}
+
 /// string ///
 extern string operator+(string& left, string& right);
 extern string operator*(string& left, int num);
@@ -135,6 +244,7 @@ impl string
     extern string&delete(string& str, int position);
     extern string& delete_range(string& str, int head, int tail);
     extern string printable(string& str);
+    string sub(regex reg, char* replace, list<string>?* group_string);
 }
 
 /// wstring ///
@@ -384,20 +494,7 @@ ruby_macro vec {
     end
 }
 
-struct list_item<T>
-{
-    T& item;
-    struct list_item<T>*? prev;
-    struct list_item<T>*? next;
-}
-
-struct list<T>
-{
-    list_item<T>*? head;
-    list_item<T>*? tail;
-    int len;
-}
-
+/// list ///
 impl list <T>
 {
     initialize() {
@@ -1520,84 +1617,6 @@ ruby_macro map {
         puts("result");
         puts("}");
     end
-}
-
-/// regex ///
-struct regex_struct {
-    string str;
-    pcre* regex;
-
-    bool ignore_case;
-    bool multiline;
-    bool global;
-    bool extended;
-    bool dotall;
-    bool anchored;
-    bool dollar_endonly;
-    bool ungreedy;
-};
-
-typedef regex_struct*% regex;
-
-extern regex regex(char* str, bool ignore_case, bool multiline, bool global, bool extended, bool dotall, bool anchored, bool dollar_endonly, bool ungreedy);
-
-ruby_macro regex {
-    param_line = ENV['PARAMS'];
-
-    n = 0;
-
-    if param_line[n] == "/"
-      n = n + 1
-    end
-
-    str = ""
-
-    ignore_case = false;
-    multiline = false;
-    global = false;
-    extended = false;
-    dotall = false;
-    anchored = false;
-    dollar_endonly = false;
-    ungreedy = false;
-
-    while(n < param_line.length()) do
-      c = param_line[n];
-
-      if c == "/"
-          n = n + 1;
-
-          while(n < param_line.length()) do
-              c = param_line[n];
-
-              if c == "i"
-                  ignore_case = true;
-              elsif c == "m"
-                  multiline = true;
-              elsif c == "g"
-                  global = true;
-              elsif c == "s"
-                  dotall = true;
-              elsif c == "A"
-                  anchoared = true;
-              elsif c == "D"
-                  dollar_endonly = true;
-              elsif c == "U"
-                  ungreedy = true;
-              elsif c == "x"
-                  extended = true;
-              end
-
-              n = n + 1;
-          end
-      else
-          str = str + c
-      end
-
-      n = n + 1;
-    end
-
-    puts("regex(\"#{str}\", #{ignore_case}, #{multiline}, #{global}, #{extended}, #{dotall}, #{anchored}, #{dollar_endonly}, #{ungreedy})");
 }
 
 /// others ///

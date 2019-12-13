@@ -3879,7 +3879,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             info->type = result_type;
         }
     }
-    else if(type_identify_with_class_name(fun->mResultType, "void"))
+    else if(type_identify_with_class_name(fun->mResultType, "void") && fun->mResultType->mPointerNum == 0)
     {
         Function* llvm_fun = fun->mLLVMFunction;
 
@@ -3928,7 +3928,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(llvm_fun, llvm_params);
-            llvm_value.type = result_type;
+            llvm_value.type = clone_node_type(result_type);
             llvm_value.address = nullptr;
             llvm_value.var = nullptr;
             llvm_value.binded_value = FALSE;
@@ -3944,12 +3944,12 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 }
             }
 
-            info->type = result_type;
+            info->type = clone_node_type(result_type);
         }
         else {
             LVALUE llvm_value;
             llvm_value.value = get_dummy_value(result_type, info);
-            llvm_value.type = result_type;
+            llvm_value.type = clone_node_type(result_type);
             llvm_value.address = nullptr;
             llvm_value.var = nullptr;
             llvm_value.binded_value = FALSE;
@@ -3957,7 +3957,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             push_value_to_stack_ptr(&llvm_value, info);
 
-            info->type = result_type;
+            info->type = clone_node_type(result_type);
         }
     }
 

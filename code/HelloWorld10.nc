@@ -201,6 +201,24 @@ int main()
 
     xassert("list join test", list!(string("aaa"), string("bbb"), string("ccc")).join(",").equals("aaa,bbb,ccc"));
 
+    var b1 = new buffer.initialize();
+
+    b1.append("ABC", 3);
+
+    xassert("buffer test", strcmp(b1.buf, "ABC") == 0);
+
+    b1.append("DEF", 3);
+
+    xassert("buffer test2", strcmp(b1.buf, "ABCDEF") == 0);
+
+    b1.append_char('G');
+
+    xassert("buffer test32", strcmp(b1.buf, "ABCDEFG") == 0);
+
+    b1.append_str("XYZ");
+
+    xassert("buffer test4", strcmp(b1.buf, "ABCDEFGXYZ") == 0);
+
     var r = regex("aaa", true, false, false, false, false, false, false, false);
 
     xassert("regex test", r.str.equals("aaa") && r.ignore_case);
@@ -208,6 +226,8 @@ int main()
     var r2 = regex!(/abc/i);
 
     xassert("regex test", r2.str.equals("abc") && r2.ignore_case);
+
+    //xassert("regex test2", string("ABC").sub(regex!(/A/), "x").equals("xBC"));
 
     0
 }

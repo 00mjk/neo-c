@@ -22,6 +22,53 @@ void p(char* str)
     puts(str);
 }
 
+/// buffer ///
+impl buffer 
+{
+    initialize() {
+        self.size = 128;
+        self.buf = malloc(self.size);
+        self.len = 0;
+    }
+
+    finalize() {
+        free(self.buf);
+    }
+
+    void append(buffer* self, char* mem, size_t size)
+    {
+        if(self.len + size + 1 >= self.size) {
+            int new_size = (self.size + size + 1) * 2;
+            self.buf = realloc(self.buf, new_size);
+            self.size = new_size;
+        }
+
+        xmemcpy(self.buf + self.len, mem, size);
+        self.len += size;
+
+        self.buf[self.len] = '\0';
+    }
+
+    void append_char(buffer* self, char c)
+    {
+        if(self.len + 1  + 1 >= self.size) {
+            int new_size = (self.size + 1) * 2;
+            self.buf = realloc(self.buf, new_size);
+            self.size = new_size;
+        }
+
+        self.buf[self.len] = c;
+        self.len++;
+
+        self.buf[self.len] = '\0';
+    }
+
+    void append_str(buffer* self, char* str)
+    {
+        self.append(str, strlen(str));
+    }
+}
+
 /// string ///
 string string(char* str)
 {
@@ -204,6 +251,91 @@ impl string
 
         result[n] = '\0'
 
+        return result;
+    }
+
+    string sub(regex reg, char* replace, list<string>?* group_string)
+    {
+
+        var result = string("");
+/*
+        int offset = 0;
+
+        int ovec_max = 16;
+        int start[ovec_max];
+        int end[ovec_max];
+
+        int ovec_value[ovec_max * 3];
+
+        while(true) {
+            int options = PCRE_NEWLINE_LF;
+            int len = strlen(str);
+            int regex_result = pcre_exec(reg.regex, 0, str, len, offset, options, ovec_value, ovec_max*3);
+
+            for(int i=0; i<ovec_max; i++) {
+                start[i] = ovec_value[i*2];
+            }
+            for(int i=0; i<ovec_max; i++) {
+                end[i] = ovec_value[i*2+1];
+            }
+
+            /// match and no group strings ///
+            if(regex_result == 1 || (group_strings == null && regex_result > 0)) 
+            {
+                string str = self.substring(offset, start[0]);
+                result = result + str;
+                result = result + replace;
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+
+                if(!regex_.global) {
+                    str:String = buffer.subBuffer(offset, -1).toString();
+                    result.append(str);
+                    break;
+                }
+            }
+            ### group strings ###
+            elif(regex_result > 1) {
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+                result.append(str);
+                result.append(replace);
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+
+                if(!regex_.global) {
+                    group_strings.clear();
+                }
+
+                for(i:int = 1; i<regex_result; i++) {
+                    match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
+                    group_strings.add(match_string);
+                }
+
+                if(!regex_.global) {
+                    str:String = buffer.subBuffer(offset, -1).toString();
+                    result.append(str);
+                    break;
+                }
+            }
+            ### no match ###
+            else {
+                str:String = buffer.subBuffer(offset, -1).toString();
+                result.append(str);
+                break;
+            }
+        }
+
+*/
         return result;
     }
 }
