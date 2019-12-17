@@ -191,6 +191,8 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
         info->mBlockLevel++;
     }
 
+    BOOL last_expression_is_return = FALSE;
+
     if(block->mNumNodes == 0) {
         info->type = create_node_type_with_class_name("void");
     }
@@ -212,7 +214,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 
             if(i == block->mNumNodes -1)
             {
-                BOOL last_expression_is_return = gNodes[node].mNodeType == kNodeTypeReturn;
+                last_expression_is_return = gNodes[node].mNodeType == kNodeTypeReturn;
 
                 if(last_expression_is_return) {
                     arrange_stack(info, stack_num_before);
@@ -324,7 +326,9 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
     }
 
     if(!extern_c_lang && free_var_object) {
-        free_objects(info->pinfo->lv_table, info);
+        if(!last_expression_is_return) {
+            free_objects(info->pinfo->lv_table, info);
+        }
 
         free_right_value_objects(info);
     }

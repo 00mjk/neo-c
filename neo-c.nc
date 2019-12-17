@@ -70,7 +70,7 @@ impl buffer
 
     string to_string(buffer* self)
     {
-        return ((string)clone self.buf);
+        return (string(self.buf));
     }
 }
 
@@ -331,6 +331,7 @@ impl string
                     break;
                 }
             }
+            else
             /// no match ///
             {
                 string str = self.substring(offset, -1);
@@ -349,8 +350,6 @@ impl string
         int start[ovec_max];
         int end[ovec_max];
         int ovec_value[ovec_max * 3];
-
-        var result = new buffer.initialize();
 
         while(true) {
             int options = PCRE_NEWLINE_LF;
@@ -379,6 +378,7 @@ impl string
 
                 return true;
             }
+            else
             /// no match ///
             {
                 return false;
@@ -387,6 +387,7 @@ impl string
 
         return false;
     }
+
 
     list<string>*% scan(string& self, regex reg)
     {
@@ -441,6 +442,7 @@ impl string
                     result.push_back(match_string);
                 }
             }
+            else
             /// no match ///
             {
                 break;

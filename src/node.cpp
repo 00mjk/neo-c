@@ -612,7 +612,7 @@ static void create_operator_fun_name(char* real_fun_name, size_t size_real_fun_n
     }
 }
 
-static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, char* struct_name, sNodeType* generics_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX],  int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], sParserInfo* info, sCompileInfo* cinfo, int generics_fun_num, BOOL in_clang, int version, BOOL var_arg)
+static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, char* struct_name, sNodeType* generics_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX],  int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], sParserInfo* info, sCompileInfo* cinfo, int generics_fun_num, BOOL in_clang, int version, BOOL var_arg, BOOL finalize)
 {
     /// params ///
     sParserParam params[PARAMS_MAX];
@@ -672,6 +672,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     info2.module_name = info->module_name;
     info2.sline = sline;
     info2.parse_phase = info->parse_phase;
+    //info2.lv_table = init_var_table();
     info2.lv_table = info->lv_table;
     info2.in_clang = in_clang;
     info2.mFunVersion = version;
@@ -772,7 +773,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     BOOL simple_lambda_param = FALSE;
     BOOL constructor_fun = FALSE;
     BOOL operator_fun = FALSE;
-    *node = sNodeTree_create_function(real_fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, constructor_fun, simple_lambda_param, &info2, TRUE, var_arg, version);
+    *node = sNodeTree_create_function(real_fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, constructor_fun, simple_lambda_param, &info2, TRUE, var_arg, version, finalize);
 
     return TRUE;
 }
@@ -839,7 +840,7 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
 
                 unsigned int node = 0;
 
-                if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, 0, NULL, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg))
+                if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, 0, NULL, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg, FALSE))
                 {
                     gLLVMStack = llvm_stack;
                     info->stack_num = stack_num;
@@ -2722,7 +2723,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     BOOL simple_lambda_param = TRUE;
     BOOL constructor_fun = FALSE;
     BOOL operator_fun = FALSE;
-    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, constructor_fun, simple_lambda_param, &info2, FALSE, FALSE, 0);
+    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, constructor_fun, simple_lambda_param, &info2, FALSE, FALSE, 0, FALSE);
 
 
     return TRUE;
@@ -3267,7 +3268,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 BOOL var_arg = fun->mVarArg;
 
                 unsigned int node = 0;
-                if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg))
+                if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg, FALSE))
                 {
                     info->generics_type = generics_type_before;
                     gLLVMStack = llvm_stack;
@@ -3776,11 +3777,15 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
             BOOL last_expression_is_return_before = info->last_expression_is_return;
             info->last_expression_is_return = FALSE;
+            BOOL in_inline_function = info->in_inline_function;
+            info->in_inline_function = TRUE;
 
             if(!compile_block(inline_block, info, result_type, TRUE))
             {
+                info->in_inline_function = in_inline_function;
                 return FALSE;
             }
+            info->in_inline_function = in_inline_function;
 
             if(!info->last_expression_is_return) {
                 free_right_value_objects(info);
@@ -3966,7 +3971,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg, int version)
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg, int version, BOOL finalize)
 {
     unsigned int node = alloc_node();
 
@@ -3995,6 +4000,7 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
     gNodes[node].uValue.sFunction.mVarArg = var_arg;
     gNodes[node].uValue.sFunction.mInCLang = info->in_clang;
     gNodes[node].uValue.sFunction.mVersion = version;
+    gNodes[node].uValue.sFunction.mFinalize = finalize;
 
     if(struct_name && strcmp(struct_name, "") != 0) {
         xstrncpy(gNodes[node].uValue.sFunction.mStructName, struct_name, VAR_NAME_MAX);
@@ -4033,6 +4039,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     BOOL lambda = gNodes[node].uValue.sFunction.mLambda;
     sVarTable* block_var_table = gNodes[node].uValue.sFunction.mVarTable;
 
+    BOOL finalize = gNodes[node].uValue.sFunction.mFinalize;
+
     sParserParam params[PARAMS_MAX];
     memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
 
@@ -4055,6 +4063,9 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         info->no_output = TRUE;
     }
 
+    sNodeBlock* function_node_block = info->function_node_block;
+    info->function_node_block = node_block;
+
     /// go ///
     std::vector<Type *> llvm_param_types;
     sNodeType* param_types[PARAMS_MAX];
@@ -4072,6 +4083,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
             info->type = create_node_type_with_class_name("int"); // dummy
 
+            info->function_node_block = function_node_block;
             return TRUE;
         }
         llvm_param_types.push_back(llvm_param_type);
@@ -4104,6 +4116,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, FALSE, version, &fun, info, FALSE))
     {
         xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
+        info->function_node_block = function_node_block;
         return TRUE;
     }
 
@@ -4154,6 +4167,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
             info->function_lvtable = function_lvtable_before;
             xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
+            info->function_node_block = function_node_block;
             return TRUE;
         }
 
@@ -4190,6 +4204,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         info->result_type = result_type_before;
         xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
         xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
+        info->function_node_block = function_node_block;
         return FALSE;
     }
 
@@ -4281,6 +4296,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, info->pinfo->in_clang, FALSE, version, &fun, info, TRUE))
         {
             xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
+            info->function_node_block = function_node_block;
             return TRUE;
         }
 
@@ -4331,6 +4347,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
                 info->function_lvtable = function_lvtable_before;
                 xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
+                info->function_node_block = function_node_block;
                 return TRUE;
             }
 
@@ -4365,6 +4382,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         {
             xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
             xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
+            info->function_node_block = function_node_block;
             return FALSE;
         }
 
@@ -4431,6 +4449,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     llvm_change_block(current_block_before, &current_block_before2, info, TRUE);
     restore_right_value_objects_container(right_value_objects, info);
     xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
+
+    info->function_node_block = function_node_block;
 
     return TRUE;
 }
@@ -5625,6 +5645,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
+
     int parent_field_index = -1;
     int field_index = get_field_index(left_type->mClass, var_name, &parent_field_index);
 
@@ -6254,10 +6275,15 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     BOOL last_expression_is_return_before = info->last_expression_is_return;
     info->last_expression_is_return = FALSE;
 
+    sNodeBlock* current_node_block = info->current_node_block;
+    info->current_node_block = while_node_block;
+
     sNodeType* result_type = create_node_type_with_class_name("void");
     if(!compile_block(while_node_block, info, result_type, TRUE)) {
         return FALSE;
     }
+
+    info->current_node_block = current_node_block;
 
     if(!info->last_expression_is_return) {
         free_right_value_objects(info);
@@ -6337,10 +6363,15 @@ static BOOL compile_do_while_expression(unsigned int node, sCompileInfo* info)
     BOOL last_expression_is_return_before = info->last_expression_is_return;
     info->last_expression_is_return = FALSE;
 
+    sNodeBlock* current_node_block = info->current_node_block;
+    info->current_node_block = while_node_block;
+
     sNodeType* result_type = create_node_type_with_class_name("void");
     if(!compile_block(while_node_block, info, result_type, TRUE)) {
         return FALSE;
     }
+
+    info->current_node_block = current_node_block;
 
     /// compile expression ///
     unsigned int expression_node = gNodes[node].uValue.sWhile.mExpressionNode;
@@ -6858,6 +6889,9 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     BasicBlock* current_block_before2;
     llvm_change_block(cond_then_block, &current_block_before2, info, FALSE);
 
+    sNodeBlock* current_node_block = info->current_node_block;
+    info->current_node_block = for_block;
+
     /// block of for expression ///
     sNodeType* result_type = create_node_type_with_class_name("void");
     if(!compile_block(for_block, info, result_type, TRUE)) 
@@ -6866,6 +6900,8 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
         info->pinfo->lv_table = lv_table_before;
         return FALSE;
     }
+
+    info->current_node_block = current_node_block;
 
     /// expression 3 ///
     unsigned int expression_node3 = gNodes[node].uValue.sFor.mExpressionNode3;
@@ -8253,7 +8289,12 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
         }
 
         free_right_value_objects(info);
-        free_objects(info->pinfo->lv_table, info);
+        if(info->in_inline_function) {
+            free_block_variables_on_break(info->function_node_block, info, FALSE);
+        }
+        else if(info->function_node_block) {
+            free_block_variables_on_break(info->function_node_block, info, TRUE);
+        }
 
         
         if(info->inline_func_end) {
@@ -8303,7 +8344,10 @@ static BOOL compile_return(unsigned int node, sCompileInfo* info)
         }
 
         free_right_value_objects(info);
-        free_objects(info->pinfo->lv_table, info);
+        if(info->function_node_block) {
+            free_block_variables_on_break(info->function_node_block, info, TRUE);
+        }
+        //free_objects(info->pinfo->lv_table, info);
 
         if(info->inline_func_end) {
             free_right_value_objects(info);
@@ -9715,6 +9759,9 @@ BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
     //info->num_loop--;
 
     free_right_value_objects(info);
+    if(info->switch_expression == NULL && info->current_node_block) {
+        free_block_variables_on_break(info->current_node_block, info, TRUE);
+    }
     Builder.CreateBr(loop_end_block);
 
     BasicBlock* after_break = BasicBlock::Create(TheContext, "after_break", gFunction);
@@ -12338,7 +12385,7 @@ int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info)
         BOOL var_arg = fun->mVarArg;
 
         unsigned int node = 0;
-        if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg))
+        if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg, TRUE))
         {
             gLLVMStack = llvm_stack;
             info->stack_num = stack_num;
@@ -12357,6 +12404,7 @@ int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info)
         info->stack_num = stack_num;
         gLLVMStack = llvm_stack;
     }
+    
 
     return generics_fun_num;
 }

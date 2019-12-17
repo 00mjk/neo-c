@@ -272,6 +272,8 @@ void free_objects(sVarTable* table, struct sCompileInfoStruct* info);
 // result: (null) not found (sVar*) found
 sVar* get_variable_from_this_table_only(sVarTable* table, char* name);
 
+void free_block_variables_on_break(struct sNodeBlockStruct* current_node_block, struct sCompileInfoStruct* info, BOOL top_block);
+
 //////////////////////////////
 /// parser.c
 //////////////////////////////
@@ -408,6 +410,12 @@ struct sCompileInfoStruct
     BOOL prevent_from_free_right_value_objects;
 
     void* right_value_objects;
+
+    struct sNodeBlockStruct* current_node_block;
+
+    struct sNodeBlockStruct* function_node_block;
+
+    BOOL in_inline_function;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;
@@ -497,6 +505,7 @@ struct sNodeTreeStruct
             BOOL mInCLang;
             BOOL mParseStructPhase;
             int mVersion;
+            BOOL mFinalize;
         } sFunction;
 
         struct {
@@ -646,7 +655,7 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
 
 unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, int sline, sParserInfo* info);
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg, int version);
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg, int version, BOOL finalize);
 
 unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, BOOL inherit, int version, sParserInfo* info);
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);

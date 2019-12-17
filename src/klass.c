@@ -395,6 +395,12 @@ void add_fields_to_union(sCLClass* klass, int num_fields, char field_name[STRUCT
 {
     klass->mNumFields = num_fields;
 
+    if(klass->mNumFields >= STRUCT_FIELD_MAX) {
+        fprintf(stderr, "overflow field number of %s\n", CLASS_NAME(klass));
+        exit(0);
+    }
+
+
     int i;
     for(i=0; i<num_fields; i++) {
         klass->mFieldNameOffsets[i] = append_str_to_constant_pool(&klass->mConst, field_name[i], FALSE);

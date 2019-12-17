@@ -419,3 +419,62 @@ void free_objects(sVarTable* table, sCompileInfo* info)
         }
     }
 }
+
+void free_objects_on_break(sVarTable* table, sCompileInfo* info)
+{
+    sVar* p = table->mLocalVariables;
+
+    while(1) {
+        if(p->mName[0] != 0) {
+            sNodeType* node_type = p->mType;
+            sCLClass* klass = node_type->mClass;
+
+            if(node_type->mHeap)
+            {
+                if(p->mLLVMValue)
+                {
+#ifdef MDEBUG
+    printf("free %s %s in vtable. address %p\n", p->mName, CLASS_NAME(node_type->mClass), p);
+#endif
+                    free_object(p->mType, p->mLLVMValue, FALSE, info);
+                    //p->mLLVMValue = NULL;
+                }
+            }
+        }
+
+        p++;
+
+        if(p == table->mLocalVariables + LOCAL_VARIABLE_MAX) {
+            break;
+        }
+    }
+}
+
+void free_block_variables_on_break(struct sNodeBlockStruct* current_node_block, struct sCompileInfoStruct* info, BOOL top_block)
+{
+    if(info && info->pinfo && current_node_block) {
+        sVarTable* current_lv_table = info->pinfo->lv_table;
+
+        sVarTable* current_block_lv_table = current_node_block->mLVTable;
+
+
+        sVarTable* it = current_lv_table;
+
+        if(current_lv_table == current_block_lv_table) {
+            free_objects_on_break(it, info);
+        }
+        else {
+            while(it != current_block_lv_table && it != NULL) 
+            {
+                free_objects_on_break(it, info);
+
+                it = it->mParent;
+            }
+
+            if(top_block && it != NULL) {
+                free_objects_on_break(it, info);
+            }
+        }
+    }
+}
+

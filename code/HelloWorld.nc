@@ -59,6 +59,583 @@ int sigqueue(pid_t __pid, int __signal, union sigval __value) __attribute__((ann
 
 void unsupported_function();
 
+impl int {
+    void times(int n, void (*block)()) 
+    {
+        for(int i=0; i<n; i++) {
+            block();
+        };
+    }
+}
+
+struct Data {
+    int a;
+    int b;
+};
+
+impl Data {
+    initialize() {
+        self.a = 111;
+        self.b = 123;
+    }
+}
+
+struct Data2 {
+    Data* a;
+    int b;
+};
+
+impl Data2 {
+    initialize() {
+        self.a = borrow new Data;
+
+        self.a.a = 123;
+        self.a.b = 234;
+
+        self.b = 123;
+    }
+    finalize() {
+        delete self.a;
+    }
+}
+
+struct Data10 {
+    int a;
+    int b;
+};
+
+struct Data11 {
+    Data10* a;
+    int b;
+};
+
+impl Data11 {
+    finalize() {
+        delete self.a;
+    }
+}
+
+struct GenericsTest2<T> {
+    T a;
+    T b;
+};
+
+impl GenericsTest2<T> {
+    T add(GenericsTest2<T>* self, T a, T b) {
+        a + b
+    }
+}
+
+struct MapTest2<T> {
+    T a;
+};
+
+struct MapTest<T,T2> {
+    T a;
+    T2 b;
+};
+
+impl MapTest<T,T2> {
+    template <R> MapTest2<R>%* fun(MapTest<T,T2>* self, R a, int b)
+    {
+        var result = new MapTest2<R>;
+        result.a = 1;
+
+        result
+    }
+    
+    template <R> R fun2(MapTest<T,T2>* self, R a, void (*block)(R))
+    {
+        puts("AAA");
+        1
+    }
+}
+
+struct HeapTest2 {
+    int a;
+    int b;
+};
+
+struct HeapTest<T> {
+    T&* a;
+    int b;
+    HeapTest2* c;
+};
+
+impl HeapTest<T> {
+    initialize()
+    {
+        self.a = borrow new T[5];
+    }
+    finalize()
+    {
+        delete self.a;
+        delete self.c;
+    }
+
+    template <R> HeapTest<R>*% map(HeapTest<T>* self, T data, R data2)
+    {
+        var result = new HeapTest<R>.initialize();
+
+        snprintf(result.a, 5, "%d", data);
+
+        result
+    }
+}
+
+struct Hello<T>
+{
+    T a;
+};
+
+impl Hello<T> {
+    void loop(Hello<T>* self, void (*block)())
+    {
+        for(int i=0; i < self.a; i++)
+        {
+            block();
+        }
+    }
+
+    template <R> R test(Hello<T>* self, R (*block)()) 
+    {
+        self.a = 3;
+        self.loop {
+            puts("HO!");
+        }
+        block()
+    }
+}
+
+struct Hello2<T>
+{
+    T& a;
+};
+
+impl Hello2<T> {
+    void loop(Hello2<T>* self, void (*block)())
+    {
+        for(int i=0; i < self.a; i++)
+        {
+            block();
+        }
+    }
+
+    initialize()
+    {
+        self.a = 3;
+    }
+
+    finalize() {
+        if(isheap(T)) {
+            delete self.a;
+        }
+    }
+
+    template <R> Hello2<R>*% test(Hello2<T>* self, R (*block)(T))
+    {
+        var result = new Hello2<R>.initialize();
+
+        result.loop {
+            puts("HO!");
+        }
+
+        block(string("aaa"));
+
+        result
+    }
+}
+
+struct StructTest2 <T>
+{
+    T a;
+    T b;
+};
+
+impl StructTest2 <T> {
+    inline T fun(StructTest2<T>* self, T a, T b) {
+        self.a = a;
+        self.b = b
+
+        T c = self.a + self.b
+
+        c
+    }
+}
+
+struct StructTest4 {
+    int a;
+    int b;
+};
+
+impl StructTest4 {
+    initialize() {
+        self.a = 111;
+        self.b = 123;
+    }
+
+    finalize() {
+        xassert("struct test13", self.a == 111 && self.b == 123);
+        puts("calling finalize");
+    }
+}
+
+struct Data5 {
+    int a;
+    int b;
+};
+
+impl Data5 {
+    initialize() {
+        self.a = 111;
+        self.b = 222;
+    }
+}
+
+struct Data6 {
+    Data5*% a;
+    int b;
+    string c;
+};
+
+impl Data6 {
+    initialize() {
+        self.a = new Data5;
+        self.a.a = 111;
+        self.a.b = 222;
+        self.b = 333;
+        self.c = new char[5];
+    }
+}
+
+int funXYZ2() {
+    if(true) {
+        return 1;
+    }
+    
+    0
+}
+
+inline int inline_fun6(int x, int y) {
+    string str2 = string("TEST2");
+    if(false) {
+        string str = string("TEST");
+        return x + y;
+    }
+    else {
+        string str3 = string("TEST");
+        return 3;
+    }
+}
+
+inline int inline_fun7(int x, int y) {
+    if(true) {
+        return x + y;
+    }
+
+   return 0; 
+}
+
+inline int inline_fun8(int x, int y) {
+    if(false) {
+        return x + y;
+    }
+
+   return 3; 
+}
+
+inline int inline_fun9(int x, int y) {
+    xassert("inline inline fun8", inline_fun8(1, 2) == 3);
+
+    if(false) {
+        return x + y;
+    }
+    else {
+        return 3; 
+    }
+}
+
+void fun11(int*? self) {
+    if(self == null) {
+        return;
+    }
+}
+
+int funcXXX(void) {
+    return 111;
+}
+
+int array_size_fun() {
+    return 3;
+}
+
+int funp(int a, int b) {
+    return a + b;
+}
+
+int pfun_test2(int aaa, int bbb)
+{
+    return aaa + bbb;
+}
+
+template <I> I method_generics_fun2(I a, I b)
+{
+    a + b
+}
+
+int fun()
+{
+    puts("HELLO WORLD");
+    1+1
+}
+
+void fun2(bool exp) 
+{
+    xassert("function param cast test", exp);
+}
+
+int fun3(int x, int y)
+{
+    x + y
+}
+
+void fun4(char* str) 
+{
+    puts(str);
+}
+
+struct OpTest 
+{
+    int a;
+    int b;
+};
+
+int fun5(int (*block)(int,int))
+{
+    block(1,2)
+}
+
+struct TestData 
+{
+    int a;
+    int b;
+};
+
+void fun6(TestData data) 
+{
+    xassert("struct test2", data.a == 123 && data.b == 234);
+}
+
+void fun7(int* value) 
+{
+    xassert("reffernce test", *value == 111);
+}
+
+int fun8(int (*block)(int,int))
+{
+    block(2,2)
+}
+
+struct Data3 {
+    int a;
+    int b;
+};
+
+struct Data4 {
+    Data3 a;
+    int b;
+};
+
+struct GenericsTest <T, T2> {
+    T a;
+    T2 b;
+    T (*c)(T,T);
+};
+
+union UnionTest {
+    int a;
+    long b;
+};
+
+struct StructTest {
+    struct {
+        int a;
+        int b;
+    } B;
+
+    int c;
+    int d;
+};
+
+union UnionTest2 {
+    struct {
+        long a;
+        long b;
+    } a;
+    long b;
+    struct {
+        long a;
+        long b;
+        long c;
+    } c;
+};
+
+struct UnionTest3 {
+    union {
+        long a;
+        long b;
+    } a;
+
+    int b;
+};
+
+struct GenericsTest3 <T>
+{
+    union {
+        int a;
+        long b;
+    } a;
+    T b;
+};
+
+struct GenericsTest4 <T>
+{
+    struct {
+        int a;
+        int b;
+    } a;
+
+    union {
+        int a;
+        int b; 
+    } b;
+};
+
+inline void inline_fun1() {
+    puts("HELLO INLINE");
+}
+
+inline int inline_fun2() {
+    123
+}
+
+inline int inline_fun4(int x, int y) 
+{
+    x + y
+}
+
+inline int inline_fun10(int x, int y) {
+    inline_fun8(1, 2)
+}
+
+inline void inline_fun3(int a, int b) {
+    printf("a %d b %d\n", a, b);
+}
+
+struct StructTest5 {
+    int a[123];
+};
+
+struct StructTest6 {
+    int a;
+    int b;
+};
+
+union UnionTest5 {
+    int a;
+    long b;
+};
+
+struct StructTest7 {
+    int a;
+    struct StructTest7* data;
+};
+
+struct StructTest8 {
+    int a;
+    int b;
+};
+
+union UnionTest6 {
+    int a;
+    long b;
+};
+
+struct sStruct {
+    int a;
+    int b;
+};
+
+struct sStruct sssdata = {
+    111, 222
+};
+
+struct StructTest9 {
+   int a[3+1+sizeof(int)];
+   double aaa;
+};
+
+void pfun_test(void) {
+    puts("XXX");
+}
+
+struct yyyxxx 
+{
+    struct {
+        int b;
+        int c;
+    };
+    int a;
+};
+
+struct aaaxxx
+{
+    int a;
+
+    union
+    {
+        double y;
+        int x;
+    };
+};
+
+struct StructTest10 {
+    struct StructTest11* data[10];
+};
+
+struct StructTest11 {
+    int a;
+    int b;
+};
+
+inline <T> T inline_fun5(T x, T y) 
+{
+    x + y;
+
+    T z = x + y;
+
+    z
+}
+
+struct StructTest3 {
+    int a;
+    int b;
+};
+
+void funXYZ(StructTest3 data) 
+{
+    xassert("struct test2", data.a == 1 && data.b == 2);
+}
+
+void fun_test_borrow(char* aaa) 
+{
+}
+
+void fun9(string str) {
+    str[1] = 'b';
+    puts(str);
+}
+
 int main()
 {
     if(1 == 1) {
@@ -68,12 +645,6 @@ int main()
         puts("FALSE");
     }
 
-    int fun()
-    {
-        puts("HELLO WORLD");
-        1+1
-    }
-
     printf("aaaa\n");
 
     int a = fun();
@@ -81,11 +652,6 @@ int main()
     xassert("function result test", a == 2);
 
     int b = 1;
-
-    void fun2(bool exp) 
-    {
-        xassert("function param cast test", exp);
-    }
 
     fun2(b);
 
@@ -100,11 +666,6 @@ int main()
     int m = n + 1;
 
     xassert("local variable test", m == 778);
-
-    int fun3(int x, int y)
-    {
-        x + y
-    }
 
     int l = fun3(1, 2);
 
@@ -128,11 +689,6 @@ int main()
 
     xassert("operator test", i > 0);
 
-    void fun4(char* str) 
-    {
-        puts(str);
-    }
-
     fun4("aaa");
 
     i = 0;
@@ -152,12 +708,6 @@ int main()
 
     i = 124;
     xassert("operator test5", --i == 123 && i == 123);
-
-    struct OpTest 
-    {
-        int a;
-        int b;
-    };
 
     OpTest* obj = alloca OpTest;
 
@@ -197,21 +747,10 @@ int main()
 
     xassert("lambda test", fun(1,2) == 7 && bb == 2);
 
-    int fun5(int (*block)(int,int))
-    {
-        block(1,2)
-    }
-
     int xxx = fun5(fun);
 
     xassert("lambda test", xxx == 7);
     xassert("lambda test2", bb == 2);
-
-    struct TestData 
-    {
-        int a;
-        int b;
-    };
 
     TestData* test11 = alloca TestData;
     test11.a = 123;
@@ -219,34 +758,15 @@ int main()
 
     xassert("struct test", test11.a == 123 && test11.b == 234);
 
-    void fun6(TestData data) 
-    {
-        xassert("struct test2", data.a == 123 && data.b == 234);
-    }
-
     fun6(*test11);
 
     int iii = 111;
 
     int* p = &iii;
 
-    void fun7(int* value) 
-    {
-        xassert("reffernce test", *value == 111);
-    }
-
     fun7(p);
 
     int nn = 0;
-
-    impl int {
-        void times(int n, void (*block)()) 
-        {
-            for(int i=0; i<n; i++) {
-                block();
-            };
-        }
-    }
 
     3.times(lambda() {
         puts("HO!");
@@ -267,30 +787,6 @@ int main()
 
     int xmm = 1;
 
-    int fun8(int (*block)(int,int))
-    {
-        block(2,2)
-    }
-
-    int mm = fun8() {
-        xmm = 9;
-        it + it2 + xb
-    }
-
-    xassert("simple lambda param test2", mm == 7 && xmm == 9);
-
-    struct Data {
-        int a;
-        int b;
-    };
-
-    impl Data {
-        initialize() {
-            self.a = 111;
-            self.b = 123;
-        }
-    }
-
     Data*% ya = new Data;
 
     Data*% xobj = ya.initialize();
@@ -298,25 +794,6 @@ int main()
     Data*% xobj2 = xobj;
 
     xassert("std::move test", xobj2.a == 111);
-
-    struct Data2 {
-        Data* a;
-        int b;
-    };
-
-    impl Data2 {
-        initialize() {
-            self.a = borrow new Data;
-
-            self.a.a = 123;
-            self.a.b = 234;
-
-            self.b = 123;
-        }
-        finalize() {
-            delete self.a;
-        }
-    }
 
     var yb = new Data2.initialize();
 
@@ -328,37 +805,11 @@ int main()
 
     puts(str);
 
-    struct Data3 {
-        int a;
-        int b;
-    };
-
-    struct Data4 {
-        Data3 a;
-        int b;
-    };
-
     var za = new Data4;
 
     za.a.a = 123;
 
     xassert("struct test X", za.a.a == 123);
-
-    struct Data10 {
-        int a;
-        int b;
-    };
-
-    struct Data11 {
-        Data10* a;
-        int b;
-    };
-
-    impl Data11 {
-        finalize() {
-            delete self.a;
-        }
-    }
 
     new Data11.a = borrow new Data10;
 
@@ -384,12 +835,6 @@ int main()
 
     xassert("lambda test X", lll(1,2) == 3);
 
-    struct GenericsTest <T, T2> {
-        T a;
-        T2 b;
-        T (*c)(T,T);
-    };
-
     var gvar = new GenericsTest<int, char>;
 
     gvar.a = 111;
@@ -404,56 +849,15 @@ int main()
 
     xassert("operator test", strcmp(aaaa, "AAABBB") == 0);
 
-    template <I> I method_generics_fun2(I a, I b)
-    {
-        a + b
-    }
-
     xassert("method generics test", method_generics_fun2(1, 2) == 3);
 
     xassert("method generics test2", strcmp(method_generics_fun2(string("AAA"), string("BBB")), "AAABBB") == 0);
 
     xassert("method generics test3", method_generics_fun2(2, 3) == 5);
 
-    struct GenericsTest2<T> {
-        T a;
-        T b;
-    };
-
-    impl GenericsTest2<T> {
-        T add(GenericsTest2<T>* self, T a, T b) {
-            a + b
-        }
-    }
-
     var generics_test = new GenericsTest2<int>;
 
     xassert("generics test", generics_test.add(1,2) == 3);
-
-    struct MapTest2<T> {
-        T a;
-    };
-
-    struct MapTest<T,T2> {
-        T a;
-        T2 b;
-    };
-
-    impl MapTest<T,T2> {
-        template <R> MapTest2<R>%* fun(MapTest<T,T2>* self, R a, int b)
-        {
-            var result = new MapTest2<R>;
-            result.a = 1;
-
-            result
-        }
-        
-        template <R> R fun2(MapTest<T,T2>* self, R a, void (*block)(R))
-        {
-            puts("AAA");
-            1
-        }
-    }
 
     var map_test = new MapTest<int, int>;
 
@@ -468,107 +872,11 @@ int main()
 
     xassert("method generics test X", aaa.a == 1);
 
-    struct HeapTest2 {
-        int a;
-        int b;
-    };
-
-    struct HeapTest<T> {
-        T&* a;
-        int b;
-        HeapTest2* c;
-    };
-
-    impl HeapTest<T> {
-        initialize()
-        {
-            self.a = borrow new T[5];
-        }
-        finalize()
-        {
-            delete self.a;
-            delete self.c;
-        }
-
-        template <R> HeapTest<R>*% map(HeapTest<T>* self, T data, R data2)
-        {
-            var result = new HeapTest<R>.initialize();
-
-            snprintf(result.a, 5, "%d", data);
-
-            result
-        }
-    }
-
     var ax = new HeapTest<int>.initialize();
 
     var bx = ax.map(1, 'a');
 
-    puts(bx.a);
-
-    struct Hello<T>
-    {
-        T a;
-    };
-
-    impl Hello<T> {
-        void loop(Hello<T>* self, void (*block)())
-        {
-            for(int i=0; i < self.a; i++)
-            {
-                block();
-            }
-        }
-
-        template <R> R test(Hello<T>* self, R (*block)()) 
-        {
-            self.a = 3;
-            self.loop {
-                puts("HO!");
-            }
-            block()
-        }
-    }
-
-    struct Hello2<T>
-    {
-        T& a;
-    };
-
-    impl Hello2<T> {
-        void loop(Hello2<T>* self, void (*block)())
-        {
-            for(int i=0; i < self.a; i++)
-            {
-                block();
-            }
-        }
-
-        initialize()
-        {
-            self.a = 3;
-        }
-
-        finalize() {
-            if(isheap(T)) {
-                delete self.a;
-            }
-        }
-
-        template <R> Hello2<R>*% test(Hello2<T>* self, R (*block)(T))
-        {
-            var result = new Hello2<R>.initialize();
-
-            result.loop {
-                puts("HO!");
-            }
-
-            block(string("aaa"));
-
-            result
-        }
-    }
-
+    //puts(bx.a);
     var aaa3 = new Hello<int>;
 
     aaa3.test {
@@ -653,11 +961,6 @@ int main()
 
     var str3 = string("aaa");
 
-    void fun9(string str) {
-        str[1] = 'b';
-        puts(str);
-    }
-
     fun9(str3);
 
 #define ABC 123
@@ -684,16 +987,6 @@ int main()
 
     xassert("anonymous struct test", var_x.a == 1 && var_x.b == 2);
 
-    struct StructTest {
-        struct {
-            int a;
-            int b;
-        } B;
-
-        int c;
-        int d;
-    };
-
     StructTest*% axz = new StructTest;
 
     axz.B.a = 1;
@@ -702,11 +995,6 @@ int main()
     axz.d = 4;
 
     xassert("inner struct test", axz.B.a == 1 && axz.B.b == 2 && axz.c == 3 && axz.d == 4);
-
-    union UnionTest {
-        int a;
-        long b;
-    };
 
     UnionTest*% data = new UnionTest;
 
@@ -717,19 +1005,6 @@ int main()
     data.b = 2;
 
     xassert("union test2", data.b == 2);
-
-    union UnionTest2 {
-        struct {
-            long a;
-            long b;
-        } a;
-        long b;
-        struct {
-            long a;
-            long b;
-            long c;
-        } c;
-    };
 
     var data2 = new UnionTest2;
 
@@ -751,15 +1026,6 @@ int main()
     data3.a.b = 2;
 
     xassert("union test4", data3.a.a == 1 && data3.a.b == 2);
-    
-    struct UnionTest3 {
-        union {
-            long a;
-            long b;
-        } a;
-
-        int b;
-    };
 
     var data4 = new UnionTest3;
 
@@ -770,15 +1036,6 @@ int main()
 
     xassert("union test5", data4.a.a == 2 && data4.a.b == 2 && data4.b == 3);
 
-    struct GenericsTest3 <T>
-    {
-        union {
-            int a;
-            long b;
-        } a;
-        T b;
-    };
-
     var data5 = new GenericsTest3<long>;
 
     data5.a.a = 5;
@@ -786,19 +1043,6 @@ int main()
 
     xassert("union test6", data5.a.a == 5 && data5.b == 6);
     xassert("union test6", data5.a.a == 5 && data5.b == 6);
-
-    struct GenericsTest4 <T>
-    {
-        struct {
-            int a;
-            int b;
-        } a;
-
-        union {
-            int a;
-            int b; 
-        } b;
-    };
 
     var data6 = new GenericsTest4<long>;
 
@@ -810,47 +1054,13 @@ int main()
 
     xassert("extern test2", gGlobalVar == 1);
 
-    inline void inline_fun1() {
-        puts("HELLO INLINE");
-    }
-
     inline_fun1();
-
-    inline int inline_fun2() {
-        123
-    }
 
     xassert("inline function test", inline_fun2() == 123);
 
-    inline void inline_fun3(int a, int b) {
-        printf("a %d b %d\n", a, b);
-    }
-
     inline_fun3(1, 2);
 
-    inline int inline_fun4(int x, int y) 
-    {
-        x + y
-    }
-
     xassert("inline function test2", inline_fun4(2, 3) == 5);
-
-    struct StructTest2 <T>
-    {
-        T a;
-        T b;
-    };
-
-    impl StructTest2 <T> {
-        inline T fun(StructTest2<T>* self, T a, T b) {
-            self.a = a;
-            self.b = b
-
-            T c = self.a + self.b
-
-            c
-        }
-    }
 
     var data7 = new StructTest2<int>;
 
@@ -876,89 +1086,20 @@ int main()
 
     void* pxz = (void*)pxyy;
 
-
-    int funXYZ2() {
-        if(true) {
-            return 1;
-        }
-        
-        0
-    }
-
     xassert("return test", funXYZ2() == 1);
-
-    inline int inline_fun6(int x, int y) {
-        if(false) {
-            return x + y;
-        }
-
-        3
-    }
 
     xassert("inline fun6", inline_fun6(1, 2) == 3);
 
-    inline int inline_fun7(int x, int y) {
-        if(true) {
-            return x + y;
-        }
-
-       return 0; 
-    }
-
+/*
     xassert("inline fun7", inline_fun7(1, 2) == 3);
-
-    inline int inline_fun8(int x, int y) {
-        if(false) {
-            return x + y;
-        }
-
-       return 3; 
-    }
 
     xassert("inline fun8", inline_fun8(1, 2) == 3);
 
-    inline int inline_fun9(int x, int y) {
-        xassert("inline inline fun8", inline_fun8(1, 2) == 3);
-
-        if(false) {
-            return x + y;
-        }
-        else {
-            return 3; 
-        }
-    }
-
     xassert("inline fun9", inline_fun9(1, 2) == 3);
 
-    inline int inline_fun10(int x, int y) {
-        inline_fun8(1, 2)
-    }
-
     xassert("inline fun10", inline_fun10(1, 2) == 3);
-    void fun11(int*? self) {
-        if(self == null) {
-            return;
-        }
-    }
 
     fun11(null);
-
-    struct StructTest4 {
-        int a;
-        int b;
-    };
-
-    impl StructTest4 {
-        initialize() {
-            self.a = 111;
-            self.b = 123;
-        }
-
-        finalize() {
-            xassert("struct test13", self.a == 111 && self.b == 123);
-            puts("calling finalize");
-        }
-    }
 
     var struct_var = new StructTest4.initialize();
 
@@ -1008,23 +1149,11 @@ int main()
 
     xassert("minus", asigned2 == -111);
 
-    int funcXXX(void) {
-        return 111;
-    }
-
     xassert("func(void)", funcXXX() == 111);
-
-    struct StructTest5 {
-        int a[123];
-    };
 
     StructTest5 astruct1;
 
     int aaaray[123];
-
-    int array_size_fun() {
-        return 3;
-    }
 
     int aarray2[array_size_fun()];
 
@@ -1068,11 +1197,6 @@ int main()
 
     xassert("avalue", *aptr == 111 && *bptr == 222 && *cptr == 333);
 
-    struct StructTest6 {
-        int a;
-        int b;
-    };
-
     struct StructTest6 sxdata;
 
     sxdata.a = 111;
@@ -1080,29 +1204,15 @@ int main()
 
     xassert("struct testX", sxdata.a == 111 && sxdata.b == 222);
 
-    union UnionTest5 {
-        int a;
-        long b;
-    };
-
     union UnionTest5 uxdata;
 
     uxdata.b = 222;
 
     xassert("union testX", uxdata.b == 222);
 
-    int funp(int a, int b) {
-        return a + b;
-    }
-
     int (*fp)(int, int) = funp;
 
     xassert("function pointer test", fp(1,2) == 3);
-
-    struct StructTest7 {
-        int a;
-        struct StructTest7* data;
-    };
 
     struct StructTest7* struct_test_var = alloca StructTest7;
 
@@ -1118,11 +1228,6 @@ int main()
 
     struct StructTest8* struct_test_var2;
 
-    struct StructTest8 {
-        int a;
-        int b;
-    };
-
     struct_test_var2 = alloca StructTest8;
 
     struct_test_var2.a = 111;
@@ -1134,11 +1239,6 @@ int main()
     union UnionTest6;
 
     union UnionTest6* union_test_var;
-
-    union UnionTest6 {
-        int a;
-        long b;
-    };
 
     union_test_var = alloca UnionTest6;
 
@@ -1193,16 +1293,6 @@ int main()
     }
 
     xassert("new array initializer", aaadata[0] == 1 && aaadata[1] == 2 && aaadata[2] == 3);
-
-
-    struct sStruct {
-        int a;
-        int b;
-    };
-
-    struct sStruct sssdata = {
-        111, 222
-    };
 
     xassert("struct initializer", sssdata.a == 111 && sssdata.b == 222);
 
@@ -1274,11 +1364,6 @@ label1:
 
     xassert("array test", bxxx[0] == 123);
 
-    struct StructTest9 {
-       int a[3+1+sizeof(int)];
-       double aaa;
-    };
-
     StructTest9* data10 = new StructTest9;
 
     data10.a[0] = 123;
@@ -1290,18 +1375,10 @@ label1:
     xassert("test", axyxy == 4);
 
     signed aaaaaaaaaa = 11111;
-    void pfun_test(void) {
-        puts("XXX");
-    }
 
     void (*pfunX)(void) = pfun_test;
 
     pfunX();
-
-    int pfun_test2(int aaa, int bbb)
-    {
-        return aaa + bbb;
-    }
 
     pfunXXX pfunX2 = pfun_test2;
 
@@ -1334,31 +1411,11 @@ label1:
 
     xassert("union test", abcabc2.a == 222 && abcabc2.b == 222);
 
-    struct aaaxxx
-    {
-        int a;
-
-        union
-        {
-            double y;
-            int x;
-        };
-    };
-
     struct aaaxxx data11;
 
     data11.x = 123;
 
     xassert("AnonymousUnion", data11.x == 123);
-
-    struct yyyxxx 
-    {
-        struct {
-            int b;
-            int c;
-        };
-        int a;
-    };
 
     struct yyyxxx data12;
 
@@ -1378,15 +1435,6 @@ label1:
     int none_heap = 123;
 
     xassert("is heap test4", !isheap(none_heap));
-
-    struct StructTest10 {
-        struct StructTest11* data[10];
-    };
-
-    struct StructTest11 {
-        int a;
-        int b;
-    };
 
     var llll = new StructTest10;
 
@@ -1420,19 +1468,6 @@ label1:
     var gxll2 = new StructTest2<int>;
 
     xassert("class name test3", strcmp(class_name(gxll2), "StructTest2*%<int>") == 0);
-
-    struct Data5 {
-        int a;
-        int b;
-    };
-
-    impl Data5 {
-        initialize() {
-            self.a = 111;
-            self.b = 222;
-        }
-    }
-
 
     string zz8 = "AAA" + "BBB"
 
@@ -1485,15 +1520,6 @@ label1:
 
     xassert("oct test", xyzY == 8);
 
-    inline <T> T inline_fun5(T x, T y) 
-    {
-        x + y;
-
-        T z = x + y;
-
-        z
-    }
-
     xassert("inline function test3", inline_fun5(2, 3) == 5);
 
     char* aaaaxxxx = string("AAA");
@@ -1504,21 +1530,12 @@ label1:
 
     xassert("pointer operator", *p111111 - straaaaaaaaa == 0);
 
-    struct StructTest3 {
-        int a;
-        int b;
-    };
-
     StructTest3 data8;
 
     data8.a = 1;
     data8.b = 2;
 
     xassert("struct test", data8.a == 1 && data8.b == 2);
-    void funXYZ(StructTest3 data) 
-    {
-        xassert("struct test2", data8.a == 1 && data8.b == 2);
-    }
 
     funXYZ(data8);
 
@@ -1537,22 +1554,6 @@ label1:
 
     xassert("struct test X2", zz2.a == 111 && zz2.b == 222);
 
-    struct Data6 {
-        Data5*% a;
-        int b;
-        string c;
-    };
-
-    impl Data6 {
-        initialize() {
-            self.a = new Data5;
-            self.a.a = 111;
-            self.a.b = 222;
-            self.b = 333;
-            self.c = new char[5];
-        }
-    }
-
     var zz3 = new Data6.initialize();
 
     var zz4 = clone zz3;
@@ -1564,10 +1565,6 @@ label1:
     var zz6 = zz5;
 
     char* zz7 = zz6;
-
-    void fun_test_borrow(char* aaa) 
-    {
-    }
 
     fun_test_borrow(zz6);
 
@@ -1629,6 +1626,7 @@ label1:
     aaarray[0] ++;
 
     xassert("inc test5", aaarray[0] == 3);
+*/
 
     0
 }
