@@ -1851,7 +1851,8 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         int generics_num = 0;
 
         while(1) {
-            if(!parse_type(&(*result_type)->mGenericsTypes[generics_num], info, NULL, FALSE, FALSE, parse_only)) {
+            char tmp[VAR_NAME_MAX];
+            if(!parse_type(&(*result_type)->mGenericsTypes[generics_num], info, tmp, FALSE, FALSE, parse_only)) {
                 return FALSE;
             }
 
@@ -5008,9 +5009,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 {
     char* impl_head = info->p;
 
-    sVarTable* lv_table = info->lv_table;
-    info->lv_table = NULL;
-
     char sname[PATH_MAX];
     xstrncpy(sname, info->sname, PATH_MAX);
     int sline = info->sline;
@@ -5019,7 +5017,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
     char buf[VAR_NAME_MAX];
     if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
-        info->lv_table = lv_table;
         return FALSE;
     }
 
@@ -5038,7 +5035,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
         while(TRUE) {
             char buf[VAR_NAME_MAX];
             if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
-                info->lv_table = lv_table;
                 return FALSE;
             }
 
@@ -5049,7 +5045,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
             if(num_generics >= GENERICS_TYPES_MAX)
             {
                 parser_err_msg(info, "overflow generics types");
-                info->lv_table = lv_table;
                 return FALSE;
             }
 
@@ -5097,7 +5092,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
         char buf[VAR_NAME_MAX+1];
         if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
         {
-            info->lv_table = lv_table;
             return FALSE;
         }
 
@@ -5105,7 +5099,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
         if(strcmp(buf, "template") == 0) {
             if(!parse_method_generics_function(node, struct_name, info)) {
-                info->lv_table = lv_table;
                 return FALSE;
             }
 
@@ -5113,7 +5106,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
             if(num_nodes >= IMPL_DEF_MAX) {
                 fprintf(stderr, "overflow impl function max");
-                info->lv_table = lv_table;
                 return FALSE;
             }
         }
@@ -5121,7 +5113,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
         {
             if(!parse_inline_function(node, struct_name, info)) 
             {
-                info->lv_table = lv_table;
                 return FALSE;
             }
 
@@ -5129,13 +5120,11 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
             if(num_nodes >= IMPL_DEF_MAX) {
                 fprintf(stderr, "overflow impl function max");
-                info->lv_table = lv_table;
                 return FALSE;
             }
         }
         else if(strcmp(buf, "initialize") == 0) {
             if(!parse_constructor(node, struct_name, info)) {
-                info->lv_table = lv_table;
                 return FALSE;
             }
 
@@ -5143,7 +5132,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
             if(num_nodes >= IMPL_DEF_MAX) {
                 fprintf(stderr, "overflow impl function max");
-                info->lv_table = lv_table;
                 return FALSE;
             }
         }
@@ -5154,7 +5142,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
             char name[VAR_NAME_MAX+1];
             if(!parse_type(&result_type, info, name, TRUE, FALSE, FALSE))
             {
-                info->lv_table = lv_table;
                 return FALSE;
             }
 
@@ -5162,27 +5149,23 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
                 BOOL extern_ = TRUE;
                 if(!parse_variable(node, result_type, name, extern_, info, FALSE)) 
                 {
-                    info->lv_table = lv_table;
                     return FALSE;
                 }
             }
             else {
                 if(!parse_variable_name(name, VAR_NAME_MAX, info, result_type, TRUE))
                 {
-                    info->lv_table = lv_table;
                     return FALSE;
                 }
 
                 if(strcmp(name, "operator") == 0)
                 {
                     if(!parse_function(node, result_type, name, struct_name, info)) {
-                        info->lv_table = lv_table;
                         return FALSE;
                     }
                 }
                 else if(*info->p == '(') {
                     if(!parse_function(node, result_type, name, struct_name, info)) {
-                        info->lv_table = lv_table;
                         return FALSE;
                     }
                 }
@@ -5197,13 +5180,11 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
             if(num_nodes >= IMPL_DEF_MAX) {
                 fprintf(stderr, "overflow impl function max");
-                info->lv_table = lv_table;
                 return FALSE;
             }
         }
         else if(strcmp(buf, "finalize") == 0) {
             if(!parse_destructor(node, struct_name, info)) {
-                info->lv_table = lv_table;
                 return FALSE;
             }
 
@@ -5211,7 +5192,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
             if(num_nodes >= IMPL_DEF_MAX) {
                 fprintf(stderr, "overflow impl function max");
-                info->lv_table = lv_table;
                 return FALSE;
             }
         }
@@ -5223,20 +5203,17 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
             char name[VAR_NAME_MAX];
             if(!parse_type(&result_type, info, name, TRUE, FALSE, FALSE))
             {
-                info->lv_table = lv_table;
                 return FALSE;
             }
 
             if(!parse_variable_name(name, VAR_NAME_MAX, info, result_type, TRUE))
             {
-                info->lv_table = lv_table;
                 return FALSE;
             }
 
             if(name[0] == '\0') {
                 if(!parse_variable_name(name, VAR_NAME_MAX, info, result_type, TRUE))
                 {
-                    info->lv_table = lv_table;
                     return FALSE;
                 }
             }
@@ -5244,13 +5221,11 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
             if(*info->p == '(') {
                 if(info->mNumGenerics > 0) {
                     if(!parse_generics_function(node, result_type, name, struct_name, info)) {
-                        info->lv_table = lv_table;
                         return FALSE;
                     }
                 }
                 else {
                     if(!parse_function(node, result_type, name, struct_name, info)) {
-                        info->lv_table = lv_table;
                         return FALSE;
                     }
                 }
@@ -5258,7 +5233,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
             else {
                 BOOL extern_ = FALSE;
                 if(!parse_variable(node, result_type, name, extern_, info, FALSE)) {
-                    info->lv_table = lv_table;
                     return FALSE;
                 }
             }
@@ -5267,7 +5241,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
 
             if(num_nodes >= IMPL_DEF_MAX) {
                 fprintf(stderr, "overflow impl function max");
-                info->lv_table = lv_table;
                 return FALSE;
             }
         }
@@ -5287,8 +5260,6 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
     *node = sNodeTree_create_impl(nodes, num_nodes, info);
 
     info->mImplVersion = 0;
-
-    info->lv_table = lv_table;
 
     return TRUE;
 }

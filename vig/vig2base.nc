@@ -192,7 +192,7 @@ impl Vig version 2
 
         self.appEnd = false;
 
-        self.events = new vector<void lambda(Vig*, int)>.initialize_with_values(KEY_MAX, null);
+        self.events = new vector<void (*lambda)(Vig*, int)>.initialize_with_values(KEY_MAX, null);
 
         self.events.replace('q', lambda(Vig* self, int key) 
         {

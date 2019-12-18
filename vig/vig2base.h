@@ -22,7 +22,7 @@ impl VigWin version 2
 
 struct Vig version 2 
 {
-    vector<void lambda(Vig*, int)>*% events;
+    vector<void (*lambda)(Vig*, int)>*% events;
     bool appEnd;
 }
 
