@@ -22,16 +22,16 @@ impl VigWin version 8
         self.texts.each {
             if(it2 >= self.visualModeHead && it2 <= self.cursorY) {
                 wattron(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
+                mvwprintw(self.win, it2, 0, "%s", it.to_string());
                 wattroff(self.win, A_REVERSE);
             }
             else if(it2 <= self.visualModeHead && it2 >= self.cursorY) {
                 wattron(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
+                mvwprintw(self.win, it2, 0, "%s", it.to_string());
                 wattroff(self.win, A_REVERSE);
             }
             else {
-                mvwprintw(self.win, it2, 0, "%s", it.toUtf8String());
+                mvwprintw(self.win, it2, 0, "%s", it.to_string());
             }
         }
 

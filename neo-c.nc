@@ -584,7 +584,7 @@ impl wstring
         return result;
     }
 
-    string toUtf8String(wstring& self) 
+    string to_string(wstring& self) 
     {
         int len = MB_LEN_MAX*(wcslen(self)+1);
 

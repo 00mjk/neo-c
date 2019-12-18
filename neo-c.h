@@ -267,7 +267,7 @@ impl wstring
     extern wstring& delete(wstring& str, int position);
     extern wstring& delete_range(wstring& str, int head, int tail);
 
-    extern string toUtf8String(wstring& self);
+    extern string to_string(wstring& self);
     extern wstring printable(wstring& str);
 }
 
