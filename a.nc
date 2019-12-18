@@ -2,36 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct ClassA<T>
-{
-    T aaa;
-    T bbb;
-};
-
-impl ClassA<T>
-{
-    initialize() {
-    }
-    void fun(ClassA<T>* self) 
-    {
-        abc
-    }
-}
-
-inline void fun()
-{
-    1+1
-    while(true) {
-        if(true) {
-        }
-    }
-}
-
 void main() {
-    fun();
-
-    var a = new ClassA<int>.initialize();
-
-    a.fun();
+    printf("%d\n", string("  void fun(").match(regex!</^\\s*[a-zA-Z0-9%*?]+\\s+[a-zA-Z0-9]+\\(/>, null));
 }
 

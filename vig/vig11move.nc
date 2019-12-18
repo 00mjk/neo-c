@@ -187,9 +187,10 @@ impl VigWin version 11
         int cursor_y = self.cursorY -1;
 
         self.texts.sublist(0, self.cursorY).reverse().each() {
-            if(it.index(wstring("{"), -1) == 0) {
+            if(it.to_string().match(regex!</^\\s*[a-zA-Z0-9%*?]+\\s+[a-zA-Z0-9]+\\(/>, null)) {
                 *it3 = true;
                 self.cursorY = cursor_y
+                self.cursorX = 0;
                 return;
             }
 
@@ -204,9 +205,10 @@ impl VigWin version 11
         int cursor_y = self.cursorY + 1;
 
         self.texts.sublist(self.cursorY+1, -1).each() {
-            if(it.index(wstring("{"), -1) == 0) {
+            if(it.to_string().match(regex!</^\\s*[a-zA-Z0-9%*?]+\\s+[a-zA-Z0-9]+\\(/>, null)) {
                 *it3 = true;
                 self.cursorY = cursor_y
+                self.cursorX = 0;
                 return;
             }
 
