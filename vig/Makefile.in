@@ -92,7 +92,7 @@ permission:
 # clean
 #########################################
 clean:
-	rm -fR *.ll *.bc *.nc.tmp *.out *.o valgrind.txt memleack_debug.txt
+	rm -fR memleak_debug.txt *.ll *.bc *.nc.tmp *.out *.o valgrind.txt memleack_debug.txt
 	rm -fR vig
 
 distclean: clean
