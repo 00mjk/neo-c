@@ -1654,6 +1654,10 @@ label1:
 
     xassert("method block result test", xax == 6);
 
+    for(int i=0; i<3; i++) {
+        var strU = string("ABC");
+    }
+
     0
 }
 
