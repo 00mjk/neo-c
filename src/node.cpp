@@ -2659,6 +2659,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
         info2.mGenericsType = clone_node_type(generics_type);
     }
 
+show_node_type(lambda_type->mResultType);
     sNodeType* result_type = clone_node_type(lambda_type->mResultType);
 
     if(is_typeof_type(result_type))
@@ -3127,6 +3128,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         BOOL in_clang = fun->mInCLang;
 
         unsigned int node = 0;
+printf("fun_name %s\n", fun_name);
         if(!parse_simple_lambda_param(&node, buf, fun, sname, sline, generics_type, info->pinfo, info, num_generics, generics_type_names, in_clang))
         {
             info->generics_type = generics_type_before;
@@ -3761,6 +3763,8 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 return TRUE;
             }
 
+puts("1");
+if(info->result_type) show_node_type(info->result_type);
             sNodeType* result_type_before = info->result_type;
             info->result_type = clone_node_type(result_type);
 
@@ -3818,6 +3822,8 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             info->last_expression_is_return = last_expression_is_return_before;
             info->result_variable = result_variable_before;
             info->result_type = result_type_before;
+puts("2");
+if(info->result_type) show_node_type(info->result_type);
             info->inline_func_end = inline_func_end_before;
         }
         else {
@@ -4194,6 +4200,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     sNodeType* result_type_before = info->result_type;
     info->result_type = clone_node_type(result_type);
+puts("3");
+if(info->result_type) show_node_type(info->result_type);
 
     BOOL last_expression_is_return_before = info->last_expression_is_return;
     info->last_expression_is_return = FALSE;
@@ -4209,7 +4217,15 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     }
 
     info->result_type = result_type_before;
+puts("5");
+if(info->result_type) show_node_type(info->result_type);
     sNodeType* block_result_type = info->type;
+    if(info->last_expression_is_return) {
+        block_result_type = clone_node_type(result_type);
+    }
+    else {
+        block_result_type = clone_node_type(info->type);
+    }
     info->function_lvtable = function_lvtable_before;
     xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
     if(!info->last_expression_is_return) {
@@ -4374,6 +4390,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type_before = info->result_type;
         info->result_type = clone_node_type(result_type);
+puts("6");
+if(info->result_type) show_node_type(info->result_type);
 
         BOOL last_expression_is_return_before = info->last_expression_is_return;
         info->last_expression_is_return = FALSE;
@@ -4387,6 +4405,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         }
 
         info->result_type = result_type_before;
+puts("7");
+if(info->result_type) show_node_type(info->result_type);
         sNodeType* block_result_type = info->type;
         info->function_lvtable = function_lvtable_before;
         xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
@@ -8247,6 +8267,9 @@ unsigned int sNodeTree_create_return(unsigned int left, sParserInfo* info)
 static BOOL compile_return(unsigned int node, sCompileInfo* info)
 {
     sNodeType* result_type = info->result_type;
+
+puts("YYY");
+show_node_type(result_type);
 
     if(result_type == NULL) {
         compile_err_msg(info, "No result type");

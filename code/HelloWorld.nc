@@ -636,6 +636,13 @@ void fun9(string str) {
     puts(str);
 }
 
+impl int
+{
+    int fun12(int self, int (*block)(int)) {
+        return self + block(2);
+    }
+}
+
 int main()
 {
     if(1 == 1) {
@@ -1633,6 +1640,19 @@ label1:
     if(true) {
         var line = string("DEF");
     }
+
+    var xzx = 3;
+
+    var strX = string("ABC");
+
+    int xax = 1.fun12() {
+        var strY = string("DEF");
+        puts(strX);
+        puts(strY);
+        return it + xzx;
+    }
+
+    xassert("method block result test", xax == 6);
 
     0
 }
