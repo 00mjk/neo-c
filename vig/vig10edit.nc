@@ -23,6 +23,12 @@ impl VigWin version 10
             vig.yank.push_back(clone line);
             vig.yankKind = kYankKindLine;
             self.texts.delete(self.cursorY);
+
+            var line2 = self.texts.item(self.cursorY, null);
+            
+            if(self.cursorX >= line2.length()) {
+                self.cursorX = line2.length();
+            }
         }
     }
 

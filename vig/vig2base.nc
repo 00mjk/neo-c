@@ -202,7 +202,15 @@ impl Vig version 2
         {
             self.activeWin.forward();
         });
+        self.events.replace(KEY_RIGHT, lambda(Vig* self, int key) 
+        {
+            self.activeWin.forward();
+        });
         self.events.replace('h', lambda(Vig* self, int key) 
+        {
+            self.activeWin.backward();
+        });
+        self.events.replace(KEY_LEFT, lambda(Vig* self, int key) 
         {
             self.activeWin.backward();
         });
@@ -210,7 +218,15 @@ impl Vig version 2
         {
             self.activeWin.nextLine();
         });
+        self.events.replace(KEY_DOWN, lambda(Vig* self, int key) 
+        {
+            self.activeWin.nextLine();
+        });
         self.events.replace('k', lambda(Vig* self, int key) 
+        {
+            self.activeWin.prevLine();
+        });
+        self.events.replace(KEY_UP, lambda(Vig* self, int key) 
         {
             self.activeWin.prevLine();
         });

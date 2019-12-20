@@ -19,8 +19,6 @@ int xgetmaxy()
 impl VigWin 
 {
     initialize(int y, int x, int width, int height) {
-        keypad(self.win, 4);
-
         self.texts = new list<wstring>.initialize();
 
         self.y = y;
@@ -30,6 +28,9 @@ impl VigWin
 
         var win = newwin(height, width, y, x);
         self.win = win;
+
+        keypad(self.win, true);
+
     }
 
     finalize() {

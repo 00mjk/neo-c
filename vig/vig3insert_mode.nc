@@ -115,6 +115,147 @@ impl VigWin version 3
         }
     }
 
+    void blinkBraceFoward(VigWin* self, wchar_t head, wchar_t tail, Vig* vig) {
+        int cursor_y = self.cursorY;
+        int cursor_x = -1;
+
+        int nest = 0;
+
+        var line = self.texts.item(self.cursorY, null);
+
+        wchar_t* p = line + self.cursorX+1;
+
+        while(p < line + line.length()) {
+            if(*p == tail) {
+                if(nest == 0) {
+                    cursor_x = (p - line) / sizeof(wchar_t);
+                    break;
+                }
+
+                p++;
+                nest--;
+            }
+            else if(*p == head) {
+                p++;
+
+                nest++;
+            }
+            else {
+                p++;
+            }
+        }
+
+        if(cursor_x == -1) {
+            cursor_y++;
+
+            self.texts.sublist(self.cursorY+1, -1).each {
+                wchar_t* p = it;
+
+                while(p < it + it.length()) {
+                    if(*p == tail) {
+                        if(nest == 0) {
+                            cursor_x = (p - it) / sizeof(wchar_t);
+                            *it3 = true;
+                            return;
+                        }
+
+                        p++;
+                        nest--;
+                    }
+                    else if(*p == head) {
+                        p++;
+
+                        nest++;
+                    }
+                    else {
+                        p++;
+                    }
+                }
+
+                cursor_y++;
+            }
+        }
+
+        if(cursor_x != -1) {
+            wattron(self.win, A_REVERSE);
+            mvwprintw(self.win, cursor_y, cursor_x, "%lc", tail);
+            wattroff(self.win, A_REVERSE);
+            wrefresh(self.win);
+            sleep(1);
+            self.view(vig);
+        }
+    }
+    void blinkBraceEnd(VigWin* self, wchar_t head, wchar_t tail, Vig* vig) {
+        int cursor_y = self.cursorY;
+        int cursor_x = -1;
+
+        int nest = 0;
+
+        var line = self.texts.item(self.cursorY, null);
+
+        wchar_t* p = line + self.cursorX-1;
+
+        while(p >= line) {
+            if(*p == head) {
+                if(nest == 0) {
+                    cursor_x = (p - line) / sizeof(wchar_t);
+                    break;
+                }
+
+                p--;
+                nest--;
+            }
+            else if(*p == tail) {
+                p--;
+
+                nest++;
+            }
+            else {
+                p--;
+            }
+        }
+
+        if(cursor_x == -1) {
+            cursor_y--;
+
+            self.texts.sublist(0, self.cursorY).reverse().each {
+                wchar_t* p = it + it.length();
+
+                while(p >= it) {
+                    if(*p == head) {
+                        if(nest == 0) {
+                            cursor_x = (p - it) / sizeof(wchar_t);
+                            *it3 = true;
+                            return;
+                        }
+
+                        p--;
+                        nest--;
+                    }
+                    else if(*p == tail) {
+                        p--;
+
+                        nest++;
+                    }
+                    else {
+                        p--;
+                    }
+                }
+
+                cursor_y--;
+            }
+        }
+
+        if(cursor_x != -1) {
+            wattron(self.win, A_REVERSE);
+            mvwprintw(self.win, cursor_y, cursor_x, "%lc", head);
+            wattroff(self.win, A_REVERSE);
+            wrefresh(self.win);
+            sleep(1);
+            self.view(vig);
+        }
+    }
+
 
     void inputInsertMode(VigWin* self, Vig* vig)
     {
@@ -150,6 +291,34 @@ impl VigWin version 3
             keys[i] = '\0';
 
             self.insertText(wstring(keys));
+        }
+        else if(key == '(') {
+            self.blinkBraceFoward('(', ')', vig);
+            self.insertText(wstring(xasprintf("%c", key)));
+        }
+        else if(key == '{') {
+            self.blinkBraceFoward('{', '}', vig);
+            self.insertText(wstring(xasprintf("%c", key)));
+        }
+        else if(key == '[') {
+            self.blinkBraceFoward('<', '>', vig);
+            self.insertText(wstring(xasprintf("%c", key)));
+        }
+        else if(key == ')') {
+            self.blinkBraceEnd('(', ')', vig);
+            self.insertText(wstring(xasprintf("%c", key)));
+        }
+        else if(key == '}') {
+            self.blinkBraceEnd('{', '}', vig);
+            self.insertText(wstring(xasprintf("%c", key)));
+        }
+        else if(key == ']') {
+            self.blinkBraceEnd('[', ']', vig);
+            self.insertText(wstring(xasprintf("%c", key)));
+        }
+        else if(key == '>') {
+            self.blinkBraceEnd('<', '>', vig);
+            self.insertText(wstring(xasprintf("%c", key)));
         }
         else {
             self.insertText(wstring(xasprintf("%c", key)));

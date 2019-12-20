@@ -4719,7 +4719,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
-    if(var == NULL) {
+    if(var == NULL || var->mType == NULL) {
         compile_err_msg(info, "undeclared variable %s(3)", var_name);
         info->err_num++;
 

@@ -1628,6 +1628,12 @@ label1:
     xassert("inc test5", aaarray[0] == 3);
 */
 
+    var line = string("ABC");
+
+    if(true) {
+        var line = string("DEF");
+    }
+
     0
 }
 

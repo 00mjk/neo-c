@@ -179,8 +179,6 @@ impl VigWin version 11
                 self.toggleBraceBack('<', '>');
                 break;
         }
-
-        
     }
 
     void gotoFunctionTop(VigWin* self, Vig* vig) {
