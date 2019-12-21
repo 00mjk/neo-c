@@ -1,6 +1,4 @@
-%, [[
-
-Genericsとinlineでエラー番号の行数が違う
+command mode
 
 リファレンスの代入
 
@@ -17,6 +15,9 @@ casts全サポート
 メソッドの関数ポインタ
 
 ----------------------
+%, [[
+Genericsとinlineでエラー番号の行数が違う
+
 macro.cppのC化
 
 collection
