@@ -22,6 +22,21 @@ impl VigWin version 6
             line[strlen(line)-1] = '\0';
             self.texts.push_back(wstring(line))
         }
+
+        fclose(f);
+
+        self.fileName = string(file_name);
+    }
+    void writeFile(VigWin* self) {
+        FILE* f = fopen(self.fileName, "w");
+
+        self.texts.each {
+            fprintf(f, "%s\n", it.to_string());
+        }
+
+        fclose(f);
+
+        self.writed = false;
     }
 }
 

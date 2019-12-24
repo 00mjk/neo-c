@@ -26,6 +26,9 @@ impl VigWin
         self.width = width;
         self.height = height;
 
+        self.fileName = string("a.txt");
+        self.writed = false;
+
         var win = newwin(height, width, y, x);
         self.win = win;
 

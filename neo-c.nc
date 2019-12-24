@@ -451,6 +451,9 @@ impl string
 
         return result;
     }
+    wstring to_wstring(string& self) {
+        return wstring(self);
+    }
 }
 
 /// wstring ///

@@ -62,6 +62,10 @@ impl int
     {
         return value;
     }
+
+    inline string to_string(int value) {
+        return xasprintf("%c", value);
+    }
 }
 
 /// char* ///
@@ -89,6 +93,10 @@ impl char
             p++;
         }
         return result;
+    }
+
+    inline string to_string(char value) {
+        return xasprintf("%c", value);
     }
 }
 
@@ -250,6 +258,7 @@ impl string
     extern string sub(string& self, regex reg, char* replace, list<string>?* group_strings);
     extern bool match(string& self, regex reg, list<string>?* group_strings);
     list<string>*% scan(string& self, regex reg);
+    extern wstring to_wstring(string& self);
 }
 
 /// wstring ///

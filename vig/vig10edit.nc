@@ -128,12 +128,14 @@ impl Vig version 10
             switch(key2) {
                 case 'd':
                     self.activeWin.deleteOneLine(self);
+                    self.activeWin.writed = true;
                     break;
                 
                 case 'w':
                 case 'e':
                     self.activeWin.pushUndo();
                     self.activeWin.deleteWord(self);
+                    self.activeWin.writed = true;
                     break;
             }
         });
@@ -147,11 +149,13 @@ impl Vig version 10
                     self.activeWin.pushUndo();
                     self.activeWin.deleteWord(self);
                     self.enterInsertMode();
+                    self.activeWin.writed = true;
                     break;
             }
         });
         self.events.replace('x', lambda(Vig* self, int key) {
             self.activeWin.deleteCursorCharactor();
+            self.activeWin.writed = true;
         });
     }
 }

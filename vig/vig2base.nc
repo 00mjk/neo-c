@@ -63,7 +63,7 @@ impl VigWin version 2
         self.textsView(vig);
 
         wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "x %d y %d /%ls", self.cursorX, self.cursorY, vig.searchString);
+        mvwprintw(self.win, self.height-1, 0, "x %d y %d writed %d /%ls", self.cursorX, self.cursorY, self.writed, vig.searchString);
         wattroff(self.win, A_REVERSE);
 
         wrefresh(self.win);

@@ -339,6 +339,7 @@ impl Vig version 3
 {
     void enterInsertMode(Vig* self) {
         self.mode = kInsertMode;
+        self.activeWin.writed = true;
     }
     void exitFromInsertMode(Vig* self) {
         self.mode = kEditMode;

@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
@@ -17,6 +16,8 @@ struct VigWin
     int x;
     int width;
     int height;
+    string fileName;
+    bool writed;
 };
 
 struct Vig 
@@ -145,6 +146,7 @@ impl Vig version 5
 impl VigWin version 6
 {
     void openFile(VigWin* self, char* file_name);
+    void writeFile(VigWin* self);
 }
 
 impl Vig version 6
@@ -238,5 +240,26 @@ impl Vig version 10
 /// vig11move.h ///
 impl Vig version 11
 {
+    initialize();
+}
+
+/// vig12command.h ///
+enum eMode { kCommandMode = kSearchMode + 1 };
+
+struct Vig version 12
+{
+    string commandString;
+};
+
+impl VigWin version 12
+{
+    void view(VigWin* self, Vig* vig);
+    void input(VigWin* self, Vig* vig);
+}
+
+impl Vig version 12
+{
+    void enterComandMode(Vig* vig);
+    void exitFromComandMode(Vig* self);
     initialize();
 }
