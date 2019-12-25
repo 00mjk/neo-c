@@ -17,21 +17,29 @@ impl VigWin version 8
 
     void visualModeView(VigWin* self, Vig* vig)
     {
+        int maxy = getmaxy(self.win);
+        int maxx = getmaxx(self.win);
+
         werase(self.win);
 
-        self.texts.each {
+        self.texts
+            .sublist(self.scroll, self.scroll+maxy-1)
+            .each 
+        {
+            var line = it.substring(0, maxx-1);
+
             if(it2 >= self.visualModeHead && it2 <= self.cursorY) {
                 wattron(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, 0, "%s", it.to_string());
+                mvwprintw(self.win, it2, 0, "%s", line.to_string());
                 wattroff(self.win, A_REVERSE);
             }
             else if(it2 <= self.visualModeHead && it2 >= self.cursorY) {
                 wattron(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, 0, "%s", it.to_string());
+                mvwprintw(self.win, it2, 0, "%s", line.to_string());
                 wattroff(self.win, A_REVERSE);
             }
             else {
-                mvwprintw(self.win, it2, 0, "%s", it.to_string());
+                mvwprintw(self.win, it2, 0, "%s", line.to_string());
             }
         }
 

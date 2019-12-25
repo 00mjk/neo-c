@@ -138,6 +138,9 @@ vig-clean: vig/Makefile
 vig-test: vig/Makefile
 	(cd vig; make test)
 
+vig-install: vig/Makefile
+	(cd vig; make install)
+
 vig/Makefile: vig/Makefile.in
 	(cd vig; ./configure --prefix=$(HOME))
 

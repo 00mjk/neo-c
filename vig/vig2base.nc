@@ -12,32 +12,40 @@ impl VigWin version 2
 {
     void textsView(VigWin* self, Vig* vig)
     {
-        self.texts.each {
+        int maxy = getmaxy(self.win);
+        int maxx = getmaxx(self.win);
+
+        self.texts
+            .sublist(self.scroll, self.scroll+maxy-1)
+            .each 
+        {
+            var line = it.substring(0, maxx-1);
+
             if(self.cursorY == it2) {
-                if(it.length() == 0) {
+                if(line.length() == 0) {
                     wattron(self.win, A_REVERSE);
                     mvwprintw(self.win, it2, 0, " ");
                     wattroff(self.win, A_REVERSE);
                 }
-                else if(self.cursorX == it.length())
+                else if(self.cursorX == line.length())
                 {
-                    mvwprintw(self.win, it2, 0, "%ls", it);
-                    wstring line = it.printable();
+                    mvwprintw(self.win, it2, 0, "%ls", line);
+                    wstring line2 = line.printable();
 
                     wattron(self.win, A_REVERSE);
-                    mvwprintw(self.win, it2, wcswidth(line, line.length()), " ");
+                    mvwprintw(self.win, it2, wcswidth(line2, line2.length()), " ");
                     wattroff(self.win, A_REVERSE);
                 }
                 else {
                     int x = 0;
-                    wstring head_string = it.substring(0, self.cursorX);
+                    wstring head_string = line.substring(0, self.cursorX);
                     wstring printable_head_string = head_string.printable();
 
                     mvwprintw(self.win, it2, 0, "%ls", printable_head_string);
 
                     x += wcswidth(printable_head_string, printable_head_string.length());
 
-                    wstring cursor_string = it.substring(self.cursorX, self.cursorX+1);
+                    wstring cursor_string = line.substring(self.cursorX, self.cursorX+1);
                     wstring printable_cursor_string = cursor_string.printable();
 
                     wattron(self.win, A_REVERSE);
@@ -46,13 +54,13 @@ impl VigWin version 2
 
                     x += wcswidth(printable_cursor_string, printable_cursor_string.length());
 
-                    wstring tail_string = it.substring(self.cursorX+1, -1);
+                    wstring tail_string = line.substring(self.cursorX+1, -1);
 
                     mvwprintw(self.win, it2, x, "%ls", tail_string);
                 }
             }
             else {
-                mvwprintw(self.win, it2, 0, "%ls", it);
+                mvwprintw(self.win, it2, 0, "%ls", line);
             }
         }
     }
@@ -63,7 +71,7 @@ impl VigWin version 2
         self.textsView(vig);
 
         wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "x %d y %d writed %d /%ls", self.cursorX, self.cursorY, self.writed, vig.searchString);
+        mvwprintw(self.win, self.height-1, 0, "x %d y %d scroll %d writed %d /%ls", self.cursorX, self.cursorY, self.scroll, self.writed, vig.searchString);
         wattroff(self.win, A_REVERSE);
 
         wrefresh(self.win);
@@ -116,6 +124,12 @@ impl VigWin version 2
         self.cursorY--;
 
         if(self.cursorY < 0) {
+            self.scroll += self.cursorY;
+
+            if(self.scroll < 0) {
+                self.scroll = 0;
+            }
+
             self.cursorY = 0;
         }
 
@@ -132,9 +146,21 @@ impl VigWin version 2
     void nextLine(VigWin* self) {
         self.cursorY++;
 
-        if(self.cursorY >= self.texts.length())
+        int maxy = getmaxy(self.win);
+
+        if(self.cursorY >= maxy-2)
         {
-            self.cursorY = self.texts.length()-1;
+            self.scroll += self.cursorY - (maxy-2);
+
+            if(self.scroll >= self.texts.length()-1) {
+                self.scroll = self.texts.length()-1;
+            }
+
+            self.cursorY = maxy-2;
+        }
+
+        if(self.cursorY + self.scroll >= self.texts.length()-1) {
+            self.cursorY = self.texts.length()-self.scroll-1;
         }
 
         if(self.cursorX >= self.getCursorLineLength())

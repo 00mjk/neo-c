@@ -26,6 +26,8 @@ impl VigWin
         self.width = width;
         self.height = height;
 
+        self.scroll = 0;
+
         self.fileName = string("a.txt");
         self.writed = false;
 

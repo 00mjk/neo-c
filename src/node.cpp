@@ -1585,6 +1585,15 @@ static BOOL compile_equals(unsigned int node, sCompileInfo* info)
         }
     }
 
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "Operand posibility failed");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateICmpEQ(lvalue.value, rvalue.value, "eqtmp");
     llvm_value.type = create_node_type_with_class_name("bool");
@@ -1646,6 +1655,15 @@ static BOOL compile_not_equals(unsigned int node, sCompileInfo* info)
 
             return TRUE;
         }
+    }
+
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "Operand posibility failed");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
     }
 
     LVALUE llvm_value;
@@ -1711,6 +1729,15 @@ static BOOL compile_gteq(unsigned int node, sCompileInfo* info)
         }
     }
 
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "Operand posibility failed");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateICmpSGE(lvalue.value, rvalue.value, "getmp");
     llvm_value.type = create_node_type_with_class_name("bool");
@@ -1772,6 +1799,15 @@ static BOOL compile_leeq(unsigned int node, sCompileInfo* info)
 
             return TRUE;
         }
+    }
+
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "Operand posibility failed");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
     }
 
     LVALUE llvm_value;
@@ -1837,6 +1873,15 @@ static BOOL compile_gt(unsigned int node, sCompileInfo* info)
         }
     }
 
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "Operand posibility failed");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateICmpSGT(lvalue.value, rvalue.value, "gttmp");
     llvm_value.type = create_node_type_with_class_name("bool");
@@ -1898,6 +1943,15 @@ static BOOL compile_le(unsigned int node, sCompileInfo* info)
 
             return TRUE;
         }
+    }
+
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "Operand posibility failed");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
     }
 
     LVALUE llvm_value;
@@ -10302,10 +10356,27 @@ static BOOL compile_conditional(unsigned int node, sCompileInfo* info)
         dec_stack_ptr(1, info);
         sNodeType* value2_result_type = clone_node_type(info->type);
 
+        if(auto_cast_posibility(value1_result_type, value2_result_type)) 
+        {
+            if(!cast_right_type_to_left_type(value1_result_type
+                            , &value2_result_type, &value2, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
+
         if(!type_identify(value1_result_type, value2_result_type))
         {
             compile_err_msg(info, "Different result type for conditional operator");
             info->err_num++;
+
+            show_node_type(value1_result_type);
+            show_node_type(value2_result_type);
 
             info->type = create_node_type_with_class_name("int"); // dummy
 

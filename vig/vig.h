@@ -16,6 +16,7 @@ struct VigWin
     int x;
     int width;
     int height;
+    int scroll;
     string fileName;
     bool writed;
 };
