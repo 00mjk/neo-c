@@ -9,7 +9,9 @@ ALLOC	src/xfunc.h	4;"	d
 BOOL	src/xfunc.h	7;"	d
 BUFFER_H	src/buffer.h	2;"	d
 CC	Makefile	/^CC=clang$/;"	m
+CC	vig/Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -g -DMDEBUG -Qunused-arguments$/;"	m
+CFLAGS	vig/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
 CLASS_FLAGS_ANONYMOUS	src/common.h	85;"	d
 CLASS_FLAGS_ANONYMOUS_VAR_NAME	src/common.h	87;"	d
 CLASS_FLAGS_ENUM	src/common.h	86;"	d
@@ -29,19 +31,27 @@ CONS_str	src/common.h	61;"	d
 CXX	Makefile	/^CXX=clang++-7$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g -I . -I src -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
+DESTDIR	vig/Makefile	/^DESTDIR=\/home\/ab25cq$/;"	m
 ELIF_NUM_MAX	src/common.h	29;"	d
 EXTERNAL_OBJECT_MAX	src/common.h	34;"	d
 FALSE	src/xfunc.h	9;"	d
 GENERICS_TYPES_MAX	src/common.h	19;"	d
 HAVE_ICONV_H	config.h	3;"	d
 HAVE_ICONV_H	config.h	5;"	d
+HAVE_ICONV_H	vig/config.h	3;"	d
+HAVE_ICONV_H	vig/config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
+HAVE_MATH_H	vig/config.h	2;"	d
+HAVE_NCURSESW_H	vig/config.h	8;"	d
 HAVE_PCRE_H	config.h	6;"	d
+HAVE_PCRE_H	vig/config.h	6;"	d
 HAVE_PTHREAD_H	config.h	11;"	d
 IMPL_DEF_MAX	src/common.h	33;"	d
 INIT_ARRAY_MAX	src/common.h	35;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
+INSTALL	vig/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 LIBS	Makefile	/^LIBS= -lutil -lpthread -ldl -lm -lpcre -lrt$/;"	m
+LIBS	vig/Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lncursesw -lrt$/;"	m
 LLVM_COMMON_H	src/llvm_common.hpp	2;"	d
 LOCAL_VARIABLE_MAX	src/common.h	25;"	d
 LOOP_NEST_MAX	src/common.h	36;"	d
@@ -50,14 +60,16 @@ LVALUEStruct	src/llvm_common.hpp	/^struct LVALUEStruct {$/;"	s
 MACRO_MAX	src/common.h	38;"	d
 MANAGED	src/xfunc.h	5;"	d
 MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	1317;"	d
-MAP_TABLE_DEFAULT_SIZE	neo-c.h	1317;"	d
+MAP_TABLE_DEFAULT_SIZE	neo-c.h	1326;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
+NCC	vig/Makefile	/^NCC=neo-c$/;"	m
 NEO_C_STACK_SIZE	src/common.h	24;"	d
 NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
 OBJS	Makefile	/^OBJS=src\/source_compiler.o src\/parser.o src\/node.o src\/klass.o src\/node_type.o src\/typedef.o src\/constant.o src\/llvm.o src\/vtable.o src\/node_block.o src\/node_alloc.o src\/macro.o$/;"	m
 OS	Makefile	/^OS=LINUX$/;"	m
+OS	vig/Makefile	/^OS=LINUX$/;"	m
 PARAMS_MAX	src/common.h	26;"	d
 PARSER_ERR_MSG_MAX	src/common.h	22;"	d
 PWD	Makefile	/^	PWD=`pwd` .\/c-neo-c -c code\/External.nc$/;"	m
@@ -85,8 +97,8 @@ TheFPM	src/llvm.cpp	/^std::unique_ptr<FunctionPassManager> TheFPM;$/;"	v
 TheLabels	src/llvm.cpp	/^std::map<std::string, BasicBlock*> TheLabels;$/;"	v
 TheModule	src/llvm.cpp	/^Module* TheModule;$/;"	v
 VAR_NAME_MAX	src/common.h	20;"	d
-Vig	vig/vig1init.h	/^struct Vig $/;"	s
-VigWin	vig/vig1init.h	/^struct VigWin $/;"	s
+Vig	vig/vig.h	/^struct Vig $/;"	s
+VigWin	vig/vig.h	/^struct VigWin $/;"	s
 XFUNC_H	src/xfunc.h	2;"	d
 _GNU_SOURCE	a.c	7;"	d	file:
 _GNU_SOURCE	code/neo-c.h	4;"	d
@@ -95,7 +107,9 @@ _USE_MISC	a.c	14;"	d	file:
 _USE_MISC	code/neo-c.h	11;"	d
 _USE_MISC	neo-c.h	11;"	d
 __64BIT_CPU__	config.h	18;"	d
+__64BIT_CPU__	vig/config.h	18;"	d
 __LINUX__	config.h	16;"	d
+__LINUX__	vig/config.h	16;"	d
 __STDC_CONSTANT_MACROS	code/neo-c.h	27;"	d
 __STDC_CONSTANT_MACROS	neo-c.h	27;"	d
 __STDC_LIMIT_MACROS	code/neo-c.h	26;"	d
@@ -122,7 +136,7 @@ ac_fn_c_try_link	configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_link	vig/configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_run	configure	/^ac_fn_c_try_run ()$/;"	f
 ac_fn_c_try_run	vig/configure	/^ac_fn_c_try_run ()$/;"	f
-activeWin	vig/vig1init.h	/^    VigWin* activeWin;$/;"	m	struct:Vig
+activeWin	vig/vig.h	/^    VigWin* activeWin;$/;"	m	struct:Vig
 add_fields_to_struct	src/klass.c	/^void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
 add_fields_to_union	src/klass.c	/^void add_fields_to_union(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
 add_function	src/node.cpp	/^BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param)$/;"	f
@@ -140,7 +154,7 @@ alloc_struct	src/klass.c	/^sCLClass* alloc_struct(char* class_name, BOOL anonymo
 alloc_union	src/klass.c	/^sCLClass* alloc_union(char* class_name, BOOL anonymous, BOOL anonymous_var_name)$/;"	f
 anchored	code/neo-c.h	/^    bool anchored;$/;"	m	struct:regex_struct
 anchored	neo-c.h	/^    bool anchored;$/;"	m	struct:regex_struct
-appEnd	vig/vig2base.h	/^    bool appEnd;$/;"	m	struct:version
+appEnd	vig/vig.h	/^    bool appEnd;$/;"	m	struct:version
 append_debug_heap_memory	src/memalloc-stdc.c	/^static void append_debug_heap_memory(void* mem, char* type_name, char* sname, int sline, int calloc_num, size_t calloc_size, char* fun_name, char* real_fun_name)$/;"	f	file:
 append_double_value_to_constant_pool	src/constant.c	/^unsigned int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output)$/;"	f
 append_float_value_to_constant_pool	src/constant.c	/^unsigned int append_float_value_to_constant_pool(sConst* constant, float n, BOOL no_output)$/;"	f
@@ -198,6 +212,7 @@ auto_cast_posibility	src/node_type.c	/^BOOL auto_cast_posibility(sNodeType* left
 b	code/HelloWorld6.h	/^    int b;$/;"	m	struct:version
 binded_value	src/llvm_common.hpp	/^    BOOL binded_value;$/;"	m	struct:LVALUEStruct
 bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
+bindir	vig/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 buf	code/neo-c.h	/^    char* buf;$/;"	m	struct:buffer
 buf	neo-c.h	/^    char* buf;$/;"	m	struct:buffer
 buffer	code/neo-c.h	/^struct buffer {$/;"	s
@@ -234,6 +249,7 @@ clone_class	src/klass.c	/^sCLClass* clone_class(sCLClass* klass)$/;"	f
 clone_node_type	src/node_type.c	/^sNodeType* clone_node_type(sNodeType* node_type)$/;"	f
 clone_object	src/llvm.cpp	/^Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)$/;"	f
 clone_var_table	src/vtable.c	/^sVarTable* clone_var_table(sVarTable* lv_table)$/;"	f
+commandString	vig/vig.h	/^    string commandString;$/;"	m	struct:version
 compile	src/node.cpp	/^BOOL compile(unsigned int node, sCompileInfo* info)$/;"	f
 compile_add	src/node.cpp	/^static BOOL compile_add(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_alignof	src/node.cpp	/^static BOOL compile_alignof(unsigned int node, sCompileInfo* info)$/;"	f	file:
@@ -358,10 +374,12 @@ create_type_name_from_node_type	src/node_type.c	/^void create_type_name_from_nod
 create_undefined_llvm_struct_type	src/llvm.cpp	/^void create_undefined_llvm_struct_type(sNodeType* node_type)$/;"	f
 current_block	src/common.h	/^    void* current_block;$/;"	m	struct:sCompileInfoStruct
 current_node_block	src/common.h	/^    struct sNodeBlockStruct* current_node_block;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sNodeBlockStruct
-cursorX	vig/vig2base.h	/^    int cursorX;$/;"	m	struct:version
-cursorY	vig/vig2base.h	/^    int cursorY;$/;"	m	struct:version
+cursorX	vig/vig.h	/^    int cursorX;$/;"	m	struct:version
+cursorY	vig/vig.h	/^    int cursorY;$/;"	m	struct:version
 datadir	Makefile	/^datadir=${datarootdir}$/;"	m
+datadir	vig/Makefile	/^datadir=${datarootdir}$/;"	m
 datarootdir	Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
+datarootdir	vig/Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
 debug_show_none_freed_heap_memory	src/memalloc-stdc.c	/^void debug_show_none_freed_heap_memory() $/;"	f
 debug_xcalloc	src/memalloc-stdc.c	/^void *debug_xcalloc(int num, size_t nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name)$/;"	f
 dec_stack_ptr	src/llvm.cpp	/^void dec_stack_ptr(int value, sCompileInfo* info)$/;"	f
@@ -369,6 +387,7 @@ declare_builtin_functions	src/llvm.cpp	/^void declare_builtin_functions()$/;"	f
 delete_comment	src/source_compiler.c	/^BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f
 delete_debug_heap_memory	src/memalloc-stdc.c	/^static void delete_debug_heap_memory(void* mem)$/;"	f	file:
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
+docdir	vig/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 dollar_endonly	code/neo-c.h	/^    bool dollar_endonly;$/;"	m	struct:regex_struct
 dollar_endonly	neo-c.h	/^    bool dollar_endonly;$/;"	m	struct:regex_struct
 dotall	code/neo-c.h	/^    bool dotall;$/;"	m	struct:regex_struct
@@ -381,9 +400,10 @@ dquort	neo-c.h	/^            dquort = !dquort$/;"	m	struct:map
 dquort	neo-c.h	/^            dquort = !dquort$/;"	m	struct:tuple
 dquort	neo-c.h	/^    dquort = false;$/;"	m	struct:map
 dquort	neo-c.h	/^    dquort = false;$/;"	m	struct:tuple
-eMode	vig/vig3insert_mode.h	/^enum eMode { kEditMode, kInsertMode };$/;"	g
-eMode	vig/vig8visual.h	/^enum eMode { kVisualMode = kInsertMode + 1 };$/;"	g
-eMode	vig/vig9search.h	/^enum eMode { kSearchMode = kVisualMode + 1 };$/;"	g
+eMode	vig/vig.h	/^enum eMode { kCommandMode = kSearchMode + 1 };$/;"	g
+eMode	vig/vig.h	/^enum eMode { kEditMode, kInsertMode };$/;"	g
+eMode	vig/vig.h	/^enum eMode { kSearchMode = kVisualMode + 1 };$/;"	g
+eMode	vig/vig.h	/^enum eMode { kVisualMode = kInsertMode + 1 };$/;"	g
 eNodeType	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr };$/;"	g
 each	code/neo-c.h	/^    void each(map<T, T2>* self, void (*block)(T&,T2&,bool*)) $/;"	f	struct:map
 each	neo-c.h	/^    void each(map<T, T2>* self, void (*block)(T&,T2&,bool*)) $/;"	f	struct:map
@@ -399,7 +419,7 @@ equals	neo-c.h	/^    bool equals(tuple3<T, T2, T3>* left, tuple3<T, T2, T3>* rig
 equals	neo-c.h	/^    bool equals(tuple4<T, T2, T3, T4>* left, tuple4<T, T2, T3, T4>* right)$/;"	f	struct:tuple4
 err_num	src/common.h	/^    int err_num;$/;"	m	struct:sCompileInfoStruct
 err_num	src/common.h	/^    int err_num;$/;"	m	struct:sParserInfoStruct
-events	vig/vig2base.h	/^    vector<void (*lambda)(Vig*, int)>*% events;$/;"	m	struct:version
+events	vig/vig.h	/^    vector<void (*lambda)(Vig*, int)>*% events;$/;"	m	struct:version
 exec_prefix	Makefile	/^exec_prefix=${prefix}$/;"	m
 expect_next_character_with_one_forward	src/parser.c	/^void expect_next_character_with_one_forward(char* characters, sParserInfo* info)$/;"	f
 expression	src/parser.c	/^BOOL expression(unsigned int* node, sParserInfo* info) $/;"	f
@@ -417,6 +437,7 @@ expression_xor	src/parser.c	/^static BOOL expression_xor(unsigned int* node, sPa
 extended	code/neo-c.h	/^    bool extended;$/;"	m	struct:regex_struct
 extended	neo-c.h	/^    bool extended;$/;"	m	struct:regex_struct
 extname	src/preprocessor.c	/^static char* extname(char* file_name)$/;"	f	file:
+fileName	vig/vig.h	/^    string fileName;$/;"	m	struct:VigWin
 final_vtable	src/vtable.c	/^void final_vtable()$/;"	f
 finalize	code/neo-c.h	/^    finalize() {$/;"	f	struct:map
 finalize	neo-c.h	/^    finalize() {$/;"	f	struct:map
@@ -503,7 +524,7 @@ head	code/neo-c.h	/^    list_item<T>*? head;$/;"	m	struct:list
 head	neo-c.h	/^    list_item<T>*? head;$/;"	m	struct:list
 head	src/memalloc.c	/^struct header_t *head = NULL, *tail = NULL;$/;"	v	typeref:struct:header_t
 header_t	src/memalloc.c	/^struct header_t {$/;"	s	file:
-height	vig/vig1init.h	/^    int height;$/;"	m	struct:VigWin
+height	vig/vig.h	/^    int height;$/;"	m	struct:VigWin
 ignore_case	code/neo-c.h	/^    bool ignore_case;$/;"	m	struct:regex_struct
 ignore_case	neo-c.h	/^    bool ignore_case;$/;"	m	struct:regex_struct
 impl_struct_name	src/common.h	/^    char impl_struct_name[VAR_NAME_MAX];$/;"	m	struct:sParserInfoStruct
@@ -511,6 +532,7 @@ in_clang	src/common.h	/^    BOOL in_clang;$/;"	m	struct:sParserInfoStruct
 in_inline_function	src/common.h	/^    BOOL in_inline_function;$/;"	m	struct:sCompileInfoStruct
 included_generics_type	src/node_type.c	/^BOOL included_generics_type(sNodeType* node_type)$/;"	f
 includedir	Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
+includedir	vig/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 init_block_vtable	src/vtable.c	/^sVarTable* init_block_vtable(sVarTable* lv_table, BOOL no_increment_block_level)$/;"	f
 init_macro	src/macro.c	/^void init_macro()$/;"	f
 init_node_types	src/node_type.c	/^void init_node_types()$/;"	f
@@ -547,8 +569,9 @@ items	code/neo-c.h	/^    T&* items;$/;"	m	struct:vector
 items	code/neo-c.h	/^    T2&* items;$/;"	m	struct:map
 items	neo-c.h	/^    T&* items;$/;"	m	struct:vector
 items	neo-c.h	/^    T2&* items;$/;"	m	struct:map
-kEditMode	vig/vig3insert_mode.h	/^enum eMode { kEditMode, kInsertMode };$/;"	e	enum:eMode
-kInsertMode	vig/vig3insert_mode.h	/^enum eMode { kEditMode, kInsertMode };$/;"	e	enum:eMode
+kCommandMode	vig/vig.h	/^enum eMode { kCommandMode = kSearchMode + 1 };$/;"	e	enum:eMode
+kEditMode	vig/vig.h	/^enum eMode { kEditMode, kInsertMode };$/;"	e	enum:eMode
+kInsertMode	vig/vig.h	/^enum eMode { kEditMode, kInsertMode };$/;"	e	enum:eMode
 kNodeTypeAdd	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr };$/;"	e	enum:eNodeType
 kNodeTypeAlignOf	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr };$/;"	e	enum:eNodeType
 kNodeTypeAlignOfExpression	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr };$/;"	e	enum:eNodeType
@@ -648,12 +671,12 @@ kNodeTypeUnion	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntV
 kNodeTypeVaArg	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr };$/;"	e	enum:eNodeType
 kNodeTypeWhile	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr };$/;"	e	enum:eNodeType
 kNodeTypeXor	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr };$/;"	e	enum:eNodeType
-kSearchMode	vig/vig9search.h	/^enum eMode { kSearchMode = kVisualMode + 1 };$/;"	e	enum:eMode
-kVisualMode	vig/vig8visual.h	/^enum eMode { kVisualMode = kInsertMode + 1 };$/;"	e	enum:eMode
-kYankKindLine	vig/vig7yank.h	/^enum { kYankKindLine, kYankKindNoLine };$/;"	e	enum:__anon2
-kYankKindLine	vig/vig8visual.h	/^enum { kYankKindLine, kYankKindNoLine };$/;"	e	enum:__anon1
-kYankKindNoLine	vig/vig7yank.h	/^enum { kYankKindLine, kYankKindNoLine };$/;"	e	enum:__anon2
-kYankKindNoLine	vig/vig8visual.h	/^enum { kYankKindLine, kYankKindNoLine };$/;"	e	enum:__anon1
+kSearchMode	vig/vig.h	/^enum eMode { kSearchMode = kVisualMode + 1 };$/;"	e	enum:eMode
+kVisualMode	vig/vig.h	/^enum eMode { kVisualMode = kInsertMode + 1 };$/;"	e	enum:eMode
+kYankKindLine	vig/vig.h	/^enum { kYankKindLine, kYankKindNoLine };$/;"	e	enum:__anon1
+kYankKindLine	vig/vig.h	/^enum { kYankKindLine, kYankKindNoLine };$/;"	e	enum:__anon2
+kYankKindNoLine	vig/vig.h	/^enum { kYankKindLine, kYankKindNoLine };$/;"	e	enum:__anon1
+kYankKindNoLine	vig/vig.h	/^enum { kYankKindLine, kYankKindNoLine };$/;"	e	enum:__anon2
 key	code/neo-c.h	/^                key = it;$/;"	m	struct:map
 key	code/neo-c.h	/^                key = nil;$/;"	m	struct:map
 key	code/neo-c.h	/^        key = nil;$/;"	m	struct:map
@@ -672,6 +695,7 @@ len	neo-c.h	/^    int len;$/;"	m	struct:list
 len	neo-c.h	/^    int len;$/;"	m	struct:map
 len	neo-c.h	/^    int len;$/;"	m	struct:vector
 libdir	Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
+libdir	vig/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 list	code/neo-c.h	/^struct list<T>$/;"	s
 list	neo-c.h	/^struct list<T>$/;"	s
 list_item	code/neo-c.h	/^struct list_item<T>$/;"	s
@@ -903,6 +927,7 @@ main	a.c	/^int main() $/;"	f
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
 main	src/preprocessor.c	/^int main(int argc, char* argv[])$/;"	f
 mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
+mandir	vig/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 map	code/neo-c.h	/^impl map <T, T2>$/;"	s
 map	code/neo-c.h	/^ruby_macro map {$/;"	s
 map	code/neo-c.h	/^struct map<T, T2>$/;"	s
@@ -910,7 +935,7 @@ map	neo-c.h	/^impl map <T, T2>$/;"	s
 map	neo-c.h	/^ruby_macro map {$/;"	s
 map	neo-c.h	/^struct map<T, T2>$/;"	s
 mem	src/memalloc-stdc.c	/^    void* mem;$/;"	m	struct:sHeapDebug	file:
-mode	vig/vig3insert_mode.h	/^    int mode;$/;"	m	struct:version
+mode	vig/vig.h	/^    int mode;$/;"	m	struct:version
 module_name	src/common.h	/^    char* module_name;$/;"	m	struct:sParserInfoStruct
 multiline	code/neo-c.h	/^    bool multiline;$/;"	m	struct:regex_struct
 multiline	neo-c.h	/^    bool multiline;$/;"	m	struct:regex_struct
@@ -1020,6 +1045,7 @@ parser_init	src/parser.c	/^void parser_init()$/;"	f
 pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sParserInfoStruct
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sParserInfo* info)$/;"	f	file:
 prefix	Makefile	/^prefix=\/usr\/local$/;"	m
+prefix	vig/Makefile	/^prefix=\/home\/ab25cq exec_prefix=${prefix}$/;"	m
 preprocess_source	src/preprocessor.c	/^static BOOL preprocess_source(char* sname, char* output_sname)$/;"	f	file:
 preprocessor	src/preprocessor.c	/^static BOOL preprocessor(sBuf* source, sBuf* source2)$/;"	f	file:
 preprocessor_final	src/preprocessor.c	/^static void preprocessor_final()$/;"	f	file:
@@ -1231,10 +1257,11 @@ sVarTable	src/common.h	/^typedef struct sVarTableStruct sVarTable;$/;"	t	typeref
 sVarTableStruct	src/common.h	/^struct sVarTableStruct {$/;"	s
 sVector	src/common.h	/^        } sVector;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon13
 sWhile	src/common.h	/^        } sWhile;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon16
-searchString	vig/vig9search.h	/^    wstring searchString;$/;"	m	struct:version
+searchString	vig/vig.h	/^    wstring searchString;$/;"	m	struct:version
 search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size, int version)$/;"	f	file:
 set_max_block_var_num	src/vtable.c	/^void set_max_block_var_num(sVarTable* lv_table, sVarTable* old_table)$/;"	f
 sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
+sharedstatedir	vig/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 show_node	src/node.cpp	/^void show_node(unsigned int node)$/;"	f
 show_node_type	src/node_type.c	/^void show_node_type(sNodeType* node_type)$/;"	f
 show_vtable	src/vtable.c	/^void show_vtable(sVarTable* table)$/;"	f
@@ -1283,10 +1310,11 @@ switch_expression	src/common.h	/^    void* switch_expression;$/;"	m	struct:sComp
 switch_expression_type	src/common.h	/^    sNodeType* switch_expression_type;$/;"	m	struct:sCompileInfoStruct
 switch_nest	src/common.h	/^    int switch_nest;$/;"	m	struct:sParserInfoStruct
 sysconfdir	Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
+sysconfdir	vig/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
 tail	code/neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
 tail	neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
 tail	src/memalloc.c	/^struct header_t *head = NULL, *tail = NULL;$/;"	v	typeref:struct:
-texts	vig/vig1init.h	/^    list<wstring>*% texts;$/;"	m	struct:VigWin
+texts	vig/vig.h	/^    list<wstring>*% texts;$/;"	m	struct:VigWin
 tuple	code/neo-c.h	/^ruby_macro tuple {$/;"	s
 tuple	neo-c.h	/^ruby_macro tuple {$/;"	s
 tuple1	code/neo-c.h	/^impl tuple1 <T>$/;"	s
@@ -1311,10 +1339,10 @@ type_identify	src/node_type.c	/^BOOL type_identify(sNodeType* left, sNodeType* r
 type_identify_with_class_name	src/node_type.c	/^BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
 type_name	src/memalloc-stdc.c	/^    char type_name[128];$/;"	m	struct:sHeapDebug	file:
 uValue	src/common.h	/^    } uValue;$/;"	m	struct:sNodeTreeStruct	typeref:union:sNodeTreeStruct::__anon3
-undo	vig/vig5undo.h	/^    list<list<wstring>*%>%* undo;$/;"	m	struct:version
-undoCursorX	vig/vig5undo.h	/^    list<int>%* undoCursorX;$/;"	m	struct:version
-undoCursorY	vig/vig5undo.h	/^    list<int>%* undoCursorY;$/;"	m	struct:version
-undoIndex	vig/vig5undo.h	/^    int undoIndex;$/;"	m	struct:version
+undo	vig/vig.h	/^    list<list<wstring>*%>%* undo;$/;"	m	struct:version
+undoCursorX	vig/vig.h	/^    list<int>%* undoCursorX;$/;"	m	struct:version
+undoCursorY	vig/vig.h	/^    list<int>%* undoCursorY;$/;"	m	struct:version
+undoIndex	vig/vig.h	/^    int undoIndex;$/;"	m	struct:version
 ungreedy	code/neo-c.h	/^    bool ungreedy;$/;"	m	struct:regex_struct
 ungreedy	neo-c.h	/^    bool ungreedy;$/;"	m	struct:regex_struct
 v1	code/neo-c.h	/^    T v1;$/;"	m	struct:tuple1
@@ -1343,23 +1371,25 @@ vector	code/neo-c.h	/^struct vector<T> $/;"	s
 vector	neo-c.h	/^struct vector<T> $/;"	s
 version	code/HelloWorld6.h	/^impl StructData1 version 2$/;"	s
 version	code/HelloWorld6.h	/^struct StructData1 version 2$/;"	s
-version	vig/vig2base.h	/^impl Vig version 2 $/;"	s
-version	vig/vig2base.h	/^struct Vig version 2 $/;"	s
-version	vig/vig2base.h	/^struct VigWin version 2 $/;"	s
-version	vig/vig3insert_mode.h	/^struct Vig version 3 $/;"	s
-version	vig/vig5undo.h	/^struct VigWin version 5$/;"	s
-version	vig/vig7yank.h	/^impl Vig version 7 $/;"	s
-version	vig/vig7yank.h	/^struct Vig version 7$/;"	s
-version	vig/vig8visual.h	/^struct VigWin version 8$/;"	s
-version	vig/vig9search.h	/^struct Vig version 9$/;"	s
-visualModeHead	vig/vig8visual.h	/^    int visualModeHead;$/;"	m	struct:version
-width	vig/vig1init.h	/^    int width;$/;"	m	struct:VigWin
-win	vig/vig1init.h	/^    WINDOW* win;$/;"	m	struct:VigWin
-wins	vig/vig1init.h	/^    vector<VigWin*%>*% wins;$/;"	m	struct:Vig
+version	vig/vig.h	/^impl Vig version 2 $/;"	s
+version	vig/vig.h	/^impl Vig version 7 $/;"	s
+version	vig/vig.h	/^struct Vig version 12$/;"	s
+version	vig/vig.h	/^struct Vig version 2 $/;"	s
+version	vig/vig.h	/^struct Vig version 3 $/;"	s
+version	vig/vig.h	/^struct Vig version 7$/;"	s
+version	vig/vig.h	/^struct Vig version 9$/;"	s
+version	vig/vig.h	/^struct VigWin version 2 $/;"	s
+version	vig/vig.h	/^struct VigWin version 5$/;"	s
+version	vig/vig.h	/^struct VigWin version 8$/;"	s
+visualModeHead	vig/vig.h	/^    int visualModeHead;$/;"	m	struct:version
+width	vig/vig.h	/^    int width;$/;"	m	struct:VigWin
+win	vig/vig.h	/^    WINDOW* win;$/;"	m	struct:VigWin
+wins	vig/vig.h	/^    vector<VigWin*%>*% wins;$/;"	m	struct:Vig
 write_to_automatically_header	src/parser.c	/^static BOOL write_to_automatically_header(sBuf* buf)$/;"	f	file:
+writed	vig/vig.h	/^    bool writed;$/;"	m	struct:VigWin
 wstring	code/neo-c.h	/^typedef wchar_t*% wstring;$/;"	t
 wstring	neo-c.h	/^typedef wchar_t*% wstring;$/;"	t
-x	vig/vig1init.h	/^    int x;$/;"	m	struct:VigWin
+x	vig/vig.h	/^    int x;$/;"	m	struct:VigWin
 xasprintf	src/memalloc-stdc.c	/^void *xasprintf(char* msg, ...)$/;"	f
 xcalloc	src/memalloc-stdc.c	/^void *xcalloc(size_t num, size_t nsize)$/;"	f
 xcalloc	src/memalloc.c	/^void *xcalloc(size_t num, size_t nsize)$/;"	f
@@ -1379,6 +1409,6 @@ xrealloc	src/xfunc.c	/^ALLOC void* xrealloc(void* ptr, size_t size)$/;"	f
 xstrdup	src/xfunc.c	/^ALLOC char* xstrdup(char* str)$/;"	f
 xstrncat	src/xfunc.c	/^char* xstrncat(char* des, char* str, int size)$/;"	f
 xstrncpy	src/xfunc.c	/^char* xstrncpy(char* des, char* src, int size)$/;"	f
-y	vig/vig1init.h	/^    int y;$/;"	m	struct:VigWin
-yank	vig/vig7yank.h	/^    list<wstring>*% yank;$/;"	m	struct:version
-yankKind	vig/vig7yank.h	/^    int yankKind;$/;"	m	struct:version
+y	vig/vig.h	/^    int y;$/;"	m	struct:VigWin
+yank	vig/vig.h	/^    list<wstring>*% yank;$/;"	m	struct:version
+yankKind	vig/vig.h	/^    int yankKind;$/;"	m	struct:version
