@@ -15,14 +15,14 @@ impl VigWin version 7
 
             vig.yank.each {
                 self.texts.insert(
-                    self.cursorY+it2+1, 
+                    self.scroll+self.cursorY+it2+1, 
                     clone it);
             }
         }
         else {
             self.pushUndo();
 
-            var line = self.texts.item(self.cursorY, null);
+            var line = self.texts.item(self.scroll+self.cursorY, null);
 
             var yank_first_line = vig.yank.item(0, null);
 
@@ -30,7 +30,7 @@ impl VigWin version 7
                                 + yank_first_line 
                                 + line.substring(self.cursorX-1, -1);
 
-            self.texts.replace(self.cursorY, clone new_line);
+            self.texts.replace(self.scroll+self.cursorY, clone new_line);
         }
     }
 
@@ -39,14 +39,14 @@ impl VigWin version 7
             self.pushUndo();
             vig.yank.each {
                 self.texts.insert(
-                    self.cursorY+it2, 
+                    self.scroll+self.cursorY+it2, 
                     clone it);
             }
         }
         else {
             self.pushUndo();
 
-            var line = self.texts.item(self.cursorY, null);
+            var line = self.texts.item(self.scroll+self.cursorY, null);
 
             var yank_first_line = vig.yank.item(0, null);
 
@@ -54,7 +54,7 @@ impl VigWin version 7
                                 + yank_first_line 
                                 + line.substring(self.cursorX, -1);
 
-            self.texts.replace(self.cursorY, clone new_line);
+            self.texts.replace(self.scroll+self.cursorY, clone new_line);
         }
     }
 }

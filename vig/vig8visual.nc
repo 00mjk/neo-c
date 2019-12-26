@@ -61,7 +61,7 @@ impl VigWin version 8
 
     void yankOnVisualMode(VigWin* self, Vig* vig) {
         int head = self.visualModeHead;
-        int tail = self.cursorY;
+        int tail = self.scroll+self.cursorY;
 
         if(head >= tail) {
             int tmp = tail;
@@ -81,7 +81,7 @@ impl VigWin version 8
         self.yankOnVisualMode(vig);
 
         int head = self.visualModeHead;
-        int tail = self.cursorY;
+        int tail = self.scroll+self.cursorY;
 
         if(head >= tail) {
             int tmp = tail;
@@ -91,8 +91,10 @@ impl VigWin version 8
 
         self.texts.delete_range(head, tail+1);
 
-        if(self.cursorY >= self.visualModeHead) {
+        if(self.scroll+self.cursorY >= self.visualModeHead) {
             self.cursorY -= tail - head;
+
+            self.modifyUnderCursorYValue();
         }
     }
 
@@ -159,7 +161,7 @@ impl Vig version 8
 {
     void enterVisualMode(Vig* self) {
         self.mode = kVisualMode;
-        self.activeWin.visualModeHead = self.activeWin.cursorY;
+        self.activeWin.visualModeHead = self.activeWin.cursorY + self.activeWin.scroll;
     }
     void exitFromVisualMode(Vig* self) {
         self.mode = kEditMode;

@@ -63,6 +63,8 @@ impl VigWin version 2
     void nextLine(VigWin* self);
     void moveAtHead(VigWin* self);
     void moveAtTail(VigWin* self);
+    void modifyOverCursorYValue(VigWin* self);
+    void modifyUnderCursorYValue(VigWin* self);
 }
 
 struct Vig version 2 

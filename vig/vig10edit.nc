@@ -16,15 +16,15 @@ impl VigWin version 10
     }
 
     void deleteOneLine(VigWin* self, Vig* vig) {
-        var line = self.texts.item(self.cursorY, null);
+        var line = self.texts.item(self.scroll+self.cursorY, null);
         if(line != null) {
             self.pushUndo();
             vig.yank.reset();
             vig.yank.push_back(clone line);
             vig.yankKind = kYankKindLine;
-            self.texts.delete(self.cursorY);
+            self.texts.delete(self.scroll+self.cursorY);
 
-            var line2 = self.texts.item(self.cursorY, null);
+            var line2 = self.texts.item(self.scroll+self.cursorY, null);
             
             if(self.cursorX >= line2.length()) {
                 self.cursorX = line2.length();
@@ -33,7 +33,7 @@ impl VigWin version 10
     }
 
     void deleteWord(VigWin* self, Vig* vig) {
-        wstring& line = self.texts.item(self.cursorY, wstring(""));
+        wstring& line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         if(wcslen(line) == 0) {
             self.deleteOneLine(vig);
@@ -112,7 +112,7 @@ impl VigWin version 10
     void deleteCursorCharactor(VigWin* self) {
         self.pushUndo();
 
-        var line = self.texts.item(self.cursorY, null);
+        var line = self.texts.item(self.scroll+self.cursorY, null);
         line.delete(self.cursorX);
     }
 }

@@ -89,9 +89,6 @@ unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_o
 struct sCLClassStruct {
     clint64 mFlags;
 
-//    unsigned int mGenericsParamNameOffsets[GENERICS_TYPES_MAX];
-//    unsigned int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
-
     sConst mConst;
 
     int mClassNameOffset;
@@ -99,7 +96,7 @@ struct sCLClassStruct {
     int mGenericsNum;
     int mMethodGenericsNum;
     
-    char mFieldNameOffsets[STRUCT_FIELD_MAX];
+    unsigned int mFieldNameOffsets[STRUCT_FIELD_MAX];
     struct sNodeTypeStruct* mFields[STRUCT_FIELD_MAX];
     int mNumFields;
 

@@ -10,7 +10,7 @@
 impl VigWin version 4
 {
     void forwardWord(VigWin* self) {
-        wchar_t* line = self.texts.item(self.cursorY, wstring(""));
+        wchar_t* line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         wchar_t* p = line + self.cursorX;
 
@@ -18,12 +18,9 @@ impl VigWin version 4
         {
             self.cursorY++;
 
-            if(self.cursorY >= self.texts.length())
-            {
-                self.cursorY--;
-            }
+            self.modifyOverCursorYValue();
 
-            line = self.texts.item(self.cursorY, wstring(""));
+            line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
             self.cursorX = 0;
         }
@@ -33,13 +30,15 @@ impl VigWin version 4
             while(wcslen(line) == 0) {
                 self.cursorY++;
 
-                if(self.cursorY >= self.texts.length())
+                self.modifyOverCursorYValue();
+
+                if(self.scroll+self.cursorY >= self.texts.length())
                 {
                     self.cursorY--;
                     break;
                 }
 
-                line = self.texts.item(self.cursorY, wstring(""));
+                line = self.texts.item(self.scroll+self.cursorY, wstring(""));
             }
 
             self.cursorX = 0;
@@ -55,13 +54,15 @@ impl VigWin version 4
                 {
                     self.cursorY++;
 
-                    if(self.cursorY >= self.texts.length())
+                    self.modifyOverCursorYValue();
+
+                    if(self.scroll+self.cursorY >= self.texts.length())
                     {
                         self.cursorY--;
                         break;
                     }
 
-                    line = self.texts.item(self.cursorY, wstring(""));
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
                     p = line;
                     self.cursorX = 0;
                 }
@@ -78,13 +79,15 @@ impl VigWin version 4
                 {
                     self.cursorY++;
 
-                    if(self.cursorY >= self.texts.length())
+                    self.modifyOverCursorYValue();
+
+                    if(self.scroll+self.cursorY >= self.texts.length())
                     {
                         self.cursorY--;
                         break;
                     }
 
-                    line = self.texts.item(self.cursorY, wstring(""));
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
                     p = line;
                     self.cursorX = 0;
                 }
@@ -99,7 +102,9 @@ impl VigWin version 4
                 {
                     self.cursorY++;
 
-                    if(self.cursorY >= self.texts.length())
+                    self.modifyOverCursorYValue();
+
+                    if(self.scroll+self.cursorY >= self.texts.length())
                     {
                         self.cursorY--;
                         break;
@@ -120,7 +125,9 @@ impl VigWin version 4
                 {
                     self.cursorY++;
 
-                    if(self.cursorY >= self.texts.length())
+                    self.modifyOverCursorYValue();
+
+                    if(self.scroll+self.cursorY >= self.texts.length())
                     {
                         self.cursorY--;
                         break;
@@ -141,7 +148,9 @@ impl VigWin version 4
                 {
                     self.cursorY++;
 
-                    if(self.cursorY >= self.texts.length())
+                    self.modifyOverCursorYValue();
+
+                    if(self.scroll+self.cursorY >= self.texts.length())
                     {
                         self.cursorY--;
                         break;
@@ -155,8 +164,7 @@ impl VigWin version 4
         }
     }
     void backwardWord(VigWin* self) {
-
-        wchar_t* line = self.texts.item(self.cursorY, wstring(""));
+        wchar_t* line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         wchar_t* p = line + self.cursorX;
 
@@ -180,10 +188,10 @@ impl VigWin version 4
                     break;
                 }
 
-                line = self.texts.item(self.cursorY, wstring(""));
+                line = self.texts.item(self.scroll+self.cursorY, wstring(""));
             }
 
-            self.cursorX = wcslen(self.texts.item(self.cursorY, wstring(""))) -1;
+            self.cursorX = wcslen(self.texts.item(self.scroll+self.cursorY, wstring(""))) -1;
 
             if(self.cursorX < 0) {
                 self.cursorX = 0;
@@ -207,7 +215,7 @@ impl VigWin version 4
                         break;
                     }
 
-                    line = self.texts.item(self.cursorY, wstring(""));
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
                     if(wcslen(line) == 0)
                     {
@@ -239,7 +247,7 @@ impl VigWin version 4
                         break;
                     }
 
-                    line = self.texts.item(self.cursorY, wstring(""));
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
                     if(wcslen(line) == 0)
                     {
@@ -269,7 +277,7 @@ impl VigWin version 4
                         break;
                     }
 
-                    line = self.texts.item(self.cursorY, wstring(""));
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
                     if(wcslen(line) == 0)
                     {
@@ -299,7 +307,7 @@ impl VigWin version 4
                         break;
                     }
 
-                    line = self.texts.item(self.cursorY, wstring(""));
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
                     if(wcslen(line) == 0)
                     {
@@ -329,7 +337,7 @@ impl VigWin version 4
                         break;
                     }
 
-                    line = self.texts.item(self.cursorY, wstring(""));
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
                     if(wcslen(line) == 0)
                     {

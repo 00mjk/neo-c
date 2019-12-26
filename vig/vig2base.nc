@@ -88,7 +88,7 @@ impl VigWin version 2
     }
 
     wchar_t* getCursorLine(VigWin* self) {
-        return self.texts.item(self.cursorY, wstring(""));
+        return self.texts.item(self.scroll+self.cursorY, wstring(""));
     }
 
     int getCursorLineLength(VigWin* self) 
@@ -120,9 +120,8 @@ impl VigWin version 2
         }
     }
 
-    void prevLine(VigWin* self) {
-        self.cursorY--;
-
+    void modifyUnderCursorYValue(VigWin* self)
+    {
         if(self.cursorY < 0) {
             self.scroll += self.cursorY;
 
@@ -132,6 +131,13 @@ impl VigWin version 2
 
             self.cursorY = 0;
         }
+
+    }
+
+    void prevLine(VigWin* self) {
+        self.cursorY--;
+
+        self.modifyUnderCursorYValue();
 
         if(self.cursorX >= self.getCursorLineLength())
         {
@@ -143,9 +149,8 @@ impl VigWin version 2
         }
     }
 
-    void nextLine(VigWin* self) {
-        self.cursorY++;
-
+    void modifyOverCursorYValue(VigWin* self)
+    {
         int maxy = getmaxy(self.win);
 
         if(self.cursorY >= maxy-2)
@@ -162,6 +167,12 @@ impl VigWin version 2
         if(self.cursorY + self.scroll >= self.texts.length()-1) {
             self.cursorY = self.texts.length()-self.scroll-1;
         }
+    }
+
+    void nextLine(VigWin* self) {
+        self.cursorY++;
+
+        self.modifyOverCursorYValue();
 
         if(self.cursorX >= self.getCursorLineLength())
         {

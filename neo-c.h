@@ -1002,6 +1002,14 @@ impl list <T>
             tail += self.len + 1;
         }
 
+        if(begin < 0) {
+            begin = 0;
+        }
+
+        if(tail >= self.len) {
+            tail = self.len;
+        }
+
 
         list_item<T>?* it = self.head;
         var i = 0;

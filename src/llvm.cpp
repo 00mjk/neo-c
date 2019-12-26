@@ -1404,7 +1404,10 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         if(rvalue) {
             if((*right_type)->mPointerNum > 0)
             {
-                rvalue->value = Builder.CreateCast(Instruction::PtrToInt, rvalue->value, IntegerType::get(TheContext, 1));
+                rvalue->value = Builder.CreateCast(Instruction::PtrToInt, rvalue->value, IntegerType::get(TheContext, 64));
+
+                Value* cmp_right_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+                rvalue->value = Builder.CreateICmpNE(rvalue->value, cmp_right_value);
             }
             else {
                 rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, IntegerType::get(TheContext, 1));

@@ -308,17 +308,20 @@ BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)
     {
         return TRUE;
     }
-    //else if(left_type->mNullable && left_type->mPointerNum > 0 && type_identify_with_class_name(right_type, "void*")) 
+    else if(type_identify_with_class_name(left_type, "void*") && right_type->mPointerNum > 0) 
+    {
+        return TRUE;
+    }
     else if(left_type->mPointerNum > 0 && type_identify_with_class_name(right_type, "void*")) 
     {
         return TRUE;
     }
     /// NULL in clang is defined int type, so this is required
-    else if(left_type->mPointerNum > 0 && type_identify_with_class_name(right_type, "int")) 
+    else if(left_type->mPointerNum > 0 && is_number_type(right_type))
     {
         return TRUE;
     }
-    else if(type_identify_with_class_name(left_type, "int") && right_type->mPointerNum > 0) 
+    else if(is_number_type(left_type) && right_type->mPointerNum > 0) 
     {
         return TRUE;
     }

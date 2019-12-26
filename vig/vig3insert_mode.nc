@@ -16,7 +16,7 @@ impl VigWin version 3
         self.textsView(vig);
 
         wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "INSERT MODE x %d y %d", self.cursorX, self.cursorY);
+        mvwprintw(self.win, self.height-1, 0, "INSERT MODE x %d y %d", self.cursorX, self.scroll+self.cursorY);
         wattroff(self.win, A_REVERSE);
 
         wrefresh(self.win);
@@ -32,17 +32,17 @@ impl VigWin version 3
     }
 
     void insertText(VigWin* self, wstring text) {
-        var old_line = self.texts.item(self.cursorY, wstring(""));
+        var old_line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         var new_line = old_line.substring(0, self.cursorX) + text + old_line.substring(self.cursorX, -1);
 
-        self.texts.replace(self.cursorY, new_line);
+        self.texts.replace(self.scroll+self.cursorY, new_line);
         self.cursorX += text.length();
     }
 
     void enterNewLine(VigWin* self)
     {
-        var old_line = self.texts.item(self.cursorY, wstring(""));
+        var old_line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         int num_spaces = 0;
         for(int i=0; i<old_line.length(); i++)
@@ -60,15 +60,17 @@ impl VigWin version 3
         var new_line1 = old_line.substring(0, self.cursorX);
         var new_line2 = head_new_line + old_line.substring(self.cursorX, -1);
 
-        self.texts.replace(self.cursorY, new_line1);
-        self.texts.insert(self.cursorY+1, new_line2);
+        self.texts.replace(self.scroll+self.cursorY, new_line1);
+        self.texts.insert(self.scroll+self.cursorY+1, new_line2);
         self.cursorY++;
         self.cursorX = num_spaces;
+
+        self.modifyOverCursorYValue();
     }
 
     void enterNewLine2(VigWin* self)
     {
-        var line = self.texts.item(self.cursorY, null);
+        var line = self.texts.item(self.scroll+self.cursorY, null);
         int num_spaces = 0;
         for(int i=0; i<line.length(); i++)
         {
@@ -82,13 +84,15 @@ impl VigWin version 3
 
         var new_line = wstring(" ") * num_spaces;
 
-        self.texts.insert(self.cursorY+1, new_line);
+        self.texts.insert(self.scroll+self.cursorY+1, new_line);
         self.cursorY++;
         self.cursorX = num_spaces;
+
+        self.modifyOverCursorYValue();
     }
 
     void backSpace(VigWin* self) {
-        var line = self.texts.item(self.cursorY, wstring(""));
+        var line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         if(line.length() > 0 && self.cursorX > 0) {
             line.delete(self.cursorX-1);
@@ -99,7 +103,7 @@ impl VigWin version 3
     void backIndent(VigWin* self) {
         self.pushUndo();
 
-        var line = self.texts.item(self.cursorY, wstring(""));
+        var line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         if(line.length() >= 4) {
             if(line.index(wstring("    "), -1) == 0) {
@@ -116,12 +120,12 @@ impl VigWin version 3
     }
 
     void blinkBraceFoward(VigWin* self, wchar_t head, wchar_t tail, Vig* vig) {
-        int cursor_y = self.cursorY;
+        int cursor_y = self.scroll+self.cursorY;
         int cursor_x = -1;
 
         int nest = 0;
 
-        var line = self.texts.item(self.cursorY, null);
+        var line = self.texts.item(self.scroll+self.cursorY, null);
 
         wchar_t* p = line + self.cursorX+1;
 
@@ -148,7 +152,7 @@ impl VigWin version 3
         if(cursor_x == -1) {
             cursor_y++;
 
-            self.texts.sublist(self.cursorY+1, -1).each {
+            self.texts.sublist(self.scroll+self.cursorY+1, -1).each {
                 wchar_t* p = it;
 
                 while(p < it + it.length()) {
@@ -177,21 +181,31 @@ impl VigWin version 3
         }
 
         if(cursor_x != -1) {
+            int cursor_x_saved = self.cursorX;
+            int cursor_y_saved = self.cursorY;
+            int scroll_saved = self.scroll;
+
+            self.cursorY = cursor_y;
+            self.modifyOverCursorYValue();
+
             wattron(self.win, A_REVERSE);
             mvwprintw(self.win, cursor_y, cursor_x, "%lc", tail);
             wattroff(self.win, A_REVERSE);
             wrefresh(self.win);
             sleep(1);
+            self.cursorX = cursor_x_saved;
+            self.cursorY = cursor_y_saved;
+            self.scroll = scroll_saved;
             self.view(vig);
         }
     }
     void blinkBraceEnd(VigWin* self, wchar_t head, wchar_t tail, Vig* vig) {
-        int cursor_y = self.cursorY;
+        int cursor_y = self.scroll+self.cursorY;
         int cursor_x = -1;
 
         int nest = 0;
 
-        var line = self.texts.item(self.cursorY, null);
+        var line = self.texts.item(self.scroll+self.cursorY, null);
 
         wchar_t* p = line + self.cursorX-1;
 
@@ -218,7 +232,7 @@ impl VigWin version 3
         if(cursor_x == -1) {
             cursor_y--;
 
-            self.texts.sublist(0, self.cursorY).reverse().each {
+            self.texts.sublist(0, self.scroll+self.cursorY).reverse().each {
                 wchar_t* p = it + it.length();
 
                 while(p >= it) {
@@ -247,11 +261,21 @@ impl VigWin version 3
         }
 
         if(cursor_x != -1) {
+            int cursor_x_saved = self.cursorX;
+            int cursor_y_saved = self.cursorY;
+            int scroll_saved = self.scroll;
+
+            self.cursorY = cursor_y;
+            self.modifyUnderCursorYValue();
+
             wattron(self.win, A_REVERSE);
             mvwprintw(self.win, cursor_y, cursor_x, "%lc", head);
             wattroff(self.win, A_REVERSE);
             wrefresh(self.win);
             sleep(1);
+            self.cursorX = cursor_x_saved;
+            self.cursorY = cursor_y_saved;
+            self.scroll = scroll_saved;
             self.view(vig);
         }
     }

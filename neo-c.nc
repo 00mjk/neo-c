@@ -634,7 +634,7 @@ impl wstring
 
     int index(wstring& str, wchar_t* search_str, int default_value)
     {
-        char* head = wcsstr(str, search_str);
+        wchar_t* head = wcsstr(str, search_str);
 
         if(head == null) {
             return default_value;

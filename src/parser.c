@@ -554,6 +554,12 @@ static BOOL parse_typedef_attribute(sParserInfo* info)
 
 static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNodeType* node_type, BOOL array_size_is_dynamic)
 {
+    if(*info->p == '#') {
+        if(!parse_sharp(info)) {
+            return FALSE;
+        }
+    }
+
     if(*info->p == '*') {
         int num_pointers = 0;
         while(*info->p == '*') {

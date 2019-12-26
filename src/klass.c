@@ -377,7 +377,8 @@ void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUC
 
     int i;
     for(i=0; i<num_fields; i++) {
-        klass->mFieldNameOffsets[klass->mNumFields+i] = append_str_to_constant_pool(&klass->mConst, field_name[i], FALSE);
+        unsigned int offset = append_str_to_constant_pool(&klass->mConst, field_name[i], FALSE);
+        klass->mFieldNameOffsets[klass->mNumFields+i] = offset;
         klass->mFields[klass->mNumFields+i] = clone_node_type(fields[i]);
     }
 
@@ -475,7 +476,8 @@ void class_final()
 
 int get_field_index(sCLClass* klass, char* var_name, int* parent_field_index)
 {
-    if((klass->mFlags & CLASS_FLAGS_STRUCT) || (klass->mFlags & CLASS_FLAGS_UNION)) {
+    if((klass->mFlags & CLASS_FLAGS_STRUCT) || (klass->mFlags & CLASS_FLAGS_UNION)) 
+    {
         int i;
         for(i=0; i<klass->mNumFields; i++) {
             if(parent_field_index) {

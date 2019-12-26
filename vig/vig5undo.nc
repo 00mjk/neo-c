@@ -30,7 +30,7 @@ impl VigWin version 5
         self.undo.push_back(undo);
 
         self.undoCursorX.push_back(self.cursorX);
-        self.undoCursorY.push_back(self.cursorY);
+        self.undoCursorY.push_back(self.scroll+self.cursorY);
         self.undoIndex++;
     }
     
@@ -48,6 +48,8 @@ impl VigWin version 5
                 self.texts = clone undo;
                 self.cursorX = cursor_x;
                 self.cursorY = cursor_y;
+
+                self.modifyOverCursorYValue();
             }
         }
     }
@@ -71,6 +73,8 @@ impl VigWin version 5
                 self.texts = clone undo;
                 self.cursorX = cursor_x;
                 self.cursorY = cursor_y;
+
+                self.modifyOverCursorYValue();
             }
         }
     }

@@ -10,12 +10,12 @@
 impl VigWin version 11
 {
     void toggleBraceForward(VigWin* self, wchar_t head, wchar_t tail) {
-        int cursor_y = self.cursorY;
+        int cursor_y = self.scroll + self.cursorY;
         int cursor_x = -1;
 
         int nest = 0;
 
-        var line = self.texts.item(self.cursorY, null);
+        var line = self.texts.item(cursor_y, null);
 
         wchar_t* p = line + self.cursorX+1;
 
@@ -42,7 +42,7 @@ impl VigWin version 11
         if(cursor_x == -1) {
             cursor_y++;
 
-            self.texts.sublist(self.cursorY+1, -1).each {
+            self.texts.sublist(self.scroll+self.cursorY+1, -1).each {
                 wchar_t* p = it;
 
                 while(p < it + it.length()) {
@@ -71,17 +71,19 @@ impl VigWin version 11
         }
 
         if(cursor_x != -1) {
-            self.cursorX = cursor_x;
             self.cursorY = cursor_y;
+            self.modifyOverCursorYValue();
+
+            self.cursorX = cursor_x;
         }
     }
     void toggleBraceBack(VigWin* self, wchar_t head, wchar_t tail) {
-        int cursor_y = self.cursorY;
+        int cursor_y = self.scroll + self.cursorY;
         int cursor_x = -1;
 
         int nest = 0;
 
-        var line = self.texts.item(self.cursorY, null);
+        var line = self.texts.item(cursor_y, null);
 
         wchar_t* p = line + self.cursorX-1;
 
@@ -108,7 +110,7 @@ impl VigWin version 11
         if(cursor_x == -1) {
             cursor_y--;
 
-            self.texts.sublist(0, self.cursorY).reverse().each {
+            self.texts.sublist(0, self.scroll+self.cursorY).reverse().each {
                 wchar_t* p = it + it.length();
 
                 while(p >= it) {
@@ -137,12 +139,14 @@ impl VigWin version 11
         }
 
         if(cursor_x != -1) {
-            self.cursorX = cursor_x;
             self.cursorY = cursor_y;
+            self.modifyUnderCursorYValue();
+
+            self.cursorX = cursor_x;
         }
     }
     void gotoBraceEnd(VigWin* self, Vig* vig) {
-        var line = self.texts.item(self.cursorY, null);
+        var line = self.texts.item(self.scroll+self.cursorY, null);
 
         var c = line[self.cursorX];
 
@@ -182,9 +186,9 @@ impl VigWin version 11
     }
 
     void gotoFunctionTop(VigWin* self, Vig* vig) {
-        int cursor_y = self.cursorY -1;
+        int cursor_y = self.scroll+self.cursorY -1;
 
-        self.texts.sublist(0, self.cursorY).reverse().each() {
+        self.texts.sublist(0, self.scroll+self.cursorY).reverse().each() {
             if(it.to_string().match(regex!</^\\s*[a-zA-Z0-9%*?]+\\s+[a-zA-Z0-9]+\\(/>, null)) {
                 *it3 = true;
                 self.cursorY = cursor_y
@@ -196,13 +200,10 @@ impl VigWin version 11
         }
     }
 
-    void gotoMethodTop(VigWin* self, Vig* vig) {
-    }
-
     void gotoFunctionBottom(VigWin* self, Vig* vig) {
-        int cursor_y = self.cursorY + 1;
+        int cursor_y = self.scroll+self.cursorY + 1;
 
-        self.texts.sublist(self.cursorY+1, -1).each() {
+        self.texts.sublist(self.scroll+self.cursorY+1, -1).each() {
             if(it.to_string().match(regex!</^\\s*[a-zA-Z0-9%*?]+\\s+[a-zA-Z0-9]+\\(/>, null)) {
                 *it3 = true;
                 self.cursorY = cursor_y
@@ -212,9 +213,6 @@ impl VigWin version 11
 
             cursor_y++;
         }
-    }
-
-    void gotoMethodBottom(VigWin* self, Vig* vig) {
     }
 }
 
@@ -234,10 +232,6 @@ impl Vig version 11
                 case '[':
                     self.activeWin.gotoFunctionTop(self);
                     break;
-
-                case 'm':
-                    self.activeWin.gotoMethodTop(self);
-                    break;
             }
         });
 
@@ -247,10 +241,6 @@ impl Vig version 11
             switch(key2) {
                 case ']':
                     self.activeWin.gotoFunctionBottom(self);
-                    break;
-
-                case 'm':
-                    self.activeWin.gotoMethodBottom(self);
                     break;
             }
         });

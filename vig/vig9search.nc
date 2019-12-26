@@ -32,7 +32,7 @@ impl VigWin version 9
     }
 
     void search(VigWin* self, Vig* vig) {
-        var cursor_line = self.texts.item(self.cursorY, null);
+        var cursor_line = self.texts.item(self.scroll+self.cursorY, null);
 
         int x = cursor_line.substring(self.cursorX+1, -1).index(vig.searchString, -1)
 
@@ -41,11 +41,12 @@ impl VigWin version 9
             self.cursorX = x;
         }
         else {
-            self.texts.sublist(self.cursorY+1, -1).each {
+            self.texts.sublist(self.scroll+self.cursorY+1, -1).each {
                 int x = it.index(vig.searchString, -1);
 
                 if(x != -1) {
                     self.cursorY += it2 + 1;
+                    self.modifyOverCursorYValue();
                     self.cursorX = x;
                     *it3 = true;
                     return;
@@ -55,7 +56,7 @@ impl VigWin version 9
     }
 
     void searchReverse(VigWin* self, Vig* vig) {
-        var cursor_line = self.texts.item(self.cursorY, null);
+        var cursor_line = self.texts.item(self.scroll+self.cursorY, null);
 
         int x = cursor_line.substring(0, self.cursorX-1).rindex(vig.searchString, -1)
 
@@ -63,11 +64,12 @@ impl VigWin version 9
             self.cursorX = x;
         }
         else {
-            self.texts.sublist(0, self.cursorY).reverse().each {
+            self.texts.sublist(0, self.scroll+self.cursorY).reverse().each {
                 int x = it.rindex(vig.searchString, -1);
 
                 if(x != -1) {
                     self.cursorY = self.cursorY - it2 -1;
+                    self.modifyUnderCursorYValue();
                     self.cursorX = x;
                     *it3 = true;
                     return;
