@@ -16,9 +16,6 @@ struct VigWin
     int x;
     int width;
     int height;
-    int scroll;
-    string fileName;
-    bool writed;
 };
 
 struct Vig 
@@ -48,23 +45,22 @@ struct VigWin version 2
 {
     int cursorY;
     int cursorX;
+    int scroll;
 };
 
 impl VigWin version 2 
 {
     void textsView(VigWin* self, Vig* vig);
+    void statusBarView(VigWin* self, Vig* vig);
     void view(VigWin* self, Vig* vig);
     void input(VigWin* self, Vig* vig);
-    wchar_t* getCursorLine(VigWin* self);
-    int getCursorLineLength(VigWin* self);
-    void forward(VigWin* self);
-    void backward(VigWin* self);
-    void prevLine(VigWin* self);
-    void nextLine(VigWin* self);
-    void moveAtHead(VigWin* self);
-    void moveAtTail(VigWin* self);
     void modifyOverCursorYValue(VigWin* self);
     void modifyUnderCursorYValue(VigWin* self);
+    void modifyOverCursorXValue(VigWin* self);
+    void modifyUnderCursorXValue(VigWin* self);
+
+    void moveAtHead(VigWin* self);
+    void moveAtTail(VigWin* self);
 }
 
 struct Vig version 2 
@@ -85,12 +81,15 @@ enum eMode { kEditMode, kInsertMode };
 
 impl VigWin version 3 
 {
-    void insertModeView(VigWin* self, Vig* vig);
     void view(VigWin* self, Vig* vig);
     void insertText(VigWin* self, wstring key);
     void enterNewLine(VigWin* self);
-    void inputInsertMode(VigWin* self, Vig* vig);
+    void enterNewLine2(VigWin* self);
     void input(VigWin* self, Vig* vig);
+
+    void pushUndo(VigWin* self);
+    void openFile(VigWin* self, char* file_name);
+    void writedFlagOn(VigWin* self);
 }
 
 struct Vig version 3 
@@ -100,12 +99,15 @@ struct Vig version 3
 
 impl Vig version 3 
 {
+    initialize();
+
     void enterInsertMode(Vig* self);
     void exitFromInsertMode(Vig* self);
-    initialize();
     int main_loop(Vig* self);
+    void openFile(Vig* self, int num_files, char** file_names);
 }
 
+/*
 /// vig4word.h ///
 impl VigWin version 4
 {
@@ -146,10 +148,19 @@ impl Vig version 5
 }
 
 /// vig6file.h ///
+struct VigWin version 6
+{
+    string fileName;
+    bool writed;
+};
+
 impl VigWin version 6
 {
+    initialize(int y, int x, int width, int height);
+    void statusBarView(VigWin* self, Vig* vig);
     void openFile(VigWin* self, char* file_name);
     void writeFile(VigWin* self);
+    void writedFlagOn(VigWin* self);
 }
 
 impl Vig version 6
@@ -266,3 +277,4 @@ impl Vig version 12
     void exitFromComandMode(Vig* self);
     initialize();
 }
+*/

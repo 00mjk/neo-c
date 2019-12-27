@@ -16,7 +16,7 @@ impl VigWin version 3
         self.textsView(vig);
 
         wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "INSERT MODE x %d y %d", self.cursorX, self.scroll+self.cursorY);
+        mvwprintw(self.win, self.height-1, 0, "INSERT MODE x %d y %d scroll %d", self.cursorX, self.scroll+self.cursorY, self.scroll);
         wattroff(self.win, A_REVERSE);
 
         wrefresh(self.win);
@@ -185,14 +185,15 @@ impl VigWin version 3
             int cursor_y_saved = self.cursorY;
             int scroll_saved = self.scroll;
 
+            self.scroll = 0;
+            self.cursorX = cursor_x;
             self.cursorY = cursor_y;
             self.modifyOverCursorYValue();
+            self.modifyOverCursorXValue();
 
-            wattron(self.win, A_REVERSE);
-            mvwprintw(self.win, cursor_y, cursor_x, "%lc", tail);
-            wattroff(self.win, A_REVERSE);
-            wrefresh(self.win);
+            self.view(vig);
             sleep(1);
+
             self.cursorX = cursor_x_saved;
             self.cursorY = cursor_y_saved;
             self.scroll = scroll_saved;
@@ -265,14 +266,15 @@ impl VigWin version 3
             int cursor_y_saved = self.cursorY;
             int scroll_saved = self.scroll;
 
+            self.scroll = 0;
+            self.cursorX = cursor_x;
             self.cursorY = cursor_y;
-            self.modifyUnderCursorYValue();
+            self.modifyOverCursorYValue();
+            self.modifyOverCursorXValue();
 
-            wattron(self.win, A_REVERSE);
-            mvwprintw(self.win, cursor_y, cursor_x, "%lc", head);
-            wattroff(self.win, A_REVERSE);
-            wrefresh(self.win);
+            self.view(vig);
             sleep(1);
+
             self.cursorX = cursor_x_saved;
             self.cursorY = cursor_y_saved;
             self.scroll = scroll_saved;
@@ -357,13 +359,23 @@ impl VigWin version 3
             inherit(self, vig);
         }
     }
+
+    void pushUndo(VigWin* self) {
+        /// implemented by the after layer
+    }
+    void openFile(VigWin* self, char* file_name) {
+        /// implemented by the after layer
+    }
+    void writedFlagOn(VigWin* self) {
+        /// implemented by the after layer
+    }
 }
 
 impl Vig version 3 
 {
     void enterInsertMode(Vig* self) {
         self.mode = kInsertMode;
-        self.activeWin.writed = true;
+        self.activeWin.writedFlagOn();
     }
     void exitFromInsertMode(Vig* self) {
         self.mode = kEditMode;
@@ -403,8 +415,6 @@ impl Vig version 3
 
     int main_loop(Vig* self) {
         while(!self.appEnd) {
-            //erase();
-
             self.wins.each {
                 it.view(self);
             }
@@ -413,5 +423,9 @@ impl Vig version 3
         }
 
         0
+    }
+    void openFile(Vig* self, int num_files, char** file_names)
+    {
+        /// implemented by the after layer
     }
 }

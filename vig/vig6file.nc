@@ -9,6 +9,22 @@
 
 impl VigWin version 6
 {
+    initialize(int y, int x, int width, int height) {
+        inherit(self, y, x, width, height);
+
+        self.fileName = string("a.txt");
+    }
+    void statusBarView(VigWin* self, Vig* vig)
+    {
+        int maxy = getmaxy(self.win);
+        int maxx = getmaxx(self.win);
+
+        wattron(self.win, A_REVERSE);
+        mvwprintw(self.win, self.height-1, 0, "x %d y %d scroll %d writed %d", self.cursorX, self.cursorY, self.scroll, self.writed);
+        wattroff(self.win, A_REVERSE);
+
+        wrefresh(self.win);
+    }
     void openFile(VigWin* self, char* file_name)
     {
         self.texts.reset();
@@ -37,6 +53,9 @@ impl VigWin version 6
         fclose(f);
 
         self.writed = false;
+    }
+    void writedFlagOn(VigWin* self) {
+        self.writed = true;
     }
 }
 

@@ -64,15 +64,24 @@ impl VigWin version 2
             }
         }
     }
+    void statusBarView(VigWin* self, Vig* vig)
+    {
+        int maxy = getmaxy(self.win);
+        int maxx = getmaxx(self.win);
+
+        wattron(self.win, A_REVERSE);
+        mvwprintw(self.win, self.height-1, 0, "x %d y %d scroll %d", self.cursorX, self.cursorY, self.scroll);
+        wattroff(self.win, A_REVERSE);
+
+        wrefresh(self.win);
+    }
 
     void view(VigWin* self, Vig* vig) {
         werase(self.win);
 
         self.textsView(vig);
 
-        wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "x %d y %d scroll %d writed %d /%ls", self.cursorX, self.cursorY, self.scroll, self.writed, vig.searchString);
-        wattroff(self.win, A_REVERSE);
+        self.statusBarView(vig);
 
         wrefresh(self.win);
     }
@@ -84,39 +93,6 @@ impl VigWin version 2
 
         if(event != null) {
             event(vig, key);
-        }
-    }
-
-    wchar_t* getCursorLine(VigWin* self) {
-        return self.texts.item(self.scroll+self.cursorY, wstring(""));
-    }
-
-    int getCursorLineLength(VigWin* self) 
-    {
-        return wcslen(self.getCursorLine());
-    }
-
-    void forward(VigWin* self) {
-        self.cursorX++;
-
-        var line_max = self.getCursorLineLength();
-
-        if(self.cursorX >= line_max)
-        {
-            self.cursorX = line_max-1;
-
-            if(self.cursorX < 0) {
-                self.cursorX = 0;
-            }
-        }
-    }
-
-    void backward(VigWin* self) {
-        self.cursorX--;
-
-        if(self.cursorX < 0)
-        {
-            self.cursorX = 0;
         }
     }
 
@@ -132,21 +108,6 @@ impl VigWin version 2
             self.cursorY = 0;
         }
 
-    }
-
-    void prevLine(VigWin* self) {
-        self.cursorY--;
-
-        self.modifyUnderCursorYValue();
-
-        if(self.cursorX >= self.getCursorLineLength())
-        {
-            self.cursorX = self.getCursorLineLength()-1;
-
-            if(self.cursorX < 0) {
-                self.cursorX = 0;
-            }
-        }
     }
 
     void modifyOverCursorYValue(VigWin* self)
@@ -169,14 +130,13 @@ impl VigWin version 2
         }
     }
 
-    void nextLine(VigWin* self) {
-        self.cursorY++;
+    void modifyOverCursorXValue(VigWin* self)
+    {
+        var cursor_line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
-        self.modifyOverCursorYValue();
-
-        if(self.cursorX >= self.getCursorLineLength())
+        if(self.cursorX >= cursor_line.length())
         {
-            self.cursorX = self.getCursorLineLength()-1;
+            self.cursorX = cursor_line.length()-1;
 
             if(self.cursorX < 0) {
                 self.cursorX = 0;
@@ -184,14 +144,61 @@ impl VigWin version 2
         }
     }
 
+    void modifyUnderCursorXValue(VigWin* self)
+    {
+        if(self.cursorX < 0) {
+            self.cursorX = 0;
+        }
+    }
+
+    void forward(VigWin* self) {
+        self.cursorX++;
+        self.modifyOverCursorXValue();
+    }
+
+    void backward(VigWin* self) {
+        self.cursorX--;
+        self.modifyUnderCursorXValue();
+    }
+
+    void prevLine(VigWin* self) {
+        self.cursorY--;
+
+        self.modifyUnderCursorYValue();
+    }
+
+    void nextLine(VigWin* self) {
+        self.cursorY++;
+
+        self.modifyOverCursorYValue();
+        self.modifyOverCursorXValue();
+    }
+
+    void halfScrollUp(VigWin* self) {
+        int maxy = getmaxy(self.win);
+
+        self.cursorY -= maxy/2;
+
+        self.modifyUnderCursorYValue();
+        self.modifyOverCursorXValue();
+    }
+
+    void halfScrollDown(VigWin* self) {
+        int maxy = getmaxy(self.win);
+
+        self.cursorY += maxy/2;
+
+        self.modifyOverCursorYValue();
+        self.modifyOverCursorXValue();
+    }
+
     void moveAtHead(VigWin* self) {
         self.cursorX = 0;
     }
 
     void moveAtTail(VigWin* self) {
-        self.cursorX = 0;
-
-        var line_max = self.getCursorLineLength();
+        var cursor_line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+        var line_max = cursor_line.length();
 
         self.cursorX = line_max-1;
 
@@ -274,6 +281,14 @@ impl Vig version 2
         self.events.replace('$', lambda(Vig* self, int key) 
         {
             self.activeWin.moveAtTail();
+        });
+        self.events.replace('D'-'A'+1, lambda(Vig* self, int key) 
+        {
+            self.activeWin.halfScrollDown();
+        });
+        self.events.replace('U'-'A'+1, lambda(Vig* self, int key) 
+        {
+            self.activeWin.halfScrollUp();
         });
     }
 

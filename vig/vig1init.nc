@@ -28,9 +28,6 @@ impl VigWin
 
         self.scroll = 0;
 
-        self.fileName = string("a.txt");
-        self.writed = false;
-
         var win = newwin(height, width, y, x);
         self.win = win;
 
