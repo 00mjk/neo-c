@@ -49,6 +49,9 @@ impl VigWin version 11
                     if(*p == tail) {
                         if(nest == 0) {
                             cursor_x = (p - it) / sizeof(wchar_t);
+                            self.cursorY += it2 + 1;
+                            self.modifyOverCursorYValue();
+                            self.cursorX = cursor_x;
                             *it3 = true;
                             return;
                         }
@@ -68,13 +71,6 @@ impl VigWin version 11
 
                 cursor_y++;
             }
-        }
-
-        if(cursor_x != -1) {
-            self.cursorY = cursor_y;
-            self.modifyOverCursorYValue();
-
-            self.cursorX = cursor_x;
         }
     }
     void toggleBraceBack(VigWin* self, wchar_t head, wchar_t tail) {
@@ -117,6 +113,9 @@ impl VigWin version 11
                     if(*p == head) {
                         if(nest == 0) {
                             cursor_x = (p - it) / sizeof(wchar_t);
+                            self.cursorY = self.cursorY - it2 -1;
+                            self.modifyUnderCursorYValue();
+                            self.cursorX = cursor_x;
                             *it3 = true;
                             return;
                         }
@@ -136,13 +135,6 @@ impl VigWin version 11
 
                 cursor_y--;
             }
-        }
-
-        if(cursor_x != -1) {
-            self.cursorY = cursor_y;
-            self.modifyUnderCursorYValue();
-
-            self.cursorX = cursor_x;
         }
     }
     void gotoBraceEnd(VigWin* self, Vig* vig) {
@@ -186,17 +178,15 @@ impl VigWin version 11
     }
 
     void gotoFunctionTop(VigWin* self, Vig* vig) {
-        int cursor_y = self.scroll+self.cursorY -1;
-
         self.texts.sublist(0, self.scroll+self.cursorY).reverse().each() {
-            if(it.to_string().match(regex!</^\\s*[a-zA-Z0-9%*?]+\\s+[a-zA-Z0-9]+\\(/>, null)) {
+            if(it.to_string().match(regex!</^\\s*[a-zA-Z0-9%*?_]+\\s+[a-zA-Z0-9_]+\\(/>, null) || it.to_string().match(regex!</^\\s*initialize\\(/>, null) || it.to_string().match(regex!</^\\s*finalize\\(/>, null)) 
+            {
                 *it3 = true;
-                self.cursorY = cursor_y
-                self.cursorX = 0;
+                self.cursorY = self.cursorY - it2 -1;
+                self.modifyUnderCursorYValue();
+                self.modifyOverCursorYValue();
                 return;
             }
-
-            cursor_y--;
         }
     }
 
@@ -204,10 +194,12 @@ impl VigWin version 11
         int cursor_y = self.scroll+self.cursorY + 1;
 
         self.texts.sublist(self.scroll+self.cursorY+1, -1).each() {
-            if(it.to_string().match(regex!</^\\s*[a-zA-Z0-9%*?]+\\s+[a-zA-Z0-9]+\\(/>, null)) {
+            if(it.to_string().match(regex!</^\\s*[a-zA-Z0-9%*?_]+\\s+[a-zA-Z0-9_]+\\(/>, null) || it.to_string().match(regex!</^\\s*initialize\\(/>, null) || it.to_string().match(regex!</^\\s*finalize\\(/>, null)) 
+            {
                 *it3 = true;
-                self.cursorY = cursor_y
+                self.cursorY += it2 + 1;
                 self.cursorX = 0;
+                self.modifyOverCursorYValue();
                 return;
             }
 

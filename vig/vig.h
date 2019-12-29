@@ -59,8 +59,15 @@ impl VigWin version 2
     void modifyOverCursorXValue(VigWin* self);
     void modifyUnderCursorXValue(VigWin* self);
 
+    void forward(VigWin* self);
+    void backward(VigWin* self);
+    void prevLine(VigWin* self);
+    void nextLine(VigWin* self);
+    void halfScrollUp(VigWin* self);
+    void halfScrollDown(VigWin* self);
     void moveAtHead(VigWin* self);
     void moveAtTail(VigWin* self);
+
 }
 
 struct Vig version 2 
@@ -107,7 +114,6 @@ impl Vig version 3
     void openFile(Vig* self, int num_files, char** file_names);
 }
 
-/*
 /// vig4word.h ///
 impl VigWin version 4
 {
@@ -125,6 +131,7 @@ impl Vig version 4
 struct VigWin version 5
 {
     list<list<wstring>*%>%* undo;
+    list<int>%* undoScroll;
     list<int>%* undoCursorX;
     list<int>%* undoCursorY;
     int undoIndex;
@@ -277,4 +284,3 @@ impl Vig version 12
     void exitFromComandMode(Vig* self);
     initialize();
 }
-*/

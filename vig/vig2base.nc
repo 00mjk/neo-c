@@ -165,6 +165,7 @@ impl VigWin version 2
         self.cursorY--;
 
         self.modifyUnderCursorYValue();
+        self.modifyOverCursorXValue();
     }
 
     void nextLine(VigWin* self) {
@@ -205,6 +206,20 @@ impl VigWin version 2
         if(self.cursorX < 0) {
             self.cursorX = 0;
         }
+    }
+
+    void moveTop(VigWin* self) {
+        self.scroll = 0;
+        self.cursorY = 0;
+
+        self.modifyOverCursorXValue();
+    }
+
+    void moveBottom(VigWin* self) {
+        self.cursorY = self.texts.length()-1;
+
+        self.modifyOverCursorXValue();
+        self.modifyOverCursorYValue();
     }
 }
 
@@ -289,6 +304,31 @@ impl Vig version 2
         self.events.replace('U'-'A'+1, lambda(Vig* self, int key) 
         {
             self.activeWin.halfScrollUp();
+        });
+        self.events.replace('L'-'A'+1, lambda(Vig* self, int key) 
+        {
+            clearok(stdscr, true);
+            clear();
+            self.wins.each {
+                clearok(it.win, true);
+                wclear(it.win);
+                it.view(self);
+            }
+            refresh();
+        });
+        self.events.replace('g', lambda(Vig* self, int key) 
+        {
+            var key2 = wgetch(self.activeWin.win);
+
+            switch(key2) {
+                case 'g':
+                    self.activeWin.moveTop();
+                    break;
+            }
+        });
+        self.events.replace('G', lambda(Vig* self, int key) 
+        {
+            self.activeWin.moveBottom();
         });
     }
 

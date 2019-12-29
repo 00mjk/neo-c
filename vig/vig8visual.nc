@@ -28,12 +28,12 @@ impl VigWin version 8
         {
             var line = it.substring(0, maxx-1);
 
-            if(it2 >= self.visualModeHead && it2 <= self.cursorY) {
+            if(it2 >= (self.visualModeHead-self.scroll) && it2 <= self.cursorY) {
                 wattron(self.win, A_REVERSE);
                 mvwprintw(self.win, it2, 0, "%s", line.to_string());
                 wattroff(self.win, A_REVERSE);
             }
-            else if(it2 <= self.visualModeHead && it2 >= self.cursorY) {
+            else if(it2 <= (self.visualModeHead-self.scroll) && it2 >= self.cursorY) {
                 wattron(self.win, A_REVERSE);
                 mvwprintw(self.win, it2, 0, "%s", line.to_string());
                 wattroff(self.win, A_REVERSE);

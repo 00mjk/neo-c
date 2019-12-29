@@ -32,9 +32,8 @@ impl VigWin version 4
 
                 self.modifyOverCursorYValue();
 
-                if(self.scroll+self.cursorY >= self.texts.length())
+                if(self.scroll+self.cursorY >= self.texts.length()-1)
                 {
-                    self.cursorY--;
                     break;
                 }
 
@@ -54,13 +53,16 @@ impl VigWin version 4
                 {
                     self.cursorY++;
 
-                    self.modifyOverCursorYValue();
-
-                    if(self.scroll+self.cursorY >= self.texts.length())
+                    if(self.scroll+self.cursorY > self.texts.length()-1)
                     {
                         self.cursorY--;
+                        self.modifyUnderCursorYValue();
+                        line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                        self.cursorX = line.length()-1;
                         break;
                     }
+
+                    self.modifyOverCursorYValue();
 
                     line = self.texts.item(self.scroll+self.cursorY, wstring(""));
                     p = line;
@@ -79,13 +81,16 @@ impl VigWin version 4
                 {
                     self.cursorY++;
 
-                    self.modifyOverCursorYValue();
-
-                    if(self.scroll+self.cursorY >= self.texts.length())
+                    if(self.scroll+self.cursorY > self.texts.length()-1)
                     {
                         self.cursorY--;
+                        self.modifyUnderCursorYValue();
+                        line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                        self.cursorX = line.length()-1;
                         break;
                     }
+
+                    self.modifyOverCursorYValue();
 
                     line = self.texts.item(self.scroll+self.cursorY, wstring(""));
                     p = line;
@@ -102,15 +107,18 @@ impl VigWin version 4
                 {
                     self.cursorY++;
 
-                    self.modifyOverCursorYValue();
-
-                    if(self.scroll+self.cursorY >= self.texts.length())
+                    if(self.scroll+self.cursorY > self.texts.length()-1)
                     {
                         self.cursorY--;
+                        self.modifyUnderCursorYValue();
+                        line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                        self.cursorX = line.length()-1;
                         break;
                     }
 
-                    line = self.texts.item(self.cursorY, wstring(""));
+                    self.modifyOverCursorYValue();
+
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
                     p = line;
                     self.cursorX = 0;
                 }
@@ -125,15 +133,18 @@ impl VigWin version 4
                 {
                     self.cursorY++;
 
-                    self.modifyOverCursorYValue();
-
-                    if(self.scroll+self.cursorY >= self.texts.length())
+                    if(self.scroll+self.cursorY > self.texts.length()-1)
                     {
                         self.cursorY--;
+                        self.modifyUnderCursorYValue();
+                        line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                        self.cursorX = line.length()-1;
                         break;
                     }
 
-                    line = self.texts.item(self.cursorY, wstring(""));
+                    self.modifyOverCursorYValue();
+
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
                     p = line;
                     self.cursorX = 0;
                 }
@@ -148,15 +159,18 @@ impl VigWin version 4
                 {
                     self.cursorY++;
 
-                    self.modifyOverCursorYValue();
-
-                    if(self.scroll+self.cursorY >= self.texts.length())
+                    if(self.scroll+self.cursorY > self.texts.length()-1)
                     {
                         self.cursorY--;
+                        self.modifyUnderCursorYValue();
+                        line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                        self.cursorX = line.length()-1;
                         break;
                     }
 
-                    line = self.texts.item(self.cursorY, wstring(""));
+                    self.modifyOverCursorYValue();
+
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
                     p = line;
                     self.cursorX = 0;
                 }
@@ -183,8 +197,10 @@ impl VigWin version 4
             while(wcslen(line) == 0) {
                 self.cursorY--;
 
-                if(self.cursorY < 0) {
-                    self.cursorY++;
+                self.modifyUnderCursorYValue();
+
+                if(self.scroll == 0 && self.cursorY == 0)
+                {
                     break;
                 }
 
@@ -209,9 +225,12 @@ impl VigWin version 4
                     self.cursorX = 0;
                     self.cursorY--;
 
-                    if(self.cursorY < 0)
+                    self.modifyUnderCursorYValue();
+
+                    if(self.scroll+self.cursorY <= 0) 
                     {
-                        self.cursorY++;
+                        self.cursorY = 0;
+                        self.scroll = 0;
                         break;
                     }
 
@@ -241,11 +260,15 @@ impl VigWin version 4
                     self.cursorX = 0;
                     self.cursorY--;
 
-                    if(self.cursorY < 0)
+                    self.modifyUnderCursorYValue();
+
+                    if(self.scroll+self.cursorY <= 0) 
                     {
-                        self.cursorY++;
+                        self.cursorY = 0;
+                        self.scroll = 0;
                         break;
                     }
+
 
                     line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
@@ -271,11 +294,15 @@ impl VigWin version 4
                     self.cursorX = 0;
                     self.cursorY--;
 
-                    if(self.cursorY < 0)
+                    self.modifyUnderCursorYValue();
+
+                    if(self.scroll+self.cursorY <= 0)
                     {
-                        self.cursorY++;
+                        self.cursorY = 0;
+                        self.scroll = 0;
                         break;
                     }
+
 
                     line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
@@ -301,11 +328,15 @@ impl VigWin version 4
                     self.cursorX = 0;
                     self.cursorY--;
 
-                    if(self.cursorY < 0)
+                    self.modifyUnderCursorYValue();
+
+                    if(self.scroll+self.cursorY <= 0)
                     {
-                        self.cursorY++;
+                        self.cursorY = 0;
+                        self.scroll = 0;
                         break;
                     }
+
 
                     line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
@@ -331,11 +362,15 @@ impl VigWin version 4
                     self.cursorX = 0;
                     self.cursorY--;
 
-                    if(self.cursorY < 0)
+                    self.modifyUnderCursorYValue();
+
+                    if(self.scroll+self.cursorY <= 0)
                     {
-                        self.cursorY++;
+                        self.cursorY = 0;
+                        self.scroll = 0;
                         break;
                     }
+
 
                     line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 

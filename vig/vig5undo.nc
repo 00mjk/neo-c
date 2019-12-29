@@ -13,6 +13,7 @@ impl VigWin version 5
     {
         inherit(self, y, x, width, height);
         self.undo = new list<list<wstring>*%>.initialize();
+        self.undoScroll = new list<int>.initialize();
         self.undoCursorX = new list<int>.initialize();
         self.undoCursorY = new list<int>.initialize();
         self.undoIndex = 0;
@@ -21,6 +22,7 @@ impl VigWin version 5
     void pushUndo(VigWin* self)
     {
         self.undo.delete_range(self.undoIndex, -1);
+        self.undoScroll.delete_range(self.undoIndex, -1);
         self.undoCursorX.delete_range(self.undoIndex, -1);
         self.undoCursorY.delete_range(self.undoIndex, -1);
 
@@ -30,7 +32,8 @@ impl VigWin version 5
         self.undo.push_back(undo);
 
         self.undoCursorX.push_back(self.cursorX);
-        self.undoCursorY.push_back(self.scroll+self.cursorY);
+        self.undoScroll.push_back(self.scroll);
+        self.undoCursorY.push_back(self.cursorY);
         self.undoIndex++;
     }
     
@@ -41,15 +44,15 @@ impl VigWin version 5
 
             var undo = self.undo.item(self.undoIndex, null);
             var cursor_x = self.undoCursorX.item(self.undoIndex, -1);
+            var scroll = self.undoScroll.item(self.undoIndex, -1);
             var cursor_y = self.undoCursorY.item(self.undoIndex, -1);
 
-            if(undo != null && cursor_x != -1 && cursor_y != -1) 
+            if(undo != null && cursor_x != -1 && cursor_y != -1 && scroll != -1) 
             {
                 self.texts = clone undo;
                 self.cursorX = cursor_x;
                 self.cursorY = cursor_y;
-
-                self.modifyOverCursorYValue();
+                self.scroll = scroll;
             }
         }
     }
@@ -67,14 +70,14 @@ impl VigWin version 5
             var undo = self.undo.item(self.undoIndex, null);
             var cursor_x = self.undoCursorX.item(self.undoIndex, -1);
             var cursor_y = self.undoCursorY.item(self.undoIndex, -1);
+            var scroll = self.undoScroll.item(self.undoIndex, -1);
 
-            if(undo != null && cursor_x != -1 && cursor_y != -1) 
+            if(undo != null && cursor_x != -1 && cursor_y != -1 && scroll != -1) 
             {
                 self.texts = clone undo;
                 self.cursorX = cursor_x;
                 self.cursorY = cursor_y;
-
-                self.modifyOverCursorYValue();
+                self.scroll = scroll;
             }
         }
     }
