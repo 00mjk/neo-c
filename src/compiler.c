@@ -47,7 +47,7 @@ static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BO
         int rc = system(cmd);
 
         if(rc != 0) {
-            fprintf(stderr, "faield to cpp\n");
+            fprintf(stderr, "failed to cpp(1)\n");
             exit(2);
         }
     }
@@ -70,7 +70,7 @@ static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BO
             rc = system(cmd);
 
             if(rc != 0) {
-                fprintf(stderr, "faield to cpp\n");
+                fprintf(stderr, "failed to cpp(2)\n");
                 exit(2);
             }
         }
@@ -283,7 +283,7 @@ int main(int argc, char** argv)
 
         int rc = system(command);
         if(rc != 0) {
-            fprintf(stderr, "faield to compile\n");
+            fprintf(stderr, "failed to compile(3)\n");
             exit(2);
         }
 

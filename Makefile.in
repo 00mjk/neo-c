@@ -35,15 +35,11 @@ COMMON_OBJS=@COMMON_OBJS@
 all: neo-c neo-c.o
 	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
-neo-c: c-neo-c
-	cp -a c-neo-c neo-c
-	chmod 755 neo-c
-
-c-neo-c: config.h src/compiler.o $(COMMON_OBJS) $(OBJS) memalloc.o memalloc-stdc.o
-	$(CXX) -o c-neo-c src/compiler.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS)
+neo-c: config.h src/compiler.o $(COMMON_OBJS) $(OBJS) memalloc.o memalloc-stdc.o
+	$(CXX) -o neo-c src/compiler.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS)
 
 neo-c.o: neo-c.nc
-	PWD=`pwd` ./c-neo-c -c neo-c.nc
+	PWD=`pwd` ./neo-c -c neo-c.nc
 
 memalloc.o: src/memalloc.c
 	$(CC) -c -o memalloc.o src/memalloc.c $(CFLAGS)
@@ -75,7 +71,6 @@ install:
 #	$(INSTALL) ./man/neo-c.1.gz $(DESTDIR)/share/man/man1
 
 	mkdir -p "$(DESTDIR)/bin"
-	$(INSTALL) -m 755 ./c-neo-c "$(DESTDIR)/bin"
 	$(INSTALL) -m 755 ./neo-c "$(DESTDIR)/bin"
 
 #	mkdir -p $(DESTDIR)/share/doc/neo-c
@@ -95,7 +90,7 @@ permission:
 # clean
 #########################################
 clean:
-	rm -fR memleak_debug.txt code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 code/HelloWorld8 code/HelloWorld9 code/HelloWorld10 code/HelloWorld6 neo-c neo-c.dSYM c-neo-c c-neo-c.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out code/*.nc.tmp *.nc.tmp *.out memalloc-stdc.o memalloc.o src/*.out
+	rm -fR memleak_debug.txt code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 code/HelloWorld8 code/HelloWorld9 code/HelloWorld10 code/HelloWorld6 neo-c neo-c.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out code/*.nc.tmp *.nc.tmp *.out memalloc-stdc.o memalloc.o src/*.out
 	rm -fR code/*.ll code/*.bc code/*.s
 	(if test -e vig/Makefile; then cd vig && make distclean; fi)
 
@@ -107,25 +102,31 @@ distclean: clean
 #########################################
 test: 
 	@echo "Compile to test code..."
-	PWD=`pwd` ./c-neo-c -c code/External.nc
-	PWD=`pwd` ./c-neo-c code/HelloWorld.nc code/External.o
+	PWD=`pwd` ./neo-c -c code/External.nc
+	PWD=`pwd` ./neo-c code/HelloWorld.nc code/External.o
 	./code/HelloWorld
-	PWD=`pwd` ./c-neo-c code/HelloWorld2.nc -lncursesw
+	PWD=`pwd` ./neo-c code/HelloWorld2.nc -lncursesw
 	./code/HelloWorld2
-	PWD=`pwd` ./c-neo-c code/HelloWorld3.nc
+	PWD=`pwd` ./neo-c code/HelloWorld3.nc
 	./code/HelloWorld3
-	PWD=`pwd` ./c-neo-c code/HelloWorld4.nc
+	PWD=`pwd` ./neo-c code/HelloWorld4.nc
 	./code/HelloWorld4
-	PWD=`pwd` ./c-neo-c -c code/HelloWorld5.nc
-	PWD=`pwd` ./c-neo-c -c code/HelloWorld6.nc
-	PWD=`pwd` ./c-neo-c code/HelloWorld7.nc code/HelloWorld5.o code/HelloWorld6.o
+	PWD=`pwd` ./neo-c -c code/HelloWorld5.nc
+	PWD=`pwd` ./neo-c -c code/HelloWorld6.nc
+	PWD=`pwd` ./neo-c code/HelloWorld7.nc code/HelloWorld5.o code/HelloWorld6.o
 	./code/HelloWorld7
-	PWD=`pwd` ./c-neo-c code/HelloWorld8.nc
+	PWD=`pwd` ./neo-c code/HelloWorld8.nc
 	./code/HelloWorld8
-	PWD=`pwd` ./c-neo-c code/HelloWorld9.nc
+	PWD=`pwd` ./neo-c code/HelloWorld9.nc
 	./code/HelloWorld9
-	PWD=`pwd` ./c-neo-c code/HelloWorld10.nc
+	PWD=`pwd` ./neo-c code/HelloWorld9-5.nc
+	./code/HelloWorld9-5
+	PWD=`pwd` ./neo-c code/HelloWorld10.nc
 	./code/HelloWorld10
+	PWD=`pwd` ./neo-c code/HelloWorld10-5.nc
+	./code/HelloWorld10-5
+	PWD=`pwd` ./neo-c code/HelloWorld10-6.nc
+	./code/HelloWorld10-6
 
 vig: vig/vig
 
@@ -149,7 +150,7 @@ vig/Makefile: vig/Makefile.in
 #########################################
 uninstall:
 	rm -f "$(DESTDIR)"/bin/neo-c
-	rm -f "$(DESTDIR)"/bin/c-neo-c
+	rm -f "$(DESTDIR)"/bin/neo-c
 	rm -rf "$(DESTDIR)"/share/doc/neo-c/
 	rm -f "$(DESTDIR)"/include/neo-c.h
 	rm -f "$(DESTDIR)"/share/man/man1/neo-c.1.gz

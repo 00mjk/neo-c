@@ -363,9 +363,6 @@ impl VigWin version 3
     void pushUndo(VigWin* self) {
         /// implemented by the after layer
     }
-    void openFile(VigWin* self, char* file_name) {
-        /// implemented by the after layer
-    }
     void writedFlagOn(VigWin* self) {
         /// implemented by the after layer
     }
@@ -423,9 +420,5 @@ impl Vig version 3
         }
 
         0
-    }
-    void openFile(Vig* self, int num_files, char** file_names)
-    {
-        /// implemented by the after layer
     }
 }

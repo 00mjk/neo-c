@@ -103,6 +103,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
     node_type2->mNumFields = node_type->mNumFields;
 
     xstrncpy(node_type2->mTypeName, node_type->mTypeName, VAR_NAME_MAX);
+    node_type2->mTypePointerNum = node_type->mTypePointerNum;
 
     return node_type2;
 }

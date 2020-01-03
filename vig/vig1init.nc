@@ -43,7 +43,7 @@ impl VigWin
         werase(self.win);
 
         self.texts.each {
-            mvwprintw(self.win, it2, 0, it.to_string());
+            mvwprintw(self.win, it2, 0, it.to_string(""));
         }
 
         wrefresh(self.win);

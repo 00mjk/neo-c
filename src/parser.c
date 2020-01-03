@@ -1889,6 +1889,8 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     }
 
     /// pointer ///
+    int parser_pointer_num = 0;
+
     while(1) {
         char* p_before = info->p;
         int sline_before = info->sline;
@@ -1908,6 +1910,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
         if(*info->p == '*') {
             pointer_num++;
+            parser_pointer_num++;
             info->p++;
             skip_spaces_and_lf(info);
         }
@@ -1949,6 +1952,11 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     (*result_type)->mVolatile = volatile_;
     (*result_type)->mStatic = static_;
     (*result_type)->mNoHeap = no_heap;
+
+    if(strcmp((*result_type)->mTypeName, "") != 0)
+    {
+        (*result_type)->mTypePointerNum = parser_pointer_num;
+    }
 
 /*
     if(memcmp(info->p, "lambda", 6) == 0) 
@@ -2149,6 +2157,11 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                 info->err_num++;
             }
         }
+    }
+
+    if((*result_type)->mClass->mFlags & CLASS_FLAGS_ENUM)
+    {
+        (*result_type)->mClass = get_class("int");
     }
 
     return TRUE;
@@ -5062,6 +5075,11 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
     }
 
     xstrncpy(struct_name, buf, VAR_NAME_MAX);
+
+    while(*info->p == '*') {
+        info->p++;
+        xstrncat(struct_name, "*", VAR_NAME_MAX);
+    }
 
     xstrncpy(info->impl_struct_name, struct_name, VAR_NAME_MAX);
 

@@ -25,7 +25,6 @@ impl VigWin version 4
             self.cursorX = 0;
         }
 
-
         if(wcslen(line) == 0) {
             while(wcslen(line) == 0) {
                 self.cursorY++;

@@ -221,6 +221,9 @@ impl VigWin version 2
         self.modifyOverCursorXValue();
         self.modifyOverCursorYValue();
     }
+    void openFile(VigWin* self, char* file_name) {
+        /// implemented by the after layer
+    }
 }
 
 impl Vig version 2 
@@ -344,5 +347,10 @@ impl Vig version 2
         }
 
         0
+    }
+
+    void openFile(Vig* self, int num_files, char** file_names)
+    {
+        /// implemented by the after layer
     }
 }

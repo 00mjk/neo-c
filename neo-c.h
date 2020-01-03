@@ -43,7 +43,9 @@ typedef char*% string;
 typedef wchar_t*% wstring;
 
 extern string string(char* str);
+extern string string_from_wchar_t(wchar_t* wstr, char* default_value);
 extern wstring wstring(char* str);
+extern wstring wstring_from_wchar_t(wchar_t* str);
 
 void *% debug_xcalloc(int num, long nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name);
 void debug_show_none_freed_heap_memory();
@@ -74,6 +76,23 @@ extern string operator*(char* left, int num);
 
 impl char
 {
+    inline bool equals(char left, char right)
+    {
+        return left == right;
+    }
+
+    inline int get_hash_key(char value)
+    {
+        return value;
+    }
+
+    inline string to_string(char value) {
+        return xasprintf("%c", value);
+    }
+}
+
+impl char*
+{
     inline bool equals(char* left, char* right)
     {
         return strcmp(left, right) == 0;
@@ -95,8 +114,8 @@ impl char
         return result;
     }
 
-    inline string to_string(char value) {
-        return xasprintf("%c", value);
+    inline string to_string(char* value) {
+        return string(value);
     }
 }
 
@@ -105,6 +124,23 @@ extern wstring operator+(wchar_t* left, wchar_t* right);
 extern wstring operator*(wchar_t* left, int num);
 
 impl wchar_t
+{
+    inline bool equals(wchar_t left, wchar_t right)
+    {
+        return left == right;
+    }
+
+    inline int get_hash_key(wchar_t value)
+    {
+        return value;
+    }
+
+    inline string to_string(wchar_t value) {
+        return xasprintf("%lc", value);
+    }
+}
+
+impl wchar_t*
 {
     inline bool equals(wchar_t* left, wchar_t* right)
     {
@@ -125,6 +161,14 @@ impl wchar_t
             p++;
         }
         return result;
+    }
+
+    inline string to_string(wchar_t* str, char* default_value) {
+        return string_from_wchar_t(str, default_value);
+    }
+
+    inline wstring to_wstring(wchar_t* str) {
+        return wstring_from_wchar_t(str);
     }
 }
 
@@ -276,7 +320,7 @@ impl wstring
     extern wstring& delete(wstring& str, int position);
     extern wstring& delete_range(wstring& str, int head, int tail);
 
-    extern string to_string(wstring& self);
+    extern string to_string(wstring& self, char* default_value);
     extern wstring printable(wstring& str);
 }
 
@@ -304,7 +348,7 @@ impl vector<T>
 
         for(int i=0; i<len; i++) {
             if(isheap(T)) {
-                self.items[i] = clone value;
+                self.items[i] = borrow clone value;
             }
             else {
                 self.items[i] = value;
@@ -317,7 +361,8 @@ impl vector<T>
     vector<T>%* clone(vector<T>* self) {
         var result = new vector<T>.initialize();
 
-        self.each {
+        for(int i=0; i<self.len; i++) {
+            T& it = self.items[i];
             if(isheap(T)) {
                 result.push_back(clone it);
             }
@@ -393,25 +438,25 @@ impl vector<T>
 
         return default_value;
     }
-    void each(vector<T>*  self, void (*block)(T&,int,bool*)) {
-        for(int i=0; i<self.len; i++) {
-            bool end_flag = false;
-            block(self.items[i], i, &end_flag);
-            if(end_flag == true) {
+    void each(vector<T>* self, void (*block_)(T&,int,bool*)) {
+        for(int i_=0; i_<self.len; i_++) {
+            bool end_flag_ = false;
+            block_(self.items[i_], i_, &end_flag_);
+            if(end_flag_ == true) {
                 break;
             }
         };
     }
 
-    template <R> vector<R>*% map(vector<T>* self, R (*block)(T&))
+    template <R> vector<R>*% map(vector<T>* self, R (*block_)(T&))
     {
-        var result = new vector<R>.initialize();
+        var result_ = new vector<R>.initialize();
 
-        self.each {
-            result.push_back(block(it));
+        for(int i_=0; i_<self.len; i_++) {
+            result_.push_back(block_(self.items[i_]));
         }
 
-        result
+        result_
     }
 
     bool equals(vector<T>* left, vector<T>* right)
@@ -421,7 +466,7 @@ impl vector<T>
         }
 
         for(int i=0; i<left.len; i++) {
-            if(!((T)left.items[i]).equals(((T)right.items[i])))
+            if(!(left.items[i].equals(right.items[i])))
             {
                 return false;
             }
@@ -532,13 +577,16 @@ impl list <T>
     list<T>*% clone(list<T>* self) {
         var result = new list<T>.initialize();
 
-        self.each {
+        list_item<T>* it = self.head;
+        while(it != null) {
             if(isheap(T)) {
-                result.push_back(clone it);
+                result.push_back(clone it.item);
             }
             else {
-                result.push_back(heap it);
+                result.push_back(heap it.item);
             }
+
+            it = it.next;
         }
 
         return result;
@@ -976,18 +1024,18 @@ impl list <T>
         return default_value;
     }
     
-    void each(list<T>* self, void (*block)(T&,int,bool*)) {
-        list_item<T>?* it = self.head;
-        var i = 0;
-        while(it != null) {
-            bool end_flag = false;
-            block(it.item, i, &end_flag);
+    void each(list<T>* self, void (*block_)(T&,int,bool*)) {
+        list_item<T>?* it_ = self.head;
+        var i_ = 0;
+        while(it_ != null) {
+            bool end_flag_ = false;
+            block_(it_.item, i_, &end_flag_);
 
-            if(end_flag == true) {
+            if(end_flag_ == true) {
                 break;
             }
-            it = it.next;
-            i++;
+            it_ = it_.next;
+            i_++;
         }
     }
 
@@ -1029,7 +1077,12 @@ impl list <T>
 
         list_item<T>?* it = self.tail;
         while(it != null) {
-            result.push_back(clone it.item);
+            if(isheap(T)) {
+                result.push_back(clone it.item);
+            }
+            else {
+                result.push_back(heap it.item);
+            }
             it = it.prev;
         };
 
@@ -1038,13 +1091,18 @@ impl list <T>
     string join(list<string>* self, char* separator) {
         string result = string("");
 
-        self.each {
-            if(it2 == self.length() - 1) {
-                result = result + it;
+        list_item<T>?* it = self.head;
+        var i = 0;
+        while(it != null) {
+            if(i == self.length() - 1) {
+                result = result + it.item;
             }
             else {
-                result = result + it + string(separator);
+                result = result + it.item + string(separator);
             }
+
+            it = it.next;
+            i++;
         }
 
         return result;
@@ -1060,7 +1118,9 @@ impl list <T>
         list_item<T>?* it2 = right.head;
 
         while(it != null) {
-            ((T)it.item).equals(((T)it2.item));
+            if(!it.item.equals(it2.item)) {
+                return false;
+            }
 
             it = it.next;
             it2 = it2.next;
@@ -1397,13 +1457,13 @@ impl map <T, T2>
         return result;
     }
 
-    void each(map<T, T2>* self, void (*block)(T&,T2&,bool*)) 
+    void each(map<T, T2>* self, void (*block_)(T&,T2&,bool*)) 
     {
-        for(int i=0; i<self.size; i++) {
-            if(self.item_existance[i]) {
-                bool end_flag = false;
-                block(self.keys[i], self.items[i], &end_flag);
-                if(end_flag == true) {
+        for(int i_=0; i_<self.size; i_++) {
+            if(self.item_existance[i_]) {
+                bool end_flag_ = false;
+                block_(self.keys[i_], self.items[i_], &end_flag_);
+                if(end_flag_ == true) {
                     break;
                 }
             }
@@ -1464,7 +1524,7 @@ impl map <T, T2>
         while(true) {
             if(self.item_existance[it])
             {
-                if(((T)self.keys[it]).equals(((T)key)))
+                if(self.keys[it].equals(key))
                 {
                     return true;
                 }
@@ -1494,7 +1554,7 @@ impl map <T, T2>
         while(true) {
             if(self.item_existance[it])
             {
-                if(((T)self.keys[it]).equals(((T)key)))
+                if(self.keys[it].equals(key))
                 {
                     return self.items[it];
                 }
@@ -1564,7 +1624,7 @@ impl map <T, T2>
             if(right.find(it)) {
                 T2& default_value;
                 T2& item = right.at(it, default_value);
-                if(!((T2)it2).equals((T2)item))) {
+                if(!it2.equals(item)) {
                     result = false;
                 }
             }

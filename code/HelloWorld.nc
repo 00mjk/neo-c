@@ -1,5 +1,3 @@
-#include "neo-c.h"
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -242,7 +240,7 @@ impl Hello2<T> {
 
         block(string("aaa"));
 
-        result
+        return result;
     }
 }
 
@@ -642,6 +640,14 @@ impl int
         return self + block(2);
     }
 }
+
+enum eEnum { kA3, kB3, kC3 };
+
+enum { kA, kB };
+
+enum { kA2, kB2 = 999, kC2 };
+
+enum { kA4, kB4 = 999, kC4 = 1000 + 1 , kD4 = kC4 + 1};
 
 int main()
 {
@@ -1097,7 +1103,8 @@ int main()
 
     xassert("inline fun6", inline_fun6(1, 2) == 3);
 
-/*
+    enum eEnum aenum = kA3;
+
     xassert("inline fun7", inline_fun7(1, 2) == 3);
 
     xassert("inline fun8", inline_fun8(1, 2) == 3);
@@ -1307,26 +1314,15 @@ int main()
         123, 1
     }
 
-
     xassert("new struct initializer", sss2data.a == 123 && sss2data.b == 1);
 
     xassert("global struct data", GlobalStructData.a == 123 && GlobalStructData.b == 345);
 
-    enum { kA, kB };
-
     xassert("enum test", kA == 0 && kB == 1);
-
-    enum { kA2, kB2 = 999, kC2 };
 
     xassert("enum test", kA2 == 0 && kB2 == 999 && kC2 == 1000);
 
-    enum eEnum { kA3, kB3, kC3 };
-
-    enum eEnum aenum = kA3;
-
     xassert("enum test", aenum == kA3);
-
-    enum { kA4, kB4 = 999, kC4 = 1000 + 1 , kD4 = kC4 + 1};
 
     xassert("enum test X", kA4 == 0 && kB4 == 999 && kC4 == 1001 && kD4 == 1002);
 
@@ -1633,7 +1629,6 @@ label1:
     aaarray[0] ++;
 
     xassert("inc test5", aaarray[0] == 3);
-*/
 
     var line = string("ABC");
 

@@ -173,6 +173,7 @@ struct sNodeTypeStruct {
     int mNumFields;
 
     char mTypeName[VAR_NAME_MAX];
+    int mTypePointerNum;
 };
 
 typedef struct sNodeTypeStruct sNodeType;
@@ -222,6 +223,7 @@ struct sVarStruct {
 typedef struct sVarStruct sVar;
 
 struct sVarTableStruct {
+    int mID;
     sVar mLocalVariables[LOCAL_VARIABLE_MAX];  // open address hash
     int mVarNum;
     int mMaxBlockVarNum;

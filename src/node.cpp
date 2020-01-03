@@ -600,7 +600,7 @@ static void create_operator_fun_name(char* real_fun_name, size_t size_real_fun_n
 
             int j;
             for(j=0; j<param_type->mPointerNum; j++) {
-                xstrncat(real_fun_name, "p", size_real_fun_name);
+                xstrncat(real_fun_name, "*", size_real_fun_name);
             }
         }
         else {
@@ -608,6 +608,12 @@ static void create_operator_fun_name(char* real_fun_name, size_t size_real_fun_n
 
             xstrncat(real_fun_name, "_", size_real_fun_name);
             xstrncat(real_fun_name, class_name, size_real_fun_name);
+
+            int i;
+            for(i=0; i<param_type->mTypePointerNum; i++)
+            {
+                xstrncat(real_fun_name, "*", size_real_fun_name);
+            }
         }
     }
 }
@@ -2242,16 +2248,6 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     BOOL alloc = gNodes[node].uValue.sStoreVariable.mAlloc;
     BOOL global = gNodes[node].uValue.sStoreVariable.mGlobal;
 
-    sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
-
-    if(var == NULL) {
-        compile_err_msg(info, "undeclared variable %s(2)", var_name);
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-        return TRUE;
-    }
-
     unsigned int right_node = gNodes[node].mRight;
 
     if(!compile(right_node, info)) {
@@ -2261,6 +2257,16 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
+
+    sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
+
+    if(var == NULL) {
+        compile_err_msg(info, "undeclared variable %s(2)", var_name);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
 
     /// type inference ///
     sNodeType* left_type = NULL;
@@ -3090,9 +3096,34 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 if(strcmp(param_types[0]->mTypeName, "") == 0)
                 {
                     xstrncpy(struct_name, CLASS_NAME(param_types[0]->mClass), VAR_NAME_MAX);
+
+                    sCLClass* impl_class;
+                    if(get_typedef(struct_name)) {
+                        sNodeType* node_type = get_typedef(struct_name);
+
+                        impl_class = node_type->mClass;
+                    }
+                    else {
+                        impl_class = get_class(struct_name);
+                    }
+
+                    if(impl_class && (impl_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
+                    {
+                        int i;
+                        for(i=0; i<param_types[0]->mPointerNum; i++)
+                        {
+                            xstrncat(struct_name, "*", VAR_NAME_MAX);
+                        }
+                    }
                 }
                 else {
                     xstrncpy(struct_name,  param_types[0]->mTypeName, VAR_NAME_MAX);
+
+                    int i;
+                    for(i=0; i<param_types[0]->mTypePointerNum; i++)
+                    {
+                        xstrncat(struct_name, "*", VAR_NAME_MAX);
+                    }
                 }
 
                 create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
@@ -4065,8 +4096,7 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
 
     gNodes[node].uValue.sFunction.mOperatorFun = operator_fun;
     gNodes[node].uValue.sFunction.mSimpleLambdaParam = simple_lambda_param;
-    gNodes[node].uValue.sFunction.mGenericsFunction = generics_function;
-    gNodes[node].uValue.sFunction.mConstructorFun = constructor_fun;
+    gNodes[node].uValue.sFunction.mGenericsFunction = generics_function; gNodes[node].uValue.sFunction.mConstructorFun = constructor_fun;
     gNodes[node].uValue.sFunction.mParseStructPhase = info->parse_struct_phase;
 
     return node;
@@ -4195,9 +4225,10 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     /// copy lvtable for other function ///
     Value* lvtable;
-    lvtable = store_lvtable();
+    void* function_lvtable_before;
 
-    void* function_lvtable_before = info->function_lvtable;
+    lvtable = store_lvtable();
+    function_lvtable_before = info->function_lvtable;
     info->function_lvtable = lvtable;
 
     /// ready for params ///
@@ -4243,7 +4274,16 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     xstrncpy(info->fun_name, fun_name, VAR_NAME_MAX);
 
-    sVarTable* lv_table_before = NULL;
+    
+    sVarTable* lv_table_before;
+    if(simple_lambda_param) {
+        lv_table_before = info->pinfo->lv_table;
+        info->pinfo->lv_table = clone_var_table(info->pinfo->lv_table);
+    }
+    else {
+        lv_table_before = info->pinfo->lv_table;
+    }
+
     sVarTable* node_block_lv_table_before = NULL;
 
     sNodeType* result_type_before = info->result_type;
@@ -4348,6 +4388,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     gFunction = function_before;
 
     if(simple_lambda_param) {
+        info->pinfo->lv_table = lv_table_before;
+
         result_type = block_result_type;
 
         Function* fun;
@@ -4428,22 +4470,26 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
         xstrncpy(info->fun_name, fun_name, VAR_NAME_MAX);
 
-        sVarTable* lv_table_before = NULL;
         sVarTable* node_block_lv_table_before = NULL;
 
         sNodeType* result_type_before = info->result_type;
         info->result_type = clone_node_type(result_type);
 
+
         BOOL last_expression_is_return_before = info->last_expression_is_return;
         info->last_expression_is_return = FALSE;
+        void* right_value_objects = new_right_value_objects_container(info);
 
-        if(!compile_block(node_block, info, result_type, FALSE))
+
+        if(!compile_block(node_block, info, result_type, TRUE))
         {
             xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
             xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
             info->function_node_block = function_node_block;
             return FALSE;
         }
+
+        restore_right_value_objects_container(right_value_objects, info);
 
         info->result_type = result_type_before;
         sNodeType* block_result_type = info->type;
@@ -4779,7 +4825,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     sVar* var = get_variable_from_table(info->pinfo->lv_table, var_name);
 
     if(var == NULL || var->mType == NULL) {
-        compile_err_msg(info, "undeclared variable %s(3)", var_name);
+        compile_err_msg(info, "undeclared variable %s(3) var %p type %p", var_name, var, var->mType);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5248,8 +5294,25 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
+        sNodeType* left_type = create_node_type_with_class_name("int");
+
         LVALUE llvm_value = *get_value_from_stack(-1);
         dec_stack_ptr(1, info);
+
+        sNodeType* right_type = clone_node_type(llvm_value.type);
+
+        if(auto_cast_posibility(left_type, right_type)) 
+        {
+            if(!cast_right_type_to_left_type(left_type, &right_type, &llvm_value, info))
+            {
+                compile_err_msg(info, "Cast failed");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+        }
 
         object_num = llvm_value.value;
     }
@@ -7060,6 +7123,10 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
         }
 
         param_types[i] = info->type;
+
+        LVALUE param = *get_value_from_stack(-1);
+
+        remove_from_right_value_object(param.value, info);
     }
 
     /// convert param type ///
@@ -7085,6 +7152,18 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
 
                 return TRUE;
             }
+        }
+
+        if(left_type->mHeap && !right_type->mHeap) {
+            compile_err_msg(info, "left_type is heap parametor. Require right type is heap parametor");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+            return TRUE;
+        }
+
+        if(!left_type->mHeap && right_type->mHeap) {
+            append_heap_object_to_right_value(param, info);
         }
 
         llvm_params.push_back(param->value);
@@ -7300,13 +7379,13 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
 
     char real_fun_name[REAL_FUN_NAME_MAX];
 
-    char* struct_name;
+    char struct_name[VAR_NAME_MAX+128];
     if(strcmp(left_type->mTypeName, "") == 0)
     {
-        struct_name = CLASS_NAME(left_type->mClass);
+        xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX+128);
     }
     else {
-        struct_name = left_type->mTypeName;
+        xstrncpy(struct_name, left_type->mTypeName, VAR_NAME_MAX+128);
     }
 
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "clone", struct_name);
@@ -12418,13 +12497,13 @@ int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info)
 {
     int generics_fun_num = gGenericsFunNum++;
 
-    char* struct_name;
+    char struct_name[VAR_NAME_MAX+128];
     if(strcmp(node_type2->mTypeName, "") == 0)
     {
-        struct_name = CLASS_NAME(node_type2->mClass);
+        xstrncpy(struct_name, CLASS_NAME(node_type2->mClass), VAR_NAME_MAX+128);
     }
     else {
-        struct_name = node_type2->mTypeName;
+        xstrncpy(struct_name, node_type2->mTypeName, VAR_NAME_MAX+128);
     }
 
     char real_fun_name[REAL_FUN_NAME_MAX];

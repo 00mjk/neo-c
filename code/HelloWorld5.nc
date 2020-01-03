@@ -1,4 +1,3 @@
-#include "neo-c.h"
 #include <stdio.h>
 
 struct StructData1

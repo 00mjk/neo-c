@@ -47,7 +47,7 @@ impl VigWin version 6
         FILE* f = fopen(self.fileName, "w");
 
         self.texts.each {
-            fprintf(f, "%s\n", it.to_string());
+            fprintf(f, "%s\n", it.to_string(""));
         }
 
         fclose(f);

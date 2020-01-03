@@ -117,8 +117,24 @@ void *debug_xcalloc(int num, size_t nsize, char* type_name, char* sname, int sli
 #ifdef MDEBUG
     gNumMemAlloc++;
     if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
+
     FILE* f = fopen("memleak_debug.txt", "a");
     fprintf(f, "runtime calloc %p %d\n", result, gNumMemAlloc);
+    if(type_name) {
+        fprintf(f, "type name %s ", type_name);
+    }
+    if(sname) {
+        fprintf(f, "sname %s ", sname);
+    }
+    fprintf(f, "sline %d ", sline);
+    if(fun_name) {
+        fprintf(f, "fun_name %s ", fun_name);
+    }
+    if(real_fun_name) {
+        fprintf(f, "real_fun_name %s\n", real_fun_name);
+    }
+
+    fprintf(f, "\n");
     fclose(f);
 #endif
 
@@ -128,15 +144,40 @@ void *debug_xcalloc(int num, size_t nsize, char* type_name, char* sname, int sli
 void xfree(void *block)
 {
 #ifdef MDEBUG
+    if(block) gNumMemAlloc--;
+
+    FILE* f = fopen("memleak_debug.txt", "a");
+    fprintf(f, "\nruntime free %p %d max %d\n", block, gNumMemAlloc, gMaxMemAlloc);
+    int i;
+    for(i=0; i<gNumHeapDebugs; i++) {
+        if(!gHeapDebugs[i].freed && gHeapDebugs[i].mem == block) {
+            if(gHeapDebugs[i].type_name) {
+                fprintf(f, "type name %s ", gHeapDebugs[i].type_name);
+            }
+            else {
+                fprintf(f, "type name nil ");
+            }
+            if(gHeapDebugs[i].sname) {
+                fprintf(f, "sname %s ", gHeapDebugs[i].sname);
+            }
+            else {
+                fprintf(f, "sname nil ");
+            }
+            fprintf(f, "sline %d ", gHeapDebugs[i].sline);
+            if(gHeapDebugs[i].fun_name) {
+                fprintf(f, "fun_name %s ", gHeapDebugs[i].fun_name);
+            }
+            if(gHeapDebugs[i].real_fun_name) {
+                fprintf(f, "real_fun_name %s\n", gHeapDebugs[i].real_fun_name);
+            }
+
+            fprintf(f, "\n");
+        }
+    }
+    fclose(f);
     delete_debug_heap_memory(block);
 #endif
 
-#ifdef MDEBUG
-    if(block) gNumMemAlloc--;
-    FILE* f = fopen("memleak_debug.txt", "a");
-    fprintf(f, "\nruntime free %p %d max %d\n", block, gNumMemAlloc, gMaxMemAlloc);
-    fclose(f);
-#endif
     free(block);
 }
 

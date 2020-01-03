@@ -30,16 +30,16 @@ impl VigWin version 8
 
             if(it2 >= (self.visualModeHead-self.scroll) && it2 <= self.cursorY) {
                 wattron(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, 0, "%s", line.to_string());
+                mvwprintw(self.win, it2, 0, "%s", line.to_string(""));
                 wattroff(self.win, A_REVERSE);
             }
             else if(it2 <= (self.visualModeHead-self.scroll) && it2 >= self.cursorY) {
                 wattron(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, 0, "%s", line.to_string());
+                mvwprintw(self.win, it2, 0, "%s", line.to_string(""));
                 wattroff(self.win, A_REVERSE);
             }
             else {
-                mvwprintw(self.win, it2, 0, "%s", line.to_string());
+                mvwprintw(self.win, it2, 0, "%s", line.to_string(""));
             }
         }
 
@@ -73,6 +73,55 @@ impl VigWin version 8
         self.texts.sublist(head, tail+1).each {
             vig.yank.push_back(clone it);
         }
+    }
+
+    void indentVisualMode(VigWin* self, Vig* vig) {
+        self.pushUndo();
+
+        int head = self.visualModeHead;
+        int tail = self.scroll+self.cursorY;
+
+        if(head >= tail) {
+            int tmp = tail;
+            tail = head;
+            head = tmp;
+        }
+
+        self.texts.sublist(head, tail+1).each {
+            wstring new_line = wstring("    ") + it;
+
+            self.texts.replace(it2+head, new_line);
+        }
+
+        self.modifyOverCursorXValue();
+    }
+
+    void backIndentVisualMode(VigWin* self, Vig* vig) 
+    {
+        self.pushUndo();
+
+        int head = self.visualModeHead;
+        int tail = self.scroll+self.cursorY;
+
+        if(head >= tail) {
+            int tmp = tail;
+            tail = head;
+            head = tmp;
+        }
+
+        self.texts.sublist(head, tail+1).each {
+            wstring new_line = wstring("") + it;
+
+            if(new_line.index(wstring("    "), -1) == 0) {
+                for(int i=0; i<4; i++) {
+                    new_line.delete(0);
+                }
+
+                self.texts.replace(it2+head, new_line);
+            }
+        }
+
+        self.modifyOverCursorXValue();
     }
 
     void deleteOnVisualMode(VigWin* self, Vig* vig) {
@@ -138,6 +187,16 @@ impl VigWin version 8
 
             case 'd':
                 self.deleteOnVisualMode(vig);
+                vig.exitFromVisualMode();
+                break;
+
+            case '>':
+                self.indentVisualMode(vig);
+                vig.exitFromVisualMode();
+                break;
+
+            case '<':
+                self.backIndentVisualMode(vig);
                 vig.exitFromVisualMode();
                 break;
 

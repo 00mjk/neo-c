@@ -22,6 +22,8 @@ void final_vtable()
     }
 }
 
+static int mNumVarTables = 0;
+
 sVarTable* init_var_table()
 {
     sVarTable* result;
@@ -30,6 +32,8 @@ sVarTable* init_var_table()
 
     result->mNext = gHeadVTable;
     gHeadVTable = result;
+
+    result->mID = mNumVarTables++;
 
     return result;
 }
@@ -40,6 +44,7 @@ sVarTable* clone_var_table(sVarTable* lv_table)
 
     result->mMaxBlockVarNum = lv_table->mMaxBlockVarNum;
     result->mBlockLevel = lv_table->mBlockLevel;
+    result->mID = lv_table->mID;
 
     sVarTable* it = lv_table;
 
@@ -282,7 +287,9 @@ sVar* get_variable_from_table(sVarTable* table, char* name)
     while(it) {
         var = get_variable_from_this_table_only(it, name);
 
-        if(var) return var;
+        if(var) {
+            return var;
+        }
 
         it = it->mParent;
     }
@@ -452,7 +459,7 @@ void free_objects_on_break(sVarTable* table, sCompileInfo* info)
 
 void free_block_variables_on_break(struct sNodeBlockStruct* current_node_block, struct sCompileInfoStruct* info, BOOL top_block)
 {
-    if(info && info->pinfo && current_node_block) {
+    if(info && info->pinfo && current_node_block && !info->no_output) {
         sVarTable* current_lv_table = info->pinfo->lv_table;
 
         sVarTable* current_block_lv_table = current_node_block->mLVTable;
@@ -460,11 +467,11 @@ void free_block_variables_on_break(struct sNodeBlockStruct* current_node_block, 
 
         sVarTable* it = current_lv_table;
 
-        if(current_lv_table == current_block_lv_table) {
+        if(current_lv_table->mID == current_block_lv_table->mID) {
             free_objects_on_break(it, info);
         }
         else {
-            while(it != current_block_lv_table && it != NULL) 
+            while(it->mID != current_block_lv_table->mID && it != NULL) 
             {
                 free_objects_on_break(it, info);
 

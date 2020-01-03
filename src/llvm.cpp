@@ -1,5 +1,7 @@
 #include "llvm_common.hpp"
 #include <libgen.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 LLVMContext TheContext;
 IRBuilder<> Builder(TheContext);
@@ -608,12 +610,13 @@ void output_native_code(char* sname, BOOL optimize)
     output_stream.flush();
 #endif
 
-    char command[PATH_MAX+128];
+    char command[PATH_MAX+256];
 
-    snprintf(command, PATH_MAX+128, "chmod 644 %s.ll", sname2);
-    int rc = system(command);
+    snprintf(command, PATH_MAX+256, "%s.ll", sname2);
+    int rc = chmod(command, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+
     if(rc != 0) {
-        fprintf(stderr, "faield to compile\n");
+        fprintf(stderr, "failed to compile(4) (%s) (%d)\n", command, rc);
         exit(2);
     }
 
@@ -623,7 +626,7 @@ void output_native_code(char* sname, BOOL optimize)
         snprintf(command, PATH_MAX+128, "clang-7 -c -o %s.o %s.ll", sname2, sname2);
         rc = system(command);
         if(rc != 0) {
-            fprintf(stderr, "faield to compile\n");
+            fprintf(stderr, "failed to compile(5)\n");
             exit(2);
         }
     }
@@ -631,7 +634,7 @@ void output_native_code(char* sname, BOOL optimize)
         snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.ll", sname2, sname2);
         rc = system(command);
         if(rc != 0) {
-            fprintf(stderr, "faield to compile\n");
+            fprintf(stderr, "failed to compile(6)\n");
             exit(2);
         }
     }

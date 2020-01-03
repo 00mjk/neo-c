@@ -76,11 +76,18 @@ struct Vig version 2
     bool appEnd;
 }
 
+impl VigWin version 2
+{
+    void openFile(VigWin* self, char* file_name);
+}
+
 impl Vig version 2 
 {
     initialize();
 
     int main_loop(Vig* self);
+
+    void openFile(Vig* self, int num_files, char** file_names);
 }
 
 /// vig3insert_mode.h ///
@@ -95,7 +102,6 @@ impl VigWin version 3
     void input(VigWin* self, Vig* vig);
 
     void pushUndo(VigWin* self);
-    void openFile(VigWin* self, char* file_name);
     void writedFlagOn(VigWin* self);
 }
 
@@ -111,7 +117,6 @@ impl Vig version 3
     void enterInsertMode(Vig* self);
     void exitFromInsertMode(Vig* self);
     int main_loop(Vig* self);
-    void openFile(Vig* self, int num_files, char** file_names);
 }
 
 /// vig4word.h ///

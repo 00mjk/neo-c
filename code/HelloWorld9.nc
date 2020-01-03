@@ -1,4 +1,3 @@
-#include "neo-c.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -100,34 +99,9 @@ int main()
         printf("%s\n", it);
     }
 
-/*
     var tu = tuple!(1,2,string("str"));
 
     xassert("tuple test", tu.equals(tuple!(1, 2, string("str"))));
-
-    var map1 = new map<char*, int>.initialize();
-
-    map1.insert("aaa", 1);
-    map1.insert("bbb", 2);
-    map1.insert("ccc", 3);
-
-    map1.each {
-        printf("map1 %s %d\n", it, it2);
-    }
-
-    xassert("map test", map1.at("aaa", -1) == 1);
-
-    xassert("map test2", map1.find("bbb"));
-
-    var map2 = new map<char*, int>.initialize();
-
-    map2.insert("aaa", 1);
-    map2.insert("bbb", 2);
-    map2.insert("ccc", 3);
-
-    xassert("map test3", map1.equals(map2));
-
-    xassert("map test4", map!("AAA":1, "BBB":2).equals(map!("AAA":1, "BBB":2)));
 
     var sub_str = string("ABC").substring(0, 1);
 
@@ -170,53 +144,12 @@ int main()
 
     xassert("clone test4", li5.equals(list!(string("aaa"), string("bbb"))));
 
-    var map3 = map!(string("aaa"):1, string("bbb"):2);
-
-    var map4 = clone map3;
-
-    xassert("clone test5", map4.equals(map!(string("aaa"):1, string("bbb"):2)));
-
-    var map5 = map!(string("aaa"):string("a"), string("bbb"):string("b"));
-
-    var map6 = clone map5;
-
-    xassert("clone test6", map6.equals(map!(string("aaa"):string("a"), string("bbb"):string("b"))));
-
-    var map7 = map!("aaa":string("a"), "bbb":string("b"));
-
-    var map8 = clone map7;
-
-    xassert("clone test7", map8.equals(map!("aaa":string("a"), "bbb":string("b"))));
-    var map9 = map!("aaa":1, "bbb":2);
-
-    var map10 = clone map9;
-
-    xassert("clone test8", map10.equals(map!("aaa":1, "bbb":2)));
 
     var v7 = vec!("aaa", "bbb");
 
     var v8 = clone v7;
 
     xassert("clone test9", v8.equals(vec!("aaa", "bbb")));
-
-    var v9 = vec!(1, 2);
-
-    var v10 = clone v9;
-
-    xassert("clone test10", v10.equals(vec!(1, 2)));
-
-    var li6 = list!("aaa", "bbb");
-
-    var li7 = clone li6;
-
-    xassert("clone test11", li7.equals(list!("aaa", "bbb")));
-
-    var li8 = list!(1, 2);
-
-    var li9 = clone li8;
-
-    xassert("clone test12", li9.equals(list!(1, 2)));
-*/
 
     0
 }

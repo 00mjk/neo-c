@@ -1,5 +1,3 @@
-#include "neo-c.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -32,7 +30,6 @@ impl Data
     }
 }
 
-/*
 struct Data2<T>
 {
     T a;
@@ -135,11 +132,9 @@ impl Data4<T> version 2
         printf("self.b %d\n", self.b);
     }
 }
-*/
 
 int main()
 {
-/*
     var data = new Data;
     data.fun();
     data.show();
@@ -153,7 +148,6 @@ int main()
 
     var data4 = new Data4<int>.initialize();
     data4.show();
-*/
 
     0
 }

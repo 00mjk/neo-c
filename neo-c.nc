@@ -1,10 +1,12 @@
-#include "neo-c.h"
-
+#include <pcre.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <wctype.h>
+#include <wchar.h>
+#include <unistd.h>
+#include <limits.h>
 
 /// others ///
 void xassert(char* msg, bool exp) 
@@ -82,6 +84,20 @@ string string(char* str)
     string result = new char[len + 1];
 
     strcpy(result, str);
+
+    result
+}
+
+string string_from_wchar_t(wchar_t* wstr, char* default_value)
+{
+    int len = MB_LEN_MAX*(wcslen(wstr)+1);
+
+    string result = new char[len];
+
+    if(wcstombs(result, wstr, len) < 0) 
+    {
+        xstrncpy(result, default_value, len);
+    }
 
     result
 }
@@ -467,8 +483,19 @@ wstring wstring(char* str)
     wstr[ret] = '\0';
 
     if(ret < 0) {
-        wstr[0] = '\0';
+        wstr[0] = 0;
     }
+
+    return wstr;
+}
+
+wstring wstring_from_wchar_t(wchar_t* str)
+{
+    int len = wcslen(str);
+
+    wstring wstr = new wchar_t[len + 1];
+
+    wcscpy(wstr, str);
 
     return wstr;
 }
@@ -587,7 +614,7 @@ impl wstring
         return result;
     }
 
-    string to_string(wstring& self) 
+    string to_string(wstring& self, char* default_value) 
     {
         int len = MB_LEN_MAX*(wcslen(self)+1);
 
@@ -595,7 +622,7 @@ impl wstring
 
         if(wcstombs(result, self, len) < 0) 
         {
-            xstrncpy(result, "", len);
+            result = string(default_value);
         }
 
         result
