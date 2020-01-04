@@ -95,6 +95,12 @@ impl VigWin version 9
                 self.search(vig);
                 vig.exitFromSearchMode();
                 break;
+                
+            case 8:
+            case 127:
+            case KEY_BACKSPACE:
+                vig.searchString.delete(-1);
+                break;
 
             default:
                 vig.searchString = vig.searchString + wstring(xasprintf("%c", key));

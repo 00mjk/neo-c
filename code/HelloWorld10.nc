@@ -109,6 +109,28 @@ int main()
 
     xassert("list test6", li5.length() == 0);
 
+    string str1 = string("ABC");
+
+    xassert("string reverse test", str1.reverse().equals("CBA"));
+
+    string str2 = string("ABC");
+
+    printf("%s\n",str2.substring(2, 1));
+
+    xassert("string reverse test2", str2.substring(2, 1).equals("B"));
+
+    string str3 = string("ABC");
+
+    str3.delete(-1);
+
+    xassert("string delete test", str3.equals("AB"));
+
+    wstring str4 = wstring("ABC");
+
+    str4.delete(-1);
+
+    xassert("wstring delete test", str4.equals(wstring("AB")));
+
     0
 }
 

@@ -107,7 +107,6 @@ impl VigWin version 2
 
             self.cursorY = 0;
         }
-
     }
 
     void modifyOverCursorYValue(VigWin* self)
@@ -256,10 +255,6 @@ impl Vig version 2
 
         self.events = new vector<void (*lambda)(Vig*, int)>.initialize_with_values(KEY_MAX, null);
 
-        self.events.replace('q', lambda(Vig* self, int key) 
-        {
-            self.appEnd = true;
-        });
         self.events.replace('l', lambda(Vig* self, int key) 
         {
             self.activeWin.forward();

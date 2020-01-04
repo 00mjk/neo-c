@@ -229,6 +229,7 @@ int main()
 
     xassert("regex test", r2.str.equals("abc") && r2.ignore_case);
 
+    printf("(%s)\n", string("ABC").sub(regex!(/A/), "x", null));
     xassert("regex test2", string("ABC").sub(regex!(/A/), "x", null).equals("xBC"));
 
     var group_strings = new list<string>.initialize();

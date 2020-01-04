@@ -303,6 +303,7 @@ impl string
     extern bool match(string& self, regex reg, list<string>?* group_strings);
     list<string>*% scan(string& self, regex reg);
     extern wstring to_wstring(string& self);
+    string reverse(string& str);
 }
 
 /// wstring ///
@@ -314,6 +315,7 @@ impl wstring
     extern bool equals(wstring& left, wstring& right);
     extern int length(wstring& str);
     extern int get_hash_key(wstring& value);
+    wstring reverse(wstring& str);
     extern wstring substring(wstring& str, int head, int tail);
     extern int index(wstring& str, wchar_t* search_str, int default_value);
     extern int rindex(wstring& str, wchar_t* search_str, int default_value);

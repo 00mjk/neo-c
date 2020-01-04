@@ -286,7 +286,7 @@ impl VigWin version 3
     void inputInsertMode(VigWin* self, Vig* vig)
     {
         var key = wgetch(self.win);
-
+        
         if(key == 3 || key == 27) {
             vig.exitFromInsertMode();
         }
@@ -296,7 +296,7 @@ impl VigWin version 3
         else if(key == 10) {
             self.enterNewLine();
         }
-        else if(key == 8 || key == 127) {
+        else if(key == 8 || key == 127 || key == KEY_BACKSPACE) {
             self.backSpace();
         }
         else if(key == 9) {

@@ -181,15 +181,36 @@ impl string
         return result;
     }
 
+    string reverse(string& str) {
+        int len = strlen(str);
+        string result = new char[len + 1];
+
+        for(int i=0; i<len; i++) {
+            result[i] = str[len-i-1];
+        }
+
+        result[len] = '\0';
+
+        return result;
+    }
+
     string substring(string& str, int head, int tail)
     {
+        if(str == null) {
+            return string("");
+        }
+
         int len = strlen(str);
 
         if(head < 0) {
-            head += len + 1;
+            head += len;
         }
         if(tail < 0) {
             tail += len + 1;
+        }
+
+        if(head > tail) {
+            return str.substring(tail, head).reverse();
         }
 
         if(head < 0) {
@@ -200,7 +221,7 @@ impl string
             tail = len;
         }
 
-        if(str == null || head >= tail) {
+        if(head == tail) {
             return string("");
         }
 
@@ -237,6 +258,24 @@ impl string
         return default_value;
     }
     string& delete(string& str, int position) {
+        int len = strlen(str);
+        
+        if(position < 0) {
+            position += len;
+        }
+
+        if(position < 0) {
+            position = 0;
+        }
+
+        if(position >= len) {
+            position = len -1;
+
+            if(position < 0) {
+                return str;
+            }
+        }
+        
         string sub_str = str.substring(position+1, -1);
 
         memcpy(str + position, sub_str, sub_str.length()+1);
@@ -244,6 +283,28 @@ impl string
         return str;
     }
     string& delete_range(string& str, int head, int tail) {
+        int len = strlen(str);
+        
+        if(head < 0) {
+           head += len;
+        }
+        
+        if(tail < 0) {
+           tail += len + 1;
+        }
+
+        if(head < 0) {
+            head = 0;
+        }
+
+        if(tail < 0) {
+            return str;
+        }
+
+        if(tail >= len) {
+            tail = len;
+        }
+        
         string sub_str = str.substring(tail, -1);
 
         memcpy(str + head, sub_str, sub_str.length()+1);
@@ -628,15 +689,36 @@ impl wstring
         result
     }
 
+    wstring reverse(wstring& str) {
+        int len = wcslen(str);
+        wstring result = new wchar_t[len + 1];
+
+        for(int i=0; i<len; i++) {
+            result[i] = str[len-i-1];
+        }
+
+        result[len] = '\0';
+
+        return result;
+    }
+
     wstring substring(wstring& str, int head, int tail)
     {
+        if(str == null) {
+            return wstring("");
+        }
+
         int len = wcslen(str);
 
         if(head < 0) {
-            head += len + 1;
+            head += len;
         }
         if(tail < 0) {
             tail += len + 1;
+        }
+
+        if(head > tail) {
+            return str.substring(tail, head).reverse();
         }
 
         if(head < 0) {
@@ -647,7 +729,7 @@ impl wstring
             tail = len;
         }
 
-        if(str == null || head >= tail) {
+        if(head == tail) {
             return wstring("");
         }
 
@@ -686,13 +768,53 @@ impl wstring
         return default_value;
     }
     wstring& delete(wstring& str, int position) {
+        int len = wcslen(str);
+        
+        if(position < 0) {
+            position += len;
+        }
+
+        if(position < 0) {
+            position = 0;
+        }
+
+        if(position >= len) {
+            position = len -1;
+
+            if(position < 0) {
+                return str;
+            }
+        }
+
         wstring sub_str = str.substring(position+1, -1);
 
         memcpy(str + position, sub_str, sizeof(wchar_t)*(sub_str.length()+1));
-
+        
         return str;
     }
     wstring& delete_range(wstring& str, int head, int tail) {
+        int len = wcslen(str);
+        
+        if(head < 0) {
+           head += len;
+        }
+        
+        if(tail < 0) {
+           tail += len + 1;
+        }
+
+        if(head < 0) {
+            head = 0;
+        }
+
+        if(tail < 0) {
+            return str;
+        }
+
+        if(tail >= len) {
+            tail = len;
+        }
+        
         wstring sub_str = str.substring(tail, -1);
 
         memcpy(str + head, sub_str, sizeof(wchar_t)*(sub_str.length()+1));

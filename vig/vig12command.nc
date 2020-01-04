@@ -28,6 +28,10 @@ impl VigWin version 12
             case 'w':
                 vig.commandString = vig.commandString + key.to_string();
                 break;
+                
+            case '!':
+                vig.commandString = vig.commandString + key.to_string();
+                break;
 
             case '\n':
                 vig.exitFromComandMode();
@@ -76,7 +80,7 @@ impl Vig version 12
                 }
             }
 
-            if(!writed) {
+            if(!writed || self.commandString.index("!", -1) != -1) {
                 self.appEnd = true;
             }
         }
