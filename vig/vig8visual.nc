@@ -160,10 +160,12 @@ impl VigWin version 8
                 self.backward();
                 break;
 
+            case KEY_DOWN:
             case 'j':
                 self.nextLine();
                 break;
         
+            case KEY_UP:
             case 'k':
                 self.prevLine();
                 break;
