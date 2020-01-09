@@ -78,7 +78,7 @@ struct Vig version 2
 
 impl VigWin version 2
 {
-    void openFile(VigWin* self, char* file_name);
+    void openFile(VigWin* self, char* file_name, int line_num);
 }
 
 impl Vig version 2 
@@ -87,7 +87,7 @@ impl Vig version 2
 
     int main_loop(Vig* self);
 
-    void openFile(Vig* self, int num_files, char** file_names);
+    void openFile(Vig* self, int num_files, char** file_names, int line_num);
 }
 
 /// vig3insert_mode.h ///
@@ -103,6 +103,7 @@ impl VigWin version 3
 
     void pushUndo(VigWin* self);
     void writedFlagOn(VigWin* self);
+    void completion(VigWin* self);
 }
 
 struct Vig version 3 
@@ -170,14 +171,14 @@ impl VigWin version 6
 {
     initialize(int y, int x, int width, int height);
     void statusBarView(VigWin* self, Vig* vig);
-    void openFile(VigWin* self, char* file_name);
+    void openFile(VigWin* self, char* file_name, int line_num);
     void writeFile(VigWin* self);
     void writedFlagOn(VigWin* self);
 }
 
 impl Vig version 6
 {
-    void openFile(Vig* self, int num_files, char** file_names);
+    void openFile(Vig* self, int num_files, char** file_names, int line_num);
 }
 
 /// vig7yank.h ///
@@ -288,4 +289,9 @@ impl Vig version 12
     void enterComandMode(Vig* vig);
     void exitFromComandMode(Vig* self);
     initialize();
+}
+
+impl VigWin version 13 
+{
+    void completion(VigWin* self);
 }

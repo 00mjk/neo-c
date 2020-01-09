@@ -131,6 +131,11 @@ int main()
 
     xassert("wstring delete test", str4.equals(wstring("AB")));
 
+    string str5 = string("A,B,C");
+
+    xassert("string split test", str5.split(regex!(/,/)).equals(list!(string("A"), string("B"), string("C"))));
+    xassert("string split test2", str5.split_char(',').equals(list!(string("A"), string("B"), string("C"))));
+
     0
 }
 

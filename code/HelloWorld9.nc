@@ -113,6 +113,14 @@ int main()
 
     var v4 = new vector<string>.initialize_with_values(3, string("aaa"));
 
+    v4.each {
+        printf("%d %s\n", it2, it);
+    }
+
+    vec!(string("aaa"), string("aaa"), string("aaa")).each {
+        printf("%d %s\n", it2 , it);
+    }
+
     xassert("vector test", v4.equals(vec!(string("aaa"), string("aaa"), string("aaa"))));
 
     var str2 = string("XYZ");

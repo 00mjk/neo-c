@@ -434,17 +434,18 @@ void free_objects_on_break(sVarTable* table, sCompileInfo* info)
     while(1) {
         if(p->mName[0] != 0) {
             sNodeType* node_type = p->mType;
-            sCLClass* klass = node_type->mClass;
 
-            if(node_type->mHeap)
-            {
-                if(p->mLLVMValue)
+            if(node_type) {
+                sCLClass* klass = node_type->mClass;
+                if(node_type->mHeap)
                 {
+                    if(p->mLLVMValue)
+                    {
 #ifdef MDEBUG
     printf("free %s %s in vtable. address %p\n", p->mName, CLASS_NAME(node_type->mClass), p);
 #endif
                     free_object(p->mType, p->mLLVMValue, FALSE, info);
-                    //p->mLLVMValue = NULL;
+                    }
                 }
             }
         }

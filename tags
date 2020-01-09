@@ -50,7 +50,7 @@ LVALUEStruct	src/llvm_common.hpp	/^struct LVALUEStruct {$/;"	s
 MACRO_MAX	src/common.h	38;"	d
 MANAGED	src/xfunc.h	5;"	d
 MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	1317;"	d
-MAP_TABLE_DEFAULT_SIZE	neo-c.h	1396;"	d
+MAP_TABLE_DEFAULT_SIZE	neo-c.h	1542;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
@@ -67,6 +67,7 @@ PWD	Makefile	/^	PWD=`pwd` .\/neo-c -c neo-c.nc$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld.nc code\/External.o$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld10-5.nc$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld10-6.nc$/;"	m
+PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld10-7.nc$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld10.nc$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld2.nc -lncursesw$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld3.nc$/;"	m
@@ -128,7 +129,7 @@ ac_fn_c_try_run	vig/configure	/^ac_fn_c_try_run ()$/;"	f
 activeWin	vig/vig.h	/^    VigWin* activeWin;$/;"	m	struct:Vig
 add_fields_to_struct	src/klass.c	/^void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
 add_fields_to_union	src/klass.c	/^void add_fields_to_union(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
-add_function	src/node.cpp	/^BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param)$/;"	f
+add_function	src/node.cpp	/^BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param, char* struct_name, int generics_fun_num, char* simple_fun_name)$/;"	f
 add_preprocessor	src/preprocessor.c	/^static BOOL add_preprocessor(char* name, MANAGED sBuf* fun_source)$/;"	f	file:
 add_typedef	src/typedef.c	/^void add_typedef(char* name, sNodeType* node_type)$/;"	f
 add_variable_to_table	src/vtable.c	/^BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly, void* llvm_value, int index, BOOL global, BOOL constant)$/;"	f
@@ -334,6 +335,8 @@ compile_xor	src/node.cpp	/^static BOOL compile_xor(unsigned int node, sCompileIn
 compiler	src/compiler.c	/^static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BOOL neo_c_header)$/;"	f	file:
 compiler_final	src/compiler.c	/^static void compiler_final()$/;"	f	file:
 compiler_init	src/compiler.c	/^static void compiler_init()$/;"	f	file:
+compiling_fun_name	src/common.h	/^    char compiling_fun_name[VAR_NAME_MAX];$/;"	m	struct:sCompileInfoStruct
+compiling_struct_name	src/common.h	/^    char compiling_struct_name[VAR_NAME_MAX];$/;"	m	struct:sCompileInfoStruct
 create_anonymous_union_var_name	src/llvm.cpp	/^void create_anonymous_union_var_name(char* name, int size_name)$/;"	f
 create_anoymous_struct_name	src/parser.c	/^static void create_anoymous_struct_name(char* struct_name, int size_struct_name)$/;"	f	file:
 create_generics_finalize_method	src/node.cpp	/^int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info)$/;"	f
@@ -735,10 +738,13 @@ mForNodeBlock	src/common.h	/^            MANAGED struct sNodeBlockStruct* mForNo
 mFreed	src/common.h	/^    BOOL mFreed;$/;"	m	struct:sClassTableStruct
 mFunName	src/common.h	/^            char mFunName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon6
 mFunVersion	src/common.h	/^    int mFunVersion;$/;"	m	struct:sParserInfoStruct
+mGenericsFunNum	src/common.h	/^            int mGenericsFunNum;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon12
+mGenericsFunNum	src/llvm_common.hpp	/^    int mGenericsFunNum;$/;"	m	struct:sFunctionStruct
 mGenericsFunction	src/common.h	/^            BOOL mGenericsFunction;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon12
 mGenericsFunction	src/llvm_common.hpp	/^    BOOL mGenericsFunction;$/;"	m	struct:sFunctionStruct
 mGenericsNum	src/common.h	/^    int mGenericsNum;$/;"	m	struct:sCLClassStruct
 mGenericsType	src/common.h	/^    sNodeType* mGenericsType;$/;"	m	struct:sParserInfoStruct
+mGenericsType	src/llvm_common.hpp	/^    sNodeType* mGenericsType;$/;"	m	struct:sFunctionStruct
 mGenericsTypeNames	src/common.h	/^            char mGenericsTypeNames[PARAMS_MAX][VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon12
 mGenericsTypeNames	src/common.h	/^            char mGenericsTypeNames[PARAMS_MAX][VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon14
 mGenericsTypeNames	src/common.h	/^    char mGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];$/;"	m	struct:sParserInfoStruct
@@ -860,6 +866,8 @@ mSName	src/common.h	/^    char mSName[PATH_MAX];$/;"	m	struct:sNodeBlockStruct
 mSName	src/common.h	/^    char mSName[PATH_MAX];$/;"	m	struct:sNodeTreeStruct
 mSName	src/llvm_common.hpp	/^    char mSName[PATH_MAX];$/;"	m	struct:sFunctionStruct
 mSimpleLambdaParam	src/common.h	/^            BOOL mSimpleLambdaParam;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon12
+mSimpleName	src/common.h	/^            char mSimpleName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon12
+mSimpleName	src/llvm_common.hpp	/^    char mSimpleName[VAR_NAME_MAX];$/;"	m	struct:sFunctionStruct
 mSize	src/buffer.h	/^    int mSize;$/;"	m	struct:sBufStruct
 mSize	src/common.h	/^    unsigned int mSize;$/;"	m	struct:sConstStruct
 mSizeNodes	src/common.h	/^    unsigned int mSizeNodes;$/;"	m	struct:sNodeBlockStruct
@@ -868,6 +876,7 @@ mSource	src/preprocessor.c	/^    sBuf mSource;$/;"	m	struct:sPreprocessorFunctio
 mStatic	src/common.h	/^    BOOL mStatic;$/;"	m	struct:sNodeTypeStruct
 mString	src/common.h	/^            char* mString;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon10
 mStructName	src/common.h	/^            char mStructName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon12
+mStructName	src/llvm_common.hpp	/^    char mStructName[VAR_NAME_MAX];$/;"	m	struct:sFunctionStruct
 mSwitchExpression	src/common.h	/^            unsigned int* mSwitchExpression;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon31
 mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon17
 mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon18
@@ -904,6 +913,7 @@ mWhileNodeBlock	src/common.h	/^            MANAGED struct sNodeBlockStruct* mWhi
 main	a.c	/^int main() $/;"	f
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
 main	src/preprocessor.c	/^int main(int argc, char* argv[])$/;"	f
+main	vig/a.c	/^int main()$/;"	f
 mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
 map	code/neo-c.h	/^impl map <T, T2>$/;"	s
 map	code/neo-c.h	/^ruby_macro map {$/;"	s
@@ -966,6 +976,7 @@ parse_case	src/parser.c	/^static BOOL parse_case(unsigned int* node, sParserInfo
 parse_class_name	src/node_type.c	/^static sNodeType* parse_class_name(char** p, char** p2, char* buf)$/;"	f	file:
 parse_class_name_expression	src/parser.c	/^BOOL parse_class_name_expression(unsigned int* node, sParserInfo* info)$/;"	f
 parse_clone	src/parser.c	/^BOOL parse_clone(unsigned int* node, sParserInfo* info)$/;"	f
+parse_cmp	src/parser.c	/^int parse_cmp(char* p, char* str)$/;"	f
 parse_constructor	src/parser.c	/^static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo* info) $/;"	f	file:
 parse_default	src/parser.c	/^static BOOL parse_default(unsigned int* node, sParserInfo* info)$/;"	f	file:
 parse_delete	src/parser.c	/^BOOL parse_delete(unsigned int* node, sParserInfo* info)$/;"	f
@@ -1146,7 +1157,7 @@ sNodeTree_create_equal_xor	src/node.cpp	/^unsigned int sNodeTree_create_equal_xo
 sNodeTree_create_equals	src/node.cpp	/^unsigned int sNodeTree_create_equals(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
 sNodeTree_create_external_function	src/node.cpp	/^unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, char* struct_name, BOOL operator_fun, int version, sParserInfo* info)$/;"	f
 sNodeTree_create_false	src/node.cpp	/^unsigned int sNodeTree_create_false(sParserInfo* info)$/;"	f
-sNodeTree_create_function	src/node.cpp	/^unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg, int version, BOOL finalize)$/;"	f
+sNodeTree_create_function	src/node.cpp	/^unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg, int version, BOOL finalize, int generics_fun_num, char* simple_fun_name)$/;"	f
 sNodeTree_create_function_call	src/node.cpp	/^unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, BOOL inherit, int version, sParserInfo* info)$/;"	f
 sNodeTree_create_generics_function	src/node.cpp	/^unsigned int sNodeTree_create_generics_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED char* block_text, char* struct_name, char* sname, int sline, BOOL var_arg, int version, sParserInfo* info)$/;"	f
 sNodeTree_create_gt	src/node.cpp	/^unsigned int sNodeTree_create_gt(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f

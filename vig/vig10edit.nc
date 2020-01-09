@@ -114,6 +114,8 @@ impl VigWin version 10
 
         var line = self.texts.item(self.scroll+self.cursorY, null);
         line.delete(self.cursorX);
+
+        self.modifyOverCursorXValue();
     }
 }
 

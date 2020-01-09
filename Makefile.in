@@ -127,6 +127,8 @@ test:
 	./code/HelloWorld10-5
 	PWD=`pwd` ./neo-c code/HelloWorld10-6.nc
 	./code/HelloWorld10-6
+	PWD=`pwd` ./neo-c code/HelloWorld10-7.nc
+	./code/HelloWorld10-7
 
 vig: vig/vig
 

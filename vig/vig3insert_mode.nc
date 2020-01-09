@@ -282,7 +282,6 @@ impl VigWin version 3
         }
     }
 
-
     void inputInsertMode(VigWin* self, Vig* vig)
     {
         var key = wgetch(self.win);
@@ -300,7 +299,13 @@ impl VigWin version 3
             self.backSpace();
         }
         else if(key == 9) {
-            self.insertText(wstring("    "));
+            var str = self.texts.item(self.scroll+self.cursorY, null);
+            if(str.to_string("").match(regex!(/^$|^[ ]+$/), null)) {
+                self.insertText(wstring("    "));
+            }
+            else {
+                self.completion();
+            }
         }
         else if(key > 127) {
             var size = ((key & 0x80) >> 7) + ((key & 0x40) >> 6) + ((key & 0x20) >> 5) + ((key & 0x10) >> 4);
@@ -366,6 +371,9 @@ impl VigWin version 3
     void writedFlagOn(VigWin* self) {
         /// implemented by the after layer
     }
+    void completion(VigWin* self) {
+        /// implemented by the after layer
+    }
 }
 
 impl Vig version 3 
@@ -373,6 +381,7 @@ impl Vig version 3
     void enterInsertMode(Vig* self) {
         self.mode = kInsertMode;
         self.activeWin.writedFlagOn();
+        self.activeWin.modifyOverCursorXValue();
     }
     void exitFromInsertMode(Vig* self) {
         self.mode = kEditMode;

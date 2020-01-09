@@ -68,6 +68,18 @@ impl int
     inline string to_string(int value) {
         return xasprintf("%c", value);
     }
+
+    inline int compaire(int left, int right) {
+        if(left < right) {
+            return -1;
+        }
+        else if(left > right) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
 }
 
 /// char* ///
@@ -88,6 +100,18 @@ impl char
 
     inline string to_string(char value) {
         return xasprintf("%c", value);
+    }
+
+    inline int compaire(char left, char right) {
+        if(left < right) {
+            return -1;
+        }
+        else if(left > right) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
     }
 }
 
@@ -117,6 +141,10 @@ impl char*
     inline string to_string(char* value) {
         return string(value);
     }
+
+    inline int compaire(char* left, char* right) {
+        return strcmp(left, right);
+    }
 }
 
 /// wchar_t ///
@@ -137,6 +165,18 @@ impl wchar_t
 
     inline string to_string(wchar_t value) {
         return xasprintf("%lc", value);
+    }
+
+    inline int compaire(wchar_t left, wchar_t right) {
+        if(left < right) {
+            return -1;
+        }
+        else if(left > right) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
     }
 }
 
@@ -170,6 +210,10 @@ impl wchar_t*
     inline wstring to_wstring(wchar_t* str) {
         return wstring_from_wchar_t(str);
     }
+
+    inline int compaire(wstring& left, wstring& right) {
+        return wcscmp(left, right);
+    }
 }
 
 /// buffer ///
@@ -189,6 +233,12 @@ impl buffer
     void append_str(buffer* self, char* str);
 
     string to_string(buffer* self);
+
+    int length(buffer* self);
+
+    inline int compaire(buffer* left, buffer* right) {
+        return strcmp(left.buf, right.buf);
+    }
 }
 
 /// regex ///
@@ -304,6 +354,12 @@ impl string
     list<string>*% scan(string& self, regex reg);
     extern wstring to_wstring(string& self);
     string reverse(string& str);
+    list<string>*% split_char(string& self, char c);
+    list<string>*% split(string& self, regex reg);
+
+    inline int compaire(string& left, string& right) {
+        return strcmp(left, right);
+    }
 }
 
 /// wstring ///
@@ -324,6 +380,10 @@ impl wstring
 
     extern string to_string(wstring& self, char* default_value);
     extern wstring printable(wstring& str);
+
+    inline int compaire(wstring& left, wstring& right) {
+        return wcscmp(left, right);
+    }
 }
 
 /// vector ///
@@ -1091,23 +1151,109 @@ impl list <T>
         return result;
     }
     string join(list<string>* self, char* separator) {
-        string result = string("");
+        buffer%* buf = new buffer.initialize();
 
         list_item<T>?* it = self.head;
         var i = 0;
         while(it != null) {
             if(i == self.length() - 1) {
-                result = result + it.item;
+                buf.append_str(it.item);
             }
             else {
-                result = result + it.item + string(separator);
+                buf.append_str(it.item);
+                buf.append_str(separator);
             }
 
             it = it.next;
             i++;
         }
 
-        return result;
+        return string(buf.buf);
+    }
+
+    list<T>*% merge_list(list<T>* left, list<T>* right) {
+/*
+        var list = new list<T>.initialize();
+
+        list_item<T>*? it = left.head;
+        list_item<T>*? it2= right.head;
+
+        while(true) {
+            if(it.item.compare(it2.item) <= 0) {
+                //list.push_back(it.item);
+
+                it = it.next;
+            }
+            else {
+                //list.push_push_back(it2.item);
+
+                it2 = it2.next;
+            }
+
+            if(it == null) {
+                if(it2 != null) {
+                    while(it2 != null) {
+                        //list.push_back(it2.item);
+
+                        it2 = it2.next;
+                    }
+                }
+                break;
+            }
+            elif(it2 == null) {
+                if(it != null) {
+                    while(it != null) {
+                        //list.push_back(it.item);
+
+                        it = it.next;
+                    }
+                }
+                break;
+            }
+        }
+
+        return list;
+*/
+
+        return null;
+    }
+
+    list<T>*% merge_sort(list<T>* self) {
+printf("merge_sort %p\n", self);
+        if(self.head == null) {
+            return clone self;
+        }
+        if(self.head.next == null) {
+            return clone self;
+        }
+
+        var list1 = new list<T>.initialize();
+        var list2 = new list<T>.initialize();
+
+/*
+        list_item<T>* it = self.head;
+
+        while(true) {
+            //list1.push_back(it.item);
+            //list2.push_back(it.next.item);
+
+            if(it.next.next == null) {
+                break;
+            }
+
+            it = it.next.next;
+
+            if(it.next == null) {
+                //list1.push_back(it.item);
+                break;
+            }
+        }
+*/
+
+        return list1.merge_sort().merge_list( list2.merge_sort());
+    }
+    list<T>*% sort(list<T>* self) {
+        return self.merge_sort();
     }
 
     bool equals(list<T>* left, list<T>* right)

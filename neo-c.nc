@@ -37,6 +37,10 @@ impl buffer
         free(self.buf);
     }
 
+    int length(buffer* self) {
+        return self.len;
+    }
+
     void append(buffer* self, char* mem, size_t size)
     {
         if(self.len + size + 1 >= self.size) {
@@ -528,6 +532,95 @@ impl string
 
         return result;
     }
+    list<string>*% split(string& self, regex reg)
+    {
+        var result = new list<string>.initialize();
+
+        int offset = 0;
+
+        int ovec_max = 16;
+        int start[ovec_max];
+        int end[ovec_max];
+        int ovec_value[ovec_max * 3];
+
+        while(true) {
+            int options = PCRE_NEWLINE_LF;
+            int len = strlen(self);
+            int regex_result = pcre_exec(reg.regex, 0, self, len, offset, options, ovec_value, ovec_max*3);
+
+            for(int i=0; i<ovec_max; i++) {
+                start[i] = ovec_value[i*2];
+            }
+            for(int i=0; i<ovec_max; i++) {
+                end[i] = ovec_value[i*2+1];
+            }
+
+            /// match and no group strings ///
+            if(regex_result == 1)
+            {
+                string str = self.substring(offset, start[0]);
+                result.push_back(str);
+
+                if(offset == end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = end[0];
+                }
+            }
+            /// group strings ///
+            else if(regex_result > 1) {
+                string str = self.substring(offset, start[0]);
+                result.push_back(str);
+
+                if(offset == end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = end[0];
+                }
+
+                for(int i=1; i<regex_result; i++) {
+                    string match_str = self.substring(start[i], end[i]);
+                    result.push_back(match_str);
+                }
+            }
+            else
+            /// no match ///
+            {
+                break;
+            }
+        }
+
+        if(offset < self.length()) {
+            string str = self.substring(offset, -1);
+            result.push_back(str);
+        }
+
+        return result;
+    }
+
+    list<string>*% split_char(string& self, char c) {
+        var result = new list<string>.initialize();
+
+        var str = new buffer.initialize();
+
+        for(int i=0; i<self.length(); i++) {
+            if(self[i] == c) {
+                result.push_back(string(str.buf));
+                str = new buffer.initialize();
+            }
+            else {
+                str.append_char(self[i]);
+            }
+        }
+        if(str.length() != 0) {
+            result.push_back(string(str.buf));
+        }
+
+        return result;
+    }
+
     wstring to_wstring(string& self) {
         return wstring(self);
     }

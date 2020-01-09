@@ -378,6 +378,9 @@ struct sCompileInfoStruct
 
     int stack_num;
 
+    char compiling_struct_name[VAR_NAME_MAX];
+    char compiling_fun_name[VAR_NAME_MAX];
+
     char fun_name[VAR_NAME_MAX];
     char real_fun_name[VAR_NAME_MAX];
 
@@ -482,6 +485,7 @@ struct sNodeTreeStruct
 
         struct {
             char mName[VAR_NAME_MAX];
+            char mSimpleName[VAR_NAME_MAX];
             sParserParam mParams[PARAMS_MAX];
             int mNumParams;
             sNodeType* mResultType;
@@ -505,6 +509,7 @@ struct sNodeTreeStruct
             BOOL mParseStructPhase;
             int mVersion;
             BOOL mFinalize;
+            int mGenericsFunNum;
         } sFunction;
 
         struct {
@@ -654,7 +659,7 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
 
 unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, int sline, sParserInfo* info);
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg, int version, BOOL finalize);
+unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg, int version, BOOL finalize, int generics_fun_num, char* simple_fun_name);
 
 unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params, int num_params, BOOL method, BOOL inherit, int version, sParserInfo* info);
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);

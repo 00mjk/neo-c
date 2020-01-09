@@ -9,6 +9,26 @@ void parser_final()
 {
 }
 
+int parse_cmp(char* p, char* str)
+{
+    int len = strlen(str);
+
+    int i;
+    for(i=0; i<len; i++) {
+        if(*p > *str) {
+            return 1;
+        }
+        else if(*p < *str) {
+            return -1;
+        }
+
+        p++;
+        str++;
+    }
+
+    return 0;
+}
+
 void parser_err_msg(sParserInfo* info, const char* msg, ...)
 {
     char msg2[1024];
@@ -342,7 +362,7 @@ BOOL parse_call_macro(unsigned int* node, char* name, sParserInfo* info)
 
 static void parse_version(int* version, sParserInfo* info)
 {
-    if(memcmp(info->p, "version", 7) == 0) {
+    if(parse_cmp(info->p, "version") == 0) {
         info->p += 7;
         skip_spaces_and_lf(info);
 
@@ -461,19 +481,19 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 static BOOL parse_attribute(sParserInfo* info)
 {
     while(TRUE) {
-        if(memcmp(info->p, "__attribute_pure__", 19) == 0) {
-            info->p += 19;
+        if(parse_cmp(info->p, "__attribute_pure__") == 0) {
+            info->p += 18;
             skip_spaces_and_lf(info);
         }
-        else if(memcmp(info->p, "__wur", 5) == 0) {
+        else if(parse_cmp(info->p, "__wur") == 0) {
             info->p += 5;
             skip_spaces_and_lf(info);
         }
-        else if(memcmp(info->p, "__noreturn", 10) == 0) {
+        else if(parse_cmp(info->p, "__noreturn") == 0) {
             info->p += 10;
             skip_spaces_and_lf(info);
         }
-        else if(memcmp(info->p, "__attribute__", 13) == 0) {
+        else if(parse_cmp(info->p, "__attribute__") == 0) {
             info->p += 13;
             skip_spaces_and_lf(info);
 
@@ -493,7 +513,7 @@ static BOOL parse_attribute(sParserInfo* info)
                 skip_spaces_and_lf(info);
             }
         }
-        else if(memcmp(info->p, "__asm__", 7) == 0) {
+        else if(parse_cmp(info->p, "__asm__") == 0) {
             info->p += 7;
             skip_spaces_and_lf(info);
 
@@ -524,7 +544,7 @@ static BOOL parse_attribute(sParserInfo* info)
 static BOOL parse_typedef_attribute(sParserInfo* info)
 {
     while(TRUE) {
-        if(memcmp(info->p, "__attribute__", 13) == 0) {
+        if(parse_cmp(info->p, "__attribute__") == 0) {
             info->p += 13;
             skip_spaces_and_lf(info);
 
@@ -1351,7 +1371,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         func_pointer_name[0] = '\0';
     }
 
-    if(memcmp(info->p, "__extension__", 13) == 0)
+    if(parse_cmp(info->p, "__extension__") == 0)
     {
         info->p += 13;
         skip_spaces_and_lf(info);
@@ -1454,7 +1474,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         BOOL undefined_struct = FALSE;
 
         if(strcmp(type_name, "long") == 0) {
-            if(memcmp(info->p, "unsigned", 8) == 0)
+            if(parse_cmp(info->p, "unsigned") == 0)
             {
                 long_ = TRUE;
                 unsigned_ = TRUE;
@@ -1469,7 +1489,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                     return FALSE;
                 }
             }
-            else if(memcmp(info->p, "int", 3) == 0 || memcmp(info->p, "double", 6) == 0) 
+            else if(parse_cmp(info->p, "int") == 0 || parse_cmp(info->p, "double") == 0) 
             {
                 long_ = TRUE;
 
@@ -1478,7 +1498,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                     return FALSE;
                 }
             }
-            else if(memcmp(info->p, "long", 4) == 0) {
+            else if(parse_cmp(info->p, "long") == 0) {
                 long_ = TRUE;
 
                 if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
@@ -1487,7 +1507,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                 }
 
                 if(strcmp(type_name, "long") == 0) {
-                    if(memcmp(info->p, "int", 3) == 0) {
+                    if(parse_cmp(info->p, "int") == 0) {
                         long_long = TRUE;
 
                         if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
@@ -1499,7 +1519,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             }
         }
         else if(strcmp(type_name, "short") == 0) {
-            if(memcmp(info->p, "int", 3) == 0) {
+            if(parse_cmp(info->p, "int") == 0) {
                 short_ = TRUE;
 
                 if(!parse_word(type_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
@@ -1779,7 +1799,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                     info->p++;
                     skip_spaces_and_lf(info);
 
-                    if(memcmp(info->p, "void", 4) == 0) {
+                    if(parse_cmp(info->p, "void") == 0) {
                         char* p_before = info->p;
                         int sline_before = info->sline;
 
@@ -1959,7 +1979,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     }
 
 /*
-    if(memcmp(info->p, "lambda", 6) == 0) 
+    if(parse_cmp(info->p, "lambda") == 0) 
     {
         info->p += 6;
         skip_spaces_and_lf(info);
@@ -2038,7 +2058,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             info->p++;
             skip_spaces_and_lf(info);
 
-            if(memcmp(info->p, "void", 4) == 0) {
+            if(parse_cmp(info->p, "void") == 0) {
                 char* p_before = info->p;
                 int sline_before = info->sline;
 
@@ -3204,7 +3224,7 @@ static BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun
             BOOL simple_lambda_param = FALSE;
             BOOL construct_fun = FALSE;
 
-            *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, FALSE, var_arg, version, FALSE);
+            *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, FALSE, var_arg, version, FALSE, -1, fun_name);
         }
     }
 
@@ -3520,7 +3540,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
 
                 BOOL generics_function = info->mNumGenerics > 0;
 
-                *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE, version, FALSE);
+                *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE, version, FALSE, -1, fun_name);
             }
         }
     }
@@ -3715,7 +3735,7 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
 
                 BOOL generics_function = info->mNumGenerics > 0;
 
-                *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE, version, TRUE);
+                *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE, version, TRUE, -1, fun_name);
             }
         }
     }
@@ -3883,7 +3903,7 @@ static BOOL parse_if(unsigned int* node, sParserInfo* info)
         }
 
         if(strcmp(buf, "else") == 0) {
-            if(memcmp(info->p, "if", 2) == 0) {
+            if(parse_cmp(info->p, "if") == 0) {
                 info->p+=2;
                 skip_spaces_and_lf(info);
 
@@ -4693,7 +4713,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
         BOOL construct_fun = FALSE;
         BOOL operator_fun = FALSE;
 
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, construct_fun, simple_lambda_param, info, FALSE, FALSE, 0, FALSE);
+        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, construct_fun, simple_lambda_param, info, FALSE, FALSE, 0, FALSE, -1, fun_name);
     }
 
     return TRUE;
@@ -5714,6 +5734,20 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
             return TRUE;
         }
     }
+    else if(*info->p == '-' && !isdigit(*(info->p+1)))
+    {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        unsigned int zero_node = sNodeTree_create_int_value(0, info);
+
+        unsigned int right_node = 0;
+        if(!expression_node(&right_node, FALSE, info)) {
+            return FALSE;
+        }
+
+        *node = sNodeTree_create_sub(zero_node, right_node, 0, info);
+    }
     /// number ///
     else if((*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-' && *(info->p+1) != '>') || (*info->p == '+' && *(info->p+1) != '=' && *(info->p+1) != '+')) 
     {
@@ -6594,6 +6628,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
             }
         }
         else if((is_type_name(buf, info) && (*info->p != '(' || (*info->p == '(' && *(info->p+1) == '*'))) || strcmp(buf, "typeof") == 0) {
+
             info->p = p_before;
             info->sline = sline_before;
 
