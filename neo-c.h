@@ -69,7 +69,7 @@ impl int
         return xasprintf("%c", value);
     }
 
-    inline int compaire(int left, int right) {
+    inline int compare(int left, int right) {
         if(left < right) {
             return -1;
         }
@@ -102,7 +102,7 @@ impl char
         return xasprintf("%c", value);
     }
 
-    inline int compaire(char left, char right) {
+    inline int compare(char left, char right) {
         if(left < right) {
             return -1;
         }
@@ -142,7 +142,7 @@ impl char*
         return string(value);
     }
 
-    inline int compaire(char* left, char* right) {
+    inline int compare(char* left, char* right) {
         return strcmp(left, right);
     }
 }
@@ -167,7 +167,7 @@ impl wchar_t
         return xasprintf("%lc", value);
     }
 
-    inline int compaire(wchar_t left, wchar_t right) {
+    inline int compare(wchar_t left, wchar_t right) {
         if(left < right) {
             return -1;
         }
@@ -211,7 +211,7 @@ impl wchar_t*
         return wstring_from_wchar_t(str);
     }
 
-    inline int compaire(wstring& left, wstring& right) {
+    inline int compare(wstring& left, wstring& right) {
         return wcscmp(left, right);
     }
 }
@@ -236,7 +236,7 @@ impl buffer
 
     int length(buffer* self);
 
-    inline int compaire(buffer* left, buffer* right) {
+    inline int compare(buffer* left, buffer* right) {
         return strcmp(left.buf, right.buf);
     }
 }
@@ -357,7 +357,7 @@ impl string
     list<string>*% split_char(string& self, char c);
     list<string>*% split(string& self, regex reg);
 
-    inline int compaire(string& left, string& right) {
+    inline int compare(string& left, string& right) {
         return strcmp(left, right);
     }
 }
@@ -381,7 +381,7 @@ impl wstring
     extern string to_string(wstring& self, char* default_value);
     extern wstring printable(wstring& str);
 
-    inline int compaire(wstring& left, wstring& right) {
+    inline int compair(wstring& left, wstring& right) {
         return wcscmp(left, right);
     }
 }
@@ -425,7 +425,7 @@ impl vector<T>
 
         for(int i=0; i<self.len; i++) {
             T& it = self.items[i];
-            if(isheap(T)) {
+            if(sheap(T)) {
                 result.push_back(clone it);
             }
             else {
@@ -1170,40 +1170,68 @@ impl list <T>
 
         return string(buf.buf);
     }
-
     list<T>*% merge_list(list<T>* left, list<T>* right) {
-/*
-        var list = new list<T>.initialize();
+        var result = new list<T>.initialize();
 
         list_item<T>*? it = left.head;
         list_item<T>*? it2= right.head;
 
         while(true) {
-            if(it.item.compare(it2.item) <= 0) {
-                //list.push_back(it.item);
+            if(it && it2) {
+                if(it.item == null) {
+                    it = it.next;
+                }
+                else if(it2.item == null) {
+                    it2 = it2.next;
+                }
+                else if(it.item.compare(it2.item) <= 0) 
+                {
+                    if(isheap(T)) {
+                        result.push_back(clone it.item);
+                    }
+                    else {
+                        result.push_back(heap it.item);
+                    }
 
-                it = it.next;
-            }
-            else {
-                //list.push_push_back(it2.item);
+                    it = it.next;
+                }
+                else {
+                    if(isheap(T)) {
+                        result.push_back(clone it2.item);
+                    }
+                    else {
+                        result.push_back(heap it2.item);
+                    }
 
-                it2 = it2.next;
+
+                    it2 = it2.next;
+                }
             }
 
             if(it == null) {
                 if(it2 != null) {
                     while(it2 != null) {
-                        //list.push_back(it2.item);
+                        if(isheap(T)) {
+                            result.push_back(clone it2.item);
+                        }
+                        else {
+                            result.push_back(heap it2.item);
+                        }
 
                         it2 = it2.next;
                     }
                 }
                 break;
             }
-            elif(it2 == null) {
+            else if(it2 == null) {
                 if(it != null) {
                     while(it != null) {
-                        //list.push_back(it.item);
+                        if(isheap(T)) {
+                            result.push_back(clone it.item);
+                        }
+                        else {
+                            result.push_back(heap it.item);
+                        }
 
                         it = it.next;
                     }
@@ -1212,14 +1240,9 @@ impl list <T>
             }
         }
 
-        return list;
-*/
-
-        return null;
+        return result;
     }
-
     list<T>*% merge_sort(list<T>* self) {
-printf("merge_sort %p\n", self);
         if(self.head == null) {
             return clone self;
         }
@@ -1230,12 +1253,22 @@ printf("merge_sort %p\n", self);
         var list1 = new list<T>.initialize();
         var list2 = new list<T>.initialize();
 
-/*
         list_item<T>* it = self.head;
 
         while(true) {
-            //list1.push_back(it.item);
-            //list2.push_back(it.next.item);
+            if(isheap(T)) {
+                list1.push_back(clone it.item);
+            }
+            else {
+                list1.push_back(heap it.item);
+            }
+
+            if(isheap(T)) {
+                list2.push_back(clone it.next.item);
+            }
+            else {
+                list2.push_back(heap it.next.item);
+            }
 
             if(it.next.next == null) {
                 break;
@@ -1244,11 +1277,15 @@ printf("merge_sort %p\n", self);
             it = it.next.next;
 
             if(it.next == null) {
-                //list1.push_back(it.item);
+                if(isheap(T)) {
+                    list1.push_back(clone it.item);
+                }
+                else {
+                    list1.push_back(heap it.item);
+                }
                 break;
             }
         }
-*/
 
         return list1.merge_sort().merge_list( list2.merge_sort());
     }
