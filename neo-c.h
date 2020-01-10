@@ -425,7 +425,7 @@ impl vector<T>
 
         for(int i=0; i<self.len; i++) {
             T& it = self.items[i];
-            if(sheap(T)) {
+            if(isheap(T)) {
                 result.push_back(clone it);
             }
             else {
