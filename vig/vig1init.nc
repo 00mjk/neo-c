@@ -4,7 +4,7 @@ int xgetmaxx()
 {
     var ws = new winsize;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
-
+    
     return ws.ws_col;
 }
 

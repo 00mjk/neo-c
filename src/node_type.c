@@ -84,6 +84,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
     node_type2->mRegister = node_type->mRegister;
     node_type2->mVolatile = node_type->mVolatile;
     node_type2->mStatic = node_type->mStatic;
+    node_type2->mDummyHeap = node_type->mDummyHeap;
     node_type2->mDynamicArrayNum = node_type->mDynamicArrayNum;
     node_type2->mArrayInitializeNum = node_type->mArrayInitializeNum;
     node_type2->mTypeOfExpression = node_type->mTypeOfExpression;
@@ -422,6 +423,10 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
         {
             if(left_type->mHeap) 
             {
+                if(right_type->mDummyHeap) {
+                    return TRUE;
+                }
+
                 if(right_type->mHeap)
                 {
                     return TRUE;
@@ -434,6 +439,9 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
         else if(left_type->mPointerNum == right_type->mPointerNum) 
         {
             if(left_type->mHeap) {
+                if(right_type->mDummyHeap) {
+                    return TRUE;
+                }
                 if(right_type->mHeap)
                 {
                     return TRUE;
@@ -448,6 +456,9 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
             if(left_type->mHeap) {
                 if(right_type->mHeap)
                 {
+                    return TRUE;
+                }
+                if(right_type->mDummyHeap) {
                     return TRUE;
                 }
             }

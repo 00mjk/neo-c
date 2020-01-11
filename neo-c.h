@@ -381,7 +381,7 @@ impl wstring
     extern string to_string(wstring& self, char* default_value);
     extern wstring printable(wstring& str);
 
-    inline int compair(wstring& left, wstring& right) {
+    inline int compare(wstring& left, wstring& right) {
         return wcscmp(left, right);
     }
 }
@@ -429,7 +429,7 @@ impl vector<T>
                 result.push_back(clone it);
             }
             else {
-                result.push_back(heap it);
+                result.push_back(dummy_heap it);
             }
         }
 
@@ -645,7 +645,7 @@ impl list <T>
                 result.push_back(clone it.item);
             }
             else {
-                result.push_back(heap it.item);
+                result.push_back(dummy_heap it.item);
             }
 
             it = it.next;
@@ -1129,7 +1129,7 @@ impl list <T>
                     result.push_back(clone it.item);
                 }
                 else {
-                    result.push_back(heap it.item);
+                    result.push_back(dummy_heap it.item);
                 }
             }
             it = it.next;
@@ -1148,7 +1148,7 @@ impl list <T>
                 result.push_back(clone it.item);
             }
             else {
-                result.push_back(heap it.item);
+                result.push_back(dummy_heap it.item);
             }
             it = it.prev;
         };
@@ -1195,7 +1195,7 @@ impl list <T>
                         result.push_back(clone it.item);
                     }
                     else {
-                        result.push_back(heap it.item);
+                        result.push_back(dummy_heap it.item);
                     }
 
                     it = it.next;
@@ -1205,7 +1205,7 @@ impl list <T>
                         result.push_back(clone it2.item);
                     }
                     else {
-                        result.push_back(heap it2.item);
+                        result.push_back(dummy_heap it2.item);
                     }
 
 
@@ -1220,7 +1220,7 @@ impl list <T>
                             result.push_back(clone it2.item);
                         }
                         else {
-                            result.push_back(heap it2.item);
+                            result.push_back(dummy_heap it2.item);
                         }
 
                         it2 = it2.next;
@@ -1235,7 +1235,7 @@ impl list <T>
                             result.push_back(clone it.item);
                         }
                         else {
-                            result.push_back(heap it.item);
+                            result.push_back(dummy_heap it.item);
                         }
 
                         it = it.next;
@@ -1265,14 +1265,14 @@ impl list <T>
                 list1.push_back(clone it.item);
             }
             else {
-                list1.push_back(heap it.item);
+                list1.push_back(dummy_heap it.item);
             }
 
             if(isheap(T)) {
                 list2.push_back(clone it.next.item);
             }
             else {
-                list2.push_back(heap it.next.item);
+                list2.push_back(dummy_heap it.next.item);
             }
 
             if(it.next.next == null) {
@@ -1286,7 +1286,7 @@ impl list <T>
                     list1.push_back(clone it.item);
                 }
                 else {
-                    list1.push_back(heap it.item);
+                    list1.push_back(dummy_heap it.item);
                 }
                 break;
             }
@@ -1302,23 +1302,22 @@ impl list <T>
         list<T>*% result = new list<T>.initialize();
 
         if(self.length() > 0) {
-            T item_before = self.item(0, null);
+            T& item_before = self.item(0, null);
 
             if(isheap(T)) {
                 result.push_back(clone item_before);
             }
             else {
-                result.push_back(heap item_before);
+                result.push_back(dummy_heap item_before);
             }
 
             self.sublist(1,-1).each {
-
                 if(!it.equals(item_before)) {
                     if(isheap(T)) {
                         result.push_back(clone it);
                     }
                     else {
-                        result.push_back(heap it);
+                        result.push_back(dummy_heap it);
                     }
                 }
 
@@ -1662,15 +1661,15 @@ impl map <T, T2>
                     result.insert(clone it, clone it2);
                 }
                 else {
-                    result.insert(clone it, heap it2);
+                    result.insert(clone it, dummy_heap it2);
                 }
             }
             else {
                 if(isheap(T2)) {
-                    result.insert(heap it, clone it2);
+                    result.insert(dummy_heap it, clone it2);
                 }
                 else {
-                    result.insert(heap it, heap it2);
+                    result.insert(dummy_heap it, dummy_heap it2);
                 }
             }
         }

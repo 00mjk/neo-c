@@ -115,18 +115,6 @@ impl VigWin version 13
     }
 
     void completion(VigWin* self) {
-        var candidates = new list<wstring>.initialize();
-
-        self.texts.each {
-            var li = it.to_string("").scan(regex!(/[a-zA-Z0-9_]+/));
-
-            li.each {
-                candidates.push_back(it.to_wstring());
-            }
-        }
-
-        var candidate = self.selector(candidates);
-
         wchar_t* line = self.texts.item(self.scroll+self.cursorY, null);
 
         wchar_t* p = line + self.cursorX;
@@ -144,6 +132,25 @@ impl VigWin version 13
         p++;
         
         int len = (line + self.cursorX - p) / sizeof(wchar_t);
+
+        var word = line.to_wstring().substring(self.cursorX-len, self.cursorX);
+
+        var candidates = new list<wstring>.initialize();
+
+        self.texts.each {
+            var li = it.to_string("").scan(regex!(/[a-zA-Z0-9_]+/));
+
+            li.each {
+                if(it.index(word.to_string(""), -1) != -1)
+                {
+                    candidates.push_back(it.to_wstring());
+                }
+            }
+        }
+
+        var candidates2 = candidates.sort().uniq();
+
+        var candidate = self.selector(candidates2);
 
         var append = candidate.substring(len, -1);
         self.insertText(append);

@@ -4829,14 +4829,14 @@ BOOL parse_borrow(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-BOOL parse_heap(unsigned int* node, sParserInfo* info)
+BOOL parse_dummy_heap(unsigned int* node, sParserInfo* info)
 {
     unsigned int object_node;
     if(!expression(&object_node, info)) {
         return FALSE;
     }
 
-    *node = sNodeTree_create_heap(object_node, info);
+    *node = sNodeTree_create_dummy_heap(object_node, info);
 
     return TRUE;
 }
@@ -6405,8 +6405,8 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "heap") == 0) {
-            if(!parse_heap(node, info)) {
+        else if(strcmp(buf, "dummy_heap") == 0) {
+            if(!parse_dummy_heap(node, info)) {
                 return FALSE;
             }
         }

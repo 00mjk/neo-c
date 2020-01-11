@@ -1749,7 +1749,7 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
 static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_delete, sCompileInfo* info)
 {
 #ifdef MDEBUG
-    printf("free right value object %p type %s*\n", obj, CLASS_NAME(node_type->mClass));
+    printf("free right value object %p type %s at %s %d\n", obj, CLASS_NAME(node_type->mClass), info->sname, info->sline);
 #endif
 
     Value* obj2 = (Value*)obj;

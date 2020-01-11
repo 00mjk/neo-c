@@ -2282,7 +2282,6 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     /// type inference ///
     sNodeType* left_type = NULL;
     if(var->mType == NULL) {
-
         left_type = clone_node_type(right_type);
         var->mType = clone_node_type(right_type);
     }
@@ -3402,6 +3401,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 BOOL in_clang = fun->mInCLang;
                 BOOL var_arg = fun->mVarArg;
 
+
                 unsigned int node = 0;
                 if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg, FALSE))
                 {
@@ -4179,6 +4179,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     BOOL generics_function = gNodes[node].uValue.sFunction.mGenericsFunction;
     char fun_name[VAR_NAME_MAX];
     xstrncpy(fun_name, gNodes[node].uValue.sFunction.mName, VAR_NAME_MAX);
+
 
     char simple_fun_name[VAR_NAME_MAX];
     xstrncpy(simple_fun_name, gNodes[node].uValue.sFunction.mSimpleName, VAR_NAME_MAX);
@@ -5609,11 +5610,11 @@ static BOOL compile_borrow(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_heap(unsigned int object_node, sParserInfo* info)
+unsigned int sNodeTree_create_dummy_heap(unsigned int object_node, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
-    gNodes[node].mNodeType = kNodeTypeHeap;
+    gNodes[node].mNodeType = kNodeTypeDummyHeap;
 
     xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
     gNodes[node].mLine = info->sline;
@@ -5625,12 +5626,12 @@ unsigned int sNodeTree_create_heap(unsigned int object_node, sParserInfo* info)
     return node;
 }
 
-static BOOL compile_heap(unsigned int node, sCompileInfo* info)
+static BOOL compile_dummy_heap(unsigned int node, sCompileInfo* info)
 {
     unsigned int left_node = gNodes[node].mLeft;
 
     if(left_node == 0) {
-        compile_err_msg(info, "require heap target object");
+        compile_err_msg(info, "require dummy heap target object");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5645,7 +5646,7 @@ static BOOL compile_heap(unsigned int node, sCompileInfo* info)
     LVALUE llvm_value = *get_value_from_stack(-1);
     dec_stack_ptr(1, info);
 
-    llvm_value.type->mHeap = TRUE;
+    llvm_value.type->mDummyHeap = TRUE;
 
     push_value_to_stack_ptr(&llvm_value, info);
 
@@ -12420,8 +12421,8 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
-        case kNodeTypeHeap:
-            if(!compile_heap(node, info))
+        case kNodeTypeDummyHeap:
+            if(!compile_dummy_heap(node, info))
             {
                 return FALSE;
             }
