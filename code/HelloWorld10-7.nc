@@ -19,5 +19,12 @@ int main()
 
     xassert("sort", li9.equals(list!("aaa", "bbb", "ccc", "ddd", "eee", "fff")));
 
+    var li10 = list!("fff", "fff", "aaa", "aaa", "aaa");
+
+
+    var li11 = li10.uniq();
+
+    xassert("uniq", li11.equals(list!("fff", "aaa")));
+
     return 0;
 }

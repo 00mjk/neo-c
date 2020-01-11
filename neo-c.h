@@ -1125,7 +1125,12 @@ impl list <T>
         var i = 0;
         while(it != null) {
             if(i >= begin && i < tail) {
-                result.push_back(clone it.item);
+                if(isheap(T)) {
+                    result.push_back(clone it.item);
+                }
+                else {
+                    result.push_back(heap it.item);
+                }
             }
             it = it.next;
             i++;
@@ -1291,6 +1296,37 @@ impl list <T>
     }
     list<T>*% sort(list<T>* self) {
         return self.merge_sort();
+    }
+
+    list<T>*% uniq(list<T>* self) {
+        list<T>*% result = new list<T>.initialize();
+
+        if(self.length() > 0) {
+            T item_before = self.item(0, null);
+
+            if(isheap(T)) {
+                result.push_back(clone item_before);
+            }
+            else {
+                result.push_back(heap item_before);
+            }
+
+            self.sublist(1,-1).each {
+
+                if(!it.equals(item_before)) {
+                    if(isheap(T)) {
+                        result.push_back(clone it);
+                    }
+                    else {
+                        result.push_back(heap it);
+                    }
+                }
+
+                item_before = it;
+            }
+        }
+
+        return result;
     }
 
     bool equals(list<T>* left, list<T>* right)
