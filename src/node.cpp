@@ -915,7 +915,6 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
         info->type = clone_node_type(fun->mResultType);
     }
     else {
-llvm_fun->print(llvm::errs(), nullptr);
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateCall(llvm_fun, llvm_params);
         llvm_value.type = clone_node_type(fun->mResultType);
