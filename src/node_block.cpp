@@ -27,6 +27,8 @@ BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_c_lang, sParser
 
 BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
 {
+    node_block->mLVTable = info->lv_table;
+
     xstrncpy(node_block->mSName, info->sname, PATH_MAX);
     node_block->mSLine = info->sline;
 
@@ -145,7 +147,6 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
     sBuf_append(&(node_block)->mSource, source_head, source_end - source_head);
     sBuf_append_char(&(node_block)->mSource, '\0');
 
-    node_block->mLVTable = info->lv_table;
     node_block->mHasResult = has_result;
 
     if(!extern_c_lang || info->mBlockLevel > 0) 
@@ -176,6 +177,10 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
     BOOL extern_c_lang = block->mExternCLang;
 
     BOOL has_result = block->mHasResult;
+
+    if(!extern_c_lang && free_var_object) {
+        free_right_value_objects(info);
+    }
 
     int stack_num_before = info->stack_num;
 
@@ -250,6 +255,8 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                     info->type = llvm_value.type;
                     int alignment = get_llvm_alignment_from_node_type(llvm_value.type);
 
+                    info->has_block_result = TRUE;
+
                     Builder.CreateAlignedStore(llvm_value.value, (Value*)info->result_variable, alignment);
                 }
                 else if(has_result) {
@@ -301,6 +308,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                         prevent_from_right_object_free(&llvm_value, info);
 
                         push_value_to_stack_ptr(&llvm_value, info);
+                        info->has_block_result = TRUE;
 
                         info->type = llvm_value.type;
                     }

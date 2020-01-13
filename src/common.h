@@ -264,6 +264,7 @@ sVar* get_variable_from_index(sVarTable* table, int index);
 
 int get_var_num(sVarTable* table);
 void show_vtable(sVarTable* table);
+void show_vtable_current_only(sVarTable* table);
 
 int get_parent_var_num_of_sum(sVarTable* table);
 
@@ -419,6 +420,8 @@ struct sCompileInfoStruct
     struct sNodeBlockStruct* function_node_block;
 
     BOOL in_inline_function;
+
+    BOOL has_block_result;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;

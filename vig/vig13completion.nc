@@ -138,7 +138,7 @@ impl VigWin version 13
         var candidates = new list<wstring>.initialize();
 
         self.texts.each {
-            var li = it.to_string("").scan(regex!(/[a-zA-Z0-9_]+/));
+            var li = it.to_string("").scan(regex("[a-zA-Z0-9_]+", false, false, false, false, false, false, false, false));
 
             li.each {
                 if(it.index(word.to_string(""), -1) != -1)

@@ -20,6 +20,7 @@ LoopAnalysisManager loopAnalysisManager(false);
 #endif
 
 LVALUE* gLLVMStack;
+LVALUE* gLLVMStackHead;
 //Function* gNeoCMainFunction;
 Function* gFunction;
 
@@ -444,6 +445,7 @@ void start_to_make_native_code(char* sname)
     TheLabels.clear();
   
     gLLVMStack = (LVALUE*)xcalloc(1, sizeof(LVALUE)*NEO_C_STACK_SIZE);
+    gLLVMStackHead = gLLVMStack;
     declare_builtin_functions();
 }
 
@@ -1689,12 +1691,24 @@ static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo
 
 static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
 {
+    int stack_num_before = info->stack_num;
+
     if(node_type->mNumGenericsTypes > 0) 
     {
-        int finalize_generics_fun_num = create_generics_finalize_method(node_type, info);
+        Function* llvm_fun;
+
+        int finalize_generics_fun_num = create_generics_finalize_method(node_type, &llvm_fun, info);
 
         if(finalize_generics_fun_num != -1)
         {
+            std::vector<Value*> llvm_params;
+
+            llvm_params.push_back(obj);
+
+            Builder.CreateCall(llvm_fun, llvm_params);
+
+
+/*
             Value* params[PARAMS_MAX];
 
             params[0] = obj;
@@ -1721,6 +1735,7 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
             create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", NULL, 0, node_type, struct_name, finalize_generics_fun_num);
 
             (void)call_function(real_fun_name, params, num_params, "", TRUE, NULL, info);
+*/
         }
     }
     else {
@@ -1744,6 +1759,8 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
 
         (void)call_function("finalize", params, num_params, struct_name, TRUE, NULL, info);
     }
+
+    info->stack_num = stack_num_before;
 }
 
 static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_delete, sCompileInfo* info)
@@ -1818,6 +1835,9 @@ void free_right_value_objects(sCompileInfo* info)
 void free_object(sNodeType* node_type, void* address, BOOL force_delete, sCompileInfo* info)
 {
     Value* obj = Builder.CreateAlignedLoad((Value*)address, 8);
+#ifdef MDEBUG
+    printf("free object %p type %s at %s %d\n", obj, CLASS_NAME(node_type->mClass), info->sname, info->sline);
+#endif
 
     free_right_value_object(node_type, obj, force_delete, info);
 }

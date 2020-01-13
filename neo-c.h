@@ -256,9 +256,9 @@ struct regex_struct {
     bool ungreedy;
 };
 
-typedef regex_struct*% regex;
+typedef regex_struct*% nregex;
 
-extern regex regex(char* str, bool ignore_case, bool multiline, bool global, bool extended, bool dotall, bool anchored, bool dollar_endonly, bool ungreedy);
+extern nregex regex(char* str, bool ignore_case, bool multiline, bool global, bool extended, bool dotall, bool anchored, bool dollar_endonly, bool ungreedy);
 
 ruby_macro regex {
     param_line = ENV['PARAMS'];
@@ -349,13 +349,13 @@ impl string
     extern string&delete(string& str, int position);
     extern string& delete_range(string& str, int head, int tail);
     extern string printable(string& str);
-    extern string sub(string& self, regex reg, char* replace, list<string>?* group_strings);
-    extern bool match(string& self, regex reg, list<string>?* group_strings);
-    list<string>*% scan(string& self, regex reg);
+    extern string sub(string& self, nregex reg, char* replace, list<string>?* group_strings);
+    extern bool match(string& self, nregex reg, list<string>?* group_strings);
+    list<string>*% scan(string& self, nregex reg);
     extern wstring to_wstring(string& self);
     string reverse(string& str);
     list<string>*% split_char(string& self, char c);
-    list<string>*% split(string& self, regex reg);
+    list<string>*% split(string& self, nregex reg);
 
     inline int compare(string& left, string& right) {
         return strcmp(left, right);

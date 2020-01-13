@@ -340,7 +340,7 @@ impl string
         return result;
     }
 
-    string sub(string& self, regex reg, char* replace, list<string>?* group_strings)
+    string sub(string& self, nregex reg, char* replace, list<string>?* group_strings)
     {
         int offset = 0;
 
@@ -423,7 +423,7 @@ impl string
 
         return result.to_string();
     }
-    bool match(string& self, regex reg, list<string>?* group_strings)
+    bool match(string& self, nregex reg, list<string>?* group_strings)
     {
         int offset = 0;
 
@@ -470,7 +470,7 @@ impl string
     }
 
 
-    list<string>*% scan(string& self, regex reg)
+    list<string>*% scan(string& self, nregex reg)
     {
         var result = new list<string>.initialize();
 
@@ -532,7 +532,7 @@ impl string
 
         return result;
     }
-    list<string>*% split(string& self, regex reg)
+    list<string>*% split(string& self, nregex reg)
     {
         var result = new list<string>.initialize();
 
@@ -960,7 +960,7 @@ char* xstrncat(char* des, char* str, int size)
     return result;
 }
 
-regex regex(char* str, bool ignore_case, bool multiline, bool global, bool extended, bool dotall, bool anchored, bool dollar_endonly, bool ungreedy)
+nregex regex(char* str, bool ignore_case, bool multiline, bool global, bool extended, bool dotall, bool anchored, bool dollar_endonly, bool ungreedy)
 {
     var result = new regex_struct;
 

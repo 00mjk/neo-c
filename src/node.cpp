@@ -800,6 +800,7 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
     char real_fun_name[REAL_FUN_NAME_MAX];
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
 
+
     std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
 
     if(funcs.size() == 0) {
@@ -914,6 +915,7 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
         info->type = clone_node_type(fun->mResultType);
     }
     else {
+llvm_fun->print(llvm::errs(), nullptr);
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateCall(llvm_fun, llvm_params);
         llvm_value.type = clone_node_type(fun->mResultType);
@@ -1612,7 +1614,7 @@ static BOOL compile_equals(unsigned int node, sCompileInfo* info)
     }
 
     LVALUE llvm_value;
-    llvm_value.value = Builder.CreateICmpEQ(lvalue.value, rvalue.value, "eqtmp");
+    llvm_value.value = Builder.CreateICmpEQ(lvalue.value, rvalue.value, "eqtmpX");
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
@@ -2660,7 +2662,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
 
 static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, sNodeType* generics_type, sParserInfo* info, sCompileInfo* cinfo, int num_generics, char generics_type_names[PARAMS_MAX][VAR_NAME_MAX], BOOL in_clang)
 {
-    sNodeType* lambda_type = fun->mParamTypes[fun->mNumParams-1];
+    sNodeType* lambda_type = clone_node_type(fun->mParamTypes[fun->mNumParams-1]);
 
     /// params ///
     sParserParam params[PARAMS_MAX];
@@ -3038,6 +3040,9 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     int num_generics = gNodes[node].uValue.sFunctionCall.mNumGenerics;
     char generics_type_names[PARAMS_MAX][VAR_NAME_MAX];
 
+
+//printf("!!! fun_name %s\n", fun_name);
+
     int i;
     for(i=0; i<num_generics; i++)
     {
@@ -3212,6 +3217,12 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
     /// compile simple lambda param ///
     if(simple_lambda_param) {
+        LVALUE saved_llvm_stack[NEO_C_STACK_SIZE];
+
+        memcpy(saved_llvm_stack, gLLVMStackHead, sizeof(LVALUE)*NEO_C_STACK_SIZE);
+
+        int stack_num_before = info->stack_num;
+
         params[num_params2] = gNodes[node].uValue.sFunctionCall.mParams[num_params2];
 
         char* buf = gNodes[params[num_params2]].uValue.sSimpleLambdaParam.mBuf;
@@ -3238,6 +3249,14 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         }
 
         param_types[num_params2] = info->type;
+
+        LVALUE llvm_value = *get_value_from_stack(-1);
+
+        memcpy(gLLVMStackHead, saved_llvm_stack, sizeof(LVALUE)*NEO_C_STACK_SIZE);
+        info->stack_num = stack_num_before;
+        gLLVMStack = gLLVMStackHead + info->stack_num;
+
+        push_value_to_stack_ptr(&llvm_value, info);
     }
 
     if(!(fun->mNumParams == num_params || (fun->mVarArg && num_params >= fun->mNumParams)))
@@ -4377,6 +4396,9 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     BOOL last_expression_is_return_before = info->last_expression_is_return;
     info->last_expression_is_return = FALSE;
 
+    BOOL has_block_result_before = info->has_block_result;
+    info->has_block_result = FALSE;
+
     if(!compile_block(node_block, info, result_type, TRUE))
     {
         info->function_lvtable = function_lvtable_before;
@@ -4391,12 +4413,14 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     info->result_type = result_type_before;
     sNodeType* block_result_type = info->type;
-    if(info->last_expression_is_return) {
+    if(!info->has_block_result) {
         block_result_type = clone_node_type(result_type);
     }
     else {
         block_result_type = clone_node_type(info->type);
     }
+    info->has_block_result = has_block_result_before;
+
     info->function_lvtable = function_lvtable_before;
     xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
     if(!info->last_expression_is_return) {
@@ -4571,7 +4595,6 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         BOOL last_expression_is_return_before = info->last_expression_is_return;
         info->last_expression_is_return = FALSE;
         void* right_value_objects = new_right_value_objects_container(info);
-
 
         if(!compile_block(node_block, info, result_type, TRUE))
         {
@@ -6279,7 +6302,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
-        llvm_value.type = field_type;
+        llvm_value.type = clone_node_type(field_type);
         llvm_value.address = field_address2;
         llvm_value.var = nullptr;
         llvm_value.binded_value = TRUE;
@@ -6379,13 +6402,13 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
-    llvm_value.type = field_type;
+    llvm_value.type = clone_node_type(field_type);
     llvm_value.address = field_address2;
     llvm_value.var = nullptr;
     llvm_value.binded_value = TRUE;
     llvm_value.load_field = TRUE;
 
-    info->type = field_type;
+    info->type = clone_node_type(field_type);
 
     dec_stack_ptr(1, info);
     push_value_to_stack_ptr(&llvm_value, info);
@@ -9759,6 +9782,7 @@ BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
 {
     struct sNodeBlockStruct* node_block = gNodes[node].uValue.sNormalBlock.mNodeBlock;
 
+
     sNodeType* result_type = create_node_type_with_class_name("any");
     result_type->mHeap = TRUE;
 
@@ -9774,7 +9798,10 @@ BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
         if(llvm_value.type->mHeap) {
             append_heap_object_to_right_value(&llvm_value, info);
         }
+
+        info->type = clone_node_type(llvm_value.type);
     }
+
 
     return TRUE;
 }
@@ -9946,7 +9973,7 @@ BOOL compile_case_expression(unsigned int node, sCompileInfo* info)
             cast_right_type_to_left_type(left_type, &rvalue.type, &rvalue, info);
         }
 
-        Value* conditional_value = Builder.CreateICmpEQ(lvalue, rvalue.value, "eqtmp");
+        Value* conditional_value = Builder.CreateICmpEQ(lvalue, rvalue.value, "eqtmpY");
         free_right_value_objects(info);
         Builder.CreateCondBr(conditional_value, cond_then_block, cond_else_block);
     }
@@ -12590,7 +12617,7 @@ BOOL compile(unsigned int node, sCompileInfo* info)
     return node;
 }
 
-int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info)
+int create_generics_finalize_method(sNodeType* node_type2, Function** llvm_fun, sCompileInfo* info)
 {
     int generics_fun_num = gGenericsFunNum++;
 
@@ -12606,7 +12633,6 @@ int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info)
     char real_fun_name[REAL_FUN_NAME_MAX];
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", struct_name);
 
-
     std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
 
     if(funcs.size() == 0) {
@@ -12616,6 +12642,12 @@ int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info)
     sFunction* fun = funcs[funcs.size()-1];
 
     if(fun->mResultType != nullptr) {
+        LVALUE saved_llvm_stack[NEO_C_STACK_SIZE];
+
+        memcpy(saved_llvm_stack, gLLVMStackHead, sizeof(LVALUE)*NEO_C_STACK_SIZE);
+
+        int stack_num_before = info->stack_num;
+
         /// get function ///
         int num_method_generics_types = 0;
         sNodeType* method_generics_types[GENERICS_TYPES_MAX];
@@ -12653,8 +12685,16 @@ int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info)
             return -1;
         }
 
+        LVALUE* fun_value = get_value_from_stack(-1);
+
+        *llvm_fun = (Function*)fun_value->value;
+
         info->stack_num = stack_num;
         gLLVMStack = llvm_stack;
+
+        memcpy(gLLVMStackHead, saved_llvm_stack, sizeof(LVALUE)*NEO_C_STACK_SIZE);
+        info->stack_num = stack_num_before;
+        gLLVMStack = gLLVMStackHead + info->stack_num;
     }
     
 

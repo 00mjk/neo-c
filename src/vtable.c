@@ -369,6 +369,33 @@ void set_max_block_var_num(sVarTable* lv_table, sVarTable* old_table)
     }
 }
 
+void show_vtable_current_only(sVarTable* table)
+{
+    sVarTable* it = table;
+
+    while(it) {
+        sVar* p = it->mLocalVariables;
+
+        while(1) {
+            if(p->mName[0] != 0) {
+                printf("name %s index %d block level %d readonly %d constant %d value %p global %d\n", p->mName, p->mIndex, p->mBlockLevel, p->mReadOnly, p->mConstant, p->mLLVMValue, p->mGlobal);
+
+                if(p->mType && p->mType->mClass) 
+                {
+                    printf("%s\n", CLASS_NAME(p->mType->mClass));
+                }
+            }
+
+            p++;
+
+            if(p == it->mLocalVariables + LOCAL_VARIABLE_MAX) {
+                break;
+            }
+        }
+        break;
+    }
+}
+
 void show_vtable(sVarTable* table)
 {
     sVarTable* it = table;
@@ -399,30 +426,35 @@ void show_vtable(sVarTable* table)
 
 void free_objects(sVarTable* table, sCompileInfo* info)
 {
-    sVar* p = table->mLocalVariables;
+    if(!info->no_output) {
+        sVar* p = table->mLocalVariables;
 
-    while(1) {
-        if(p->mName[0] != 0) {
-            sNodeType* node_type = p->mType;
-            sCLClass* klass = node_type->mClass;
+        while(1) {
+            if(p->mName[0] != 0) {
+                sNodeType* node_type = p->mType;
+                sCLClass* klass = node_type->mClass;
 
-            if(node_type->mHeap)
-            {
-                if(p->mLLVMValue)
+                if(node_type->mHeap)
                 {
+                    if(p->mLLVMValue)
+                    {
 #ifdef MDEBUG
     printf("free %s %s in vtable. address %p\n", p->mName, CLASS_NAME(node_type->mClass), p);
 #endif
                     free_object(p->mType, p->mLLVMValue, FALSE, info);
-                    p->mLLVMValue = NULL;
+#ifdef MDEBUG
+    printf("end free %s %s in vtable. address %p\n", p->mName, CLASS_NAME(node_type->mClass), p);
+#endif
+                        p->mLLVMValue = NULL;
+                    }
                 }
             }
-        }
 
-        p++;
+            p++;
 
-        if(p == table->mLocalVariables + LOCAL_VARIABLE_MAX) {
-            break;
+            if(p == table->mLocalVariables + LOCAL_VARIABLE_MAX) {
+                break;
+            }
         }
     }
 }

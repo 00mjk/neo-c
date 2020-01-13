@@ -140,6 +140,7 @@ typedef struct sFunctionStruct sFunction;
 typedef struct LVALUEStruct LVALUE;
 
 extern LVALUE* gLLVMStack;
+extern LVALUE* gLLVMStackHead;
 
 extern "C"
 {
@@ -149,7 +150,7 @@ LVALUE* get_value_from_stack(int offset);
 
 int get_llvm_alignment_from_node_type(sNodeType* node_type);
 BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info);
-BOOL create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info);
+int create_generics_finalize_method(sNodeType* node_type2, Function** llvm_fun, sCompileInfo* info);
 
 Value* llvm_create_string(char* str);
 BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info);
