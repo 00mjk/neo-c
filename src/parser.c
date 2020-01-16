@@ -3971,6 +3971,7 @@ static BOOL parse_if(unsigned int* node, sParserInfo* info)
         }
     }
 
+printf("if epxression info->sline %d\n", info->sline);
     *node = sNodeTree_if_expression(expression_node, MANAGED if_node_block, elif_expression_nodes, elif_node_blocks, elif_num, MANAGED else_node_block, info, sname, sline);
 
     return TRUE;
@@ -7195,6 +7196,7 @@ static BOOL expression_add_sub(unsigned int* node, sParserInfo* info)
                 info->err_num++;
             }
 
+printf("+ info->sline %d\n", info->sline);
             *node = sNodeTree_create_add(*node, right, 0, info);
         }
         else if(*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-' && *(info->p+1) != '>') 

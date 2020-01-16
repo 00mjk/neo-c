@@ -3412,6 +3412,8 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
                 char* buf = fun->mBlockText;
 
+puts(buf);
+
                 char sname[PATH_MAX];
                 xstrncpy(sname, fun->mSName, PATH_MAX);
 
