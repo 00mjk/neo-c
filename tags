@@ -199,7 +199,7 @@ as_fn_unset	vig/configure	/^as_fn_unset ()$/;"	f
 at	code/neo-c.h	/^    T2& at(map<T, T2>* self, T& key, T2& default_value) $/;"	f	struct:map
 at	neo-c.h	/^    T2& at(map<T, T2>* self, T& key, T2& default_value) $/;"	f	struct:map
 autoInput	vig/vig.h	/^    bool autoInput;$/;"	m	struct:version
-autoInputIndex	vig/vig.h	/^    bool autoInputIndex;$/;"	m	struct:version
+autoInputIndex	vig/vig.h	/^    int autoInputIndex;$/;"	m	struct:version
 auto_cast_posibility	src/node_type.c	/^BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)$/;"	f
 b	code/HelloWorld6.h	/^    int b;$/;"	m	struct:version
 binded_value	src/llvm_common.hpp	/^    BOOL binded_value;$/;"	m	struct:LVALUEStruct
@@ -1052,6 +1052,7 @@ preprocess_source	src/preprocessor.c	/^static BOOL preprocess_source(char* sname
 preprocessor	src/preprocessor.c	/^static BOOL preprocessor(sBuf* source, sBuf* source2)$/;"	f	file:
 preprocessor_final	src/preprocessor.c	/^static void preprocessor_final()$/;"	f	file:
 preprocessor_init	src/preprocessor.c	/^static void preprocessor_init()$/;"	f	file:
+pressedDot	vig/vig.h	/^    bool pressedDot;$/;"	m	struct:version
 prev	code/neo-c.h	/^    struct list_item<T>*? prev;$/;"	m	struct:list_item	typeref:struct:list_item::list_item
 prev	neo-c.h	/^    struct list_item<T>*? prev;$/;"	m	struct:list_item	typeref:struct:list_item::list_item
 prevent_from_free_right_value_objects	src/common.h	/^    BOOL prevent_from_free_right_value_objects;$/;"	m	struct:sCompileInfoStruct
@@ -1258,6 +1259,7 @@ sVarTable	src/common.h	/^typedef struct sVarTableStruct sVarTable;$/;"	t	typeref
 sVarTableStruct	src/common.h	/^struct sVarTableStruct {$/;"	s
 sVector	src/common.h	/^        } sVector;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon13
 sWhile	src/common.h	/^        } sWhile;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon16
+savedInputedKeys	vig/vig.h	/^    vector<int>*% savedInputedKeys;$/;"	m	struct:version
 scroll	vig/vig.h	/^    int scroll;$/;"	m	struct:version
 searchString	vig/vig.h	/^    wstring searchString;$/;"	m	struct:version
 search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size, int version)$/;"	f	file:

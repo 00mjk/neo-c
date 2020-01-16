@@ -181,7 +181,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_
         int sline = info.sline;
         char* sname = info.sname;
 
-        info.sline_top = sline;
+        //info.sline_top = sline;
 
         if(*info.p == '#') {
             if(!parse_sharp(&info)) {

@@ -2751,13 +2751,35 @@ BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly_brace)
         }
         else if(*info->p == '}') {
             info->p++;
-            skip_spaces_and_lf(info);
+
+            int line_num = 0;
+            while(TRUE) {
+                if(*info->p == ' ' || *info->p == '\t') {
+                    info->p++;
+                }
+                else if(*info->p == '\n') {
+                    info->p++;
+                    line_num++;
+                }
+                else {
+                    break;
+                }
+            }
 
             if(nest == 0) {
+                int i;
+                for(i=0; i<line_num; i++) {
+                    sBuf_append_str(buf, "\n");
+                }
                 break;
             }
             else {
                 sBuf_append_str(buf, "}");
+
+                int i;
+                for(i=0; i<line_num; i++) {
+                    sBuf_append_str(buf, "\n");
+                }
             }
 
             nest--;

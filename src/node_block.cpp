@@ -5,7 +5,9 @@ extern "C"
 
 BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_c_lang, sParserInfo* info)
 {
-    expect_next_character_with_one_forward("{", info);
+    if(*info->p == '{') {
+        info->p++;
+    }
 
     sVarTable* old_table = info->lv_table;
 
@@ -31,6 +33,8 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
 
     xstrncpy(node_block->mSName, info->sname, PATH_MAX);
     node_block->mSLine = info->sline;
+
+    skip_spaces_and_lf(info);
 
     node_block->mExternCLang = extern_c_lang;
 
@@ -199,6 +203,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
             unsigned int node = block->mNodes[i];
 
             xstrncpy(info->sname, gNodes[node].mSName, PATH_MAX);
+            int sline_before = info->sline;
             info->sline = gNodes[node].mLine;
 
             if(!compile(node, info)) {
@@ -206,6 +211,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                 if(!extern_c_lang) {
                     info->mBlockLevel--;
                 }
+                info->sline = sline_before;
                 return FALSE;
             }
 
@@ -247,6 +253,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                         if(!extern_c_lang) {
                             info->mBlockLevel--;
                         }
+                        info->sline = sline_before;
                         return TRUE;
                     }
 
@@ -291,6 +298,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                             if(!extern_c_lang) {
                                 info->mBlockLevel--;
                             }
+                            info->sline = sline_before;
                             return TRUE;
                         }
 
@@ -322,6 +330,8 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
             else {
                 arrange_stack(info, stack_num_before);
             }
+
+            info->sline = sline_before;
         }
     }
 

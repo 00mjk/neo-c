@@ -686,12 +686,12 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     xstrncpy(info2.sname, sname, PATH_MAX);
     info2.source = buf;
     info2.module_name = info->module_name;
-    info2.sline = sline;
     info2.parse_phase = info->parse_phase;
     //info2.lv_table = init_var_table();
     info2.lv_table = info->lv_table;
     info2.in_clang = in_clang;
     info2.mFunVersion = version;
+
 
     for(i=0; i<num_method_generics_types; i++) {
         info2.mMethodGenericsTypes[i] = clone_node_type(method_generics_types[i]);
@@ -769,6 +769,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
         }
     }
 
+    info2.sline = sline;
     if(!parse_block(node_block, FALSE, &info2)) {
         sNodeBlock_free(node_block);
         return FALSE;
@@ -3418,7 +3419,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
 
                 BOOL in_clang = fun->mInCLang;
                 BOOL var_arg = fun->mVarArg;
-
 
                 unsigned int node = 0;
                 if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg, FALSE))

@@ -1,5 +1,9 @@
+``でstring型。w``でwstring型
+
+initializeでポインタを受け取るようにしてマシーンスタックのallocも対応させる
 
 Genericsやinlineのエラーメッセージがバグっている。行番号
+parser.cのblockをとる部分
 
 double, floatの値の表現、8進数、16進数
 
