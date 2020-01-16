@@ -843,9 +843,13 @@ impl list <T>
             else if(self.len == 2) {
                 if(position == 0) {
                     list_item<T>?* it = self.head;
+
                     self.head = it.next;
 
-                    self.tail = it.next;
+                    self.head.prev = null;
+                    self.head.next = null;
+
+                    self.tail = self.head;
 
                     if(isheap(T)) {
                         delete it.item;
@@ -856,7 +860,9 @@ impl list <T>
                 }
                 else {
                     list_item<T>?* it = self.tail;
+
                     self.head.next = null;
+                    self.head.prev = null;
 
                     self.tail = self.head;
 
