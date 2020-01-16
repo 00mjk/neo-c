@@ -1829,7 +1829,7 @@ static BOOL compile_leeq(unsigned int node, sCompileInfo* info)
     }
 
     LVALUE llvm_value;
-    llvm_value.value = Builder.CreateICmpSLE(lvalue.value, rvalue.value, "letmp");
+    llvm_value.value = Builder.CreateICmpSLE(lvalue.value, rvalue.value, "leeqtmp");
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;

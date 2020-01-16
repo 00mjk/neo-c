@@ -418,6 +418,9 @@ impl VigWin version 3
     void clearInputedKey(VigWin* self) {
         /// implemented by the after layer
     }
+    void saveInputedKey(VigWin* self) {
+        /// implemented by the after layer
+    }
 }
 
 impl Vig version 3 
@@ -429,6 +432,7 @@ impl Vig version 3
     }
     void exitFromInsertMode(Vig* self) {
         self.mode = kEditMode;
+        self.activeWin.saveInputedKey();
     }
 
     initialize() {
@@ -469,6 +473,9 @@ impl Vig version 3
                 it.view(self);
             }
 
+            if(self.mode != kInsertMode) {
+                self.activeWin.clearInputedKey();
+            }
             self.activeWin.input(self);
         }
 

@@ -106,6 +106,7 @@ impl VigWin version 3
     void writedFlagOn(VigWin* self);
     void completion(VigWin* self);
     void clearInputedKey(VigWin* self);
+    void saveInputedKey(VigWin* self);
 }
 
 struct Vig version 3 
@@ -302,8 +303,10 @@ impl VigWin version 13
 struct VigWin version 14
 {
     vector<int>*% inputedKeys;
+    vector<int>*% savedInputedKeys;
     bool autoInput;
-    bool autoInputIndex;
+    int autoInputIndex;
+    bool pressedDot;
 };
 
 
@@ -312,6 +315,7 @@ impl VigWin version 14
     initialize(int y, int x, int width, int height);
     int getKey(VigWin* self);
     void clearInputedKey(VigWin* self);
+    void saveInputedKey(VigWin* self);
 }
 
 impl Vig version 14

@@ -14,32 +14,57 @@ impl VigWin version 14
         inherit(self, y, x, width, height);
 
         self.inputedKeys = new vector<int>.initialize();
-        self.autoInput = FALSE;
+        self.autoInput = false;
         self.autoInputIndex = 0;
     }
     
     int getKey(VigWin* self) {
-        if(self.autoInput) {
-            if(self.autoInputIndex < self.inputedKeys.length()) {
-                int key = self.inputedKeys.item(self.autoInputIndex, -1);
+        if(self.autoInput && self.savedInputedKeys) {
+            if(self.autoInputIndex < self.savedInputedKeys.length()) {
+                int key = self.savedInputedKeys.item(self.autoInputIndex, -1);
                 self.autoInputIndex++;
 
                 return key;
             }
             else {
-                self.inputedKeys.reset();
-                self.autoInput = FALSE;
+                if(self.pressedDot) {
+                    self.autoInputIndex = 0;
+                    self.autoInput = false;
+                    self.pressedDot = false;
+
+                    int key = wgetch(self.win);
+                    self.inputedKeys.push_back(key);
+                    return key;
+                }
+                else {
+                    self.savedInputedKeys.reset();
+                    self.autoInput = false;
+                    self.autoInputIndex = 0;
+                    self.pressedDot = false;
+
+                    int key = wgetch(self.win);
+                    self.inputedKeys.push_back(key);
+                    return key;
+                }
             }
         }
         else {
+            self.pressedDot = false;
             int key = wgetch(self.win);
             self.inputedKeys.push_back(key);
             return key;
         }
+
     }
 
     void clearInputedKey(VigWin* self) {
         self.inputedKeys.reset();
+    }
+
+    void saveInputedKey(VigWin* self) {
+        if(!self.autoInput && !self.pressedDot) {
+            self.savedInputedKeys = clone self.inputedKeys;
+        }
     }
 }
 
@@ -50,6 +75,8 @@ impl Vig version 14
 
         self.events.replace('.', lambda(Vig* self, int key) 
         {
+            self.activeWin.autoInput = true;
+            self.activeWin.pressedDot = true;
         });
     }
 }

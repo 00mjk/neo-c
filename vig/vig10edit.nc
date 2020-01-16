@@ -145,6 +145,8 @@ impl Vig version 10
                     self.activeWin.writed = true;
                     break;
             }
+
+            self.activeWin.saveInputedKey();
         });
 
         self.events.replace('c', lambda(Vig* self, int key) {
@@ -163,6 +165,8 @@ impl Vig version 10
         self.events.replace('x', lambda(Vig* self, int key) {
             self.activeWin.deleteCursorCharactor();
             self.activeWin.writed = true;
+
+            self.activeWin.saveInputedKey();
         });
     }
 }
