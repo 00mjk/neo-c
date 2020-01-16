@@ -4,6 +4,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <limits.h>
+#include <unistd.h>
 
 #include "vig.h"
 
@@ -181,23 +182,43 @@ impl VigWin version 3
         }
 
         if(cursor_x != -1) {
-            int cursor_x_saved = self.cursorX;
-            int cursor_y_saved = self.cursorY;
-            int scroll_saved = self.scroll;
+            int maxy = getmaxy(self.win);
 
-            self.scroll = 0;
-            self.cursorX = cursor_x;
-            self.cursorY = cursor_y;
-            self.modifyOverCursorYValue();
-            self.modifyOverCursorXValue();
+            if(cursor_y > self.scroll && cursor_y < self.scroll+maxy) {
+                int cursor_x_saved = self.cursorX;
+                int cursor_y_saved = self.cursorY;
+                int scroll_saved = self.scroll;
 
-            self.view(vig);
-            sleep(1);
+                self.cursorX = cursor_x;
+                self.cursorY = cursor_y - self.scroll;
 
-            self.cursorX = cursor_x_saved;
-            self.cursorY = cursor_y_saved;
-            self.scroll = scroll_saved;
-            self.view(vig);
+                self.view(vig);
+                usleep(1000000);
+
+                self.cursorX = cursor_x_saved;
+                self.cursorY = cursor_y_saved;
+                self.scroll = scroll_saved;
+                self.view(vig);
+            }
+            else {
+                int cursor_x_saved = self.cursorX;
+                int cursor_y_saved = self.cursorY;
+                int scroll_saved = self.scroll;
+
+                self.scroll = 0;
+                self.cursorX = cursor_x;
+                self.cursorY = cursor_y;
+                self.modifyOverCursorYValue();
+                self.modifyOverCursorXValue();
+
+                self.view(vig);
+                usleep(1000000);
+
+                self.cursorX = cursor_x_saved;
+                self.cursorY = cursor_y_saved;
+                self.scroll = scroll_saved;
+                self.view(vig);
+            }
         }
     }
     void blinkBraceEnd(VigWin* self, wchar_t head, wchar_t tail, Vig* vig) {
@@ -262,29 +283,49 @@ impl VigWin version 3
         }
 
         if(cursor_x != -1) {
-            int cursor_x_saved = self.cursorX;
-            int cursor_y_saved = self.cursorY;
-            int scroll_saved = self.scroll;
+            int maxy = getmaxy(self.win);
 
-            self.scroll = 0;
-            self.cursorX = cursor_x;
-            self.cursorY = cursor_y;
-            self.modifyOverCursorYValue();
-            self.modifyOverCursorXValue();
+            if(cursor_y > self.scroll && cursor_y < self.scroll+maxy) {
+                int cursor_x_saved = self.cursorX;
+                int cursor_y_saved = self.cursorY;
+                int scroll_saved = self.scroll;
 
-            self.view(vig);
-            sleep(1);
+                self.cursorX = cursor_x;
+                self.cursorY = cursor_y - self.scroll;
 
-            self.cursorX = cursor_x_saved;
-            self.cursorY = cursor_y_saved;
-            self.scroll = scroll_saved;
-            self.view(vig);
+                self.view(vig);
+                usleep(1000000);
+
+                self.cursorX = cursor_x_saved;
+                self.cursorY = cursor_y_saved;
+                self.scroll = scroll_saved;
+                self.view(vig);
+            }
+            else {
+                int cursor_x_saved = self.cursorX;
+                int cursor_y_saved = self.cursorY;
+                int scroll_saved = self.scroll;
+
+                self.scroll = 0;
+                self.cursorX = cursor_x;
+                self.cursorY = cursor_y;
+                self.modifyOverCursorYValue();
+                self.modifyOverCursorXValue();
+
+                self.view(vig);
+                usleep(1000000);
+
+                self.cursorX = cursor_x_saved;
+                self.cursorY = cursor_y_saved;
+                self.scroll = scroll_saved;
+                self.view(vig);
+            }
         }
     }
 
     void inputInsertMode(VigWin* self, Vig* vig)
     {
-        var key = wgetch(self.win);
+        var key = self.getKey();
         
         if(key == 3 || key == 27) {
             vig.exitFromInsertMode();
@@ -317,7 +358,7 @@ impl VigWin version 3
             int i;
             for(i = 1; i<size; i++)
             {
-                keys[i] = wgetch(self.win);
+                keys[i] = self.getKey();
             }
             keys[i] = '\0';
 
@@ -372,6 +413,9 @@ impl VigWin version 3
         /// implemented by the after layer
     }
     void completion(VigWin* self) {
+        /// implemented by the after layer
+    }
+    void clearInputedKey(VigWin* self) {
         /// implemented by the after layer
     }
 }

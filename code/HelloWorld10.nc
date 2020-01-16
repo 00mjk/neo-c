@@ -31,7 +31,6 @@ template <R> void method_generics_test(R& a)
 
 int main()
 {
-/*
     wstring wstr = wstring("ABC");
 
     xassert("wstring test1", wstr.length() == 3);
@@ -91,7 +90,6 @@ int main()
     li4.push_back(clone li2);
     li4.push_back(clone li2);
     li4.push_back(clone li2);
-*/
 
     var li5 = list!("aaa", "bbb", "ccc");
 
@@ -103,7 +101,6 @@ int main()
 
     xassert("list test4", li5.equals(list!("bbb", "ccc")));
 
-/*
     li5.delete(0);
 
     xassert("list test5", li5.equals(list!("ccc")));
@@ -111,7 +108,6 @@ int main()
     li5.delete(0);
 
     xassert("list test6", li5.length() == 0);
-*/
 
     string str1 = string("ABC");
 
@@ -139,12 +135,10 @@ int main()
 
     var a = regex!(/,/);
 
-/*
     printf("a.class %s\n", class_name(a));
 
     xassert("string split test", str5.split(regex!(/,/)).equals(list!(string("A"), string("B"), string("C"))));
     xassert("string split test2", str5.split_char(',').equals(list!(string("A"), string("B"), string("C"))));
-*/
 
     0
 }

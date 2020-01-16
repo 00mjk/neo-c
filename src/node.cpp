@@ -4418,7 +4418,6 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     else {
         block_result_type = clone_node_type(info->type);
     }
-    info->has_block_result = has_block_result_before;
 
     info->function_lvtable = function_lvtable_before;
     xstrncpy(info->fun_name, fun_name_before, VAR_NAME_MAX);
@@ -4448,14 +4447,38 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
             Builder.CreateRet(ret_value);
         }
         else {
-            LVALUE ret_value = *get_value_from_stack(-1);
+            if(info->has_block_result) {
+                LVALUE ret_value = *get_value_from_stack(-1);
 
-            Builder.CreateRet(ret_value.value);
+                Builder.CreateRet(ret_value.value);
 
-            dec_stack_ptr(1, info);
+                dec_stack_ptr(1, info);
+            }
+            else {
+                sNodeType* ret_type = create_node_type_with_class_name("int");
+
+                LVALUE ret_value;
+                ret_value.value = ConstantInt::get(TheContext, llvm::APInt(32, 0));
+                ret_value.type = clone_node_type(ret_type);
+                ret_value.address = nullptr;
+                ret_value.var = nullptr;
+                ret_value.binded_value = FALSE;
+                ret_value.load_field = FALSE;
+
+                if(!cast_right_type_to_left_type(result_type, &ret_type, &ret_value, info)) {
+                    compile_err_msg(info, "Require return expression at the last of function");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+                    return TRUE;
+                }
+
+                Builder.CreateRet(ret_value.value);
+            }
         }
     }
 
+    info->has_block_result = has_block_result_before;
     info->last_expression_is_return = last_expression_is_return_before;
 
 
@@ -4594,6 +4617,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         BOOL last_expression_is_return_before = info->last_expression_is_return;
         info->last_expression_is_return = FALSE;
         void* right_value_objects = new_right_value_objects_container(info);
+        BOOL has_block_result_before = info->has_block_result;
+        info->has_block_result = FALSE;
 
         if(!compile_block(node_block, info, result_type, TRUE))
         {
@@ -4625,14 +4650,38 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
                 Builder.CreateRet(ret_value);
             }
             else {
-                LVALUE ret_value = *get_value_from_stack(-1);
+                if(info->has_block_result) {
+                    LVALUE ret_value = *get_value_from_stack(-1);
 
-                Builder.CreateRet(ret_value.value);
+                    Builder.CreateRet(ret_value.value);
 
-                dec_stack_ptr(1, info);
+                    dec_stack_ptr(1, info);
+                }
+                else {
+                    sNodeType* ret_type = create_node_type_with_class_name("int");
+
+                    LVALUE ret_value;
+                    ret_value.value = ConstantInt::get(TheContext, llvm::APInt(32, 0));
+                    ret_value.type = clone_node_type(ret_type);
+                    ret_value.address = nullptr;
+                    ret_value.var = nullptr;
+                    ret_value.binded_value = FALSE;
+                    ret_value.load_field = FALSE;
+
+                    if(!cast_right_type_to_left_type(result_type, &ret_type, &ret_value, info)) {
+                        compile_err_msg(info, "Require return expression at the last of function");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+                        return TRUE;
+                    }
+
+                    Builder.CreateRet(ret_value.value);
+                }
             }
         }
 
+        info->has_block_result = has_block_result_before;
         info->last_expression_is_return = last_expression_is_return_before;
 
         verifyFunction(*fun);

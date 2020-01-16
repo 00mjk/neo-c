@@ -21,7 +21,7 @@ impl VigWin version 12
         wrefresh(self.win);
     }
     void commandModeInput(VigWin* self, Vig* vig) {
-        var key = wgetch(self.win);
+        var key = self.getKey();
 
         switch(key) {
             case 'q':

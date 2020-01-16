@@ -54,6 +54,7 @@ impl VigWin version 2
     void statusBarView(VigWin* self, Vig* vig);
     void view(VigWin* self, Vig* vig);
     void input(VigWin* self, Vig* vig);
+    int getKey(VigWin* self);
     void modifyOverCursorYValue(VigWin* self);
     void modifyUnderCursorYValue(VigWin* self);
     void modifyOverCursorXValue(VigWin* self);
@@ -104,6 +105,7 @@ impl VigWin version 3
     void pushUndo(VigWin* self);
     void writedFlagOn(VigWin* self);
     void completion(VigWin* self);
+    void clearInputedKey(VigWin* self);
 }
 
 struct Vig version 3 
@@ -295,3 +297,25 @@ impl VigWin version 13
 {
     void completion(VigWin* self);
 }
+
+// vig2base.h
+struct VigWin version 14
+{
+    vector<int>*% inputedKeys;
+    bool autoInput;
+    bool autoInputIndex;
+};
+
+
+impl VigWin version 14
+{
+    initialize(int y, int x, int width, int height);
+    int getKey(VigWin* self);
+    void clearInputedKey(VigWin* self);
+}
+
+impl Vig version 14
+{
+    initialize();
+}
+

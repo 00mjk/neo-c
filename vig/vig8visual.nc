@@ -149,7 +149,7 @@ impl VigWin version 8
 
     void inputVisualMode(VigWin* self, Vig* vig)
     {
-        var key = wgetch(self.win);
+        var key = self.getKey();
 
         switch(key) {
             case 'l':

@@ -649,6 +649,12 @@ enum { kA2, kB2 = 999, kC2 };
 
 enum { kA4, kB4 = 999, kC4 = 1000 + 1 , kD4 = kC4 + 1};
 
+int funXXX() {
+    if(1 == 1) {
+        return 1;
+    }
+}
+
 int main()
 {
     if(1 == 1) {

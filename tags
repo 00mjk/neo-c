@@ -9,7 +9,7 @@ ALLOC	src/xfunc.h	4;"	d
 BOOL	src/xfunc.h	7;"	d
 BUFFER_H	src/buffer.h	2;"	d
 CC	Makefile	/^CC=clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -g -DMDEBUG -Qunused-arguments$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
 CLASS_FLAGS_ANONYMOUS	src/common.h	85;"	d
 CLASS_FLAGS_ANONYMOUS_VAR_NAME	src/common.h	87;"	d
 CLASS_FLAGS_ENUM	src/common.h	86;"	d
@@ -27,7 +27,7 @@ COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/xfunc.o src\/alignment.o$/
 COMPILE_ERR_MSG_MAX	src/common.h	23;"	d
 CONS_str	src/common.h	61;"	d
 CXX	Makefile	/^CXX=clang++-7$/;"	m
-CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g -I . -I src -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . -I src -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
 ELIF_NUM_MAX	src/common.h	29;"	d
 EXTERNAL_OBJECT_MAX	src/common.h	34;"	d
@@ -50,7 +50,7 @@ LVALUEStruct	src/llvm_common.hpp	/^struct LVALUEStruct {$/;"	s
 MACRO_MAX	src/common.h	38;"	d
 MANAGED	src/xfunc.h	5;"	d
 MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	1317;"	d
-MAP_TABLE_DEFAULT_SIZE	neo-c.h	1614;"	d
+MAP_TABLE_DEFAULT_SIZE	neo-c.h	1619;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
@@ -156,29 +156,23 @@ append_str_to_constant_pool	src/constant.c	/^unsigned int append_str_to_constant
 append_wstr_to_constant_pool	src/constant.c	/^unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
 as_fn_append	vig/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	vig/configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	vig/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	vig/configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
 as_fn_error	vig/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	vig/configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	vig/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	vig/configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	vig/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	vig/configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	vig/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	vig/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	vig/configure	/^as_fn_mkdir_p ()$/;"	f
@@ -186,18 +180,18 @@ as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_failure	vig/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	vig/configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	vig/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	vig/configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	vig/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	vig/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	vig/configure	/^as_fn_unset ()$/;"	f
 at	code/neo-c.h	/^    T2& at(map<T, T2>* self, T& key, T2& default_value) $/;"	f	struct:map
 at	neo-c.h	/^    T2& at(map<T, T2>* self, T& key, T2& default_value) $/;"	f	struct:map
+autoInput	vig/vig.h	/^    bool autoInput;$/;"	m	struct:version
+autoInputIndex	vig/vig.h	/^    bool autoInputIndex;$/;"	m	struct:version
 auto_cast_posibility	src/node_type.c	/^BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)$/;"	f
 b	code/HelloWorld6.h	/^    int b;$/;"	m	struct:version
 binded_value	src/llvm_common.hpp	/^    BOOL binded_value;$/;"	m	struct:LVALUEStruct
@@ -540,6 +534,7 @@ initialize	neo-c.h	/^    initialize() {$/;"	f	struct:tuple2
 initialize	neo-c.h	/^    initialize() {$/;"	f	struct:tuple3
 initialize	neo-c.h	/^    initialize() {$/;"	f	struct:tuple4
 inline_func_end	src/common.h	/^    void* inline_func_end;$/;"	m	struct:sCompileInfoStruct
+inputedKeys	vig/vig.h	/^    vector<int>*% inputedKeys;$/;"	m	struct:version
 insert	code/neo-c.h	/^    void insert(map<T,T2>* self, T key, T2 item) $/;"	f	struct:map
 insert	neo-c.h	/^    void insert(map<T,T2>* self, T key, T2 item) $/;"	f	struct:map
 is_free	src/memalloc.c	/^    unsigned is_free;$/;"	m	struct:header_t	file:
@@ -1378,6 +1373,7 @@ version	vig/vig.h	/^struct Vig version 2 $/;"	s
 version	vig/vig.h	/^struct Vig version 3 $/;"	s
 version	vig/vig.h	/^struct Vig version 7$/;"	s
 version	vig/vig.h	/^struct Vig version 9$/;"	s
+version	vig/vig.h	/^struct VigWin version 14$/;"	s
 version	vig/vig.h	/^struct VigWin version 2 $/;"	s
 version	vig/vig.h	/^struct VigWin version 5$/;"	s
 version	vig/vig.h	/^struct VigWin version 6$/;"	s

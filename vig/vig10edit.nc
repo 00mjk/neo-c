@@ -10,10 +10,16 @@
 
 impl VigWin version 10
 {
+    void modifyCursorOnDeleting(VigWin* self) {
+        self.modifyOverCursorYValue();
+        self.modifyOverCursorXValue();
+    }
+
     void deleteLines(VigWin* self, int head, int tail, Vig* vig)
     {
         self.pushUndo();
         self.texts.delete_range(head, tail);
+        self.modifyCursorOnDeleting();
     }
 
     void deleteOneLine(VigWin* self, Vig* vig) {
@@ -25,11 +31,7 @@ impl VigWin version 10
             vig.yankKind = kYankKindLine;
             self.texts.delete(self.scroll+self.cursorY);
 
-            var line2 = self.texts.item(self.scroll+self.cursorY, null);
-            
-            if(self.cursorX >= line2.length()) {
-                self.cursorX = line2.length();
-            }
+            self.modifyCursorOnDeleting();
         }
     }
 
@@ -108,6 +110,8 @@ impl VigWin version 10
             vig.yank.push_back(line.substring(self.cursorX, x));
             vig.yankKind = kYankKindNoLine;
             line.delete_range(self.cursorX, x);
+
+            self.modifyCursorOnDeleting();
         }
     }
     void deleteCursorCharactor(VigWin* self) {
@@ -126,7 +130,7 @@ impl Vig version 10
         inherit(self);
 
         self.events.replace('d', lambda(Vig* self, int key) {
-            var key2 = wgetch(self.activeWin.win);
+            var key2 = self.activeWin.getKey();
 
             switch(key2) {
                 case 'd':
@@ -144,7 +148,7 @@ impl Vig version 10
         });
 
         self.events.replace('c', lambda(Vig* self, int key) {
-            var key2 = wgetch(self.activeWin.win);
+            var key2 = self.activeWin.getKey();
 
             switch(key2) {
                 case 'w':

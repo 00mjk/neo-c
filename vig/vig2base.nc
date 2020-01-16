@@ -85,9 +85,13 @@ impl VigWin version 2
 
         wrefresh(self.win);
     }
+    
+    int getKey(VigWin* self) {
+        return wgetch(self.win);        
+    }
 
     void input(VigWin* self, Vig* vig) {
-        var key = wgetch(self.win);
+        var key = self.getKey();
 
         var event = vig.events.item(key, null);
 
@@ -131,14 +135,16 @@ impl VigWin version 2
 
     void modifyOverCursorXValue(VigWin* self)
     {
-        var cursor_line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+        var cursor_line = self.texts.item(self.scroll+self.cursorY, null);
 
-        if(self.cursorX >= cursor_line.length())
-        {
-            self.cursorX = cursor_line.length()-1;
+        if(cursor_line) {
+            if(self.cursorX >= cursor_line.length())
+            {
+                self.cursorX = cursor_line.length()-1;
 
-            if(self.cursorX < 0) {
-                self.cursorX = 0;
+                if(self.cursorX < 0) {
+                    self.cursorX = 0;
+                }
             }
         }
     }
@@ -316,7 +322,7 @@ impl Vig version 2
         });
         self.events.replace('g', lambda(Vig* self, int key) 
         {
-            var key2 = wgetch(self.activeWin.win);
+            var key2 = self.activeWin.getKey();
 
             switch(key2) {
                 case 'g':
@@ -337,7 +343,7 @@ impl Vig version 2
             self.wins.each {
                 it.view(self);
             }
-
+            
             self.activeWin.input(self);
         }
 

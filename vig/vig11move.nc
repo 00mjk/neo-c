@@ -220,7 +220,7 @@ impl Vig version 11
         });
 
         self.events.replace('[', lambda(Vig* self, int key) {
-            var key2 = wgetch(self.activeWin.win);
+            var key2 = self.activeWin.getKey();
 
             switch(key2) {
                 case '[':
@@ -230,7 +230,7 @@ impl Vig version 11
         });
 
         self.events.replace(']', lambda(Vig* self, int key) {
-            var key2 = wgetch(self.activeWin.win);
+            var key2 = self.activeWin.getKey();
 
             switch(key2) {
                 case ']':

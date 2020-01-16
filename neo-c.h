@@ -561,6 +561,10 @@ impl vector<T>
     {
         return self.len;
     }
+
+    void reset(vector<T>* self) {
+        self.len = 0;
+    }
 }
 
 ruby_macro vec {
@@ -882,7 +886,8 @@ impl list <T>
                         }
                         else if(i == self.len-1)
                         {
-                            self.tail = it.prev;
+                           self.tail = it.prev;
+                           self.tail.next = null;
                            if(isheap(T)) 
                            {
                                 delete it.item;

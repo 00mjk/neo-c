@@ -80,7 +80,7 @@ impl VigWin version 9
 
     void inputSearchlMode(VigWin* self, Vig* vig)
     {
-        var key = wgetch(self.win);
+        var key = self.getKey();
 
         switch(key) {
             case 27:
