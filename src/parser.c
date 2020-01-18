@@ -2712,7 +2712,7 @@ static BOOL parse_param(sParserParam* param, sParserInfo* info)
     return TRUE;
 }
 
-BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly_brace)
+static BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly_brace, BOOL last_expresssion_is_self)
 {
     if(append_head_currly_brace) {
         sBuf_append_str(buf, "{ ");
@@ -2750,35 +2750,45 @@ BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly_brace)
             nest++;
         }
         else if(*info->p == '}') {
-            info->p++;
-
-            int line_num = 0;
-            while(TRUE) {
-                if(*info->p == ' ' || *info->p == '\t') {
-                    info->p++;
-                }
-                else if(*info->p == '\n') {
-                    info->p++;
-                    line_num++;
-                }
-                else {
-                    break;
-                }
-            }
-
             if(nest == 0) {
-                int i;
-                for(i=0; i<line_num; i++) {
-                    sBuf_append_str(buf, "\n");
+                if(last_expresssion_is_self) {
+                    sBuf_append_str(buf, "\nself\n");
                 }
+                sBuf_append_str(buf, "}");
+                info->p++;
+
+                while(TRUE) {
+                    if(*info->p == ' ' || *info->p == '\t') {
+                        info->p++;
+                    }
+                    else if(*info->p == '\n') {
+                        info->sline++;
+                        info->p++;
+                        sBuf_append_str(buf, "\n");
+                    }
+                    else {
+                        break;
+                    }
+                }
+
                 break;
             }
             else {
                 sBuf_append_str(buf, "}");
+                info->p++;
 
-                int i;
-                for(i=0; i<line_num; i++) {
-                    sBuf_append_str(buf, "\n");
+                while(TRUE) {
+                    if(*info->p == ' ' || *info->p == '\t') {
+                        info->p++;
+                    }
+                    else if(*info->p == '\n') {
+                        info->sline++;
+                        info->p++;
+                        sBuf_append_str(buf, "\n");
+                    }
+                    else {
+                        break;
+                    }
                 }
             }
 
@@ -2810,12 +2820,10 @@ static BOOL parse_simple_lambda_params(unsigned int* node, int sline, sParserInf
     sBuf buf;
     sBuf_init(&buf);
 
-    if(!get_block_text(&buf, info, TRUE)) {
+    if(!get_block_text(&buf, info, TRUE, FALSE)) {
         free(buf.mBuf);
         return FALSE;
     }
-
-    sBuf_append_str(&buf, "}");
 
     *node = sNodeTree_create_simple_lambda_param(MANAGED buf.mBuf, sname, sline, info);
 
@@ -2969,12 +2977,10 @@ static BOOL parse_generics_function(unsigned int* node, sNodeType* result_type, 
         sBuf buf;
         sBuf_init(&buf);
 
-        if(!get_block_text(&buf, info, TRUE)) {
+        if(!get_block_text(&buf, info, TRUE, FALSE)) {
             free(buf.mBuf);
             return FALSE;
         }
-
-        sBuf_append_str(&buf, "}");
 
         *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, version, info);
 
@@ -3104,12 +3110,10 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
         sBuf buf;
         sBuf_init(&buf);
 
-        if(!get_block_text(&buf, info, TRUE)) {
+        if(!get_block_text(&buf, info, TRUE, FALSE)) {
             free(buf.mBuf);
             return FALSE;
         }
-
-        sBuf_append_str(&buf, "}");
 
         *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, version, info);
     }
@@ -3375,12 +3379,10 @@ static BOOL parse_inline_function(unsigned int* node, char* struct_name, sParser
         sBuf buf;
         sBuf_init(&buf);
 
-        if(!get_block_text(&buf, info, TRUE)) {
+        if(!get_block_text(&buf, info, TRUE, FALSE)) {
             free(buf.mBuf);
             return FALSE;
         }
-
-        sBuf_append_str(&buf, "}");
 
         *node = sNodeTree_create_inline_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, info);
     }
@@ -3482,14 +3484,10 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
             sBuf buf;
             sBuf_init(&buf);
 
-            if(!get_block_text(&buf, info, TRUE)) {
+            if(!get_block_text(&buf, info, TRUE, TRUE)) {
                 free(buf.mBuf);
                 return FALSE;
             }
-
-            sBuf_append_str(&buf, "\nself\n");
-
-            sBuf_append_str(&buf, "}");
 
             *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, version, info);
         }
@@ -3671,12 +3669,10 @@ static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo*
 
             sBuf_append_str(&buf, "\nif(self == null) { return; }\n");
 
-            if(!get_block_text(&buf, info, FALSE)) {
+            if(!get_block_text(&buf, info, FALSE, FALSE)) {
                 free(buf.mBuf);
                 return FALSE;
             }
-
-            sBuf_append_str(&buf, "}");
 
             *node = sNodeTree_create_generics_function(fun_name, params, num_params, result_type, MANAGED buf.mBuf, struct_name, sname, sline, var_arg, version, info);
         }
@@ -3971,7 +3967,6 @@ static BOOL parse_if(unsigned int* node, sParserInfo* info)
         }
     }
 
-printf("if epxression info->sline %d\n", info->sline);
     *node = sNodeTree_if_expression(expression_node, MANAGED if_node_block, elif_expression_nodes, elif_node_blocks, elif_num, MANAGED else_node_block, info, sname, sline);
 
     return TRUE;
@@ -7196,7 +7191,6 @@ static BOOL expression_add_sub(unsigned int* node, sParserInfo* info)
                 info->err_num++;
             }
 
-printf("+ info->sline %d\n", info->sline);
             *node = sNodeTree_create_add(*node, right, 0, info);
         }
         else if(*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-' && *(info->p+1) != '>') 

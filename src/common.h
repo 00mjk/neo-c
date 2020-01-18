@@ -349,7 +349,6 @@ extern int gNumLambdaName;
 
 BOOL expression(unsigned int* node, sParserInfo* info);
 BOOL expression(unsigned int* node, sParserInfo* info);
-BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly_brace);
 BOOL parse_sharp(sParserInfo* info);
 BOOL parse_clone(unsigned int* node, sParserInfo* info);
 BOOL parse_class_name_expression(unsigned int* node, sParserInfo* info);

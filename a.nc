@@ -3,12 +3,6 @@
 
 
 int fun() {
-    if(true) {
-        puts("AAA");
-    }
-    else {
-        //lll
-    }
 }
 
 struct XXX <T>
@@ -22,8 +16,6 @@ impl XXX <T>
     }
 
     void fun(XXX<T>* self) {
-        //list<int>*% aaa = new list<int>.initialize();
-        //aaa.push_back(1);
         if(true) {
             puts("AAAA");
         }
@@ -38,9 +30,6 @@ impl XXX <T>
             if(true) { puts("DDD"); } else { puts("EEE"); }
             if(true) { puts("DDD"); } else { puts("EEE"); }
             if(true) { puts("DDD"); } else { puts("EEE"); }
-            2*2;
-            1+1;
-            llll
         }
     }
 };
@@ -53,3 +42,4 @@ int main()
 
     return 0;
 }
+
