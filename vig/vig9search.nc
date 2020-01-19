@@ -58,7 +58,14 @@ impl VigWin version 9
     void searchReverse(VigWin* self, Vig* vig) {
         var cursor_line = self.texts.item(self.scroll+self.cursorY, null);
 
-        int x = cursor_line.substring(0, self.cursorX-1).rindex(vig.searchString, -1)
+        int x;
+        if(self.cursorX < vig.searchString.length())
+        {
+            x = -1;
+        }
+        else {
+            x = cursor_line.substring(0, self.cursorX-1).rindex(vig.searchString, -1)
+        }
 
         if(x != -1) {
             self.cursorX = x;
@@ -74,6 +81,41 @@ impl VigWin version 9
                     *it3 = true;
                     return;
                 }
+            }
+        }
+    }
+
+    void searchWordOnCursor(VigWin* self, Vig* vig)
+    {
+        wchar_t* line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+
+        if(self.cursorX < line.length()) {
+            wchar_t* p = line + self.cursorX;
+
+
+            if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9'))
+            {
+                while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9'))
+                {
+                    p--;
+                    self.cursorX--;
+                }
+
+                self.cursorX++;
+            }
+
+            int scroll_before = self.scroll;
+            int cursor_y_before = self.cursorY;
+            int cursor_x_before = self.cursorX;
+
+            self.forwardWord();
+
+            if((cursor_y_before == self.cursorY) && (scroll_before == self.scroll)) 
+            {
+                var search_word = self.texts.item(self.scroll+self.cursorY, null).substring(cursor_x_before, self.cursorX+1);
+                vig.searchString = clone search_word;
+
+                self.search(vig);
             }
         }
     }
@@ -143,6 +185,11 @@ impl Vig version 9
         self.events.replace('N', lambda(Vig* self, int key) 
         {
             self.activeWin.searchReverse(self);
+        });
+
+        self.events.replace('*', lambda(Vig* self, int key) 
+        {
+            self.activeWin.searchWordOnCursor(self);
         });
     }
 }

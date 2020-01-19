@@ -9,4 +9,7 @@ int main(int argc, char** argv)
     exit(0);
 }
 
-int main(
+int main(int argc, char** argv)
+{
+}
+

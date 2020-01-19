@@ -1,9 +1,8 @@
+commandクラス
+
 ``でstring型。w``でwstring型
 
 initializeでポインタを受け取るようにしてマシーンスタックのallocも対応させる
-
-Genericsやinlineのエラーメッセージがバグっている。行番号
-parser.cのblockをとる部分
 
 double, floatの値の表現、8進数、16進数
 
@@ -12,6 +11,9 @@ double, floatの値の表現、8進数、16進数
 メソッドの関数ポインタ
 
 ----------------------
+Genericsやinlineのエラーメッセージがバグっている。行番号
+
+parser.cのblockをとる部分
 casts全サポート
 %, [[
 Genericsとinlineでエラー番号の行数が違う
