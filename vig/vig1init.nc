@@ -52,6 +52,10 @@ impl VigWin
     void input(VigWin* self, Vig* vig) {
         var key = wgetch(self.win);
     }
+
+    bool equals(VigWin* left, VigWin* right) {
+        return left == right;
+    }
 }
 
 impl Vig 

@@ -51,7 +51,7 @@ impl VigWin version 8
     }
 
     void view(VigWin* self, Vig* vig) {
-        if(vig.mode == kVisualMode) {
+        if(vig.mode == kVisualMode && vig.activeWin.equals(self)) {
             self.visualModeView(vig);
         }
         else {

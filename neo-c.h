@@ -510,6 +510,19 @@ impl vector<T>
         };
     }
 
+    int find(vector<T>* self, T& item, int default_value) {
+        int result = default_value;
+        self.each {
+            if(it.equals(item)) {
+                result = it2;
+                *it3 = true;
+                return;
+            }
+        }
+
+        return result;
+    }
+
     template <R> vector<R>*% map(vector<T>* self, R (*block_)(T&))
     {
         var result_ = new vector<R>.initialize();
@@ -1333,6 +1346,19 @@ impl list <T>
                 }
 
                 item_before = it;
+            }
+        }
+
+        return result;
+    }
+
+    int find(list<T>* self, T& item, int default_value) {
+        int result = default_value;
+        self.each {
+            if(it.equals(item)) {
+                result = it2;
+                *it3 = true;
+                return;
             }
         }
 

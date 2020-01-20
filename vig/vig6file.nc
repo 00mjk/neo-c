@@ -132,10 +132,58 @@ impl VigWin version 6
 
 impl Vig version 6
 {
+    void toggleWin(Vig* self) {
+        if(self.toggleWin >= 0 && self.toggleWin < self.wins.length()) {
+            int toggle_win = self.wins.find(self.activeWin, -1);
+            self.activeWin = self.wins.item(self.toggleWin, null);
+            self.toggleWin = toggle_win;
+        }
+    }
+
+    initialize() {
+        inherit(self);
+
+        self.events.replace('W'-'A'+1, lambda(Vig* self, int key) 
+        {
+            var key2 = self.activeWin.getKey();
+
+            switch(key2) {
+                case 'W'-'A'+1:
+                    self.toggleWin();
+                    break;
+            }
+        });
+    }
+
     void openFile(Vig* self, int num_files, char** file_names, int line_num) 
     {
         if(num_files > 0) {
             self.activeWin.openFile(file_names[0], line_num);
+        }
+    }
+
+    void openNewFile(Vig* self, char* file_name) {
+        int maxy = xgetmaxy();
+        int maxx = xgetmaxx();
+
+        int height = maxy / (self.wins.length() + 1);
+
+        var win = new VigWin.initialize(0,0, maxx-1, height);
+        win.openFile(file_name, 0);
+        self.wins.push_back(win);
+
+        /// determine the position ///
+        self.wins.each {
+            it.height = height;
+            it.y = height * it2;
+
+            delwin(it.win);
+            var win = newwin(it.height, it.width, it.y, it.x);
+            it.win = win;
+
+            if(!it.equals(self.activeWin)) {
+                self.toggleWin = it2;
+            }
         }
     }
 }

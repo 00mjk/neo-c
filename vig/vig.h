@@ -30,6 +30,7 @@ impl VigWin
     finalize();
     void view(VigWin* self, Vig* vig);
     void input(VigWin* self, Vig* vig);
+    bool equals(VigWin* left, VigWin* right);
 }
 
 impl Vig 
@@ -179,9 +180,16 @@ impl VigWin version 6
     void writedFlagOn(VigWin* self);
 }
 
+struct Vig version 6
+{
+    int toggleWin;
+}
+
 impl Vig version 6
 {
+    initialize();
     void openFile(Vig* self, int num_files, char** file_names, int line_num);
+    void openNewFile(Vig* self, char* file_name);
 }
 
 /// vig7yank.h ///

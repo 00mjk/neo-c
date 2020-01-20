@@ -24,15 +24,6 @@ impl VigWin version 12
         var key = self.getKey();
 
         switch(key) {
-            case 'q':
-            case 'w':
-                vig.commandString = vig.commandString + key.to_string();
-                break;
-                
-            case '!':
-                vig.commandString = vig.commandString + key.to_string();
-                break;
-
             case '\n':
                 vig.exitFromComandMode();
                 break;
@@ -41,11 +32,15 @@ impl VigWin version 12
             case 27:
                 vig.mode = kEditMode;
                 break;
+
+            default:
+                vig.commandString = vig.commandString + key.to_string();
+                break;
         }
     }
 
     void view(VigWin* self, Vig* vig) {
-        if(vig.mode == kCommandMode) {
+        if(vig.mode == kCommandMode && self == vig.activeWin) {
             self.commandModeView(vig);
         }
         else {
@@ -83,6 +78,10 @@ impl Vig version 12
             if(!writed || self.commandString.index("!", -1) != -1) {
                 self.appEnd = true;
             }
+        }
+        if(self.commandString.index("sp", -1) == 0) {
+            var file_name = self.commandString.substring(3, -1);
+            self.openNewFile(file_name);
         }
 
         self.mode = kEditMode;
