@@ -29,52 +29,52 @@ DESTDIR=@DESTDIR@
 ##########################################
 all: vig
 
-vig: configure Makefile config.h vig.nc vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig8visual.o vig9search.o vig10edit.o vig11move.o vig12command.o vig13completion.o vig14dot.o vig15filer.o vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc vig9search.nc vig10edit.nc vig11move.nc vig12command.nc vig13completion.nc vig14dot.nc vig15filer.nc
-	neo-c -o vig vig.nc vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig8visual.o vig9search.o vig10edit.o vig11move.o vig12command.o vig13completion.o vig14dot.o vig15filer.o $(CFLAGS) $(LIBS)
+vig: configure Makefile config.h vig.nc vig01init.o vig02base.o vig03insert_mode.o vig04word.o vig05undo.o vig06file.o vig07yank.o vig08visual.o vig09search.o vig10edit.o vig11move.o vig12command.o vig13completion.o vig14dot.o vig15filer.o vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig05undo.nc vig06file.nc vig07yank.nc vig08visual.nc vig09search.nc vig10edit.nc vig11move.nc vig12command.nc vig13completion.nc vig14dot.nc vig15filer.nc
+	neo-c -o vig vig.nc vig01init.o vig02base.o vig03insert_mode.o vig04word.o vig05undo.o vig06file.o vig07yank.o vig08visual.o vig09search.o vig10edit.o vig11move.o vig12command.o vig13completion.o vig14dot.o vig15filer.o $(CFLAGS) $(LIBS)
 
-vig1init.o: configure Makefile config.h vig1init.nc vig.h
-	neo-c -c vig1init.nc $(CFLAGS) $(LIBS)
+vig01init.o: configure Makefile config.h vig01init.nc vig.h
+	neo-c -c vig01init.nc $(CFLAGS) $(LIBS)
 
-vig2base.o: configure Makefile config.h vig1init.nc vig2base.nc vig.h
-	neo-c -c vig2base.nc $(CFLAGS) $(LIBS)
+vig02base.o: configure Makefile config.h vig01init.nc vig02base.nc vig.h
+	neo-c -c vig02base.nc $(CFLAGS) $(LIBS)
 
-vig3insert_mode.o: configure Makefile config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig.h
-	neo-c -c vig3insert_mode.nc $(CFLAGS) $(LIBS)
+vig03insert_mode.o: configure Makefile config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig.h
+	neo-c -c vig03insert_mode.nc $(CFLAGS) $(LIBS)
 
-vig4word.o: configure Makefile config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig.h
-	neo-c -c vig4word.nc $(CFLAGS) $(LIBS)
+vig04word.o: configure Makefile config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig.h
+	neo-c -c vig04word.nc $(CFLAGS) $(LIBS)
 
-vig5undo.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig.h
-	neo-c -c vig5undo.nc $(CFLAGS) $(LIBS)
+vig05undo.o: configure config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig05undo.nc vig.h
+	neo-c -c vig05undo.nc $(CFLAGS) $(LIBS)
 
-vig6file.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc
-	neo-c -c vig6file.nc $(CFLAGS) $(LIBS)
+vig06file.o: configure config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig05undo.nc vig06file.nc
+	neo-c -c vig06file.nc $(CFLAGS) $(LIBS)
 
-vig7yank.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc
-	neo-c -c vig7yank.nc $(CFLAGS) $(LIBS)
+vig07yank.o: configure config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig05undo.nc vig06file.nc vig07yank.nc
+	neo-c -c vig07yank.nc $(CFLAGS) $(LIBS)
 
-vig8visual.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc 
-	neo-c -c vig8visual.nc $(CFLAGS) $(LIBS)
+vig08visual.o: configure config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig05undo.nc vig06file.nc vig07yank.nc vig08visual.nc 
+	neo-c -c vig08visual.nc $(CFLAGS) $(LIBS)
 
-vig9search.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc vig9search.nc 
-	neo-c -c vig9search.nc $(CFLAGS) $(LIBS)
+vig09search.o: configure config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig05undo.nc vig06file.nc vig07yank.nc vig08visual.nc vig09search.nc 
+	neo-c -c vig09search.nc $(CFLAGS) $(LIBS)
 
-vig10edit.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc vig9search.nc vig10edit.nc
+vig10edit.o: configure config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig05undo.nc vig06file.nc vig07yank.nc vig08visual.nc vig09search.nc vig10edit.nc
 	neo-c -c vig10edit.nc $(CFLAGS) $(LIBS)
 
-vig11move.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc vig9search.nc vig10edit.nc vig11move.nc
+vig11move.o: configure config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig05undo.nc vig06file.nc vig07yank.nc vig08visual.nc vig09search.nc vig10edit.nc vig11move.nc
 	neo-c -c vig11move.nc $(CFLAGS) $(LIBS)
 
-vig12command.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc vig9search.nc vig10edit.nc vig11move.nc vig12command.nc
+vig12command.o: configure config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig05undo.nc vig06file.nc vig07yank.nc vig08visual.nc vig09search.nc vig10edit.nc vig11move.nc vig12command.nc
 	neo-c -c vig12command.nc $(CFLAGS) $(LIBS)
 
-vig13completion.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc vig9search.nc vig10edit.nc vig11move.nc vig12command.nc vig13completion.nc
+vig13completion.o: configure config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig05undo.nc vig06file.nc vig07yank.nc vig08visual.nc vig09search.nc vig10edit.nc vig11move.nc vig12command.nc vig13completion.nc
 	neo-c -c vig13completion.nc $(CFLAGS) $(LIBS)
 
-vig14dot.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc vig9search.nc vig10edit.nc vig11move.nc vig12command.nc vig13completion.nc vig14dot.nc
+vig14dot.o: configure config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig05undo.nc vig06file.nc vig07yank.nc vig08visual.nc vig09search.nc vig10edit.nc vig11move.nc vig12command.nc vig13completion.nc vig14dot.nc
 	neo-c -c vig14dot.nc $(CFLAGS) $(LIBS)
 
-vig15filer.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc vig9search.nc vig10edit.nc vig11move.nc vig12command.nc vig13completion.nc vig14dot.nc vig15filer.nc
+vig15filer.o: configure config.h vig01init.nc vig02base.nc vig03insert_mode.nc vig04word.nc vig05undo.nc vig06file.nc vig07yank.nc vig08visual.nc vig09search.nc vig10edit.nc vig11move.nc vig12command.nc vig13completion.nc vig14dot.nc vig15filer.nc
 	neo-c -c vig15filer.nc $(CFLAGS) $(LIBS)
 
 #########################################

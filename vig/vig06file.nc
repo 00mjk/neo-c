@@ -155,6 +155,11 @@ impl Vig version 6
                     break;
             }
         });
+
+        self.events.replace('O'-'A'+1, lambda(Vig* self, int key) 
+        {
+            self.activateFiler();
+        });
     }
 
     void openFile(Vig* self, int num_files, char** file_names, int line_num) 

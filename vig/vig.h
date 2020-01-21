@@ -356,8 +356,6 @@ impl Vig version 15
 {
     initialize();
 
-/*
     void activateFiler(Vig* self);
     int main_loop(Vig* self);
-*/
 }

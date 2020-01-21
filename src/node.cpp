@@ -6445,11 +6445,16 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
     int alignment = get_llvm_alignment_from_node_type(field_type);
 
-
     Value* field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
 
     LVALUE llvm_value;
-    llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
+    if(field_type->mArrayNum > 0) {
+        llvm_value.value = field_address2;
+    }
+    else {
+        llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
+    }
+
     llvm_value.type = clone_node_type(field_type);
     llvm_value.address = field_address2;
     llvm_value.var = nullptr;

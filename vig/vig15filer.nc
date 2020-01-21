@@ -35,6 +35,8 @@ impl VigFiler
         }
 
         closedir(dir);
+
+        self.files = self.files.sort();
         
         return true;
     }
@@ -52,7 +54,6 @@ impl VigFiler
         self.cursor = 0;
         self.width = width;
 
-
         char cwd[PATH_MAX];
         getcwd(cwd, PATH_MAX);
 
@@ -66,9 +67,17 @@ impl VigFiler
 
     void view(VigFiler* self, Vig* vig)
     {
+        int maxy = xgetmaxy();
         werase(self.win);
-        self.files.each {
-            mvprintw(self.win, it2, 0, "%s", it.substring(0, self.width));
+        self.files.sublist(self.scroll, self.scroll+maxy+1).each {
+            if(it2 == self.cursor) {
+                wattron(self.win, A_REVERSE);
+                mvwprintw(self.win, it2, 0, "%s", it);
+                wattroff(self.win, A_REVERSE);
+            }
+            else {
+                mvwprintw(self.win, it2, 0, "%s", it);
+            }
         }
         wrefresh(self.win);
     }
@@ -77,10 +86,54 @@ impl VigFiler
         var key = wgetch(self.win);
 
         var file_name = self.files.item(self.scroll+self.cursor, null);
+        
+        int maxy = xgetmaxy();
 
         switch(key) {
+            case 'j': 
+                self.cursor ++;
+
+                if(self.cursor >= maxy) {
+                    self.scroll++;
+                    self.cursor = maxy-1;
+
+                    if(self.scroll >= self.files.length()) {
+                        self.scroll = self.files.length()-1;
+                    }
+                }
+
+                if(self.cursor >= self.files.length()-self.scroll-1) {
+                    self.cursor = self.files.length()-self.scroll-1;
+                }
+                break;
+
+            case 'k': 
+                self.cursor--; 
+
+                if(self.cursor < 0) {
+                    self.scroll--;
+                    self.cursor = 0;
+
+                    if(self.scroll < 0) {
+                        self.scroll = 0;
+                    }
+                }
+                break;
+
             case '\n': 
+                vig.activeWin.writeFile();
+                vig.activeWin.openFile(file_name, -1);
+                self.active = false;
+                break;
+
+            case 'O'-'A'+1:
+            case 'C'-'A'+1:
+                self.active = false;
+                break;
+            
+            case 'o':
                 vig.openNewFile(file_name);
+                self.active = false;
                 break;
         }
     }

@@ -1,45 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-
-int fun() {
-}
-
-struct XXX <T>
-{
-    T aaa;
-};
-
-impl XXX <T>
-{
-    initialize() {
-    }
-
-    void fun(XXX<T>* self) {
-        if(true) {
-            puts("AAAA");
-        }
-        else if(true) { 
-            puts("CCC"); 
-        } else { 
-            puts("BBB");
-            if(true) { puts("DDD"); }
-            else { puts("EEE"); }
-            if(true) { puts("DDD"); } else { puts("EEE"); }
-            if(true) { puts("DDD"); } else { puts("EEE"); }
-            if(true) { puts("DDD"); } else { puts("EEE"); }
-            if(true) { puts("DDD"); } else { puts("EEE"); }
-            if(true) { puts("DDD"); } else { puts("EEE"); }
-        }
-    }
-};
+#include <ncurses.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <locale.h>
+#include <wctype.h>
 
 int main()
 {
-    XXX<int>%* a = new XXX<int>.initialize();
+    DIR* dir = opendir(".");
 
-    a.fun();
+    struct dirent* entry = readdir(dir);
 
-    return 0;
+    printf("%p %s\n", entry, entry->d_name);
+
+    closedir(dir);
+    
+    return true;
 }
 
