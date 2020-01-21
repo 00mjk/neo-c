@@ -21,7 +21,7 @@ impl VigWin version 2
         {
             var line = it.substring(0, maxx-1);
 
-            if(self.cursorY == it2) {
+            if(self.cursorY == it2 && vig.activeWin.equals(self)) {
                 if(line.length() == 0) {
                     wattron(self.win, A_REVERSE);
                     mvwprintw(self.win, it2, 0, " ");
@@ -238,7 +238,7 @@ impl Vig version 2
         
         self.init_curses();
 
-        self.wins = new vector<VigWin*%>.initialize();
+        self.wins = new list<VigWin*%>.initialize();
 
         var maxx = xgetmaxx();
         var maxy = xgetmaxy();

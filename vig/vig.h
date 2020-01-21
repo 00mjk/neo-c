@@ -20,7 +20,7 @@ struct VigWin
 
 struct Vig 
 {
-    vector<VigWin*%>*% wins;
+    list<VigWin*%>*% wins;
     VigWin* activeWin;
 };
 
@@ -190,6 +190,7 @@ impl Vig version 6
     initialize();
     void openFile(Vig* self, int num_files, char** file_names, int line_num);
     void openNewFile(Vig* self, char* file_name);
+    void closeActiveWin(Vig* self);
 }
 
 /// vig7yank.h ///
@@ -300,6 +301,7 @@ impl Vig version 12
     void enterComandMode(Vig* vig);
     void exitFromComandMode(Vig* self);
     initialize();
+    void activateFiler(Vig* self);
 }
 
 impl VigWin version 13 
@@ -307,7 +309,7 @@ impl VigWin version 13
     void completion(VigWin* self);
 }
 
-// vig2base.h
+// vig14dot.h
 struct VigWin version 14
 {
     vector<int>*% inputedKeys;
@@ -331,3 +333,31 @@ impl Vig version 14
     initialize();
 }
 
+struct VigFiler
+{
+    string path;
+    list<string>*% files;
+
+    WINDOW* win;
+    int scroll;
+    int cursor;
+
+    int width;
+
+    bool active;
+};
+
+struct Vig version 15
+{
+    VigFiler*% filer;
+};
+
+impl Vig version 15
+{
+    initialize();
+
+/*
+    void activateFiler(Vig* self);
+    int main_loop(Vig* self);
+*/
+}

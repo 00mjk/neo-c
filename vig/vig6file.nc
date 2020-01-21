@@ -23,7 +23,7 @@ impl VigWin version 6
         int maxx = getmaxx(self.win);
 
         wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "x %d y %d scroll %d file %s writed %d", self.cursorX, self.cursorY, self.scroll, self.fileName, self.writed);
+        mvwprintw(self.win, self.height-1, 0, "x %d y %d scroll %d file %s writed %d", self.cursorX, self.cursorY, self.scroll, self.fileName, (self.writed ? 1:0));
         wattroff(self.win, A_REVERSE);
 
         wrefresh(self.win);
@@ -92,25 +92,27 @@ impl VigWin version 6
         self.texts.reset();
 
         FILE* f = fopen(file_name, "r");
-
-        char line[4096];
-
-        while(fgets(line, 4096, f) != NULL)
-        {
-            line[strlen(line)-1] = '\0';
-            self.texts.push_back(wstring(line))
-        }
-
-        fclose(f);
-
-        self.fileName = string(file_name);
-        if(line_num == -1) {
-            self.readCursorPosition(file_name);
-        }
-        else {
-            self.cursorY = line_num;
-            
-            self.modifyOverCursorYValue();
+        
+        if(f != null) {
+            char line[4096];
+    
+            while(fgets(line, 4096, f) != NULL)
+            {
+                line[strlen(line)-1] = '\0';
+                self.texts.push_back(wstring(line))
+            }
+    
+            fclose(f);
+    
+            self.fileName = string(file_name);
+            if(line_num == -1) {
+                self.readCursorPosition(file_name);
+            }
+            else {
+                self.cursorY = line_num;
+                
+                self.modifyOverCursorYValue();
+            }
         }
     }
     void writeFile(VigWin* self) {
@@ -162,15 +164,11 @@ impl Vig version 6
         }
     }
 
-    void openNewFile(Vig* self, char* file_name) {
+    void repositionWindows(Vig* self) {
         int maxy = xgetmaxy();
         int maxx = xgetmaxx();
 
-        int height = maxy / (self.wins.length() + 1);
-
-        var win = new VigWin.initialize(0,0, maxx-1, height);
-        win.openFile(file_name, 0);
-        self.wins.push_back(win);
+        int height = maxy / self.wins.length();
 
         /// determine the position ///
         self.wins.each {
@@ -180,10 +178,39 @@ impl Vig version 6
             delwin(it.win);
             var win = newwin(it.height, it.width, it.y, it.x);
             it.win = win;
+        }
+    }
 
+    void openNewFile(Vig* self, char* file_name) {
+        int maxy = xgetmaxy();
+        int maxx = xgetmaxx();
+
+        int x = maxx / 5;
+        int height = maxy / (self.wins.length() + 1);
+
+        var win = new VigWin.initialize(0,x, maxx-1-x, height);
+        win.openFile(file_name, -1);
+
+        self.activeWin = win;
+
+        self.wins.push_back(win);
+
+        self.repositionWindows();
+
+        self.wins.each {
             if(!it.equals(self.activeWin)) {
                 self.toggleWin = it2;
             }
         }
+    }
+
+    void closeActiveWin(Vig* self) {
+        int active_pos = self.wins.find(self.activeWin, -1);
+
+        self.wins.delete(active_pos);
+
+        self.repositionWindows();
+
+        self.activeWin = self.wins.item(0, null);
     }
 }

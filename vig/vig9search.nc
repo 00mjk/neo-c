@@ -23,7 +23,7 @@ impl VigWin version 9
     }
 
     void view(VigWin* self, Vig* vig) {
-        if(vig.mode == kSearchMode) {
+        if(vig.mode == kSearchMode && self.equals(vig.activeWin)) {
             self.searchModeView(vig);
         }
         else {

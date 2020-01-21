@@ -33,6 +33,12 @@ impl VigWin version 12
                 vig.mode = kEditMode;
                 break;
 
+            case 8:
+            case 127:
+            case KEY_BACKSPACE:
+                vig.commandString.delete(-1);
+                break;
+
             default:
                 vig.commandString = vig.commandString + key.to_string();
                 break;
@@ -68,20 +74,19 @@ impl Vig version 12
             self.activeWin.writeFile();
         }
         if(self.commandString.index("q", -1) != -1) {
-            bool writed = false;
-            self.wins.each {
-                if(it.writed) {
-                    writed = true;
-                }
-            }
+            bool writed = self.activeWin.writed;
 
             if(!writed || self.commandString.index("!", -1) != -1) {
-                self.appEnd = true;
+                if(self.wins.length() == 1) {
+                    self.appEnd = true;
+                }
+                else {
+                    self.closeActiveWin();
+                }
             }
         }
         if(self.commandString.index("sp", -1) == 0) {
-            var file_name = self.commandString.substring(3, -1);
-            self.openNewFile(file_name);
+            self.activateFiler();
         }
 
         self.mode = kEditMode;
@@ -94,5 +99,9 @@ impl Vig version 12
         self.events.replace(':', lambda(Vig* self, int key) {
             self.enterComandMode();
         });
+    }
+
+    /// implemeted after ///
+    void activateFiler(Vig* self) {
     }
 }

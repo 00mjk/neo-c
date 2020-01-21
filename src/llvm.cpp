@@ -1639,6 +1639,17 @@ void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info)
 
 static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
 {
+    Value* obj2 = Builder.CreateCast(Instruction::PtrToInt, obj, IntegerType::get(TheContext, 64));
+    Value* cmp_right_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+    Value* conditional = Builder.CreateICmpNE(obj2, cmp_right_value);
+
+    BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_then_block", gFunction);
+    BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end", gFunction);
+
+    Builder.CreateCondBr(conditional, cond_then_block, cond_end_block);
+
+    Builder.SetInsertPoint(cond_then_block);
+
     sCLClass* klass = node_type->mClass;
 
     sNodeType* node_type2 = clone_node_type(node_type);
@@ -1687,6 +1698,11 @@ static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo
             free_object(field_type, field_address, FALSE, info);
         }
     }
+
+    Builder.CreateBr(cond_end_block);
+
+    Builder.SetInsertPoint(cond_end_block);
+    info->current_block = cond_end_block;;
 }
 
 static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)

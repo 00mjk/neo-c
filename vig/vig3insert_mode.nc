@@ -24,7 +24,7 @@ impl VigWin version 3
     }
 
     void view(VigWin* self, Vig* vig) {
-        if(vig.mode == kInsertMode) {
+        if(vig.mode == kInsertMode && self.equals(vig.activeWin)) {
             self.insertModeView(vig);
         }
         else {

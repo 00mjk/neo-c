@@ -29,8 +29,8 @@ DESTDIR=@DESTDIR@
 ##########################################
 all: vig
 
-vig: configure Makefile config.h vig.nc vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig8visual.o vig9search.o vig10edit.o vig11move.o vig12command.o vig13completion.o vig14dot.o vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc vig9search.nc vig10edit.nc vig11move.nc vig12command.nc vig13completion.nc vig14dot.nc
-	neo-c -o vig vig.nc vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig8visual.o vig9search.o vig10edit.o vig11move.o vig12command.o vig13completion.o vig14dot.o $(CFLAGS) $(LIBS)
+vig: configure Makefile config.h vig.nc vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig8visual.o vig9search.o vig10edit.o vig11move.o vig12command.o vig13completion.o vig14dot.o vig15filer.o vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc vig9search.nc vig10edit.nc vig11move.nc vig12command.nc vig13completion.nc vig14dot.nc vig15filer.nc
+	neo-c -o vig vig.nc vig1init.o vig2base.o vig3insert_mode.o vig4word.o vig5undo.o vig6file.o vig7yank.o vig8visual.o vig9search.o vig10edit.o vig11move.o vig12command.o vig13completion.o vig14dot.o vig15filer.o $(CFLAGS) $(LIBS)
 
 vig1init.o: configure Makefile config.h vig1init.nc vig.h
 	neo-c -c vig1init.nc $(CFLAGS) $(LIBS)
@@ -73,6 +73,9 @@ vig13completion.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc
 
 vig14dot.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc vig9search.nc vig10edit.nc vig11move.nc vig12command.nc vig13completion.nc vig14dot.nc
 	neo-c -c vig14dot.nc $(CFLAGS) $(LIBS)
+
+vig15filer.o: configure config.h vig1init.nc vig2base.nc vig3insert_mode.nc vig4word.nc vig5undo.nc vig6file.nc vig7yank.nc vig8visual.nc vig9search.nc vig10edit.nc vig11move.nc vig12command.nc vig13completion.nc vig14dot.nc vig15filer.nc
+	neo-c -c vig15filer.nc $(CFLAGS) $(LIBS)
 
 #########################################
 # install
