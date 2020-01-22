@@ -11,6 +11,72 @@
 
 #include "vig.h"
 
+impl VigWin version 15
+{
+    initialize(int y, int x, int width, int height) {
+        int maxx = xgetmaxx();
+
+        int filer_width = maxx / 5;
+
+        inherit(self, y, x + filer_width, width-filer_width, height);
+    }
+
+    void textsView(VigWin* self, Vig* vig)
+    {
+        int maxy = getmaxy(self.win);
+        int maxx = getmaxx(self.win);
+
+        self.texts
+            .sublist(self.scroll, self.scroll+maxy-1)
+            .each 
+        {
+            var line = it.substring(0, maxx-1);
+
+            if(self.cursorY == it2 && vig.activeWin.equals(self) && !vig.filer.active) {
+                if(line.length() == 0) {
+                    wattron(self.win, A_REVERSE);
+                    mvwprintw(self.win, it2, 0, " ");
+                    wattroff(self.win, A_REVERSE);
+                }
+                else if(self.cursorX == line.length())
+                {
+                    mvwprintw(self.win, it2, 0, "%ls", line);
+                    wstring line2 = line.printable();
+
+                    wattron(self.win, A_REVERSE);
+                    mvwprintw(self.win, it2, wcswidth(line2, line2.length()), " ");
+                    wattroff(self.win, A_REVERSE);
+                }
+                else {
+                    int x = 0;
+                    wstring head_string = line.substring(0, self.cursorX);
+                    wstring printable_head_string = head_string.printable();
+
+                    mvwprintw(self.win, it2, 0, "%ls", printable_head_string);
+
+                    x += wcswidth(printable_head_string, printable_head_string.length());
+
+                    wstring cursor_string = line.substring(self.cursorX, self.cursorX+1);
+                    wstring printable_cursor_string = cursor_string.printable();
+
+                    wattron(self.win, A_REVERSE);
+                    mvwprintw(self.win, it2, x, "%ls", printable_cursor_string);
+                    wattroff(self.win, A_REVERSE);
+
+                    x += wcswidth(printable_cursor_string, printable_cursor_string.length());
+
+                    wstring tail_string = line.substring(self.cursorX+1, -1);
+
+                    mvwprintw(self.win, it2, x, "%ls", tail_string);
+                }
+            }
+            else {
+                mvwprintw(self.win, it2, 0, "%ls", line);
+            }
+        }
+    }
+}
+
 impl VigFiler
 {
     bool cd(VigFiler* self, char* cwd) {
@@ -48,6 +114,7 @@ impl VigFiler
         int width = maxx / 5;
 
         self.win = newwin(maxy, width, 0, 0);
+        keypad(self.win, true);
         self.active = false;
 
         self.scroll = 0;
@@ -70,7 +137,7 @@ impl VigFiler
         int maxy = xgetmaxy();
         werase(self.win);
         self.files.sublist(self.scroll, self.scroll+maxy+1).each {
-            if(it2 == self.cursor) {
+            if(it2 == self.cursor && self.active) {
                 wattron(self.win, A_REVERSE);
                 mvwprintw(self.win, it2, 0, "%s", it);
                 wattroff(self.win, A_REVERSE);
@@ -91,6 +158,7 @@ impl VigFiler
 
         switch(key) {
             case 'j': 
+            case KEY_DOWN:
                 self.cursor ++;
 
                 if(self.cursor >= maxy) {
@@ -108,6 +176,7 @@ impl VigFiler
                 break;
 
             case 'k': 
+            case KEY_UP:
                 self.cursor--; 
 
                 if(self.cursor < 0) {

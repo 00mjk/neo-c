@@ -243,9 +243,7 @@ impl Vig version 2
         var maxx = xgetmaxx();
         var maxy = xgetmaxy();
 
-        int x = maxx / 5;
-
-        var win = new VigWin.initialize(0,x, maxx-1-x, maxy);
+        var win = new VigWin.initialize(0,0, maxx-1, maxy);
 
         win.texts.push_back(wstring("abc"));
         win.texts.push_back(wstring("def"));

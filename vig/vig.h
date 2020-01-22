@@ -359,3 +359,9 @@ impl Vig version 15
     void activateFiler(Vig* self);
     int main_loop(Vig* self);
 }
+
+impl VigWin version 15
+{
+    void textsView(VigWin* self, Vig* vig);
+    initialize(int y, int x, int width, int height);
+}

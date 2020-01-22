@@ -140,6 +140,12 @@ int main()
     xassert("string split test", str5.split(regex!(/,/)).equals(list!(string("A"), string("B"), string("C"))));
     xassert("string split test2", str5.split_char(',').equals(list!(string("A"), string("B"), string("C"))));
 
+    var li6 = list!(string("ccc"), string("aaa"), string("bbb"));
+
+    var li7 = li6.sort_block { return strcmp(it, it2); }
+
+    xassert("string sort test", li7.equals(list!(string("aaa"), string("bbb"), string("ccc"))));
+
     0
 }
 

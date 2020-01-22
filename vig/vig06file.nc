@@ -190,10 +190,9 @@ impl Vig version 6
         int maxy = xgetmaxy();
         int maxx = xgetmaxx();
 
-        int x = maxx / 5;
         int height = maxy / (self.wins.length() + 1);
 
-        var win = new VigWin.initialize(0,x, maxx-1-x, height);
+        var win = new VigWin.initialize(0,0, maxx-1, height);
         win.openFile(file_name, -1);
 
         self.activeWin = win;
