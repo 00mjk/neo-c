@@ -1791,7 +1791,7 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
 
     if((force_delete || node_type->mHeap ) && node_type->mPointerNum > 0) 
     {
-        if(node_type->mPointerNum == 1)
+        if(node_type->mPointerNum == 1 && !info->no_output)
         {
             call_field_destructor(obj2, node_type, info);
             call_destructor(obj2, node_type, info);
@@ -1850,12 +1850,14 @@ void free_right_value_objects(sCompileInfo* info)
 
 void free_object(sNodeType* node_type, void* address, BOOL force_delete, sCompileInfo* info)
 {
-    Value* obj = Builder.CreateAlignedLoad((Value*)address, 8);
+    if(!info->no_output) {
+        Value* obj = Builder.CreateAlignedLoad((Value*)address, 8);
 #ifdef MDEBUG
     printf("free object %p type %s at %s %d\n", obj, CLASS_NAME(node_type->mClass), info->sname, info->sline);
 #endif
 
-    free_right_value_object(node_type, obj, force_delete, info);
+        free_right_value_object(node_type, obj, force_delete, info);
+    }
 }
 
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)

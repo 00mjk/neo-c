@@ -102,7 +102,65 @@ impl VigFiler
 
         closedir(dir);
 
-        self.files = self.files.sort();
+        self.files = self.files.sort_block {
+            if(strcmp(it, ".") == 0) {
+                return -1;
+            }
+            if(strcmp(it2, ".") == 0) {
+                return 1;
+            }
+            if(strcmp(it, "..") == 0) {
+                return -1;
+            }
+            if(strcmp(it2, "..") == 0) {
+                return 1;
+            }
+
+            char* p = it + strlen(it);
+
+            while(p >= it) {
+                if(*p == '.') {
+                    break;
+                }
+                else {
+                    p--;
+                }
+            }
+
+            int name_len = p - it;
+
+            char* p2 = it2 + strlen(it2);
+
+            while(p2 >= it2) {
+                if(*p2 == '.') {
+                    break;
+                }
+                else {
+                    p2--;
+                }
+            }
+
+            int name_len2 = p2 - it2;
+
+            if(name_len == 0 && name_len2 == 0) {
+                return strcmp(it, it2);
+            }
+            if(name_len == 0) {
+                return -1;
+            }
+            if(name_len2 == 0) {
+                return 1;
+            }
+
+            string ext_name = it.substring(name_len+1, -1);
+            string ext_name2 = it2.substring(name_len2+1, -1);
+            
+            if(strcmp(ext_name, ext_name2) != 0) {
+                return strcmp(ext_name, ext_name2);
+            }
+
+            return strcmp(it, it2);
+        }
         
         return true;
     }

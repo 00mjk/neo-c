@@ -2146,7 +2146,9 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
 
     if(var_type->mDynamicArrayNum != 0) {
         Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
-        var->mLLVMValue = address;
+        if(!info->no_output) {
+            var->mLLVMValue = address;
+        }
 
         BOOL parent = FALSE;
         int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
@@ -2217,13 +2219,16 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
         }
     }
     else {
-        Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
-        var->mLLVMValue = address;
+        if(!info->no_output) {
+            Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
 
-        BOOL parent = FALSE;
-        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+            var->mLLVMValue = address;
 
-        store_address_to_lvtable(index, address);
+            BOOL parent = FALSE;
+            int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+            store_address_to_lvtable(index, address);
+        }
     }
 
     info->type = var_type;
@@ -2311,34 +2316,36 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
         sNodeType* var_type = left_type;
 
-        Value* var_address;
-        if(var->mLLVMValue == NULL) {
-            compile_err_msg(info, "Invalid variable.store variable(1)");
-            info->err_num++;
+        if(!info->no_output) {
+            Value* var_address;
+            if(var->mLLVMValue == NULL) {
+                compile_err_msg(info, "Invalid variable.store variable(1)");
+                info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int"); // dummy
 
-            return TRUE;
+                return TRUE;
+            }
+
+            var_address = (Value*)var->mLLVMValue;
+
+            if(var_address == nullptr) {
+                compile_err_msg(info, "Invalid variable.store variable(2)");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            int alignment = get_llvm_alignment_from_node_type(right_type);
+
+            Value* var_address2 = Builder.CreateCast(Instruction::BitCast, var_address, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8),0),0));
+
+            Value* rvalue2 = rvalue.value;
+
+            Builder.CreateAlignedStore(rvalue2, var_address2, alignment);
         }
-
-        var_address = (Value*)var->mLLVMValue;
-
-        if(var_address == nullptr) {
-            compile_err_msg(info, "Invalid variable.store variable(2)");
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
-        int alignment = get_llvm_alignment_from_node_type(right_type);
-
-        Value* var_address2 = Builder.CreateCast(Instruction::BitCast, var_address, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8),0),0));
-
-        Value* rvalue2 = rvalue.value;
-
-        Builder.CreateAlignedStore(rvalue2, var_address2, alignment);
 
         info->type = create_node_type_with_class_name("char*");
     }
@@ -2390,7 +2397,9 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
                 if(dyn_cast<Constant>(rvalue2)) {
                     Constant* rvalue3 = dyn_cast<Constant>(rvalue2);
 
-                    var->mLLVMValue = rvalue3;
+                    if(!info->no_output) {
+                        var->mLLVMValue = rvalue3;
+                    }
 
                     info->type = left_type;
                 }
@@ -2425,7 +2434,9 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
                             return TRUE;
                         }
 
-                        var->mLLVMValue = address;
+                        if(!info->no_output) {
+                            var->mLLVMValue = address;
+                        }
 
                         BOOL parent = FALSE;
                         int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
@@ -2435,7 +2446,9 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
                 }
                 else {
                     Value* address = Builder.CreateAlloca(llvm_var_type, 0, var_name);
-                    var->mLLVMValue = address;
+                    if(!info->no_output) {
+                        var->mLLVMValue = address;
+                    }
 
                     BOOL parent = FALSE;
                     int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
@@ -2448,28 +2461,30 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
                 sNodeType* var_type = left_type;
 
-                Value* var_address;
-                if(parent && !var->mGlobal) {
-                    var_address = load_address_to_lvtable(index, var_type, info);
+                if(!info->no_output) {
+                    Value* var_address;
+                    if(parent && !var->mGlobal) {
+                        var_address = load_address_to_lvtable(index, var_type, info);
+                    }
+                    else {
+                        var_address = (Value*)var->mLLVMValue;
+                    }
+
+                    if(var_address == nullptr) {
+                        compile_err_msg(info, "Invalid variable.store variable(3)");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+
+                    Value* rvalue2 = Builder.CreateCast(Instruction::BitCast, rvalue.value, llvm_var_type);
+
+                    std_move(var_address, var->mType, &rvalue, alloc, info);
+
+                    Builder.CreateAlignedStore(rvalue2, var_address, alignment);
                 }
-                else {
-                    var_address = (Value*)var->mLLVMValue;
-                }
-
-                if(var_address == nullptr) {
-                    compile_err_msg(info, "Invalid variable.store variable(3)");
-                    info->err_num++;
-
-                    info->type = create_node_type_with_class_name("int"); // dummy
-
-                    return TRUE;
-                }
-
-                Value* rvalue2 = Builder.CreateCast(Instruction::BitCast, rvalue.value, llvm_var_type);
-
-                std_move(var_address, var->mType, &rvalue, alloc, info);
-
-                Builder.CreateAlignedStore(rvalue2, var_address, alignment);
 
                 info->type = left_type;
             }
@@ -2497,20 +2512,22 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
                 var_address = (Value*)var->mLLVMValue;
             }
 
-            if(var_address == nullptr) {
-                compile_err_msg(info, "Invalid variable.store variable(4)");
-                info->err_num++;
+            if(!info->no_output) {
+                if(var_address == nullptr) {
+                    compile_err_msg(info, "Invalid variable.store variable(4)");
+                    info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                    info->type = create_node_type_with_class_name("int"); // dummy
 
-                return TRUE;
+                    return TRUE;
+                }
+
+                Value* rvalue2 = Builder.CreateCast(Instruction::BitCast, rvalue.value, llvm_var_type);
+
+                std_move(var_address, var->mType, &rvalue, alloc, info);
+
+                Builder.CreateAlignedStore(rvalue2, var_address, alignment);
             }
-
-            Value* rvalue2 = Builder.CreateCast(Instruction::BitCast, rvalue.value, llvm_var_type);
-
-            std_move(var_address, var->mType, &rvalue, alloc, info);
-
-            Builder.CreateAlignedStore(rvalue2, var_address, alignment);
 
             info->type = left_type;
         }
@@ -5014,12 +5031,26 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 
     if(constant) {
         LVALUE llvm_value;
-        llvm_value.value = (Value*)var->mLLVMValue;
-        llvm_value.type = var_type;
-        llvm_value.address = nullptr;
-        llvm_value.var = var;
-        llvm_value.binded_value = TRUE;
-        llvm_value.load_field = FALSE;
+        if(!info->no_output) {
+            llvm_value.value = (Value*)var->mLLVMValue;
+            llvm_value.type = var_type;
+            llvm_value.address = nullptr;
+            llvm_value.var = var;
+            llvm_value.binded_value = TRUE;
+            llvm_value.load_field = FALSE;
+        }
+        else {
+            llvm_value.value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)1);
+            llvm_value.type = var_type;
+            llvm_value.address = nullptr;
+            llvm_value.var = nullptr;
+            llvm_value.binded_value = FALSE;
+            llvm_value.load_field = FALSE;
+
+            sNodeType* right_type = create_node_type_with_class_name("long");
+
+            (void)cast_right_type_to_left_type(var_type, &right_type, &llvm_value, info);
+        }
 
         push_value_to_stack_ptr(&llvm_value, info);
 
@@ -5082,7 +5113,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
                 var_address = (Value*)var->mLLVMValue;
             }
 
-            if(var_address == nullptr) {
+            if(var_address == nullptr && !info->no_output) {
                 compile_err_msg(info, "Invalid variable. %s. load variable(3)", var_name);
                 info->err_num++;
 
@@ -5094,12 +5125,27 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
             int alignment = get_llvm_alignment_from_node_type(var_type);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateAlignedLoad(var_address, alignment, var_name);
-            llvm_value.type = var_type;
-            llvm_value.address = var_address;
-            llvm_value.var = var;
-            llvm_value.binded_value = TRUE;
-            llvm_value.load_field = FALSE;
+
+            if(!info->no_output) {
+                llvm_value.value = Builder.CreateAlignedLoad(var_address, alignment, var_name);
+                llvm_value.type = var_type;
+                llvm_value.address = var_address;
+                llvm_value.var = var;
+                llvm_value.binded_value = TRUE;
+                llvm_value.load_field = FALSE;
+            }
+            else {
+                llvm_value.value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)1);
+                llvm_value.type = var_type;
+                llvm_value.address = nullptr;
+                llvm_value.var = nullptr;
+                llvm_value.binded_value = FALSE;
+                llvm_value.load_field = FALSE;
+
+                sNodeType* right_type = create_node_type_with_class_name("long");
+
+                (void)cast_right_type_to_left_type(var_type, &right_type, &llvm_value, info);
+            }
 
             push_value_to_stack_ptr(&llvm_value, info);
 
@@ -7538,72 +7584,77 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    LVALUE lvalue = *get_value_from_stack(-1);
+    if(!info->no_output) {
+        LVALUE lvalue = *get_value_from_stack(-1);
 
-    if(lvalue.address == nullptr) {
-        compile_err_msg(info, "Can't get address of this value on clone operator");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-        return TRUE;
-    }
-
-    sNodeType* left_type = info->type;
-
-    char real_fun_name[REAL_FUN_NAME_MAX];
-
-    char struct_name[VAR_NAME_MAX+128];
-    if(strcmp(left_type->mTypeName, "") == 0)
-    {
-        xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX+128);
-    }
-    else {
-        xstrncpy(struct_name, left_type->mTypeName, VAR_NAME_MAX+128);
-    }
-
-    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "clone", struct_name);
-
-    std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
-
-    if(funcs.size() > 0) {
-        Value* params[PARAMS_MAX];
-
-        params[0] = lvalue.value;
-
-        int num_params = 1;
-
-        if(!call_function("clone", params, num_params, struct_name, FALSE, lvalue.type, info))
-        {
-            compile_err_msg(info, "Not found found clone function");
+        if(lvalue.address == nullptr) {
+            compile_err_msg(info, "Can't get address of this value on clone operator");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
             return TRUE;
         }
+
+        sNodeType* left_type = info->type;
+
+        char real_fun_name[REAL_FUN_NAME_MAX];
+
+        char struct_name[VAR_NAME_MAX+128];
+        if(strcmp(left_type->mTypeName, "") == 0)
+        {
+            xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX+128);
+        }
+        else {
+            xstrncpy(struct_name, left_type->mTypeName, VAR_NAME_MAX+128);
+        }
+
+        create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "clone", struct_name);
+
+        std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
+
+        if(funcs.size() > 0) {
+            Value* params[PARAMS_MAX];
+
+            params[0] = lvalue.value;
+
+            int num_params = 1;
+
+            if(!call_function("clone", params, num_params, struct_name, FALSE, lvalue.type, info))
+            {
+                compile_err_msg(info, "Not found found clone function");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+                return TRUE;
+            }
+        }
+        else {
+            dec_stack_ptr(1, info);
+
+            sNodeType* left_type2 = clone_node_type(left_type);
+            left_type2->mHeap = TRUE;
+
+            Value* obj = clone_object(left_type, lvalue.address, info);
+
+            LVALUE llvm_value;
+            llvm_value.value = obj;
+            llvm_value.type = clone_node_type(left_type2);
+            llvm_value.address = nullptr;
+            llvm_value.var = nullptr;
+            llvm_value.binded_value = FALSE;
+            llvm_value.load_field = FALSE;
+
+            push_value_to_stack_ptr(&llvm_value, info);
+
+            info->type = clone_node_type(left_type2);
+
+            if(!info->no_output) {
+                append_heap_object_to_right_value(&llvm_value, info);
+            }
+        }
     }
     else {
-        dec_stack_ptr(1, info);
-
-        sNodeType* left_type2 = clone_node_type(left_type);
-        left_type2->mHeap = TRUE;
-
-        Value* obj = clone_object(left_type, lvalue.address, info);
-
-        LVALUE llvm_value;
-        llvm_value.value = obj;
-        llvm_value.type = clone_node_type(left_type2);
-        llvm_value.address = nullptr;
-        llvm_value.var = nullptr;
-        llvm_value.binded_value = FALSE;
-        llvm_value.load_field = FALSE;
-
-        push_value_to_stack_ptr(&llvm_value, info);
-
-        info->type = clone_node_type(left_type2);
-
-        if(!info->no_output) {
-            append_heap_object_to_right_value(&llvm_value, info);
-        }
+        info->type->mHeap = TRUE;
     }
 
     return TRUE;

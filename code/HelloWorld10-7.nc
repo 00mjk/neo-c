@@ -21,10 +21,40 @@ int main()
 
     var li10 = list!("fff", "fff", "aaa", "aaa", "aaa");
 
-
     var li11 = li10.uniq();
 
     xassert("uniq", li11.equals(list!("fff", "aaa")));
+
+    var li12 = li8.sort_block {
+        if(true) {
+            var b = string(it).substring(0, 2);
+            if(true) {
+                var b = string(it).substring(0, 2);
+                if(true) {
+                    var b = string(it).substring(0, 2);
+                    if(true) {
+                        var b = string(it).substring(0, 2);
+                        if(true) {
+                            var b = string(it).substring(0, 2);
+                            return 1;
+                        }
+
+                        var a = string(it).substring(0, 2);
+                    }
+
+                    var a = string(it).substring(0, 2);
+                }
+
+                var a = string(it).substring(0, 2);
+            }
+
+            var a = string(it).substring(0, 2);
+        }
+
+        var a = string(it).substring(0, 2);
+
+        return strcmp(it, it2) != 0;
+    }
 
     return 0;
 }
