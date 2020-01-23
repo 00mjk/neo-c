@@ -5,36 +5,36 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 9
+impl NeoViWin version 9
 {
-    void searchModeView(VigWin* self, Vig* vig)
+    void searchModeView(NeoViWin* self, NeoVi* nvi)
     {
         werase(self.win);
 
-        self.textsView(vig);
+        self.textsView(nvi);
 
         wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "/%ls", vig.searchString);
+        mvwprintw(self.win, self.height-1, 0, "/%ls", nvi.searchString);
         wattroff(self.win, A_REVERSE);
 
         wrefresh(self.win);
     }
 
-    void view(VigWin* self, Vig* vig) {
-        if(vig.mode == kSearchMode && self.equals(vig.activeWin)) {
-            self.searchModeView(vig);
+    void view(NeoViWin* self, NeoVi* nvi) {
+        if(nvi.mode == kSearchMode && self.equals(nvi.activeWin)) {
+            self.searchModeView(nvi);
         }
         else {
-            inherit(self, vig);
+            inherit(self, nvi);
         }
     }
 
-    void search(VigWin* self, Vig* vig) {
+    void search(NeoViWin* self, NeoVi* nvi) {
         var cursor_line = self.texts.item(self.scroll+self.cursorY, null);
 
-        int x = cursor_line.substring(self.cursorX+1, -1).index(vig.searchString, -1)
+        int x = cursor_line.substring(self.cursorX+1, -1).index(nvi.searchString, -1)
 
         if(x != -1) {
             x += self.cursorX + 1;
@@ -42,7 +42,7 @@ impl VigWin version 9
         }
         else {
             self.texts.sublist(self.scroll+self.cursorY+1, -1).each {
-                int x = it.index(vig.searchString, -1);
+                int x = it.index(nvi.searchString, -1);
 
                 if(x != -1) {
                     self.cursorY += it2 + 1;
@@ -55,16 +55,16 @@ impl VigWin version 9
         }
     }
 
-    void searchReverse(VigWin* self, Vig* vig) {
+    void searchReverse(NeoViWin* self, NeoVi* nvi) {
         var cursor_line = self.texts.item(self.scroll+self.cursorY, null);
 
         int x;
-        if(self.cursorX < vig.searchString.length())
+        if(self.cursorX < nvi.searchString.length())
         {
             x = -1;
         }
         else {
-            x = cursor_line.substring(0, self.cursorX-1).rindex(vig.searchString, -1)
+            x = cursor_line.substring(0, self.cursorX-1).rindex(nvi.searchString, -1)
         }
 
         if(x != -1) {
@@ -72,7 +72,7 @@ impl VigWin version 9
         }
         else {
             self.texts.sublist(0, self.scroll+self.cursorY).reverse().each {
-                int x = it.rindex(vig.searchString, -1);
+                int x = it.rindex(nvi.searchString, -1);
 
                 if(x != -1) {
                     self.cursorY = self.cursorY - it2 -1;
@@ -85,7 +85,7 @@ impl VigWin version 9
         }
     }
 
-    void searchWordOnCursor(VigWin* self, Vig* vig)
+    void searchWordOnCursor(NeoViWin* self, NeoVi* nvi)
     {
         wchar_t* line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
@@ -113,81 +113,81 @@ impl VigWin version 9
             if((cursor_y_before == self.cursorY) && (scroll_before == self.scroll)) 
             {
                 var search_word = self.texts.item(self.scroll+self.cursorY, null).substring(cursor_x_before, self.cursorX+1);
-                vig.searchString = clone search_word;
+                nvi.searchString = clone search_word;
 
-                self.search(vig);
+                self.search(nvi);
             }
         }
     }
 
-    void inputSearchlMode(VigWin* self, Vig* vig)
+    void inputSearchlMode(NeoViWin* self, NeoVi* nvi)
     {
         var key = self.getKey();
 
         switch(key) {
             case 27:
-                vig.exitFromSearchMode();
+                nvi.exitFromSearchMode();
                 break;
 
             case 'C'-'A'+1:
-                vig.exitFromSearchMode();
+                nvi.exitFromSearchMode();
                 break;
 
             case 10:
-                self.search(vig);
-                vig.exitFromSearchMode();
+                self.search(nvi);
+                nvi.exitFromSearchMode();
                 break;
                 
             case 8:
             case 127:
             case KEY_BACKSPACE:
-                vig.searchString.delete(-1);
+                nvi.searchString.delete(-1);
                 break;
 
             default:
-                vig.searchString = vig.searchString + wstring(xasprintf("%c", key));
+                nvi.searchString = nvi.searchString + wstring(xasprintf("%c", key));
                 break;
         }
     }
 
-    void input(VigWin* self, Vig* vig) {
-        if(vig.mode == kSearchMode) {
-            self.inputSearchlMode(vig);
+    void input(NeoViWin* self, NeoVi* nvi) {
+        if(nvi.mode == kSearchMode) {
+            self.inputSearchlMode(nvi);
         }
         else {
-            inherit(self, vig);
+            inherit(self, nvi);
         }
     }
 }
 
-impl Vig version 9
+impl NeoVi version 9
 {
-    void enterSearchMode(Vig* self) {
+    void enterSearchMode(NeoVi* self) {
         self.mode = kSearchMode;
         self.searchString = wstring("");
     }
-    void exitFromSearchMode(Vig* self) {
+    void exitFromSearchMode(NeoVi* self) {
         self.mode = kEditMode;
     }
 
     initialize() {
         inherit(self);
 
-        self.events.replace('/', lambda(Vig* self, int key) 
+        self.events.replace('/', lambda(NeoVi* self, int key) 
         {
             self.enterSearchMode();
         });
 
-        self.events.replace('n', lambda(Vig* self, int key) 
+        self.events.replace('n', lambda(NeoVi* self, int key) 
         {
             self.activeWin.search(self);
         });
-        self.events.replace('N', lambda(Vig* self, int key) 
+        self.events.replace('N', lambda(NeoVi* self, int key) 
         {
             self.activeWin.searchReverse(self);
         });
 
-        self.events.replace('*', lambda(Vig* self, int key) 
+        self.events.replace('*', lambda(NeoVi* self, int key) 
         {
             self.activeWin.searchWordOnCursor(self);
         });

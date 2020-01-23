@@ -9,9 +9,9 @@
 #include <locale.h>
 #include <wctype.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 15
+impl NeoViWin version 15
 {
     initialize(int y, int x, int width, int height) {
         int maxx = xgetmaxx();
@@ -21,7 +21,7 @@ impl VigWin version 15
         inherit(self, y, x + filer_width, width-filer_width, height);
     }
 
-    void textsView(VigWin* self, Vig* vig)
+    void textsView(NeoViWin* self, NeoVi* nvi)
     {
         int maxy = getmaxy(self.win);
         int maxx = getmaxx(self.win);
@@ -32,7 +32,7 @@ impl VigWin version 15
         {
             var line = it.substring(0, maxx-1);
 
-            if(self.cursorY == it2 && vig.activeWin.equals(self) && !vig.filer.active) {
+            if(self.cursorY == it2 && nvi.activeWin.equals(self) && !nvi.filer.active) {
                 if(line.length() == 0) {
                     wattron(self.win, A_REVERSE);
                     mvwprintw(self.win, it2, 0, " ");
@@ -77,9 +77,9 @@ impl VigWin version 15
     }
 }
 
-impl VigFiler
+impl NeoViFiler
 {
-    bool cd(VigFiler* self, char* cwd) {
+    bool cd(NeoViFiler* self, char* cwd) {
         self.path = string(cwd);
 
         self.files = new list<string>.initialize();
@@ -190,7 +190,7 @@ impl VigFiler
         delwin(self.win);
     }
 
-    void view(VigFiler* self, Vig* vig)
+    void view(NeoViFiler* self, NeoVi* nvi)
     {
         int maxy = xgetmaxy();
         werase(self.win);
@@ -207,7 +207,7 @@ impl VigFiler
         wrefresh(self.win);
     }
 
-    void input(VigFiler* self, Vig* vig) {
+    void input(NeoViFiler* self, NeoVi* nvi) {
         var key = wgetch(self.win);
 
         var file_name = self.files.item(self.scroll+self.cursor, null);
@@ -281,8 +281,8 @@ impl VigFiler
                 break;
 
             case '\n': 
-                vig.activeWin.writeFile();
-                vig.activeWin.openFile(file_name, -1);
+                nvi.activeWin.writeFile();
+                nvi.activeWin.openFile(file_name, -1);
                 self.active = false;
                 break;
 
@@ -292,26 +292,26 @@ impl VigFiler
                 break;
             
             case 'o':
-                vig.openNewFile(file_name);
+                nvi.openNewFile(file_name);
                 self.active = false;
                 break;
         }
     }
 }
 
-impl Vig version 15
+impl NeoVi version 15
 {
     initialize() {
         inherit(self);
 
-        self.filer = new VigFiler.initialize();
+        self.filer = new NeoViFiler.initialize();
     }
 
-    void activateFiler(Vig* self) {
+    void activateFiler(NeoVi* self) {
         self.filer.active = true;
     }
 
-    int main_loop(Vig* self) {
+    int main_loop(NeoVi* self) {
         while(!self.appEnd) {
             self.filer.view(self);
 

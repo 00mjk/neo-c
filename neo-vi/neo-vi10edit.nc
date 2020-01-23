@@ -6,40 +6,40 @@
 #include <limits.h>
 #include <wctype.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 10
+impl NeoViWin version 10
 {
-    void modifyCursorOnDeleting(VigWin* self) {
+    void modifyCursorOnDeleting(NeoViWin* self) {
         self.modifyOverCursorYValue();
         self.modifyOverCursorXValue();
     }
 
-    void deleteLines(VigWin* self, int head, int tail, Vig* vig)
+    void deleteLines(NeoViWin* self, int head, int tail, NeoVi* nvi)
     {
         self.pushUndo();
         self.texts.delete_range(head, tail);
         self.modifyCursorOnDeleting();
     }
 
-    void deleteOneLine(VigWin* self, Vig* vig) {
+    void deleteOneLine(NeoViWin* self, NeoVi* nvi) {
         var line = self.texts.item(self.scroll+self.cursorY, null);
         if(line != null) {
             self.pushUndo();
-            vig.yank.reset();
-            vig.yank.push_back(clone line);
-            vig.yankKind = kYankKindLine;
+            nvi.yank.reset();
+            nvi.yank.push_back(clone line);
+            nvi.yankKind = kYankKindLine;
             self.texts.delete(self.scroll+self.cursorY);
 
             self.modifyCursorOnDeleting();
         }
     }
 
-    void deleteWord(VigWin* self, Vig* vig) {
+    void deleteWord(NeoViWin* self, NeoVi* nvi) {
         wstring& line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         if(wcslen(line) == 0) {
-            self.deleteOneLine(vig);
+            self.deleteOneLine(nvi);
         }
         else {
             int x = self.cursorX;
@@ -106,15 +106,15 @@ impl VigWin version 10
                 }
             }
 
-            vig.yank.reset();
-            vig.yank.push_back(line.substring(self.cursorX, x));
-            vig.yankKind = kYankKindNoLine;
+            nvi.yank.reset();
+            nvi.yank.push_back(line.substring(self.cursorX, x));
+            nvi.yankKind = kYankKindNoLine;
             line.delete_range(self.cursorX, x);
 
             self.modifyCursorOnDeleting();
         }
     }
-    void deleteCursorCharactor(VigWin* self) {
+    void deleteCursorCharactor(NeoViWin* self) {
         self.pushUndo();
 
         var line = self.texts.item(self.scroll+self.cursorY, null);
@@ -124,12 +124,12 @@ impl VigWin version 10
     }
 }
 
-impl Vig version 10
+impl NeoVi version 10
 {
     initialize() {
         inherit(self);
 
-        self.events.replace('d', lambda(Vig* self, int key) {
+        self.events.replace('d', lambda(NeoVi* self, int key) {
             var key2 = self.activeWin.getKey();
 
             switch(key2) {
@@ -149,7 +149,7 @@ impl Vig version 10
             self.activeWin.saveInputedKey();
         });
 
-        self.events.replace('c', lambda(Vig* self, int key) {
+        self.events.replace('c', lambda(NeoVi* self, int key) {
             var key2 = self.activeWin.getKey();
 
             switch(key2) {
@@ -162,7 +162,7 @@ impl Vig version 10
                     break;
             }
         });
-        self.events.replace('x', lambda(Vig* self, int key) {
+        self.events.replace('x', lambda(NeoVi* self, int key) {
             self.activeWin.deleteCursorCharactor();
             self.activeWin.writed = true;
 

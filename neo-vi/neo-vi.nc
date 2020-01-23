@@ -1,8 +1,8 @@
-#include "vig.h"
+#include "neo-vi.h"
 
 int main(int argc, char** argv)
 {
-    var vig = new Vig.initialize();
+    var nvi = new NeoVi.initialize();
     
     int line_num = -1;
     char* file_names[128];
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
             }
         }
     }
-    vig.openFile(num_file_names, file_names, line_num);
-    int result = vig.main_loop()
+    nvi.openFile(num_file_names, file_names, line_num);
+    int result = nvi.main_loop()
     result
 }

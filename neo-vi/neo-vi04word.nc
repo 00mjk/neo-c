@@ -5,11 +5,11 @@
 #include <unistd.h>
 #include <wctype.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 4
+impl NeoViWin version 4
 {
-    void forwardWord(VigWin* self) {
+    void forwardWord(NeoViWin* self) {
         wchar_t* line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         wchar_t* p = line + self.cursorX;
@@ -176,7 +176,7 @@ impl VigWin version 4
             }
         }
     }
-    void backwardWord(VigWin* self) {
+    void backwardWord(NeoViWin* self) {
         wchar_t* line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         wchar_t* p = line + self.cursorX;
@@ -388,20 +388,20 @@ impl VigWin version 4
     }
 }
 
-impl Vig version 4
+impl NeoVi version 4
 {
     initialize() {
         inherit(self);
 
-        self.events.replace('w', lambda(Vig* self, int key) 
+        self.events.replace('w', lambda(NeoVi* self, int key) 
         {
             self.activeWin.forwardWord();
         });
-        self.events.replace('e', lambda(Vig* self, int key) 
+        self.events.replace('e', lambda(NeoVi* self, int key) 
         {
             self.activeWin.forwardWord();
         });
-        self.events.replace('b', lambda(Vig* self, int key) 
+        self.events.replace('b', lambda(NeoVi* self, int key) 
         {
             self.activeWin.backwardWord();
         });

@@ -6,9 +6,9 @@
 #include <locale.h>
 #include <wctype.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 14
+impl NeoViWin version 14
 {
     initialize(int y, int x, int width, int height) {
         inherit(self, y, x, width, height);
@@ -18,7 +18,7 @@ impl VigWin version 14
         self.autoInputIndex = 0;
     }
     
-    int getKey(VigWin* self) {
+    int getKey(NeoViWin* self) {
         if(self.autoInput && self.savedInputedKeys) {
             if(self.autoInputIndex < self.savedInputedKeys.length()) {
                 int key = self.savedInputedKeys.item(self.autoInputIndex, -1);
@@ -57,23 +57,23 @@ impl VigWin version 14
 
     }
 
-    void clearInputedKey(VigWin* self) {
+    void clearInputedKey(NeoViWin* self) {
         self.inputedKeys.reset();
     }
 
-    void saveInputedKey(VigWin* self) {
+    void saveInputedKey(NeoViWin* self) {
         if(!self.autoInput && !self.pressedDot) {
             self.savedInputedKeys = clone self.inputedKeys;
         }
     }
 }
 
-impl Vig version 14
+impl NeoVi version 14
 {
     initialize() {
         inherit(self);
 
-        self.events.replace('.', lambda(Vig* self, int key) 
+        self.events.replace('.', lambda(NeoVi* self, int key) 
         {
             self.activeWin.autoInput = true;
             self.activeWin.pressedDot = true;

@@ -1,0 +1,117 @@
+##########################################
+# installed directories
+##########################################
+prefix=@prefix@ exec_prefix=@exec_prefix@
+bindir=@bindir@
+datadir=@datadir@
+mandir=@mandir@
+sharedstatedir=@sharedstatedir@
+sysconfdir=@sysconfdir@/neo-c
+includedir=@includedir@/neo-c
+datarootdir=@datarootdir@/neo-c
+docdir=@datadir@/doc
+libdir=@libdir@
+
+
+#########################################
+# environmnet variables
+##########################################
+CC=@CC@
+NCC=@NCC@
+INSTALL=@INSTALL@
+CFLAGS=@CFLAGS@
+LIBS=@LIBS@
+OS=@OS@
+DESTDIR=@DESTDIR@
+
+#########################################
+# main
+##########################################
+all: neo-vi
+
+neo-vi: configure Makefile config.h neo-vi.nc neo-vi01init.o neo-vi02base.o neo-vi03insert_mode.o neo-vi04word.o neo-vi05undo.o neo-vi06file.o neo-vi07yank.o neo-vi08visual.o neo-vi09search.o neo-vi10edit.o neo-vi11move.o neo-vi12command.o neo-vi13completion.o neo-vi14dot.o neo-vi15filer.o neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc neo-vi07yank.nc neo-vi08visual.nc neo-vi09search.nc neo-vi10edit.nc neo-vi11move.nc neo-vi12command.nc neo-vi13completion.nc neo-vi14dot.nc neo-vi15filer.nc
+	neo-c -o neo-vi neo-vi.nc neo-vi01init.o neo-vi02base.o neo-vi03insert_mode.o neo-vi04word.o neo-vi05undo.o neo-vi06file.o neo-vi07yank.o neo-vi08visual.o neo-vi09search.o neo-vi10edit.o neo-vi11move.o neo-vi12command.o neo-vi13completion.o neo-vi14dot.o neo-vi15filer.o $(CFLAGS) $(LIBS)
+
+neo-vi01init.o: configure Makefile config.h neo-vi01init.nc neo-vi.h
+	neo-c -c neo-vi01init.nc $(CFLAGS) $(LIBS)
+
+neo-vi02base.o: configure Makefile config.h neo-vi01init.nc neo-vi02base.nc neo-vi.h
+	neo-c -c neo-vi02base.nc $(CFLAGS) $(LIBS)
+
+neo-vi03insert_mode.o: configure Makefile config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi.h
+	neo-c -c neo-vi03insert_mode.nc $(CFLAGS) $(LIBS)
+
+neo-vi04word.o: configure Makefile config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi.h
+	neo-c -c neo-vi04word.nc $(CFLAGS) $(LIBS)
+
+neo-vi05undo.o: configure config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi.h
+	neo-c -c neo-vi05undo.nc $(CFLAGS) $(LIBS)
+
+neo-vi06file.o: configure config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc
+	neo-c -c neo-vi06file.nc $(CFLAGS) $(LIBS)
+
+neo-vi07yank.o: configure config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc neo-vi07yank.nc
+	neo-c -c neo-vi07yank.nc $(CFLAGS) $(LIBS)
+
+neo-vi08visual.o: configure config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc neo-vi07yank.nc neo-vi08visual.nc 
+	neo-c -c neo-vi08visual.nc $(CFLAGS) $(LIBS)
+
+neo-vi09search.o: configure config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc neo-vi07yank.nc neo-vi08visual.nc neo-vi09search.nc 
+	neo-c -c neo-vi09search.nc $(CFLAGS) $(LIBS)
+
+neo-vi10edit.o: configure config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc neo-vi07yank.nc neo-vi08visual.nc neo-vi09search.nc neo-vi10edit.nc
+	neo-c -c neo-vi10edit.nc $(CFLAGS) $(LIBS)
+
+neo-vi11move.o: configure config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc neo-vi07yank.nc neo-vi08visual.nc neo-vi09search.nc neo-vi10edit.nc neo-vi11move.nc
+	neo-c -c neo-vi11move.nc $(CFLAGS) $(LIBS)
+
+neo-vi12command.o: configure config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc neo-vi07yank.nc neo-vi08visual.nc neo-vi09search.nc neo-vi10edit.nc neo-vi11move.nc neo-vi12command.nc
+	neo-c -c neo-vi12command.nc $(CFLAGS) $(LIBS)
+
+neo-vi13completion.o: configure config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc neo-vi07yank.nc neo-vi08visual.nc neo-vi09search.nc neo-vi10edit.nc neo-vi11move.nc neo-vi12command.nc neo-vi13completion.nc
+	neo-c -c neo-vi13completion.nc $(CFLAGS) $(LIBS)
+
+neo-vi14dot.o: configure config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc neo-vi07yank.nc neo-vi08visual.nc neo-vi09search.nc neo-vi10edit.nc neo-vi11move.nc neo-vi12command.nc neo-vi13completion.nc neo-vi14dot.nc
+	neo-c -c neo-vi14dot.nc $(CFLAGS) $(LIBS)
+
+neo-vi15filer.o: configure config.h neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc neo-vi07yank.nc neo-vi08visual.nc neo-vi09search.nc neo-vi10edit.nc neo-vi11move.nc neo-vi12command.nc neo-vi13completion.nc neo-vi14dot.nc neo-vi15filer.nc
+	neo-c -c neo-vi15filer.nc $(CFLAGS) $(LIBS)
+
+#########################################
+# install
+#########################################
+install:
+	mkdir -p "$(DESTDIR)/bin"
+	$(INSTALL) -m 755 ./neo-vi "$(DESTDIR)/bin"
+
+#########################################
+# uninstall
+#########################################
+uninstall:
+	rm -f "$(DESTDIR)"/bin/neo-vi
+
+#########################################
+# permission
+#########################################
+permission:
+	chmod 644 *
+	chmod 755 .git man configure
+	chmod 644 *.nc
+	chmod 644 *.h
+	chmod 755 update_neo-vi-c.sh
+
+#########################################
+# clean
+#########################################
+clean:
+	rm -fR memleak_debug.txt *.ll *.bc *.nc.tmp *.out *.o valgrind.txt memleack_debug.txt
+	rm -fR neo-vi
+
+distclean: clean
+	rm -fR  config.h Makefile autom4te.cache 
+
+test:
+#	rm -f valgrind.txt memleack_debug.txt
+#	valgrind --log-file=valgrind.txt --leak-check=full --show-leak-kinds=all ./neo-vi a.nc
+	./neo-vi a.nc
+

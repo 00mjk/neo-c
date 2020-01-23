@@ -5,9 +5,9 @@
 #include <unistd.h>
 #include <wctype.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 5
+impl NeoViWin version 5
 {
     initialize(int y, int x, int width, int height) 
     {
@@ -19,7 +19,7 @@ impl VigWin version 5
         self.undoIndex = 0;
     }
 
-    void pushUndo(VigWin* self)
+    void pushUndo(NeoViWin* self)
     {
         self.undo.delete_range(self.undoIndex, -1);
         self.undoScroll.delete_range(self.undoIndex, -1);
@@ -37,7 +37,7 @@ impl VigWin version 5
         self.undoIndex++;
     }
     
-    void redo(VigWin* self) {
+    void redo(NeoViWin* self) {
         if(self.undoIndex < self.undo.length()-1) 
         {
             self.undoIndex++;
@@ -57,7 +57,7 @@ impl VigWin version 5
         }
     }
 
-    void undo(VigWin* self) {
+    void undo(NeoViWin* self) {
         if(self.undoIndex == self.undo.length())
         {
             self.pushUndo();
@@ -83,22 +83,22 @@ impl VigWin version 5
     }
 }
 
-impl Vig version 5
+impl NeoVi version 5
 {
     initialize() {
         inherit(self);
 
-        self.events.replace('u', lambda(Vig* self, int key) 
+        self.events.replace('u', lambda(NeoVi* self, int key) 
         {
             self.activeWin.undo();
         });
 
-        self.events.replace('r'-'a'+1, lambda(Vig* self, int key) 
+        self.events.replace('r'-'a'+1, lambda(NeoVi* self, int key) 
         {
             self.activeWin.redo();
         });
     }
-    void enterInsertMode(Vig* self) {
+    void enterInsertMode(NeoVi* self) {
         inherit(self);
 
         self.activeWin.pushUndo();

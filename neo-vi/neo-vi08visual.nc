@@ -5,9 +5,9 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 8 
+impl NeoViWin version 8 
 {
     initialize(int y, int x, int width, int height) {
         inherit(self, y, x, width, height);
@@ -15,7 +15,7 @@ impl VigWin version 8
         self.visualModeHead = 0;
     }
 
-    void visualModeView(VigWin* self, Vig* vig)
+    void visualModeView(NeoViWin* self, NeoVi* nvi)
     {
         int maxy = getmaxy(self.win);
         int maxx = getmaxx(self.win);
@@ -50,16 +50,16 @@ impl VigWin version 8
         wrefresh(self.win);
     }
 
-    void view(VigWin* self, Vig* vig) {
-        if(vig.mode == kVisualMode && vig.activeWin.equals(self)) {
-            self.visualModeView(vig);
+    void view(NeoViWin* self, NeoVi* nvi) {
+        if(nvi.mode == kVisualMode && nvi.activeWin.equals(self)) {
+            self.visualModeView(nvi);
         }
         else {
-            inherit(self, vig);
+            inherit(self, nvi);
         }
     }
 
-    void yankOnVisualMode(VigWin* self, Vig* vig) {
+    void yankOnVisualMode(NeoViWin* self, NeoVi* nvi) {
         int head = self.visualModeHead;
         int tail = self.scroll+self.cursorY;
 
@@ -69,13 +69,13 @@ impl VigWin version 8
             head = tmp;
         }
 
-        vig.yank.reset();
+        nvi.yank.reset();
         self.texts.sublist(head, tail+1).each {
-            vig.yank.push_back(clone it);
+            nvi.yank.push_back(clone it);
         }
     }
 
-    void indentVisualMode(VigWin* self, Vig* vig) {
+    void indentVisualMode(NeoViWin* self, NeoVi* nvi) {
         self.pushUndo();
 
         int head = self.visualModeHead;
@@ -96,7 +96,7 @@ impl VigWin version 8
         self.modifyOverCursorXValue();
     }
 
-    void backIndentVisualMode(VigWin* self, Vig* vig) 
+    void backIndentVisualMode(NeoViWin* self, NeoVi* nvi) 
     {
         self.pushUndo();
 
@@ -124,10 +124,10 @@ impl VigWin version 8
         self.modifyOverCursorXValue();
     }
 
-    void deleteOnVisualMode(VigWin* self, Vig* vig) {
+    void deleteOnVisualMode(NeoViWin* self, NeoVi* nvi) {
         self.pushUndo();
 
-        self.yankOnVisualMode(vig);
+        self.yankOnVisualMode(nvi);
 
         int head = self.visualModeHead;
         int tail = self.scroll+self.cursorY;
@@ -147,7 +147,7 @@ impl VigWin version 8
         }
     }
 
-    void inputVisualMode(VigWin* self, Vig* vig)
+    void inputVisualMode(NeoViWin* self, NeoVi* nvi)
     {
         var key = self.getKey();
 
@@ -179,59 +179,59 @@ impl VigWin version 8
                 break;
 
             case 'C'-'A'+1:
-                vig.exitFromVisualMode();
+                nvi.exitFromVisualMode();
                 break;
 
             case 'y':
-                self.yankOnVisualMode(vig);
-                vig.exitFromVisualMode();
+                self.yankOnVisualMode(nvi);
+                nvi.exitFromVisualMode();
                 break;
 
             case 'd':
-                self.deleteOnVisualMode(vig);
-                vig.exitFromVisualMode();
+                self.deleteOnVisualMode(nvi);
+                nvi.exitFromVisualMode();
                 break;
 
             case '>':
-                self.indentVisualMode(vig);
-                vig.exitFromVisualMode();
+                self.indentVisualMode(nvi);
+                nvi.exitFromVisualMode();
                 break;
 
             case '<':
-                self.backIndentVisualMode(vig);
-                vig.exitFromVisualMode();
+                self.backIndentVisualMode(nvi);
+                nvi.exitFromVisualMode();
                 break;
 
             case 27:
-                vig.exitFromVisualMode();
+                nvi.exitFromVisualMode();
                 break;
         }
     }
 
-    void input(VigWin* self, Vig* vig) {
-        if(vig.mode == kVisualMode) {
-            self.inputVisualMode(vig);
+    void input(NeoViWin* self, NeoVi* nvi) {
+        if(nvi.mode == kVisualMode) {
+            self.inputVisualMode(nvi);
         }
         else {
-            inherit(self, vig);
+            inherit(self, nvi);
         }
     }
 }
 
-impl Vig version 8
+impl NeoVi version 8
 {
-    void enterVisualMode(Vig* self) {
+    void enterVisualMode(NeoVi* self) {
         self.mode = kVisualMode;
         self.activeWin.visualModeHead = self.activeWin.cursorY + self.activeWin.scroll;
     }
-    void exitFromVisualMode(Vig* self) {
+    void exitFromVisualMode(NeoVi* self) {
         self.mode = kEditMode;
     }
 
     initialize() {
         inherit(self);
 
-        self.events.replace('V', lambda(Vig* self, int key) 
+        self.events.replace('V', lambda(NeoVi* self, int key) 
         {
             self.enterVisualMode();
         });

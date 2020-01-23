@@ -6,15 +6,15 @@
 #include <limits.h>
 #include <unistd.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 3 
+impl NeoViWin version 3 
 {
-    void insertModeView(VigWin* self, Vig* vig)
+    void insertModeView(NeoViWin* self, NeoVi* nvi)
     {
         werase(self.win);
 
-        self.textsView(vig);
+        self.textsView(nvi);
 
         wattron(self.win, A_REVERSE);
         mvwprintw(self.win, self.height-1, 0, "INSERT MODE x %d y %d scroll %d", self.cursorX, self.scroll+self.cursorY, self.scroll);
@@ -23,16 +23,16 @@ impl VigWin version 3
         wrefresh(self.win);
     }
 
-    void view(VigWin* self, Vig* vig) {
-        if(vig.mode == kInsertMode && self.equals(vig.activeWin)) {
-            self.insertModeView(vig);
+    void view(NeoViWin* self, NeoVi* nvi) {
+        if(nvi.mode == kInsertMode && self.equals(nvi.activeWin)) {
+            self.insertModeView(nvi);
         }
         else {
-            inherit(self, vig);
+            inherit(self, nvi);
         }
     }
 
-    void insertText(VigWin* self, wstring text) {
+    void insertText(NeoViWin* self, wstring text) {
         var old_line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         var new_line = old_line.substring(0, self.cursorX) + text + old_line.substring(self.cursorX, -1);
@@ -41,7 +41,7 @@ impl VigWin version 3
         self.cursorX += text.length();
     }
 
-    void enterNewLine(VigWin* self)
+    void enterNewLine(NeoViWin* self)
     {
         var old_line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
@@ -69,7 +69,7 @@ impl VigWin version 3
         self.modifyOverCursorYValue();
     }
 
-    void enterNewLine2(VigWin* self)
+    void enterNewLine2(NeoViWin* self)
     {
         var line = self.texts.item(self.scroll+self.cursorY, null);
         int num_spaces = 0;
@@ -92,7 +92,7 @@ impl VigWin version 3
         self.modifyOverCursorYValue();
     }
 
-    void backSpace(VigWin* self) {
+    void backSpace(NeoViWin* self) {
         var line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         if(line.length() > 0 && self.cursorX > 0) {
@@ -101,7 +101,7 @@ impl VigWin version 3
         }
     }
 
-    void backIndent(VigWin* self) {
+    void backIndent(NeoViWin* self) {
         self.pushUndo();
 
         var line = self.texts.item(self.scroll+self.cursorY, wstring(""));
@@ -120,7 +120,7 @@ impl VigWin version 3
         }
     }
 
-    void blinkBraceFoward(VigWin* self, wchar_t head, wchar_t tail, Vig* vig) {
+    void blinkBraceFoward(NeoViWin* self, wchar_t head, wchar_t tail, NeoVi* nvi) {
         int cursor_y = self.scroll+self.cursorY;
         int cursor_x = -1;
 
@@ -192,13 +192,13 @@ impl VigWin version 3
                 self.cursorX = cursor_x;
                 self.cursorY = cursor_y - self.scroll;
 
-                self.view(vig);
+                self.view(nvi);
                 usleep(1000000);
 
                 self.cursorX = cursor_x_saved;
                 self.cursorY = cursor_y_saved;
                 self.scroll = scroll_saved;
-                self.view(vig);
+                self.view(nvi);
             }
             else {
                 int cursor_x_saved = self.cursorX;
@@ -211,17 +211,17 @@ impl VigWin version 3
                 self.modifyOverCursorYValue();
                 self.modifyOverCursorXValue();
 
-                self.view(vig);
+                self.view(nvi);
                 usleep(1000000);
 
                 self.cursorX = cursor_x_saved;
                 self.cursorY = cursor_y_saved;
                 self.scroll = scroll_saved;
-                self.view(vig);
+                self.view(nvi);
             }
         }
     }
-    void blinkBraceEnd(VigWin* self, wchar_t head, wchar_t tail, Vig* vig) {
+    void blinkBraceEnd(NeoViWin* self, wchar_t head, wchar_t tail, NeoVi* nvi) {
         int cursor_y = self.scroll+self.cursorY;
         int cursor_x = -1;
 
@@ -293,13 +293,13 @@ impl VigWin version 3
                 self.cursorX = cursor_x;
                 self.cursorY = cursor_y - self.scroll;
 
-                self.view(vig);
+                self.view(nvi);
                 usleep(1000000);
 
                 self.cursorX = cursor_x_saved;
                 self.cursorY = cursor_y_saved;
                 self.scroll = scroll_saved;
-                self.view(vig);
+                self.view(nvi);
             }
             else {
                 int cursor_x_saved = self.cursorX;
@@ -312,23 +312,23 @@ impl VigWin version 3
                 self.modifyOverCursorYValue();
                 self.modifyOverCursorXValue();
 
-                self.view(vig);
+                self.view(nvi);
                 usleep(1000000);
 
                 self.cursorX = cursor_x_saved;
                 self.cursorY = cursor_y_saved;
                 self.scroll = scroll_saved;
-                self.view(vig);
+                self.view(nvi);
             }
         }
     }
 
-    void inputInsertMode(VigWin* self, Vig* vig)
+    void inputInsertMode(NeoViWin* self, NeoVi* nvi)
     {
         var key = self.getKey();
         
         if(key == 3 || key == 27) {
-            vig.exitFromInsertMode();
+            nvi.exitFromInsertMode();
         }
         else if(key == 4) {
             self.backIndent();
@@ -365,31 +365,31 @@ impl VigWin version 3
             self.insertText(wstring(keys));
         }
         else if(key == '(') {
-            self.blinkBraceFoward('(', ')', vig);
+            self.blinkBraceFoward('(', ')', nvi);
             self.insertText(wstring(xasprintf("%c", key)));
         }
         else if(key == '{') {
-            self.blinkBraceFoward('{', '}', vig);
+            self.blinkBraceFoward('{', '}', nvi);
             self.insertText(wstring(xasprintf("%c", key)));
         }
         else if(key == '[') {
-            self.blinkBraceFoward('<', '>', vig);
+            self.blinkBraceFoward('<', '>', nvi);
             self.insertText(wstring(xasprintf("%c", key)));
         }
         else if(key == ')') {
-            self.blinkBraceEnd('(', ')', vig);
+            self.blinkBraceEnd('(', ')', nvi);
             self.insertText(wstring(xasprintf("%c", key)));
         }
         else if(key == '}') {
-            self.blinkBraceEnd('{', '}', vig);
+            self.blinkBraceEnd('{', '}', nvi);
             self.insertText(wstring(xasprintf("%c", key)));
         }
         else if(key == ']') {
-            self.blinkBraceEnd('[', ']', vig);
+            self.blinkBraceEnd('[', ']', nvi);
             self.insertText(wstring(xasprintf("%c", key)));
         }
         else if(key == '>') {
-            self.blinkBraceEnd('<', '>', vig);
+            self.blinkBraceEnd('<', '>', nvi);
             self.insertText(wstring(xasprintf("%c", key)));
         }
         else {
@@ -397,40 +397,40 @@ impl VigWin version 3
         }
     }
 
-    void input(VigWin* self, Vig* vig) {
-        if(vig.mode == kInsertMode) {
-            self.inputInsertMode(vig);
+    void input(NeoViWin* self, NeoVi* nvi) {
+        if(nvi.mode == kInsertMode) {
+            self.inputInsertMode(nvi);
         }
         else {
-            inherit(self, vig);
+            inherit(self, nvi);
         }
     }
 
-    void pushUndo(VigWin* self) {
+    void pushUndo(NeoViWin* self) {
         /// implemented by the after layer
     }
-    void writedFlagOn(VigWin* self) {
+    void writedFlagOn(NeoViWin* self) {
         /// implemented by the after layer
     }
-    void completion(VigWin* self) {
+    void completion(NeoViWin* self) {
         /// implemented by the after layer
     }
-    void clearInputedKey(VigWin* self) {
+    void clearInputedKey(NeoViWin* self) {
         /// implemented by the after layer
     }
-    void saveInputedKey(VigWin* self) {
+    void saveInputedKey(NeoViWin* self) {
         /// implemented by the after layer
     }
 }
 
-impl Vig version 3 
+impl NeoVi version 3 
 {
-    void enterInsertMode(Vig* self) {
+    void enterInsertMode(NeoVi* self) {
         self.mode = kInsertMode;
         self.activeWin.writedFlagOn();
         self.activeWin.modifyOverCursorXValue();
     }
-    void exitFromInsertMode(Vig* self) {
+    void exitFromInsertMode(NeoVi* self) {
         self.mode = kEditMode;
         self.activeWin.saveInputedKey();
     }
@@ -440,34 +440,34 @@ impl Vig version 3
 
         self.mode = kEditMode;
 
-        self.events.replace('i', lambda(Vig* self, int key) 
+        self.events.replace('i', lambda(NeoVi* self, int key) 
         {
             self.enterInsertMode();
         });
-        self.events.replace('I', lambda(Vig* self, int key) 
+        self.events.replace('I', lambda(NeoVi* self, int key) 
         {
             self.activeWin.moveAtHead();
             self.enterInsertMode();
         });
-        self.events.replace('a', lambda(Vig* self, int key) 
+        self.events.replace('a', lambda(NeoVi* self, int key) 
         {
             self.enterInsertMode();
             self.activeWin.cursorX++;
         });
-        self.events.replace('A', lambda(Vig* self, int key) 
+        self.events.replace('A', lambda(NeoVi* self, int key) 
         {
             self.activeWin.moveAtTail();
             self.enterInsertMode();
             self.activeWin.cursorX++;
         });
-        self.events.replace('o', lambda(Vig* self, int key) 
+        self.events.replace('o', lambda(NeoVi* self, int key) 
         {
             self.enterInsertMode();
             self.activeWin.enterNewLine2();
         });
     }
 
-    int main_loop(Vig* self) {
+    int main_loop(NeoVi* self) {
         while(!self.appEnd) {
             self.wins.each {
                 it.view(self);

@@ -5,11 +5,11 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 13 
+impl NeoViWin version 13 
 {
-    wstring&? selector(VigWin* self, list<wstring>* lines) {
+    wstring&? selector(NeoViWin* self, list<wstring>* lines) {
         wstring&? result = null;
 
         bool end_of_select = false;
@@ -115,7 +115,7 @@ impl VigWin version 13
         return result;
     }
 
-    void completion(VigWin* self) {
+    void completion(NeoViWin* self) {
         wchar_t* line = self.texts.item(self.scroll+self.cursorY, null);
 
         wchar_t* p = line + self.cursorX;

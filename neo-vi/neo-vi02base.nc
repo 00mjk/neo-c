@@ -6,11 +6,11 @@
 #include <locale.h>
 #include <wctype.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 2 
+impl NeoViWin version 2 
 {
-    void textsView(VigWin* self, Vig* vig)
+    void textsView(NeoViWin* self, NeoVi* nvi)
     {
         int maxy = getmaxy(self.win);
         int maxx = getmaxx(self.win);
@@ -21,7 +21,7 @@ impl VigWin version 2
         {
             var line = it.substring(0, maxx-1);
 
-            if(self.cursorY == it2 && vig.activeWin.equals(self)) {
+            if(self.cursorY == it2 && nvi.activeWin.equals(self)) {
                 if(line.length() == 0) {
                     wattron(self.win, A_REVERSE);
                     mvwprintw(self.win, it2, 0, " ");
@@ -64,7 +64,7 @@ impl VigWin version 2
             }
         }
     }
-    void statusBarView(VigWin* self, Vig* vig)
+    void statusBarView(NeoViWin* self, NeoVi* nvi)
     {
         int maxy = getmaxy(self.win);
         int maxx = getmaxx(self.win);
@@ -76,31 +76,31 @@ impl VigWin version 2
         wrefresh(self.win);
     }
 
-    void view(VigWin* self, Vig* vig) {
+    void view(NeoViWin* self, NeoVi* nvi) {
         werase(self.win);
 
-        self.textsView(vig);
+        self.textsView(nvi);
 
-        self.statusBarView(vig);
+        self.statusBarView(nvi);
 
         wrefresh(self.win);
     }
     
-    int getKey(VigWin* self) {
+    int getKey(NeoViWin* self) {
         return wgetch(self.win);        
     }
 
-    void input(VigWin* self, Vig* vig) {
+    void input(NeoViWin* self, NeoVi* nvi) {
         var key = self.getKey();
 
-        var event = vig.events.item(key, null);
+        var event = nvi.events.item(key, null);
 
         if(event != null) {
-            event(vig, key);
+            event(nvi, key);
         }
     }
 
-    void modifyUnderCursorYValue(VigWin* self)
+    void modifyUnderCursorYValue(NeoViWin* self)
     {
         if(self.cursorY < 0) {
             self.scroll += self.cursorY;
@@ -113,7 +113,7 @@ impl VigWin version 2
         }
     }
 
-    void modifyOverCursorYValue(VigWin* self)
+    void modifyOverCursorYValue(NeoViWin* self)
     {
         int maxy = getmaxy(self.win);
 
@@ -133,7 +133,7 @@ impl VigWin version 2
         }
     }
 
-    void modifyOverCursorXValue(VigWin* self)
+    void modifyOverCursorXValue(NeoViWin* self)
     {
         var cursor_line = self.texts.item(self.scroll+self.cursorY, null);
 
@@ -149,38 +149,38 @@ impl VigWin version 2
         }
     }
 
-    void modifyUnderCursorXValue(VigWin* self)
+    void modifyUnderCursorXValue(NeoViWin* self)
     {
         if(self.cursorX < 0) {
             self.cursorX = 0;
         }
     }
 
-    void forward(VigWin* self) {
+    void forward(NeoViWin* self) {
         self.cursorX++;
         self.modifyOverCursorXValue();
     }
 
-    void backward(VigWin* self) {
+    void backward(NeoViWin* self) {
         self.cursorX--;
         self.modifyUnderCursorXValue();
     }
 
-    void prevLine(VigWin* self) {
+    void prevLine(NeoViWin* self) {
         self.cursorY--;
 
         self.modifyUnderCursorYValue();
         self.modifyOverCursorXValue();
     }
 
-    void nextLine(VigWin* self) {
+    void nextLine(NeoViWin* self) {
         self.cursorY++;
 
         self.modifyOverCursorYValue();
         self.modifyOverCursorXValue();
     }
 
-    void halfScrollUp(VigWin* self) {
+    void halfScrollUp(NeoViWin* self) {
         int maxy = getmaxy(self.win);
 
         self.cursorY -= maxy/2;
@@ -189,7 +189,7 @@ impl VigWin version 2
         self.modifyOverCursorXValue();
     }
 
-    void halfScrollDown(VigWin* self) {
+    void halfScrollDown(NeoViWin* self) {
         int maxy = getmaxy(self.win);
 
         self.cursorY += maxy/2;
@@ -198,11 +198,11 @@ impl VigWin version 2
         self.modifyOverCursorXValue();
     }
 
-    void moveAtHead(VigWin* self) {
+    void moveAtHead(NeoViWin* self) {
         self.cursorX = 0;
     }
 
-    void moveAtTail(VigWin* self) {
+    void moveAtTail(NeoViWin* self) {
         var cursor_line = self.texts.item(self.scroll+self.cursorY, wstring(""));
         var line_max = cursor_line.length();
 
@@ -213,37 +213,37 @@ impl VigWin version 2
         }
     }
 
-    void moveTop(VigWin* self) {
+    void moveTop(NeoViWin* self) {
         self.scroll = 0;
         self.cursorY = 0;
 
         self.modifyOverCursorXValue();
     }
 
-    void moveBottom(VigWin* self) {
+    void moveBottom(NeoViWin* self) {
         self.cursorY = self.texts.length()-1;
 
         self.modifyOverCursorXValue();
         self.modifyOverCursorYValue();
     }
-    void openFile(VigWin* self, char* file_name, int line_num) {
+    void openFile(NeoViWin* self, char* file_name, int line_num) {
         /// implemented by the after layer
     }
 }
 
-impl Vig version 2 
+impl NeoVi version 2 
 {
     initialize() {
         setlocale(LC_ALL, "");
         
         self.init_curses();
 
-        self.wins = new list<VigWin*%>.initialize();
+        self.wins = new list<NeoViWin*%>.initialize();
 
         var maxx = xgetmaxx();
         var maxy = xgetmaxy();
 
-        var win = new VigWin.initialize(0,0, maxx-1, maxy);
+        var win = new NeoViWin.initialize(0,0, maxx-1, maxy);
 
         win.texts.push_back(wstring("abc"));
         win.texts.push_back(wstring("def"));
@@ -259,57 +259,57 @@ impl Vig version 2
 
         self.appEnd = false;
 
-        self.events = new vector<void (*lambda)(Vig*, int)>.initialize_with_values(KEY_MAX, null);
+        self.events = new vector<void (*lambda)(NeoVi*, int)>.initialize_with_values(KEY_MAX, null);
 
-        self.events.replace('l', lambda(Vig* self, int key) 
+        self.events.replace('l', lambda(NeoVi* self, int key) 
         {
             self.activeWin.forward();
         });
-        self.events.replace(KEY_RIGHT, lambda(Vig* self, int key) 
+        self.events.replace(KEY_RIGHT, lambda(NeoVi* self, int key) 
         {
             self.activeWin.forward();
         });
-        self.events.replace('h', lambda(Vig* self, int key) 
+        self.events.replace('h', lambda(NeoVi* self, int key) 
         {
             self.activeWin.backward();
         });
-        self.events.replace(KEY_LEFT, lambda(Vig* self, int key) 
+        self.events.replace(KEY_LEFT, lambda(NeoVi* self, int key) 
         {
             self.activeWin.backward();
         });
-        self.events.replace('j', lambda(Vig* self, int key) 
+        self.events.replace('j', lambda(NeoVi* self, int key) 
         {
             self.activeWin.nextLine();
         });
-        self.events.replace(KEY_DOWN, lambda(Vig* self, int key) 
+        self.events.replace(KEY_DOWN, lambda(NeoVi* self, int key) 
         {
             self.activeWin.nextLine();
         });
-        self.events.replace('k', lambda(Vig* self, int key) 
+        self.events.replace('k', lambda(NeoVi* self, int key) 
         {
             self.activeWin.prevLine();
         });
-        self.events.replace(KEY_UP, lambda(Vig* self, int key) 
+        self.events.replace(KEY_UP, lambda(NeoVi* self, int key) 
         {
             self.activeWin.prevLine();
         });
-        self.events.replace('0', lambda(Vig* self, int key) 
+        self.events.replace('0', lambda(NeoVi* self, int key) 
         {
             self.activeWin.moveAtHead();
         });
-        self.events.replace('$', lambda(Vig* self, int key) 
+        self.events.replace('$', lambda(NeoVi* self, int key) 
         {
             self.activeWin.moveAtTail();
         });
-        self.events.replace('D'-'A'+1, lambda(Vig* self, int key) 
+        self.events.replace('D'-'A'+1, lambda(NeoVi* self, int key) 
         {
             self.activeWin.halfScrollDown();
         });
-        self.events.replace('U'-'A'+1, lambda(Vig* self, int key) 
+        self.events.replace('U'-'A'+1, lambda(NeoVi* self, int key) 
         {
             self.activeWin.halfScrollUp();
         });
-        self.events.replace('L'-'A'+1, lambda(Vig* self, int key) 
+        self.events.replace('L'-'A'+1, lambda(NeoVi* self, int key) 
         {
             clearok(stdscr, true);
             clear();
@@ -320,7 +320,7 @@ impl Vig version 2
             }
             refresh();
         });
-        self.events.replace('g', lambda(Vig* self, int key) 
+        self.events.replace('g', lambda(NeoVi* self, int key) 
         {
             var key2 = self.activeWin.getKey();
 
@@ -330,13 +330,13 @@ impl Vig version 2
                     break;
             }
         });
-        self.events.replace('G', lambda(Vig* self, int key) 
+        self.events.replace('G', lambda(NeoVi* self, int key) 
         {
             self.activeWin.moveBottom();
         });
     }
 
-    int main_loop(Vig* self) {
+    int main_loop(NeoVi* self) {
         while(!self.appEnd) {
             //erase();
 
@@ -350,7 +350,7 @@ impl Vig version 2
         0
     }
 
-    void openFile(Vig* self, int num_files, char** file_names, int line_num)
+    void openFile(NeoVi* self, int num_files, char** file_names, int line_num)
     {
         /// implemented by the after layer
     }

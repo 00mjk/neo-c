@@ -5,71 +5,71 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 12
+impl NeoViWin version 12
 {
-    void commandModeView(VigWin* self, Vig* vig) {
+    void commandModeView(NeoViWin* self, NeoVi* nvi) {
         werase(self.win);
 
-        self.textsView(vig);
+        self.textsView(nvi);
 
         wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, ":%s", vig.commandString);
+        mvwprintw(self.win, self.height-1, 0, ":%s", nvi.commandString);
         wattroff(self.win, A_REVERSE);
 
         wrefresh(self.win);
     }
-    void commandModeInput(VigWin* self, Vig* vig) {
+    void commandModeInput(NeoViWin* self, NeoVi* nvi) {
         var key = self.getKey();
 
         switch(key) {
             case '\n':
-                vig.exitFromComandMode();
+                nvi.exitFromComandMode();
                 break;
 
             case 3:
             case 27:
-                vig.mode = kEditMode;
+                nvi.mode = kEditMode;
                 break;
 
             case 8:
             case 127:
             case KEY_BACKSPACE:
-                vig.commandString.delete(-1);
+                nvi.commandString.delete(-1);
                 break;
 
             default:
-                vig.commandString = vig.commandString + key.to_string();
+                nvi.commandString = nvi.commandString + key.to_string();
                 break;
         }
     }
 
-    void view(VigWin* self, Vig* vig) {
-        if(vig.mode == kCommandMode && self == vig.activeWin) {
-            self.commandModeView(vig);
+    void view(NeoViWin* self, NeoVi* nvi) {
+        if(nvi.mode == kCommandMode && self == nvi.activeWin) {
+            self.commandModeView(nvi);
         }
         else {
-            inherit(self, vig);
+            inherit(self, nvi);
         }
     }
-    void input(VigWin* self, Vig* vig) {
-        if(vig.mode == kCommandMode) {
-            self.commandModeInput(vig);
+    void input(NeoViWin* self, NeoVi* nvi) {
+        if(nvi.mode == kCommandMode) {
+            self.commandModeInput(nvi);
         }
         else {
-            inherit(self, vig);
+            inherit(self, nvi);
         }
     }
 }
 
-impl Vig version 12
+impl NeoVi version 12
 {
-    void enterComandMode(Vig* self) {
+    void enterComandMode(NeoVi* self) {
         self.mode = kCommandMode;
         self.commandString = string("");
     }
-    void exitFromComandMode(Vig* self) {
+    void exitFromComandMode(NeoVi* self) {
         if(self.commandString.index("w", -1) != -1) {
             self.activeWin.writeFile();
         }
@@ -96,12 +96,12 @@ impl Vig version 12
 
         self.commandString = string("");
 
-        self.events.replace(':', lambda(Vig* self, int key) {
+        self.events.replace(':', lambda(NeoVi* self, int key) {
             self.enterComandMode();
         });
     }
 
     /// implemeted after ///
-    void activateFiler(Vig* self) {
+    void activateFiler(NeoVi* self) {
     }
 }

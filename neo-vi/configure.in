@@ -1,4 +1,4 @@
-AC_INIT(vig.nc)
+AC_INIT(neo-vi.nc)
 
 AC_CONFIG_HEADER(config.h)
 

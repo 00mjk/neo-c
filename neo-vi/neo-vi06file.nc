@@ -8,16 +8,16 @@
 #include <sys/stat.h>
 #include <limits.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 6
+impl NeoViWin version 6
 {
     initialize(int y, int x, int width, int height) {
         inherit(self, y, x, width, height);
 
         self.fileName = string("a.txt");
     }
-    void statusBarView(VigWin* self, Vig* vig)
+    void statusBarView(NeoViWin* self, NeoVi* nvi)
     {
         int maxy = getmaxy(self.win);
         int maxx = getmaxx(self.win);
@@ -28,7 +28,7 @@ impl VigWin version 6
 
         wrefresh(self.win);
     }
-    void saveCursorPosition(VigWin* self, char* file_name) {
+    void saveCursorPosition(NeoViWin* self, char* file_name) {
         char* home = getenv("HOME");
         
         if(home == null) {
@@ -37,11 +37,11 @@ impl VigWin version 6
         
         char file_name2[PATH_MAX];
         
-        snprintf(file_name2, PATH_MAX, "%s/.vig", home);
+        snprintf(file_name2, PATH_MAX, "%s/.nvi", home);
         
         (void)mkdir(file_name2, 0755);
         
-        snprintf(file_name2, PATH_MAX, "%s/.vig/%s.pos", home, file_name);
+        snprintf(file_name2, PATH_MAX, "%s/.nvi/%s.pos", home, file_name);
         
         FILE* f = fopen(file_name2, "w");
 
@@ -53,7 +53,7 @@ impl VigWin version 6
         
         fclose(f);
     }
-    void readCursorPosition(VigWin* self, char* file_name) {
+    void readCursorPosition(NeoViWin* self, char* file_name) {
         char* home = getenv("HOME");
         
         if(home == null) {
@@ -62,7 +62,7 @@ impl VigWin version 6
         
         char file_name2[PATH_MAX];
         
-        snprintf(file_name2, PATH_MAX, "%s/.vig/%s.pos", home, file_name);
+        snprintf(file_name2, PATH_MAX, "%s/.nvi/%s.pos", home, file_name);
         
         FILE* f = fopen(file_name2, "r");
 
@@ -87,7 +87,7 @@ impl VigWin version 6
         
         self.modifyOverCursorYValue();
     }
-    void openFile(VigWin* self, char* file_name, int line_num)
+    void openFile(NeoViWin* self, char* file_name, int line_num)
     {
         self.texts.reset();
 
@@ -115,7 +115,7 @@ impl VigWin version 6
             }
         }
     }
-    void writeFile(VigWin* self) {
+    void writeFile(NeoViWin* self) {
         FILE* f = fopen(self.fileName, "w");
 
         self.texts.each {
@@ -127,14 +127,14 @@ impl VigWin version 6
         self.writed = false;
         self.saveCursorPosition(self.fileName);
     }
-    void writedFlagOn(VigWin* self) {
+    void writedFlagOn(NeoViWin* self) {
         self.writed = true;
     }
 }
 
-impl Vig version 6
+impl NeoVi version 6
 {
-    void toggleWin(Vig* self) {
+    void toggleWin(NeoVi* self) {
         if(self.toggleWin >= 0 && self.toggleWin < self.wins.length()) {
             int toggle_win = self.wins.find(self.activeWin, -1);
             self.activeWin = self.wins.item(self.toggleWin, null);
@@ -145,7 +145,7 @@ impl Vig version 6
     initialize() {
         inherit(self);
 
-        self.events.replace('W'-'A'+1, lambda(Vig* self, int key) 
+        self.events.replace('W'-'A'+1, lambda(NeoVi* self, int key) 
         {
             var key2 = self.activeWin.getKey();
 
@@ -156,20 +156,20 @@ impl Vig version 6
             }
         });
 
-        self.events.replace('O'-'A'+1, lambda(Vig* self, int key) 
+        self.events.replace('O'-'A'+1, lambda(NeoVi* self, int key) 
         {
             self.activateFiler();
         });
     }
 
-    void openFile(Vig* self, int num_files, char** file_names, int line_num) 
+    void openFile(NeoVi* self, int num_files, char** file_names, int line_num) 
     {
         if(num_files > 0) {
             self.activeWin.openFile(file_names[0], line_num);
         }
     }
 
-    void repositionWindows(Vig* self) {
+    void repositionWindows(NeoVi* self) {
         int maxy = xgetmaxy();
         int maxx = xgetmaxx();
 
@@ -186,13 +186,13 @@ impl Vig version 6
         }
     }
 
-    void openNewFile(Vig* self, char* file_name) {
+    void openNewFile(NeoVi* self, char* file_name) {
         int maxy = xgetmaxy();
         int maxx = xgetmaxx();
 
         int height = maxy / (self.wins.length() + 1);
 
-        var win = new VigWin.initialize(0,0, maxx-1, height);
+        var win = new NeoViWin.initialize(0,0, maxx-1, height);
         win.openFile(file_name, -1);
 
         self.activeWin = win;
@@ -208,7 +208,7 @@ impl Vig version 6
         }
     }
 
-    void closeActiveWin(Vig* self) {
+    void closeActiveWin(NeoVi* self) {
         int active_pos = self.wins.find(self.activeWin, -1);
 
         self.wins.delete(active_pos);

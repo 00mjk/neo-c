@@ -5,15 +5,15 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 7
+impl NeoViWin version 7
 {
-    void pasteAfterCursor(VigWin* self, Vig* vig) {
-        if(vig.yankKind == kYankKindLine) {
+    void pasteAfterCursor(NeoViWin* self, NeoVi* nvi) {
+        if(nvi.yankKind == kYankKindLine) {
             self.pushUndo();
 
-            vig.yank.each {
+            nvi.yank.each {
                 self.texts.insert(
                     self.scroll+self.cursorY+it2+1, 
                     clone it);
@@ -24,7 +24,7 @@ impl VigWin version 7
 
             var line = self.texts.item(self.scroll+self.cursorY, null);
 
-            var yank_first_line = vig.yank.item(0, null);
+            var yank_first_line = nvi.yank.item(0, null);
 
             var new_line = line.substring(0, self.cursorX+1) 
                                 + yank_first_line 
@@ -34,10 +34,10 @@ impl VigWin version 7
         }
     }
 
-    void pasteBeforeCursor(VigWin* self, Vig* vig) {
-        if(vig.yankKind == kYankKindLine) {
+    void pasteBeforeCursor(NeoViWin* self, NeoVi* nvi) {
+        if(nvi.yankKind == kYankKindLine) {
             self.pushUndo();
-            vig.yank.each {
+            nvi.yank.each {
                 self.texts.insert(
                     self.scroll+self.cursorY+it2, 
                     clone it);
@@ -48,7 +48,7 @@ impl VigWin version 7
 
             var line = self.texts.item(self.scroll+self.cursorY, null);
 
-            var yank_first_line = vig.yank.item(0, null);
+            var yank_first_line = nvi.yank.item(0, null);
 
             var new_line = line.substring(0, self.cursorX) 
                                 + yank_first_line 
@@ -59,7 +59,7 @@ impl VigWin version 7
     }
 }
 
-impl Vig version 7 
+impl NeoVi version 7 
 {
     initialize() {
         inherit(self);
@@ -68,12 +68,12 @@ impl Vig version 7
 
         self.yankKind = 0;
 
-        self.events.replace('p', lambda(Vig* self, int key) 
+        self.events.replace('p', lambda(NeoVi* self, int key) 
         {
             self.activeWin.pasteAfterCursor(self);
         });
 
-        self.events.replace('P', lambda(Vig* self, int key) 
+        self.events.replace('P', lambda(NeoVi* self, int key) 
         {
             self.activeWin.pasteBeforeCursor(self);
         });

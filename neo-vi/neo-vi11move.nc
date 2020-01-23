@@ -5,11 +5,11 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "vig.h"
+#include "neo-vi.h"
 
-impl VigWin version 11
+impl NeoViWin version 11
 {
-    void toggleBraceForward(VigWin* self, wchar_t head, wchar_t tail) {
+    void toggleBraceForward(NeoViWin* self, wchar_t head, wchar_t tail) {
         int cursor_y = self.scroll + self.cursorY;
         int cursor_x = -1;
 
@@ -74,7 +74,7 @@ impl VigWin version 11
             }
         }
     }
-    void toggleBraceBack(VigWin* self, wchar_t head, wchar_t tail) {
+    void toggleBraceBack(NeoViWin* self, wchar_t head, wchar_t tail) {
         int cursor_y = self.scroll + self.cursorY;
         int cursor_x = -1;
 
@@ -139,7 +139,7 @@ impl VigWin version 11
             }
         }
     }
-    void gotoBraceEnd(VigWin* self, Vig* vig) {
+    void gotoBraceEnd(NeoViWin* self, NeoVi* nvi) {
         var line = self.texts.item(self.scroll+self.cursorY, null);
 
         var c = line[self.cursorX];
@@ -179,7 +179,7 @@ impl VigWin version 11
         }
     }
 
-    void gotoFunctionTop(VigWin* self, Vig* vig) {
+    void gotoFunctionTop(NeoViWin* self, NeoVi* nvi) {
         self.texts.sublist(0, self.scroll+self.cursorY).reverse().each() {
             if(it.to_string("").match(regex!</^\\s*[a-zA-Z0-9%*?_]+\\s+[a-zA-Z0-9_]+\\(/>, null) 
                 || it.to_string("").match(regex!</^\\s*initialize\\(/>, null) 
@@ -198,7 +198,7 @@ impl VigWin version 11
         }
     }
 
-    void gotoFunctionBottom(VigWin* self, Vig* vig) {
+    void gotoFunctionBottom(NeoViWin* self, NeoVi* nvi) {
         int cursor_y = self.scroll+self.cursorY + 1;
 
         self.texts.sublist(self.scroll+self.cursorY+1, -1).each() {
@@ -222,16 +222,16 @@ impl VigWin version 11
     }
 }
 
-impl Vig version 11
+impl NeoVi version 11
 {
     initialize() {
         inherit(self);
 
-        self.events.replace('%', lambda(Vig* self, int key) {
+        self.events.replace('%', lambda(NeoVi* self, int key) {
             self.activeWin.gotoBraceEnd(self);
         });
 
-        self.events.replace('[', lambda(Vig* self, int key) {
+        self.events.replace('[', lambda(NeoVi* self, int key) {
             var key2 = self.activeWin.getKey();
 
             switch(key2) {
@@ -241,7 +241,7 @@ impl Vig version 11
             }
         });
 
-        self.events.replace(']', lambda(Vig* self, int key) {
+        self.events.replace(']', lambda(NeoVi* self, int key) {
             var key2 = self.activeWin.getKey();
 
             switch(key2) {

@@ -1,4 +1,4 @@
-#include "vig.h"
+#include "neo-vi.h"
 
 int xgetmaxx()
 {
@@ -16,7 +16,7 @@ int xgetmaxy()
     return ws.ws_row;
 }
 
-impl VigWin 
+impl NeoViWin 
 {
     initialize(int y, int x, int width, int height) {
         self.texts = new list<wstring>.initialize();
@@ -39,7 +39,7 @@ impl VigWin
         delwin(self.win);
     }
 
-    void view(VigWin* self, Vig* vig) {
+    void view(NeoViWin* self, NeoVi* nvi) {
         werase(self.win);
 
         self.texts.each {
@@ -49,18 +49,18 @@ impl VigWin
         wrefresh(self.win);
     }
 
-    void input(VigWin* self, Vig* vig) {
+    void input(NeoViWin* self, NeoVi* nvi) {
         var key = wgetch(self.win);
     }
 
-    bool equals(VigWin* left, VigWin* right) {
+    bool equals(NeoViWin* left, NeoViWin* right) {
         return left == right;
     }
 }
 
-impl Vig 
+impl NeoVi 
 {
-    void init_curses(Vig* self) {
+    void init_curses(NeoVi* self) {
         initscr();
         noecho();
         keypad(stdscr, true);
@@ -72,12 +72,12 @@ impl Vig
     initialize() {
         self.init_curses();
 
-        self.wins = new list<VigWin*%>.initialize();
+        self.wins = new list<NeoViWin*%>.initialize();
 
         var maxx = xgetmaxx();
         var maxy = xgetmaxy();
 
-        var win = new VigWin.initialize(0, 0, maxx-1, maxy);
+        var win = new NeoViWin.initialize(0, 0, maxx-1, maxy);
 
         win.texts.push_back(wstring("aaa"));
         win.texts.push_back(wstring("bbb"));
@@ -92,7 +92,7 @@ impl Vig
         endwin();
     }
 
-    int main_loop(Vig* self) {
+    int main_loop(NeoVi* self) {
         //erase();
 
         self.wins.each {
