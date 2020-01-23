@@ -57,6 +57,8 @@ impl NeoViWin version 6
         char* home = getenv("HOME");
         
         if(home == null) {
+            self.scroll = 0;
+            self.cursorY = 0;
             return;
         }
         
@@ -67,6 +69,8 @@ impl NeoViWin version 6
         FILE* f = fopen(file_name2, "r");
 
         if(f == null) {
+            self.scroll = 0;
+            self.cursorY = 0;
             return;
         }
         
