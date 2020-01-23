@@ -246,6 +246,39 @@ impl VigFiler
                     }
                 }
                 break;
+                
+            case 'D'-'A'+1: 
+                self.cursor += 10;
+
+                if(self.cursor >= maxy) {
+                    int scroll_num = self.cursor - maxy;
+                    self.scroll += scroll_num;
+                    self.cursor -= scroll_num;
+                    self.cursor --;
+
+                    if(self.scroll >= self.files.length()) {
+                        self.scroll = self.files.length()-1;
+                    }
+                }
+
+                if(self.cursor >= self.files.length()-self.scroll-1) {
+                    self.cursor = self.files.length()-self.scroll-1;
+                }
+                break;
+
+            case 'U'-'A'+1: 
+                self.cursor-=10; 
+
+                if(self.cursor < 0) {
+                    int scroll_num = -self.cursor;
+                    self.scroll-= scroll_num;
+                    self.cursor = 0;
+
+                    if(self.scroll < 0) {
+                        self.scroll = 0;
+                    }
+                }
+                break;
 
             case '\n': 
                 vig.activeWin.writeFile();

@@ -55,6 +55,7 @@ impl VigWin version 13
                 case KEY_DOWN:
                 case 'j':
                 case 'N'-'A'+1:
+                case (('I'-'A')+1):
                     cursor++;
                     break;
 
