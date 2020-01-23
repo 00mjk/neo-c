@@ -185,7 +185,9 @@ impl VigWin version 11
                 || it.to_string("").match(regex!</^\\s*initialize\\(/>, null) 
                 || it.to_string("").match(regex!</^\\s*finalize\\(/>, null)) 
             {
-                if(!it.to_string("").match(regex!</else if/>, null)) {
+                if(!it.to_string("").match(regex!</else\\s+if/>, null)
+                   && !it.to_string("").match(regex!</return\\s+[a-zA-Z0-9_]+/>, null))
+                {
                     *it3 = true;
                     self.cursorY = self.cursorY - it2 -1;
                     self.modifyUnderCursorYValue();
@@ -204,7 +206,9 @@ impl VigWin version 11
             || it.to_string("").match(regex!</^\\s*initialize\\(/>, null) 
             || it.to_string("").match(regex!</^\\s*finalize\\(/>, null)) 
             {
-                if(!it.to_string("").match(regex!</else if/>, null)) {
+                if(!it.to_string("").match(regex!</else\\s+if/>, null)
+                   && !it.to_string("").match(regex!</return\\s+[a-zA-Z0-9_]+/>, null))
+                {
                     *it3 = true;
                     self.cursorY += it2 + 1;
                     self.cursorX = 0;
