@@ -122,6 +122,19 @@ impl NeoViWin version 10
 
         self.modifyOverCursorXValue();
     }
+    void joinLines(NeoViWin* self) {
+        self.pushUndo();
+
+        if(self.scroll+self.cursorY+1 < self.texts.length()) {
+            var line = self.texts.item(self.scroll+self.cursorY, null);
+            var next_line = self.texts.item(self.scroll+self.cursorY+1, null);
+
+            self.texts.replace(self.scroll+self.cursorY, line + next_line);
+            self.texts.delete(self.scroll+self.cursorY+1);
+        }
+
+        self.modifyOverCursorXValue();
+    }
 }
 
 impl NeoVi version 10
@@ -164,6 +177,12 @@ impl NeoVi version 10
         });
         self.events.replace('x', lambda(NeoVi* self, int key) {
             self.activeWin.deleteCursorCharactor();
+            self.activeWin.writed = true;
+
+            self.activeWin.saveInputedKey();
+        });
+        self.events.replace('J', lambda(NeoVi* self, int key) {
+            self.activeWin.joinLines();
             self.activeWin.writed = true;
 
             self.activeWin.saveInputedKey();

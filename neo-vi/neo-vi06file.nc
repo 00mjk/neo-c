@@ -69,7 +69,6 @@ impl NeoViWin version 6
         FILE* f = fopen(file_name2, "r");
 
         if(f == null) {
-            self.scroll = 0;
             self.cursorY = 0;
             return;
         }
@@ -97,7 +96,26 @@ impl NeoViWin version 6
 
         FILE* f = fopen(file_name, "r");
         
-        if(f != null) {
+        if(f == null) {
+            char cmd[PATH_MAX+128];
+            
+            snprintf(cmd, PATH_MAX+128, "touch %s", file_name);
+            
+            int rc = system(cmd);
+            
+            if(rc != 0) {
+                endwin();
+                fprintf(stderr, "can't open file %s\n", file_name);
+                exit(2);
+            }
+    
+            self.fileName = string(file_name);
+            
+            self.cursorY = 0;
+            self.cursorX = 0;
+            self.scroll = 0;
+        }
+        else {
             char line[4096];
     
             while(fgets(line, 4096, f) != NULL)

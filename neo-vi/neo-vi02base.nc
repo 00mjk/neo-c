@@ -115,35 +115,49 @@ impl NeoViWin version 2
 
     void modifyOverCursorYValue(NeoViWin* self)
     {
-        int maxy = getmaxy(self.win);
-
-        if(self.cursorY >= maxy-2)
-        {
-            self.scroll += self.cursorY - (maxy-2);
-
-            if(self.scroll >= self.texts.length()-1) {
-                self.scroll = self.texts.length()-1;
-            }
-
-            self.cursorY = maxy-2;
+        if(self.texts.length() == 0) {
+            self.scroll = 0;
+            self.cursorY = 0;
+            self.cursorX = 0;
         }
-
-        if(self.cursorY + self.scroll >= self.texts.length()-1) {
-            self.cursorY = self.texts.length()-self.scroll-1;
+        else {
+            int maxy = getmaxy(self.win);
+    
+            if(self.cursorY >= maxy-2)
+            {
+                self.scroll += self.cursorY - (maxy-2);
+    
+                if(self.scroll >= self.texts.length()-1) {
+                    self.scroll = self.texts.length()-1;
+                }
+    
+                self.cursorY = maxy-2;
+            }
+    
+            if(self.cursorY + self.scroll >= self.texts.length()-1) {
+                self.cursorY = self.texts.length()-self.scroll-1;
+            }
         }
     }
 
     void modifyOverCursorXValue(NeoViWin* self)
     {
-        var cursor_line = self.texts.item(self.scroll+self.cursorY, null);
-
-        if(cursor_line) {
-            if(self.cursorX >= cursor_line.length())
-            {
-                self.cursorX = cursor_line.length()-1;
-
-                if(self.cursorX < 0) {
-                    self.cursorX = 0;
+        if(self.texts.length() == 0) {
+            self.scroll = 0;
+            self.cursorY = 0;
+            self.cursorX = 0;
+        }
+        else {
+            var cursor_line = self.texts.item(self.scroll+self.cursorY, null);
+    
+            if(cursor_line) {
+                if(self.cursorX >= cursor_line.length())
+                {
+                    self.cursorX = cursor_line.length()-1;
+    
+                    if(self.cursorX < 0) {
+                        self.cursorX = 0;
+                    }
                 }
             }
         }

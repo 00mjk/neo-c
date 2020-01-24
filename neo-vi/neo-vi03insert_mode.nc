@@ -33,12 +33,18 @@ impl NeoViWin version 3
     }
 
     void insertText(NeoViWin* self, wstring text) {
-        var old_line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-
-        var new_line = old_line.substring(0, self.cursorX) + text + old_line.substring(self.cursorX, -1);
-
-        self.texts.replace(self.scroll+self.cursorY, new_line);
-        self.cursorX += text.length();
+        if(self.texts.length() == 0) {
+            self.texts.push_back(text);
+            self.cursorX += text.length();
+        }
+        else {
+            var old_line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+    
+            var new_line = old_line.substring(0, self.cursorX) + text + old_line.substring(self.cursorX, -1);
+    
+            self.texts.replace(self.scroll+self.cursorY, new_line);
+            self.cursorX += text.length();
+        }
     }
 
     void enterNewLine(NeoViWin* self)
@@ -446,24 +452,34 @@ impl NeoVi version 3
         });
         self.events.replace('I', lambda(NeoVi* self, int key) 
         {
-            self.activeWin.moveAtHead();
+            if(self.activeWin.texts.length() != 0) {
+                self.activeWin.moveAtHead();
+            }
             self.enterInsertMode();
         });
         self.events.replace('a', lambda(NeoVi* self, int key) 
         {
             self.enterInsertMode();
-            self.activeWin.cursorX++;
+            if(self.activeWin.texts.length() != 0) {
+                self.activeWin.cursorX++;
+            }
         });
         self.events.replace('A', lambda(NeoVi* self, int key) 
         {
-            self.activeWin.moveAtTail();
+            if(self.activeWin.texts.length() != 0) {
+                self.activeWin.moveAtTail();
+            }
             self.enterInsertMode();
-            self.activeWin.cursorX++;
+            if(self.activeWin.texts.length() != 0) {
+                self.activeWin.cursorX++;
+            }
         });
         self.events.replace('o', lambda(NeoVi* self, int key) 
         {
             self.enterInsertMode();
-            self.activeWin.enterNewLine2();
+            if(self.activeWin.texts.length() != 0) {
+                self.activeWin.enterNewLine2();
+            }
         });
     }
 
