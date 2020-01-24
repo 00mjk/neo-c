@@ -3,8 +3,9 @@
 #include <string.h>
 #include <stdarg.h>
 
-#ifdef MDEBUG
 int gNumMemAlloc = 0;
+
+#ifdef MDEBUG
 int gMaxMemAlloc = 0;
 
 struct sHeapDebug {
@@ -46,6 +47,8 @@ void *xmalloc(size_t size)
     FILE* f = fopen("memleak_debug.txt", "a");
     fprintf(f, "\nruntime alloc %p %d\n", result, gNumMemAlloc);
     fclose(f);
+#else
+    gNumMemAlloc++;
 #endif
     return result;
 }
@@ -136,6 +139,8 @@ void *debug_xcalloc(int num, size_t nsize, char* type_name, char* sname, int sli
 
     fprintf(f, "\n");
     fclose(f);
+#else
+    gNumMemAlloc++;
 #endif
 
     return result;
@@ -176,6 +181,8 @@ void xfree(void *block)
     }
     fclose(f);
     delete_debug_heap_memory(block);
+#else
+    if(block) gNumMemAlloc--;
 #endif
 
     free(block);
@@ -199,6 +206,13 @@ void debug_show_none_freed_heap_memory()
 
         free(gHeapDebugs);
         gHeapDebugs = NULL;
+    }
+#else
+    if(gNumMemAlloc == 0) {
+        fprintf(stderr, "All heap memory is freed\n");
+    }
+    else {
+        fprintf(stderr, "Remain heap memory exists\n");
     }
 #endif
 }
@@ -226,6 +240,8 @@ void *xcalloc(size_t num, size_t nsize)
     FILE* f = fopen("memleak_debug.txt", "a");
     fprintf(f, "runtime calloc %p %d\n", result, gNumMemAlloc);
     fclose(f);
+#else
+    gNumMemAlloc++;
 #endif
 
     return result;
@@ -254,6 +270,8 @@ void *xasprintf(char* msg, ...)
 #ifdef MDEBUG
     gNumMemAlloc++;
     if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
+#else
+    gNumMemAlloc++;
 #endif
     va_list args;
     va_start(args, msg);

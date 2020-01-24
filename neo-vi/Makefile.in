@@ -27,10 +27,10 @@ DESTDIR=@DESTDIR@
 #########################################
 # main
 ##########################################
-all: nvi
+all: neo-vi
 
-nvi: configure Makefile config.h neo-vi.nc neo-vi01init.o neo-vi02base.o neo-vi03insert_mode.o neo-vi04word.o neo-vi05undo.o neo-vi06file.o neo-vi07yank.o neo-vi08visual.o neo-vi09search.o neo-vi10edit.o neo-vi11move.o neo-vi12command.o neo-vi13completion.o neo-vi14dot.o neo-vi15filer.o neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc neo-vi07yank.nc neo-vi08visual.nc neo-vi09search.nc neo-vi10edit.nc neo-vi11move.nc neo-vi12command.nc neo-vi13completion.nc neo-vi14dot.nc neo-vi15filer.nc
-	neo-c -o nvi neo-vi.nc neo-vi01init.o neo-vi02base.o neo-vi03insert_mode.o neo-vi04word.o neo-vi05undo.o neo-vi06file.o neo-vi07yank.o neo-vi08visual.o neo-vi09search.o neo-vi10edit.o neo-vi11move.o neo-vi12command.o neo-vi13completion.o neo-vi14dot.o neo-vi15filer.o $(CFLAGS) $(LIBS)
+neo-vi: configure Makefile config.h neo-vi.nc neo-vi01init.o neo-vi02base.o neo-vi03insert_mode.o neo-vi04word.o neo-vi05undo.o neo-vi06file.o neo-vi07yank.o neo-vi08visual.o neo-vi09search.o neo-vi10edit.o neo-vi11move.o neo-vi12command.o neo-vi13completion.o neo-vi14dot.o neo-vi15filer.o neo-vi01init.nc neo-vi02base.nc neo-vi03insert_mode.nc neo-vi04word.nc neo-vi05undo.nc neo-vi06file.nc neo-vi07yank.nc neo-vi08visual.nc neo-vi09search.nc neo-vi10edit.nc neo-vi11move.nc neo-vi12command.nc neo-vi13completion.nc neo-vi14dot.nc neo-vi15filer.nc
+	neo-c -o neo-vi neo-vi.nc neo-vi01init.o neo-vi02base.o neo-vi03insert_mode.o neo-vi04word.o neo-vi05undo.o neo-vi06file.o neo-vi07yank.o neo-vi08visual.o neo-vi09search.o neo-vi10edit.o neo-vi11move.o neo-vi12command.o neo-vi13completion.o neo-vi14dot.o neo-vi15filer.o $(CFLAGS) $(LIBS)
 
 neo-vi01init.o: configure Makefile config.h neo-vi01init.nc neo-vi.h
 	neo-c -c neo-vi01init.nc $(CFLAGS) $(LIBS)
@@ -82,7 +82,7 @@ neo-vi15filer.o: configure config.h neo-vi01init.nc neo-vi02base.nc neo-vi03inse
 #########################################
 install:
 	mkdir -p "$(DESTDIR)/bin"
-	$(INSTALL) -m 755 ./nvi "$(DESTDIR)/bin"
+	$(INSTALL) -m 755 ./neo-vi "$(DESTDIR)/bin"
 
 #########################################
 # uninstall
@@ -105,7 +105,7 @@ permission:
 #########################################
 clean:
 	rm -fR memleak_debug.txt *.ll *.bc *.nc.tmp *.out *.o valgrind.txt memleack_debug.txt
-	rm -fR nvi
+	rm -fR neo-vi
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache 
