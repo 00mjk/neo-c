@@ -212,6 +212,27 @@ impl NeoViWin version 2
         self.modifyOverCursorXValue();
     }
 
+    void centeringCursor(NeoViWin* self) {
+        int maxy = getmaxy(self.win);
+
+        self.scroll += (maxy/2) - self.cursorY; 
+        self.cursorY = maxy / 2;
+        
+        if(self.scroll >= self.texts.length()) {
+            self.scroll = self.texts.length() - 1;
+            self.cursorY = 0;
+        }
+        if(self.scroll < 0) {
+            self.scroll = 0;
+            self.cursorY = 0;
+        }
+    }
+    
+    void topCursor(NeoViWin* self) {
+        self.scroll = self.scroll + self.cursorY;
+        self.cursorY = 0;
+    }
+
     void moveAtHead(NeoViWin* self) {
         self.cursorX = 0;
     }
@@ -347,6 +368,20 @@ impl NeoVi version 2
         self.events.replace('G', lambda(NeoVi* self, int key) 
         {
             self.activeWin.moveBottom();
+        });
+        self.events.replace('z', lambda(NeoVi* self, int key) 
+        {
+            var key2 = self.activeWin.getKey();
+
+            switch(key2) {
+                case 'z':
+                    self.activeWin.centeringCursor();
+                    break;
+                    
+                case '\n':
+                    self.activeWin.topCursor();
+                    break;
+            }
         });
     }
 

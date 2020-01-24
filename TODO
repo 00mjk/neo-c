@@ -1,5 +1,3 @@
-commandクラス
-
 ``でstring型。w``でwstring型
 
 initializeでポインタを受け取るようにしてマシーンスタックのallocも対応させる
