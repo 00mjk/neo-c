@@ -5257,11 +5257,16 @@ static BOOL parse_switch(unsigned int* node, sParserInfo* info)
 
 static BOOL parse_case(unsigned int* node, sParserInfo* info)
 {
+    BOOL in_case = info->in_case;
+
     /// expression1 ///
     unsigned int expression_node = 0;
     if(!expression(&expression_node, info)) {
+        info->in_case = in_case;
         return FALSE;
     }
+
+    info->in_case = in_case;
 
     if(expression_node == 0) {
         parser_err_msg(info, "require expression for \"case\"");
@@ -6631,7 +6636,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                 return FALSE;
             }
         }
-        else if(*info->p == ':') {
+        else if(*info->p == ':' && !info->in_case) {
             if(!parse_label(node, buf, info)) {
                 return FALSE;
             }

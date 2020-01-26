@@ -320,6 +320,8 @@ struct sParserInfoStruct
     int mImplVersion;
 
     BOOL parse_block;
+
+    BOOL in_case;
 };
 
 typedef struct sParserInfoStruct sParserInfo;
