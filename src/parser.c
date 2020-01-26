@@ -5258,6 +5258,7 @@ static BOOL parse_switch(unsigned int* node, sParserInfo* info)
 static BOOL parse_case(unsigned int* node, sParserInfo* info)
 {
     BOOL in_case = info->in_case;
+    info->in_case = TRUE;
 
     /// expression1 ///
     unsigned int expression_node = 0;
