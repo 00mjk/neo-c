@@ -166,36 +166,67 @@ impl TinyVM {
             self.nodes.item(i, null).debug();
         }
         self.stack.each {
-            printf("stack[%d] %d\n", it2, it);
+            printf("stack[%d] %d\n", it2, it.intValue);
         }
+    }
+
+    bool compile(TinyVM* self, TinyNode* node) {
+        TVALUE value1;
+        TVALUE value2;
+        TVALUE value3;
+        
+        TVALUE default_value;
+        
+        default_value.intValue = 0;
+        
+        switch(node.type) {
+            case NODETYPE_INT :
+                value1.intValue = node.intValue;
+                self.stack.push_back(value1);
+                break;
+
+            case NODETYPE_PLUS :
+                if(!self.compile(node.left)) {
+                    return false;
+                }
+                if(!self.compile(node.right)) {
+                    return false;
+                }
+
+                value1 = self.stack.pop_back(default_value);
+                value2 = self.stack.pop_back(default_value); 
+                
+                value3.intValue = value1.intValue + value2.intValue;
+                
+                self.stack.push_back(value3);
+                break;
+
+            case NODETYPE_MINUS :
+                if(!self.compile(node.left)) {
+                    return false;
+                }
+                if(!self.compile(node.right)) {
+                    return false;
+                }
+
+                value1 = self.stack.pop_back(default_value);
+                value2 = self.stack.pop_back(default_value); 
+                
+                value3.intValue = value1.intValue - value2.intValue;
+                
+                self.stack.push_back(value3);
+                break;
+
+        }
+
+        return true;
     }
     
     bool run(TinyVM* self) {
         for(int i=0; i<self.nodes.length(); i++) {
             var node = self.nodes.item(i, null);
-            
-            TVALUE value1;
-            TVALUE value2;
-            TVALUE value3;
-            
-            switch(node.type) {
-                case NODETYPE_INT :
-                    value1.intValue = node.intValue;
-                    self.stack.push_back(value1);
-                    break;
-    
-                case NODETYPE_PLUS :
-                    value1 = self.stack.pop_back();
-                    value2 = self.stack.pop_back(); 
-                    
-                    value3.intValue = value1.intValue + value2.intValue;
-                    
-                    self.stack.push_back(value3);
-                    break;
-    
-                case NODETYPE_MINUS :
-                    break;
-    
+            if(!self.compile(node)) {
+                return false;
             }
         }
         self.debug();

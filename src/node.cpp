@@ -6466,7 +6466,12 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     Value* field_address;
     if(left_type->mClass->mFlags & CLASS_FLAGS_UNION) {
         if(left_type->mPointerNum == 0) {
-            field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+            if(lvalue.address == NULL) {
+                field_address = NULL;
+            }
+            else {
+                field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+            }
         }
         else {
             field_address = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(llvm_field_type, 0));
@@ -6491,14 +6496,25 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
     int alignment = get_llvm_alignment_from_node_type(field_type);
 
-    Value* field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
+    Value* field_address2;
+    if(field_address == NULL) {
+        field_address2 = NULL;
+    }
+    else {
+        field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
+    }
 
     LVALUE llvm_value;
     if(field_type->mArrayNum > 0) {
         llvm_value.value = field_address2;
     }
     else {
-        llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
+        if(field_address2 == NULL) {
+            llvm_value.value = Builder.CreateCast(Instruction::BitCast, lvalue.value, llvm_field_type);
+        }
+        else {
+            llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
+        }
     }
 
     llvm_value.type = clone_node_type(field_type);

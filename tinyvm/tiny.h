@@ -65,5 +65,6 @@ impl TinyVM {
     initialize(char* source_name);
 
     bool parser(TinyVM* self);
+    bool compile(TinyVM* self, TinyNode* node);
     bool run(TinyVM* self);
 };
