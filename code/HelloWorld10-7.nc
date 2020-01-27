@@ -5,6 +5,12 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+struct StructData {
+    string str;
+    char* p;
+    int sline;
+};
+
 int main()
 {
     var li6 = list!(string("ccc"), string("aaa"), string("bbb"));
@@ -54,6 +60,16 @@ int main()
         var a = string(it).substring(0, 2);
 
         return strcmp(it, it2) != 0;
+    }
+
+    var data = new StructData;
+
+    data.str = string("ABC");
+    data.p = data.str;
+    data.sline = 0;
+
+    while(*data.p == ' ' || *data.p == '\t' || (*data.p == '\n' && data.sline++)) {
+        data.p++;
     }
 
     return 0;

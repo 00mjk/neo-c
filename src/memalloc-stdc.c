@@ -33,10 +33,10 @@ void *xmalloc(size_t size)
     if(result == NULL) {
 #ifdef MDEBUG
         FILE* f = fopen("memleak_debug.txt", "a");
-        fprintf(f, "can't get heap memory\n");
+        fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
         fclose(f);
 #else
-        fprintf(stderr, "can't get heap memory\n");
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
 #endif
         exit(2);
     }
@@ -107,10 +107,10 @@ void *debug_xcalloc(int num, size_t nsize, char* type_name, char* sname, int sli
     if(result == NULL) {
 #ifdef MDEBUG
         FILE* f = fopen("memleak_debug.txt", "a");
-        fprintf(f, "can't get heap memory\n");
+        fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
         fclose(f);
 #else
-        fprintf(stderr, "can't get heap memory\n");
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
 #endif
         exit(2);
     }
@@ -224,10 +224,10 @@ void *xcalloc(size_t num, size_t nsize)
     if(result == NULL) {
 #ifdef MDEBUG
         FILE* f = fopen("memleak_debug.txt", "a");
-        fprintf(f, "can't get heap memory\n");
+        fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
         fclose(f);
 #else
-        fprintf(stderr, "can't get heap memory\n");
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
 #endif
         exit(2);
     }
@@ -254,10 +254,10 @@ void *xrealloc(void *block, size_t size)
     if(result == NULL) {
 #ifdef MDEBUG
         FILE* f = fopen("memleak_debug.txt", "a");
-        fprintf(f, "can't get heap memory\n");
+        fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
         fclose(f);
 #else
-        fprintf(stderr, "can't get heap memory\n");
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
 #endif
         exit(2);
     }
@@ -282,10 +282,10 @@ void *xasprintf(char* msg, ...)
     if(len < 0) {
 #ifdef MDEBUG
         FILE* f = fopen("memleak_debug.txt", "a");
-        fprintf(f, "can't get heap memory\n");
+        fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
         fclose(f);
 #else
-        fprintf(stderr, "can't get heap memory\n");
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
 #endif
         exit(2);
     }

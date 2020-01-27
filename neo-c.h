@@ -461,9 +461,6 @@ impl vector<T>
             for(i=0; i<self.size; i++) {
                 self.items[i] = items[i];
             }
-            for(i=self.size; i<new_size; i++) {
-                self.items[i] = 0;
-            }
 
             self.size = new_size;
 

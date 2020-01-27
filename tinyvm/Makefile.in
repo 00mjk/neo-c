@@ -1,0 +1,78 @@
+##########################################
+# installed directories
+##########################################
+prefix=@prefix@ exec_prefix=@exec_prefix@
+bindir=@bindir@
+datadir=@datadir@
+mandir=@mandir@
+sharedstatedir=@sharedstatedir@
+sysconfdir=@sysconfdir@/neo-c
+includedir=@includedir@/neo-c
+datarootdir=@datarootdir@/neo-c
+docdir=@datadir@/doc
+libdir=@libdir@
+
+
+#########################################
+# environmnet variables
+##########################################
+CC=@CC@
+NCC=@NCC@
+INSTALL=@INSTALL@
+CFLAGS=@CFLAGS@
+LIBS=@LIBS@
+OS=@OS@
+DESTDIR=@DESTDIR@
+
+#########################################
+# main
+##########################################
+all: tiny
+
+tiny: configure Makefile config.h tiny.nc tiny01init.o tiny02base.o tiny01init.nc tiny02base.nc 
+	neo-c -o tiny tiny.nc tiny01init.o tiny02base.o $(CFLAGS) $(LIBS)
+
+tiny01init.o: configure Makefile config.h tiny01init.nc tiny.h
+	neo-c -c tiny01init.nc $(CFLAGS) $(LIBS)
+
+tiny02base.o: configure Makefile config.h tiny01init.nc tiny02base.nc tiny.h
+	neo-c -c tiny02base.nc $(CFLAGS) $(LIBS)
+
+#########################################
+# install
+#########################################
+install:
+	mkdir -p "$(DESTDIR)/bin"
+	$(INSTALL) -m 755 ./tiny "$(DESTDIR)/bin"
+
+#########################################
+# uninstall
+#########################################
+uninstall:
+	rm -f "$(DESTDIR)"/bin/tiny
+
+#########################################
+# permission
+#########################################
+permission:
+	chmod 644 *
+	chmod 755 .git man configure
+	chmod 644 *.nc
+	chmod 644 *.h
+	chmod 755 update_tinyvm.sh
+
+#########################################
+# clean
+#########################################
+clean:
+	rm -fR memleak_debug.txt *.ll *.bc *.nc.tmp *.out *.o valgrind.txt memleack_debug.txt
+	rm -fR tiny
+
+distclean: clean
+	rm -fR  config.h Makefile autom4te.cache 
+
+test:
+#	rm -f valgrind.txt memleack_debug.txt
+#	valgrind --log-file=valgrind.txt --leak-check=full --show-leak-kinds=all ./neo-vi a.nc
+	./neo-vi a.nc
+

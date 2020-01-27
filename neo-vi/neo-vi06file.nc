@@ -93,6 +93,7 @@ impl NeoViWin version 6
     void openFile(NeoViWin* self, char* file_name, int line_num)
     {
         self.texts.reset();
+        self.undo.reset();
 
         FILE* f = fopen(file_name, "r");
         
