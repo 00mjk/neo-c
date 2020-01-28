@@ -27,7 +27,12 @@ int main(int argc, char** argv)
             }
         }
     }
-    nvi.openFile(file_names[0]);
+    if(num_file_names > 0) {
+        nvi.openFile(file_names[0]);
+    }
+    else {
+        nvi.openFile(null);
+    }
     int result = nvi.main_loop()
     result
 }
