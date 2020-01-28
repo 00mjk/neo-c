@@ -399,7 +399,7 @@ impl NeoVi version 2
         0
     }
 
-    void openFile(NeoVi* self, int num_files, char** file_names, int line_num)
+    void openFile(NeoVi* self, char* file_name)
     {
         /// implemented by the after layer
     }

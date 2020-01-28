@@ -89,7 +89,7 @@ impl NeoVi version 2
 
     int main_loop(NeoVi* self);
 
-    void openFile(NeoVi* self, int num_files, char** file_names, int line_num);
+    void openFile(NeoVi* self, char* file_name);
 }
 
 /// neo-vi3insert_mode.h ///
@@ -188,7 +188,7 @@ struct NeoVi version 6
 impl NeoVi version 6
 {
     initialize();
-    void openFile(NeoVi* self, int num_files, char** file_names, int line_num);
+    void openFile(NeoVi* self, char* file_name);
     void openNewFile(NeoVi* self, char* file_name);
     void closeActiveWin(NeoVi* self);
 }

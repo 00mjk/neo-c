@@ -153,7 +153,7 @@ impl TinyVM {
     
     bool parser(TinyVM* self) {
         while(*self.parser.p) {
-            var node = self.parser.plus_minus();
+            var node = self.parser.expression();
 
             self.nodes.push_back(node);
         }

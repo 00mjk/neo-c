@@ -92,9 +92,6 @@ impl NeoViWin version 6
     }
     void openFile(NeoViWin* self, char* file_name, int line_num)
     {
-        self.texts.reset();
-        self.undo.reset();
-
         FILE* f = fopen(file_name, "r");
         
         if(f == null) {
@@ -184,12 +181,55 @@ impl NeoVi version 6
             self.activateFiler();
         });
     }
-
-    void openFile(NeoVi* self, int num_files, char** file_names, int line_num) 
-    {
-        if(num_files > 0) {
-            self.activeWin.openFile(file_names[0], line_num);
+    void saveLastOpenFile(NeoVi* self, char* file_name) {
+        char* home = getenv("HOME");
+        
+        if(home == null) {
+            return;
         }
+        
+        char file_name2[PATH_MAX];
+        
+        snprintf(file_name2, PATH_MAX, "%s/.nvi", home);
+        
+        (void)mkdir(file_name2, 0755);
+        
+        snprintf(file_name2, PATH_MAX, "%s/.nvi/last_open_file", home, file_name);
+        
+        FILE* f = fopen(file_name2, "w");
+
+        if(f == null) {
+            return;
+        }
+        
+        fprintf(f, "%s\n", file_name);
+        
+        fclose(f);
+    }
+    string readLastOpenFile(NeoVi* self) {
+        char* home = getenv("HOME");
+        
+        if(home == null) {
+            return null;
+        }
+        
+        char file_name2[PATH_MAX];
+        
+        snprintf(file_name2, PATH_MAX, "%s/.nvi/last_open_file", home);
+        
+        FILE* f = fopen(file_name2, "r");
+
+        if(f == null) {
+            return null;
+        }
+
+        char file_name[PATH_MAX];
+
+        fscanf(f, "%s", file_name);
+        
+        fclose(f);
+
+        return string(file_name);
     }
 
     void repositionWindows(NeoVi* self) {
@@ -207,6 +247,25 @@ impl NeoVi version 6
             var win = newwin(it.height, it.width, it.y, it.x);
             it.win = win;
         }
+    }
+
+    void openFile(NeoVi* self, char* file_name) 
+    {
+        int active_pos = self.wins.find(self.activeWin, -1);
+        self.wins.delete(active_pos);
+
+        var maxx = xgetmaxx();
+        var maxy = xgetmaxy();
+        
+        var win = new NeoViWin.initialize(0,0, maxx-1, maxy);
+
+        self.activeWin = win;
+        self.wins.push_back(win);
+        
+        self.activeWin.openFile(file_name, -1);
+        self.saveLastOpenFile(file_name);
+        
+        self.repositionWindows();
     }
 
     void openNewFile(NeoVi* self, char* file_name) {

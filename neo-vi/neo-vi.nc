@@ -27,7 +27,7 @@ int main(int argc, char** argv)
             }
         }
     }
-    nvi.openFile(num_file_names, file_names, line_num);
+    nvi.openFile(file_names[0]);
     int result = nvi.main_loop()
     result
 }

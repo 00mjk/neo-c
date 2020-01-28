@@ -282,7 +282,7 @@ impl NeoViFiler
 
             case '\n': 
                 nvi.activeWin.writeFile();
-                nvi.activeWin.openFile(file_name, -1);
+                nvi.openFile(file_name);
                 self.active = false;
                 break;
 

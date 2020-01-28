@@ -35,7 +35,21 @@ impl NeoViWin version 10
         }
     }
 
+    void deleteAfterCursor(NeoViWin* self) {
+        self.pushUndo();
+
+        var line = self.texts.item(self.scroll+self.cursorY, null);
+        if(line != null) {
+            self.pushUndo();
+            line.delete_range(self.cursorX, -1);
+
+            self.modifyCursorOnDeleting();
+        }
+    }
+
     void deleteWord(NeoViWin* self, NeoVi* nvi) {
+        self.pushUndo();
+
         wstring& line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
         if(wcslen(line) == 0) {
@@ -46,9 +60,9 @@ impl NeoViWin version 10
 
             wchar_t* p = line + x;
 
-            if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+            if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
             {
-                while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+                while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
                 {
                     p++;
                     x++;
@@ -153,7 +167,6 @@ impl NeoVi version 10
                 
                 case 'w':
                 case 'e':
-                    self.activeWin.pushUndo();
                     self.activeWin.deleteWord(self);
                     self.activeWin.writed = true;
                     break;
@@ -168,12 +181,16 @@ impl NeoVi version 10
             switch(key2) {
                 case 'w':
                 case 'e':
-                    self.activeWin.pushUndo();
                     self.activeWin.deleteWord(self);
                     self.enterInsertMode();
                     self.activeWin.writed = true;
                     break;
             }
+        });
+        self.events.replace('C', lambda(NeoVi* self, int key) {
+            self.activeWin.deleteAfterCursor();
+            self.enterInsertMode();
+            self.activeWin.writed = true;
         });
         self.events.replace('x', lambda(NeoVi* self, int key) {
             self.activeWin.deleteCursorCharactor();
@@ -183,6 +200,12 @@ impl NeoVi version 10
         });
         self.events.replace('J', lambda(NeoVi* self, int key) {
             self.activeWin.joinLines();
+            self.activeWin.writed = true;
+
+            self.activeWin.saveInputedKey();
+        });
+        self.events.replace('D', lambda(NeoVi* self, int key) {
+            self.activeWin.deleteAfterCursor();
             self.activeWin.writed = true;
 
             self.activeWin.saveInputedKey();
