@@ -21,7 +21,7 @@
 
 int main() 
 {
-    printf("%d\n", '\t');
+    printf("%d\n", sizeof(size_t));
 
     exit(0);
 }

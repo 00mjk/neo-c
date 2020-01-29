@@ -33,7 +33,11 @@ impl NeoViWin version 14
                     self.pressedDot = false;
 
                     int key = wgetch(self.win);
-                    self.inputedKeys.push_back(key);
+                    
+                    
+                    if(self.inputedKeys.length() < SAVE_INPUT_KEY_MAX) {
+                        self.inputedKeys.push_back(key);
+                    }
                     return key;
                 }
                 else {
@@ -51,7 +55,9 @@ impl NeoViWin version 14
         else {
             self.pressedDot = false;
             int key = wgetch(self.win);
-            self.inputedKeys.push_back(key);
+            if(self.inputedKeys.length() < SAVE_INPUT_KEY_MAX) {
+                self.inputedKeys.push_back(key);
+            }
             return key;
         }
 

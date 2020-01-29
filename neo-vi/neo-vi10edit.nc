@@ -192,6 +192,10 @@ impl NeoVi version 10
             self.enterInsertMode();
             self.activeWin.writed = true;
         });
+        self.events.replace('D', lambda(NeoVi* self, int key) {
+            self.activeWin.deleteAfterCursor();
+            self.activeWin.writed = true;
+        });
         self.events.replace('x', lambda(NeoVi* self, int key) {
             self.activeWin.deleteCursorCharactor();
             self.activeWin.writed = true;

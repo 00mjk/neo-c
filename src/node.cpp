@@ -5492,7 +5492,8 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
     Value* object_num;
     if(left_node == 0) {
-        object_num = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)1);
+        object_num = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)1);
+        //object_num = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)1);
     }
     else {
         if(!compile(left_node, info)) {
@@ -5508,7 +5509,8 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        sNodeType* left_type = create_node_type_with_class_name("int");
+        sNodeType* left_type = create_node_type_with_class_name("long");
+        //sNodeType* left_type = create_node_type_with_class_name("int");
 
         LVALUE llvm_value = *get_value_from_stack(-1);
         dec_stack_ptr(1, info);

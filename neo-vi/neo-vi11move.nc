@@ -107,10 +107,10 @@ impl NeoViWin version 11
 
         if(cursor_x == -1) {
             cursor_y--;
-
+            
             self.texts.sublist(0, self.scroll+self.cursorY).reverse().each {
                 wchar_t* p = it + it.length();
-
+                
                 while(p >= it) {
                     if(*p == head) {
                         if(nest == 0) {
@@ -171,7 +171,6 @@ impl NeoViWin version 11
 
             case ']':
                 self.toggleBraceBack('[', ']');
-                break;
 
             case '>':
                 self.toggleBraceBack('<', '>');

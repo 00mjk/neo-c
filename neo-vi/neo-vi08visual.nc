@@ -86,7 +86,7 @@ impl NeoViWin version 8
             tail = head;
             head = tmp;
         }
-
+        
         self.texts.sublist(head, tail+1).each {
             wstring new_line = wstring("    ") + it;
 
@@ -180,6 +180,22 @@ impl NeoViWin version 8
 
             case 'C'-'A'+1:
                 nvi.exitFromVisualMode();
+                break;
+
+            case 'D'-'A'+1:
+                self.halfScrollDown();
+                break;
+
+            case 'U'-'A'+1:
+                self.halfScrollUp();
+                break;
+                
+            case 'G':
+                self.moveBottom();
+                break;
+
+            case 'g':
+                self.keyG();
                 break;
 
             case 'y':

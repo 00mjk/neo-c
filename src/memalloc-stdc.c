@@ -36,7 +36,7 @@ void *xmalloc(size_t size)
         fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
         fclose(f);
 #else
-        fprintf(stderr, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d size %d. xmalloc\n", gNumMemAlloc, size);
 #endif
         exit(2);
     }
@@ -96,7 +96,7 @@ static void delete_debug_heap_memory(void* mem)
 }
 #endif
 
-void *debug_xcalloc(int num, size_t nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name)
+void *debug_xcalloc(size_t num, size_t nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name)
 {
     void* result = calloc(num, nsize);
 
@@ -110,7 +110,7 @@ void *debug_xcalloc(int num, size_t nsize, char* type_name, char* sname, int sli
         fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
         fclose(f);
 #else
-        fprintf(stderr, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d xcalloc num %d nsize %d\n", gNumMemAlloc, num, nsize);
 #endif
         exit(2);
     }
@@ -227,7 +227,7 @@ void *xcalloc(size_t num, size_t nsize)
         fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
         fclose(f);
 #else
-        fprintf(stderr, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d. xcalloc num %d nsize %d\n", gNumMemAlloc, num, nsize);
 #endif
         exit(2);
     }
@@ -257,7 +257,7 @@ void *xrealloc(void *block, size_t size)
         fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
         fclose(f);
 #else
-        fprintf(stderr, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d.realloc size %d. realloc memory %p\n", gNumMemAlloc, size, block);
 #endif
         exit(2);
     }
@@ -285,7 +285,7 @@ void *xasprintf(char* msg, ...)
         fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
         fclose(f);
 #else
-        fprintf(stderr, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d. xasprintf len %d\n", gNumMemAlloc, len);
 #endif
         exit(2);
     }

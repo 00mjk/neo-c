@@ -255,6 +255,16 @@ impl NeoViWin version 2
         self.modifyOverCursorXValue();
     }
 
+    void keyG(NeoViWin* self) {
+        var key2 = self.getKey();
+
+        switch(key2) {
+            case 'g':
+                self.moveTop();
+                break;
+        }
+    }
+
     void moveBottom(NeoViWin* self) {
         self.cursorY = self.texts.length()-1;
 
@@ -357,13 +367,7 @@ impl NeoVi version 2
         });
         self.events.replace('g', lambda(NeoVi* self, int key) 
         {
-            var key2 = self.activeWin.getKey();
-
-            switch(key2) {
-                case 'g':
-                    self.activeWin.moveTop();
-                    break;
-            }
+            self.activeWin.keyG();
         });
         self.events.replace('G', lambda(NeoVi* self, int key) 
         {
