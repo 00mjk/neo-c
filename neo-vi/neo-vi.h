@@ -4,6 +4,8 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#define SAVE_INPUT_KEY_MAX 256
+
 // neo-vi1init.h
 int xgetmaxx();
 int xgetmaxy();
@@ -69,10 +71,10 @@ impl NeoViWin version 2
     void halfScrollDown(NeoViWin* self);
     void moveAtHead(NeoViWin* self);
     void moveAtTail(NeoViWin* self);
-    void moveTop(NeoViWin* self);
-    void moveBottom(NeoViWin* self);
-    void keyG(NeoViWin* self);
 
+    void moveTop(NeoViWin* self);
+    void keyG(NeoViWin* self);
+    void moveBottom(NeoViWin* self);
 }
 
 struct NeoVi version 2 
@@ -313,8 +315,6 @@ impl NeoViWin version 13
 }
 
 // neo-vi14dot.h
-#define SAVE_INPUT_KEY_MAX 256
-
 struct NeoViWin version 14
 {
     vector<int>*% inputedKeys;

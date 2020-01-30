@@ -5546,7 +5546,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-#ifdef MDEBUG
+//#ifdef MDEBUG
     Function* fun = TheModule->getFunction("debug_xcalloc");
 
     if(fun == nullptr) {
@@ -5582,6 +5582,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     params2.push_back(param7);
 
     Value* address = Builder.CreateCall(fun, params2);
+/*
 #else
     Function* fun = TheModule->getFunction("xcalloc");
 
@@ -5600,6 +5601,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
     Value* address = Builder.CreateCall(fun, params2);
 #endif
+*/
 
     node_type2->mPointerNum++;
 
