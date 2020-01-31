@@ -91,7 +91,8 @@ impl NeoViWin version 9
 
         if(self.cursorX < line.length()) {
             wchar_t* p = line + self.cursorX;
-
+            
+            int cursor_x_before = self.cursorX;
 
             if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9'))
             {
@@ -106,16 +107,57 @@ impl NeoViWin version 9
 
             int scroll_before = self.scroll;
             int cursor_y_before = self.cursorY;
-            int cursor_x_before = self.cursorX;
+            int cursor_x_before2 = self.cursorX;
 
             self.forwardWord();
 
             if((cursor_y_before == self.cursorY) && (scroll_before == self.scroll)) 
             {
-                var search_word = self.texts.item(self.scroll+self.cursorY, null).substring(cursor_x_before, self.cursorX+1);
+                var search_word = self.texts.item(self.scroll+self.cursorY, null)
+                                      .substring(cursor_x_before2, self.cursorX+1);
                 nvi.searchString = clone search_word;
+                
+                self.cursorX = cursor_x_before;
 
                 self.search(nvi);
+            }
+        }
+    }
+    void searchWordOnCursorReverse(NeoViWin* self, NeoVi* nvi)
+    {
+        wchar_t* line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+
+        if(self.cursorX < line.length()) {
+            int cursor_x_before = self.cursorX;
+            
+            wchar_t* p = line + self.cursorX;
+
+            if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9'))
+            {
+                while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9'))
+                {
+                    p--;
+                    self.cursorX--;
+                }
+
+                self.cursorX++;
+            }
+
+            int scroll_before = self.scroll;
+            int cursor_y_before = self.cursorY;
+            int cursor_x_before2 = self.cursorX;
+
+            self.forwardWord();
+
+            if((cursor_y_before == self.cursorY) && (scroll_before == self.scroll)) 
+            {
+                var search_word = self.texts.item(self.scroll+self.cursorY, null)
+                                     .substring(cursor_x_before2, self.cursorX+1);
+                nvi.searchString = clone search_word;
+                
+                self.cursorX = cursor_x_before;
+
+                self.searchReverse(nvi);
             }
         }
     }
@@ -186,10 +228,13 @@ impl NeoVi version 9
         {
             self.activeWin.searchReverse(self);
         });
-
         self.events.replace('*', lambda(NeoVi* self, int key) 
         {
             self.activeWin.searchWordOnCursor(self);
+        });
+        self.events.replace('#', lambda(NeoVi* self, int key) 
+        {
+            self.activeWin.searchWordOnCursorReverse(self);
         });
     }
 }

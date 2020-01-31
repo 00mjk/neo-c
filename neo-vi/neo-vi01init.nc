@@ -32,7 +32,6 @@ impl NeoViWin
         self.win = win;
 
         keypad(self.win, true);
-
     }
 
     finalize() {

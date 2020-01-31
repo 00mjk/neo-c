@@ -214,8 +214,10 @@ impl NeoViWin version 2
 
     void centeringCursor(NeoViWin* self) {
         int maxy = getmaxy(self.win);
+        
+        int n = self.scroll + self.cursorY;
 
-        self.scroll += (maxy/2) - self.cursorY; 
+        self.scroll = n - maxy / 2; 
         self.cursorY = maxy / 2;
         
         if(self.scroll >= self.texts.length()) {

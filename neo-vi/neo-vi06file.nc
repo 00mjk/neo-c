@@ -255,37 +255,41 @@ impl NeoVi version 6
         if(file_name == null) {
             var file_name = self.readLastOpenFile();
             
-            int active_pos = self.wins.find(self.activeWin, -1);
-            self.wins.delete(active_pos);
-    
-            var maxx = xgetmaxx();
-            var maxy = xgetmaxy();
-            
-            var win = new NeoViWin.initialize(0,0, maxx-1, maxy);
-    
-            self.activeWin = win;
-            self.wins.push_back(win);
-            
-            self.activeWin.openFile(file_name, -1);
-            
-            self.repositionWindows();
+            if(access(file_name, R_OK) == 0) {
+                int active_pos = self.wins.find(self.activeWin, -1);
+                self.wins.delete(active_pos);
+        
+                var maxx = xgetmaxx();
+                var maxy = xgetmaxy();
+                
+                var win = new NeoViWin.initialize(0,0, maxx-1, maxy);
+        
+                self.activeWin = win;
+                self.wins.push_back(win);
+                
+                self.activeWin.openFile(file_name, -1);
+                
+                self.repositionWindows();
+            }
         }
         else {
-            int active_pos = self.wins.find(self.activeWin, -1);
-            self.wins.delete(active_pos);
-    
-            var maxx = xgetmaxx();
-            var maxy = xgetmaxy();
-            
-            var win = new NeoViWin.initialize(0,0, maxx-1, maxy);
-    
-            self.activeWin = win;
-            self.wins.push_back(win);
-            
-            self.activeWin.openFile(file_name, -1);
-            self.saveLastOpenFile(file_name);
-            
-            self.repositionWindows();
+            if(access(file_name, R_OK) == 0) {
+                int active_pos = self.wins.find(self.activeWin, -1);
+                self.wins.delete(active_pos);
+        
+                var maxx = xgetmaxx();
+                var maxy = xgetmaxy();
+                
+                var win = new NeoViWin.initialize(0,0, maxx-1, maxy);
+        
+                self.activeWin = win;
+                self.wins.push_back(win);
+                
+                self.activeWin.openFile(file_name, -1);
+                self.saveLastOpenFile(file_name);
+                
+                self.repositionWindows();
+            }
         }
     }
 

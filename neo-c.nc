@@ -229,6 +229,10 @@ impl string
             return string("");
         }
 
+        if(tail-head+1 < 1) {
+            return string("");
+        }
+
         string result = new char[tail-head+1];
 
         memcpy(result, str + head, tail-head);
@@ -714,13 +718,21 @@ impl wchar_t
 {
     wstring substring(wchar_t* str, int head, int tail)
     {
+        if(str == null) {
+            return wstring("");
+        }
+
         int len = wcslen(str);
 
         if(head < 0) {
-            head += len + 1;
+            head += len;
         }
         if(tail < 0) {
             tail += len + 1;
+        }
+
+        if(head > tail) {
+            return wstring("");
         }
 
         if(head < 0) {
@@ -731,7 +743,11 @@ impl wchar_t
             tail = len;
         }
 
-        if(str == null || head >= tail) {
+        if(head == tail) {
+            return wstring("");
+        }
+
+        if(tail-head+1 < 1) {
             return wstring("");
         }
 
@@ -823,6 +839,10 @@ impl wstring
         }
 
         if(head == tail) {
+            return wstring("");
+        }
+
+        if(tail-head+1 < 1) {
             return wstring("");
         }
 
