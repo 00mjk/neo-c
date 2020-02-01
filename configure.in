@@ -177,13 +177,9 @@ CC=gcc
 
 INSTALL="$(which install) -c"
 
-AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
-AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
-AC_SUBST(ENABLE_THREAD)
-
 if test "$OS" != FREEBSD
 then
-    AC_HAVE_LIBRARY(dl, [ LIBS="$LIBS -ldl"; ], [exit])
+    AC_HAVE_LIBRARY(dl, [ LIBS="$LIBS -ldl"; ], [])
 fi
 
 AC_CHECK_HEADER(math.h, [AC_DEFINE(HAVE_MATH_H,1)], [])

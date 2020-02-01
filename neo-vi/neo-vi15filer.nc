@@ -302,12 +302,12 @@ impl NeoViFiler
 
 void xclear(WINDOW* win)
 {
+//    wclear(win);
+    werase(win);
+/*
     int maxx = getmaxx(win);
     int maxy = getmaxy(win);
 
-    wclear(win);
-//    werase(win);
-/*
     for(int i=0; i< maxy; i++) {
         for(int j=0; j<maxx-1; j++) {
             mvwprintw(win, i, j, " ");
