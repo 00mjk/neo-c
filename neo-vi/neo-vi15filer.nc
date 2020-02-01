@@ -192,8 +192,9 @@ impl NeoViFiler
 
     void view(NeoViFiler* self, NeoVi* nvi)
     {
+        //werase(self.win);
+
         int maxy = xgetmaxy();
-        werase(self.win);
         self.files.sublist(self.scroll, self.scroll+maxy+1).each {
             if(it2 == self.cursor && self.active) {
                 wattron(self.win, A_REVERSE);
@@ -204,7 +205,7 @@ impl NeoViFiler
                 mvwprintw(self.win, it2, 0, "%s", it);
             }
         }
-        wrefresh(self.win);
+        //wrefresh(self.win);
     }
 
     void input(NeoViFiler* self, NeoVi* nvi) {
@@ -299,6 +300,24 @@ impl NeoViFiler
     }
 }
 
+void xclear(WINDOW* win)
+{
+    int maxx = getmaxx(win);
+    int maxy = getmaxy(win);
+
+    wclear(win);
+//    werase(win);
+/*
+    for(int i=0; i< maxy; i++) {
+        for(int j=0; j<maxx-1; j++) {
+            mvwprintw(win, i, j, " ");
+        }
+    }
+
+    wrefresh(win);
+*/
+}
+
 impl NeoVi version 15
 {
     initialize() {
@@ -310,15 +329,30 @@ impl NeoVi version 15
     void activateFiler(NeoVi* self) {
         self.filer.active = true;
     }
-
     int main_loop(NeoVi* self) {
         while(!self.appEnd) {
+            xclear(self.filer.win);
+
+            self.wins.each {
+                xclear(it.win);
+            }
+
             self.filer.view(self);
 
             self.wins.each {
                 it.view(self);
             }
-            
+
+            wrefresh(self.filer.win);
+
+            self.wins.each {
+                wrefresh(it.win);
+            }
+
+            if(self.mode != kInsertMode) {
+                self.activeWin.clearInputedKey();
+            }
+
             if(self.filer.active) {
                 self.filer.input(self);
             }

@@ -20,7 +20,7 @@ impl NeoViWin version 8
         int maxy = getmaxy(self.win);
         int maxx = getmaxx(self.win);
 
-        werase(self.win);
+        //werase(self.win);
 
         self.texts
             .sublist(self.scroll, self.scroll+maxy-1)
@@ -47,7 +47,7 @@ impl NeoViWin version 8
         mvwprintw(self.win, self.height-1, 0, "VISUAL MODE x %d y %d", self.cursorX, self.cursorY);
         wattroff(self.win, A_REVERSE);
 
-        wrefresh(self.win);
+        //wrefresh(self.win);
     }
 
     void view(NeoViWin* self, NeoVi* nvi) {

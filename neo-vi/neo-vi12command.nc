@@ -10,7 +10,7 @@
 impl NeoViWin version 12
 {
     void commandModeView(NeoViWin* self, NeoVi* nvi) {
-        werase(self.win);
+        //werase(self.win);
 
         self.textsView(nvi);
 
@@ -18,7 +18,7 @@ impl NeoViWin version 12
         mvwprintw(self.win, self.height-1, 0, ":%s", nvi.commandString);
         wattroff(self.win, A_REVERSE);
 
-        wrefresh(self.win);
+        //wrefresh(self.win);
     }
     void commandModeInput(NeoViWin* self, NeoVi* nvi) {
         var key = self.getKey();

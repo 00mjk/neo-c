@@ -77,13 +77,13 @@ impl NeoViWin version 2
     }
 
     void view(NeoViWin* self, NeoVi* nvi) {
-        werase(self.win);
+        //werase(self.win);
 
         self.textsView(nvi);
 
         self.statusBarView(nvi);
 
-        wrefresh(self.win);
+        //wrefresh(self.win);
     }
     
     int getKey(NeoViWin* self) {
@@ -298,7 +298,7 @@ impl NeoVi version 2
         win.texts.push_back(wstring("123"));
         win.texts.push_back(wstring("456"));
         win.texts.push_back(wstring("789"));
-        win.texts.push_back(wstring("あいうえお"));
+
 
         self.activeWin = win;
 
@@ -360,9 +360,11 @@ impl NeoVi version 2
         {
             clearok(stdscr, true);
             clear();
+            clearok(stdscr, false);
             self.wins.each {
                 clearok(it.win, true);
                 wclear(it.win);
+                clearok(it.win, false);
                 it.view(self);
             }
             refresh();
@@ -393,13 +395,15 @@ impl NeoVi version 2
 
     int main_loop(NeoVi* self) {
         while(!self.appEnd) {
-            //erase();
+            erase();
 
             self.wins.each {
                 it.view(self);
             }
+            refresh();
             
             self.activeWin.input(self);
+
         }
 
         0

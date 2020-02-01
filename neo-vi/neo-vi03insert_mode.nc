@@ -12,7 +12,7 @@ impl NeoViWin version 3
 {
     void insertModeView(NeoViWin* self, NeoVi* nvi)
     {
-        werase(self.win);
+        //werase(self.win);
 
         self.textsView(nvi);
 
@@ -20,7 +20,7 @@ impl NeoViWin version 3
         mvwprintw(self.win, self.height-1, 0, "INSERT MODE x %d y %d scroll %d", self.cursorX, self.scroll+self.cursorY, self.scroll);
         wattroff(self.win, A_REVERSE);
 
-        wrefresh(self.win);
+        //wrefresh(self.win);
     }
 
     void view(NeoViWin* self, NeoVi* nvi) {
@@ -485,9 +485,12 @@ impl NeoVi version 3
 
     int main_loop(NeoVi* self) {
         while(!self.appEnd) {
+            erase();
+
             self.wins.each {
                 it.view(self);
             }
+            refresh();
 
             if(self.mode != kInsertMode) {
                 self.activeWin.clearInputedKey();

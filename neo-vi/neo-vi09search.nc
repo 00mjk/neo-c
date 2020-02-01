@@ -11,7 +11,7 @@ impl NeoViWin version 9
 {
     void searchModeView(NeoViWin* self, NeoVi* nvi)
     {
-        werase(self.win);
+        //werase(self.win);
 
         self.textsView(nvi);
 
@@ -19,7 +19,7 @@ impl NeoViWin version 9
         mvwprintw(self.win, self.height-1, 0, "/%ls", nvi.searchString);
         wattroff(self.win, A_REVERSE);
 
-        wrefresh(self.win);
+        //wrefresh(self.win);
     }
 
     void view(NeoViWin* self, NeoVi* nvi) {
