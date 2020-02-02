@@ -1,3 +1,5 @@
+switch case and block
+
 ``でstring型。w``でwstring型
 
 initializeでポインタを受け取るようにしてマシーンスタックのallocも対応させる

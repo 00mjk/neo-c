@@ -27,6 +27,7 @@ uname -v = #1 SMP PREEMPT Fri Jul 19 00:27:43 EDT 2019
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
 
+PATH: /home/ab25cq/.gem/bin
 PATH: /usr/local/sbin
 PATH: /usr/local/bin
 PATH: /usr/sbin
@@ -491,6 +492,7 @@ on localhost
 
 config.status:807: creating Makefile
 config.status:807: creating config.h
+config.status:982: config.h is unchanged
 
 ## ---------------- ##
 ## Cache variables. ##

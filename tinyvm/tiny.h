@@ -29,6 +29,7 @@ impl TinyParser version 2 {
 
     TinyNode*% node(TinyParser* self);
     TinyNode*% plus_minus(TinyParser* self);
+    TinyNode*% mult_div(TinyParser* self);
     TinyNode*% expression(TinyParser* self);
 };
 

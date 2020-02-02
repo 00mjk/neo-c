@@ -92,8 +92,18 @@ impl TinyParser version 2 {
         return null;
     }
 
-    TinyNode*% plus_minus(TinyParser* self) {
+    TinyNode*% mult_div(TinyParser* self) {
         var node = self.node();
+
+        if(node == null) {
+            return null;
+        }
+
+        return node;
+    }
+
+    TinyNode*% plus_minus(TinyParser* self) {
+        var node = self.mult_div();
 
         if(node == null) {
             return null;
@@ -105,7 +115,7 @@ impl TinyParser version 2 {
                 self.p++;
                 self.skipSpaces();
 
-                var right = self.node();
+                var right = self.mult_div();
 
                 if(right == null) {
                     self.errMessage("require right value for operator +");
@@ -120,7 +130,7 @@ impl TinyParser version 2 {
                 self.p++;
                 self.skipSpaces();
 
-                var right = self.node();
+                var right = self.mult_div();
 
                 if(right == null) {
                     self.errMessage("require right value for operator +");

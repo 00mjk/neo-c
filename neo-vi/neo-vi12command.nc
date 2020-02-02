@@ -85,6 +85,13 @@ impl NeoVi version 12
                 }
             }
         }
+        if(self.commandString.index("shell", -1) != -1) {
+            endwin();
+            
+            (void)system("bash");
+
+            self.init_curses();
+        }
         if(self.commandString.index("sp", -1) == 0) {
             self.activateFiler();
         }

@@ -1,2 +1,7 @@
 zz
 zENTER
+
+:shell
+
+SIG_WINCH
+
