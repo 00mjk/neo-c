@@ -11,14 +11,23 @@
 
 int main()
 {
-    DIR* dir = opendir(".");
-
-    struct dirent* entry = readdir(dir);
-
-    printf("%p %s\n", entry, entry->d_name);
-
-    closedir(dir);
+    int a = 1;
+    switch(a) {
+        case 1: {
+            string aaa = string("aaa");
+            puts(aaa);
+            }
+            break;
+       
+/*
+        case 2: {
+            int aaa = 123;
+            printf("%d", aaa);
+            }
+            break;
+*/
+    }
     
-    return true;
+    return 0;
 }
 

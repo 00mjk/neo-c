@@ -492,7 +492,6 @@ on localhost
 
 config.status:807: creating Makefile
 config.status:807: creating config.h
-config.status:982: config.h is unchanged
 
 ## ---------------- ##
 ## Cache variables. ##

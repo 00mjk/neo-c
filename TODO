@@ -1,51 +1,51 @@
 switch case and block
 
-``でstring型。w``でwstring型
 
-initializeでポインタを受け取るようにしてマシーンスタックのallocも対応させる
 
-double, floatの値の表現、8進数、16進数
 
-2次元配列
 
-メソッドの関数ポインタ
+
+
+
+
+
 
 ----------------------
-Genericsやinlineのエラーメッセージがバグっている。行番号
 
-parser.cのblockをとる部分
-casts全サポート
+
+
+
 %, [[
-Genericsとinlineでエラー番号の行数が違う
 
-macro.cppのC化
+
+
 
 collection
 
-fieldの自動free 好きにアドレスを使いたい場合はborrowで%で自動free $の概念はなくす
-
-mips64el, mips64(Bit endian), s390xでのテストの実行
-isHeap(変数名) 演算子
-
-独自パーサーでstructの後方参照。mixin-layersを実装する
-
-未定義のstructのポインタのいきなりの宣言。
-VPSでもコンパイルエラーとなる
-
-memalloc-std.cのneo-cでのコンパイル。LVtableのコピーをBlockLevel == 0なら行わない
-
-unistd.hのコンパイルを通す
-
-sizeof(変数名)
-isHeapとおなじほうほうでじっそうする
 
 
-delete 変数名
-でxfree, finalize
 
-%の配列、要素のfreeを行う
-headのアドレスを使い専用の関数でxfreeする。
--->しない。配列やポインタの要素のxfreeは手動
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 restrict
 
@@ -60,18 +60,18 @@ __restrict
 __builtin_var_list
 
 
--Iのサポート、プリプロセッサの検索パスの追加。
-neo-c.hを自動的にはincludeしないようにする
 
-ヘッダーの自動出力
 
-managed変数へのheapの代入
 
-ポインタの演算
 
-配列の++, フィールドの++, 変数の++
-ポインタのderefferenceの++
-ポインタの++
+
+
+
+
+
+
+
+
 
 a[0]++;
 a.b++;
@@ -82,7 +82,7 @@ a++;
 post_oprerator address ++ += --
 
 
-vig 日本語表示、編集
-左右のスクロール?折返し？
+
+
 list pop_back
 

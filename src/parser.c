@@ -5281,7 +5281,7 @@ static BOOL parse_case(unsigned int* node, sParserInfo* info)
     int sline_before = info->sline;
 
     char buf[VAR_NAME_MAX+1];
-    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
+    if(!parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE))
     {
         return FALSE;
     }
@@ -6269,6 +6269,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                 info->sline = sline_before2;
             }
         }
+
 
         if(strcmp(buf, "lambda") == 0) {
             if(!parse_lambda(node, info)) {
