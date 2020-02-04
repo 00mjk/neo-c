@@ -247,6 +247,8 @@ impl NeoVi version 6
             var win = newwin(it.height, it.width, it.y, it.x);
             keypad(win, true);
             it.win = win;
+
+            it.centeringCursor();
         }
     }
 

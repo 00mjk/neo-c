@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <locale.h>
 #include <wctype.h>
+#include <signal.h>
 
 #include "neo-vi.h"
 
@@ -318,12 +319,26 @@ void xclear(WINDOW* win)
 */
 }
 
+NeoVi* gNeoVi;
+
+void sig_winch(int sig_num)
+{
+    gNeoVi.repositionWindows();
+    gNeoVi.repositionFiler();
+
+    gNeoVi.clearView();
+    gNeoVi.view();
+}
+
 impl NeoVi version 15
 {
     initialize() {
         inherit(self);
 
         self.filer = new NeoViFiler.initialize();
+
+        gNeoVi = self;
+        signal(SIGWINCH, sig_winch);
     }
 
     void activateFiler(NeoVi* self) {
@@ -348,10 +363,6 @@ impl NeoVi version 15
         self.wins.each {
             wrefresh(it.win);
         }
-
-        if(self.mode != kInsertMode) {
-            self.activeWin.clearInputedKey();
-        }
     }
 
     void clearView(NeoVi* self)
@@ -365,19 +376,26 @@ impl NeoVi version 15
         clearok(self.filer.win, false);
 
         self.filer.view(self);
+        wrefresh(self.filer.win);
 
         self.wins.each {
             clearok(it.win, true);
             wclear(it.win);
             clearok(it.win, false);
             it.view(self);
+            wrefresh(it.win);
         }
+
         refresh();
     }
 
     int main_loop(NeoVi* self) {
         while(!self.appEnd) {
             self.view();
+
+            if(self.mode != kInsertMode) {
+                self.activeWin.clearInputedKey();
+            }
 
             if(self.filer.active) {
                 self.filer.input(self);

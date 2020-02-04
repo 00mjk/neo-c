@@ -257,7 +257,13 @@ sNodeType* create_node_type_with_class_name(char* class_name)
     char* p = class_name;
     char* p2 = buf;
 
-    return parse_class_name(&p, &p2, buf);
+    sNodeType* result = parse_class_name(&p, &p2, buf);
+
+    if(strcmp(class_name, "lambda") == 0) {
+        result->mPointerNum++;
+    }
+    
+    return result;
 }
 
 sNodeType* create_node_type_with_class_pointer(sCLClass* klass)

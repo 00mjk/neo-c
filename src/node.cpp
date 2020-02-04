@@ -3058,8 +3058,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     char generics_type_names[PARAMS_MAX][VAR_NAME_MAX];
 
 
-//printf("!!! fun_name %s\n", fun_name);
-
     int i;
     for(i=0; i<num_generics; i++)
     {

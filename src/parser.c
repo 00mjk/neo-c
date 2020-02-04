@@ -1909,7 +1909,16 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     }
 
     /// pointer ///
+
     int parser_pointer_num = 0;
+
+/*
+    if(definition_typedef && func_pointer_name) {
+        if(type_identify_with_class_name(*result_type, "lambda")) {
+            pointer_num = (*result_type)->mPointerNum;
+        }
+    }
+*/
 
     while(1) {
         char* p_before = info->p;
@@ -1977,61 +1986,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     {
         (*result_type)->mTypePointerNum = parser_pointer_num;
     }
-
-/*
-    if(parse_cmp(info->p, "lambda") == 0) 
-    {
-        info->p += 6;
-        skip_spaces_and_lf(info);
-
-        sNodeType* node_type = clone_node_type(*result_type);
-
-        *result_type = create_node_type_with_class_name("lambda");
-
-        (*result_type)->mResultType = node_type;
-
-        if(*info->p == '(') {
-            info->p++;
-            skip_spaces_and_lf(info);
-
-            if(*info->p == ')') {
-                info->p++;
-                skip_spaces_and_lf(info);
-            }
-            else {
-                while(1) {
-                    sNodeType* node_type = NULL;
-                    if(!parse_type(&node_type, info, NULL, FALSE, FALSE, parse_only)) {
-                        return FALSE;
-                    }
-
-                    (*result_type)->mParamTypes[(*result_type)->mNumParams] = node_type;
-
-                    (*result_type)->mNumParams++;
-
-                    if((*result_type)->mNumParams >= PARAMS_MAX) {
-                        parser_err_msg(info, "oveflow type params");
-                        return FALSE;
-                    }
-
-                    if(*info->p == ')') {
-                        info->p++;
-                        skip_spaces_and_lf(info);
-                        break;
-                    }
-                    else if(*info->p == ',') {
-                        info->p++;
-                        skip_spaces_and_lf(info);
-                    }
-                    else {
-                        parser_err_msg(info, "invalid character in lambda type name(%c)", *info->p);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-*/
 
     if(*info->p == '(' && *(info->p+1) == '*' && func_pointer_name) {
         info->p += 2;

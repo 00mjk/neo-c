@@ -1389,7 +1389,7 @@ label1:
 
     pfunX();
 
-    pfunXXX pfunX2 = pfun_test2;
+    pfunXXX* pfunX2 = pfun_test2;
 
     xassert("typedef function pointer", pfunX2(111, 222) == 333);
 

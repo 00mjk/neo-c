@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <locale.h>
 #include <wctype.h>
-#include <signal.h>
 
 #include "neo-vi.h"
 
@@ -218,16 +217,18 @@ impl NeoViWin version 2
         
         int n = self.scroll + self.cursorY;
 
-        self.scroll = n - maxy / 2; 
-        self.cursorY = maxy / 2;
-        
-        if(self.scroll >= self.texts.length()) {
-            self.scroll = self.texts.length() - 1;
-            self.cursorY = 0;
-        }
-        if(self.scroll < 0) {
-            self.scroll = 0;
-            self.cursorY = 0;
+        if(n > maxy / 2) {
+            self.scroll = n - maxy / 2; 
+            self.cursorY = maxy / 2;
+            
+            if(self.scroll >= self.texts.length()) {
+                self.scroll = self.texts.length() - 1;
+                self.cursorY = 0;
+            }
+            if(self.scroll < 0) {
+                self.scroll = 0;
+                self.cursorY = 0;
+            }
         }
     }
     
@@ -279,21 +280,9 @@ impl NeoViWin version 2
     }
 }
 
-NeoVi* gNeoVi;
-
-void sig_winch(int sig_num)
-{
-    gNeoVi.repositionWindows();
-    gNeoVi.repositionFiler();
-
-    gNeoVi.view();
-}
-
 impl NeoVi version 2 
 {
     initialize() {
-        gNeoVi = self;
-
         setlocale(LC_ALL, "");
         
         self.init_curses();
@@ -311,8 +300,6 @@ impl NeoVi version 2
         win.texts.push_back(wstring("123"));
         win.texts.push_back(wstring("456"));
         win.texts.push_back(wstring("789"));
-
-        signal(SIGWINCH, sig_winch);
 
         self.activeWin = win;
 

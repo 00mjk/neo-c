@@ -78,6 +78,7 @@ impl NeoViWin version 2
 
     void repositionWindows(NeoVi* self);
     void repositionFiler(NeoVi* self);
+    void centeringCursor(NeoViWin* self);
 }
 
 struct NeoVi version 2 
