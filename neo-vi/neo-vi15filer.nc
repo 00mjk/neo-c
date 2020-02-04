@@ -329,29 +329,55 @@ impl NeoVi version 15
     void activateFiler(NeoVi* self) {
         self.filer.active = true;
     }
+
+    void view(NeoVi* self) {
+        xclear(self.filer.win);
+
+        self.wins.each {
+            xclear(it.win);
+        }
+
+        self.filer.view(self);
+
+        self.wins.each {
+            it.view(self);
+        }
+
+        wrefresh(self.filer.win);
+
+        self.wins.each {
+            wrefresh(it.win);
+        }
+
+        if(self.mode != kInsertMode) {
+            self.activeWin.clearInputedKey();
+        }
+    }
+
+    void clearView(NeoVi* self)
+    {
+        clearok(stdscr, true);
+        clear();
+        clearok(stdscr, false);
+
+        clearok(self.filer.win, true);
+        wclear(self.filer.win);
+        clearok(self.filer.win, false);
+
+        self.filer.view(self);
+
+        self.wins.each {
+            clearok(it.win, true);
+            wclear(it.win);
+            clearok(it.win, false);
+            it.view(self);
+        }
+        refresh();
+    }
+
     int main_loop(NeoVi* self) {
         while(!self.appEnd) {
-            xclear(self.filer.win);
-
-            self.wins.each {
-                xclear(it.win);
-            }
-
-            self.filer.view(self);
-
-            self.wins.each {
-                it.view(self);
-            }
-
-            wrefresh(self.filer.win);
-
-            self.wins.each {
-                wrefresh(it.win);
-            }
-
-            if(self.mode != kInsertMode) {
-                self.activeWin.clearInputedKey();
-            }
+            self.view();
 
             if(self.filer.active) {
                 self.filer.input(self);
@@ -362,5 +388,18 @@ impl NeoVi version 15
         }
 
         0
+    }
+
+    void repositionFiler(NeoVi* self) {
+        int maxy = xgetmaxy();
+        int maxx = xgetmaxx();
+
+        delwin(self.filer.win);
+
+        int width = maxx / 5;
+        var win = newwin(maxy, width, 0, 0);
+        keypad(win, true);
+
+        self.filer.win = win;
     }
 }

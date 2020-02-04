@@ -195,6 +195,9 @@ AC_HAVE_LIBRARY(ncursesw, [ LIBS="$LIBS -lncursesw"; ], [])
 
 AC_HAVE_LIBRARY(rt, [ LIBS="$LIBS -lrt"; ], [])
 
+AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [])
+AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [])
+
 AC_SUBST(LIBS)
 
 if which neo-c > /dev/null

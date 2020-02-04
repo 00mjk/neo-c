@@ -194,6 +194,9 @@ fi
 AC_CHECK_HEADER(pcre.h, [AC_DEFINE(HAVE_PCRE_H,1)], [])
 AC_HAVE_LIBRARY(pcre, [ LIBS="$LIBS -lpcre"; ], [ eixt ])
 
+AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [])
+AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [])
+
 AC_HAVE_LIBRARY(rt, [ LIBS="$LIBS -lrt"; ], [])
 
 AC_SUBST(CFFI)

@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <locale.h>
 #include <wctype.h>
+#include <signal.h>
 
 #include "neo-vi.h"
 
@@ -278,9 +279,21 @@ impl NeoViWin version 2
     }
 }
 
+NeoVi* gNeoVi;
+
+void sig_winch(int sig_num)
+{
+    gNeoVi.repositionWindows();
+    gNeoVi.repositionFiler();
+
+    gNeoVi.view();
+}
+
 impl NeoVi version 2 
 {
     initialize() {
+        gNeoVi = self;
+
         setlocale(LC_ALL, "");
         
         self.init_curses();
@@ -299,6 +312,7 @@ impl NeoVi version 2
         win.texts.push_back(wstring("456"));
         win.texts.push_back(wstring("789"));
 
+        signal(SIGWINCH, sig_winch);
 
         self.activeWin = win;
 
@@ -358,16 +372,7 @@ impl NeoVi version 2
         });
         self.events.replace('L'-'A'+1, lambda(NeoVi* self, int key) 
         {
-            clearok(stdscr, true);
-            clear();
-            clearok(stdscr, false);
-            self.wins.each {
-                clearok(it.win, true);
-                wclear(it.win);
-                clearok(it.win, false);
-                it.view(self);
-            }
-            refresh();
+            self.clearView();
         });
         self.events.replace('g', lambda(NeoVi* self, int key) 
         {
@@ -393,14 +398,32 @@ impl NeoVi version 2
         });
     }
 
+    void view(NeoVi* self) {
+        erase();
+
+        self.wins.each {
+            it.view(self);
+        }
+        refresh();
+    }
+
+    void clearView(NeoVi* self)
+    {
+        clearok(stdscr, true);
+        clear();
+        clearok(stdscr, false);
+        self.wins.each {
+            clearok(it.win, true);
+            wclear(it.win);
+            clearok(it.win, false);
+            it.view(self);
+        }
+        refresh();
+    }
+
     int main_loop(NeoVi* self) {
         while(!self.appEnd) {
-            erase();
-
-            self.wins.each {
-                it.view(self);
-            }
-            refresh();
+            self.view();
             
             self.activeWin.input(self);
 
@@ -410,6 +433,16 @@ impl NeoVi version 2
     }
 
     void openFile(NeoVi* self, char* file_name)
+    {
+        /// implemented by the after layer
+    }
+
+    void repositionWindows(NeoVi* self) 
+    {
+        /// implemented by the after layer
+    }
+
+    void repositionFiler(NeoVi* self) 
     {
         /// implemented by the after layer
     }

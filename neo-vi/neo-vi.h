@@ -75,6 +75,9 @@ impl NeoViWin version 2
     void moveTop(NeoViWin* self);
     void keyG(NeoViWin* self);
     void moveBottom(NeoViWin* self);
+
+    void repositionWindows(NeoVi* self);
+    void repositionFiler(NeoVi* self);
 }
 
 struct NeoVi version 2 
@@ -95,6 +98,8 @@ impl NeoVi version 2
     int main_loop(NeoVi* self);
 
     void openFile(NeoVi* self, char* file_name);
+    void view(NeoVi* self);
+    void clearView(NeoVi* self);
 }
 
 /// neo-vi3insert_mode.h ///
@@ -196,6 +201,8 @@ impl NeoVi version 6
     void openFile(NeoVi* self, char* file_name);
     void openNewFile(NeoVi* self, char* file_name);
     void closeActiveWin(NeoVi* self);
+
+    void repositionWindows(NeoVi* self);
 }
 
 /// neo-vi7yank.h ///
@@ -363,6 +370,9 @@ impl NeoVi version 15
 
     void activateFiler(NeoVi* self);
     int main_loop(NeoVi* self);
+    void repositionFiler(NeoVi* self);
+    void view(NeoVi* self);
+    void clearView(NeoVi* self);
 }
 
 impl NeoViWin version 15

@@ -11,7 +11,7 @@
 
 int main()
 {
-    int a = 1;
+    int a = 2;
     switch(a) {
         case 1: {
             string aaa = string("aaa");
@@ -19,13 +19,11 @@ int main()
             }
             break;
        
-/*
         case 2: {
             int aaa = 123;
-            printf("%d", aaa);
+            printf("%d\n", aaa);
             }
             break;
-*/
     }
     
     return 0;
