@@ -9,9 +9,18 @@
 #include <locale.h>
 #include <wctype.h>
 
+struct aaa {
+    int bbb;
+};
+
 int main()
 {
     var a = new vector<string>.initialize();
+    
+    switch(1) {
+        case 1:
+            break;
+    }
     
     return 0;
 }

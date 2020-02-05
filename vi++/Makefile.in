@@ -29,53 +29,53 @@ DESTDIR=@DESTDIR@
 ##########################################
 all: vi++
 
-vi++: configure Makefile config.h vi++.nc vi++01init.o vi++02base.o vi++03insert_mode.o vi++04word.o vi++05undo.o vi++06file.o vi++07yank.o vi++08visual.o vi++09search.o vi++10edit.o vi++11move.o vi++12command.o vi++13completion.o vi++14dot.o vi++15filer.o vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++05undo.nc vi++06file.nc vi++07yank.nc vi++08visual.nc vi++09search.nc vi++10edit.nc vi++11move.nc vi++12command.nc vi++13completion.nc vi++14dot.nc vi++15filer.nc
-	neo-c -o vi++ vi++.nc vi++01init.o vi++02base.o vi++03insert_mode.o vi++04word.o vi++05undo.o vi++06file.o vi++07yank.o vi++08visual.o vi++09search.o vi++10edit.o vi++11move.o vi++12command.o vi++13completion.o vi++14dot.o vi++15filer.o $(CFLAGS) $(LIBS)
+vi++: configure Makefile config.h vi++.nc 01init.o 02base.o 03insert_mode.o 04word.o 05undo.o 06file.o 07yank.o 08visual.o 09search.o 10edit.o 11move.o 12command.o 13completion.o 14dot.o 15filer.o 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc 12command.nc 13completion.nc 14dot.nc 15filer.nc
+	neo-c -o vi++ vi++.nc 01init.o 02base.o 03insert_mode.o 04word.o 05undo.o 06file.o 07yank.o 08visual.o 09search.o 10edit.o 11move.o 12command.o 13completion.o 14dot.o 15filer.o $(CFLAGS) $(LIBS)
 
-vi++01init.o: configure Makefile config.h vi++01init.nc vi++.h
-	neo-c -c vi++01init.nc $(CFLAGS) $(LIBS)
+01init.o: configure Makefile config.h 01init.nc vi++.h
+	neo-c -c 01init.nc $(CFLAGS) $(LIBS)
 
-vi++02base.o: configure Makefile config.h vi++01init.nc vi++02base.nc vi++.h
-	neo-c -c vi++02base.nc $(CFLAGS) $(LIBS)
+02base.o: configure Makefile config.h 01init.nc 02base.nc vi++.h
+	neo-c -c 02base.nc $(CFLAGS) $(LIBS)
 
-vi++03insert_mode.o: configure Makefile config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++.h
-	neo-c -c vi++03insert_mode.nc $(CFLAGS) $(LIBS)
+03insert_mode.o: configure Makefile config.h 01init.nc 02base.nc 03insert_mode.nc vi++.h
+	neo-c -c 03insert_mode.nc $(CFLAGS) $(LIBS)
 
-vi++04word.o: configure Makefile config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++.h
-	neo-c -c vi++04word.nc $(CFLAGS) $(LIBS)
+04word.o: configure Makefile config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc vi++.h
+	neo-c -c 04word.nc $(CFLAGS) $(LIBS)
 
-vi++05undo.o: configure config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++05undo.nc vi++.h
-	neo-c -c vi++05undo.nc $(CFLAGS) $(LIBS)
+05undo.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc vi++.h
+	neo-c -c 05undo.nc $(CFLAGS) $(LIBS)
 
-vi++06file.o: configure config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++05undo.nc vi++06file.nc
-	neo-c -c vi++06file.nc $(CFLAGS) $(LIBS)
+06file.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc
+	neo-c -c 06file.nc $(CFLAGS) $(LIBS)
 
-vi++07yank.o: configure config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++05undo.nc vi++06file.nc vi++07yank.nc
-	neo-c -c vi++07yank.nc $(CFLAGS) $(LIBS)
+07yank.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc
+	neo-c -c 07yank.nc $(CFLAGS) $(LIBS)
 
-vi++08visual.o: configure config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++05undo.nc vi++06file.nc vi++07yank.nc vi++08visual.nc 
-	neo-c -c vi++08visual.nc $(CFLAGS) $(LIBS)
+08visual.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 
+	neo-c -c 08visual.nc $(CFLAGS) $(LIBS)
 
-vi++09search.o: configure config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++05undo.nc vi++06file.nc vi++07yank.nc vi++08visual.nc vi++09search.nc 
-	neo-c -c vi++09search.nc $(CFLAGS) $(LIBS)
+09search.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 
+	neo-c -c 09search.nc $(CFLAGS) $(LIBS)
 
-vi++10edit.o: configure config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++05undo.nc vi++06file.nc vi++07yank.nc vi++08visual.nc vi++09search.nc vi++10edit.nc
-	neo-c -c vi++10edit.nc $(CFLAGS) $(LIBS)
+10edit.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc
+	neo-c -c 10edit.nc $(CFLAGS) $(LIBS)
 
-vi++11move.o: configure config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++05undo.nc vi++06file.nc vi++07yank.nc vi++08visual.nc vi++09search.nc vi++10edit.nc vi++11move.nc
-	neo-c -c vi++11move.nc $(CFLAGS) $(LIBS)
+11move.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc
+	neo-c -c 11move.nc $(CFLAGS) $(LIBS)
 
-vi++12command.o: configure config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++05undo.nc vi++06file.nc vi++07yank.nc vi++08visual.nc vi++09search.nc vi++10edit.nc vi++11move.nc vi++12command.nc
-	neo-c -c vi++12command.nc $(CFLAGS) $(LIBS)
+12command.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc 12command.nc
+	neo-c -c 12command.nc $(CFLAGS) $(LIBS)
 
-vi++13completion.o: configure config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++05undo.nc vi++06file.nc vi++07yank.nc vi++08visual.nc vi++09search.nc vi++10edit.nc vi++11move.nc vi++12command.nc vi++13completion.nc
-	neo-c -c vi++13completion.nc $(CFLAGS) $(LIBS)
+13completion.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc 12command.nc 13completion.nc
+	neo-c -c 13completion.nc $(CFLAGS) $(LIBS)
 
-vi++14dot.o: configure config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++05undo.nc vi++06file.nc vi++07yank.nc vi++08visual.nc vi++09search.nc vi++10edit.nc vi++11move.nc vi++12command.nc vi++13completion.nc vi++14dot.nc
-	neo-c -c vi++14dot.nc $(CFLAGS) $(LIBS)
+14dot.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc 12command.nc 13completion.nc 14dot.nc
+	neo-c -c 14dot.nc $(CFLAGS) $(LIBS)
 
-vi++15filer.o: configure config.h vi++01init.nc vi++02base.nc vi++03insert_mode.nc vi++04word.nc vi++05undo.nc vi++06file.nc vi++07yank.nc vi++08visual.nc vi++09search.nc vi++10edit.nc vi++11move.nc vi++12command.nc vi++13completion.nc vi++14dot.nc vi++15filer.nc
-	neo-c -c vi++15filer.nc $(CFLAGS) $(LIBS)
+15filer.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc 12command.nc 13completion.nc 14dot.nc 15filer.nc
+	neo-c -c 15filer.nc $(CFLAGS) $(LIBS)
 
 #########################################
 # install
@@ -98,7 +98,6 @@ permission:
 	chmod 755 .git man configure
 	chmod 644 *.nc
 	chmod 644 *.h
-	chmod 755 update_vi++-c.sh
 
 #########################################
 # clean

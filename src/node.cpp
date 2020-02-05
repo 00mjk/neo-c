@@ -3255,6 +3255,11 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
+
+        int sline_before = info->sline;
+        char sname_before[PATH_MAX];
+        xstrncpy(sname_before, info->sname, PATH_MAX);
+
         gNodes[node].mLine = info->pinfo->sline;
         xstrncpy(gNodes[node].mSName, info->pinfo->sname, PATH_MAX);
 
@@ -3262,6 +3267,9 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
             info->generics_type = generics_type_before;
             return FALSE;
         }
+
+        info->pinfo->sline = sline_before;
+        xstrncpy(info->sname, sname_before, PATH_MAX);
 
         param_types[num_params2] = info->type;
 
@@ -3444,6 +3452,10 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                     return FALSE;
                 }
 
+                int sline_before = info->sline;
+                char sname_before[PATH_MAX];
+                xstrncpy(sname_before, info->sname, PATH_MAX);
+
                 gNodes[node].mLine = info->pinfo->sline;
                 xstrncpy(gNodes[node].mSName, info->pinfo->sname, PATH_MAX);
 
@@ -3453,6 +3465,9 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                     info->stack_num = stack_num;
                     return FALSE;
                 }
+
+                info->pinfo->sline = sline_before;
+                xstrncpy(info->sname, sname_before, PATH_MAX);
 
                 //dec_stack_ptr(1, info);
 
