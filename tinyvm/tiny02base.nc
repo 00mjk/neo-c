@@ -181,21 +181,15 @@ impl TinyVM {
     }
 
     bool compile(TinyVM* self, TinyNode* node) {
-        TVALUE value1;
-        TVALUE value2;
-        TVALUE value3;
-        
-        TVALUE default_value;
-        
-        default_value.intValue = 0;
-        
         switch(node.type) {
-            case NODETYPE_INT :
+            case NODETYPE_INT : {
+                TVALUE value1;
                 value1.intValue = node.intValue;
                 self.stack.push_back(value1);
+                }
                 break;
 
-            case NODETYPE_PLUS :
+            case NODETYPE_PLUS : {
                 if(!self.compile(node.left)) {
                     return false;
                 }
@@ -203,12 +197,19 @@ impl TinyVM {
                     return false;
                 }
 
-                value1 = self.stack.pop_back(default_value);
-                value2 = self.stack.pop_back(default_value); 
+                TVALUE default_value;
+                
+                default_value.intValue = 0;
+
+                TVALUE value1 = self.stack.pop_back(default_value);
+                TVALUE value2 = self.stack.pop_back(default_value); 
+
+                TVALUE value3;
                 
                 value3.intValue = value1.intValue + value2.intValue;
                 
                 self.stack.push_back(value3);
+                }
                 break;
 
             case NODETYPE_MINUS :
@@ -219,14 +220,19 @@ impl TinyVM {
                     return false;
                 }
 
-                value1 = self.stack.pop_back(default_value);
-                value2 = self.stack.pop_back(default_value); 
+                TVALUE default_value;
+                
+                default_value.intValue = 0;
+
+                TVALUE value1 = self.stack.pop_back(default_value);
+                TVALUE value2 = self.stack.pop_back(default_value); 
+                
+                TVALUE value3;
                 
                 value3.intValue = value1.intValue - value2.intValue;
                 
                 self.stack.push_back(value3);
                 break;
-
         }
 
         return true;

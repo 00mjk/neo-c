@@ -9,8 +9,10 @@ ALLOC	src/xfunc.h	4;"	d
 BOOL	src/xfunc.h	7;"	d
 BUFFER_H	src/buffer.h	2;"	d
 CC	Makefile	/^CC=clang$/;"	m
+CC	neo-vi/Makefile	/^CC=gcc$/;"	m
 CC	tinyvm/Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
+CFLAGS	neo-vi/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
 CFLAGS	tinyvm/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
 CLASS_FLAGS_ANONYMOUS	src/common.h	85;"	d
 CLASS_FLAGS_ANONYMOUS_VAR_NAME	src/common.h	87;"	d
@@ -31,6 +33,7 @@ CONS_str	src/common.h	61;"	d
 CXX	Makefile	/^CXX=clang++-7$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . -I src -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
+DESTDIR	neo-vi/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	tinyvm/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 ELIF_NUM_MAX	src/common.h	29;"	d
 EXTERNAL_OBJECT_MAX	src/common.h	34;"	d
@@ -38,19 +41,27 @@ FALSE	src/xfunc.h	9;"	d
 GENERICS_TYPES_MAX	src/common.h	19;"	d
 HAVE_ICONV_H	config.h	3;"	d
 HAVE_ICONV_H	config.h	5;"	d
+HAVE_ICONV_H	neo-vi/config.h	3;"	d
+HAVE_ICONV_H	neo-vi/config.h	5;"	d
 HAVE_ICONV_H	tinyvm/config.h	3;"	d
 HAVE_ICONV_H	tinyvm/config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
+HAVE_MATH_H	neo-vi/config.h	2;"	d
 HAVE_MATH_H	tinyvm/config.h	2;"	d
+HAVE_NCURSESW_H	neo-vi/config.h	8;"	d
 HAVE_NCURSESW_H	tinyvm/config.h	8;"	d
 HAVE_PCRE_H	config.h	6;"	d
+HAVE_PCRE_H	neo-vi/config.h	6;"	d
 HAVE_PCRE_H	tinyvm/config.h	6;"	d
 HAVE_PTHREAD_H	config.h	11;"	d
+HAVE_PTHREAD_H	neo-vi/config.h	11;"	d
 IMPL_DEF_MAX	src/common.h	33;"	d
 INIT_ARRAY_MAX	src/common.h	35;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
+INSTALL	neo-vi/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INSTALL	tinyvm/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
-LIBS	Makefile	/^LIBS= -lutil -lpthread -ldl -lm -lpcre -lrt$/;"	m
+LIBS	Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lpthread -lrt$/;"	m
+LIBS	neo-vi/Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lncursesw -lrt -lpthread$/;"	m
 LIBS	tinyvm/Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lncursesw -lrt$/;"	m
 LLVM_COMMON_H	src/llvm_common.hpp	2;"	d
 LOCAL_VARIABLE_MAX	src/common.h	25;"	d
@@ -64,6 +75,7 @@ MAP_TABLE_DEFAULT_SIZE	neo-c.h	1770;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
+NCC	neo-vi/Makefile	/^NCC=neo-c$/;"	m
 NCC	tinyvm/Makefile	/^NCC=neo-c$/;"	m
 NEO_C_STACK_SIZE	src/common.h	24;"	d
 NODETYPE_INT	tinyvm/tiny.h	/^enum { NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS };$/;"	e	enum:__anon1
@@ -75,6 +87,7 @@ NeoViFiler	neo-vi/neo-vi.h	/^struct NeoViFiler$/;"	s
 NeoViWin	neo-vi/neo-vi.h	/^struct NeoViWin $/;"	s
 OBJS	Makefile	/^OBJS=src\/source_compiler.o src\/parser.o src\/node.o src\/klass.o src\/node_type.o src\/typedef.o src\/constant.o src\/llvm.o src\/vtable.o src\/node_block.o src\/node_alloc.o src\/macro.o$/;"	m
 OS	Makefile	/^OS=LINUX$/;"	m
+OS	neo-vi/Makefile	/^OS=LINUX$/;"	m
 OS	tinyvm/Makefile	/^OS=LINUX$/;"	m
 PARAMS_MAX	src/common.h	26;"	d
 PARSER_ERR_MSG_MAX	src/common.h	22;"	d
@@ -97,6 +110,7 @@ PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld9.nc$/;"	m
 REAL_FUN_NAME_MAX	src/common.h	31;"	d
 REAL_STRUCT_NAME_MAX	src/common.h	32;"	d
 RUNTIME_OBJS	Makefile	/^RUNTIME_OBJS=$/;"	m
+SAVE_INPUT_KEY_MAX	neo-vi/neo-vi.h	7;"	d
 SOURCE_EXPRESSION_MAX	src/common.h	28;"	d
 STRUCT_FIELD_MAX	src/common.h	30;"	d
 StructData1	code/HelloWorld5.h	/^struct StructData1$/;"	s
@@ -120,8 +134,10 @@ _USE_MISC	a.c	14;"	d	file:
 _USE_MISC	code/neo-c.h	11;"	d
 _USE_MISC	neo-c.h	11;"	d
 __64BIT_CPU__	config.h	18;"	d
+__64BIT_CPU__	neo-vi/config.h	18;"	d
 __64BIT_CPU__	tinyvm/config.h	18;"	d
 __LINUX__	config.h	16;"	d
+__LINUX__	neo-vi/config.h	16;"	d
 __LINUX__	tinyvm/config.h	16;"	d
 __STDC_CONSTANT_MACROS	code/neo-c.h	27;"	d
 __STDC_CONSTANT_MACROS	neo-c.h	27;"	d
@@ -187,26 +203,31 @@ append_str_to_constant_pool	src/constant.c	/^unsigned int append_str_to_constant
 append_wstr_to_constant_pool	src/constant.c	/^unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
+as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
 as_fn_append	neo-vi/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	neo-vi/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	tinyvm/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	tinyvm/configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	neo-vi/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	neo-vi/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tinyvm/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tinyvm/configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
 as_fn_error	neo-vi/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	neo-vi/configure	/^as_fn_error ()$/;"	f
 as_fn_error	tinyvm/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	tinyvm/configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	neo-vi/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	neo-vi/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tinyvm/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tinyvm/configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	neo-vi/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	neo-vi/configure	/^as_fn_exit ()$/;"	f
@@ -215,6 +236,7 @@ as_fn_exit	tinyvm/configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	neo-vi/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	tinyvm/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	neo-vi/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	neo-vi/configure	/^as_fn_mkdir_p ()$/;"	f
@@ -226,6 +248,7 @@ as_fn_ret_failure	tinyvm/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	neo-vi/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	tinyvm/configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	neo-vi/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	neo-vi/configure	/^as_fn_set_status ()$/;"	f
@@ -234,6 +257,7 @@ as_fn_set_status	tinyvm/configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	neo-vi/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	tinyvm/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	neo-vi/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	neo-vi/configure	/^as_fn_unset ()$/;"	f
@@ -247,6 +271,7 @@ auto_cast_posibility	src/node_type.c	/^BOOL auto_cast_posibility(sNodeType* left
 b	code/HelloWorld6.h	/^    int b;$/;"	m	struct:version
 binded_value	src/llvm_common.hpp	/^    BOOL binded_value;$/;"	m	struct:LVALUEStruct
 bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
+bindir	neo-vi/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	tinyvm/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 buf	code/neo-c.h	/^    char* buf;$/;"	m	struct:buffer
 buf	neo-c.h	/^    char* buf;$/;"	m	struct:buffer
@@ -415,16 +440,19 @@ cursor	neo-vi/neo-vi.h	/^    int cursor;$/;"	m	struct:NeoViFiler
 cursorX	neo-vi/neo-vi.h	/^    int cursorX;$/;"	m	struct:version
 cursorY	neo-vi/neo-vi.h	/^    int cursorY;$/;"	m	struct:version
 datadir	Makefile	/^datadir=${datarootdir}$/;"	m
+datadir	neo-vi/Makefile	/^datadir=${datarootdir}$/;"	m
 datadir	tinyvm/Makefile	/^datadir=${datarootdir}$/;"	m
 datarootdir	Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
+datarootdir	neo-vi/Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
 datarootdir	tinyvm/Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
 debug_show_none_freed_heap_memory	src/memalloc-stdc.c	/^void debug_show_none_freed_heap_memory() $/;"	f
-debug_xcalloc	src/memalloc-stdc.c	/^void *debug_xcalloc(int num, size_t nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name)$/;"	f
+debug_xcalloc	src/memalloc-stdc.c	/^void *debug_xcalloc(size_t num, size_t nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name)$/;"	f
 dec_stack_ptr	src/llvm.cpp	/^void dec_stack_ptr(int value, sCompileInfo* info)$/;"	f
 declare_builtin_functions	src/llvm.cpp	/^void declare_builtin_functions()$/;"	f
 delete_comment	src/source_compiler.c	/^BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f
 delete_debug_heap_memory	src/memalloc-stdc.c	/^static void delete_debug_heap_memory(void* mem)$/;"	f	file:
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
+docdir	neo-vi/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 docdir	tinyvm/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 dollar_endonly	code/neo-c.h	/^    bool dollar_endonly;$/;"	m	struct:regex_struct
 dollar_endonly	neo-c.h	/^    bool dollar_endonly;$/;"	m	struct:regex_struct
@@ -576,6 +604,7 @@ in_clang	src/common.h	/^    BOOL in_clang;$/;"	m	struct:sParserInfoStruct
 in_inline_function	src/common.h	/^    BOOL in_inline_function;$/;"	m	struct:sCompileInfoStruct
 included_generics_type	src/node_type.c	/^BOOL included_generics_type(sNodeType* node_type)$/;"	f
 includedir	Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
+includedir	neo-vi/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 includedir	tinyvm/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 init_block_vtable	src/vtable.c	/^sVarTable* init_block_vtable(sVarTable* lv_table, BOOL no_increment_block_level)$/;"	f
 init_macro	src/macro.c	/^void init_macro()$/;"	f
@@ -743,6 +772,7 @@ len	neo-c.h	/^    int len;$/;"	m	struct:list
 len	neo-c.h	/^    int len;$/;"	m	struct:map
 len	neo-c.h	/^    int len;$/;"	m	struct:vector
 libdir	Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
+libdir	neo-vi/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 libdir	tinyvm/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 list	code/neo-c.h	/^struct list<T>$/;"	s
 list	neo-c.h	/^struct list<T>$/;"	s
@@ -987,6 +1017,7 @@ main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
 main	src/preprocessor.c	/^int main(int argc, char* argv[])$/;"	f
 main	tinyvm/a.c	/^int main()$/;"	f
 mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
+mandir	neo-vi/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 mandir	tinyvm/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 map	code/neo-c.h	/^impl map <T, T2>$/;"	s
 map	code/neo-c.h	/^ruby_macro map {$/;"	s
@@ -1112,6 +1143,7 @@ path	neo-vi/neo-vi.h	/^    string path;$/;"	m	struct:NeoViFiler
 pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sParserInfoStruct
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sParserInfo* info)$/;"	f	file:
 prefix	Makefile	/^prefix=\/usr\/local$/;"	m
+prefix	neo-vi/Makefile	/^prefix=\/usr\/local exec_prefix=${prefix}$/;"	m
 prefix	tinyvm/Makefile	/^prefix=\/usr\/local exec_prefix=${prefix}$/;"	m
 preprocess_source	src/preprocessor.c	/^static BOOL preprocess_source(char* sname, char* output_sname)$/;"	f	file:
 preprocessor	src/preprocessor.c	/^static BOOL preprocessor(sBuf* source, sBuf* source2)$/;"	f	file:
@@ -1333,6 +1365,7 @@ searchString	neo-vi/neo-vi.h	/^    wstring searchString;$/;"	m	struct:version
 search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size, int version)$/;"	f	file:
 set_max_block_var_num	src/vtable.c	/^void set_max_block_var_num(sVarTable* lv_table, sVarTable* old_table)$/;"	f
 sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
+sharedstatedir	neo-vi/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 sharedstatedir	tinyvm/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 show_node	src/node.cpp	/^void show_node(unsigned int node)$/;"	f
 show_node_type	src/node_type.c	/^void show_node_type(sNodeType* node_type)$/;"	f
@@ -1387,6 +1420,7 @@ switch_expression	src/common.h	/^    void* switch_expression;$/;"	m	struct:sComp
 switch_expression_type	src/common.h	/^    sNodeType* switch_expression_type;$/;"	m	struct:sCompileInfoStruct
 switch_nest	src/common.h	/^    int switch_nest;$/;"	m	struct:sParserInfoStruct
 sysconfdir	Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
+sysconfdir	neo-vi/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
 sysconfdir	tinyvm/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
 tail	code/neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
 tail	neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
