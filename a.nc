@@ -11,20 +11,7 @@
 
 int main()
 {
-    int a = 2;
-    switch(a) {
-        case 1: {
-            string aaa = string("aaa");
-            puts(aaa);
-            }
-            break;
-       
-        case 2: {
-            int aaa = 123;
-            printf("%d\n", aaa);
-            }
-            break;
-    }
+    var a = new vector<string>.initialize();
     
     return 0;
 }
