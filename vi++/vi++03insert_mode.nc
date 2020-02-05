@@ -33,8 +33,10 @@ impl ViWin version 3
     }
 
     void insertText(ViWin* self, wstring text) {
+        managed text;
+
         if(self.texts.length() == 0) {
-            self.texts.push_back(text);
+            self.texts.push_back(dummy_heap text);
             self.cursorX += text.length();
         }
         else {
@@ -44,6 +46,8 @@ impl ViWin version 3
     
             self.texts.replace(self.scroll+self.cursorY, new_line);
             self.cursorX += text.length();
+
+            delete text;
         }
     }
 
@@ -490,7 +494,6 @@ impl Vi version 3
             self.wins.each {
                 it.view(self);
             }
-            refresh();
 
             if(self.mode != kInsertMode) {
                 self.activeWin.clearInputedKey();

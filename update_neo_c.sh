@@ -4,13 +4,13 @@ if [ -e Makefile ]
 then
     make distclean
 fi
-if [ -e neo-vi/Makefile ]
+if [ -e vi++/Makefile ]
 then
-    (cd neo-vi; make distclean)
+    (cd vi++; make distclean)
 fi
-if [ -e tinyvm/Makefile ]
+if [ -e tiny/Makefile ]
 then
-    (cd tinyvm; make distclean)
+    (cd tiny; make distclean)
 fi
 
 if [ ! -e Makefile ]

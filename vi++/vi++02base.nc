@@ -383,6 +383,20 @@ impl Vi version 2
                     break;
             }
         });
+        self.events.replace('Z', lambda(Vi* self, int key) 
+        {
+            var key2 = self.activeWin.getKey();
+
+            switch(key2) {
+                case 'Z':
+                    self.exitFromApp();
+                    break;
+            }
+        });
+    }
+
+    void exitFromApp(Vi* self) {
+        self.appEnd = true;
     }
 
     void view(Vi* self) {
@@ -390,8 +404,8 @@ impl Vi version 2
 
         self.wins.each {
             it.view(self);
+            wrefresh(it.win);
         }
-        refresh();
     }
 
     void clearView(Vi* self)

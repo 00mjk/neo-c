@@ -101,6 +101,7 @@ impl Vi version 2
     void openFile(Vi* self, char* file_name, int line_num);
     void view(Vi* self);
     void clearView(Vi* self);
+    void exitFromApp(Vi* self);
 }
 
 /// vi++3insert_mode.h ///
