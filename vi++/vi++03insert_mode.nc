@@ -33,10 +33,8 @@ impl ViWin version 3
     }
 
     void insertText(ViWin* self, wstring text) {
-        managed text;
-
         if(self.texts.length() == 0) {
-            self.texts.push_back(dummy_heap text);
+            self.texts.push_back(clone text);
             self.cursorX += text.length();
         }
         else {
@@ -46,8 +44,6 @@ impl ViWin version 3
     
             self.texts.replace(self.scroll+self.cursorY, new_line);
             self.cursorX += text.length();
-
-            delete text;
         }
     }
 
