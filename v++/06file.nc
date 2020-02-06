@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <limits.h>
 
-#include "vi++.h"
+#include "v++.h"
 
 impl ViWin version 6
 {

@@ -6,7 +6,7 @@
 
 #define SAVE_INPUT_KEY_MAX 256
 
-// vi++1init.h
+// 1init.h
 int xgetmaxx();
 int xgetmaxy();
 
@@ -43,7 +43,7 @@ impl Vi
     int main_loop(Vi* self);
 }
 
-// vi++2base.h
+// 2base.h
 struct ViWin version 2 
 {
     int cursorY;
@@ -104,7 +104,7 @@ impl Vi version 2
     void exitFromApp(Vi* self);
 }
 
-/// vi++3insert_mode.h ///
+/// 3insert_mode.h ///
 enum eMode { kEditMode, kInsertMode };
 
 impl ViWin version 3 
@@ -136,7 +136,7 @@ impl Vi version 3
     int main_loop(Vi* self);
 }
 
-/// vi++4word.h ///
+/// 4word.h ///
 impl ViWin version 4
 {
     void forwardWord(ViWin* self);
@@ -149,7 +149,7 @@ impl Vi version 4
     initialize();
 }
 
-/// vi++5undo.h ///
+/// 5undo.h ///
 struct ViWin version 5
 {
     list<list<wstring>*%>%* undo;
@@ -176,7 +176,7 @@ impl Vi version 5
     void enterInsertMode(Vi* self);
 }
 
-/// vi++6file.h ///
+/// 6file.h ///
 struct ViWin version 6
 {
     string fileName;
@@ -207,7 +207,7 @@ impl Vi version 6
     void repositionWindows(Vi* self);
 }
 
-/// vi++7yank.h ///
+/// 7yank.h ///
 impl ViWin version 7
 {
     void deleteLines(ViWin* self, int head, int tail, Vi* nvi);
@@ -227,7 +227,7 @@ impl Vi version 7
     initialize();
 }
 
-/// vi++8visual.h ///
+/// 8visual.h ///
 enum { kYankKindLine, kYankKindNoLine };
 enum eMode { kVisualMode = kInsertMode + 1 };
 
@@ -253,7 +253,7 @@ impl Vi version 8
     initialize();
 }
 
-/// vi++9search.h ///
+/// 9search.h ///
 enum eMode { kSearchMode = kVisualMode + 1 };
 
 struct Vi version 9
@@ -278,7 +278,7 @@ impl Vi version 9
     initialize();
 }
 
-/// vi++10edit.h ///
+/// 10edit.h ///
 impl ViWin version 10
 {
     void deleteLines(ViWin* self, int head, int tail, Vi* nvi);
@@ -290,13 +290,13 @@ impl Vi version 10
     initialize();
 }
 
-/// vi++11move.h ///
+/// 11move.h ///
 impl Vi version 11
 {
     initialize();
 }
 
-/// vi++12command.h ///
+/// 12command.h ///
 enum eMode { kCommandMode = kSearchMode + 1 };
 
 struct Vi version 12
@@ -323,7 +323,7 @@ impl ViWin version 13
     void completion(ViWin* self);
 }
 
-// vi++14dot.h
+// 14dot.h
 struct ViWin version 14
 {
     vector<int>*% inputedKeys;

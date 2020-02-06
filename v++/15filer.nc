@@ -10,7 +10,7 @@
 #include <wctype.h>
 #include <signal.h>
 
-#include "vi++.h"
+#include "v++.h"
 
 impl ViWin version 15
 {

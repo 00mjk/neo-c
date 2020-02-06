@@ -4,9 +4,9 @@ if [ -e Makefile ]
 then
     make distclean
 fi
-if [ -e vi++/Makefile ]
+if [ -e v++/Makefile ]
 then
-    (cd vi++; make distclean)
+    (cd v++; make distclean)
 fi
 if [ -e tiny/Makefile ]
 then

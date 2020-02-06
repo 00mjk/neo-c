@@ -1,4 +1,4 @@
-#include "vi++.h"
+#include "v++.h"
 
 int xgetmaxx()
 {

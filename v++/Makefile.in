@@ -27,24 +27,24 @@ DESTDIR=@DESTDIR@
 #########################################
 # main
 ##########################################
-all: vi++
+all: v++
 
-vi++: configure Makefile config.h vi++.nc 01init.o 02base.o 03insert_mode.o 04word.o 05undo.o 06file.o 07yank.o 08visual.o 09search.o 10edit.o 11move.o 12command.o 13completion.o 14dot.o 15filer.o 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc 12command.nc 13completion.nc 14dot.nc 15filer.nc
-	neo-c -o vi++ vi++.nc 01init.o 02base.o 03insert_mode.o 04word.o 05undo.o 06file.o 07yank.o 08visual.o 09search.o 10edit.o 11move.o 12command.o 13completion.o 14dot.o 15filer.o $(CFLAGS) $(LIBS)
+v++: configure Makefile config.h v++.nc 01init.o 02base.o 03insert_mode.o 04word.o 05undo.o 06file.o 07yank.o 08visual.o 09search.o 10edit.o 11move.o 12command.o 13completion.o 14dot.o 15filer.o 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc 12command.nc 13completion.nc 14dot.nc 15filer.nc
+	neo-c -o v++ v++.nc 01init.o 02base.o 03insert_mode.o 04word.o 05undo.o 06file.o 07yank.o 08visual.o 09search.o 10edit.o 11move.o 12command.o 13completion.o 14dot.o 15filer.o $(CFLAGS) $(LIBS)
 
-01init.o: configure Makefile config.h 01init.nc vi++.h
+01init.o: configure Makefile config.h 01init.nc v++.h
 	neo-c -c 01init.nc $(CFLAGS) $(LIBS)
 
-02base.o: configure Makefile config.h 01init.nc 02base.nc vi++.h
+02base.o: configure Makefile config.h 01init.nc 02base.nc v++.h
 	neo-c -c 02base.nc $(CFLAGS) $(LIBS)
 
-03insert_mode.o: configure Makefile config.h 01init.nc 02base.nc 03insert_mode.nc vi++.h
+03insert_mode.o: configure Makefile config.h 01init.nc 02base.nc 03insert_mode.nc v++.h
 	neo-c -c 03insert_mode.nc $(CFLAGS) $(LIBS)
 
-04word.o: configure Makefile config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc vi++.h
+04word.o: configure Makefile config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc v++.h
 	neo-c -c 04word.nc $(CFLAGS) $(LIBS)
 
-05undo.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc vi++.h
+05undo.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc v++.h
 	neo-c -c 05undo.nc $(CFLAGS) $(LIBS)
 
 06file.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc
@@ -82,13 +82,13 @@ vi++: configure Makefile config.h vi++.nc 01init.o 02base.o 03insert_mode.o 04wo
 #########################################
 install:
 	mkdir -p "$(DESTDIR)/bin"
-	$(INSTALL) -m 755 ./vi++ "$(DESTDIR)/bin"
+	$(INSTALL) -m 755 ./v++ "$(DESTDIR)/bin"
 
 #########################################
 # uninstall
 #########################################
 uninstall:
-	rm -f "$(DESTDIR)"/bin/vi++
+	rm -f "$(DESTDIR)"/bin/v++
 
 #########################################
 # permission
@@ -104,13 +104,13 @@ permission:
 #########################################
 clean:
 	rm -fR memleak_debug.txt *.ll *.bc *.nc.tmp *.out *.o valgrind.txt memleack_debug.txt
-	rm -fR vi++
+	rm -fR v++
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache 
 
 test:
 #	rm -f valgrind.txt memleack_debug.txt
-#	valgrind --log-file=valgrind.txt --leak-check=full --show-leak-kinds=all ./vi++ a.nc
-	./vi++ a.nc
+#	valgrind --log-file=valgrind.txt --leak-check=full --show-leak-kinds=all ./v++ a.nc
+	./v++ a.nc
 
