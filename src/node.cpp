@@ -9995,17 +9995,24 @@ BOOL compile_switch_expression(unsigned int node, sCompileInfo* info)
     info->case_else_block = nullptr;
 
     int i;
+    unsigned int node2;
     for(i=0; i<num_switch_expression; i++) {
         /// compile node ///
-        unsigned int node = switch_expression[i];
+        node2 = switch_expression[i];
 
-        if(!compile(node, info)) {
+        if(!compile(node2, info)) {
             info->num_loop--;
             return FALSE;
         }
     }
 
-    BasicBlock* case_else_block = (BasicBlock*)info->case_else_block;
+    BasicBlock* case_else_block;
+    if(gNodes[node2].mNodeType == kNodeTypeReturn) {
+        case_else_block = NULL;
+    }
+    else {
+        case_else_block = (BasicBlock*)info->case_else_block;
+    }
 
     if(case_else_block) {
         free_right_value_objects(info);
@@ -10033,7 +10040,7 @@ BOOL compile_switch_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_case_expression(unsigned int expression_node, BOOL last_case, sParserInfo* info)
+unsigned int sNodeTree_case_expression(unsigned int expression_node, BOOL last_case, BOOL case_after_return, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -10045,6 +10052,7 @@ unsigned int sNodeTree_case_expression(unsigned int expression_node, BOOL last_c
     gNodes[node].uValue.sCase.mExpression = expression_node;
     gNodes[node].uValue.sCase.mLastCase = last_case;
     gNodes[node].uValue.sCase.mFirstCase = FALSE;
+    gNodes[node].uValue.sCase.mCaseAfterReturn = case_after_return;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -10058,6 +10066,7 @@ BOOL compile_case_expression(unsigned int node, sCompileInfo* info)
     unsigned int expression_node = gNodes[node].uValue.sCase.mExpression;
     BOOL first_case = gNodes[node].uValue.sCase.mFirstCase;
     BOOL last_case = gNodes[node].uValue.sCase.mLastCase;
+    BOOL case_after_return = gNodes[node].uValue.sCase.mCaseAfterReturn;
 
     BasicBlock* cond_then_block;
     if(first_case) {
@@ -10072,7 +10081,7 @@ BOOL compile_case_expression(unsigned int node, sCompileInfo* info)
     BasicBlock* case_else_block = (BasicBlock*)info->case_else_block;
 
     if(case_else_block) {
-        if(first_case) {
+        if(first_case && !case_after_return) {
             free_right_value_objects(info);
             Builder.CreateBr(case_else_block);
         }

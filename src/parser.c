@@ -5165,6 +5165,7 @@ static BOOL parse_switch(unsigned int* node, sParserInfo* info)
     info->switch_nest++;
 
     info->first_case = TRUE;
+    info->case_after_return = FALSE;
 
     while(1) {
         if(*info->p == '}') {
@@ -5174,9 +5175,21 @@ static BOOL parse_switch(unsigned int* node, sParserInfo* info)
             break;
         }
         else {
+
             if(!expression(switch_expression + num_switch_expression, info)) 
             {
                 return FALSE;
+            }
+
+            if(gNodes[switch_expression[num_switch_expression]].mNodeType == kNodeTypeReturn) 
+            {
+                info->case_after_return = TRUE;
+            }
+            else if(gNodes[switch_expression[num_switch_expression]].mNodeType == kNodeTypeCase) 
+            {
+            }
+            else {
+                info->case_after_return = FALSE;
             }
 
             unsigned int node = switch_expression[num_switch_expression];
@@ -5245,7 +5258,7 @@ static BOOL parse_case(unsigned int* node, sParserInfo* info)
     info->p = p_before;
     info->sline = sline_before;
 
-    *node = sNodeTree_case_expression(expression_node, last_case, info);
+    *node = sNodeTree_case_expression(expression_node, last_case, info->case_after_return, info);
 
     return TRUE;
 }
@@ -5268,7 +5281,7 @@ static BOOL parse_default(unsigned int* node, sParserInfo* info)
     info->p = p_before;
     info->sline = sline_before;
 
-    *node = sNodeTree_case_expression(0, last_case, info);
+    *node = sNodeTree_case_expression(0, last_case, info->case_after_return, info);
 
     return TRUE;
 }

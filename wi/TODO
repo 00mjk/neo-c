@@ -3,3 +3,7 @@
 :%s//
 filer moving directory
 
+indent bug [TAB]
+
+ta, fa,dta, cta
+blink brace

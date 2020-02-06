@@ -376,6 +376,7 @@ impl Vi version 15
     void repositionFiler(Vi* self);
     void view(Vi* self);
     void clearView(Vi* self);
+    string commandBox(Vi* self, string default_value);
 }
 
 impl ViWin version 15

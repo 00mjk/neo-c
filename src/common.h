@@ -304,6 +304,7 @@ struct sParserInfoStruct
 
     int switch_nest;
     BOOL first_case;
+    BOOL case_after_return;
 
     BOOL change_sline;
 
@@ -627,6 +628,7 @@ struct sNodeTreeStruct
             unsigned int mExpression;
             BOOL mLastCase;
             BOOL mFirstCase;
+            BOOL mCaseAfterReturn;
         } sCase;
 
         struct {
@@ -731,7 +733,7 @@ unsigned int sNodeTree_create_struct_with_initialization(char* name, int num_ini
 unsigned int sNodeTree_switch_expression(unsigned int expression_node, int num_switch_expression, MANAGED unsigned int* switch_expression, sParserInfo* info);
 unsigned int sNodeTree_create_break_expression(sParserInfo* info);
 unsigned int sNodeTree_create_continue_expression(sParserInfo* info);
-unsigned int sNodeTree_case_expression(unsigned int expression_node, BOOL last_case, sParserInfo* info);
+unsigned int sNodeTree_case_expression(unsigned int expression_node, BOOL last_case, BOOL case_after_return, sParserInfo* info);
 unsigned int sNodeTree_label_expression(char* name, sParserInfo* info);
 unsigned int sNodeTree_goto_expression(char* name, sParserInfo* info);
 unsigned int sNodeTree_create_is_heap(sNodeType* node_type, sParserInfo* info);

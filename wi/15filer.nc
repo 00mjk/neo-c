@@ -208,6 +208,43 @@ impl ViFiler
         }
         //wrefresh(self.win);
     }
+    
+    void find(ViFiler* self, Vi* nvi) {
+        var command = nvi.commandBox(null);
+        
+        if(command != null) {
+            FILE* fp = popen(command, "r");
+    
+            var command_output = new buffer.initialize(); 
+            
+            while(!feof(fp)) {
+                char buf[BUFSIZ];
+    
+                fgets(buf, BUFSIZ, fp);
+    
+                command_output.append_str(buf);
+            }
+    
+            pclose(fp);
+    
+            var selected_files = command_output.to_string()
+                                   .split(regex!(/\n/));
+    
+            var new_files = new list<string>.initialize();
+            self.cd(self.path);
+            
+            self.files.each {
+                if(selected_files.find(it, -1) != -1) {
+                    new_files.push_back(clone it);
+                }
+            }
+    
+            self.files = new_files;
+            
+            self.scroll = 0;
+            self.cursor = 0;
+        }
+    }
 
     void input(ViFiler* self, Vi* nvi) {
         var key = wgetch(self.win);
@@ -292,6 +329,10 @@ impl ViFiler
             case 'C'-'A'+1:
                 self.active = false;
                 break;
+
+            case 'f':
+                self.find(nvi);
+                break;
             
             case 'o':
                 nvi.openNewFile(file_name);
@@ -339,6 +380,48 @@ impl Vi version 15
 
         gVi = self;
         signal(SIGWINCH, sig_winch);
+    }
+    
+    string commandBox(Vi* self, string default_value) {
+        int maxx = xgetmaxx();
+        
+        var win = newwin(3,maxx-1, 0, 0);
+        
+        var command = string("");
+        
+        int end = false;
+        
+        while(!end) {
+            self.view();
+            
+            box(win, '|', '-');
+            
+            mvwprintw(win, 1, 1
+                        , command.substring(0,maxx-3));
+            
+            wrefresh(win);
+            
+            var key = wgetch(win);
+            
+            switch(key) {
+                case '\n':
+                    end = true;
+                    break;
+                    
+                case 'C'-'A'+1:
+                    delwin(win);
+                    return default_value;
+                    
+                default:
+                    command = command 
+                            + key.to_string().printable();
+                    break;
+            }
+        }
+        
+        delwin(win);
+        
+        return command;
     }
 
     void activateFiler(Vi* self) {
