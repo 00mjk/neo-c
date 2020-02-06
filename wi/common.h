@@ -205,6 +205,7 @@ impl Vi version 6
     void closeActiveWin(Vi* self);
 
     void repositionWindows(Vi* self);
+    void exitFromApp(Vi* self);
 }
 
 /// 7yank.h ///

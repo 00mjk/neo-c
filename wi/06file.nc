@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <limits.h>
 
-#include "v++.h"
+#include "common.h"
 
 impl ViWin version 6
 {
@@ -326,5 +326,11 @@ impl Vi version 6
         self.repositionWindows();
 
         self.activeWin = self.wins.item(0, null);
+    }
+    void exitFromApp(Vi* self) {
+        self.wins.each {
+            it.writeFile();
+        }
+        self.appEnd = true;
     }
 }

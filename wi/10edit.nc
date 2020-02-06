@@ -6,7 +6,7 @@
 #include <limits.h>
 #include <wctype.h>
 
-#include "v++.h"
+#include "common.h"
 
 impl ViWin version 10
 {
