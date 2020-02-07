@@ -1,11 +1,11 @@
+filer moving directory
+
 #
 *
 :%s//
-filer moving directory
-
-indent bug [TAB]
-
 ta, fa,dta, cta
-blink brace
+delete blink brace 
 
 insert mode ^w
+``
+ma, mb

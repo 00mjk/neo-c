@@ -346,7 +346,9 @@ impl ViWin version 3
             self.backSpace();
         }
         else if(key == 9) {
-            var str = self.texts.item(self.scroll+self.cursorY, null);
+            var str = self.texts
+                  .item(self.scroll+self.cursorY, null)
+                  .substring(0, self.cursorX);
             if(str.to_string("").match(regex!(/^$|^[ ]+$/), null)) {
                 self.insertText(wstring("    "));
             }

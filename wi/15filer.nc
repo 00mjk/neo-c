@@ -9,6 +9,8 @@
 #include <locale.h>
 #include <wctype.h>
 #include <signal.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 #include "common.h"
 
@@ -319,11 +321,29 @@ impl ViFiler
                 }
                 break;
 
-            case '\n': 
-                nvi.activeWin.writeFile();
-                nvi.openFile(file_name, -1);
-                self.active = false;
+            case '\n': {
+                var path = xasprintf("%s/%s", self.path, file_name);
+                
+                stat stat_;
+                
+                stat(path, &stat_); 
+                
+                if(S_ISDIR(stat_.st_mode)) {
+                    self.cd(path);
+                }
+                else {
+                    nvi.activeWin.writeFile();
+                    nvi.openFile(path, -1);
+                    self.active = false;
+                }
+                }
                 break;
+                
+            case 8:
+            case 127:
+            case KEY_BACKSPACE:
+                //self.moveParent(nvi);
+                break; 
 
             case 'O'-'A'+1:
             case 'C'-'A'+1:

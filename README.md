@@ -15,4 +15,3 @@ version 0.9.1
 ./configure --with-optimize
 make
 make install
-
