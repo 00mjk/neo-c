@@ -194,7 +194,7 @@ impl ViFiler
     void view(ViFiler* self, Vi* nvi)
     {
         //werase(self.win);
-
+        
         int maxy = xgetmaxy();
         self.files.sublist(self.scroll, self.scroll+maxy+1).each {
             if(it2 == self.cursor && self.active) {

@@ -7,3 +7,5 @@ indent bug [TAB]
 
 ta, fa,dta, cta
 blink brace
+
+insert mode ^w

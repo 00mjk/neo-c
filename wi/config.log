@@ -349,7 +349,7 @@ configure:4118: $? = 0
 configure:4127: result: yes
 configure:4158: checking for lchmod
 configure:4158: gcc -o conftest -Isrc/ -I. -L . -I/data/data/com.termux/files/home/include -L/data/data/com.termux/files/home/lib -DPREFIX="\"${DESTDIR}/\"" -Qunused-arguments   conftest.c  -lutil -ldl -lm -lpcre -lncursesw -lrt -lpthread >&5
-/data/data/com.termux/files/usr/bin/aarch64-linux-android-ld: /data/data/com.termux/files/usr/tmp/conftest-2cb48a.o: in function `main':
+/data/data/com.termux/files/usr/bin/aarch64-linux-android-ld: /data/data/com.termux/files/usr/tmp/conftest-65c829.o: in function `main':
 conftest.c:(.text+0xc): undefined reference to `lchmod'
 /data/data/com.termux/files/usr/bin/aarch64-linux-android-ld: conftest.c:(.text+0x10): undefined reference to `lchmod'
 clang-9: error: linker command failed with exit code 1 (use -v to see invocation)
@@ -442,6 +442,7 @@ on localhost
 
 config.status:813: creating Makefile
 config.status:813: creating config.h
+config.status:988: config.h is unchanged
 
 ## ---------------- ##
 ## Cache variables. ##
