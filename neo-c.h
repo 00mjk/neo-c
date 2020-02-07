@@ -38,6 +38,7 @@ char* xstrncat(char* des, char* str, int size);
 char* xmemcpy(void* mem, void* mem2, long size);
 
 char*% xasprintf(char* str, ...);
+string xbasename(char* path);
 
 typedef char*% string;
 typedef wchar_t*% wstring;

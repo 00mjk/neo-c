@@ -127,6 +127,7 @@ impl ViWin version 3
     }
 
     void blinkBraceFoward(ViWin* self, wchar_t head, wchar_t tail, Vi* nvi) {
+/*
         int cursor_y = self.scroll+self.cursorY;
         int cursor_x = -1;
 
@@ -226,8 +227,10 @@ impl ViWin version 3
                 self.view(nvi);
             }
         }
+*/
     }
     void blinkBraceEnd(ViWin* self, wchar_t head, wchar_t tail, Vi* nvi) {
+/*
         int cursor_y = self.scroll+self.cursorY;
         int cursor_x = -1;
 
@@ -327,6 +330,7 @@ impl ViWin version 3
                 self.view(nvi);
             }
         }
+*/
     }
 
     void inputInsertMode(ViWin* self, Vi* nvi)

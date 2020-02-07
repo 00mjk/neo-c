@@ -7,10 +7,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <limits.h>
-#include <string.h>
-#include <libgen.h>
 
 #include "common.h"
+
 
 impl ViWin version 6
 {
@@ -39,12 +38,13 @@ impl ViWin version 6
         
         char file_name2[PATH_MAX];
         
-        snprintf(file_name2, PATH_MAX, "%s/.nvi", home);
+        snprintf(file_name2, PATH_MAX, "%s/.wi", home);
         
         (void)mkdir(file_name2, 0755);
         
-        char* bname = basename(file_name);  
-        snprintf(file_name2, PATH_MAX, "%s/.nvi/%s.pos"
+        var bname = xbasename(file_name);  
+
+        snprintf(file_name2, PATH_MAX, "%s/.wi/%s.pos"
                     , home, bname);
         
         FILE* f = fopen(file_name2, "w");
@@ -68,9 +68,8 @@ impl ViWin version 6
         
         char file_name2[PATH_MAX];
         
-        char* bname = basename(file_name); 
-        
-        snprintf(file_name2, PATH_MAX, "%s/.nvi/%s.pos"
+        var bname = xbasename(file_name); 
+        snprintf(file_name2, PATH_MAX, "%s/.wi/%s.pos"
                     , home, bname);
         
         FILE* f = fopen(file_name2, "r");

@@ -383,4 +383,5 @@ impl ViWin version 15
 {
     void textsView(ViWin* self, Vi* nvi);
     initialize(int y, int x, int width, int height);
+    void statusBarView(ViWin* self, Vi* nvi);
 }

@@ -78,6 +78,20 @@ impl ViWin version 15
             }
         }
     }
+    void statusBarView(ViWin* self, Vi* nvi)
+    {
+        int maxy = getmaxy(self.win);
+        int maxx = getmaxx(self.win);
+
+        wattron(self.win, A_REVERSE);
+        mvwprintw(self.win, self.height-1, 0
+            , "x %d y %d scroll %d file %s writed %d"
+            , self.cursorX, self.cursorY, self.scroll
+            , xbasename(self.fileName), (self.writed ? 1:0));
+        wattroff(self.win, A_REVERSE);
+
+        wrefresh(self.win);
+    }
 }
 
 impl ViFiler
@@ -164,6 +178,9 @@ impl ViFiler
 
             return strcmp(it, it2);
         }
+        
+        self.cursor = 0;
+        self.scroll = 0;
         
         return true;
     }
@@ -341,8 +358,11 @@ impl ViFiler
                 
             case 8:
             case 127:
-            case KEY_BACKSPACE:
-                //self.moveParent(nvi);
+            case KEY_BACKSPACE: {
+                var path = xasprintf("%s/..", self.path);
+                
+                self.cd(path);
+                }
                 break; 
 
             case 'O'-'A'+1:

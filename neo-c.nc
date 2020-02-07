@@ -24,6 +24,27 @@ void p(char* str)
     puts(str);
 }
 
+string xbasename(char* path)
+{
+    char* p = path + strlen(path);
+    
+    while(p >= path) {
+        if(*p == '/') {
+            break;
+        }
+        else {
+            p--;
+        }
+    }
+    
+    if(p < path) {
+        return string(path);
+    }
+    else {
+        return string(p+1);  
+    }
+}
+
 /// buffer ///
 impl buffer 
 {
