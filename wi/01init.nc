@@ -64,6 +64,7 @@ impl Vi
         noecho();
         keypad(stdscr, true);
         raw();
+        curs_set(0);
 
         //setEscapeDelay(0);
     }

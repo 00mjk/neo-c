@@ -45,6 +45,17 @@ string xbasename(char* path)
     }
 }
 
+string xrealpath(char* path)
+{
+    char* result = realpath(path, NULL);
+
+    string result2 = string(result);
+
+    free(result);
+
+    return result2;
+}
+
 /// buffer ///
 impl buffer 
 {

@@ -39,6 +39,7 @@ char* xmemcpy(void* mem, void* mem2, long size);
 
 char*% xasprintf(char* str, ...);
 string xbasename(char* path);
+string xrealpath(char* path);
 
 typedef char*% string;
 typedef wchar_t*% wstring;

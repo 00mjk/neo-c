@@ -360,11 +360,15 @@ struct ViFiler
     int width;
 
     bool active;
+    string searchString;
 };
 
 struct Vi version 15
 {
     ViFiler*% filer;
+    WINDOW* extraWin;
+    string extraLine;
+    int extraCursor;
 };
 
 impl Vi version 15
@@ -376,7 +380,9 @@ impl Vi version 15
     void repositionFiler(Vi* self);
     void view(Vi* self);
     void clearView(Vi* self);
-    string commandBox(Vi* self, string default_value);
+    string commandBox(Vi* self, string command, string default_value);
+    string inputBox(Vi* self, string default_value);
+    void extraView(Vi* self);
 }
 
 impl ViWin version 15

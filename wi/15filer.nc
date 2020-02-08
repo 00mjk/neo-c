@@ -97,7 +97,7 @@ impl ViWin version 15
 impl ViFiler
 {
     bool cd(ViFiler* self, char* cwd) {
-        self.path = string(cwd);
+        self.path = xrealpath(cwd);
 
         self.files = new list<string>.initialize();
 
@@ -182,6 +182,8 @@ impl ViFiler
         self.cursor = 0;
         self.scroll = 0;
         
+        chdir(self.path);
+        
         return true;
     }
 
@@ -201,6 +203,8 @@ impl ViFiler
 
         char cwd[PATH_MAX];
         getcwd(cwd, PATH_MAX);
+        
+        self.searchString = string("");
 
         self.cd(cwd);
     }
@@ -208,6 +212,49 @@ impl ViFiler
 
     finalize() {
         delwin(self.win);
+    }
+    
+    void search(ViFiler* self, Vi* nvi) {
+        int maxy = xgetmaxy();
+        
+        self.files.each {
+            if(it.index(self.searchString, -1) != -1 
+                && it2 > self.cursor + self.scroll) 
+            {
+                self.scroll = 0;
+                self.cursor = it2;
+                
+                if(self.cursor >= maxy-1) {
+                    self.scroll = self.cursor - (maxy-1);
+                    self.cursor = maxy-1;
+                };
+                
+                *it3 = true;
+                return;
+            }
+        }
+    }
+    
+    void searchReverse(ViFiler* self, Vi* nvi) {
+        int maxy = xgetmaxy();
+        
+        self.files.sublist(0, self.scroll+self.cursor)
+            .reverse().each 
+        {
+            if(it.index(self.searchString, -1) != -1)
+            {
+                self.cursor = self.scroll + self.cursor -  it2 -1;
+                self.scroll = 0;
+                
+                if(self.cursor >= maxy-1) {
+                    self.scroll = self.cursor - (maxy-1);
+                    self.cursor = maxy-1;
+                };
+                
+                *it3 = true;
+                return;
+            }
+        }
     }
 
     void view(ViFiler* self, Vi* nvi)
@@ -229,7 +276,7 @@ impl ViFiler
     }
     
     void find(ViFiler* self, Vi* nvi) {
-        var command = nvi.commandBox(null);
+        var command = nvi.commandBox(string(""), null);
         
         if(command != null) {
             FILE* fp = popen(command, "r");
@@ -252,11 +299,19 @@ impl ViFiler
             var new_files = new list<string>.initialize();
             self.cd(self.path);
             
+            selected_files.each {
+                if(access(it, R_OK) == 0) {
+                    new_files.push_back(clone it);
+                }
+            }
+            
+/*
             self.files.each {
                 if(selected_files.find(it, -1) != -1) {
                     new_files.push_back(clone it);
                 }
             }
+*/
     
             self.files = new_files;
             
@@ -338,6 +393,26 @@ impl ViFiler
                 }
                 break;
 
+            case 'x': {
+                var cursor_file = self.files
+                        .item(self.scroll+self.cursor, null);
+                        
+                var command = nvi.commandBox(
+                        xasprintf(" ./%s", cursor_file), null);
+                
+                if(command != null) {
+                    endwin();
+                    
+                    (void)system(command);
+                    
+                    fgetc(stdin);
+    
+                    nvi.init_curses();
+                    self.cd(".");
+                }
+                }
+                break;
+                
             case '\n': {
                 var path = xasprintf("%s/%s", self.path, file_name);
                 
@@ -364,19 +439,52 @@ impl ViFiler
                 self.cd(path);
                 }
                 break; 
+                
+            case ':': {
+                endwin();
+                
+                (void)system("bash");
+    
+                nvi.init_curses();
+                }
+                break; 
 
             case 'O'-'A'+1:
             case 'C'-'A'+1:
                 self.active = false;
                 break;
 
-            case 'f':
+            case '*':
                 self.find(nvi);
+                break;
+                
+            case 'L'-'A'+1:
+                self.cd(".");
+                break;
+
+            case '/':
+            case 'f': {
+                self.searchString = nvi.inputBox(string(""));
+               
+                self.search(nvi);
+                }
+                break;
+
+            case 'n':
+                self.search(nvi);
+                break;
+
+            case 'N':
+                self.searchReverse(nvi);
                 break;
             
             case 'o':
                 nvi.openNewFile(file_name);
                 self.active = false;
+                break;
+            
+            case 'q':
+                nvi.exitFromApp();
                 break;
         }
     }
@@ -409,6 +517,8 @@ void sig_winch(int sig_num)
 
     gVi.clearView();
     gVi.view();
+    
+    gVi.extraView();
 }
 
 impl Vi version 15
@@ -422,24 +532,43 @@ impl Vi version 15
         signal(SIGWINCH, sig_winch);
     }
     
-    string commandBox(Vi* self, string default_value) {
-        int maxx = xgetmaxx();
-        
-        var win = newwin(3,maxx-1, 0, 0);
-        
-        var command = string("");
-        
-        int end = false;
-        
-        while(!end) {
-            self.view();
+    void extraView(Vi* self) {
+        var win = self.extraWin;
+        var line = clone self.extraLine;
+        var cursor = self.extraCursor;
+
+        if(self.extraWin) {
+            werase(win);
             
             box(win, '|', '-');
             
-            mvwprintw(win, 1, 1
-                        , command.substring(0,maxx-3));
+            mvwprintw(win, 1, 1, line.substring(0,cursor));
+            wattron(win, A_REVERSE);
+            mvwprintw(win, 1, cursor+1, line.substring(cursor, cursor+1));
+            wattroff(win, A_REVERSE);
+            mvwprintw(win, 1, cursor+2, line.substring(cursor+1, -1));
             
             wrefresh(win);
+        }
+    }
+    
+    string commandBox(Vi* self, string command, string default_value) {
+        int maxx = xgetmaxx();
+        
+        var win = newwin(3,maxx-1, 0, 0);
+        keypad(win, true);
+        
+        int end = false;
+        
+        int cursor = 0;
+        
+        while(!end) {
+            self.extraWin = win;
+            self.extraLine = clone command;
+            self.extraCursor = cursor;
+            self.extraView();
+            
+            int maxx = xgetmaxx();
             
             var key = wgetch(win);
             
@@ -448,18 +577,129 @@ impl Vi version 15
                     end = true;
                     break;
                     
+                case 'B'-'A'+1:
+                case KEY_LEFT:
+                    cursor--;
+                    if(cursor < 0) {
+                        cursor = 0;
+                    }
+                    break;
+                    
+                case 8:
+                case 127:
+                case KEY_BACKSPACE:
+                    command.delete(cursor);
+                    cursor--;
+                    if(cursor < 0) {
+                        cursor = 0;
+                    }
+                    break;
+                    
+                case 'F'-'A'+1:
+                case KEY_RIGHT:
+                    cursor++;
+                    if(cursor >= command.length()) {
+                        cursor = command.length();
+                    }
+                    if(cursor >= maxx-1) {
+                        cursor = maxx-1;
+                    }
+                    break;
+                    
                 case 'C'-'A'+1:
                     delwin(win);
+                    self.extraWin = NULL;
                     return default_value;
                     
                 default:
-                    command = command 
-                            + key.to_string().printable();
+                    command = xasprintf("%s%s%s"
+                            , command.substring(0, cursor)
+                            , key.to_string().printable()
+                            , command.substring(cursor, -1));
+                    cursor++;
                     break;
             }
         }
         
         delwin(win);
+        
+        self.extraWin = NULL;
+        return command;
+    }
+    
+    string inputBox(Vi* self, string default_value) {
+        int maxx = xgetmaxx();
+        
+        var win = newwin(3,maxx-1, 0, 0);
+        keypad(win, true);
+        
+        self.extraWin = win;
+        
+        var command = string("");
+        
+        int end = false;
+        int cursor = 0;
+        
+        while(!end) {
+            self.extraWin = win;
+            self.extraLine = clone command;
+            self.extraCursor = cursor;
+            self.extraView();
+            
+            var key = wgetch(win);
+            
+            switch(key) {
+                case '\n':
+                    end = true;
+                    break;
+                    
+                case 'B'-'A'+1:
+                case KEY_LEFT:
+                    cursor--;
+                    if(cursor < 0) {
+                        cursor = 0;
+                    }
+                    break;
+                    
+                case 8:
+                case 127:
+                case KEY_BACKSPACE:
+                    command.delete(cursor);
+                    cursor--;
+                    if(cursor < 0) {
+                        cursor = 0;
+                    }
+                    break;
+                    
+                case 'F'-'A'+1:
+                case KEY_RIGHT:
+                    cursor++;
+                    if(cursor >= command.length()) {
+                        cursor = command.length();
+                    }
+                    if(cursor >= maxx-1) {
+                        cursor = maxx-1;
+                    }
+                    break;
+                    
+                case 'C'-'A'+1:
+                    delwin(win);
+                    self.extraWin = NULL;
+                    return default_value;
+                    
+                default:
+                    command = xasprintf("%s%s%s"
+                            , command.substring(0, cursor)
+                            , key.to_string().printable()
+                            , command.substring(cursor, -1));
+                    cursor++;
+                    break;
+            }
+        }
+        
+        delwin(win);
+        
+        self.extraWin = NULL;
         
         return command;
     }

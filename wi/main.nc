@@ -33,6 +33,7 @@ int main(int argc, char** argv)
     else {
         nvi.openFile(null, -1);
     }
+    
     int result = nvi.main_loop()
     result
 }
