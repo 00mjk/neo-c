@@ -96,6 +96,8 @@ clean:
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache 
+	(cd tiny; if test -e Makefile; then make distclean; fi)
+	(cd wi; if test -e Makefile; then make distclean; fi)
 
 #########################################
 # test
