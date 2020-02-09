@@ -1,2 +1,4 @@
-# mvi
-Minnu's vi implemented with neo-c
+# wi 
+
+Double Window vi clone implemented by neo-c
+
