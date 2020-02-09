@@ -13,15 +13,35 @@ struct aaa {
     int bbb;
 };
 
-int main()
+void aaaa()
 {
     var a = new vector<string>.initialize();
-    
-    switch(1) {
-        case 1:
-            break;
+
+    a.each {
+        if(true) {
+        }
+        else {
+        }
     }
+}
+
+int main()
+{
+        ^^^^^;
     
     return 0;
 }
 
+/*
+void aaaa()
+{
+    var a = new vector<string>.initialize();
+
+    a.each {
+        if(true) {
+        }
+        else {
+        }
+    }
+}
+*/

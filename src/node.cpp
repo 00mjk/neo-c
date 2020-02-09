@@ -752,6 +752,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     }
     xstrncpy(info2.fun_name, fun->mName, VAR_NAME_MAX);
 
+
     sNodeBlock* node_block = ALLOC sNodeBlock_alloc();
     expect_next_character_with_one_forward("{", &info2);
     sVarTable* old_table = info2.lv_table;
@@ -792,6 +793,9 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     BOOL operator_fun = FALSE;
 
     *node = sNodeTree_create_function(real_fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, constructor_fun, simple_lambda_param, &info2, TRUE, var_arg, version, finalize, generics_fun_num, fun->mName);
+
+    //info->sline = sline_before;
+
 
     return TRUE;
 }

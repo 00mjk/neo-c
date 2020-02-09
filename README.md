@@ -1,8 +1,8 @@
 # neo c compiler language
 
-1. Compatibility for header file of C language. also using C preprocessor.
+1. Compatibility for header file of C language. also using C preprocessor. Some compatibility for C Language.
 
-2. Automatically free for heap system like Rust. None GC.
+2. Automatically free for heap system like Rust. GCless;
 
 3. Generics. method Generics, inline function, method block with type infference.
 
@@ -10,7 +10,7 @@
 
 This is constructing. Maybe unstable for use.
 
-version 0.9.2
+version 0.9.9
 
 * INSTALL
 

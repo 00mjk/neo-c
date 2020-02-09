@@ -28,7 +28,7 @@ impl ViWin version 15
     {
         int maxy = getmaxy(self.win);
         int maxx = getmaxx(self.win);
-
+        
         self.texts
             .sublist(self.scroll, self.scroll+maxy-1)
             .each 
@@ -234,7 +234,6 @@ impl ViFiler
             }
         }
     }
-    
     void searchReverse(ViFiler* self, Vi* nvi) {
         int maxy = xgetmaxy();
         

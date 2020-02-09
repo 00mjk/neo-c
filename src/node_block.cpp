@@ -96,6 +96,15 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
             info->err_num++;
         }
 
+        if(info->err_num == 0) {
+            append_node_to_node_block(node_block, node);
+        }
+
+        if(!parse_sharp(info)) {
+            info->parse_block = parse_block;
+            return FALSE;
+        }
+
         if(info->change_sline) {
             info->change_sline = FALSE;
 
@@ -109,27 +118,20 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
             xstrncpy(gNodes[node].mSName, sname, PATH_MAX);
         }
 
-        if(info->err_num == 0) {
-            append_node_to_node_block(node_block, node);
-        }
 
-        if(!parse_sharp(info)) {
-            info->parse_block = parse_block;
-            return FALSE;
-        }
-
-        if(*info->p == ';') {
+        if(*info->p == ';') 
+        {
             info->p++;
             skip_spaces_and_lf(info);
             has_result = FALSE;
         }
+        else if(gNodes[node].mNodeType == kNodeTypeIf || gNodes[node].mNodeType == kNodeTypeWhile || gNodes[node].mNodeType == kNodeTypeFor || gNodes[node].mNodeType == kNodeTypeSwitch) 
+        {
+            skip_spaces_and_lf(info);
+            has_result = FALSE;
+        }
         else {
-            if(gNodes[node].mNodeType == kNodeTypeIf || gNodes[node].mNodeType == kNodeTypeWhile || gNodes[node].mNodeType == kNodeTypeFor) 
-            {
-            }
-            else {
-                has_result = TRUE;
-            }
+            has_result = TRUE;
         }
 
         if(*info->p == '}') {
@@ -175,6 +177,8 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, sParserInfo* info)
 
 BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type, BOOL free_var_object)
 {
+    int sline_before = info->pinfo->sline;
+
     sVarTable* old_table = info->pinfo->lv_table;
     info->pinfo->lv_table = block->mLVTable;
 
@@ -203,7 +207,6 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
             unsigned int node = block->mNodes[i];
 
             xstrncpy(info->sname, gNodes[node].mSName, PATH_MAX);
-            int sline_before = info->sline;
             info->sline = gNodes[node].mLine;
 
             if(!compile(node, info)) {
@@ -211,7 +214,6 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                 if(!extern_c_lang) {
                     info->mBlockLevel--;
                 }
-                info->sline = sline_before;
                 return FALSE;
             }
 
@@ -253,7 +255,6 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                         if(!extern_c_lang) {
                             info->mBlockLevel--;
                         }
-                        info->sline = sline_before;
                         return TRUE;
                     }
 
@@ -298,7 +299,6 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
                             if(!extern_c_lang) {
                                 info->mBlockLevel--;
                             }
-                            info->sline = sline_before;
                             return TRUE;
                         }
 
@@ -330,8 +330,6 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
             else {
                 arrange_stack(info, stack_num_before);
             }
-
-            info->sline = sline_before;
         }
     }
 
@@ -345,6 +343,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
     if(!extern_c_lang) {
         info->mBlockLevel--;
     }
+    info->pinfo->sline = sline_before;
 
     info->pinfo->lv_table = old_table;
 

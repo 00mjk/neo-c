@@ -41,7 +41,7 @@ void parser_err_msg(sParserInfo* info, const char* msg, ...)
     static int output_num = 0;
 
     if(output_num < PARSER_ERR_MSG_MAX) {
-        fprintf(stderr, "%s:%d(%d): %s\n", info->sname, info->sline_top, info->sline, msg2);
+        fprintf(stderr, "%s:%d: %s\n", info->sname, info->sline, msg2);
     }
 
     output_num++;
@@ -2703,6 +2703,13 @@ static BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly
 
             nest++;
         }
+        else if(*info->p == '#') {
+            char* p = info->p;
+            if(!parse_sharp(info)) {
+                return FALSE;
+            }
+            sBuf_append(buf, p, info->p-p);
+        }
         else if(*info->p == '}') {
             if(nest == 0) {
                 if(last_expresssion_is_self) {
@@ -2717,6 +2724,7 @@ static BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly
                     }
                     else if(*info->p == '\n') {
                         info->sline++;
+
                         info->p++;
                         sBuf_append_str(buf, "\n");
                     }
@@ -2736,6 +2744,7 @@ static BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly
                         info->p++;
                     }
                     else if(*info->p == '\n') {
+
                         info->sline++;
                         info->p++;
                         sBuf_append_str(buf, "\n");
@@ -2750,6 +2759,7 @@ static BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly
         }
         else if(*info->p == '\n') {
             info->sline++;
+
             sBuf_append_char(buf, *info->p);
             info->p++;
         }
@@ -5125,6 +5135,7 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
     info->mImplVersion = version;
 
     expect_next_character_with_one_forward("{", info);
+
     if(!expression(node, info)) {
         return FALSE;
     }
