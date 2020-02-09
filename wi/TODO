@@ -4,8 +4,9 @@ filer moving directory
 *
 :%s//
 ta, fa,dta, cta
-delete blink brace 
 
 insert mode ^w
 ``
 ma, mb
+---------------------------------------------------------------------
+delete blink brace 

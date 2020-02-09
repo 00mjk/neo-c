@@ -430,6 +430,27 @@ impl ViFiler
                 }
                 break;
                 
+            case 'G': {
+                int maxy = xgetmaxy();
+                
+                self.cursor = self.files.length() - 1;
+                
+                if(self.cursor >= maxy-1) {
+                    self.scroll = self.cursor - maxy + 1;
+                    self.cursor = maxy-1;
+                }
+                }
+                break;
+                
+            case 'g': {
+                var key = getch();
+                if(key == 'g') {
+                    self.scroll = 0;
+                    self.cursor = 0;
+                }
+                }
+                break;
+                
             case 8:
             case 127:
             case KEY_BACKSPACE: {
@@ -713,6 +734,8 @@ impl Vi version 15
         self.wins.each {
             xclear(it.win);
         }
+        
+        xclear(self.filer.win);
 
         self.filer.view(self);
 

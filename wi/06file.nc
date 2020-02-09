@@ -92,6 +92,7 @@ impl ViWin version 6
         
         if(self.scroll >= self.texts.length()) {
             self.scroll = self.texts.length() - 1;
+            self.cursorY = 0;
         }
         
         self.modifyOverCursorYValue();
