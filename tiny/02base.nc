@@ -1,4 +1,4 @@
-#include "tiny.h"
+#include "common.h"
 #include <stdio.h>
 
 impl TinyNode {
@@ -12,6 +12,34 @@ impl TinyNode {
         if(self.middle) {
             delete self.middle;
         }
+    }
+
+    TinyNode*% clone(TinyNode* self) {
+        TinyNode*% result = new TinyNode;
+
+        managed result;
+
+        memcpy(result, self, sizeof(TinyNode));
+
+        if(self.left) {
+            var left = clone self.left;
+            managed left;
+            result.left = left;
+        }
+
+        if(self.right) {
+            var right = clone self.right;
+            managed right;
+            result.right = right;
+        }
+
+        if(self.middle) {
+            var middle = clone self.middle;
+            managed middle;
+            result.middle = middle;
+        }
+
+        return dummy_heap result;
     }
 
     TinyNode*% createIntNode(TinyNode*% self, int value) {
@@ -50,14 +78,16 @@ impl TinyNode {
                 break;
 
             case NODETYPE_PLUS :
-                puts("plus node");
+                puts("plus node left");
                 self.left.debug();
+                puts("plus node right");
                 self.right.debug();
                 break;
 
             case NODETYPE_MINUS :
-                puts("minus node");
+                puts("minus node left");
                 self.left.debug();
+                puts("minus node right");
                 self.right.debug();
                 break;
 
@@ -67,7 +97,7 @@ impl TinyNode {
 
 impl TinyParser version 2 {
     void errMessage(TinyParser* self, char* message) {
-        fprintf(stderr, "%s\n", message);
+        fprintf(stderr, "%s %d: %s\n", self.sourceName, self.sourceLine, message);
     }
     void skipSpaces(TinyParser* self) {
         while(*self.p == ' ' || *self.p == '\t' || (*self.p == '\n')) {
@@ -86,6 +116,7 @@ impl TinyParser version 2 {
                 value = value * 10 + *self.p - '0';
                 self.p++;
             }
+            self.skipSpaces();
             return new TinyNode.createIntNode(value);
         }
 
@@ -133,7 +164,7 @@ impl TinyParser version 2 {
                 var right = self.mult_div();
 
                 if(right == null) {
-                    self.errMessage("require right value for operator +");
+                    self.errMessage("require right value for operator -");
                     self.errNumber++;
                     return null;
                 }
@@ -176,7 +207,7 @@ impl TinyVM {
             self.nodes.item(i, null).debug();
         }
         self.stack.each {
-            printf("stack[%d] %d\n", it2, it.intValue);
+            //printf("stack[%d] %d\n", it2, it.uValue.intValue);
         }
     }
 
@@ -184,7 +215,8 @@ impl TinyVM {
         switch(node.type) {
             case NODETYPE_INT : {
                 TVALUE value1;
-                value1.intValue = node.intValue;
+                value1.type = INT_VALUE;
+                value1.uValue.intValue = node.intValue;
                 self.stack.push_back(value1);
                 }
                 break;
@@ -199,14 +231,18 @@ impl TinyVM {
 
                 TVALUE default_value;
                 
-                default_value.intValue = 0;
+                default_value.type = NULL_VALUE;
+                default_value.uValue.intValue = 0;
 
                 TVALUE value1 = self.stack.pop_back(default_value);
                 TVALUE value2 = self.stack.pop_back(default_value); 
 
                 TVALUE value3;
                 
-                value3.intValue = value1.intValue + value2.intValue;
+                value3.type = INT_VALUE;
+                value3.uValue.intValue 
+                        = value1.uValue.intValue 
+                        + value2.uValue.intValue;
                 
                 self.stack.push_back(value3);
                 }
@@ -222,14 +258,17 @@ impl TinyVM {
 
                 TVALUE default_value;
                 
-                default_value.intValue = 0;
+                default_value.type = NULL_VALUE;
+                default_value.uValue.intValue = 0;
 
                 TVALUE value1 = self.stack.pop_back(default_value);
                 TVALUE value2 = self.stack.pop_back(default_value); 
                 
                 TVALUE value3;
-                
-                value3.intValue = value1.intValue - value2.intValue;
+                value3.type = INT_VALUE;
+                value3.uValue.intValue 
+                        = value1.uValue.intValue 
+                        - value2.uValue.intValue;
                 
                 self.stack.push_back(value3);
                 break;

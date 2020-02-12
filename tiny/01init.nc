@@ -1,4 +1,4 @@
-#include "tiny.h"
+#include "common.h"
 
 impl TinyParser {
     initialize(char* source_name)

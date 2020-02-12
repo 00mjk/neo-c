@@ -29,14 +29,17 @@ DESTDIR=@DESTDIR@
 ##########################################
 all: tiny
 
-tiny: configure Makefile config.h tiny.nc tiny01init.o tiny02base.o tiny01init.nc tiny02base.nc 
-	neo-c -o tiny tiny.nc tiny01init.o tiny02base.o $(CFLAGS) $(LIBS)
+tiny: configure Makefile config.h main.nc 01init.o 02base.o 03var.o common.h
+	neo-c -o tiny main.nc 01init.o 02base.o 03var.o $(CFLAGS) $(LIBS)
 
-tiny01init.o: configure Makefile config.h tiny01init.nc tiny.h
-	neo-c -c tiny01init.nc $(CFLAGS) $(LIBS)
+01init.o: configure Makefile config.h 01init.nc common.h
+	neo-c -c 01init.nc $(CFLAGS) $(LIBS)
 
-tiny02base.o: configure Makefile config.h tiny01init.nc tiny02base.nc tiny.h
-	neo-c -c tiny02base.nc $(CFLAGS) $(LIBS)
+02base.o: configure Makefile config.h 01init.nc 02base.nc common.h
+	neo-c -c 02base.nc $(CFLAGS) $(LIBS)
+
+03var.o: configure Makefile config.h 01init.nc 02base.nc 03var.nc common.h
+	neo-c -c 03var.nc $(CFLAGS) $(LIBS)
 
 #########################################
 # install

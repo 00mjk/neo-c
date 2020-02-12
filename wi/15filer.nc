@@ -625,6 +625,18 @@ impl Vi version 15
                         cursor = maxx-1;
                     }
                     break;
+                
+                case 'A'-'A'+1:
+                    cursor = 0;
+                    break;    
+                    
+                case 'E'-'A'+1:
+                    cursor = command.length() - 1;
+                    
+                    if(cursor < 0) {
+                        cursor = 0;
+                    }
+                    break;
                     
                 case 'C'-'A'+1:
                     delwin(win);

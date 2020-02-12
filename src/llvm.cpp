@@ -1413,6 +1413,22 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
                 Value* cmp_right_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
                 rvalue->value = Builder.CreateICmpNE(rvalue->value, cmp_right_value);
             }
+            else if(type_identify_with_class_name(*right_type, "long")) {
+                Value* cmp_right_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+                rvalue->value = Builder.CreateICmpNE(rvalue->value, cmp_right_value);
+            }
+            else if(type_identify_with_class_name(*right_type, "int")) {
+                Value* cmp_right_value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+                rvalue->value = Builder.CreateICmpNE(rvalue->value, cmp_right_value);
+            }
+            else if(type_identify_with_class_name(*right_type, "short")) {
+                Value* cmp_right_value = ConstantInt::get(Type::getInt16Ty(TheContext), (uint16_t)0);
+                rvalue->value = Builder.CreateICmpNE(rvalue->value, cmp_right_value);
+            }
+            else if(type_identify_with_class_name(*right_type, "char")) {
+                Value* cmp_right_value = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0);
+                rvalue->value = Builder.CreateICmpNE(rvalue->value, cmp_right_value);
+            }
             else {
                 rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, IntegerType::get(TheContext, 1));
             }
