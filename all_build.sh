@@ -1,16 +1,16 @@
-./configure --prefix=$HOME
+./configure --with-optimize
 make
-make install
+sudo make install
 make test
 
 cd wi
-./configure --prefix=$HOME
+./configure
 make
-make install
+sudo make install
 
 cd ../tiny
-./configure --prefix=$HOME
+./configure
 make
-make install
+sudo make install
 
 cd ..
