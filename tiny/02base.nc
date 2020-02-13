@@ -17,26 +17,18 @@ impl TinyNode {
     TinyNode*% clone(TinyNode* self) {
         TinyNode*% result = new TinyNode;
 
-        managed result;
-
         memcpy(result, self, sizeof(TinyNode));
 
         if(self.left) {
-            var left = clone self.left;
-            managed left;
-            result.left = left;
+            result.left = borrow clone self.left;
         }
 
         if(self.right) {
-            var right = clone self.right;
-            managed right;
-            result.right = right;
+            result.right = borrow clone self.right;
         }
 
         if(self.middle) {
-            var middle = clone self.middle;
-            managed middle;
-            result.middle = middle;
+            result.middle = borrow clone self.middle;
         }
 
         return dummy_heap result;
