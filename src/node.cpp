@@ -6521,19 +6521,18 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         }
         else {
             if(left_type->mPointerNum == 0) {
-    printf("lvalue.address %p\n", lvalue.address);
-    #if LLVM_VERSION_MAJOR >= 7
+#if LLVM_VERSION_MAJOR >= 7
                 field_address = Builder.CreateStructGEP(lvalue.address, field_index);
-    #else
+#else
                 field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, field_index);
-    #endif
+#endif
             }
             else {
-    #if LLVM_VERSION_MAJOR >= 7
+#if LLVM_VERSION_MAJOR >= 7
                 field_address = Builder.CreateStructGEP(lvalue.value, field_index);
-    #else
+#else
                 field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, field_index);
-    #endif
+#endif
             }
         }
 
