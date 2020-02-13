@@ -199,7 +199,7 @@ impl TinyVM {
             self.nodes.item(i, null).debug();
         }
         self.stack.each {
-            //printf("stack[%d] %d\n", it2, it.uValue.intValue);
+            printf("stack[%d] type %d int value %d\n", it2, it.type, it.uValue.intValue);
         }
     }
 

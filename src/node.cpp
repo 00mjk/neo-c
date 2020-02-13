@@ -5694,7 +5694,9 @@ static BOOL compile_delete(unsigned int node, sCompileInfo* info)
 
     sNodeType* node_type = clone_node_type(info->type);
 
-    free_object(node_type, llvm_value.address, TRUE, info);
+    if(!info->no_output) {
+        free_object(node_type, llvm_value.address, TRUE, info);
+    }
 
     info->type = create_node_type_with_class_name("void");
 
@@ -6097,35 +6099,38 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
         int alignment = get_llvm_alignment_from_node_type(parent_field_type);
 
-        Value* field_address;
+        if(!info->no_output) {
+            Value* field_address;
 
-        if(left_type->mClass->mFlags & CLASS_FLAGS_UNION) {
-            if(left_type->mPointerNum == 0) {
-                field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+            if(left_type->mClass->mFlags & CLASS_FLAGS_UNION) {
+                if(left_type->mPointerNum == 0) {
+                    field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+                }
+                else {
+                    field_address = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(llvm_field_type, 0));
+                }
             }
             else {
-                field_address = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(llvm_field_type, 0));
-            }
-        }
-        else {
-            if(left_type->mPointerNum == 0) {
+                if(left_type->mPointerNum == 0) {
 #if LLVM_VERSION_MAJOR >= 7
-                field_address = Builder.CreateStructGEP(lvalue.address, parent_field_index);
+                    field_address = Builder.CreateStructGEP(lvalue.address, parent_field_index);
 #else
-                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, parent_field_index);
+                    field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, parent_field_index);
 #endif
-            }
-            else {
+                }
+                else {
 #if LLVM_VERSION_MAJOR >= 7
-                field_address = Builder.CreateStructGEP(lvalue.value, parent_field_index);
+                    field_address = Builder.CreateStructGEP(lvalue.value, parent_field_index);
 #else
-                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, parent_field_index);
+                    field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, parent_field_index);
 #endif
+                }
             }
+
+            lvalue.address = field_address;
         }
 
         left_type = parent_field_type;
-        lvalue.address = field_address;
     }
     else {
         field_type = clone_node_type(left_type->mClass->mFields[field_index]);
@@ -6222,39 +6227,41 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     int alignment = get_llvm_alignment_from_node_type(field_type);
 
-    Value* field_address;
+    if(!info->no_output) {
+        Value* field_address;
 
-    if(left_type->mClass->mFlags & CLASS_FLAGS_UNION) {
-        if(left_type->mPointerNum == 0) {
-            field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+        if(left_type->mClass->mFlags & CLASS_FLAGS_UNION) {
+            if(left_type->mPointerNum == 0) {
+                field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+            }
+            else {
+                field_address = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(llvm_field_type, 0));
+            }
         }
         else {
-            field_address = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(llvm_field_type, 0));
-        }
-    }
-    else {
-        if(left_type->mPointerNum == 0) {
+            if(left_type->mPointerNum == 0) {
 #if LLVM_VERSION_MAJOR >= 7
-            field_address = Builder.CreateStructGEP(lvalue.address, field_index);
+                field_address = Builder.CreateStructGEP(lvalue.address, field_index);
 #else
-            field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, field_index);
+                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, field_index);
 #endif
-        }
-        else {
+            }
+            else {
 #if LLVM_VERSION_MAJOR >= 7
-            field_address = Builder.CreateStructGEP(lvalue.value, field_index);
+                field_address = Builder.CreateStructGEP(lvalue.value, field_index);
 #else
-            field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, field_index);
-#endif
+                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, field_index);
+    #endif
+            }
         }
+
+        Value* rvalue2 = rvalue.value;
+
+        BOOL alloc = FALSE;
+        std_move(field_address, field_type, &rvalue, alloc, info);
+
+        Builder.CreateAlignedStore(rvalue2, field_address, alignment);
     }
-
-    Value* rvalue2 = rvalue.value;
-
-    BOOL alloc = FALSE;
-    std_move(field_address, field_type, &rvalue, alloc, info);
-
-    Builder.CreateAlignedStore(rvalue2, field_address, alignment);
 
     info->type = right_type;
 
@@ -6326,28 +6333,141 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    sNodeType* field_type;
-    if(parent_field_index != -1) {
-        sNodeType* parent_field_type = clone_node_type(left_type->mClass->mFields[parent_field_index]);
-        sCLClass* parent_field_class = parent_field_type->mClass;
+    if(info->no_output) {
+        sNodeType* field_type;
+        if(parent_field_index != -1) {
+            sNodeType* parent_field_type = clone_node_type(left_type->mClass->mFields[parent_field_index]);
+            sCLClass* parent_field_class = parent_field_type->mClass;
 
-        field_type = clone_node_type(parent_field_class->mFields[field_index]);
+            field_type = clone_node_type(parent_field_class->mFields[field_index]);
+        }
+        else {
+            field_type = clone_node_type(left_type->mClass->mFields[field_index]);
+        }
+        info->type = clone_node_type(field_type);
+    }
+    else {
+        sNodeType* field_type;
+        if(parent_field_index != -1) {
+            sNodeType* parent_field_type = clone_node_type(left_type->mClass->mFields[parent_field_index]);
+            sCLClass* parent_field_class = parent_field_type->mClass;
 
-        if(is_typeof_type(parent_field_type))
+            field_type = clone_node_type(parent_field_class->mFields[field_index]);
+
+            if(is_typeof_type(parent_field_type))
+            {
+                if(!solve_typeof(&parent_field_type, info)) 
+                {
+                    compile_err_msg(info, "Can't solve typeof types");
+                    show_node_type(parent_field_type); 
+                    info->err_num++;
+                    return FALSE;
+                }
+            }
+
+            BOOL success_solve;
+            if(!solve_generics(&parent_field_type, left_type, &success_solve)) {
+                compile_err_msg(info, "Can't solve generics types(12)");
+                show_node_type(parent_field_type);
+                show_node_type(left_type);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            Type* llvm_field_type;
+            if(!create_llvm_type_from_node_type(&llvm_field_type, parent_field_type, parent_field_type, info))
+            {
+                compile_err_msg(info, "Getting llvm type failed(13)");
+                show_node_type(parent_field_type);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            LVALUE lvalue = *get_value_from_stack(-1);
+
+            sNodeType* left_type2 = clone_node_type(left_type);
+            left_type2->mPointerNum = 0;
+
+            Type* llvm_struct_type;
+            if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, left_type2, info))
+            {
+                compile_err_msg(info, "Getting llvm type failed(14)");
+                show_node_type(left_type2);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            Value* field_address;
+            if(left_type->mClass->mFlags & CLASS_FLAGS_UNION) {
+                if(left_type->mPointerNum == 0) {
+                    field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+                }
+                else {
+                    field_address = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(llvm_field_type, 0));
+                }
+            }
+            else {
+                if(left_type->mPointerNum == 0) {
+#if LLVM_VERSION_MAJOR >= 7
+                    field_address = Builder.CreateStructGEP(lvalue.address, parent_field_index);
+#else
+                    field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, parent_field_index);
+#endif
+                }
+                else {
+#if LLVM_VERSION_MAJOR >= 7
+                    field_address = Builder.CreateStructGEP(lvalue.value, parent_field_index);
+#else
+                    field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, parent_field_index);
+#endif
+                }
+            }
+
+            int alignment = get_llvm_alignment_from_node_type(parent_field_type);
+
+            Value* field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
+            llvm_value.type = clone_node_type(field_type);
+            llvm_value.address = field_address2;
+            llvm_value.var = nullptr;
+            llvm_value.binded_value = TRUE;
+            llvm_value.load_field = FALSE;
+
+            dec_stack_ptr(1, info);
+            push_value_to_stack_ptr(&llvm_value, info);
+
+            left_type = parent_field_type;
+        }
+        else {
+            field_type = clone_node_type(left_type->mClass->mFields[field_index]);
+        }
+
+        if(is_typeof_type(field_type))
         {
-            if(!solve_typeof(&parent_field_type, info)) 
+            if(!solve_typeof(&field_type, info)) 
             {
                 compile_err_msg(info, "Can't solve typeof types");
-                show_node_type(parent_field_type); 
+                show_node_type(field_type); 
                 info->err_num++;
                 return FALSE;
             }
         }
 
         BOOL success_solve;
-        if(!solve_generics(&parent_field_type, left_type, &success_solve)) {
-            compile_err_msg(info, "Can't solve generics types(12)");
-            show_node_type(parent_field_type);
+        if(!solve_generics(&field_type, left_type, &success_solve)) {
+            compile_err_msg(info, "Can't solve generics types(13)");
+            show_node_type(field_type);
             show_node_type(left_type);
             info->err_num++;
 
@@ -6357,10 +6477,10 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         }
 
         Type* llvm_field_type;
-        if(!create_llvm_type_from_node_type(&llvm_field_type, parent_field_type, parent_field_type, info))
+        if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info))
         {
             compile_err_msg(info, "Getting llvm type failed(13)");
-            show_node_type(parent_field_type);
+            show_node_type(field_type);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -6388,7 +6508,12 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         Value* field_address;
         if(left_type->mClass->mFlags & CLASS_FLAGS_UNION) {
             if(left_type->mPointerNum == 0) {
-                field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+                if(lvalue.address == NULL) {
+                    field_address = NULL;
+                }
+                else {
+                    field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
+                }
             }
             else {
                 field_address = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(llvm_field_type, 0));
@@ -6396,158 +6521,56 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         }
         else {
             if(left_type->mPointerNum == 0) {
-#if LLVM_VERSION_MAJOR >= 7
-                field_address = Builder.CreateStructGEP(lvalue.address, parent_field_index);
-#else
-                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, parent_field_index);
-#endif
+    printf("lvalue.address %p\n", lvalue.address);
+    #if LLVM_VERSION_MAJOR >= 7
+                field_address = Builder.CreateStructGEP(lvalue.address, field_index);
+    #else
+                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, field_index);
+    #endif
             }
             else {
-#if LLVM_VERSION_MAJOR >= 7
-                field_address = Builder.CreateStructGEP(lvalue.value, parent_field_index);
-#else
-                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, parent_field_index);
-#endif
+    #if LLVM_VERSION_MAJOR >= 7
+                field_address = Builder.CreateStructGEP(lvalue.value, field_index);
+    #else
+                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, field_index);
+    #endif
             }
         }
 
-        int alignment = get_llvm_alignment_from_node_type(parent_field_type);
+        int alignment = get_llvm_alignment_from_node_type(field_type);
 
-        Value* field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
+        Value* field_address2;
+        if(field_address == NULL) {
+            field_address2 = NULL;
+        }
+        else {
+            field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
+        }
 
         LVALUE llvm_value;
-        llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
+        if(field_type->mArrayNum > 0) {
+            llvm_value.value = field_address2;
+        }
+        else {
+            if(field_address2 == NULL) {
+                llvm_value.value = Builder.CreateCast(Instruction::BitCast, lvalue.value, llvm_field_type);
+            }
+            else {
+                llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
+            }
+        }
+
         llvm_value.type = clone_node_type(field_type);
         llvm_value.address = field_address2;
         llvm_value.var = nullptr;
         llvm_value.binded_value = TRUE;
-        llvm_value.load_field = FALSE;
+        llvm_value.load_field = TRUE;
+
+        info->type = clone_node_type(field_type);
 
         dec_stack_ptr(1, info);
         push_value_to_stack_ptr(&llvm_value, info);
-
-        left_type = parent_field_type;
     }
-    else {
-        field_type = clone_node_type(left_type->mClass->mFields[field_index]);
-    }
-
-    if(is_typeof_type(field_type))
-    {
-        if(!solve_typeof(&field_type, info)) 
-        {
-            compile_err_msg(info, "Can't solve typeof types");
-            show_node_type(field_type); 
-            info->err_num++;
-            return FALSE;
-        }
-    }
-
-    BOOL success_solve;
-    if(!solve_generics(&field_type, left_type, &success_solve)) {
-        compile_err_msg(info, "Can't solve generics types(13)");
-        show_node_type(field_type);
-        show_node_type(left_type);
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    Type* llvm_field_type;
-    if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info))
-    {
-        compile_err_msg(info, "Getting llvm type failed(13)");
-        show_node_type(field_type);
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    LVALUE lvalue = *get_value_from_stack(-1);
-
-    sNodeType* left_type2 = clone_node_type(left_type);
-    left_type2->mPointerNum = 0;
-
-    Type* llvm_struct_type;
-    if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, left_type2, info))
-    {
-        compile_err_msg(info, "Getting llvm type failed(14)");
-        show_node_type(left_type2);
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    Value* field_address;
-    if(left_type->mClass->mFlags & CLASS_FLAGS_UNION) {
-        if(left_type->mPointerNum == 0) {
-            if(lvalue.address == NULL) {
-                field_address = NULL;
-            }
-            else {
-                field_address = Builder.CreateCast(Instruction::BitCast, lvalue.address, PointerType::get(llvm_field_type, 0));
-            }
-        }
-        else {
-            field_address = Builder.CreateCast(Instruction::BitCast, lvalue.value, PointerType::get(llvm_field_type, 0));
-        }
-    }
-    else {
-        if(left_type->mPointerNum == 0) {
-#if LLVM_VERSION_MAJOR >= 7
-            field_address = Builder.CreateStructGEP(lvalue.address, field_index);
-#else
-            field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, field_index);
-#endif
-        }
-        else {
-#if LLVM_VERSION_MAJOR >= 7
-            field_address = Builder.CreateStructGEP(lvalue.value, field_index);
-#else
-            field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, field_index);
-#endif
-        }
-    }
-
-    int alignment = get_llvm_alignment_from_node_type(field_type);
-
-    Value* field_address2;
-    if(field_address == NULL) {
-        field_address2 = NULL;
-    }
-    else {
-        field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
-    }
-
-    LVALUE llvm_value;
-    if(field_type->mArrayNum > 0) {
-        llvm_value.value = field_address2;
-    }
-    else {
-        if(field_address2 == NULL) {
-            llvm_value.value = Builder.CreateCast(Instruction::BitCast, lvalue.value, llvm_field_type);
-        }
-        else {
-            llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
-        }
-    }
-
-    llvm_value.type = clone_node_type(field_type);
-    llvm_value.address = field_address2;
-    llvm_value.var = nullptr;
-    llvm_value.binded_value = TRUE;
-    llvm_value.load_field = TRUE;
-
-    info->type = clone_node_type(field_type);
-
-    dec_stack_ptr(1, info);
-    push_value_to_stack_ptr(&llvm_value, info);
 
     return TRUE;
 }
@@ -7568,31 +7591,42 @@ static BOOL compile_reffernce(unsigned int node, sCompileInfo* info)
     LVALUE lvalue = *get_value_from_stack(-1);
     dec_stack_ptr(1, info);
 
-    if(lvalue.address == nullptr) {
-        compile_err_msg(info, "Can't get address of this value on & operator");
-        info->err_num++;
+    if(info->no_output) {
+        sNodeType* left_type = info->type;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
-        return TRUE;
+        sNodeType* refference_type = clone_node_type(left_type);
+
+        refference_type->mPointerNum++;
+
+        info->type = refference_type;
     }
+    else {
+        if(lvalue.address == nullptr) {
+            compile_err_msg(info, "Can't get address of this value on & operator");
+            info->err_num++;
 
-    sNodeType* left_type = info->type;
+            info->type = create_node_type_with_class_name("int"); // dummy
+            return TRUE;
+        }
 
-    sNodeType* refference_type = clone_node_type(left_type);
+        sNodeType* left_type = info->type;
 
-    refference_type->mPointerNum++;
+        sNodeType* refference_type = clone_node_type(left_type);
 
-    LVALUE llvm_value;
-    llvm_value.value = lvalue.address;
-    llvm_value.type = refference_type;
-    llvm_value.address = nullptr;
-    llvm_value.var = nullptr;
-    llvm_value.binded_value = FALSE;
-    llvm_value.load_field = FALSE;
+        refference_type->mPointerNum++;
 
-    push_value_to_stack_ptr(&llvm_value, info);
+        LVALUE llvm_value;
+        llvm_value.value = lvalue.address;
+        llvm_value.type = refference_type;
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
+        llvm_value.load_field = FALSE;
 
-    info->type = refference_type;
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type = refference_type;
+    }
 
     return TRUE;
 }
@@ -7671,23 +7705,23 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
             sNodeType* left_type2 = clone_node_type(left_type);
             left_type2->mHeap = TRUE;
 
-            Value* obj = clone_object(left_type, lvalue.address, info);
-
-            LVALUE llvm_value;
-            llvm_value.value = obj;
-            llvm_value.type = clone_node_type(left_type2);
-            llvm_value.address = nullptr;
-            llvm_value.var = nullptr;
-            llvm_value.binded_value = FALSE;
-            llvm_value.load_field = FALSE;
-
-            push_value_to_stack_ptr(&llvm_value, info);
-
-            info->type = clone_node_type(left_type2);
-
             if(!info->no_output) {
+                Value* obj = clone_object(left_type, lvalue.address, info);
+
+                LVALUE llvm_value;
+                llvm_value.value = obj;
+                llvm_value.type = clone_node_type(left_type2);
+                llvm_value.address = nullptr;
+                llvm_value.var = nullptr;
+                llvm_value.binded_value = FALSE;
+                llvm_value.load_field = FALSE;
+
+                push_value_to_stack_ptr(&llvm_value, info);
+
                 append_heap_object_to_right_value(&llvm_value, info);
             }
+
+            info->type = clone_node_type(left_type2);
         }
     }
     else {
@@ -7787,50 +7821,52 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
     /// go ///
     Value* element_value;
     Value* load_element_addresss;
-    if(left_type->mArrayNum > 0) {
-        sNodeType* var_type2 = clone_node_type(var_type);
-        var_type2->mPointerNum++;
+    if(!info->no_output) {
+        if(left_type->mArrayNum > 0) {
+            sNodeType* var_type2 = clone_node_type(var_type);
+            var_type2->mPointerNum++;
 
-        Type* llvm_var_type;
-        if(!create_llvm_type_from_node_type(&llvm_var_type, var_type2, var_type2, info))
-        {
-            compile_err_msg(info, "Getting llvm type failed(10)");
-            show_node_type(var_type2);
-            info->err_num++;
+            Type* llvm_var_type;
+            if(!create_llvm_type_from_node_type(&llvm_var_type, var_type2, var_type2, info))
+            {
+                compile_err_msg(info, "Getting llvm type failed(10)");
+                show_node_type(var_type2);
+                info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int"); // dummy
 
-            return TRUE;
+                return TRUE;
+            }
+
+            Value* lvalue2 = Builder.CreateCast(Instruction::BitCast, lvalue.address, llvm_var_type);
+            load_element_addresss = Builder.CreateGEP(lvalue2, rvalue.value, "element_address");
+
+            int alignment = get_llvm_alignment_from_node_type(var_type);
+
+            element_value = Builder.CreateAlignedLoad(load_element_addresss, alignment, "element");
+
+        }
+        else {
+            Value* lvalue2 = lvalue.value;
+
+            load_element_addresss = Builder.CreateGEP(lvalue2, rvalue.value, "element_address");
+
+            int alignment = get_llvm_alignment_from_node_type(var_type);
+
+            element_value = Builder.CreateAlignedLoad(load_element_addresss, alignment, "element");
         }
 
-        Value* lvalue2 = Builder.CreateCast(Instruction::BitCast, lvalue.address, llvm_var_type);
-        load_element_addresss = Builder.CreateGEP(lvalue2, rvalue.value, "element_address");
+        LVALUE llvm_value;
+        llvm_value.value = element_value;
+        llvm_value.type = clone_node_type(var_type);
+        llvm_value.address = load_element_addresss;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
+        llvm_value.load_field = FALSE;
 
-        int alignment = get_llvm_alignment_from_node_type(var_type);
-
-        element_value = Builder.CreateAlignedLoad(load_element_addresss, alignment, "element");
-
+        dec_stack_ptr(2, info);
+        push_value_to_stack_ptr(&llvm_value, info);
     }
-    else {
-        Value* lvalue2 = lvalue.value;
-
-        load_element_addresss = Builder.CreateGEP(lvalue2, rvalue.value, "element_address");
-
-        int alignment = get_llvm_alignment_from_node_type(var_type);
-
-        element_value = Builder.CreateAlignedLoad(load_element_addresss, alignment, "element");
-    }
-
-    LVALUE llvm_value;
-    llvm_value.value = element_value;
-    llvm_value.type = clone_node_type(var_type);
-    llvm_value.address = load_element_addresss;
-    llvm_value.var = nullptr;
-    llvm_value.binded_value = FALSE;
-    llvm_value.load_field = FALSE;
-
-    dec_stack_ptr(2, info);
-    push_value_to_stack_ptr(&llvm_value, info);
 
     info->type = clone_node_type(var_type);
 
@@ -7956,45 +7992,49 @@ BOOL compile_store_element(unsigned int node, sCompileInfo* info)
     }
 
     /// generate code ///
-    Value* lvalue2;
-    if(left_type->mArrayNum > 0) {
-        sNodeType* var_type2 = clone_node_type(var_type);
-        var_type2->mPointerNum++;
-
-        Type* llvm_var_type;
-        if(!create_llvm_type_from_node_type(&llvm_var_type, var_type2, var_type2, info))
-        {
-            compile_err_msg(info, "Getting llvm type failed(11)");
-            show_node_type(var_type2);
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
-        Value* lvalue2 = Builder.CreateCast(Instruction::BitCast, lvalue.address, llvm_var_type);
-        Value* load_element_addresss = Builder.CreateGEP(lvalue2, mvalue.value, "element_address");
-
-        int alignment = get_llvm_alignment_from_node_type(var_type);
-
-        Builder.CreateAlignedStore(rvalue.value, load_element_addresss, alignment);
+    if(info->no_output) {
     }
     else {
-        Value* lvalue2 = lvalue.value;
+        Value* lvalue2;
+        if(left_type->mArrayNum > 0) {
+            sNodeType* var_type2 = clone_node_type(var_type);
+            var_type2->mPointerNum++;
 
-        Value* element_address = Builder.CreateGEP(lvalue2, mvalue.value, "element_address");
+            Type* llvm_var_type;
+            if(!create_llvm_type_from_node_type(&llvm_var_type, var_type2, var_type2, info))
+            {
+                compile_err_msg(info, "Getting llvm type failed(11)");
+                show_node_type(var_type2);
+                info->err_num++;
 
-        int alignment = get_llvm_alignment_from_node_type(var_type);
+                info->type = create_node_type_with_class_name("int"); // dummy
 
-        BOOL alloc = FALSE;
-        std_move(element_address, var_type, &rvalue, alloc, info);
+                return TRUE;
+            }
 
-        Builder.CreateAlignedStore(rvalue.value, element_address, alignment);
+            Value* lvalue2 = Builder.CreateCast(Instruction::BitCast, lvalue.address, llvm_var_type);
+            Value* load_element_addresss = Builder.CreateGEP(lvalue2, mvalue.value, "element_address");
+
+            int alignment = get_llvm_alignment_from_node_type(var_type);
+
+            Builder.CreateAlignedStore(rvalue.value, load_element_addresss, alignment);
+        }
+        else {
+            Value* lvalue2 = lvalue.value;
+
+            Value* element_address = Builder.CreateGEP(lvalue2, mvalue.value, "element_address");
+
+            int alignment = get_llvm_alignment_from_node_type(var_type);
+
+            BOOL alloc = FALSE;
+            std_move(element_address, var_type, &rvalue, alloc, info);
+
+            Builder.CreateAlignedStore(rvalue.value, element_address, alignment);
+        }
+
+        dec_stack_ptr(3, info);
+        push_value_to_stack_ptr(&rvalue, info);
     }
-
-    dec_stack_ptr(3, info);
-    push_value_to_stack_ptr(&rvalue, info);
 
     info->type = clone_node_type(right_type);
 
@@ -9745,27 +9785,29 @@ BOOL compile_struct_with_initialization(unsigned int node, sCompileInfo* info)
             LVALUE lvalue = llvm_value;
             LVALUE rvalue = *get_value_from_stack(-1);
 
-            Value* field_address;
-            if(var_type->mPointerNum == 0) {
+            if(!info->no_output) {
+                Value* field_address;
+                if(var_type->mPointerNum == 0) {
 #if LLVM_VERSION_MAJOR >= 7
-                field_address = Builder.CreateStructGEP(lvalue.address, i);
+                    field_address = Builder.CreateStructGEP(lvalue.address, i);
 #else
-                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, i);
+                    field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, i);
 #endif
-            }
-            else {
+                }
+                else {
 #if LLVM_VERSION_MAJOR >= 7
-                field_address = Builder.CreateStructGEP(lvalue.value, i);
+                    field_address = Builder.CreateStructGEP(lvalue.value, i);
 #else
-                field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, i);
-#endif
+                    field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, i);
+    #endif
+                }
+
+                int alignment = get_llvm_alignment_from_node_type(field_type);
+
+                Builder.CreateAlignedStore(rvalue.value, field_address, alignment);
+
+                dec_stack_ptr(1, info);
             }
-
-            int alignment = get_llvm_alignment_from_node_type(field_type);
-
-            Builder.CreateAlignedStore(rvalue.value, field_address, alignment);
-
-            dec_stack_ptr(1, info);
         }
 
         push_value_to_stack_ptr(&llvm_value, info);
@@ -11073,14 +11115,16 @@ static BOOL compile_plus_plus(unsigned int node, sCompileInfo* info)
             }
         }
 
-        Value* address = lvalue.address;
+        if(!info->no_output) {
+            Value* address = lvalue.address;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
 
-        Value* value = Builder.CreateAdd(add_lvalue, add_rvalue, "addtmp", false, true);
+            Value* value = Builder.CreateAdd(add_lvalue, add_rvalue, "addtmp", false, true);
 
-        Builder.CreateAlignedStore(value, address, 8);
+            Builder.CreateAlignedStore(value, address, 8);
+        }
     }
 
     return TRUE;
@@ -11167,14 +11211,16 @@ static BOOL compile_minus_minus(unsigned int node, sCompileInfo* info)
             }
         }
 
-        Value* address = lvalue.address;
+        if(!info->no_output) {
+            Value* address = lvalue.address;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
 
-        Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "addtmp", false, true);
+            Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "addtmp", false, true);
 
-        Builder.CreateAlignedStore(value, address, 8);
+            Builder.CreateAlignedStore(value, address, 8);
+        }
     }
 
     return TRUE;
@@ -11261,14 +11307,16 @@ static BOOL compile_equal_plus(unsigned int node, sCompileInfo* info)
             }
         }
 
-        Value* address = lvalue.address;
+        if(!info->no_output) {
+            Value* address = lvalue.address;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
 
-        Value* value = Builder.CreateAdd(add_lvalue, add_rvalue, "addtmp", false, true);
+            Value* value = Builder.CreateAdd(add_lvalue, add_rvalue, "addtmp", false, true);
 
-        Builder.CreateAlignedStore(value, address, 8);
+            Builder.CreateAlignedStore(value, address, 8);
+        }
     }
 
     return TRUE;
@@ -11355,14 +11403,16 @@ static BOOL compile_equal_minus(unsigned int node, sCompileInfo* info)
             }
         }
 
-        Value* address = lvalue.address;
+        if(!info->no_output) {
+            Value* address = lvalue.address;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
 
-        Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "subtmp", false, true);
+            Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "subtmp", false, true);
 
-        Builder.CreateAlignedStore(value, address, 8);
+            Builder.CreateAlignedStore(value, address, 8);
+        }
     }
 
     return TRUE;
@@ -11449,14 +11499,16 @@ static BOOL compile_equal_mult(unsigned int node, sCompileInfo* info)
             }
         }
 
-        Value* address = lvalue.address;
+        if(!info->no_output) {
+            Value* address = lvalue.address;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
 
-        Value* value = Builder.CreateMul(add_lvalue, add_rvalue, "multmp", false, true);
+            Value* value = Builder.CreateMul(add_lvalue, add_rvalue, "multmp", false, true);
 
-        Builder.CreateAlignedStore(value, address, 8);
+            Builder.CreateAlignedStore(value, address, 8);
+        }
     }
 
     return TRUE;
@@ -11542,14 +11594,16 @@ static BOOL compile_equal_div(unsigned int node, sCompileInfo* info)
             }
         }
 
-        Value* address = lvalue.address;
+        if(!info->no_output) {
+            Value* address = lvalue.address;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
 
-        Value* value = Builder.CreateSDiv(add_lvalue, add_rvalue, "divtmp");
+            Value* value = Builder.CreateSDiv(add_lvalue, add_rvalue, "divtmp");
 
-        Builder.CreateAlignedStore(value, address, 8);
+            Builder.CreateAlignedStore(value, address, 8);
+        }
     }
 
     return TRUE;
@@ -11636,14 +11690,16 @@ static BOOL compile_equal_mod(unsigned int node, sCompileInfo* info)
             }
         }
 
-        Value* address = lvalue.address;
+        if(!info->no_output) {
+            Value* address = lvalue.address;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
 
-        Value* value = Builder.CreateSRem(add_lvalue, add_rvalue, "remtmp");
+            Value* value = Builder.CreateSRem(add_lvalue, add_rvalue, "remtmp");
 
-        Builder.CreateAlignedStore(value, address, 8);
+            Builder.CreateAlignedStore(value, address, 8);
+        }
     }
 
     return TRUE;
@@ -11730,14 +11786,16 @@ static BOOL compile_equal_lshift(unsigned int node, sCompileInfo* info)
             }
         }
 
-        Value* address = lvalue.address;
+        if(!info->no_output) {
+            Value* address = lvalue.address;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
 
-        Value* value = Builder.CreateShl(add_lvalue, add_rvalue, "lshifttmp");
+            Value* value = Builder.CreateShl(add_lvalue, add_rvalue, "lshifttmp");
 
-        Builder.CreateAlignedStore(value, address, 8);
+            Builder.CreateAlignedStore(value, address, 8);
+        }
     }
 
     return TRUE;
@@ -11824,14 +11882,16 @@ static BOOL compile_equal_rshift(unsigned int node, sCompileInfo* info)
             }
         }
 
-        Value* address = lvalue.address;
+        if(!info->no_output) {
+            Value* address = lvalue.address;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
 
-        Value* value = Builder.CreateAShr(add_lvalue, add_rvalue, "rshifttmp");
+            Value* value = Builder.CreateAShr(add_lvalue, add_rvalue, "rshifttmp");
 
-        Builder.CreateAlignedStore(value, address, 8);
+            Builder.CreateAlignedStore(value, address, 8);
+        }
     }
 
     return TRUE;
@@ -11918,14 +11978,16 @@ static BOOL compile_equal_and(unsigned int node, sCompileInfo* info)
             }
         }
 
-        Value* address = lvalue.address;
+        if(!info->no_output) {
+            Value* address = lvalue.address;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
 
-        Value* value = Builder.CreateAnd(add_lvalue, add_rvalue, "andtmp");
+            Value* value = Builder.CreateAnd(add_lvalue, add_rvalue, "andtmp");
 
-        Builder.CreateAlignedStore(value, address, 8);
+            Builder.CreateAlignedStore(value, address, 8);
+        }
     }
 
     return TRUE;
@@ -12012,14 +12074,16 @@ static BOOL compile_equal_xor(unsigned int node, sCompileInfo* info)
             }
         }
 
-        Value* address = lvalue.address;
+        if(!info->no_output) {
+            Value* address = lvalue.address;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
 
-        Value* value = Builder.CreateXor(add_lvalue, add_rvalue, "xor");
+            Value* value = Builder.CreateXor(add_lvalue, add_rvalue, "xor");
 
-        Builder.CreateAlignedStore(value, address, 8);
+            Builder.CreateAlignedStore(value, address, 8);
+        }
     }
 
     return TRUE;
@@ -12106,14 +12170,16 @@ static BOOL compile_equal_or(unsigned int node, sCompileInfo* info)
             }
         }
 
-        Value* address = lvalue.address;
+        if(!info->no_output) {
+            Value* address = lvalue.address;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
 
-        Value* value = Builder.CreateOr(add_lvalue, add_rvalue, "or");
+            Value* value = Builder.CreateOr(add_lvalue, add_rvalue, "or");
 
-        Builder.CreateAlignedStore(value, address, 8);
+            Builder.CreateAlignedStore(value, address, 8);
+        }
     }
 
     return TRUE;
