@@ -38,8 +38,8 @@ impl TinyNode version 3 {
     {
         self.type = NODETYPE_VAR;
 
-        self.varValue.name = borrow name;
-        self.varValue.value = borrow value;
+        self.varValue.name = borrow clone name;
+        self.varValue.value = borrow clone value;
 
         return self;
     }
@@ -60,6 +60,11 @@ impl TinyNode version 3 {
                 self.left.debug();
                 puts("div node right");
                 self.right.debug();
+                break;
+
+            case NODETYPE_VAR :
+                puts("var node");
+                self.varValue.value.debug();
                 break;
         }
     }
@@ -242,6 +247,23 @@ impl TinyVM version 3 {
                 
                 self.stack.push_back(value3);
                 break;
+
+            case NODETYPE_VAR : {
+                if(!self.compile(node.varValue.value)) {
+                    return false;
+                }
+
+                TVALUE default_value;
+                
+                default_value.type = NULL_VALUE;
+                default_value.uValue.intValue = 0;
+
+                TVALUE value = self.stack.pop_back(default_value);
+
+                self.stack.push_back(value);
+                }
+                break;
+
         }
 
         return true;

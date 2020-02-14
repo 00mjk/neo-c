@@ -84,14 +84,20 @@ impl TinyVM {
 
 /// 03var.nc ///
 impl TinyNode version 3 {
+    finalize();
     void debug(TinyNode* self);
-}
-impl TinyParser version 3 {
     TinyNode*% mult_div(TinyParser* self);
     TinyNode*% node(TinyParser* self);
 };
 
 enum { NODETYPE_MULT=NODETYPE_MINUS+1, NODETYPE_DIV, NODETYPE_VAR };
+
+impl TinyParser version 3 {
+    string parseWord(TinyParser* self);
+
+    TinyNode*% node(TinyParser* self);
+    TinyNode*% mult_div(TinyParser* self);
+}
 
 struct TinyVar
 {
@@ -109,7 +115,7 @@ impl TinyVarTable {
     initialize();
 }
 
-struct TinyVM version 2
+struct TinyVM version 3
 {
     vector<TinyVarTable*%>*% vtable;
 };
