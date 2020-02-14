@@ -1,8 +1,11 @@
-line number bug
+info->no_output dummy value and dummy address
 
-return in switch
-
-aaa
+sturct {
+    union {
+        strcut AA { <-- anonymous name ni naru
+        };
+    };
+};
 
 ----------------------
 

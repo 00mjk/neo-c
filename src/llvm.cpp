@@ -901,6 +901,7 @@ BOOL create_llvm_union_type(sNodeType* node_type, sNodeType* generics_type, sCom
                 }
             }
 
+
             Type* field_type;
             if(!create_llvm_type_from_node_type(&field_type, field, generics_type2, info))
             {
@@ -1003,6 +1004,49 @@ static void create_real_union_name(char* real_union_name, int size_real_union_na
     xstrncpy(real_union_name, union_name, size_real_union_name);
 }
 
+static BOOL same_struct_type(sNodeType* left_type, sNodeType* right_type, sCompileInfo* info)
+{
+    sCLClass* left_class = left_type->mClass;
+    sCLClass* right_class = right_type->mClass; 
+
+    if(type_identify(left_type, right_type))
+    {
+        if(left_type->mNumGenericsTypes > 0 || right_type->mNumGenericsTypes > 0)
+        {
+            if(left_type->mNumGenericsTypes != right_type->mNumGenericsTypes)
+            {
+                return FALSE;
+            }
+
+            int i;
+            for(i=0; i<left_type->mNumGenericsTypes; i++)
+            {
+                if(!same_struct_type(left_type->mGenericsTypes[i], right_type->mGenericsTypes[i], info))
+                {
+                    return FALSE;
+                }
+            }
+        }
+
+        if(left_type->mNumFields != right_type->mNumFields)
+        {
+            return FALSE;
+        }
+
+        int i;
+        for(i=0; i<left_type->mNumFields; i++) 
+        {
+            if(!same_struct_type(left_class->mFields[i], right_class->mFields[i], info))
+            {
+                return FALSE;
+            }
+        }
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
 
 BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info)
 {
@@ -1027,15 +1071,19 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
 
         create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
 
-/*
-        if(gLLVMStructType[real_struct_name].first == nullptr) 
+        sNodeType* struct_node_type = NULL;
+        if(gLLVMStructType[real_struct_name].first != nullptr)
         {
-*/
+            struct_node_type = gLLVMStructType[real_struct_name].second;
+        }
+
+        if(struct_node_type == nullptr || !same_struct_type(struct_node_type, node_type, info))
+        {
             if(!create_llvm_struct_type(node_type, generics_type, TRUE, info))
             {
                 return FALSE;
             }
-//        }
+        }
 
         *result_type = gLLVMStructType[real_struct_name].first;
     }

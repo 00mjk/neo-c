@@ -1,5 +1,6 @@
 #include "common.h"
 #include <stdio.h>
+#include <ctype.h>
 
 impl TinyNode version 3 {
     TinyNode*% createMultNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
@@ -25,6 +26,17 @@ impl TinyNode version 3 {
         return self;
     }
 
+    TinyNode*% createAssignNode(string name, TinyNode*% value) {
+/*
+        self.type = NODETYPE_DIV;
+
+        self.varName = name;
+        self.varValue = value;
+
+        return self;
+*/
+    }
+
     void debug(TinyNode* self) {
         inherit(self);
         
@@ -47,6 +59,63 @@ impl TinyNode version 3 {
 }
 
 impl TinyParser version 3 {
+    string parseWord(TinyParser* self) {
+        var buf = new buffer.initialize();
+
+        while(isalpha(*self.p) || *self.p == '_') {
+            buf.append_char(*self.p);
+            self.p++;
+        }
+        self.skipSpaces();
+
+        return string(buf.buf);
+    }
+
+    TinyNode*% node(TinyParser* self) {
+        var parent_result = inherit(self);
+
+        if(parent_result) {
+            return parent_result;
+        }
+
+        if(isalpha(*self.p)) {
+            var buf = self.parseWord();
+
+            if(strcmp(buf, "var") == 0) {
+                var name = self.parseWord();
+
+                if(strcmp(name, "") == 0) {
+                    self.errMessage("require variable name");
+                    self.errNumber++;
+                    return null;
+                }
+
+                if(*self.p == '=') {
+                    self.p++;
+                }
+                else {
+                    self.errMessage("require = character");
+                    self.errNumber++;
+                    return null;
+                }
+
+                var value = self.expression();
+
+                if(value == null) {
+                    self.errMessage("Null expression");
+                    self.errNumber++;
+                    return null;
+                }
+
+/*
+                return new TinyNode.createAssignNode(name, value);
+*/
+            }
+        }
+
+        return null;
+    }
+
     TinyNode*% mult_div(TinyParser* self) {
         var node = self.node();
 
@@ -94,7 +163,22 @@ impl TinyParser version 3 {
     }
 };
 
+impl TinyVarTable {
+    initialize() {
+        self.vtable = new map<string, TinyVar*%>.initialize();
+        self.blockLevel = 0;
+    }
+}
+
 impl TinyVM version 3 {
+    initialize(char* source_name) {
+        inherit(self, source_name);
+
+        self.vtable = new vector<TinyVarTable*%>.initialize();
+        var vtable = new TinyVarTable.initialize();
+        self.vtable.push_back(vtable);
+    }
+    
     bool compile(TinyVM* self, TinyNode* node) {
         if(!inherit(self, node)) {
             return false;

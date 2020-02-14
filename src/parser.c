@@ -476,7 +476,7 @@ static void create_anoymous_struct_name(char* struct_name, int size_struct_name)
     snprintf(struct_name, size_struct_name, "anon%d", anonymous_struct_num++);
 }
 
-static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef, BOOL parse_only);
+static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef, BOOL parse_only, BOOL* define_struct_only);
 
 static BOOL parse_attribute(sParserInfo* info)
 {
@@ -719,8 +719,9 @@ BOOL parse_sharp(sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_name, sParserInfo* info) 
+static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_name, BOOL* define_struct_only, sParserInfo* info) 
 {
+    *define_struct_only = FALSE;
     char* head_of_struct = info->p;
 
     char sname[PATH_MAX];
@@ -737,8 +738,12 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
 
     int version = 0;
 
+    /// already get struct name ///
+    if(strcmp(struct_name, "") != 0)
+    {
+    }
     /// anonymous struct ///
-    if(*info->p == '{') {
+    else if(*info->p == '{') {
         anonymous = TRUE;
         create_anoymous_struct_name(struct_name, size_struct_name);
     }
@@ -853,7 +858,8 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
 
             sNodeType* field = NULL;
             char buf[VAR_NAME_MAX];
-            if(!parse_type(&field, info, buf, FALSE, FALSE, FALSE)) {
+            BOOL define_struct_only = FALSE;
+            if(!parse_type(&field, info, buf, FALSE, FALSE, FALSE, &define_struct_only)) {
                 return FALSE;
             }
 
@@ -944,6 +950,8 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
             info->p++;
             skip_spaces_and_lf(info);
 
+            *define_struct_only = TRUE;
+
             if(anonymous) {
                 struct_class->mFlags |= CLASS_FLAGS_ANONYMOUS_VAR_NAME;
             }
@@ -971,7 +979,9 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
 
         *node = sNodeTree_struct(struct_type, info, sname, sline, anonymous);
 
-        if(undefined_struct && !included_generics_type(struct_type)) 
+        sCLClass* checked_class[STRUCT_FIELD_MAX];
+        int num_checked_class = 0;
+        if(undefined_struct && !included_generics_type(struct_type, checked_class, &num_checked_class)) 
         {
             sCompileInfo cinfo;
             memset(&cinfo, 0, sizeof(sCompileInfo));
@@ -1069,7 +1079,8 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
 
             sNodeType* field = NULL;
             char buf[VAR_NAME_MAX];
-            if(!parse_type(&field, info, buf, FALSE, FALSE, FALSE)) {
+            BOOL define_struct_only = FALSE;
+            if(!parse_type(&field, info, buf, FALSE, FALSE, FALSE, &define_struct_only)) {
                 return FALSE;
             }
 
@@ -1126,7 +1137,9 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
 
         *node = sNodeTree_union(union_type, info, sname, sline, anonymous);
 
-        if(undefined_struct && !included_generics_type(union_type)) 
+        sCLClass* checked_class[STRUCT_FIELD_MAX];
+        int num_checked_class = 0;
+        if(undefined_struct && !included_generics_type(union_type, checked_class, &num_checked_class)) 
         {
             sCompileInfo cinfo;
             memset(&cinfo, 0, sizeof(sCompileInfo));
@@ -1365,7 +1378,7 @@ static BOOL is_premitive_type(char* buf, sParserInfo* info)
     return klass->mFlags & CLASS_FLAGS_PRIMITIVE;
 }
 
-static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef, BOOL parse_only)
+static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef, BOOL parse_only, BOOL* define_struct_only)
 {
     if(func_pointer_name) {
         func_pointer_name[0] = '\0';
@@ -1618,7 +1631,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
             unsigned int node = 0;
 
-            if(!parse_struct(&node, type_name, VAR_NAME_MAX, info)) {
+            if(!parse_struct(&node, type_name, VAR_NAME_MAX, define_struct_only, info)) {
                 return FALSE;
             }
         }
@@ -1661,7 +1674,9 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         else if(strcmp(type_name, "struct") == 0 && *info->p == '{') {
             unsigned int node = 0;
 
-            if(!parse_struct(&node, type_name, VAR_NAME_MAX, info)) {
+            type_name[0] = '\0';
+
+            if(!parse_struct(&node, type_name, VAR_NAME_MAX, define_struct_only, info)) {
                 return FALSE;
             }
         }
@@ -1824,7 +1839,8 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                     else {
                         while(1) {
                             sNodeType* node_type = NULL;
-                            if(!parse_type(&node_type, info, NULL, FALSE, FALSE, parse_only)) {
+                            BOOL define_struct_only = FALSE;
+                            if(!parse_type(&node_type, info, NULL, FALSE, FALSE, parse_only, &define_struct_only)) {
                                 return FALSE;
                             }
 
@@ -1878,7 +1894,8 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
         while(1) {
             char tmp[VAR_NAME_MAX];
-            if(!parse_type(&(*result_type)->mGenericsTypes[generics_num], info, tmp, FALSE, FALSE, parse_only)) {
+            BOOL define_struct_only = FALSE;
+            if(!parse_type(&(*result_type)->mGenericsTypes[generics_num], info, tmp, FALSE, FALSE, parse_only, &define_struct_only)) {
                 return FALSE;
             }
 
@@ -2037,7 +2054,8 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             else {
                 while(1) {
                     sNodeType* node_type = NULL;
-                    if(!parse_type(&node_type, info, NULL, FALSE, FALSE, parse_only)) {
+                    BOOL define_struct_only = FALSE;
+                    if(!parse_type(&node_type, info, NULL, FALSE, FALSE, parse_only, &define_struct_only)) {
                         return FALSE;
                     }
 
@@ -2095,7 +2113,12 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         }
     }
 
-    if(((*result_type)->mClass->mFlags & CLASS_FLAGS_STRUCT) && !included_generics_type(*result_type) && definition_llvm_type && (*result_type)->mClass->mUndefinedStructType == NULL)
+    sCLClass* checked_class[STRUCT_FIELD_MAX];
+    int num_checked_class = 0;
+
+    BOOL included_generics_type_result = included_generics_type(*result_type, checked_class, &num_checked_class);
+
+    if(((*result_type)->mClass->mFlags & CLASS_FLAGS_STRUCT) && !included_generics_type_result && definition_llvm_type && (*result_type)->mClass->mUndefinedStructType == NULL)
     {
         sCompileInfo cinfo;
         memset(&cinfo, 0, sizeof(sCompileInfo));
@@ -2114,7 +2137,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             }
         }
     }
-    else if(((*result_type)->mClass->mFlags & CLASS_FLAGS_UNION) && !included_generics_type(*result_type) && definition_llvm_type && (*result_type)->mClass->mUndefinedStructType == NULL)
+    else if(((*result_type)->mClass->mFlags & CLASS_FLAGS_UNION) && !included_generics_type_result && definition_llvm_type && (*result_type)->mClass->mUndefinedStructType == NULL)
     {
         sCompileInfo cinfo;
         memset(&cinfo, 0, sizeof(sCompileInfo));
@@ -2156,7 +2179,8 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
 
     sNodeType* node_type;
     if(*info->p != '=') {
-        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE)) {
+        BOOL define_struct_only = FALSE;
+        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE, &define_struct_only)) {
             return FALSE;
         }
 
@@ -2647,7 +2671,8 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
 
 static BOOL parse_param(sParserParam* param, sParserInfo* info)
 {
-    if(!parse_type(&param->mType, info, param->mName, TRUE, FALSE, FALSE)) {
+    BOOL define_struct_only = FALSE;
+    if(!parse_type(&param->mType, info, param->mName, TRUE, FALSE, FALSE, &define_struct_only)) {
         return FALSE;
     }
 
@@ -3003,7 +3028,8 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
     }
 
     sNodeType* result_type = NULL;
-    if(!parse_type(&result_type, info, NULL, TRUE, FALSE, FALSE))
+    BOOL define_struct_only = FALSE;
+    if(!parse_type(&result_type, info, NULL, TRUE, FALSE, FALSE, &define_struct_only))
     {
         return FALSE;
     }
@@ -3272,7 +3298,8 @@ static BOOL parse_inline_function(unsigned int* node, char* struct_name, sParser
     }
 
     sNodeType* result_type = NULL;
-    if(!parse_type(&result_type, info, NULL, TRUE, FALSE, FALSE))
+    BOOL define_struct_only = FALSE;
+    if(!parse_type(&result_type, info, NULL, TRUE, FALSE, FALSE, &define_struct_only))
     {
         return FALSE;
     }
@@ -4645,7 +4672,8 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(!parse_type(&result_type, info, NULL, TRUE, FALSE, FALSE)) {
+        BOOL define_struct_only = FALSE;
+        if(!parse_type(&result_type, info, NULL, TRUE, FALSE, FALSE, &define_struct_only)) {
             return FALSE;
         }
     }
@@ -4705,7 +4733,8 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
 {
     sNodeType* node_type = NULL;
 
-    if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE)) {
+    BOOL define_struct_only = FALSE;
+    if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE, &define_struct_only)) {
         return FALSE;
     }
 
@@ -4841,7 +4870,8 @@ static BOOL parse_alloca(unsigned int* node, sParserInfo* info)
 {
     sNodeType* node_type = NULL;
 
-    if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE)) {
+    BOOL define_struct_only = FALSE;
+    if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE, &define_struct_only)) {
         return FALSE;
     }
 
@@ -4886,7 +4916,8 @@ static BOOL parse_sizeof(unsigned int* node, sParserInfo* info)
     if(is_type_name(buf, info)) {
         sNodeType* node_type = NULL;
 
-        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE)) {
+        BOOL define_struct_only = FALSE;
+        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE, &define_struct_only)) {
             return FALSE;
         }
 
@@ -4923,7 +4954,8 @@ static BOOL parse_alignof(unsigned int* node, sParserInfo* info)
     if(is_type_name(buf, info)) {
         sNodeType* node_type = NULL;
 
-        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE)) {
+        BOOL define_struct_only = FALSE;
+        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE, &define_struct_only)) {
             return FALSE;
         }
 
@@ -4977,7 +5009,8 @@ BOOL parse_class_name_expression(unsigned int* node, sParserInfo* info)
     if(is_type_name(buf, info)) {
         sNodeType* node_type = NULL;
 
-        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE)) {
+        BOOL define_struct_only = FALSE;
+        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE, &define_struct_only)) {
             return FALSE;
         }
 
@@ -5034,7 +5067,8 @@ BOOL parse_typedef(unsigned int* node, sParserInfo* info)
     }
 
     sNodeType* node_type = NULL;
-    if(!parse_type(&node_type, info, buf, TRUE, TRUE, FALSE)) {
+    BOOL define_struct_only = FALSE;
+    if(!parse_type(&node_type, info, buf, TRUE, TRUE, FALSE, &define_struct_only)) {
         return FALSE;
     }
 
@@ -5336,7 +5370,8 @@ static BOOL parse_va_arg(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward(",", info);
 
     sNodeType* node_type = NULL;
-    if(!parse_type(&node_type, info, NULL, FALSE, FALSE, FALSE))
+    BOOL define_struct_only = FALSE;
+    if(!parse_type(&node_type, info, NULL, FALSE, FALSE, FALSE, &define_struct_only))
     {
         return FALSE;
     }
@@ -5429,7 +5464,8 @@ static BOOL parse_is_heap(unsigned int* node, sParserInfo* info)
     if(is_type_name(buf, info)) {
         sNodeType* node_type = NULL;
 
-        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE)) {
+        BOOL define_struct_only = FALSE;
+        if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE, &define_struct_only)) {
             return FALSE;
         }
 
@@ -5512,7 +5548,8 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
             info->sline = sline_before;
 
             sNodeType* node_type = NULL;
-            if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE))
+            BOOL define_struct_only = FALSE;
+            if(!parse_type(&node_type, info, NULL, TRUE, FALSE, FALSE, &define_struct_only))
             {
                 return FALSE;
             }
@@ -6038,7 +6075,8 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
 
                         sNodeType* field = NULL;
                         char buf[VAR_NAME_MAX];
-                        if(!parse_type(&field, info, buf, FALSE, FALSE, TRUE)) {
+                        BOOL define_struct_only = FALSE;
+                        if(!parse_type(&field, info, buf, FALSE, FALSE, TRUE, &define_struct_only)) {
                             return FALSE;
                         }
 
@@ -6146,7 +6184,8 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
 
                         sNodeType* field = NULL;
                         char buf[VAR_NAME_MAX];
-                        if(!parse_type(&field, info, buf, FALSE, FALSE, TRUE)) {
+                        BOOL define_struct_only = FALSE;
+                        if(!parse_type(&field, info, buf, FALSE, FALSE, TRUE, &define_struct_only)) {
                             return FALSE;
                         }
 
@@ -6275,7 +6314,8 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
 
             xstrncpy(struct_name, "", VAR_NAME_MAX);
 
-            if(!parse_struct(node, struct_name, VAR_NAME_MAX, info)) {
+            BOOL define_struct_only = FALSE;
+            if(!parse_struct(node, struct_name, VAR_NAME_MAX, &define_struct_only, info)) {
                 return FALSE;
             }
         }
@@ -6518,7 +6558,8 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
 
             sNodeType* result_type = NULL;
             char name[VAR_NAME_MAX+1];
-            if(!parse_type(&result_type, info, name, TRUE, FALSE, FALSE))
+            BOOL define_struct_only = FALSE;
+            if(!parse_type(&result_type, info, name, TRUE, FALSE, FALSE, &define_struct_only))
             {
                 return FALSE;
             }
@@ -6637,7 +6678,8 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
 
             sNodeType* result_type = NULL;
             char name[VAR_NAME_MAX+1];
-            if(!parse_type(&result_type, info, name, TRUE, FALSE, FALSE))
+            BOOL define_struct_only = FALSE;
+            if(!parse_type(&result_type, info, name, TRUE, FALSE, FALSE, &define_struct_only))
             {
                 return FALSE;
             }

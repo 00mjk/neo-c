@@ -29,6 +29,7 @@ impl ViWin version 2
                 }
                 else if(self.cursorX == line.length())
                 {
+
                     mvwprintw(self.win, it2, 0, "%ls", line);
                     wstring line2 = line.printable();
 

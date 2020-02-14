@@ -655,6 +655,25 @@ int funXXX() {
     }
 }
 
+struct TinyNode;
+
+struct TinyNode {
+    int type;
+
+    union {
+        int intValue;
+
+        struct varName {
+            char* name;
+            TinyNode* value;
+        } bbb;
+    };
+
+    TinyNode* left;
+    TinyNode* right;
+    TinyNode* middle;
+};
+
 int main()
 {
     if(1 == 1) {
@@ -1658,6 +1677,12 @@ label1:
     for(int i=0; i<3; i++) {
         var strU = string("ABC");
     }
+
+    TinyNode* abbbb = new TinyNode;
+
+    abbbb.type = 0;
+    abbbb.intValue = 0;
+    abbbb.bbb.name = "AAA";
 
     0
 }

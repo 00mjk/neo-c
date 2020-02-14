@@ -39,6 +39,13 @@ struct TinyNode {
 
     union {
         int intValue;
+    
+/*
+        struct varValue {
+            char* name;
+            TinyNode* value;
+        };
+*/
     };
 
     TinyNode* left;
@@ -83,18 +90,35 @@ impl TinyNode version 3 {
 }
 impl TinyParser version 3 {
     TinyNode*% mult_div(TinyParser* self);
+    TinyNode*% node(TinyParser* self);
 };
 
-enum { NODETYPE_MULT=NODETYPE_MINUS+1, NODETYPE_DIV=NODETYPE_MINUS+2 };
+enum { NODETYPE_MULT=NODETYPE_MINUS+1, NODETYPE_DIV };
 
-/*
+struct TinyVar
+{
+    string name;
+    TVALUE value;
+};
+
+struct TinyVarTable
+{
+    map<string, TinyVar%*>*% vtable;
+    int blockLevel;
+};
+
+impl TinyVarTable {
+    initialize();
+}
+
 struct TinyVM version 2
 {
     vector<TinyVarTable*%>*% vtable;
 };
-*/
 
 impl TinyVM version 3 {
+    initialize(char* source_name);
+    
     bool compile(TinyVM* self, TinyNode* node);
 };
 

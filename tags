@@ -79,10 +79,10 @@ MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
 NCC	tiny/Makefile	/^NCC=neo-c$/;"	m
 NCC	wi/Makefile	/^NCC=neo-c$/;"	m
 NEO_C_STACK_SIZE	src/common.h	24;"	d
-NODETYPE_DIV	tiny/common.h	/^enum { NODETYPE_MULT=NODETYPE_MINUS+1, NODETYPE_DIV=NODETYPE_MINUS+2 };$/;"	e	enum:__anon5
+NODETYPE_DIV	tiny/common.h	/^enum { NODETYPE_MULT=NODETYPE_MINUS+1, NODETYPE_DIV };$/;"	e	enum:__anon5
 NODETYPE_INT	tiny/common.h	/^enum { NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS };$/;"	e	enum:__anon1
 NODETYPE_MINUS	tiny/common.h	/^enum { NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS };$/;"	e	enum:__anon1
-NODETYPE_MULT	tiny/common.h	/^enum { NODETYPE_MULT=NODETYPE_MINUS+1, NODETYPE_DIV=NODETYPE_MINUS+2 };$/;"	e	enum:__anon5
+NODETYPE_MULT	tiny/common.h	/^enum { NODETYPE_MULT=NODETYPE_MINUS+1, NODETYPE_DIV };$/;"	e	enum:__anon5
 NODETYPE_PLUS	tiny/common.h	/^enum { NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS };$/;"	e	enum:__anon1
 NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
 NULL_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE };$/;"	e	enum:__anon3
@@ -126,6 +126,8 @@ TheModule	src/llvm.cpp	/^Module* TheModule;$/;"	v
 TinyNode	tiny/common.h	/^struct TinyNode {$/;"	s
 TinyParser	tiny/common.h	/^struct TinyParser$/;"	s
 TinyVM	tiny/common.h	/^struct TinyVM$/;"	s
+TinyVar	tiny/common.h	/^struct TinyVar$/;"	s
+TinyVarTable	tiny/common.h	/^struct TinyVarTable$/;"	s
 VAR_NAME_MAX	src/common.h	20;"	d
 Vi	wi/common.h	/^struct Vi $/;"	s
 ViFiler	wi/common.h	/^struct ViFiler$/;"	s
@@ -273,6 +275,7 @@ binded_value	src/llvm_common.hpp	/^    BOOL binded_value;$/;"	m	struct:LVALUEStr
 bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	tiny/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	wi/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
+blockLevel	tiny/common.h	/^    int blockLevel;$/;"	m	struct:TinyVarTable
 buf	code/neo-c.h	/^    char* buf;$/;"	m	struct:buffer
 buf	neo-c.h	/^    char* buf;$/;"	m	struct:buffer
 buffer	code/neo-c.h	/^struct buffer {$/;"	s
@@ -606,7 +609,7 @@ impl_struct_name	src/common.h	/^    char impl_struct_name[VAR_NAME_MAX];$/;"	m	s
 in_case	src/common.h	/^    BOOL in_case;$/;"	m	struct:sParserInfoStruct
 in_clang	src/common.h	/^    BOOL in_clang;$/;"	m	struct:sParserInfoStruct
 in_inline_function	src/common.h	/^    BOOL in_inline_function;$/;"	m	struct:sCompileInfoStruct
-included_generics_type	src/node_type.c	/^BOOL included_generics_type(sNodeType* node_type)$/;"	f
+included_generics_type	src/node_type.c	/^BOOL included_generics_type(sNodeType* node_type, sCLClass* checked_class[], int* num_checked_class)$/;"	f
 includedir	Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 includedir	tiny/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 includedir	wi/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
@@ -1045,6 +1048,7 @@ n	neo-c.h	/^        n = n + 1;$/;"	m	struct:map
 n	neo-c.h	/^        n = n + 1;$/;"	m	struct:tuple
 n	neo-c.h	/^    n = 0;$/;"	m	struct:map
 n	neo-c.h	/^    n = 0;$/;"	m	struct:tuple
+name	tiny/common.h	/^    string name;$/;"	m	struct:TinyVar
 new_right_value_objects_container	src/llvm.cpp	/^void* new_right_value_objects_container(sCompileInfo* info)$/;"	f
 next	code/neo-c.h	/^    struct list_item<T>*? next;$/;"	m	struct:list_item	typeref:struct:list_item::list_item
 next	neo-c.h	/^    struct list_item<T>*? next;$/;"	m	struct:list_item	typeref:struct:list_item::list_item
@@ -1122,11 +1126,11 @@ parse_sharp	src/parser.c	/^BOOL parse_sharp(sParserInfo* info)$/;"	f
 parse_simple_lambda_param	src/node.cpp	/^static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, sNodeType* generics_type, sParserInfo* info, sCompileInfo* cinfo, int num_generics, char generics_type_names[PARAMS_MAX][VAR_NAME_MAX], BOOL in_clang)$/;"	f	file:
 parse_simple_lambda_params	src/parser.c	/^static BOOL parse_simple_lambda_params(unsigned int* node, int sline, sParserInfo* info)$/;"	f	file:
 parse_sizeof	src/parser.c	/^static BOOL parse_sizeof(unsigned int* node, sParserInfo* info)$/;"	f	file:
-parse_struct	src/parser.c	/^static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_name, sParserInfo* info) $/;"	f	file:
+parse_struct	src/parser.c	/^static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_name, BOOL* define_struct_only, sParserInfo* info) $/;"	f	file:
 parse_struct_name	src/common.h	/^    char parse_struct_name[VAR_NAME_MAX];$/;"	m	struct:sParserInfoStruct
 parse_struct_phase	src/common.h	/^    BOOL parse_struct_phase;$/;"	m	struct:sParserInfoStruct
 parse_switch	src/parser.c	/^static BOOL parse_switch(unsigned int* node, sParserInfo* info)$/;"	f	file:
-parse_type	src/parser.c	/^static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef, BOOL parse_only)$/;"	f	file:
+parse_type	src/parser.c	/^static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef, BOOL parse_only, BOOL* define_struct_only)$/;"	f	file:
 parse_typedef	src/parser.c	/^BOOL parse_typedef(unsigned int* node, sParserInfo* info)$/;"	f
 parse_typedef_attribute	src/parser.c	/^static BOOL parse_typedef_attribute(sParserInfo* info)$/;"	f	file:
 parse_union	src/parser.c	/^static BOOL parse_union(unsigned int* node, char* union_name, int size_union_name, sParserInfo* info) $/;"	f	file:
@@ -1360,6 +1364,7 @@ sVarTable	src/common.h	/^typedef struct sVarTableStruct sVarTable;$/;"	t	typeref
 sVarTableStruct	src/common.h	/^struct sVarTableStruct {$/;"	s
 sVector	src/common.h	/^        } sVector;$/;"	m	union:sNodeTreeStruct::__anon8	typeref:struct:sNodeTreeStruct::__anon8::__anon18
 sWhile	src/common.h	/^        } sWhile;$/;"	m	union:sNodeTreeStruct::__anon8	typeref:struct:sNodeTreeStruct::__anon8::__anon21
+same_struct_type	src/llvm.cpp	/^static BOOL same_struct_type(sNodeType* left_type, sNodeType* right_type, sCompileInfo* info)$/;"	f	file:
 savedInputedKeys	wi/common.h	/^    vector<int>*% savedInputedKeys;$/;"	m	struct:version
 scroll	wi/common.h	/^    int scroll;$/;"	m	struct:ViFiler
 scroll	wi/common.h	/^    int scroll;$/;"	m	struct:version
@@ -1485,11 +1490,13 @@ v3	neo-c.h	/^    T3 v3;$/;"	m	struct:tuple3
 v3	neo-c.h	/^    T3 v3;$/;"	m	struct:tuple4
 v3	neo-c.h	/^    T4 v3;$/;"	m	struct:tuple4
 value	src/llvm_common.hpp	/^    Value* value;$/;"	m	struct:LVALUEStruct
+value	tiny/common.h	/^    TVALUE value;$/;"	m	struct:TinyVar
 var	src/llvm_common.hpp	/^    sVar* var;$/;"	m	struct:LVALUEStruct
 vector	code/neo-c.h	/^struct vector<T> $/;"	s
 vector	neo-c.h	/^struct vector<T> $/;"	s
 version	code/HelloWorld6.h	/^impl StructData1 version 2$/;"	s
 version	code/HelloWorld6.h	/^struct StructData1 version 2$/;"	s
+version	tiny/common.h	/^struct TinyVM version 2$/;"	s
 version	wi/common.h	/^impl Vi version 2 $/;"	s
 version	wi/common.h	/^impl Vi version 6$/;"	s
 version	wi/common.h	/^impl Vi version 7 $/;"	s
@@ -1508,6 +1515,8 @@ version	wi/common.h	/^struct ViWin version 5$/;"	s
 version	wi/common.h	/^struct ViWin version 6$/;"	s
 version	wi/common.h	/^struct ViWin version 8$/;"	s
 visualModeHead	wi/common.h	/^    int visualModeHead;$/;"	m	struct:version
+vtable	tiny/common.h	/^    map<string, TinyVar%*>*% vtable;$/;"	m	struct:TinyVarTable
+vtable	tiny/common.h	/^    vector<TinyVarTable*%>*% vtable;$/;"	m	struct:version
 width	wi/common.h	/^    int width;$/;"	m	struct:ViFiler
 width	wi/common.h	/^    int width;$/;"	m	struct:ViWin
 win	wi/common.h	/^    WINDOW* win;$/;"	m	struct:ViFiler

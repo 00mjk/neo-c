@@ -755,13 +755,22 @@ BOOL get_type_of_method_generics(sNodeType* method_generics_types[GENERICS_TYPES
     return TRUE;
 }
 
-BOOL included_generics_type(sNodeType* node_type)
+BOOL included_generics_type(sNodeType* node_type, sCLClass* checked_class[], int* num_checked_class)
 {
     sCLClass* klass = node_type->mClass;
 
+    checked_class[*num_checked_class] = klass;
+    (*num_checked_class)++;
+
+    if(*num_checked_class >= STRUCT_FIELD_MAX) 
+    {
+        fprintf(stderr, "overflow struct field max at included_generics_type");
+        exit(2);
+    }
+
     if(type_identify_with_class_name(node_type, "lambda")) 
     {
-        if(included_generics_type(node_type->mResultType))
+        if(included_generics_type(node_type->mResultType, checked_class, num_checked_class))
         {
             return TRUE;
         }
@@ -769,7 +778,7 @@ BOOL included_generics_type(sNodeType* node_type)
         int i;
         for(i=0; i<node_type->mNumParams; i++)
         {
-            if(included_generics_type(node_type->mParamTypes[i]))
+            if(included_generics_type(node_type->mParamTypes[i], checked_class, num_checked_class))
             {
                 return TRUE;
             }
@@ -783,11 +792,27 @@ BOOL included_generics_type(sNodeType* node_type)
         if((klass->mFlags & CLASS_FLAGS_STRUCT) || (klass->mFlags & CLASS_FLAGS_UNION))
         {
             int i;
-            
+
             for(i=0; i<klass->mNumFields; i++) {
                 sNodeType* field_type = clone_node_type(klass->mFields[i]);
 
-                if(field_type->mClass == klass ||included_generics_type(field_type))
+                BOOL same_class = FALSE;
+                int j;
+                for(j=0; j<*num_checked_class; j++)
+                {
+                    if(field_type->mClass == checked_class[j])
+                    {
+                        if(field_type->mClass->mFlags & CLASS_FLAGS_GENERICS || field_type->mClass->mFlags & CLASS_FLAGS_METHOD_GENERICS) 
+                        {
+                            return TRUE;
+                        }
+                        else {
+                            return FALSE;
+                        }
+                    }
+                }
+
+                if(included_generics_type(field_type, checked_class, num_checked_class))
                 {
                     return TRUE;
                 }
@@ -797,7 +822,7 @@ BOOL included_generics_type(sNodeType* node_type)
         int i;
         for(i=0; i<node_type->mNumGenericsTypes; i++)
         {
-            if(node_type->mGenericsTypes[i]->mClass == klass || included_generics_type(node_type->mGenericsTypes[i]))
+            if(node_type->mGenericsTypes[i]->mClass == klass || included_generics_type(node_type->mGenericsTypes[i], checked_class, num_checked_class))
             {
                 return TRUE;
             }

@@ -200,7 +200,7 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type, BOOL* succe
 BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX]);
 BOOL solve_typeof(sNodeType** node_type, struct sCompileInfoStruct* info);
 BOOL is_typeof_type(sNodeType* node_type);
-BOOL included_generics_type(sNodeType* node_type);
+BOOL included_generics_type(sNodeType* node_type, sCLClass* checked_class[], int* num_checked_class);
 BOOL get_type_of_method_generics(sNodeType* method_generics_types[GENERICS_TYPES_MAX], sNodeType* fun_param_type, sNodeType* param_type);
 void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type, BOOL neo_c);
   

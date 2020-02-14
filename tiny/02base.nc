@@ -188,6 +188,12 @@ impl TinyVM {
         while(*self.parser.p) {
             var node = self.parser.expression();
 
+            if(node == null) {
+                self.parser.errMessage("null expression");
+                self.parser.errNumber++;
+                break;
+            }
+
             self.nodes.push_back(node);
         }
 

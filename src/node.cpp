@@ -1617,6 +1617,7 @@ static BOOL compile_equals(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+
     LVALUE llvm_value;
     llvm_value.value = Builder.CreateICmpEQ(lvalue.value, rvalue.value, "eqtmpX");
     llvm_value.type = create_node_type_with_class_name("bool");
@@ -6340,11 +6341,145 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
             sCLClass* parent_field_class = parent_field_type->mClass;
 
             field_type = clone_node_type(parent_field_class->mFields[field_index]);
+
+            if(is_typeof_type(parent_field_type))
+            {
+                if(!solve_typeof(&parent_field_type, info)) 
+                {
+                    compile_err_msg(info, "Can't solve typeof types");
+                    show_node_type(parent_field_type); 
+                    info->err_num++;
+                    return FALSE;
+                }
+            }
+
+            BOOL success_solve;
+            if(!solve_generics(&parent_field_type, left_type, &success_solve)) {
+                compile_err_msg(info, "Can't solve generics types(12)");
+                show_node_type(parent_field_type);
+                show_node_type(left_type);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            Type* llvm_field_type;
+            if(!create_llvm_type_from_node_type(&llvm_field_type, parent_field_type, parent_field_type, info))
+            {
+                compile_err_msg(info, "Getting llvm type failed(13)");
+                show_node_type(parent_field_type);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            LVALUE lvalue = *get_value_from_stack(-1);
+
+            sNodeType* left_type2 = clone_node_type(left_type);
+            left_type2->mPointerNum = 0;
+
+            Type* llvm_struct_type;
+            if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, left_type2, info))
+            {
+                compile_err_msg(info, "Getting llvm type failed(14)");
+                show_node_type(left_type2);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            int alignment = get_llvm_alignment_from_node_type(parent_field_type);
+
+            LVALUE llvm_value;
+            llvm_value.value = get_dummy_value(field_type, info);
+            llvm_value.type = clone_node_type(field_type);
+            llvm_value.address = nullptr;
+            llvm_value.var = nullptr;
+            llvm_value.binded_value = TRUE;
+            llvm_value.load_field = FALSE;
+
+            dec_stack_ptr(1, info);
+            push_value_to_stack_ptr(&llvm_value, info);
+
+            left_type = parent_field_type;
         }
         else {
             field_type = clone_node_type(left_type->mClass->mFields[field_index]);
         }
+
+        if(is_typeof_type(field_type))
+        {
+            if(!solve_typeof(&field_type, info)) 
+            {
+                compile_err_msg(info, "Can't solve typeof types");
+                show_node_type(field_type); 
+                info->err_num++;
+                return FALSE;
+            }
+        }
+
+        BOOL success_solve;
+        if(!solve_generics(&field_type, left_type, &success_solve)) {
+            compile_err_msg(info, "Can't solve generics types(13)");
+            show_node_type(field_type);
+            show_node_type(left_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        Type* llvm_field_type;
+        if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(13)");
+            show_node_type(field_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        LVALUE lvalue = *get_value_from_stack(-1);
+
+        sNodeType* left_type2 = clone_node_type(left_type);
+        left_type2->mPointerNum = 0;
+
+        Type* llvm_struct_type;
+        if(!create_llvm_type_from_node_type(&llvm_struct_type, left_type2, left_type2, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(14)");
+            show_node_type(left_type2);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        int alignment = get_llvm_alignment_from_node_type(field_type);
+
+        LVALUE llvm_value;
+
+        llvm_value.type = clone_node_type(field_type);
+        llvm_value.value = get_dummy_value(field_type, info);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = TRUE;
+        llvm_value.load_field = TRUE;
+
         info->type = clone_node_type(field_type);
+
+        dec_stack_ptr(1, info);
+        push_value_to_stack_ptr(&llvm_value, info);
     }
     else {
         sNodeType* field_type;
