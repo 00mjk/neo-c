@@ -795,6 +795,13 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOO
         }
 
         klass->mUndefinedStructType = NULL;
+
+        std::pair<Type*, sNodeType*> pair_value;
+        pair_value.first = struct_type;
+        pair_value.second = clone_node_type(node_type);
+        pair_value.second->mNumFields = node_type->mClass->mNumFields;
+
+        gLLVMStructType[real_struct_name] = pair_value;
     }
     else if(gLLVMStructType[real_struct_name].first == nullptr || (info->pinfo && info->pinfo->parse_struct_phase && (node_type->mClass->mNumFields != gLLVMStructType[real_struct_name].second->mNumFields)))
     {

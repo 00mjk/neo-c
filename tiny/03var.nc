@@ -3,6 +3,14 @@
 #include <ctype.h>
 
 impl TinyNode version 3 {
+    finalize() {
+        inherit(self);
+
+        if(self.type == NODETYPE_VAR) {
+            delete self.varValue.name;
+            delete self.varValue.value;
+        }
+    }
     TinyNode*% createMultNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
         self.type = NODETYPE_MULT;
 
@@ -26,15 +34,14 @@ impl TinyNode version 3 {
         return self;
     }
 
-    TinyNode*% createAssignNode(string name, TinyNode*% value) {
-/*
-        self.type = NODETYPE_DIV;
+    TinyNode*% createAssignNode(TinyNode%* self, string name, TinyNode*% value) 
+    {
+        self.type = NODETYPE_VAR;
 
-        self.varName = name;
-        self.varValue = value;
+        self.varValue.name = borrow name;
+        self.varValue.value = borrow value;
 
         return self;
-*/
     }
 
     void debug(TinyNode* self) {
@@ -107,9 +114,7 @@ impl TinyParser version 3 {
                     return null;
                 }
 
-/*
                 return new TinyNode.createAssignNode(name, value);
-*/
             }
         }
 

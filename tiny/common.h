@@ -40,12 +40,10 @@ struct TinyNode {
     union {
         int intValue;
     
-/*
-        struct varValue {
+        struct {
             char* name;
             TinyNode* value;
-        };
-*/
+        } varValue;
     };
 
     TinyNode* left;
@@ -93,7 +91,7 @@ impl TinyParser version 3 {
     TinyNode*% node(TinyParser* self);
 };
 
-enum { NODETYPE_MULT=NODETYPE_MINUS+1, NODETYPE_DIV };
+enum { NODETYPE_MULT=NODETYPE_MINUS+1, NODETYPE_DIV, NODETYPE_VAR };
 
 struct TinyVar
 {
