@@ -82,21 +82,30 @@ impl TinyVM {
     bool run(TinyVM* self);
 };
 
-/// 03var.nc ///
+/// 03mult.nc ///
 impl TinyNode version 3 {
-    finalize();
     void debug(TinyNode* self);
-    TinyNode*% mult_div(TinyParser* self);
-    TinyNode*% node(TinyParser* self);
 };
 
 enum { NODETYPE_MULT=NODETYPE_MINUS+1, NODETYPE_DIV, NODETYPE_VAR };
 
 impl TinyParser version 3 {
-    string parseWord(TinyParser* self);
-
-    TinyNode*% node(TinyParser* self);
     TinyNode*% mult_div(TinyParser* self);
+}
+
+impl TinyVM version 3 {
+    bool compile(TinyVM* self, TinyNode* node);
+};
+
+/// 04var.nc 
+impl TinyNode version 4 {
+    finalize();
+    void debug(TinyNode* self);
+}
+
+impl TinyParser version 4 {
+    string parseWord(TinyParser* self);
+    TinyNode*% node(TinyParser* self);
 }
 
 struct TinyVar
@@ -115,14 +124,12 @@ impl TinyVarTable {
     initialize();
 }
 
-struct TinyVM version 3
+struct TinyVM version 4
 {
     vector<TinyVarTable*%>*% vtable;
 };
 
-impl TinyVM version 3 {
+impl TinyVM version 4 {
     initialize(char* source_name);
-    
     bool compile(TinyVM* self, TinyNode* node);
-};
-
+}

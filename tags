@@ -1451,7 +1451,7 @@ vector	code/neo-c.h	/^struct vector<T> $/;"	s
 vector	neo-c.h	/^struct vector<T> $/;"	s
 version	code/HelloWorld6.h	/^impl StructData1 version 2$/;"	s
 version	code/HelloWorld6.h	/^struct StructData1 version 2$/;"	s
-version	tiny/common.h	/^struct TinyVM version 2$/;"	s
+version	tiny/common.h	/^struct TinyVM version 4$/;"	s
 version	wi/common.h	/^impl Vi version 2 $/;"	s
 version	wi/common.h	/^impl Vi version 6$/;"	s
 version	wi/common.h	/^impl Vi version 7 $/;"	s
