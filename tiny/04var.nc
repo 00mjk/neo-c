@@ -111,19 +111,12 @@ impl TinyParser version 4 {
     }
 };
 
-impl TinyVarTable {
-    initialize() {
-        self.table = new map<string, TVALUE>.initialize();
-        self.blockLevel = 0;
-    }
-}
-
 impl TinyVM version 4 {
     initialize(char* source_name) {
         inherit(self, source_name);
 
-        self.vtable = new vector<TinyVarTable*%>.initialize();
-        var vtable = new TinyVarTable.initialize();
+        self.vtable = new vector<map<string, TVALUE>*%>.initialize();
+        var vtable = new map<string, TVALUE>.initialize();
         self.vtable.push_back(vtable);
     }
     
@@ -149,7 +142,7 @@ impl TinyVM version 4 {
                 
                 var name = clone node.varValue.name;
                 
-                vtable.table.insert(name, value);
+                vtable.insert(name, value);
 
                 self.stack.push_back(value);
                 }
@@ -163,7 +156,7 @@ impl TinyVM version 4 {
                 TVALUE default_value;
                 default_value.type = NULL_VALUE;
                 
-                var value = vtable.table.at(name, default_value);
+                var value = vtable.at(name, default_value);
 
                 if(value.type == NULL_VALUE) {
                 }

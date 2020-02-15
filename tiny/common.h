@@ -113,19 +113,9 @@ impl TinyParser version 4 {
     TinyNode*% node(TinyParser* self);
 }
 
-struct TinyVarTable
-{
-    map<string, TVALUE>*% table;
-    int blockLevel;
-};
-
-impl TinyVarTable {
-    initialize();
-}
-
 struct TinyVM version 4
 {
-    vector<TinyVarTable*%>*% vtable;
+    vector<map<string, TVALUE>*%>*% vtable;
 };
 
 impl TinyVM version 4 {
