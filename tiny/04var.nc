@@ -10,6 +10,9 @@ impl TinyNode version 4 {
             delete self.varValue.name;
             delete self.varValue.value;
         }
+        else if(self.type == NODETYPE_LOAD_VAR) {
+            delete self.varValue.name;
+        }
     }
 
     TinyNode*% createAssignNode(TinyNode%* self, string name, TinyNode*% value) 
@@ -22,6 +25,15 @@ impl TinyNode version 4 {
         return self;
     }
 
+    TinyNode*% createLoadNode(TinyNode%* self, string name) 
+    {
+        self.type = NODETYPE_LOAD_VAR;
+
+        self.loadVarValue.name = borrow clone name;
+
+        return self;
+    }
+
     void debug(TinyNode* self) {
         inherit(self);
         
@@ -29,6 +41,11 @@ impl TinyNode version 4 {
             case NODETYPE_VAR :
                 puts("var node");
                 self.varValue.value.debug();
+                break;
+
+            case NODETYPE_LOAD_VAR :
+                puts("load var node");
+                puts(self.loadVarValue.name);
                 break;
         }
     }
@@ -85,6 +102,9 @@ impl TinyParser version 4 {
 
                 return new TinyNode.createAssignNode(name, value);
             }
+            else {
+                return new TinyNode.createLoadNode(buf);
+            }
         }
 
         return null;
@@ -93,7 +113,7 @@ impl TinyParser version 4 {
 
 impl TinyVarTable {
     initialize() {
-        self.vtable = new map<string, TinyVar*%>.initialize();
+        self.table = new map<string, TVALUE>.initialize();
         self.blockLevel = 0;
     }
 }
@@ -124,6 +144,29 @@ impl TinyVM version 4 {
                 default_value.uValue.intValue = 0;
 
                 TVALUE value = self.stack.pop_back(default_value);
+                
+                var vtable = self.vtable.item(-1, null);
+                
+                var name = clone node.varValue.name;
+                
+                vtable.table.insert(name, value);
+
+                self.stack.push_back(value);
+                }
+                break;
+
+            case NODETYPE_LOAD_VAR : {
+                var vtable = self.vtable.item(-1, null);
+                
+                var name = clone node.loadVarValue.name;
+
+                TVALUE default_value;
+                default_value.type = NULL_VALUE;
+                
+                var value = vtable.table.at(name, default_value);
+
+                if(value.type == NULL_VALUE) {
+                }
 
                 self.stack.push_back(value);
                 }
