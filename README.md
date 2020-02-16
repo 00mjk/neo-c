@@ -66,7 +66,80 @@ make install
 
 ヒープのデバッグを行う場合、./configure --with-debugでアプリケーションをコンパイルしてみてください。memleak_debug.txtというファイルにヒープの状況が出力されます。
 
-* String
+* string
+
+```
+typedef char*% string;
+```
+
+Is declared. % Is the heap that is automatically freed. Generate the value as string ("aaa"). It can be passed as is to a function that takes a char * type as an argument.
+
+```
+    var str = string("ABC");
+
+    if(strcmp(str, "ABC") == 0) {
+        puts("equals");
+    }
+    else {
+        puts("not equals");
+    }
+```
+
+Because it is not a variable-length character string, the heap itself cannot be expanded. In that case, please connect with +.
+
+```
+    var str2 = string("AAA") + string("BBB");
+```
+
+If you want to use a format string, use:
+
+```
+char*% xasprintf(char* str, ...);
+```
+
+An example
+
+```
+    var str = string("ABC");
+    var str2 = string("DEF");
+    var n = 1;
+    var str3 = xasprintf("%s+%s+%d", str, str2, n);
+```
+
+The methods are as follows:
+
+```
+extern string operator+(string& left, string& right);
+extern string operator*(string& left, int num);
+
+impl string
+{
+    extern bool equals(string& left, string& right);
+    extern int length(string& str);
+    extern int get_hash_key(string& value);
+    extern string substring(string& str, int head, int tail);
+    extern int index(string& str, char* search_str, int default_value);
+    extern int rindex(string& str, char* search_str, int default_value);
+    extern string&delete(string& str, int position);
+    extern string& delete_range(string& str, int head, int tail);
+    extern string printable(string& str);
+    extern string sub(string& self, nregex reg, char* replace, list<string>?* group_strings);
+    extern bool match(string& self, nregex reg, list<string>?* group_strings);
+    list<string>*% scan(string& self, nregex reg);
+    extern wstring to_wstring(string& self);
+    string reverse(string& str);
+    list<string>*% split_char(string& self, char c);
+    list<string>*% split(string& self, nregex reg);
+
+    inline int compare(string& left, string& right) {
+        return strcmp(left, right);
+    }
+}
+```
+
+regex is generated as regex! (/.+/). Specify options such as regex! (/.+/ g).
+
+* string
 
 ```
 typedef char*% string;
@@ -139,6 +212,186 @@ impl string
 ```
 
 regexはregex!(/.+/)などと生成します。regex!(/.+/g)などとオプションを指定します。
+
+* list
+
+list is a bidirectional list. This is the main class of the collection. Unlike vector, random access (element retrieval by index) is slow, but insertion and concatenation are fast. Vector has the fastest random access, but in other cases you should use a list.Use it as follows.
+
+```
+    var li = new list<string>.initialize();
+
+    li.push_back(string("AAA"));
+    li.push_back(string("BBB"));
+    li.push_back(string("CCC"));
+
+    li.each {
+        puts(it);
+    }
+```
+
+The generated string is automatically freed when li is freed. each it is the first argument of each method block. Contains "AAA", "BBB" and "CCC".
+
+```
+impl list <T>
+{
+    initialize();
+    finalize();
+    list<T>*% clone(list<T>* self);
+    void reset(list<T>* self);
+    void push_back(list<T>* self, T item);
+    T pop_back(list<T>* self, T default_value);
+    void insert(list<T>* self, int position, T item);
+    void delete(list<T>* self, int position);
+    void delete_range(list<T>* self, int head, int tail);
+    void replace(list<T>* self, int position, T item);
+    T& item(list<T>* self, int position, T& default_value);
+    void each(list<T>* self, void (*block_)(T&,int,bool*));
+    list<T>*% sublist(list<T>* self, int begin, int tail);
+    list<T>*% reverse(list<T>* self);
+    string join(list<string>* self, char* separator);
+    list<T>*% sort(list<T>* self);
+    list<T>*% sort_block(list<T>* self, int (*compare)(T&,T&));
+    list<T>*% uniq(list<T>* self);
+    int find(list<T>* self, T& item, int default_value);
+    bool equals(list<T>* left, list<T>* right);
+    int length(list<T>* self);
+    template <R> list<R>*% map(list<T>* self, R (*block_)(T&));
+}
+```
+
+If T & is T, and if there is% and it is subject to automatic free, add & to remove%. In other words, even if T is a heap, the move in C ++ does not occur and ownership is not passed. Is it a reference in Rust? I don't know well In the case of push_back, since the argument of T and item is T, ownership is transferred and it is the target of automatic free.The generation of list values uses macros.
+
+```
+    var li = list!("AAA", "BBB", "CCC");
+
+    if(li.equals(list!("AAA", "BBB", "CCC")) {
+        puts("true");
+    }
+    else {
+        puts("false");
+    }
+```
+
+Because li is a list <char *>, "AAA", "BBB", "CCC", etc. are not freed.Use item to access elements. For postions such as item, -1 indicates the end.
+
+```
+    var li = list!("AAA", "BBB", "CCC");
+
+    if(strcmp(li.item(-1, null), "CCC") == 0) {
+        puts("true");
+    }
+    else {
+        puts("false");
+    }
+```
+
+The null part of item is the default value, and returns null if position is out of range.It will be easy to understand with find.
+
+```
+    var li = list!("AAA", "BBB", "CCC");
+
+    if(li.find("DDD", null) != null) {
+        puts("found");
+    }
+    else {
+        puts("not found");
+    }
+
+    var li2 = list!(1, 2, 3);
+
+    if(li2.find(5, -1) != -1) {
+        puts("found");
+    }
+    else {
+        puts("not found");
+    }
+```
+
+The sublist range does not include the index of the second argument.
+
+```
+    var li = list!("AAA", "BBB", "CCC", "DDD");
+
+    li.sublist(0,2).each {
+        puts(it);
+    }
+```
+
+Output only "AAA" and "BBB".If the sublist index is <0, it indicates the index counted from the end.
+
+```
+    var li = list!("AAA", "BBB", "CCC", "DDD");
+
+    li.sublist(2,-1).each {
+        puts(it);
+    }
+```
+
+Will output only "CCC" and "DDD".map is the same as Ruby etc. The type is inferred and a list of the appropriate type is returned.
+
+```
+    var li6 = list!("1", "2", "3");
+
+    var li7 = li6.map {
+        atoi(it)
+    }
+
+    xassert("list test", li7.equals(list!(1, 2, 3)));
+```
+
+neo-c is considered to be the return value if there is no; in the last executed expression. In this case, atoi (it) is returned. Since the return value of atoi (it) is int, li7 is type inferred and becomes list. xassert passes the test if the second argument is true.
+
+* vector
+
+```
+impl vector<T> 
+{
+    initialize();
+    vector<T>%* initialize_with_values(vector<T>%* self, int len, T& value);
+    vector<T>%* clone(vector<T>* self);
+    finalize();
+    void push_back(vector<T>* self, T item);
+    T pop_back(vector<T>* self, T default_value);
+    T& item(vector<T>* self, int index, T& default_value);
+    void each(vector<T>* self, void (*block_)(T&,int,bool*));
+    int find(vector<T>* self, T& item, int default_value);
+    template <R> vector<R>*% map(vector<T>* self, R (*block_)(T&));
+    bool equals(vector<T>* left, vector<T>* right);
+    bool replace(vector<T>* self, int index, T value);
+    int length(vector<T>* self);
+    void reset(vector<T>* self);
+}
+```
+
+An example
+
+```
+    var v = vector<int>.initialize();
+
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
+
+    var v2 = vector<int>.initialize();
+
+    v2.push_back(1);
+    v2.push_back(2);
+    v2.push_back(3);
+
+    xassert("vector test", v.equals(v2));
+
+    v.each {
+        printf("index %d item %d\n", it2, it);
+    }
+
+    xassert("vector test2", v.item(0, -1) == 1);
+```
+
+Each of it2 has an index.The macro for generating vector values is vec!
+
+```
+    var v3 = vec!("AAA", "BBB", "CCC");
+```
 
 * list
 
@@ -278,6 +531,99 @@ mapはRubyなどと同じです。型推論されて、適切な型のlistが返
 ```
 
 neo-cは最後に実行された式に;がないと戻り値だと判断されます。この場合atoi(it)が返されてます。atoi(it)の戻り値はintなのでli7は型推論されてlist<int>となってます。xassertは第2引数が真ならテストを成功させます。
+
+
+* map
+
+```
+impl map <T, T2>
+{
+    initialize();
+    finalize();
+    map<T, T2>*% clone(map<T, T2>* self);
+    void each(map<T, T2>* self, void (*block_)(T&,T2&,bool*));
+    void rehash(map<T,T2>* self);
+    bool find(map<T, T2>* self, T& key);
+    T2& at(map<T, T2>* self, T& key, T2& default_value);
+    void insert(map<T,T2>* self, T key, T2 item);
+    bool equals(map<T, T2>* left, map<T, T2>* right);
+}
+```
+
+map is simple. You can store values with insert and access with at.
+
+```
+    var m1 = new map<char*, int>.initialize();
+
+    m1.insert("AAA", 1);
+    m2.insert("BBB", 2);
+    m3.insert("CCC", 3);
+
+    if(m1.at("AAA", -1) == 1) {
+        puts("found");
+    }
+
+    if(m1.at("DDD", -1) == -1) {
+        puts("not found");
+    }
+```
+
+For insert, if the type argument is string, etc., insert will cause ownership transfer. It is automatically freed.Generating a map value is map!
+
+```
+    var m1 = map!(string("AAA"):"AAA", string("BBB"):"BBB", string("CCC"):"CCC");
+
+    if(m1.at(string("ABC"), null) == null) {
+        puts("not found");
+    }
+```
+
+* map
+
+```
+impl map <T, T2>
+{
+    initialize();
+    finalize();
+    map<T, T2>*% clone(map<T, T2>* self);
+    void each(map<T, T2>* self, void (*block_)(T&,T2&,bool*));
+    void rehash(map<T,T2>* self);
+    bool find(map<T, T2>* self, T& key);
+    T2& at(map<T, T2>* self, T& key, T2& default_value);
+    void insert(map<T,T2>* self, T key, T2 item);
+    bool equals(map<T, T2>* left, map<T, T2>* right);
+}
+```
+
+mapはシンプルです。insertで値を格納して、atでアクセスできます。
+
+```
+    var m1 = new map<char*, int>.initialize();
+
+    m1.insert("AAA", 1);
+    m2.insert("BBB", 2);
+    m3.insert("CCC", 3);
+
+    if(m1.at("AAA", -1) == 1) {
+        puts("found");
+    }
+
+    if(m1.at("DDD", -1) == -1) {
+        puts("not found");
+    }
+```
+
+insertは型引数がstringなどであった場合insertは所有権の移動が起こります。自動的にfreeされます。
+
+mapの値の生成はmap!です。
+
+```
+    var m1 = map!(string("AAA"):"AAA", string("BBB"):"BBB", string("CCC"):"CCC");
+
+    if(m1.at(string("ABC"), null) == null) {
+        puts("not found");
+    }
+```
 
 * vector
 
