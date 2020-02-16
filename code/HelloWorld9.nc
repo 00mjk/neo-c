@@ -159,6 +159,14 @@ int main()
 
     xassert("clone test9", v8.equals(vec!("aaa", "bbb")));
 
+    var li6 = list!("1", "2", "3");
+
+    var li7 = li6.map {
+        atoi(it)
+    }
+
+    xassert("list test", li7.equals(list!(1, 2, 3)));
+
     0
 }
 

@@ -11,7 +11,7 @@
 
 int main()
 {
-    printf(string("HO!\n") * 3);
+    printf("HO!\n" * 3);
 
     return 0;
 }

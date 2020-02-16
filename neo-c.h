@@ -1511,6 +1511,19 @@ impl list <T>
     {
         return self.len;
     }
+    template <R> list<R>*% map(list<T>* self, R (*block_)(T&))
+    {
+        var result_ = new list<R>.initialize();
+
+        list_item<T>?* it_ = self.head;
+        while(it_ != null) {
+            result_.push_back(block_(it_.item));
+
+            it_ = it_.next;
+        }
+
+        result_
+    }
 }
 
 ruby_macro list {
