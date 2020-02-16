@@ -341,58 +341,6 @@ Will output only "CCC" and "DDD".map is the same as Ruby etc. The type is inferr
 
 neo-c is considered to be the return value if there is no; in the last executed expression. In this case, atoi (it) is returned. Since the return value of atoi (it) is int, li7 is type inferred and becomes list. xassert passes the test if the second argument is true.
 
-* vector
-
-```
-impl vector<T> 
-{
-    initialize();
-    vector<T>%* initialize_with_values(vector<T>%* self, int len, T& value);
-    vector<T>%* clone(vector<T>* self);
-    finalize();
-    void push_back(vector<T>* self, T item);
-    T pop_back(vector<T>* self, T default_value);
-    T& item(vector<T>* self, int index, T& default_value);
-    void each(vector<T>* self, void (*block_)(T&,int,bool*));
-    int find(vector<T>* self, T& item, int default_value);
-    template <R> vector<R>*% map(vector<T>* self, R (*block_)(T&));
-    bool equals(vector<T>* left, vector<T>* right);
-    bool replace(vector<T>* self, int index, T value);
-    int length(vector<T>* self);
-    void reset(vector<T>* self);
-}
-```
-
-An example
-
-```
-    var v = vector<int>.initialize();
-
-    v.push_back(1);
-    v.push_back(2);
-    v.push_back(3);
-
-    var v2 = vector<int>.initialize();
-
-    v2.push_back(1);
-    v2.push_back(2);
-    v2.push_back(3);
-
-    xassert("vector test", v.equals(v2));
-
-    v.each {
-        printf("index %d item %d\n", it2, it);
-    }
-
-    xassert("vector test2", v.item(0, -1) == 1);
-```
-
-Each of it2 has an index.The macro for generating vector values is vec!
-
-```
-    var v3 = vec!("AAA", "BBB", "CCC");
-```
-
 * list
 
 listは双方向リストです。コレクションの主力となるクラスです。vectorと違いランダムアクセス（indexによる要素の取り出し）遅いですが、挿入や連結などが速いです。vectorはランダムアクセスは最速ですが他の場合はlistを使っておけばいいでしょう。
@@ -533,96 +481,56 @@ mapはRubyなどと同じです。型推論されて、適切な型のlistが返
 neo-cは最後に実行された式に;がないと戻り値だと判断されます。この場合atoi(it)が返されてます。atoi(it)の戻り値はintなのでli7は型推論されてlist<int>となってます。xassertは第2引数が真ならテストを成功させます。
 
 
-* map
+* vector
 
 ```
-impl map <T, T2>
+impl vector<T> 
 {
     initialize();
+    vector<T>%* initialize_with_values(vector<T>%* self, int len, T& value);
+    vector<T>%* clone(vector<T>* self);
     finalize();
-    map<T, T2>*% clone(map<T, T2>* self);
-    void each(map<T, T2>* self, void (*block_)(T&,T2&,bool*));
-    void rehash(map<T,T2>* self);
-    bool find(map<T, T2>* self, T& key);
-    T2& at(map<T, T2>* self, T& key, T2& default_value);
-    void insert(map<T,T2>* self, T key, T2 item);
-    bool equals(map<T, T2>* left, map<T, T2>* right);
+    void push_back(vector<T>* self, T item);
+    T pop_back(vector<T>* self, T default_value);
+    T& item(vector<T>* self, int index, T& default_value);
+    void each(vector<T>* self, void (*block_)(T&,int,bool*));
+    int find(vector<T>* self, T& item, int default_value);
+    template <R> vector<R>*% map(vector<T>* self, R (*block_)(T&));
+    bool equals(vector<T>* left, vector<T>* right);
+    bool replace(vector<T>* self, int index, T value);
+    int length(vector<T>* self);
+    void reset(vector<T>* self);
 }
 ```
 
-map is simple. You can store values with insert and access with at.
+An example
 
 ```
-    var m1 = new map<char*, int>.initialize();
+    var v = vector<int>.initialize();
 
-    m1.insert("AAA", 1);
-    m2.insert("BBB", 2);
-    m3.insert("CCC", 3);
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
 
-    if(m1.at("AAA", -1) == 1) {
-        puts("found");
+    var v2 = vector<int>.initialize();
+
+    v2.push_back(1);
+    v2.push_back(2);
+    v2.push_back(3);
+
+    xassert("vector test", v.equals(v2));
+
+    v.each {
+        printf("index %d item %d\n", it2, it);
     }
 
-    if(m1.at("DDD", -1) == -1) {
-        puts("not found");
-    }
+    xassert("vector test2", v.item(0, -1) == 1);
 ```
 
-For insert, if the type argument is string, etc., insert will cause ownership transfer. It is automatically freed.Generating a map value is map!
+Each of it2 has an index.The macro for generating vector values is vec!
 
 ```
-    var m1 = map!(string("AAA"):"AAA", string("BBB"):"BBB", string("CCC"):"CCC");
-
-    if(m1.at(string("ABC"), null) == null) {
-        puts("not found");
-    }
-```
-
-* map
-
-```
-impl map <T, T2>
-{
-    initialize();
-    finalize();
-    map<T, T2>*% clone(map<T, T2>* self);
-    void each(map<T, T2>* self, void (*block_)(T&,T2&,bool*));
-    void rehash(map<T,T2>* self);
-    bool find(map<T, T2>* self, T& key);
-    T2& at(map<T, T2>* self, T& key, T2& default_value);
-    void insert(map<T,T2>* self, T key, T2 item);
-    bool equals(map<T, T2>* left, map<T, T2>* right);
-}
-```
-
-mapはシンプルです。insertで値を格納して、atでアクセスできます。
-
-```
-    var m1 = new map<char*, int>.initialize();
-
-    m1.insert("AAA", 1);
-    m2.insert("BBB", 2);
-    m3.insert("CCC", 3);
-
-    if(m1.at("AAA", -1) == 1) {
-        puts("found");
-    }
-
-    if(m1.at("DDD", -1) == -1) {
-        puts("not found");
-    }
-```
-
-insertは型引数がstringなどであった場合insertは所有権の移動が起こります。自動的にfreeされます。
-
-mapの値の生成はmap!です。
-
-```
-    var m1 = map!(string("AAA"):"AAA", string("BBB"):"BBB", string("CCC"):"CCC");
-
-    if(m1.at(string("ABC"), null) == null) {
-        puts("not found");
-    }
+    var v3 = vec!("AAA", "BBB", "CCC");
 ```
 
 * vector
@@ -680,6 +588,52 @@ vectorの値の生成のマクロはvec!です。
 ```
 
 などです。vectorのitemはlistより高速でO(1)でアクセスできます。
+
+
+* map
+
+```
+impl map <T, T2>
+{
+    initialize();
+    finalize();
+    map<T, T2>*% clone(map<T, T2>* self);
+    void each(map<T, T2>* self, void (*block_)(T&,T2&,bool*));
+    void rehash(map<T,T2>* self);
+    bool find(map<T, T2>* self, T& key);
+    T2& at(map<T, T2>* self, T& key, T2& default_value);
+    void insert(map<T,T2>* self, T key, T2 item);
+    bool equals(map<T, T2>* left, map<T, T2>* right);
+}
+```
+
+map is simple. You can store values with insert and access with at.
+
+```
+    var m1 = new map<char*, int>.initialize();
+
+    m1.insert("AAA", 1);
+    m2.insert("BBB", 2);
+    m3.insert("CCC", 3);
+
+    if(m1.at("AAA", -1) == 1) {
+        puts("found");
+    }
+
+    if(m1.at("DDD", -1) == -1) {
+        puts("not found");
+    }
+```
+
+For insert, if the type argument is string, etc., insert will cause ownership transfer. It is automatically freed.Generating a map value is map!
+
+```
+    var m1 = map!(string("AAA"):"AAA", string("BBB"):"BBB", string("CCC"):"CCC");
+
+    if(m1.at(string("ABC"), null) == null) {
+        puts("not found");
+    }
+```
 
 * map
 
