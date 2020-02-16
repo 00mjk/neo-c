@@ -9,39 +9,9 @@
 #include <locale.h>
 #include <wctype.h>
 
-struct aaa {
-    int bbb;
-};
-
-void aaaa()
-{
-    var a = new vector<string>.initialize();
-
-    a.each {
-        if(true) {
-        }
-        else {
-        }
-    }
-}
-
 int main()
 {
-        ^^^^^;
-    
+    printf(string("HO!\n") * 3);
+
     return 0;
 }
-
-/*
-void aaaa()
-{
-    var a = new vector<string>.initialize();
-
-    a.each {
-        if(true) {
-        }
-        else {
-        }
-    }
-}
-*/
