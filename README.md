@@ -483,7 +483,7 @@ impl buffer
     }
 ```
 
-AAA,BBB,CCCが出力されます。
+AAA\nBBB\nCCC\nが出力されます。
 
 * ヒープシステム
 
