@@ -6,7 +6,7 @@
 
 int main() 
 {
-    printf(string("HO!") * 3);
+    printf(string("HO!\n") * 3);
 
     exit(0);
 }
@@ -42,7 +42,7 @@ To debug the heap, try compiling the application with ./configure --with-debug. 
 
 int main() 
 {
-    printf(string("HO!") * 3);
+    printf(string("HO!\n") * 3);
 
     exit(0);
 }
