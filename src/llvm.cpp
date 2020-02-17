@@ -1292,15 +1292,20 @@ BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sCompileInf
         node_type2->mArrayNum = node_type2->mArrayInitializeNum;
     }
 
-    Type* llvm_type;
-    if(!create_llvm_type_from_node_type(&llvm_type, node_type2, node_type2, info))
-    {
-        return FALSE;
+    if(node_type2->mPointerNum > 0) {
+        *result = 8;
     }
+    else {
+        Type* llvm_type;
+        if(!create_llvm_type_from_node_type(&llvm_type, node_type2, node_type2, info))
+        {
+            return FALSE;
+        }
 
-    DataLayout data_layout(TheModule);
+        DataLayout data_layout(TheModule);
 
-    *result = data_layout.getTypeAllocSize(llvm_type);
+        *result = data_layout.getTypeAllocSize(llvm_type);
+    }
 
     return TRUE;
 }
@@ -1992,26 +1997,28 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
     Type* llvm_struct_type;
     (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info);
 
-    int i;
-    for(i=0; i<klass->mNumFields; i++) {
-        sNodeType* field_type = clone_node_type(klass->mFields[i]);
-        sCLClass* field_class = field_type->mClass;
+    if(node_type->mPointerNum == 1) {
+        int i;
+        for(i=0; i<klass->mNumFields; i++) {
+            sNodeType* field_type = clone_node_type(klass->mFields[i]);
+            sCLClass* field_class = field_type->mClass;
 
-        Type* llvm_field_type;
-        (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, node_type2, info);
+            Type* llvm_field_type;
+            (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, node_type2, info);
 
-        int alignment = get_llvm_alignment_from_node_type(field_type);
+            int alignment = get_llvm_alignment_from_node_type(field_type);
 
-        if(field_type->mHeap) 
-        {
+            if(field_type->mHeap) 
+            {
 #if LLVM_VERSION_MAJOR >= 7
-           Value* field_address = Builder.CreateStructGEP(address3, i);
+               Value* field_address = Builder.CreateStructGEP(address3, i);
 #else
-           Value* field_address = Builder.CreateStructGEP(llvm_struct_type, address3, i);
+               Value* field_address = Builder.CreateStructGEP(llvm_struct_type, address3, i);
 #endif
-           Value* field_value = clone_object(field_type, field_address, info);
+               Value* field_value = clone_object(field_type, field_address, info);
 
-            Builder.CreateAlignedStore(field_value,  field_address, alignment);
+                Builder.CreateAlignedStore(field_value,  field_address, alignment);
+            }
         }
     }
 

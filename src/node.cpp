@@ -6001,7 +6001,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
@@ -7800,7 +7800,7 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        sNodeType* left_type = info->type;
+        sNodeType* left_type = clone_node_type(info->type);
 
         char real_fun_name[REAL_FUN_NAME_MAX];
 
@@ -7817,7 +7817,7 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
 
         std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
 
-        if(funcs.size() > 0) {
+        if(funcs.size() > 0 && left_type->mPointerNum == 1) {
             Value* params[PARAMS_MAX];
 
             params[0] = lvalue.value;

@@ -68,6 +68,40 @@ impl TinyParser version 4 {
         return string(buf.buf);
     }
 
+    TinyNode*% wordNode(TinyParser* self, string buf) {
+        if(strcmp(buf, "var") == 0) {
+            var name = self.parseWord();
+
+            if(strcmp(name, "") == 0) {
+                self.errMessage("require variable name");
+                self.errNumber++;
+                return null;
+            }
+
+            if(*self.p == '=') {
+                self.p++;
+            }
+            else {
+                self.errMessage("require = character");
+                self.errNumber++;
+                return null;
+            }
+
+            var value = self.expression();
+
+            if(value == null) {
+                self.errMessage("Null expression");
+                self.errNumber++;
+                return null;
+            }
+
+            return new TinyNode.createAssignNode(name, value);
+        }
+        else {
+            return null;
+        }
+    }
+
     TinyNode*% node(TinyParser* self) {
         var parent_result = inherit(self);
 
@@ -78,35 +112,9 @@ impl TinyParser version 4 {
         if(isalpha(*self.p)) {
             var buf = self.parseWord();
 
-            if(strcmp(buf, "var") == 0) {
-                var name = self.parseWord();
+            var word_node = self.wordNode(buf);
 
-                if(strcmp(name, "") == 0) {
-                    self.errMessage("require variable name");
-                    self.errNumber++;
-                    return null;
-                }
-
-                if(*self.p == '=') {
-                    self.p++;
-                }
-                else {
-                    self.errMessage("require = character");
-                    self.errNumber++;
-                    return null;
-                }
-
-                var value = self.expression();
-
-                if(value == null) {
-                    self.errMessage("Null expression");
-                    self.errNumber++;
-                    return null;
-                }
-
-                return new TinyNode.createAssignNode(name, value);
-            }
-            else {
+            if(word_node == null) {
                 return new TinyNode.createLoadNode(buf);
             }
         }

@@ -2,6 +2,7 @@
 
 /// limits ///
 #define TINYVM_STACK_SIZE 4096
+#define TINYVM_IF_MAX 64
 
 /// 02base.nc ///
 struct TinyParser
@@ -48,6 +49,12 @@ struct TinyNode {
         struct {
             char* name;
         } loadVarValue;
+
+        struct {
+            int num_expressions;
+            TinyNode** expressions;
+            char** blocks;
+        } ifValue;
     };
     
 
@@ -56,6 +63,11 @@ struct TinyNode {
     TinyNode* middle;
 
     int stackValue;
+};
+
+struct TinyBlock
+{
+    vector<TinyNode*%>*% nodes;
 };
 
 impl TinyNode {
@@ -113,6 +125,7 @@ impl TinyNode version 4 {
 impl TinyParser version 4 {
     string parseWord(TinyParser* self);
     TinyNode*% node(TinyParser* self);
+    TinyNode*% wordNode(TinyParser* self, string buf);
 }
 
 struct TinyVM version 4
@@ -124,3 +137,6 @@ impl TinyVM version 4 {
     initialize(char* source_name);
     bool compile(TinyVM* self, TinyNode* node);
 }
+
+/// 05if.nc 
+enum { NODETYPE_IF=NODETYPE_LOAD_VAR+1 };
