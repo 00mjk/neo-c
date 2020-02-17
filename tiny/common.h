@@ -32,7 +32,7 @@ impl TinyParser version 2 {
     TinyNode*% expression(TinyParser* self);
 };
 
-enum { NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS };
+enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS };
 
 struct TinyNode {
     int type;
@@ -54,6 +54,8 @@ struct TinyNode {
     TinyNode* left;
     TinyNode* right;
     TinyNode* middle;
+
+    int stackValue;
 };
 
 impl TinyNode {

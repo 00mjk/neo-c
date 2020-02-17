@@ -22,6 +22,8 @@ impl TinyNode version 4 {
         self.varValue.name = borrow clone name;
         self.varValue.value = borrow clone value;
 
+        self.stackValue = 1;
+
         return self;
     }
 
@@ -30,6 +32,8 @@ impl TinyNode version 4 {
         self.type = NODETYPE_LOAD_VAR;
 
         self.loadVarValue.name = borrow clone name;
+
+        self.stackValue = 1;
 
         return self;
     }

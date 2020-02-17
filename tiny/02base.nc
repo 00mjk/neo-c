@@ -38,6 +38,8 @@ impl TinyNode {
         self.type = NODETYPE_INT;
         self.intValue = value;
 
+        self.stackValue = 1;
+
         return self;
     }
     TinyNode*% createPlusNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
@@ -48,6 +50,8 @@ impl TinyNode {
 
         self.left = left;
         self.right = right;
+
+        self.stackValue = -1;
 
         return self;
     }
@@ -60,11 +64,26 @@ impl TinyNode {
         self.left = left;
         self.right = right;
 
+        self.stackValue = -1;
+
+        return self;
+    }
+
+    TinyNode*% createPopNode(TinyNode*% self, int value) {
+        self.type = NODETYPE_POP;
+        self.intValue = value;
+
+        self.stackValue = 0;
+
         return self;
     }
 
     void debug(TinyNode* self) {
         switch(self.type) {
+            case NODETYPE_POP :
+                printf("pop node %d\n", self.intValue);
+                break;
+
             case NODETYPE_INT :
                 printf("int node %d\n", self.intValue);
                 break;
@@ -82,7 +101,6 @@ impl TinyNode {
                 puts("minus node right");
                 self.right.debug();
                 break;
-
         }
     }
 }
@@ -194,16 +212,20 @@ impl TinyVM {
                 break;
             }
 
+            int stack_num = node.stackValue;
+
             self.nodes.push_back(node);
+
+            var pop_node = new TinyNode.createPopNode(stack_num);
+
+            self.nodes.push_back(pop_node);
         }
 
         return true;
     }
 
     void debug(TinyVM* self) {
-        for(int i=0; i<self.nodes.length(); i++) {
-            self.nodes.item(i, null).debug();
-        }
+        puts("=+= VM stack value =+=");
         self.stack.each {
             printf("stack[%d] type %d int value %d\n", it2, it.type, it.uValue.intValue);
         }
@@ -211,6 +233,18 @@ impl TinyVM {
 
     bool compile(TinyVM* self, TinyNode* node) {
         switch(node.type) {
+            case NODETYPE_POP : {
+                int stack_num = node.intValue;
+                for(int i=0; i<stack_num; i++) {
+                    TVALUE default_value;
+                    
+                    default_value.type = NULL_VALUE;
+
+                    (void)self.stack.pop_back(default_value);
+                }
+                }
+                break;
+
             case NODETYPE_INT : {
                 TVALUE value1;
                 value1.type = INT_VALUE;
@@ -281,8 +315,9 @@ impl TinyVM {
             if(!self.compile(node)) {
                 return false;
             }
+            node.debug();
+            self.debug();
         }
-        self.debug();
 
         return true;
     }

@@ -12,6 +12,8 @@ impl TinyNode version 3 {
         self.left = left;
         self.right = right;
 
+        self.stackValue = -1;
+
         return self;
     }
     TinyNode*% createDivNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
@@ -22,6 +24,8 @@ impl TinyNode version 3 {
 
         self.left = left;
         self.right = right;
+
+        self.stackValue = -1;
 
         return self;
     }
