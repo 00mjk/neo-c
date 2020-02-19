@@ -1,7 +1,8 @@
 #include "common.h"
 #include <stdio.h>
 
-impl TinyNode {
+impl TinyNode 
+{
     finalize() {
         if(self.left) {
             delete self.left;
@@ -105,7 +106,8 @@ impl TinyNode {
     }
 }
 
-impl TinyParser version 2 {
+impl TinyParser version 2 
+{
     void errMessage(TinyParser* self, char* message) {
         fprintf(stderr, "%s %d: %s\n", self.sourceName, self.sourceLine, message);
     }
@@ -128,6 +130,13 @@ impl TinyParser version 2 {
             }
             self.skipSpaces();
             return new TinyNode.createIntNode(value);
+        }
+        else if(*self.p == '#') {
+            while(*self.p != '\n' && *self.p) {
+                self.p++;
+            }
+            self.skipSpaces();
+            return self.expression();
         }
 
         return null;
@@ -192,9 +201,10 @@ impl TinyParser version 2 {
     TinyNode*% expression(TinyParser* self) {
         return self.plus_minus();
     }
-};
+}
 
-impl TinyVM {
+impl TinyVM 
+{
     initialize(char* source_name) {
         self.parser = new TinyParser.initialize(source_name);
 
@@ -312,14 +322,14 @@ impl TinyVM {
     bool run(TinyVM* self) {
         for(int i=0; i<self.nodes.length(); i++) {
             var node = self.nodes.item(i, null);
+node.debug();
             if(!self.compile(node)) {
                 return false;
             }
-            node.debug();
-            self.debug();
+self.debug();
         }
 
         return true;
     }
-};
+}
 

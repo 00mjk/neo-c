@@ -1,6 +1,7 @@
 #include "common.h"
 
-impl TinyParser {
+impl TinyParser 
+{
     initialize(char* source_name)
     {
         self.sourceName = string(source_name);

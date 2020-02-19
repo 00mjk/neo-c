@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
-impl TinyNode version 4 {
+impl TinyNode version 4 
+{
     finalize() {
         inherit(self);
 
@@ -55,7 +56,8 @@ impl TinyNode version 4 {
     }
 }
 
-impl TinyParser version 4 {
+impl TinyParser version 4 
+{
     string parseWord(TinyParser* self) {
         var buf = new buffer.initialize();
 
@@ -113,9 +115,12 @@ impl TinyParser version 4 {
             var buf = self.parseWord();
 
             var word_node = self.wordNode(buf);
-
+            
             if(word_node == null) {
                 return new TinyNode.createLoadNode(buf);
+            }
+            else {
+                return word_node;
             }
         }
 
@@ -123,7 +128,8 @@ impl TinyParser version 4 {
     }
 };
 
-impl TinyVM version 4 {
+impl TinyVM version 4 
+{
     initialize(char* source_name) {
         inherit(self, source_name);
 

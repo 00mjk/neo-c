@@ -16,14 +16,16 @@ struct TinyParser
     int errNumber;
 };
 
-impl TinyParser {
+impl TinyParser 
+{
     initialize(char* source_name);
     void debug(TinyParser* self);
 };
 
 struct TinyNode;
 
-impl TinyParser version 2 {
+impl TinyParser version 2 
+{
     void errMessage(TinyParser* self, char* message);
     void skipSpaces(TinyParser* self);
 
@@ -70,7 +72,8 @@ struct TinyBlock
     vector<TinyNode*%>*% nodes;
 };
 
-impl TinyNode {
+impl TinyNode 
+{
     finalize();
     void debug(TinyNode* self);
     TinyNode*% clone(TinyNode* self);
@@ -94,36 +97,43 @@ struct TinyVM
     vector<TVALUE>*% stack;
 };
 
-impl TinyVM {
+impl TinyVM 
+{
     initialize(char* source_name);
 
     bool parser(TinyVM* self);
     bool compile(TinyVM* self, TinyNode* node);
     bool run(TinyVM* self);
+    void debug(TinyVM* self);
 };
 
 /// 03mult.nc ///
-impl TinyNode version 3 {
+impl TinyNode version 3 
+{
     void debug(TinyNode* self);
 };
 
 enum { NODETYPE_MULT=NODETYPE_MINUS+1, NODETYPE_DIV, NODETYPE_VAR, NODETYPE_LOAD_VAR };
 
-impl TinyParser version 3 {
+impl TinyParser version 3 
+{
     TinyNode*% mult_div(TinyParser* self);
 }
 
-impl TinyVM version 3 {
+impl TinyVM version 3 
+{
     bool compile(TinyVM* self, TinyNode* node);
 };
 
 /// 04var.nc 
-impl TinyNode version 4 {
+impl TinyNode version 4 
+{
     finalize();
     void debug(TinyNode* self);
 }
 
-impl TinyParser version 4 {
+impl TinyParser version 4 
+{
     string parseWord(TinyParser* self);
     TinyNode*% node(TinyParser* self);
     TinyNode*% wordNode(TinyParser* self, string buf);
@@ -134,7 +144,8 @@ struct TinyVM version 4
     vector<map<string, TVALUE>*%>*% vtable;
 };
 
-impl TinyVM version 4 {
+impl TinyVM version 4 
+{
     initialize(char* source_name);
     bool compile(TinyVM* self, TinyNode* node);
 }

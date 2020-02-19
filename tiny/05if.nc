@@ -1,8 +1,8 @@
 #include "common.h"
-#include <stdio.h>
 #include <ctype.h>
 
-impl TinyNode version 5 {
+impl TinyNode version 5 
+{
     finalize() {
         inherit(self);
 
@@ -14,6 +14,7 @@ impl TinyNode version 5 {
                 delete blocks[i];
             }
             
+            delete self.ifValue.expressions;
             delete blocks;
         }
     }
@@ -26,8 +27,8 @@ impl TinyNode version 5 {
         self.ifValue.expressions = borrow clone expressions;
         TinyBlock** blocks2 = borrow clone blocks;
         for(int i=0; i<num_expressions; i++) {
-            self.ifValue.expressions[i] = borrow clone expressions[i];
-            blocks2[i] = borrow clone blocks[i];
+            self.ifValue.expressions[i] = expressions[i];
+            blocks2[i] = blocks[i];
         }
         self.ifValue.blocks = (void*)blocks2;
 
@@ -55,7 +56,8 @@ impl TinyBlock
     }
 }
 
-impl TinyParser version 5 {
+impl TinyParser version 5 
+{
     void expectNextChararacter(TinyParser* self, char c) {
         if(*self.p == c) {
             self.p++;
@@ -71,11 +73,11 @@ impl TinyParser version 5 {
 
         var result = new TinyBlock.initialize();
 
-        while(*self.p) {
+        while(*self.p != '}') {
             var node = self.expression();
 
             if(node == null) {
-                self.errMessage("null expression");
+                self.errMessage("null expression at parseBlock");
                 self.errNumber++;
                 break;
             }
@@ -94,7 +96,7 @@ impl TinyParser version 5 {
         return result;
     }
     TinyNode*% wordNode(TinyParser* self, string buf) {
-        var word_node = inherit(self, buf);
+        var word_node = inherit(self, clone buf);
 
         if(word_node != null) {
             return word_node;
@@ -106,7 +108,7 @@ impl TinyParser version 5 {
                 var expression = self.expression();
 
                 if(expression == null) {
-                    self.errMessage("Null expression");
+                    self.errMessage("Null expression on if expression");
                     self.errNumber++;
 
                     return null;
@@ -133,15 +135,18 @@ impl TinyParser version 5 {
     }
 };
 
-impl TinyVM version 5 {
+impl TinyVM version 5 
+{
     bool compileBlock(TinyVM* self, TinyBlock* block) {
         var each_break = false;
         block.nodes.each {
+it.debug();
             if(!self.compile(it)) {
                 each_break = true;
                 *it3 = true;
                 return;
             }
+self.debug();
         }
         if(each_break) {
             return false;

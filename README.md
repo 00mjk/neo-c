@@ -27,9 +27,15 @@ version 0.9.9
 * INSTALL
 
 ```
+sudo apt-get install clang gcc make autoconf llvm-dev git libpcre3-dev gdb valgrind xctags ruby
+
+git clone https://github.com/ab25cq/neo-c
+
+cd neo-c
+
 ./configure --with-optimize
 make
-make install
+sudo make install
 ```
 
 To debug the heap, try compiling the application with ./configure --with-debug. The status of the heap is output to a file called memleak_debug.txt.
@@ -59,9 +65,15 @@ int main()
 * インストール
 
 ```
+sudo apt-get install clang gcc make autoconf llvm-dev git libpcre3-dev gdb valgrind xctags ruby
+
+git clone https://github.com/ab25cq/neo-c
+
+cd neo-c
+
 ./configure --with-optimize
 make
-make install
+sudo make install
 ```
 
 ヒープのデバッグを行う場合、./configure --with-debugでアプリケーションをコンパイルしてみてください。memleak_debug.txtというファイルにヒープの状況が出力されます。

@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
-impl TinyNode version 3 {
+impl TinyNode version 3 
+{
     TinyNode*% createMultNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
         self.type = NODETYPE_MULT;
 
@@ -51,7 +52,8 @@ impl TinyNode version 3 {
     }
 }
 
-impl TinyParser version 3 {
+impl TinyParser version 3 
+{
     TinyNode*% mult_div(TinyParser* self) {
         var node = self.node();
 
@@ -100,7 +102,8 @@ impl TinyParser version 3 {
 };
 
 
-impl TinyVM version 3 {
+impl TinyVM version 3 
+{
     bool compile(TinyVM* self, TinyNode* node) {
         if(!inherit(self, node)) {
             return false;
@@ -164,5 +167,5 @@ impl TinyVM version 3 {
 
         return true;
     }
-};
+}
 
