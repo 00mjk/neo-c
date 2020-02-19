@@ -53,7 +53,7 @@ struct TinyNode {
         struct {
             int num_expressions;
             TinyNode** expressions;
-            char** blocks;
+            void* blocks;
         } ifValue;
     };
     
@@ -74,6 +74,7 @@ impl TinyNode {
     finalize();
     void debug(TinyNode* self);
     TinyNode*% clone(TinyNode* self);
+    TinyNode*% createPopNode(TinyNode*% self, int value);
 }
 
 enum { INT_VALUE, NULL_VALUE };
@@ -140,3 +141,29 @@ impl TinyVM version 4 {
 
 /// 05if.nc 
 enum { NODETYPE_IF=NODETYPE_LOAD_VAR+1 };
+
+impl TinyNode version 5 
+{
+    finalize();
+    TinyNode*% createIfNode(TinyNode%* self, int num_expressions, TinyNode** expressions, TinyBlock** blocks);
+    void debug(TinyNode* self);
+}
+
+impl TinyBlock
+{
+    initialize();
+}
+
+impl TinyParser version 5 
+{
+    void expectNextChararacter(TinyParser* self, char c);
+    TinyBlock*% parseBlock(TinyParser* self);
+    TinyNode*% wordNode(TinyParser* self, string buf);
+}
+
+impl TinyVM version 5 
+{
+    bool compileBlock(TinyVM* self, TinyBlock* block);
+    bool compile(TinyVM* self, TinyNode* node);
+}
+

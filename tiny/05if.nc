@@ -7,18 +7,29 @@ impl TinyNode version 5 {
         inherit(self);
 
         if(self.type == NODETYPE_IF) {
-            delete self.ifValue.expressions;
-            delete self.ifValue.blocks;
+            TinyBlock** blocks = (TinyBlock**)self.ifValue.blocks;
+            
+            for(int i=0; i<self.ifValue.num_expressions; i++) {
+                delete self.ifValue.expressions[i];
+                delete blocks[i];
+            }
+            
+            delete blocks;
         }
     }
 
-    TinyNode*% createIfNode(TinyNode%* self, int num_expressions, TinyNode**% expressions, TinyBlock**% blocks) 
+    TinyNode*% createIfNode(TinyNode%* self, int num_expressions, TinyNode** expressions, TinyBlock** blocks) 
     {
         self.type = NODETYPE_IF;
 
         self.ifValue.num_expressions = num_expressions;
         self.ifValue.expressions = borrow clone expressions;
-        self.ifValue.blocks = (char**)borrow clone blocks;
+        TinyBlock** blocks2 = borrow clone blocks;
+        for(int i=0; i<num_expressions; i++) {
+            self.ifValue.expressions[i] = borrow clone expressions[i];
+            blocks2[i] = borrow clone blocks[i];
+        }
+        self.ifValue.blocks = (void*)blocks2;
 
         self.stackValue = 0;
 
@@ -37,7 +48,51 @@ impl TinyNode version 5 {
     }
 }
 
+impl TinyBlock
+{
+    initialize() {
+        self.nodes = new vector<TinyNode*%>.initialize();
+    }
+}
+
 impl TinyParser version 5 {
+    void expectNextChararacter(TinyParser* self, char c) {
+        if(*self.p == c) {
+            self.p++;
+            self.skipSpaces();
+        }
+        else {
+            self.errMessage(xasprintf("require %c character", c));
+            self.errNumber++;
+        }
+    }
+    TinyBlock*% parseBlock(TinyParser* self) {
+        self.expectNextChararacter('{');
+
+        var result = new TinyBlock.initialize();
+
+        while(*self.p) {
+            var node = self.expression();
+
+            if(node == null) {
+                self.errMessage("null expression");
+                self.errNumber++;
+                break;
+            }
+
+            int stack_num = node.stackValue;
+
+            result.nodes.push_back(node);
+
+            var pop_node = new TinyNode.createPopNode(stack_num);
+
+            result.nodes.push_back(pop_node);
+        }
+
+        self.expectNextChararacter('}');
+
+        return result;
+    }
     TinyNode*% wordNode(TinyParser* self, string buf) {
         var word_node = inherit(self, buf);
 
@@ -46,34 +101,30 @@ impl TinyParser version 5 {
         }
         else {
             if(strcmp(buf, "if") == 0) {
-/*
-                var name = self.parseWord();
+                self.expectNextChararacter('(');
 
-                if(strcmp(name, "") == 0) {
-                    self.errMessage("require variable name");
-                    self.errNumber++;
-                    return null;
-                }
+                var expression = self.expression();
 
-                if(*self.p == '=') {
-                    self.p++;
-                }
-                else {
-                    self.errMessage("require = character");
-                    self.errNumber++;
-                    return null;
-                }
-
-                var value = self.expression();
-
-                if(value == null) {
+                if(expression == null) {
                     self.errMessage("Null expression");
                     self.errNumber++;
+
                     return null;
                 }
 
-                return new TinyNode.createAssignNode(name, value);
-*/
+                self.expectNextChararacter(')');
+
+                var block = self.parseBlock();
+
+                int num_expressions = 1;
+
+                var expressions = new TinyNode*[TINYVM_IF_MAX];
+                var blocks = new TinyBlock*[TINYVM_IF_MAX];
+
+                expressions[0] = expression;
+                blocks[0] = block;
+
+                return new TinyNode.createIfNode(num_expressions, borrow expressions, borrow blocks);
             }
             else {
                 return null;
@@ -83,6 +134,20 @@ impl TinyParser version 5 {
 };
 
 impl TinyVM version 5 {
+    bool compileBlock(TinyVM* self, TinyBlock* block) {
+        var each_break = false;
+        block.nodes.each {
+            if(!self.compile(it)) {
+                each_break = true;
+                *it3 = true;
+                return;
+            }
+        }
+        if(each_break) {
+            return false;
+        }
+        return true;
+    }
     bool compile(TinyVM* self, TinyNode* node) {
         if(!inherit(self, node)) {
             return false;
@@ -90,26 +155,28 @@ impl TinyVM version 5 {
 
         switch(node.type) {
             case NODETYPE_IF : {
-/*
-                if(!self.compile(node.varValue.value)) {
-                    return false;
+                int num_expressions = node.ifValue.num_expressions;
+                TinyNode** expressions = node.ifValue.expressions;
+                TinyBlock** blocks = (TinyBlock**)node.ifValue.blocks;
+
+                for(int i=0; i<num_expressions; i++) {
+                    if(!self.compile(expressions[i])) {
+                        return false;
+                    }
+
+                    TVALUE default_value;
+                    
+                    default_value.type = NULL_VALUE;
+                    default_value.uValue.intValue = 0;
+
+                    TVALUE value = self.stack.pop_back(default_value);
+
+                    if(value.uValue.intValue) {
+                        if(!self.compileBlock(blocks[i])) {
+                            return false;
+                        }
+                    }
                 }
-
-                TVALUE default_value;
-                
-                default_value.type = NULL_VALUE;
-                default_value.uValue.intValue = 0;
-
-                TVALUE value = self.stack.pop_back(default_value);
-                
-                var vtable = self.vtable.item(-1, null);
-                
-                var name = clone node.varValue.name;
-                
-                vtable.insert(name, value);
-
-                self.stack.push_back(value);
-*/
                 }
                 break;
         }

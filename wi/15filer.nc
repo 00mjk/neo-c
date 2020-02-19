@@ -35,42 +35,85 @@ impl ViWin version 15
         {
             var line = it.substring(0, maxx-1);
 
-            if(self.cursorY == it2 && nvi.activeWin.equals(self) && !nvi.filer.active) {
+            if(self.cursorY == it2 && nvi.activeWin.equals(self) && !nvi.filer.active) 
+            {
                 if(line.length() == 0) {
                     wattron(self.win, A_REVERSE);
                     mvwprintw(self.win, it2, 0, " ");
                     wattroff(self.win, A_REVERSE);
                 }
-                else if(self.cursorX == line.length())
-                {
-                    mvwprintw(self.win, it2, 0, "%ls", line);
-                    wstring line2 = line.printable();
+                else if(self.cursorX > maxx-1) {
+                    int cursor_x = self.cursorX % maxx-1;
 
-                    wattron(self.win, A_REVERSE);
-                    mvwprintw(self.win, it2, wcswidth(line2, line2.length()), " ");
-                    wattroff(self.win, A_REVERSE);
+                    int scroll_x = ((self.cursorX / (maxx-1))) * (maxx-1);
+
+                    line = it.substring(scroll_x, scroll_x + maxx-1);
+
+                    if(self.cursorX == line.length())
+                    {
+                        mvwprintw(self.win, it2, 0, "%ls", line);
+                        wstring line2 = line.printable();
+
+                        wattron(self.win, A_REVERSE);
+                        mvwprintw(self.win, it2, wcswidth(line2, line2.length()), " ");
+                        wattroff(self.win, A_REVERSE);
+                    }
+                    else {
+
+                        int x = 0;
+                        wstring head_string = line.substring(0, cursor_x);
+                        wstring printable_head_string = head_string.printable();
+
+                        mvwprintw(self.win, it2, 0, "%ls", printable_head_string);
+
+                        x += wcswidth(printable_head_string, printable_head_string.length());
+
+                        wstring cursor_string = line.substring(cursor_x, cursor_x+1);
+                        wstring printable_cursor_string = cursor_string.printable();
+
+                        wattron(self.win, A_REVERSE);
+                        mvwprintw(self.win, it2, x, "%ls", printable_cursor_string);
+                        wattroff(self.win, A_REVERSE);
+
+                        x += wcswidth(printable_cursor_string, printable_cursor_string.length());
+
+                        wstring tail_string = line.substring(cursor_x+1, -1);
+
+                        mvwprintw(self.win, it2, x, "%ls", tail_string);
+                    }
                 }
                 else {
-                    int x = 0;
-                    wstring head_string = line.substring(0, self.cursorX);
-                    wstring printable_head_string = head_string.printable();
+                    if(self.cursorX == line.length())
+                    {
+                        mvwprintw(self.win, it2, 0, "%ls", line);
+                        wstring line2 = line.printable();
 
-                    mvwprintw(self.win, it2, 0, "%ls", printable_head_string);
+                        wattron(self.win, A_REVERSE);
+                        mvwprintw(self.win, it2, wcswidth(line2, line2.length()), " ");
+                        wattroff(self.win, A_REVERSE);
+                    }
+                    else {
+                        int x = 0;
+                        wstring head_string = line.substring(0, self.cursorX);
+                        wstring printable_head_string = head_string.printable();
 
-                    x += wcswidth(printable_head_string, printable_head_string.length());
+                        mvwprintw(self.win, it2, 0, "%ls", printable_head_string);
 
-                    wstring cursor_string = line.substring(self.cursorX, self.cursorX+1);
-                    wstring printable_cursor_string = cursor_string.printable();
+                        x += wcswidth(printable_head_string, printable_head_string.length());
 
-                    wattron(self.win, A_REVERSE);
-                    mvwprintw(self.win, it2, x, "%ls", printable_cursor_string);
-                    wattroff(self.win, A_REVERSE);
+                        wstring cursor_string = line.substring(self.cursorX, self.cursorX+1);
+                        wstring printable_cursor_string = cursor_string.printable();
 
-                    x += wcswidth(printable_cursor_string, printable_cursor_string.length());
+                        wattron(self.win, A_REVERSE);
+                        mvwprintw(self.win, it2, x, "%ls", printable_cursor_string);
+                        wattroff(self.win, A_REVERSE);
 
-                    wstring tail_string = line.substring(self.cursorX+1, -1);
+                        x += wcswidth(printable_cursor_string, printable_cursor_string.length());
 
-                    mvwprintw(self.win, it2, x, "%ls", tail_string);
+                        wstring tail_string = line.substring(self.cursorX+1, -1);
+
+                        mvwprintw(self.win, it2, x, "%ls", tail_string);
+                    }
                 }
             }
             else {
