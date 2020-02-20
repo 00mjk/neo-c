@@ -56,6 +56,7 @@ struct TinyNode {
             int num_expressions;
             TinyNode** expressions;
             void* blocks;
+            void* else_block;
         } ifValue;
     };
     
@@ -156,7 +157,6 @@ enum { NODETYPE_IF=NODETYPE_LOAD_VAR+1 };
 impl TinyNode version 5 
 {
     finalize();
-    TinyNode*% createIfNode(TinyNode%* self, int num_expressions, TinyNode** expressions, TinyBlock** blocks);
     void debug(TinyNode* self);
 }
 

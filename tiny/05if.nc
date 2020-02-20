@@ -14,12 +14,17 @@ impl TinyNode version 5
                 delete blocks[i];
             }
             
+            if(self.ifValue.else_block) {
+                TinyBlock* else_block = (TinyBlock*)self.ifValue.else_block;
+                delete else_block;
+            }
+            
             delete self.ifValue.expressions;
             delete blocks;
         }
     }
 
-    TinyNode*% createIfNode(TinyNode%* self, int num_expressions, TinyNode** expressions, TinyBlock** blocks) 
+    TinyNode*% createIfNode(TinyNode%* self, int num_expressions, TinyNode** expressions, TinyBlock** blocks, TinyBlock* else_block) 
     {
         self.type = NODETYPE_IF;
 
@@ -31,6 +36,7 @@ impl TinyNode version 5
             blocks2[i] = blocks[i];
         }
         self.ifValue.blocks = (void*)blocks2;
+        self.ifValue.else_block = (void*)else_block;
 
         self.stackValue = 0;
 
@@ -44,6 +50,7 @@ impl TinyNode version 5
             case NODETYPE_IF :
                 puts("if node");
                 printf("expression number %d\n", self.ifValue.num_expressions);
+                printf("else block %p\n", self.ifValue.else_block);
                 break;
         }
     }
@@ -117,6 +124,21 @@ impl TinyParser version 5
                 self.expectNextChararacter(')');
 
                 var block = self.parseBlock();
+                
+                char* p = self.p;
+                int source_line = self.sourceLine;
+                
+                var word = self.parseWord();
+                
+                TinyBlock* else_block = null;
+                
+                if(strcmp(word, "else") == 0) {
+                    else_block = borrow self.parseBlock();
+                }
+                else {
+                    self.p = p;
+                    self.sourceLine = source_line;
+                }
 
                 int num_expressions = 1;
 
@@ -126,7 +148,7 @@ impl TinyParser version 5
                 expressions[0] = expression;
                 blocks[0] = block;
 
-                return new TinyNode.createIfNode(num_expressions, borrow expressions, borrow blocks);
+                return new TinyNode.createIfNode(num_expressions, borrow expressions, borrow blocks, else_block);
             }
             else {
                 return null;
@@ -163,7 +185,9 @@ self.debug();
                 int num_expressions = node.ifValue.num_expressions;
                 TinyNode** expressions = node.ifValue.expressions;
                 TinyBlock** blocks = (TinyBlock**)node.ifValue.blocks;
+                TinyBlock* else_block = (TinyBlock*)node.ifValue.else_block;
 
+                bool all_false = true;
                 for(int i=0; i<num_expressions; i++) {
                     if(!self.compile(expressions[i])) {
                         return false;
@@ -177,10 +201,19 @@ self.debug();
                     TVALUE value = self.stack.pop_back(default_value);
 
                     if(value.uValue.intValue) {
+                        all_false = false;
                         if(!self.compileBlock(blocks[i])) {
                             return false;
                         }
+                        break;
                     }
+                }
+
+                if(all_false && else_block) {
+                    if(!self.compileBlock(else_block)) {
+                        return false;
+                    }
+                    break;
                 }
                 }
                 break;
