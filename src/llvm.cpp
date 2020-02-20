@@ -15,6 +15,8 @@ std::map<std::string, std::pair<Type*, sNodeType*>> gLLVMStructType;
 
 GlobalVariable* gLVTableValue;
 
+GlobalVariable* gMemleakDebugValue;
+
 #if LLVM_VERSION_MAJOR >= 7
 LoopAnalysisManager loopAnalysisManager(false);
 #endif
@@ -142,6 +144,10 @@ void create_internal_functions()
     ConstantAggregateZero* initializer = ConstantAggregateZero::get(lvtable_type);
 
     gLVTableValue->setInitializer(initializer);
+
+    gMemleakDebugValue = new GlobalVariable(*TheModule, IntegerType::get(TheContext, 32), false, GlobalVariable::ExternalLinkage, 0, "gMemleakDebug");
+
+    Value* lvtable_value2 = Builder.CreateCast(Instruction::BitCast, gLVTableValue, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
 }
 
 Value* load_address_to_lvtable(int index, sNodeType* var_type, sCompileInfo* info)

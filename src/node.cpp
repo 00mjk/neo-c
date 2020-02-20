@@ -4360,6 +4360,14 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     BasicBlock* current_block = BasicBlock::Create(TheContext, "entry", fun);
     llvm_change_block(current_block, &current_block_before, info, FALSE);
 
+    if(strcmp(real_fun_name, "main") == 0) {
+        if(gMemleakDebug) {
+            Value* value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)gMemleakDebug);
+
+            Builder.CreateAlignedStore(value, gMemleakDebugValue, 4);
+        }
+    }
+
     /// copy lvtable for other function ///
     Value* lvtable;
     void* function_lvtable_before;

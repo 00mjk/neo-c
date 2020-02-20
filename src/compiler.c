@@ -1,6 +1,8 @@
 #include "common.h"
 #include <libgen.h>
 
+BOOL gMemleakDebug = FALSE;
+
 static void compiler_init()
 {
     init_macro();
@@ -146,6 +148,10 @@ int main(int argc, char** argv)
         else if(strcmp(argv[i], "-O") == 0)
         {
             optimize = TRUE;
+        }
+        else if(strcmp(argv[i], "-d") == 0)
+        {
+            gMemleakDebug = TRUE;
         }
         else if(strstr(argv[i], "-I") == argv[i])
         {
