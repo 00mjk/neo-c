@@ -391,3 +391,19 @@ impl ViWin version 15
     initialize(int y, int x, int width, int height);
     void statusBarView(ViWin* self, Vi* nvi);
 }
+
+// 16mark.h
+struct ViWin version 16
+{
+    map<wchar_t, tuple3<int,int, int>*%>*% mark;
+};
+
+impl ViWin version 16
+{
+    initialize(int y, int x, int width, int height);
+}
+
+impl Vi version 16
+{
+    initialize();
+}

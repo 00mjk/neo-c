@@ -1982,6 +1982,13 @@ impl map <T, T2>
         while(true) {
             if(self.item_existance[it])
             {
+                if(self.keys[it].equals(key)) 
+                {
+                    self.items[it] = item;
+
+                    break;
+                }
+
                 it++;
 
                 if(it >= self.size) {
