@@ -40,16 +40,16 @@ void debug(TinyNode* self) {
     
     switch(self.type) {
         case NODETYPE_MULT :
-            puts("mult node left");
+            printf("mult node left %p\n", self);
             self.left.debug();
-            puts("mult node right");
+            printf("mult node right %p\n", self);
             self.right.debug();
             break;
 
         case NODETYPE_DIV :
-            puts("div node left");
+            printf("div node left %p\n", self);
             self.left.debug();
-            puts("div node right");
+            printf("div node right %p\n", self);
             self.right.debug();
             break;
 

@@ -75,7 +75,7 @@ void debug(TinyNode* self) {
     
     switch(self.type) {
         case NODETYPE_IF :
-            puts("if node");
+            printf("if node %p\n", self);
             printf("expression number %d\n", self.ifValue.num_expressions);
             printf("else block %p\n", self.ifValue.else_block);
             break;

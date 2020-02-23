@@ -20,7 +20,7 @@ void debug(TinyNode* self) {
 
     switch(self.type) {
         case NODETYPE_STRING :
-            printf("str node %s\n", self.stringValue.value);
+            printf("str node %s %p\n", self.stringValue.value, self);
             break;
 
         default:

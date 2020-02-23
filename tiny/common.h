@@ -35,7 +35,7 @@ impl TinyParser version 2
     TinyNode*% expression(TinyParser* self);
 };
 
-enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS, NODETYPE_STRING };
+enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS, NODETYPE_MULT, NODETYPE_DIV, NODETYPE_VAR, NODETYPE_LOAD_VAR, NODETYPE_IF, NODETYPE_STRING };
 
 struct TinyNode {
     int type;
@@ -122,7 +122,6 @@ impl TinyNode version 3
     void debug(TinyNode* self);
 };
 
-enum { NODETYPE_MULT=NODETYPE_MINUS+1, NODETYPE_DIV, NODETYPE_VAR, NODETYPE_LOAD_VAR };
 
 impl TinyParser version 3 
 {
@@ -161,7 +160,6 @@ impl TinyVM version 4
 }
 
 /// 05if.nc 
-enum { NODETYPE_IF=NODETYPE_LOAD_VAR+1 };
 
 impl TinyNode version 5 
 {

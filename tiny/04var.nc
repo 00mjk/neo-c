@@ -60,12 +60,12 @@ void debug(TinyNode* self) {
     
     switch(self.type) {
         case NODETYPE_VAR :
-            puts("var node");
+            printf("var node %p\n", self);
             self.varValue.value.debug();
             break;
 
         case NODETYPE_LOAD_VAR :
-            puts("load var node");
+            printf("load var node %p\n", self);
             puts(self.loadVarValue.name);
             break;
 

@@ -88,20 +88,20 @@ void debug(TinyNode* self) {
             break;
 
         case NODETYPE_INT :
-            printf("int node %d\n", self.intValue);
+            printf("int node %d %p\n", self.intValue, self);
             break;
 
         case NODETYPE_PLUS :
-            puts("plus node left");
+            printf("plus node left %p\n", self);
             self.left.debug();
-            puts("plus node right");
+            printf("plus node right %p\n", self);
             self.right.debug();
             break;
 
         case NODETYPE_MINUS :
-            puts("minus node left");
+            printf("minus node left %p\n", self);
             self.left.debug();
-            puts("minus node right");
+            printf("minus node right %p\n", self);
             self.right.debug();
             break;
 
