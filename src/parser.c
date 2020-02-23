@@ -5316,7 +5316,7 @@ static BOOL parse_default(unsigned int* node, sParserInfo* info)
     int sline_before = info->sline;
 
     char buf[VAR_NAME_MAX+1];
-    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
+    if(!parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE))
     {
         return FALSE;
     }

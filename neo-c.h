@@ -267,7 +267,10 @@ ruby_macro regex {
 
     n = 0;
 
+    
     if param_line[n] == "/"
+      n = n + 1
+    elsif param_line[n] == "\""
       n = n + 1
     end
 
@@ -284,8 +287,17 @@ ruby_macro regex {
 
     while(n < param_line.length()) do
       c = param_line[n];
+      c2 = param_line[n+1]
 
-      if c == "/"
+      if c == "\\" && c2 == "/"
+          str = str + c + c2
+
+          n = n + 2
+      elsif c == "\\" && c2 == "\""
+          str = str + c + c2
+
+          n = n + 2
+      elsif c == "/" || c == "\""
           n = n + 1;
 
           while(n < param_line.length()) do

@@ -4,6 +4,7 @@
 ta, fa,dta, cta
 insert mode ^w
 ------------------------------------------------------------
+filer sort with up directory names
 delete blink brace 
 gv
 ``

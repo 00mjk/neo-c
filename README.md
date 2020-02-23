@@ -38,8 +38,6 @@ make
 sudo make install
 ```
 
-To debug the heap, try compiling the application with ./configure --with-debug. The status of the heap is output to a file called memleak_debug.txt.
-
 # neo-c コンパイラ言語
 
 ```
@@ -75,8 +73,6 @@ cd neo-c
 make
 sudo make install
 ```
-
-ヒープのデバッグを行う場合、./configure --with-debugでアプリケーションをコンパイルしてみてください。memleak_debug.txtというファイルにヒープの状況が出力されます。
 
 * string
 

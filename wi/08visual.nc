@@ -9,266 +9,266 @@
 
 impl ViWin version 8 
 {
-    initialize(int y, int x, int width, int height) {
-        inherit(self, y, x, width, height);
+initialize(int y, int x, int width, int height) {
+    inherit(self, y, x, width, height);
 
-        self.visualModeHead = 0;
+    self.visualModeHead = 0;
 
-        self.visualModeHeadBefore = -1;
-        self.visualModeTailCursorYBefore = -1;
-        self.visualModeTailScrollBefore = -1;
-    }
+    self.visualModeHeadBefore = -1;
+    self.visualModeTailCursorYBefore = -1;
+    self.visualModeTailScrollBefore = -1;
+}
 
-    void visualModeView(ViWin* self, Vi* nvi)
+void visualModeView(ViWin* self, Vi* nvi)
+{
+    int maxy = getmaxy(self.win);
+    int maxx = getmaxx(self.win);
+
+    //werase(self.win);
+
+    self.texts
+        .sublist(self.scroll, self.scroll+maxy-1)
+        .each 
     {
-        int maxy = getmaxy(self.win);
-        int maxx = getmaxx(self.win);
+        var line = it.substring(0, maxx-1);
 
-        //werase(self.win);
-
-        self.texts
-            .sublist(self.scroll, self.scroll+maxy-1)
-            .each 
-        {
-            var line = it.substring(0, maxx-1);
-
-            if(it2 >= (self.visualModeHead-self.scroll) && it2 <= self.cursorY) {
-                wattron(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, 0, "%s", line.to_string(""));
-                wattroff(self.win, A_REVERSE);
-            }
-            else if(it2 <= (self.visualModeHead-self.scroll) && it2 >= self.cursorY) {
-                wattron(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, 0, "%s", line.to_string(""));
-                wattroff(self.win, A_REVERSE);
-            }
-            else {
-                mvwprintw(self.win, it2, 0, "%s", line.to_string(""));
-            }
+        if(it2 >= (self.visualModeHead-self.scroll) && it2 <= self.cursorY) {
+            wattron(self.win, A_REVERSE);
+            mvwprintw(self.win, it2, 0, "%s", line.to_string(""));
+            wattroff(self.win, A_REVERSE);
         }
-
-        wattron(self.win, A_REVERSE);
-        mvwprintw(self.win, self.height-1, 0, "VISUAL MODE x %d y %d", self.cursorX, self.cursorY);
-        wattroff(self.win, A_REVERSE);
-
-        //wrefresh(self.win);
-    }
-
-    void view(ViWin* self, Vi* nvi) {
-        if(nvi.mode == kVisualMode && nvi.activeWin.equals(self)) {
-            self.visualModeView(nvi);
+        else if(it2 <= (self.visualModeHead-self.scroll) && it2 >= self.cursorY) {
+            wattron(self.win, A_REVERSE);
+            mvwprintw(self.win, it2, 0, "%s", line.to_string(""));
+            wattroff(self.win, A_REVERSE);
         }
         else {
-            inherit(self, nvi);
+            mvwprintw(self.win, it2, 0, "%s", line.to_string(""));
         }
     }
 
-    void yankOnVisualMode(ViWin* self, Vi* nvi) {
-        int head = self.visualModeHead;
-        int tail = self.scroll+self.cursorY;
+    wattron(self.win, A_REVERSE);
+    mvwprintw(self.win, self.height-1, 0, "VISUAL MODE x %d y %d", self.cursorX, self.cursorY);
+    wattroff(self.win, A_REVERSE);
 
-        if(head >= tail) {
-            int tmp = tail;
-            tail = head;
-            head = tmp;
-        }
+    //wrefresh(self.win);
+}
 
-        nvi.yank.reset();
-        self.texts.sublist(head, tail+1).each {
-            nvi.yank.push_back(clone it);
-        }
+void view(ViWin* self, Vi* nvi) {
+    if(nvi.mode == kVisualMode && nvi.activeWin.equals(self)) {
+        self.visualModeView(nvi);
+    }
+    else {
+        inherit(self, nvi);
+    }
+}
+
+void yankOnVisualMode(ViWin* self, Vi* nvi) {
+    int head = self.visualModeHead;
+    int tail = self.scroll+self.cursorY;
+
+    if(head >= tail) {
+        int tmp = tail;
+        tail = head;
+        head = tmp;
     }
 
-    void indentVisualMode(ViWin* self, Vi* nvi) {
-        self.pushUndo();
+    nvi.yank.reset();
+    self.texts.sublist(head, tail+1).each {
+        nvi.yank.push_back(clone it);
+    }
+}
 
-        int head = self.visualModeHead;
-        int tail = self.scroll+self.cursorY;
+void indentVisualMode(ViWin* self, Vi* nvi) {
+    self.pushUndo();
 
-        if(head >= tail) {
-            int tmp = tail;
-            tail = head;
-            head = tmp;
-        }
-        
-        self.texts.sublist(head, tail+1).each {
-            wstring new_line = wstring("    ") + it;
+    int head = self.visualModeHead;
+    int tail = self.scroll+self.cursorY;
+
+    if(head >= tail) {
+        int tmp = tail;
+        tail = head;
+        head = tmp;
+    }
+    
+    self.texts.sublist(head, tail+1).each {
+        wstring new_line = wstring("    ") + it;
+
+        self.texts.replace(it2+head, new_line);
+    }
+
+    self.modifyOverCursorXValue();
+}
+
+void backIndentVisualMode(ViWin* self, Vi* nvi) 
+{
+    self.pushUndo();
+
+    int head = self.visualModeHead;
+    int tail = self.scroll+self.cursorY;
+
+    if(head >= tail) {
+        int tmp = tail;
+        tail = head;
+        head = tmp;
+    }
+
+    self.texts.sublist(head, tail+1).each {
+        wstring new_line = wstring("") + it;
+
+        if(new_line.index(wstring("    "), -1) == 0) {
+            for(int i=0; i<4; i++) {
+                new_line.delete(0);
+            }
 
             self.texts.replace(it2+head, new_line);
         }
-
-        self.modifyOverCursorXValue();
     }
 
-    void backIndentVisualMode(ViWin* self, Vi* nvi) 
-    {
-        self.pushUndo();
+    self.modifyOverCursorXValue();
+}
 
-        int head = self.visualModeHead;
-        int tail = self.scroll+self.cursorY;
+void deleteOnVisualMode(ViWin* self, Vi* nvi) {
+    self.pushUndo();
 
-        if(head >= tail) {
-            int tmp = tail;
-            tail = head;
-            head = tmp;
-        }
+    self.yankOnVisualMode(nvi);
 
-        self.texts.sublist(head, tail+1).each {
-            wstring new_line = wstring("") + it;
+    int head = self.visualModeHead;
+    int tail = self.scroll+self.cursorY;
 
-            if(new_line.index(wstring("    "), -1) == 0) {
-                for(int i=0; i<4; i++) {
-                    new_line.delete(0);
-                }
-
-                self.texts.replace(it2+head, new_line);
-            }
-        }
-
-        self.modifyOverCursorXValue();
+    if(head >= tail) {
+        int tmp = tail;
+        tail = head;
+        head = tmp;
     }
 
-    void deleteOnVisualMode(ViWin* self, Vi* nvi) {
-        self.pushUndo();
+    self.texts.delete_range(head, tail+1);
 
-        self.yankOnVisualMode(nvi);
+    if(self.scroll+self.cursorY >= self.visualModeHead) {
+        self.cursorY -= tail - head;
 
-        int head = self.visualModeHead;
-        int tail = self.scroll+self.cursorY;
-
-        if(head >= tail) {
-            int tmp = tail;
-            tail = head;
-            head = tmp;
-        }
-
-        self.texts.delete_range(head, tail+1);
-
-        if(self.scroll+self.cursorY >= self.visualModeHead) {
-            self.cursorY -= tail - head;
-
-            self.modifyUnderCursorYValue();
-        }
+        self.modifyUnderCursorYValue();
     }
+}
 
-    void inputVisualMode(ViWin* self, Vi* nvi)
-    {
-        var key = self.getKey();
+void inputVisualMode(ViWin* self, Vi* nvi)
+{
+    var key = self.getKey();
 
-        switch(key) {
-            case 'l':
-                self.forward();
-                break;
-            
-            case 'h':
-                self.backward();
-                break;
-
-            case KEY_DOWN:
-            case 'j':
-                self.nextLine();
-                break;
+    switch(key) {
+        case 'l':
+            self.forward();
+            break;
         
-            case KEY_UP:
-            case 'k':
-                self.prevLine();
-                break;
+        case 'h':
+            self.backward();
+            break;
 
-            case '0':
-                self.moveAtHead();
-                break;
+        case KEY_DOWN:
+        case 'j':
+            self.nextLine();
+            break;
+    
+        case KEY_UP:
+        case 'k':
+            self.prevLine();
+            break;
 
-            case '$':
-                self.moveAtTail();
-                break;
+        case '0':
+            self.moveAtHead();
+            break;
 
-            case 'C'-'A'+1:
-                nvi.exitFromVisualMode();
-                break;
+        case '$':
+            self.moveAtTail();
+            break;
 
-            case 'D'-'A'+1:
-                self.halfScrollDown();
-                break;
+        case 'C'-'A'+1:
+            nvi.exitFromVisualMode();
+            break;
 
-            case 'U'-'A'+1:
-                self.halfScrollUp();
-                break;
-                
-            case 'G':
-                self.moveBottom();
-                break;
+        case 'D'-'A'+1:
+            self.halfScrollDown();
+            break;
 
-            case 'g':
-                self.keyG(nvi);
-                break;
+        case 'U'-'A'+1:
+            self.halfScrollUp();
+            break;
+            
+        case 'G':
+            self.moveBottom();
+            break;
 
-            case 'y':
-                self.yankOnVisualMode(nvi);
-                nvi.exitFromVisualMode();
-                break;
+        case 'g':
+            self.keyG(nvi);
+            break;
 
-            case 'd':
-                self.deleteOnVisualMode(nvi);
-                nvi.exitFromVisualMode();
-                break;
+        case 'y':
+            self.yankOnVisualMode(nvi);
+            nvi.exitFromVisualMode();
+            break;
 
-            case '>':
-                self.indentVisualMode(nvi);
-                nvi.exitFromVisualMode();
-                break;
+        case 'd':
+            self.deleteOnVisualMode(nvi);
+            nvi.exitFromVisualMode();
+            break;
 
-            case '<':
-                self.backIndentVisualMode(nvi);
-                nvi.exitFromVisualMode();
-                break;
+        case '>':
+            self.indentVisualMode(nvi);
+            nvi.exitFromVisualMode();
+            break;
 
-            case 27:
-                nvi.exitFromVisualMode();
-                break;
-        }
+        case '<':
+            self.backIndentVisualMode(nvi);
+            nvi.exitFromVisualMode();
+            break;
+
+        case 27:
+            nvi.exitFromVisualMode();
+            break;
     }
+}
 
-    void input(ViWin* self, Vi* nvi) {
-        if(nvi.mode == kVisualMode) {
-            self.inputVisualMode(nvi);
-        }
-        else {
-            inherit(self, nvi);
-        }
+void input(ViWin* self, Vi* nvi) {
+    if(nvi.mode == kVisualMode) {
+        self.inputVisualMode(nvi);
     }
-
-    /// implemented after layer
-    void restoreVisualMode(ViWin* self, Vi* nvi) {
-        nvi.mode = kVisualMode;
-
-        if(self.visualModeHeadBefore != -1) {
-            self.visualModeHead = self.visualModeHeadBefore;
-            self.cursorY = self.visualModeTailCursorYBefore;
-            self.scroll = self.visualModeTailScrollBefore;
-        }
+    else {
+        inherit(self, nvi);
     }
+}
+
+/// implemented after layer
+void restoreVisualMode(ViWin* self, Vi* nvi) {
+    nvi.mode = kVisualMode;
+
+    if(self.visualModeHeadBefore != -1) {
+        self.visualModeHead = self.visualModeHeadBefore;
+        self.cursorY = self.visualModeTailCursorYBefore;
+        self.scroll = self.visualModeTailScrollBefore;
+    }
+}
 }
 
 impl Vi version 8
 {
-    void enterVisualMode(Vi* self) {
-        self.mode = kVisualMode;
-        self.activeWin.visualModeHead = self.activeWin.cursorY + self.activeWin.scroll;
-    }
-    void exitFromVisualMode(Vi* self) {
-        self.mode = kEditMode;
+void enterVisualMode(Vi* self) {
+    self.mode = kVisualMode;
+    self.activeWin.visualModeHead = self.activeWin.cursorY + self.activeWin.scroll;
+}
+void exitFromVisualMode(Vi* self) {
+    self.mode = kEditMode;
 
-        self.activeWin.visualModeHeadBefore = self.activeWin.visualModeHead;
-        self.activeWin.visualModeTailCursorYBefore = self.activeWin.cursorY;
-        self.activeWin.visualModeTailScrollBefore = self.activeWin.scroll;
-    }
+    self.activeWin.visualModeHeadBefore = self.activeWin.visualModeHead;
+    self.activeWin.visualModeTailCursorYBefore = self.activeWin.cursorY;
+    self.activeWin.visualModeTailScrollBefore = self.activeWin.scroll;
+}
 
-    initialize() {
-        inherit(self);
+initialize() {
+    inherit(self);
 
-        self.events.replace('V', lambda(Vi* self, int key) 
-        {
-            self.enterVisualMode();
-        });
-    }
+    self.events.replace('V', lambda(Vi* self, int key) 
+    {
+        self.enterVisualMode();
+    });
+}
 }

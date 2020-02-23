@@ -35,7 +35,7 @@ impl TinyParser version 2
     TinyNode*% expression(TinyParser* self);
 };
 
-enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS };
+enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS, NODETYPE_STRING };
 
 struct TinyNode {
     int type;
@@ -58,6 +58,10 @@ struct TinyNode {
             void* blocks;
             void* else_block;
         } ifValue;
+        
+        struct {
+            char* value;
+        } stringValue;
     };
     
 
@@ -66,6 +70,8 @@ struct TinyNode {
     TinyNode* middle;
 
     int stackValue;
+
+    bool debug_runned_default;
 };
 
 struct TinyBlock
@@ -81,13 +87,14 @@ impl TinyNode
     TinyNode*% createPopNode(TinyNode*% self, int value);
 }
 
-enum { INT_VALUE, NULL_VALUE };
+enum { INT_VALUE, NULL_VALUE, STR_VALUE };
 
 struct TVALUE {
     int type;
     
     union {
         int intValue;
+        char* strValue;
     } uValue;
 };
 
@@ -96,6 +103,7 @@ struct TinyVM
     TinyParser*% parser;
     vector<TinyNode%*>*% nodes;
     vector<TVALUE>*% stack;
+    bool runned_default;
 };
 
 impl TinyVM 
@@ -130,6 +138,7 @@ impl TinyVM version 3
 impl TinyNode version 4 
 {
     finalize();
+    TinyNode*% clone(TinyNode* self);
     void debug(TinyNode* self);
 }
 
@@ -137,7 +146,7 @@ impl TinyParser version 4
 {
     string parseWord(TinyParser* self);
     TinyNode*% node(TinyParser* self);
-    TinyNode*% wordNode(TinyParser* self, string buf);
+    TinyNode*% wordNode(TinyParser* self, string& buf);
 }
 
 struct TinyVM version 4
@@ -157,6 +166,7 @@ enum { NODETYPE_IF=NODETYPE_LOAD_VAR+1 };
 impl TinyNode version 5 
 {
     finalize();
+    TinyNode*% clone(TinyNode* self);
     void debug(TinyNode* self);
 }
 
@@ -169,7 +179,7 @@ impl TinyParser version 5
 {
     void expectNextChararacter(TinyParser* self, char c);
     TinyBlock*% parseBlock(TinyParser* self);
-    TinyNode*% wordNode(TinyParser* self, string buf);
+    TinyNode*% wordNode(TinyParser* self, string& buf);
 }
 
 impl TinyVM version 5 
@@ -178,3 +188,22 @@ impl TinyVM version 5
     bool compile(TinyVM* self, TinyNode* node);
 }
 
+/// 06string.nc ///
+impl TinyNode version 6
+{
+    finalize();
+    TinyNode*% clone(TinyNode* self);
+    void debug(TinyNode* self);
+
+    TinyNode*% createStringNode(TinyNode*% self, char* value);
+}
+
+impl TinyParser version 6
+{
+    TinyNode*% node(TinyParser* self);
+}
+
+impl TinyVM version6
+{
+    bool compile(TinyVM* self, TinyNode* node);
+}

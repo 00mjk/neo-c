@@ -9,401 +9,401 @@
 
 impl ViWin version 4
 {
-    void forwardWord(ViWin* self) {
-        wchar_t* line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+void forwardWord(ViWin* self) {
+    wchar_t* line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
-        wchar_t* p = line + self.cursorX;
+    wchar_t* p = line + self.cursorX;
 
-        if(self.cursorX == wcslen(line)) 
-        {
+    if(self.cursorX == wcslen(line)) 
+    {
+        self.cursorY++;
+
+        self.modifyOverCursorYValue();
+
+        line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+
+        self.cursorX = 0;
+    }
+
+    if(wcslen(line) == 0) {
+        while(wcslen(line) == 0) {
             self.cursorY++;
 
             self.modifyOverCursorYValue();
 
-            line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+            if(self.scroll+self.cursorY >= self.texts.length()-1)
+            {
+                break;
+            }
 
-            self.cursorX = 0;
+            line = self.texts.item(self.scroll+self.cursorY, wstring(""));
         }
 
-        if(wcslen(line) == 0) {
-            while(wcslen(line) == 0) {
+        self.cursorX = 0;
+    }
+    else if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+    {
+        while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+        {
+            p++;
+            self.cursorX++;
+
+            if(self.cursorX >= line.length())
+            {
                 self.cursorY++;
 
-                self.modifyOverCursorYValue();
-
-                if(self.scroll+self.cursorY >= self.texts.length()-1)
+                if(self.scroll+self.cursorY > self.texts.length()-1)
                 {
+                    self.cursorY--;
+                    self.modifyUnderCursorYValue();
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                    self.cursorX = line.length()-1;
                     break;
                 }
 
+                self.modifyOverCursorYValue();
+
                 line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-            }
-
-            self.cursorX = 0;
-        }
-        else if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
-        {
-            while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
-            {
-                p++;
-                self.cursorX++;
-
-                if(self.cursorX >= line.length())
-                {
-                    self.cursorY++;
-
-                    if(self.scroll+self.cursorY > self.texts.length()-1)
-                    {
-                        self.cursorY--;
-                        self.modifyUnderCursorYValue();
-                        line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-                        self.cursorX = line.length()-1;
-                        break;
-                    }
-
-                    self.modifyOverCursorYValue();
-
-                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-                    p = line;
-                    self.cursorX = 0;
-                }
-            }
-        }
-        else if((*p >= '!' && *p <= '/') || (*p >= ':' && *p <= '@') || (*p >= '{' && *p <= '~' ) || (*p >= '[' && *p <= '`'))
-        {
-            while((*p >= '!' && *p <= '/') || (*p >= ':' && *p <= '@') || (*p >= '{' && *p <= '~' ) || (*p >= '[' && *p <= '`'))
-            {
-                p++;
-                self.cursorX++;
-
-                if(self.cursorX >= line.length())
-                {
-                    self.cursorY++;
-
-                    if(self.scroll+self.cursorY > self.texts.length()-1)
-                    {
-                        self.cursorY--;
-                        self.modifyUnderCursorYValue();
-                        line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-                        self.cursorX = line.length()-1;
-                        break;
-                    }
-
-                    self.modifyOverCursorYValue();
-
-                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-                    p = line;
-                    self.cursorX = 0;
-                }
-            }
-        }
-        else if(iswalpha(*p)) {
-            while(iswalpha(*p)) {
-                p++;
-                self.cursorX++;
-
-                if(self.cursorX >= line.length())
-                {
-                    self.cursorY++;
-
-                    if(self.scroll+self.cursorY > self.texts.length()-1)
-                    {
-                        self.cursorY--;
-                        self.modifyUnderCursorYValue();
-                        line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-                        self.cursorX = line.length()-1;
-                        break;
-                    }
-
-                    self.modifyOverCursorYValue();
-
-                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-                    p = line;
-                    self.cursorX = 0;
-                }
-            }
-        }
-        else if(iswblank(*p)) {
-            while(iswblank(*p)) {
-                p++;
-                self.cursorX++;
-
-                if(self.cursorX >= line.length())
-                {
-                    self.cursorY++;
-
-                    if(self.scroll+self.cursorY > self.texts.length()-1)
-                    {
-                        self.cursorY--;
-                        self.modifyUnderCursorYValue();
-                        line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-                        self.cursorX = line.length()-1;
-                        break;
-                    }
-
-                    self.modifyOverCursorYValue();
-
-                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-                    p = line;
-                    self.cursorX = 0;
-                }
-            }
-        }
-        else if(iswdigit(*p)) {
-            while(iswdigit(*p)) {
-                p++;
-                self.cursorX++;
-
-                if(self.cursorX >= line.length())
-                {
-                    self.cursorY++;
-
-                    if(self.scroll+self.cursorY > self.texts.length()-1)
-                    {
-                        self.cursorY--;
-                        self.modifyUnderCursorYValue();
-                        line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-                        self.cursorX = line.length()-1;
-                        break;
-                    }
-
-                    self.modifyOverCursorYValue();
-
-                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-                    p = line;
-                    self.cursorX = 0;
-                }
+                p = line;
+                self.cursorX = 0;
             }
         }
     }
-    void backwardWord(ViWin* self) {
-        wchar_t* line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-
-        wchar_t* p = line + self.cursorX;
-
-        if(self.cursorX == wcslen(line)) 
+    else if((*p >= '!' && *p <= '/') || (*p >= ':' && *p <= '@') || (*p >= '{' && *p <= '~' ) || (*p >= '[' && *p <= '`'))
+    {
+        while((*p >= '!' && *p <= '/') || (*p >= ':' && *p <= '@') || (*p >= '{' && *p <= '~' ) || (*p >= '[' && *p <= '`'))
         {
-            self.cursorX--;
-            p--;
+            p++;
+            self.cursorX++;
 
-            if(self.cursorX < 0) {
-                self.cursorX++;
-                p++;
+            if(self.cursorX >= line.length())
+            {
+                self.cursorY++;
+
+                if(self.scroll+self.cursorY > self.texts.length()-1)
+                {
+                    self.cursorY--;
+                    self.modifyUnderCursorYValue();
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                    self.cursorX = line.length()-1;
+                    break;
+                }
+
+                self.modifyOverCursorYValue();
+
+                line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                p = line;
+                self.cursorX = 0;
             }
         }
+    }
+    else if(iswalpha(*p)) {
+        while(iswalpha(*p)) {
+            p++;
+            self.cursorX++;
 
-        if(wcslen(line) == 0) {
-            while(wcslen(line) == 0) {
+            if(self.cursorX >= line.length())
+            {
+                self.cursorY++;
+
+                if(self.scroll+self.cursorY > self.texts.length()-1)
+                {
+                    self.cursorY--;
+                    self.modifyUnderCursorYValue();
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                    self.cursorX = line.length()-1;
+                    break;
+                }
+
+                self.modifyOverCursorYValue();
+
+                line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                p = line;
+                self.cursorX = 0;
+            }
+        }
+    }
+    else if(iswblank(*p)) {
+        while(iswblank(*p)) {
+            p++;
+            self.cursorX++;
+
+            if(self.cursorX >= line.length())
+            {
+                self.cursorY++;
+
+                if(self.scroll+self.cursorY > self.texts.length()-1)
+                {
+                    self.cursorY--;
+                    self.modifyUnderCursorYValue();
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                    self.cursorX = line.length()-1;
+                    break;
+                }
+
+                self.modifyOverCursorYValue();
+
+                line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                p = line;
+                self.cursorX = 0;
+            }
+        }
+    }
+    else if(iswdigit(*p)) {
+        while(iswdigit(*p)) {
+            p++;
+            self.cursorX++;
+
+            if(self.cursorX >= line.length())
+            {
+                self.cursorY++;
+
+                if(self.scroll+self.cursorY > self.texts.length()-1)
+                {
+                    self.cursorY--;
+                    self.modifyUnderCursorYValue();
+                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                    self.cursorX = line.length()-1;
+                    break;
+                }
+
+                self.modifyOverCursorYValue();
+
+                line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+                p = line;
+                self.cursorX = 0;
+            }
+        }
+    }
+}
+void backwardWord(ViWin* self) {
+    wchar_t* line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+
+    wchar_t* p = line + self.cursorX;
+
+    if(self.cursorX == wcslen(line)) 
+    {
+        self.cursorX--;
+        p--;
+
+        if(self.cursorX < 0) {
+            self.cursorX++;
+            p++;
+        }
+    }
+
+    if(wcslen(line) == 0) {
+        while(wcslen(line) == 0) {
+            self.cursorY--;
+
+            self.modifyUnderCursorYValue();
+
+            if(self.scroll == 0 && self.cursorY == 0)
+            {
+                break;
+            }
+
+            line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+        }
+
+        self.cursorX = wcslen(self.texts.item(self.scroll+self.cursorY, wstring(""))) -1;
+
+        if(self.cursorX < 0) {
+            self.cursorX = 0;
+        }
+    }
+    else if((*p >= '!' && *p <= '/') || (*p >= ':' && *p <= '@') || (*p >= '{' && *p <= '~' ) || (*p >= '[' && *p <= '`'))
+    {
+        while((*p >= '!' && *p <= '/') || (*p >= ':' && *p <= '@') || (*p >= '{' && *p <= '~' ) || (*p >= '[' && *p <= '`'))
+        {
+            p--;
+            self.cursorX--;
+
+            if(self.cursorX < 0)
+            {
+                self.cursorX = 0;
                 self.cursorY--;
 
                 self.modifyUnderCursorYValue();
 
-                if(self.scroll == 0 && self.cursorY == 0)
+                if(self.scroll+self.cursorY <= 0) 
                 {
+                    self.cursorY = 0;
+                    self.scroll = 0;
                     break;
                 }
 
                 line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+
+                if(wcslen(line) == 0)
+                {
+                    p = line;
+                    self.cursorX = 0;
+                }
+                else {
+                    self.cursorX = wcslen(line) -1;
+                    p = line + self.cursorX;
+                }
             }
+        }
+    }
+    else if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+    {
+        while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+        {
+            p--;
+            self.cursorX--;
 
-            self.cursorX = wcslen(self.texts.item(self.scroll+self.cursorY, wstring(""))) -1;
-
-            if(self.cursorX < 0) {
+            if(self.cursorX < 0)
+            {
                 self.cursorX = 0;
+                self.cursorY--;
+
+                self.modifyUnderCursorYValue();
+
+                if(self.scroll+self.cursorY <= 0) 
+                {
+                    self.cursorY = 0;
+                    self.scroll = 0;
+                    break;
+                }
+
+
+                line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+
+                if(wcslen(line) == 0)
+                {
+                    p = line;
+                    self.cursorX = 0;
+                }
+                else {
+                    self.cursorX = wcslen(line) -1;
+                    p = line + self.cursorX;
+                }
             }
         }
-        else if((*p >= '!' && *p <= '/') || (*p >= ':' && *p <= '@') || (*p >= '{' && *p <= '~' ) || (*p >= '[' && *p <= '`'))
-        {
-            while((*p >= '!' && *p <= '/') || (*p >= ':' && *p <= '@') || (*p >= '{' && *p <= '~' ) || (*p >= '[' && *p <= '`'))
+    }
+    else if(iswalpha(*p)) {
+        while(iswalpha(*p)) {
+            p--;
+            self.cursorX--;
+
+            if(self.cursorX < 0)
             {
-                p--;
-                self.cursorX--;
+                self.cursorX = 0;
+                self.cursorY--;
 
-                if(self.cursorX < 0)
+                self.modifyUnderCursorYValue();
+
+                if(self.scroll+self.cursorY <= 0)
                 {
+                    self.cursorY = 0;
+                    self.scroll = 0;
+                    break;
+                }
+
+
+                line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+
+                if(wcslen(line) == 0)
+                {
+                    p = line;
                     self.cursorX = 0;
-                    self.cursorY--;
-
-                    self.modifyUnderCursorYValue();
-
-                    if(self.scroll+self.cursorY <= 0) 
-                    {
-                        self.cursorY = 0;
-                        self.scroll = 0;
-                        break;
-                    }
-
-                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-
-                    if(wcslen(line) == 0)
-                    {
-                        p = line;
-                        self.cursorX = 0;
-                    }
-                    else {
-                        self.cursorX = wcslen(line) -1;
-                        p = line + self.cursorX;
-                    }
+                }
+                else {
+                    self.cursorX = wcslen(line) -1;
+                    p = line + self.cursorX;
                 }
             }
         }
-        else if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
-        {
-            while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+    }
+    else if(iswdigit(*p)) {
+        while(iswdigit(*p)) {
+            p--;
+            self.cursorX--;
+
+            if(self.cursorX < 0)
             {
-                p--;
-                self.cursorX--;
+                self.cursorX = 0;
+                self.cursorY--;
 
-                if(self.cursorX < 0)
+                self.modifyUnderCursorYValue();
+
+                if(self.scroll+self.cursorY <= 0)
                 {
+                    self.cursorY = 0;
+                    self.scroll = 0;
+                    break;
+                }
+
+
+                line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+
+                if(wcslen(line) == 0)
+                {
+                    p = line;
                     self.cursorX = 0;
-                    self.cursorY--;
-
-                    self.modifyUnderCursorYValue();
-
-                    if(self.scroll+self.cursorY <= 0) 
-                    {
-                        self.cursorY = 0;
-                        self.scroll = 0;
-                        break;
-                    }
-
-
-                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-
-                    if(wcslen(line) == 0)
-                    {
-                        p = line;
-                        self.cursorX = 0;
-                    }
-                    else {
-                        self.cursorX = wcslen(line) -1;
-                        p = line + self.cursorX;
-                    }
+                }
+                else {
+                    self.cursorX = wcslen(line) -1;
+                    p = line + self.cursorX;
                 }
             }
         }
-        else if(iswalpha(*p)) {
-            while(iswalpha(*p)) {
-                p--;
-                self.cursorX--;
+    }
+    else if(iswblank(*p)) {
+        while(iswblank(*p)) {
+            p--;
+            self.cursorX--;
 
-                if(self.cursorX < 0)
+            if(self.cursorX < 0)
+            {
+                self.cursorX = 0;
+                self.cursorY--;
+
+                self.modifyUnderCursorYValue();
+
+                if(self.scroll+self.cursorY <= 0)
                 {
-                    self.cursorX = 0;
-                    self.cursorY--;
-
-                    self.modifyUnderCursorYValue();
-
-                    if(self.scroll+self.cursorY <= 0)
-                    {
-                        self.cursorY = 0;
-                        self.scroll = 0;
-                        break;
-                    }
-
-
-                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-
-                    if(wcslen(line) == 0)
-                    {
-                        p = line;
-                        self.cursorX = 0;
-                    }
-                    else {
-                        self.cursorX = wcslen(line) -1;
-                        p = line + self.cursorX;
-                    }
+                    self.cursorY = 0;
+                    self.scroll = 0;
+                    break;
                 }
-            }
-        }
-        else if(iswdigit(*p)) {
-            while(iswdigit(*p)) {
-                p--;
-                self.cursorX--;
 
-                if(self.cursorX < 0)
+
+                line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+
+                if(wcslen(line) == 0)
                 {
+                    p = line;
                     self.cursorX = 0;
-                    self.cursorY--;
-
-                    self.modifyUnderCursorYValue();
-
-                    if(self.scroll+self.cursorY <= 0)
-                    {
-                        self.cursorY = 0;
-                        self.scroll = 0;
-                        break;
-                    }
-
-
-                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-
-                    if(wcslen(line) == 0)
-                    {
-                        p = line;
-                        self.cursorX = 0;
-                    }
-                    else {
-                        self.cursorX = wcslen(line) -1;
-                        p = line + self.cursorX;
-                    }
                 }
-            }
-        }
-        else if(iswblank(*p)) {
-            while(iswblank(*p)) {
-                p--;
-                self.cursorX--;
-
-                if(self.cursorX < 0)
-                {
-                    self.cursorX = 0;
-                    self.cursorY--;
-
-                    self.modifyUnderCursorYValue();
-
-                    if(self.scroll+self.cursorY <= 0)
-                    {
-                        self.cursorY = 0;
-                        self.scroll = 0;
-                        break;
-                    }
-
-
-                    line = self.texts.item(self.scroll+self.cursorY, wstring(""));
-
-                    if(wcslen(line) == 0)
-                    {
-                        p = line;
-                        self.cursorX = 0;
-                    }
-                    else {
-                        self.cursorX = wcslen(line) -1;
-                        p = line + self.cursorX;
-                    }
+                else {
+                    self.cursorX = wcslen(line) -1;
+                    p = line + self.cursorX;
                 }
             }
         }
     }
 }
+}
 
 impl Vi version 4
 {
-    initialize() {
-        inherit(self);
+initialize() {
+    inherit(self);
 
-        self.events.replace('w', lambda(Vi* self, int key) 
-        {
-            self.activeWin.forwardWord();
-        });
-        self.events.replace('e', lambda(Vi* self, int key) 
-        {
-            self.activeWin.forwardWord();
-        });
-        self.events.replace('b', lambda(Vi* self, int key) 
-        {
-            self.activeWin.backwardWord();
-        });
-    }
+    self.events.replace('w', lambda(Vi* self, int key) 
+    {
+        self.activeWin.forwardWord();
+    });
+    self.events.replace('e', lambda(Vi* self, int key) 
+    {
+        self.activeWin.forwardWord();
+    });
+    self.events.replace('b', lambda(Vi* self, int key) 
+    {
+        self.activeWin.backwardWord();
+    });
+}
 }

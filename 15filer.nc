@@ -10,7 +10,6 @@
 #include <wctype.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <libgen.h>
 #include <sys/stat.h>
 
 #include "common.h"
@@ -174,16 +173,16 @@ bool cd(ViFiler* self, char* cwd) {
     closedir(dir);
 
     self.files = self.files.sort_block {
-        if(strcmp(it, ".") == 0) {
+        if(strcmp(it, "./") == 0) {
             return -1;
         }
-        if(strcmp(it2, ".") == 0) {
+        if(strcmp(it2, "./") == 0) {
             return 1;
         }
-        if(strcmp(it, "..") == 0) {
+        if(strcmp(it, "../") == 0) {
             return -1;
         }
-        if(strcmp(it2, "..") == 0) {
+        if(strcmp(it2, "../") == 0) {
             return 1;
         }
         
@@ -193,11 +192,9 @@ bool cd(ViFiler* self, char* cwd) {
         stat left_stat;
         stat(left_path, &left_stat);
         stat right_stat;
-        stat(right_path, &right_stat);
+        stat(left_path, &right_stat);
             
-        if(S_ISDIR(left_stat.st_mode) 
-                && S_ISDIR(right_stat.st_mode)) 
-        {
+        if(S_ISDIR(left_stat.st_mode) && S_ISDIR(right_stat.st_mode)) {
             return strcmp(it, it2);
         }
         else if(S_ISDIR(left_stat.st_mode) && !S_ISDIR(right_stat.st_mode)) {
@@ -529,22 +526,8 @@ void input(ViFiler* self, Vi* nvi) {
         case 127:
         case KEY_BACKSPACE: {
             var path = xasprintf("%s/..", self.path);
-
-            var cwd_before = xbasename(self.path) + string("/");
-                    
+            
             self.cd(path);
-
-            self.files.each {
-                if(strcmp(it, cwd_before) == 0) {
-                    self.scroll = it2 - 10;
-                    self.cursor = 10;
-
-                    if(self.scroll < 0) {
-                        self.cursor += self.scroll;
-                        self.scroll = 0;
-                    }
-                }
-            }
             }
             break; 
             
