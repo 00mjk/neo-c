@@ -243,6 +243,8 @@ impl ViWin version 2
     }
 
     void moveAtTail(ViWin* self) {
+        self.saveReturnPoint();
+
         var cursor_line = self.texts.item(self.scroll+self.cursorY, wstring(""));
         var line_max = cursor_line.length();
 
@@ -254,18 +256,28 @@ impl ViWin version 2
     }
 
     void moveTop(ViWin* self) {
+        self.saveReturnPoint();
+
         self.scroll = 0;
         self.cursorY = 0;
 
         self.modifyOverCursorXValue();
     }
 
-    void keyG(ViWin* self) {
+    /// implemented after layer
+    void restoreVisualMode(ViWin* self, Vi* nvi) {
+    }
+
+    void keyG(ViWin* self, Vi* nvi) {
         var key2 = self.getKey();
 
         switch(key2) {
             case 'g':
                 self.moveTop();
+                break;
+
+            case 'v':
+                self.restoreVisualMode(nvi);
                 break;
         }
     }
@@ -278,6 +290,17 @@ impl ViWin version 2
     }
     void openFile(ViWin* self, char* file_name, int line_num) {
         /// implemented by the after layer
+    }
+
+    void saveReturnPoint(ViWin* self)
+    {
+        var return_point = new tuple3<int,int,int>.initialize();
+
+        return_point.v1 = self.cursorY;
+        return_point.v2 = self.cursorX;
+        return_point.v3 = self.scroll;
+
+        self.returnPoint = return_point;
     }
 }
 
@@ -364,7 +387,7 @@ impl Vi version 2
         });
         self.events.replace('g', lambda(Vi* self, int key) 
         {
-            self.activeWin.keyG();
+            self.activeWin.keyG(self);
         });
         self.events.replace('G', lambda(Vi* self, int key) 
         {

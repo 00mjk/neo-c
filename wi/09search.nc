@@ -37,6 +37,8 @@ impl ViWin version 9
         int x = cursor_line.substring(self.cursorX+1, -1).index(nvi.searchString, -1)
 
         if(x != -1) {
+            self.saveReturnPoint();
+
             x += self.cursorX + 1;
             self.cursorX = x;
         }
@@ -45,6 +47,8 @@ impl ViWin version 9
                 int x = it.index(nvi.searchString, -1);
 
                 if(x != -1) {
+                    self.saveReturnPoint();
+
                     self.cursorY += it2 + 1;
                     self.modifyOverCursorYValue();
                     self.cursorX = x;
@@ -68,6 +72,8 @@ impl ViWin version 9
         }
 
         if(x != -1) {
+            self.saveReturnPoint();
+
             self.cursorX = x;
         }
         else {
@@ -75,6 +81,8 @@ impl ViWin version 9
                 int x = it.rindex(nvi.searchString, -1);
 
                 if(x != -1) {
+                    self.saveReturnPoint();
+
                     self.cursorY = self.cursorY - it2 -1;
                     self.modifyUnderCursorYValue();
                     self.cursorX = x;

@@ -998,6 +998,7 @@ map	code/neo-c.h	/^struct map<T, T2>$/;"	s
 map	neo-c.h	/^impl map <T, T2>$/;"	s
 map	neo-c.h	/^ruby_macro map {$/;"	s
 map	neo-c.h	/^struct map<T, T2>$/;"	s
+mark	wi/common.h	/^    map<wchar_t, tuple3<int,int, int>*%>*% mark;$/;"	m	struct:version
 mem	src/memalloc-stdc.c	/^    void* mem;$/;"	m	struct:sHeapDebug	file:
 middle	tiny/common.h	/^    TinyNode* middle;$/;"	m	struct:TinyNode
 mode	wi/common.h	/^    int mode;$/;"	m	struct:version
@@ -1477,6 +1478,7 @@ version	wi/common.h	/^struct Vi version 6$/;"	s
 version	wi/common.h	/^struct Vi version 7$/;"	s
 version	wi/common.h	/^struct Vi version 9$/;"	s
 version	wi/common.h	/^struct ViWin version 14$/;"	s
+version	wi/common.h	/^struct ViWin version 16$/;"	s
 version	wi/common.h	/^struct ViWin version 2 $/;"	s
 version	wi/common.h	/^struct ViWin version 5$/;"	s
 version	wi/common.h	/^struct ViWin version 6$/;"	s

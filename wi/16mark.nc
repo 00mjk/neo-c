@@ -29,9 +29,25 @@ impl ViWin version 16
         var point = self.mark.at(c, null);
         
         if(point != null) {
+            self.saveReturnPoint();
+
             self.scroll = point.v1;
             self.cursorY = point.v2;
             self.cursorX = point.v3;
+            
+            self.modifyUnderCursorYValue();
+            self.modifyOverCursorYValue();
+            self.modifyOverCursorXValue();
+        }
+    }
+    
+    void returnBack(ViWin* self) {
+        var point = borrow self.returnPoint;
+        
+        if(point != null) {
+            self.cursorY = point.v1;
+            self.cursorX = point.v2;
+            self.scroll = point.v3;
             
             self.modifyUnderCursorYValue();
             self.modifyOverCursorYValue();
@@ -62,7 +78,12 @@ impl Vi version 16
         {
             var key2 = self.activeWin.getKey();
             
-            self.activeWin.returnAtMarkedPoint(key2);
+            if(key2 == '`') {
+                self.activeWin.returnBack();
+            }
+            else {
+                self.activeWin.returnAtMarkedPoint(key2);
+            }
         });
     }
 }

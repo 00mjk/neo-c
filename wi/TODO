@@ -1,12 +1,11 @@
-filer moving directory
-
 #
 *
 :%s//
 ta, fa,dta, cta
-
 insert mode ^w
+------------------------------------------------------------
+delete blink brace 
+gv
 ``
 ma, mb
----------------------------------------------------------------------
-delete blink brace 
+filer moving directory

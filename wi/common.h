@@ -49,6 +49,8 @@ struct ViWin version 2
     int cursorY;
     int cursorX;
     int scroll;
+
+    tuple3<int,int,int>*% returnPoint;
 };
 
 impl ViWin version 2 
@@ -73,12 +75,16 @@ impl ViWin version 2
     void moveAtTail(ViWin* self);
 
     void moveTop(ViWin* self);
-    void keyG(ViWin* self);
+    void keyG(ViWin* self,Vi* nvi);
     void moveBottom(ViWin* self);
 
     void repositionWindows(Vi* self);
     void repositionFiler(Vi* self);
     void centeringCursor(ViWin* self);
+
+    void saveReturnPoint(ViWin* self);
+
+    void restoreVisualMode(ViWin* self, Vi* nvi);
 }
 
 struct Vi version 2 
@@ -235,6 +241,10 @@ enum eMode { kVisualMode = kInsertMode + 1 };
 struct ViWin version 8
 {
     int visualModeHead;
+
+    int visualModeHeadBefore;
+    int visualModeTailCursorYBefore;
+    int visualModeTailScrollBefore;
 };
 
 
@@ -245,11 +255,13 @@ impl ViWin version 8
     void view(ViWin* self, Vi* nvi);
     void inputVisualMode(ViWin* self, Vi* nvi);
     void input(ViWin* self, Vi* nvi);
+    void restoreVisualMode(ViWin* self, Vi* nvi);
 }
 
 impl Vi version 8
 {
     void enterVisualMode(Vi* self);
+    void reenterVisualMode(Vi* self);
     void exitFromVisualMode(Vi* self);
     initialize();
 }

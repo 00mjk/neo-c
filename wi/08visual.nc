@@ -13,6 +13,10 @@ impl ViWin version 8
         inherit(self, y, x, width, height);
 
         self.visualModeHead = 0;
+
+        self.visualModeHeadBefore = -1;
+        self.visualModeTailCursorYBefore = -1;
+        self.visualModeTailScrollBefore = -1;
     }
 
     void visualModeView(ViWin* self, Vi* nvi)
@@ -195,7 +199,7 @@ impl ViWin version 8
                 break;
 
             case 'g':
-                self.keyG();
+                self.keyG(nvi);
                 break;
 
             case 'y':
@@ -232,6 +236,17 @@ impl ViWin version 8
             inherit(self, nvi);
         }
     }
+
+    /// implemented after layer
+    void restoreVisualMode(ViWin* self, Vi* nvi) {
+        nvi.mode = kVisualMode;
+
+        if(self.visualModeHeadBefore != -1) {
+            self.visualModeHead = self.visualModeHeadBefore;
+            self.cursorY = self.visualModeTailCursorYBefore;
+            self.scroll = self.visualModeTailScrollBefore;
+        }
+    }
 }
 
 impl Vi version 8
@@ -242,6 +257,10 @@ impl Vi version 8
     }
     void exitFromVisualMode(Vi* self) {
         self.mode = kEditMode;
+
+        self.activeWin.visualModeHeadBefore = self.activeWin.visualModeHead;
+        self.activeWin.visualModeTailCursorYBefore = self.activeWin.cursorY;
+        self.activeWin.visualModeTailScrollBefore = self.activeWin.scroll;
     }
 
     initialize() {

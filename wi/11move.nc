@@ -22,6 +22,8 @@ impl ViWin version 11
         while(p < line + line.length()) {
             if(*p == tail) {
                 if(nest == 0) {
+                    self.saveReturnPoint();
+
                     cursor_x = (p - line) / sizeof(wchar_t);
                     self.cursorX = cursor_x;
                     break;
@@ -49,6 +51,8 @@ impl ViWin version 11
                 while(p < it + it.length()) {
                     if(*p == tail) {
                         if(nest == 0) {
+                            self.saveReturnPoint();
+
                             cursor_x = (p - it) / sizeof(wchar_t);
                             self.cursorY += it2 + 1;
                             self.modifyOverCursorYValue();
@@ -87,6 +91,7 @@ impl ViWin version 11
         while(p >= line) {
             if(*p == head) {
                 if(nest == 0) {
+                    self.saveReturnPoint();
                     cursor_x = (p - line) / sizeof(wchar_t);
                     self.cursorX = cursor_x;
                     break;
@@ -114,6 +119,8 @@ impl ViWin version 11
                 while(p >= it) {
                     if(*p == head) {
                         if(nest == 0) {
+                            self.saveReturnPoint();
+
                             cursor_x = (p - it) / sizeof(wchar_t);
                             self.cursorY = self.cursorY - it2 -1;
                             self.modifyUnderCursorYValue();
@@ -187,6 +194,8 @@ impl ViWin version 11
                 if(!it.to_string("").match(regex!</else\\s+if/>, null)
                    && !it.to_string("").match(regex!</return\\s+[a-zA-Z0-9_]+/>, null))
                 {
+                    self.saveReturnPoint();
+
                     *it3 = true;
                     self.cursorY = self.cursorY - it2 -1;
                     self.modifyUnderCursorYValue();
@@ -208,6 +217,9 @@ impl ViWin version 11
                 if(!it.to_string("").match(regex!</else\\s+if/>, null)
                    && !it.to_string("").match(regex!</return\\s+[a-zA-Z0-9_]+/>, null))
                 {
+                    self.saveReturnPoint();
+
+
                     *it3 = true;
                     self.cursorY += it2 + 1;
                     self.cursorX = 0;
