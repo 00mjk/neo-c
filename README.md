@@ -145,7 +145,7 @@ impl string
 }
 ```
 
-regex is generated as regex! (/.+/). Specify options such as regex! (/.+/ g).
+regex is generated as regex!(".+"). Specify options such as regex! (".+" g).
 
 * string
 
@@ -219,7 +219,7 @@ impl string
 }
 ```
 
-regexはregex!(/.+/)などと生成します。regex!(/.+/g)などとオプションを指定します。
+regexはregex!(".+")などと生成します。regex!(".+"g)などとオプションを指定します。
 
 * list
 
@@ -840,7 +840,7 @@ The definition is this. It is a variable-length character string or memory. Alth
     buf.append_str("BBB,");
     buf.append_str("CCC");
 
-    buf.to_string().split(regex!(/,/)).each {
+    buf.to_string().split(regex!(",")).each {
         puts(it);
     }
 ```
@@ -887,7 +887,7 @@ impl buffer
     buf.append_str("BBB,");
     buf.append_str("CCC");
 
-    buf.to_string().split(regex!(/,/)).each {
+    buf.to_string().split(regex!(",")).each {
         puts(it);
     }
 ```
