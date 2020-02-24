@@ -3881,6 +3881,7 @@ static BOOL parse_if(unsigned int* node, sParserInfo* info)
     }
 
     expect_next_character_with_one_forward(")", info);
+
     sNodeBlock* if_node_block = NULL;
     if(!parse_block_easy(ALLOC &if_node_block, FALSE, info))
     {

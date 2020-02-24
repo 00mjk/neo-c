@@ -244,7 +244,19 @@ bool parser(TinyVM* self) {
 void debug(TinyVM* self) {
     puts("=+= VM stack value =+=");
     self.stack.each {
-        printf("stack[%d] type %d int value %d\n", it2, it.type, it.uValue.intValue);
+        switch(it.type) {
+            case INT_VALUE:
+                printf("stack[%d] int value %d\n", it2, it.uValue.intValue);
+                break;
+
+            case NULL_VALUE:
+                printf("stack[%d] null value %d\n", it2, it.uValue.intValue);
+                break;
+
+            case STR_VALUE:
+                printf("stack[%d] str value %s\n", it2, it.uValue.strValue);
+                break;
+        }
     }
 }
 

@@ -8,6 +8,11 @@ BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_c_lang, sParser
     if(*info->p == '{') {
         info->p++;
     }
+    else {
+        parser_err_msg(info, "require { for block");
+        info->err_num++;
+        return TRUE;
+    }
 
     sVarTable* old_table = info->lv_table;
 

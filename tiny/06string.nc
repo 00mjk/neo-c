@@ -41,7 +41,7 @@ TinyNode*% clone(TinyNode* self) {
 
 TinyNode*% createStringNode(TinyNode*% self, char* value) {
     self.type = NODETYPE_STRING;
-    self.stringValue.value = clone value;
+    self.stringValue.value = string(value);
 
     self.stackValue = 1;
 
@@ -114,11 +114,13 @@ TinyNode*% node(TinyParser* self) {
                 return null;
             }
             else {
-                if(*self.p == '\n') self.sourceLine++;
+                if(*self.p == '\n') {
+                    self.sourceLine++;
+                }
 
                 value.append_char(*self.p)
                 self.p++;
-            }
+            };
         }
 
         self.skipSpaces();
