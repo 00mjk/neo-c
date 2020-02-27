@@ -1455,7 +1455,8 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
             *right_type = clone_node_type(left_type);
         }
     }
-    else if(type_identify_with_class_name(left_type, "lambda")) {
+    else if(left_type->mArrayNum > 0 && (*right_type)->mPointerNum == left_type->mPointerNum+1) 
+    {
         if(rvalue) {
             Type* llvm_type;
             if(!create_llvm_type_from_node_type(&llvm_type, left_type, left_type, info))
@@ -1464,7 +1465,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
             }
 
             rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, llvm_type);
-            rvalue->type = left_type;
+            rvalue->type = clone_node_type(left_type);
         }
 
         *right_type = clone_node_type(left_type);

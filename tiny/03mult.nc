@@ -130,15 +130,10 @@ bool compile(TinyVM* self, TinyNode* node) {
                 return false;
             }
 
-            TVALUE default_value;
-            
-            default_value.type = NULL_VALUE;
-            default_value.uValue.intValue = 0;
+            TVALUE*% value1 = self.stack.pop_back(null);
+            TVALUE*% value2 = self.stack.pop_back(null); 
 
-            TVALUE value1 = self.stack.pop_back(default_value);
-            TVALUE value2 = self.stack.pop_back(default_value); 
-
-            TVALUE value3;
+            TVALUE*% value3 = new TVALUE;
             
             value3.type = INT_VALUE;
             value3.uValue.intValue 
@@ -157,15 +152,10 @@ bool compile(TinyVM* self, TinyNode* node) {
                 return false;
             }
 
-            TVALUE default_value;
+            TVALUE*% value1 = self.stack.pop_back(null);
+            TVALUE*% value2 = self.stack.pop_back(null); 
             
-            default_value.type = NULL_VALUE;
-            default_value.uValue.intValue = 0;
-
-            TVALUE value1 = self.stack.pop_back(default_value);
-            TVALUE value2 = self.stack.pop_back(default_value); 
-            
-            TVALUE value3;
+            TVALUE*% value3 = new TVALUE;
             
             value3.type = INT_VALUE;
             value3.uValue.intValue 

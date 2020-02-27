@@ -662,16 +662,42 @@ struct TinyNode {
 
     union {
         int intValue;
-
-        struct varName {
+    
+        struct {
             char* name;
             TinyNode* value;
-        } bbb;
+        } varValue;
+
+        struct {
+            char* name;
+            TinyNode** params;
+            int num_params;
+        } funValue;
+    
+        struct {
+            char* name;
+        } loadVarValue;
+
+        struct {
+            int num_expressions;
+            TinyNode** expressions;
+            void* blocks;
+            void* else_block;
+        } ifValue;
+
+        struct {
+            char* value;
+        } stringValue;
     };
+    
 
     TinyNode* left;
     TinyNode* right;
     TinyNode* middle;
+
+    int stackValue;
+
+    bool debug_runned_default;
 };
 
 int main()
@@ -1609,7 +1635,7 @@ label1:
     bbxyz[0] = 1;
     bbxyz[1] = 2;
 
-    int* pbbxyz = bbxyz;
+    int* pbbxyz = (int*)bbxyz;
 
     *pbbxyz = 3;
     *(pbbxyz +1) = 4;
@@ -1680,9 +1706,7 @@ label1:
 
     TinyNode* abbbb = new TinyNode;
 
-    abbbb.type = 0;
-    abbbb.intValue = 0;
-    abbbb.bbb.name = "AAA";
+    printf("%p %p\n", abbbb, &abbbb.stringValue.value);
 
     0
 }

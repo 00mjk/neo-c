@@ -991,7 +991,77 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
         }
     }
 
-    if(left_type->mPointerNum > 0 && is_number_type(right_type))
+    if(left_type->mArrayNum > 0 && is_number_type(right_type))
+    {
+        left_type->mArrayNum = 0;
+        left_type->mPointerNum++;
+
+        Type* llvm_left_type;
+        if(!create_llvm_type_from_node_type(&llvm_left_type, left_type, left_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(10)");
+            show_node_type(left_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        Value* left_value = Builder.CreateCast(Instruction::BitCast, lvalue.address, llvm_left_type);
+        Value* left_value2 = Builder.CreateCast(Instruction::PtrToInt, left_value, IntegerType::get(TheContext, 64));
+
+        Value* right_value;
+        if(type_identify_with_class_name(right_type, "long")) {
+            right_value = rvalue.value;
+        }
+        else {
+            right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext1");
+        }
+
+        Type* llvm_var_type;
+        if(!create_llvm_type_from_node_type(&llvm_var_type, left_type, left_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(10)");
+            show_node_type(left_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        sNodeType* left_type3 = clone_node_type(left_type);
+        left_type3->mPointerNum--;
+
+        uint64_t alloc_size = 0;
+        if(!get_size_from_node_type(&alloc_size, left_type3, info))
+        {
+            return FALSE;
+        }
+
+        Value* alloc_size_value = ConstantInt::get(Type::getInt64Ty(TheContext), alloc_size);
+
+        right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
+
+        sNodeType* left_type2 = clone_node_type(left_type);
+        left_type2->mHeap = FALSE;
+
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateAdd(left_value2, right_value, "addtmp", false, true);
+        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type);
+        llvm_value.type = clone_node_type(left_type2);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
+        llvm_value.load_field = FALSE;
+
+        dec_stack_ptr(2, info);
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type = clone_node_type(left_type2);
+    }
+    else if(left_type->mPointerNum > 0 && is_number_type(right_type))
     {
         Value* left_value = Builder.CreateCast(Instruction::PtrToInt, lvalue.value, IntegerType::get(TheContext, 64));
 
@@ -1142,7 +1212,77 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
         }
     }
 
-    if(left_type->mPointerNum > 0 && is_number_type(right_type))
+    if(left_type->mArrayNum > 0 && is_number_type(right_type))
+    {
+        left_type->mArrayNum = 0;
+        left_type->mPointerNum++;
+
+        Type* llvm_left_type;
+        if(!create_llvm_type_from_node_type(&llvm_left_type, left_type, left_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(10)");
+            show_node_type(left_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        Value* left_value = Builder.CreateCast(Instruction::BitCast, lvalue.address, llvm_left_type);
+        Value* left_value2 = Builder.CreateCast(Instruction::PtrToInt, left_value, IntegerType::get(TheContext, 64));
+
+        Value* right_value;
+        if(type_identify_with_class_name(right_type, "long")) {
+            right_value = rvalue.value;
+        }
+        else {
+            right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext2");
+        }
+
+        Type* llvm_var_type;
+        if(!create_llvm_type_from_node_type(&llvm_var_type, left_type, left_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(10)");
+            show_node_type(left_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        sNodeType* left_type3 = clone_node_type(left_type);
+        left_type3->mPointerNum--;
+
+        uint64_t alloc_size = 0;
+        if(!get_size_from_node_type(&alloc_size, left_type3, info))
+        {
+            return FALSE;
+        }
+
+        Value* alloc_size_value = ConstantInt::get(Type::getInt64Ty(TheContext), alloc_size);
+
+        right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
+
+        sNodeType* left_type2 = clone_node_type(left_type);
+        left_type2->mHeap = FALSE;
+
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateSub(left_value, right_value, "subtmp", false, true);
+        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type);
+        llvm_value.type = clone_node_type(left_type2);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
+        llvm_value.load_field = FALSE;
+
+        dec_stack_ptr(2, info);
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type = clone_node_type(left_type2);
+    }
+    else if(left_type->mPointerNum > 0 && is_number_type(right_type))
     {
         Value* left_value = Builder.CreateCast(Instruction::PtrToInt, lvalue.value, IntegerType::get(TheContext, 64));
 

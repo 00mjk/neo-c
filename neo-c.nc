@@ -89,8 +89,8 @@ impl buffer
 
     void append_char(buffer* self, char c)
     {
-        if(self.len + 1  + 1 >= self.size) {
-            int new_size = (self.size + 1) * 2;
+        if(self.len + 1 + 1 >= self.size) {
+            int new_size = (self.size + 10 + 1) * 2;
             self.buf = realloc(self.buf, new_size);
             self.size = new_size;
         }

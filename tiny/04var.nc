@@ -102,6 +102,7 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
 
         if(*self.p == '=') {
             self.p++;
+            self.skipSpaces();
         }
         else {
             self.errMessage("require = character");
@@ -153,8 +154,8 @@ impl TinyVM version 4
 initialize(char* source_name) {
     inherit(self, source_name);
 
-    self.vtable = new vector<map<string, TVALUE>*%>.initialize();
-    var vtable = new map<string, TVALUE>.initialize();
+    self.vtable = new vector<map<string, TVALUE*%>*%>.initialize();
+    var vtable = new map<string, TVALUE*%>.initialize();
     self.vtable.push_back(vtable);
 }
 
@@ -173,20 +174,15 @@ bool compile(TinyVM* self, TinyNode* node) {
                 return false;
             }
 
-            TVALUE default_value;
-            
-            default_value.type = NULL_VALUE;
-            default_value.uValue.intValue = 0;
-
-            TVALUE value = self.stack.pop_back(default_value);
+            TVALUE*% value = self.stack.pop_back(null);
             
             var vtable = self.vtable.item(-1, null);
             
             var name = clone node.varValue.name;
             
-            vtable.insert(name, value);
+            vtable.insert(name, clone value);
 
-            self.stack.push_back(value);
+            self.stack.push_back(clone value);
             }
             break;
 
@@ -194,11 +190,8 @@ bool compile(TinyVM* self, TinyNode* node) {
             var vtable = self.vtable.item(-1, null);
             
             var name = clone node.loadVarValue.name;
-
-            TVALUE default_value;
-            default_value.type = NULL_VALUE;
-            
-            var value = vtable.at(name, default_value);
+            var item = vtable.at(name, null);
+            var value = clone item;
 
             if(value.type == NULL_VALUE) {
             }

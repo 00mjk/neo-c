@@ -18,7 +18,7 @@ finalize() {
 TinyNode*% clone(TinyNode* self) {
     TinyNode*% result = new TinyNode;
 
-    memcpy(result, self, sizeof(TinyNode));
+    result.type = self.type;
 
     if(self.left) {
         result.left = borrow clone self.left;
@@ -31,6 +31,8 @@ TinyNode*% clone(TinyNode* self) {
     if(self.middle) {
         result.middle = borrow clone self.middle;
     }
+
+    result.stackValue = self.stackValue;
 
     return result;
 }
@@ -216,7 +218,7 @@ initialize(char* source_name) {
     self.parser = new TinyParser.initialize(source_name);
 
     self.nodes = new vector<TinyNode%*>.initialize();
-    self.stack = new vector<TVALUE>.initialize();
+    self.stack = new vector<TVALUE*%>.initialize();
 }
 
 bool parser(TinyVM* self) {
@@ -267,17 +269,13 @@ bool compile(TinyVM* self, TinyNode* node) {
         case NODETYPE_POP : {
             int stack_num = node.intValue;
             for(int i=0; i<stack_num; i++) {
-                TVALUE default_value;
-                
-                default_value.type = NULL_VALUE;
-
-                (void)self.stack.pop_back(default_value);
+                self.stack.pop_back(null);
             }
             }
             break;
 
         case NODETYPE_INT : {
-            TVALUE value1;
+            TVALUE*% value1 = new TVALUE;
             value1.type = INT_VALUE;
             value1.uValue.intValue = node.intValue;
             self.stack.push_back(value1);
@@ -292,15 +290,10 @@ bool compile(TinyVM* self, TinyNode* node) {
                 return false;
             }
 
-            TVALUE default_value;
-            
-            default_value.type = NULL_VALUE;
-            default_value.uValue.intValue = 0;
+            TVALUE*% value1 = self.stack.pop_back(null);
+            TVALUE*% value2 = self.stack.pop_back(null); 
 
-            TVALUE value1 = self.stack.pop_back(default_value);
-            TVALUE value2 = self.stack.pop_back(default_value); 
-
-            TVALUE value3;
+            TVALUE*% value3 = new TVALUE;
             
             value3.type = INT_VALUE;
             value3.uValue.intValue 
@@ -319,15 +312,10 @@ bool compile(TinyVM* self, TinyNode* node) {
                 return false;
             }
 
-            TVALUE default_value;
+            TVALUE*% value1 = self.stack.pop_back(null);
+            TVALUE*% value2 = self.stack.pop_back(null); 
             
-            default_value.type = NULL_VALUE;
-            default_value.uValue.intValue = 0;
-
-            TVALUE value1 = self.stack.pop_back(default_value);
-            TVALUE value2 = self.stack.pop_back(default_value); 
-            
-            TVALUE value3;
+            TVALUE*% value3 = new TVALUE;
             value3.type = INT_VALUE;
             value3.uValue.intValue 
                     = value1.uValue.intValue 

@@ -1,6 +1,14 @@
 #include "common.h"
 #include <ctype.h>
 
+impl TVALUE version 6 {
+    finalize() {
+        if(self.type == STR_VALUE) {
+            delete self.uValue.strValue;
+        }
+    }
+}
+
 impl TinyNode version 6
 {
 finalize() {
@@ -33,7 +41,7 @@ TinyNode*% clone(TinyNode* self) {
     var result = inherit(self);
 
     if(self.type == NODETYPE_STRING) {
-        result.stringValue.value = clone self.stringValue.value;
+        result.stringValue.value = borrow clone self.stringValue.value;
     }
 
     return result;
@@ -41,7 +49,7 @@ TinyNode*% clone(TinyNode* self) {
 
 TinyNode*% createStringNode(TinyNode*% self, char* value) {
     self.type = NODETYPE_STRING;
-    self.stringValue.value = string(value);
+    self.stringValue.value = borrow string(value);
 
     self.stackValue = 1;
 
@@ -145,9 +153,9 @@ bool compile(TinyVM* self, TinyNode* node) {
 
     switch(node.type) {
         case NODETYPE_STRING : {
-            TVALUE value1;
+            TVALUE*% value1 = new TVALUE;
             value1.type = STR_VALUE;
-            value1.uValue.strValue = node.stringValue.value;
+            value1.uValue.strValue = clone node.stringValue.value;
             self.stack.push_back(value1);
             }
             break;
