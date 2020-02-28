@@ -44,20 +44,9 @@ struct TinyNode {
         int intValue;
 
         struct {
-            char* value;
-        } stringValue;
-
-    
-        struct {
             char* name;
             TinyNode* value;
         } varValue;
-
-        struct {
-            char* name;
-            TinyNode** params;
-            int num_params;
-        } funValue;
     
         struct {
             char* name;
@@ -69,6 +58,16 @@ struct TinyNode {
             void* blocks;
             void* else_block;
         } ifValue;
+
+        struct {
+            char* value;
+        } stringValue;
+
+        struct {
+            char* name;
+            TinyNode** params;
+            int num_params;
+        } funValue;
     };
     
 
@@ -109,6 +108,10 @@ struct TVALUE {
         } commandValue;
     } uValue;
 };
+
+impl TVALUE {
+    initialize();
+}
 
 struct TinyVM
 {

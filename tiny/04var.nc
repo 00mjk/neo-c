@@ -24,7 +24,7 @@ TinyNode*% clone(TinyNode* self) {
         result.varValue.value = clone self.varValue.value;
     }
     else if(self.type == NODETYPE_LOAD_VAR) {
-        result.varValue.name = clone self.varValue.name;
+        result.loadVarValue.name = clone self.loadVarValue.name;
     }
 
     return result;

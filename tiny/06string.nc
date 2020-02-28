@@ -155,7 +155,7 @@ bool compile(TinyVM* self, TinyNode* node) {
         case NODETYPE_STRING : {
             TVALUE*% value1 = new TVALUE;
             value1.type = STR_VALUE;
-            value1.uValue.strValue = clone node.stringValue.value;
+            value1.uValue.strValue = borrow clone node.stringValue.value;
             self.stack.push_back(value1);
             }
             break;

@@ -1,6 +1,11 @@
 #include "common.h"
 #include <stdio.h>
 
+impl TVALUE {
+    initialize() {
+    }
+}
+
 impl TinyNode 
 {
 finalize() {
@@ -19,6 +24,10 @@ TinyNode*% clone(TinyNode* self) {
     TinyNode*% result = new TinyNode;
 
     result.type = self.type;
+
+    if(self.type == NODETYPE_INT) {
+        result.intValue = self.intValue;
+    }
 
     if(self.left) {
         result.left = borrow clone self.left;
@@ -54,7 +63,7 @@ TinyNode*% createPlusNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
     self.left = left;
     self.right = right;
 
-    self.stackValue = -1;
+    self.stackValue = 1;
 
     return self;
 }
@@ -67,7 +76,7 @@ TinyNode*% createMinusNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
     self.left = left;
     self.right = right;
 
-    self.stackValue = -1;
+    self.stackValue = 1;
 
     return self;
 }
@@ -269,15 +278,17 @@ bool compile(TinyVM* self, TinyNode* node) {
         case NODETYPE_POP : {
             int stack_num = node.intValue;
             for(int i=0; i<stack_num; i++) {
-                self.stack.pop_back(null);
+                var tmp = self.stack.pop_back(null);
             }
             }
             break;
 
         case NODETYPE_INT : {
-            TVALUE*% value1 = new TVALUE;
+            TVALUE*% value1 = new TVALUE.initialize();
+printf("%d %p\n", node.intValue, value1);
             value1.type = INT_VALUE;
             value1.uValue.intValue = node.intValue;
+
             self.stack.push_back(value1);
             }
             break;
@@ -304,7 +315,7 @@ bool compile(TinyVM* self, TinyNode* node) {
             }
             break;
 
-        case NODETYPE_MINUS :
+        case NODETYPE_MINUS : {
             if(!self.compile(node.left)) {
                 return false;
             }
@@ -322,6 +333,7 @@ bool compile(TinyVM* self, TinyNode* node) {
                     - value2.uValue.intValue;
             
             self.stack.push_back(value3);
+            }
             break;
 
         default:

@@ -6878,6 +6878,9 @@ unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED st
 
 static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
 {
+    void* switch_expression_before = info->switch_expression;
+    info->switch_expression = NULL;
+
     sNodeBlock* while_node_block = gNodes[node].uValue.sWhile.mWhileNodeBlock;
 
     BasicBlock* loop_top_block = BasicBlock::Create(TheContext, "loop_top_block", gFunction);
@@ -6983,6 +6986,8 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
 
     info->type = create_node_type_with_class_name("void");
 
+    info->switch_expression = switch_expression_before;
+
     return TRUE;
 }
 
@@ -7007,6 +7012,9 @@ unsigned int sNodeTree_do_while_expression(unsigned int expression_node, MANAGED
 
 static BOOL compile_do_while_expression(unsigned int node, sCompileInfo* info)
 {
+    void* switch_expression_before = info->switch_expression;
+    info->switch_expression = NULL;
+
     sNodeBlock* while_node_block = gNodes[node].uValue.sWhile.mWhileNodeBlock;
 
     BasicBlock* loop_top_block = BasicBlock::Create(TheContext, "loop_top_block", gFunction);
@@ -7104,6 +7112,8 @@ static BOOL compile_do_while_expression(unsigned int node, sCompileInfo* info)
     info->last_expression_is_return = last_expression_is_return_before;
 */
     info->type = create_node_type_with_class_name("void");
+
+    info->switch_expression = switch_expression_before;
 
     return TRUE;
 }
@@ -7479,6 +7489,9 @@ unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned in
 
 static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
 {
+    void* switch_expression_before = info->switch_expression;
+    info->switch_expression = NULL;
+
     sNodeBlock* for_block = gNodes[node].uValue.sFor.mForNodeBlock;
 
     sVarTable* lv_table_before = info->pinfo->lv_table;
@@ -7611,6 +7624,8 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     info->pinfo->lv_table = lv_table_before;
 
     info->type = create_node_type_with_class_name("void");
+
+    info->switch_expression = switch_expression_before;
 
     return TRUE;
 }

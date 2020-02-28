@@ -269,8 +269,6 @@ bool compile(TinyVM* self, TinyNode* node) {
                     return false;
                 }
 
-                TVALUE default_value;
-                
                 TVALUE*% value = self.stack.pop_back(null);
                 
                 if(value.uValue.intValue) {

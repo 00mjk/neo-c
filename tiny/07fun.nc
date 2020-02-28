@@ -259,7 +259,9 @@ bool compile(TinyVM* self, TinyNode* node) {
             
             var name = node.funValue.name;
 
-            system(xasprintf("%s", name));
+            var command = xasprintf("%s %s", name, argv[0]);
+
+            system(command);
 
             //self.runCommand(name, borrow argv);
             }

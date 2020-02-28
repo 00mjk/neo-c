@@ -13,7 +13,7 @@ TinyNode*% createMultNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
     self.left = left;
     self.right = right;
 
-    self.stackValue = -1;
+    self.stackValue = 1;
 
     return self;
 }
@@ -26,7 +26,7 @@ TinyNode*% createDivNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
     self.left = left;
     self.right = right;
 
-    self.stackValue = -1;
+    self.stackValue = 1;
 
     return self;
 }
@@ -144,7 +144,7 @@ bool compile(TinyVM* self, TinyNode* node) {
             }
             break;
 
-        case NODETYPE_DIV :
+        case NODETYPE_DIV : {
             if(!self.compile(node.left)) {
                 return false;
             }
@@ -163,6 +163,7 @@ bool compile(TinyVM* self, TinyNode* node) {
                     / value2.uValue.intValue;
             
             self.stack.push_back(value3);
+            }
             break;
 
         default:
