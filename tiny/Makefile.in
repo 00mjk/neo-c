@@ -87,7 +87,5 @@ distclean: clean
 	rm -fR  config.h Makefile autom4te.cache 
 
 test:
-#	rm -f valgrind.txt memleack_debug.txt
-#	valgrind --log-file=valgrind.txt --leak-check=full --show-leak-kinds=all ./neo-vi a.nc
-	./neo-vi a.nc
+	./tiny
 

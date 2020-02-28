@@ -321,7 +321,7 @@ bool compile(TinyVM* self, TinyNode* node) {
                 }
             }
 
-            char**% argv = new char*[num_params];
+            char**% argv = new char*[num_params+2];
             
             var name = node.funValue.name;
 
