@@ -1789,7 +1789,9 @@ static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo
 
 static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
 {
+    LVALUE* llvm_stack = gLLVMStack;
     int stack_num_before = info->stack_num;
+    sNodeType* info_type_before = info->type;
 
     if(node_type->mNumGenericsTypes > 0) 
     {
@@ -1859,6 +1861,8 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
     }
 
     info->stack_num = stack_num_before;
+    gLLVMStack = llvm_stack;
+    info->type = info_type_before;
 }
 
 static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_delete, sCompileInfo* info)

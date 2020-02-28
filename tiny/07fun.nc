@@ -2,9 +2,13 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 impl TVALUE version 7 {
     finalize() {
+        inherit(self);
+
         if(self.type == COMMAND_VALUE) {
             delete self.uValue.commandValue.value;
             delete self.uValue.commandValue.err_value;
@@ -107,6 +111,11 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
                     break;
                 }
                 else {
+                    if(*self.p == ',') {
+                        self.p++;
+                        self.skipSpaces();
+                    }
+
                     var param = self.expression();
 
                     if(param == null) {
@@ -137,8 +146,61 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
 
 impl TinyVM version 7
 {
-bool runCommand(TinyVM* self, char* command, char** argv, buffer*% pipe_data, TVALUE* result)
+bool runCommandControllingTerminal(TinyVM* self, char* command, char** argv, TVALUE* result)
 {
+    pid_t pid = fork();
+    if(pid == 0) {
+        pid_t pid = getpid();
+
+        setpgid(0, 0);
+        tcsetpgrp(0, pid);
+
+        execvp(command, argv);
+    }
+
+    setpgid(pid, pid);
+    tcsetpgrp(0, pid);
+
+    int status = 0;
+
+    pid_t pid2 = waitpid(pid, &status, WUNTRACED);
+
+    if(WEXITSTATUS(status) == 64) {
+        fprintf(stderr, "Command not found(%s)\n", command);
+        exit(2);
+    }
+
+    if(WIFSTOPPED(status)) {
+/*
+        rcode := WSTOPSIG(status) +128;
+        title := method_name;
+
+        terminfo := tcgetattr(0);
+
+        job:Job = Job(title, pid, terminfo);
+
+        Clover.jobs.add(job);
+
+        setpgid(getpid(), getpid());
+        tcsetpgrp(0, getpid());
+
+        return Command("", rcode);
+*/
+    }
+    else {
+        setpgid(getpid(), getpid());
+        tcsetpgrp(0, getpid());
+
+        result.type = COMMAND_VALUE;
+        result.uValue.commandValue.value = borrow string("");
+        result.uValue.commandValue.err_value = borrow string("");
+        result.uValue.commandValue.wait_status = WEXITSTATUS(status);
+    }
+
+    return true;
+}
+
+/*
     int child2parent_write_fd = 0;
     int child2parent_read_fd = 0;
     int parent2child_write_fd = 0;
@@ -181,7 +243,6 @@ bool runCommand(TinyVM* self, char* command, char** argv, buffer*% pipe_data, TV
         }
     }
 
-/*
     close(parent2child_read_fd);
     close(child2parent_write_fd);
     close(child2parent_write_fd_err);
@@ -198,15 +259,24 @@ bool runCommand(TinyVM* self, char* command, char** argv, buffer*% pipe_data, TV
         char buf[BUFSIZ];
         int readed_byte = read(child2parent_read_fd, buf, BUFSIZ);
 
+        buf[readed_byte] = '\0';
+
         char err_buf[BUFSIZ];
         int readed_byte_err = read(child2parent_read_fd_err, err_buf, BUFSIZ);
 
-        if(readed_byte == 0 && readed_byte_err == 0) {
-            break;
+        err_buf[readed_byte_err] = '\0';
+
+        if(readed_byte > 0) {
+            child_output.append_str(buf);
         }
 
-        child_output.append(buf, readed_byte);
-        child_output_error.append(err_buf, readed_byte_err);
+        if(readed_byte_err > 0) {
+            child_output_error.append_str(err_buf);
+        }
+
+        if(readed_byte <= 0 && readed_byte_err < 0) {
+            break;
+        }
     }
 
     close(child2parent_read_fd);
@@ -221,15 +291,16 @@ bool runCommand(TinyVM* self, char* command, char** argv, buffer*% pipe_data, TV
         return false;
     }
 
-    *result.type = COMMAND_VALUE;
-    *result.uValue.commandValue.value = borrow child_output.to_string();
-    *result.uValue.commandValue.err_value = borrow child_output.to_string();
-    *result.wait_status = WEXITSTATUS(status);
-*/
+    (*result).type = COMMAND_VALUE;
+    var child_output_str = child_output.to_string();
+
+    (*result).uValue.commandValue.value = borrow clone child_output_str;
+    var child_output_error_str = child_output_error.to_string();
+    (*result).uValue.commandValue.err_value = borrow clone child_output_error_str;
+    (*result).uValue.commandValue.wait_status = WEXITSTATUS(status);
 
     return true;
-}
-
+*/
 bool compile(TinyVM* self, TinyNode* node) {
     if(!inherit(self, node)) {
         return false;
@@ -251,19 +322,28 @@ bool compile(TinyVM* self, TinyNode* node) {
             }
 
             char**% argv = new char*[num_params];
-
-            for(int i=0; i<num_params; i++) {
-                TVALUE*% value = self.stack.pop_back(null);
-                argv[num_params-i-1] = value.uValue.strValue;
-            }
             
             var name = node.funValue.name;
 
-            var command = xasprintf("%s %s", name, argv[0]);
+            argv[0] = name;
 
-            system(command);
+            var v = new vector<string>.initialize();
 
-            //self.runCommand(name, borrow argv);
+            for(int i=0; i<num_params; i++) {
+                TVALUE*% value = self.stack.pop_back(null);
+
+                var str = clone value.uValue.strValue;
+                argv[num_params-i] = borrow str;
+
+                v.push_back(str);
+            }
+            argv[num_params+1] = null;
+
+            TVALUE*% value = new TVALUE;
+            
+            self.runCommandControllingTerminal(name, borrow argv, value);
+
+            self.stack.push_back(value);
             }
             break;
 

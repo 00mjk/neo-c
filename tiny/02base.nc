@@ -1,5 +1,6 @@
 #include "common.h"
 #include <stdio.h>
+#include <signal.h>
 
 impl TVALUE {
     initialize() {
@@ -345,6 +346,15 @@ printf("%d %p\n", node.intValue, value1);
 }
 
 bool run(TinyVM* self) {
+    struct sigaction sa;
+    sigset_t signal_set;
+
+    sigemptyset(&signal_set);
+    sigaddset(&signal_set, SIGTTOU);
+    sigaddset(&signal_set, SIGTTIN);
+    sigaddset(&signal_set, SIGPIPE);
+
+    sigprocmask(SIG_BLOCK, &signal_set, NULL);
     for(int i=0; i<self.nodes.length(); i++) {
         var node = self.nodes.item(i, null);
 node.debug();
