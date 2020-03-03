@@ -9,19 +9,19 @@
 #include <locale.h>
 #include <wctype.h>
 
+struct rusage {
+    int a;
+    int b;
+};
+
+static pid_t wait3(int* status, int options, struct rusage* rusage) { return wait4(-1, status, options, rusage); }
+
+void fun(struct rusage rusage) 
+{
+}
+
 int main()
 {
-    switch(1) {
-        case 1: {
-            for(int i=0; i<5; i++) {
-                var n = new int;
-                if(111) {
-                    break;
-                }
-            }
-            }
-            break;
-    }
 
     return 0;
 }

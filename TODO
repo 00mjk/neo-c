@@ -7,6 +7,13 @@ sturct {
     };
 };
 
+struct rusage {
+};
+
+struct rusage* rusage;
+fun(a, b, rusage);
+が呼び出せない。構造体のstructの省略がだめ。
+
 ----------------------
 
 

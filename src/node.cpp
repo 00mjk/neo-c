@@ -8111,9 +8111,9 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
         var_type->mPointerNum--;
     }
 
-    if(var_type->mPointerNum == 0) {
+    //if(var_type->mPointerNum == 0) {
         var_type->mHeap = FALSE;
-    }
+    //}
 
     /// go ///
     Value* element_value;

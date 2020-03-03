@@ -86,6 +86,76 @@ void debug(TinyNode* self) {
 
 impl TinyParser version 7
 {
+
+TinyNode*% node(TinyParser* self) {
+    var node = inherit(self);
+
+    if(*self.p == '.') {
+        self.p++;
+        self.skipSpaces();
+        
+        if(!isalpha(*self.p)) {
+            self.errMessage("require alphabets for method or field name");
+            self.errNumber++;
+            return null;
+        }
+        
+        var buf = self.parseWord();
+        
+        if(*self.p == '(') {
+            self.p++;
+            self.skipSpaces();
+
+            var params = new vector<TinyNode*%>.initialize();
+            
+            params.push_back(clone node);
+
+            while(true) {
+                if(*self.p == '\0') {
+                    self.errMessage("Require ) before the source end");
+                    self.errNumber++;
+                    break;
+                }
+                else if(*self.p == ')') {
+                    self.p++;
+                    self.skipSpaces();
+                    break;
+                }
+                else {
+                    if(*self.p == ',') {
+                        self.p++;
+                        self.skipSpaces();
+                    }
+
+                    var param = self.expression();
+
+                    if(param == null) {
+                        self.errMessage("Null expression");
+                        self.errNumber++;
+                        break;
+                    }
+
+                    params.push_back(param);
+                }
+            }
+
+            int num_params = params.length();
+            var params2 = new TinyNode*[num_params];
+            params.each {
+                params2[it2] = it;
+            }
+
+            var result = new TinyNode.createFunNode(buf, num_params, params2);
+            
+            return result;
+        }
+        else {
+            return clone node;
+        }
+    }
+
+    return node;
+}
 TinyNode*% wordNode(TinyParser* self, string& buf) {
     var word_node = inherit(self, buf);
 
@@ -200,107 +270,6 @@ bool runCommandControllingTerminal(TinyVM* self, char* command, char** argv, TVA
     return true;
 }
 
-/*
-    int child2parent_write_fd = 0;
-    int child2parent_read_fd = 0;
-    int parent2child_write_fd = 0;
-    int parent2child_read_fd = 0;
-    int child2parent_read_fd_err = 0;
-    int child2parent_write_fd_err = 0;
-
-    int pipefd[2];
-
-    pipe(pipefd);
-    child2parent_read_fd = pipefd[0];
-    child2parent_write_fd = pipefd[1];
-
-    pipe(pipefd);
-    parent2child_read_fd = pipefd[0];
-    parent2child_write_fd = pipefd[1];
-
-    pipe(pipefd);
-    child2parent_read_fd_err = pipefd[0];
-    child2parent_write_fd_err = pipefd[1];
-
-    pid_t pid = fork();
-
-    if(pid == 0) {
-        close(parent2child_write_fd);
-        close(child2parent_read_fd);
-        close(child2parent_read_fd_err);
-
-        dup2(parent2child_read_fd, 0);
-        dup2(child2parent_write_fd, 1);
-        dup2(child2parent_write_fd_err, 2);
-
-        close(parent2child_read_fd);
-        close(child2parent_write_fd);
-        close(child2parent_write_fd_err);
-
-        if(execvp(command, argv) < 0) {
-            fprintf(stderr, "command not found(%s)\n", command);
-            exit(2);
-        }
-    }
-
-    close(parent2child_read_fd);
-    close(child2parent_write_fd);
-    close(child2parent_write_fd_err);
-
-    if(pipe_data != null) {
-        write(parent2child_write_fd, pipe_data.buf, pipe_data.len);
-    }
-    close(parent2child_write_fd);
-
-    var child_output = new buffer.initialize();
-    var child_output_error = new buffer.initialize();
-    
-    while(true) {
-        char buf[BUFSIZ];
-        int readed_byte = read(child2parent_read_fd, buf, BUFSIZ);
-
-        buf[readed_byte] = '\0';
-
-        char err_buf[BUFSIZ];
-        int readed_byte_err = read(child2parent_read_fd_err, err_buf, BUFSIZ);
-
-        err_buf[readed_byte_err] = '\0';
-
-        if(readed_byte > 0) {
-            child_output.append_str(buf);
-        }
-
-        if(readed_byte_err > 0) {
-            child_output_error.append_str(err_buf);
-        }
-
-        if(readed_byte <= 0 && readed_byte_err < 0) {
-            break;
-        }
-    }
-
-    close(child2parent_read_fd);
-    close(child2parent_read_fd_err);
-
-    int status = 0;
-
-    pid_t pid2t = waitpid(pid, &status, WUNTRACED);
-
-    if(WEXITSTATUS(status) == 64) {
-        fprintf(stderr, "Command not found %s\n", command);
-        return false;
-    }
-
-    (*result).type = COMMAND_VALUE;
-    var child_output_str = child_output.to_string();
-
-    (*result).uValue.commandValue.value = borrow clone child_output_str;
-    var child_output_error_str = child_output_error.to_string();
-    (*result).uValue.commandValue.err_value = borrow clone child_output_error_str;
-    (*result).uValue.commandValue.wait_status = WEXITSTATUS(status);
-
-    return true;
-*/
 bool compile(TinyVM* self, TinyNode* node) {
     if(!inherit(self, node)) {
         return false;
@@ -329,21 +298,37 @@ bool compile(TinyVM* self, TinyNode* node) {
 
             var v = new vector<string>.initialize();
 
-            for(int i=0; i<num_params; i++) {
+            for(int i=0; i<num_params-1; i++) {
                 TVALUE*% value = self.stack.pop_back(null);
+                
+                if(value.type != STR_VALUE) {
+                    self.parser.errMessage("Require str value");
+                    return false;
+                }
 
                 var str = clone value.uValue.strValue;
                 argv[num_params-i] = borrow str;
 
                 v.push_back(str);
             }
-            argv[num_params+1] = null;
 
-            TVALUE*% value = new TVALUE;
+            TVALUE*% value = self.stack.pop_back(null);
             
-            self.runCommandControllingTerminal(name, borrow argv, value);
+            if(value.type == COMMAND_VALUE) {
+            }
+            else if(value.type == STR_VALUE) {
+                var str = clone value.uValue.strValue;
+                argv[1] = borrow str;
+                v.push_back(str);
 
-            self.stack.push_back(value);
+                argv[num_params+1] = null;
+
+                TVALUE*% value2 = new TVALUE;
+
+                self.runCommandControllingTerminal(name, borrow argv, value2);
+    
+                self.stack.push_back(value2);
+            }
             }
             break;
 
