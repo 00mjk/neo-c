@@ -12,7 +12,7 @@ finalize() {
         delete self.varValue.value;
     }
     else if(self.type == NODETYPE_LOAD_VAR) {
-        delete self.varValue.name;
+        delete self.loadVarValue.name;
     }
 }
 
@@ -20,11 +20,11 @@ TinyNode*% clone(TinyNode* self) {
     var result = inherit(self);
 
     if(self.type == NODETYPE_VAR) {
-        result.varValue.name = clone self.varValue.name;
-        result.varValue.value = clone self.varValue.value;
+        result.varValue.name = borrow clone self.varValue.name;
+        result.varValue.value = borrow clone self.varValue.value;
     }
     else if(self.type == NODETYPE_LOAD_VAR) {
-        result.loadVarValue.name = clone self.loadVarValue.name;
+        result.loadVarValue.name = borrow clone self.loadVarValue.name;
     }
 
     return result;
@@ -45,6 +45,7 @@ TinyNode*% createLoadNode(TinyNode%* self, string& name) {
     self.type = NODETYPE_LOAD_VAR;
 
     self.loadVarValue.name = borrow clone name;
+    self.loadVarValue.last_chain = true;
 
     self.stackValue = 1;
 
@@ -159,6 +160,23 @@ initialize(char* source_name) {
     self.vtable.push_back(vtable);
 }
 
+void loadVariable(TinyVM* self, TinyNode* node)
+{
+    var vtable = self.vtable.item(-1, null);
+    
+    var name = clone node.loadVarValue.name;
+    var item = vtable.at(name, null);
+    var value = clone item;
+
+    if(value) {
+        self.stack.push_back(value);
+    }
+    else {
+        self.parser.errMessage(xasprintf("undeclared variable(%s)\n", name));
+        self.parser.errNumber++;
+    }
+}
+
 bool compile(TinyVM* self, TinyNode* node) {
     if(!inherit(self, node)) {
         return false;
@@ -187,16 +205,7 @@ bool compile(TinyVM* self, TinyNode* node) {
             break;
 
         case NODETYPE_LOAD_VAR : {
-            var vtable = self.vtable.item(-1, null);
-            
-            var name = clone node.loadVarValue.name;
-            var item = vtable.at(name, null);
-            var value = clone item;
-
-            if(value.type == NULL_VALUE) {
-            }
-            
-            self.stack.push_back(value);
+            self.loadVariable(node);
             }
             break;
 

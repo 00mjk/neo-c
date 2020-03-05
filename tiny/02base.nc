@@ -355,6 +355,7 @@ bool run(TinyVM* self) {
     sigaddset(&signal_set, SIGPIPE);
 
     sigprocmask(SIG_BLOCK, &signal_set, NULL);
+
     for(int i=0; i<self.nodes.length(); i++) {
         var node = self.nodes.item(i, null);
 node.debug();

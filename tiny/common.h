@@ -50,6 +50,7 @@ struct TinyNode {
     
         struct {
             char* name;
+            bool last_chain;
         } loadVarValue;
 
         struct {
@@ -67,6 +68,7 @@ struct TinyNode {
             char* name;
             TinyNode** params;
             int num_params;
+            bool last_chain;
         } funValue;
     };
     
@@ -172,6 +174,7 @@ impl TinyVM version 4
 {
     initialize(char* source_name);
     bool compile(TinyVM* self, TinyNode* node);
+    void loadVariable(TinyVM* self, TinyNode* node);
 }
 
 /// 05if.nc 
@@ -247,4 +250,27 @@ impl TinyVM version 7
 {
 bool compile(TinyVM* self, TinyNode* node);
 };
+
+impl TVALUE version 7 {
+    finalize();
+}
+
+impl TinyNode version 7
+{
+finalize();
+TinyNode*% clone(TinyNode* self);
+void debug(TinyNode* self);
+}
+
+impl TinyParser version 7
+{
+TinyNode*% node(TinyParser* self);
+TinyNode*% wordNode(TinyParser* self, string& buf);
+}
+
+impl TinyVM version 7
+{
+bool compile(TinyVM* self, TinyNode* node);
+void loadVariable(TinyVM* self, TinyNode* node);
+}
 

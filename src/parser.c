@@ -572,7 +572,7 @@ static BOOL parse_typedef_attribute(sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNodeType* node_type, BOOL array_size_is_dynamic)
+static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNodeType* node_type, BOOL array_size_is_dynamic, BOOL param_in_function)
 {
     if(*info->p == '#') {
         if(!parse_sharp(info)) {
@@ -622,7 +622,12 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
                         return TRUE;
                     }
 
-                    node_type->mArrayNum = array_size;
+                    if(param_in_function) {
+                        node_type->mPointerNum++;
+                    }
+                    else {
+                        node_type->mArrayNum = array_size;
+                    }
 
                     expect_next_character_with_one_forward("]", info);
 
@@ -672,7 +677,12 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
                     return TRUE;
                 }
 
-                node_type->mArrayNum = array_size;
+                if(param_in_function) {
+                    node_type->mPointerNum++;
+                }
+                else {
+                    node_type->mArrayNum = array_size;
+                }
 
                 expect_next_character_with_one_forward("]", info);
             }
@@ -921,7 +931,7 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
                 create_anonymous_union_var_name(buf, VAR_NAME_MAX);
             }
             else if(buf[0] == '\0') {
-                if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE))
+                if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE, FALSE))
                 {
                     return FALSE;
                 }
@@ -952,7 +962,7 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
                         create_anonymous_union_var_name(buf2, VAR_NAME_MAX);
                     }
                     else if(buf2[0] == '\0') {
-                        if(!parse_variable_name(buf2, VAR_NAME_MAX, info, field2, FALSE))
+                        if(!parse_variable_name(buf2, VAR_NAME_MAX, info, field2, FALSE, FALSE))
                         {
                             return FALSE;
                         }
@@ -1137,7 +1147,7 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
                 create_anonymous_union_var_name(buf, VAR_NAME_MAX);
             }
             else if(buf[0] == '\0') {
-                if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE))
+                if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE, FALSE))
                 {
                     return FALSE;
                 }
@@ -2727,7 +2737,7 @@ static BOOL parse_param(sParserParam* param, sParserInfo* info)
     }
     else {
         if(param->mName[0] == '\0') {
-            if(!parse_variable_name(param->mName, VAR_NAME_MAX, info, param->mType, FALSE))
+            if(!parse_variable_name(param->mName, VAR_NAME_MAX, info, param->mType, FALSE, TRUE))
             {
                 return FALSE;
             }
@@ -5125,7 +5135,7 @@ BOOL parse_typedef(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
 */
-        if(!parse_variable_name(buf, VAR_NAME_MAX, info, node_type, FALSE))
+        if(!parse_variable_name(buf, VAR_NAME_MAX, info, node_type, FALSE, FALSE))
         {
             return FALSE;
         }
@@ -6137,7 +6147,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                             create_anonymous_union_var_name(buf, VAR_NAME_MAX);
                         }
                         else if(buf[0] == '\0') {
-                            if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE))
+                            if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE, FALSE))
                             {
                                 return FALSE;
                             }
@@ -6158,7 +6168,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                                     create_anonymous_union_var_name(buf2, VAR_NAME_MAX);
                                 }
                                 else if(buf2[0] == '\0') {
-                                    if(!parse_variable_name(buf2, VAR_NAME_MAX, info, field2, FALSE))
+                                    if(!parse_variable_name(buf2, VAR_NAME_MAX, info, field2, FALSE, FALSE))
                                     {
                                         return FALSE;
                                     }
@@ -6241,7 +6251,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                             create_anonymous_union_var_name(buf, VAR_NAME_MAX);
                         }
                         else if(buf[0] == '\0') {
-                            if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE))
+                            if(!parse_variable_name(buf, VAR_NAME_MAX, info, field, FALSE, FALSE))
                             {
                                 return FALSE;
                             }
@@ -6626,7 +6636,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                 while(TRUE) {
                     sNodeType* result_type2 = clone_node_type(result_type);
 
-                    if(!parse_variable_name(name, VAR_NAME_MAX, info, result_type2, TRUE))
+                    if(!parse_variable_name(name, VAR_NAME_MAX, info, result_type2, TRUE, FALSE))
                     {
                         return FALSE;
                     }
@@ -7047,7 +7057,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
 
                 while(TRUE) {
                     sNodeType* result_type2 = clone_node_type(result_type);
-                    if(!parse_variable_name(name, VAR_NAME_MAX, info, result_type2, TRUE))
+                    if(!parse_variable_name(name, VAR_NAME_MAX, info, result_type2, TRUE, FALSE))
                     {
                         return FALSE;
                     }
