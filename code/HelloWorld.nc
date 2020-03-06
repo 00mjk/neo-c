@@ -700,6 +700,23 @@ struct TinyNode {
     bool debug_runned_default;
 };
 
+struct DataX {
+    vector<string>*% data;
+};
+
+struct DataX2 {
+    DataX*% dataX;
+};
+
+impl DataX2 {
+    initialize() {
+        self.dataX = new DataX;
+        self.dataX.data = new vector<string>.initialize();
+        self.dataX.data.push_back(string("data"));
+        self.dataX.data.push_back(string("data2"));
+    }
+};
+
 int main()
 {
     if(1 == 1) {
@@ -1707,6 +1724,15 @@ label1:
     TinyNode* abbbb = new TinyNode;
 
     printf("%p %p\n", abbbb, &abbbb.stringValue.value);
+
+    var datax2 = new DataX2.initialize();
+
+    var datax3 = clone datax2;
+
+/*
+    xassert("clone test", datax3.dataX.data.item(0, null).equals("data"));
+    xassert("clone test2", datax3.dataX.data.item(1, null).equals("data2"));
+*/
 
     0
 }

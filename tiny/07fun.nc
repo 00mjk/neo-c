@@ -80,14 +80,15 @@ TinyNode*% createCallExternalFun(TinyNode%* self, string& name, int num_params, 
 
     return self;
 }
-TinyNode*% createFun(TinyNode%* self, string fun_name, vector<string>*% params, TinyBlock*% block) {
+
+TinyNode*% createFunNode(TinyNode%* self, string fun_name, vector<string>*% params, TinyBlock*% block) {
     self.type = NODETYPE_FUN;
 
     self.funValue.name = borrow clone fun_name;
     self.funValue.params = borrow clone params;
     self.funValue.block = (void*)borrow clone block;
 
-    self.stackValue = 0;
+    self.stackValue = 1;
 
     return self;
 }
@@ -262,7 +263,7 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
             }
             var block = self.parseBlock();
 
-            return new TinyNode.createFun(fun_name, params, block);
+            return new TinyNode.createFunNode(fun_name, params, block);
         }
         else if(*self.p == '(') {
             self.p++;
@@ -380,7 +381,7 @@ bool runCommand(TinyVM* self, char* command, char** argv, buffer* pipe_data, TVA
         int readed_byte_err = read(child2parent_read_fd_err, err_buf, BUFSIZ);
 
         if(readed_byte < 0 || readed_byte_err < 0) {
-            perror("aaa");
+            perror("pipe error");
             break;
         }
 
@@ -741,6 +742,24 @@ bool compile(TinyVM* self, TinyNode* node) {
             }
             break;
 
+        case NODETYPE_FUN: {
+            char* fun_name = node.funValue.name;
+            vector<string>* params = node.funValue.params;
+            TinyBlock* block = (TinyBlock*)node.funValue.block;
+
+            TinyFun*% fun = new TinyFun.initialize();
+
+            self.insert(fun_name, node.uValue.funValue.name
+
+            TVALUE*% value2 = new TVALUE;
+
+            value2.funValue = 
+
+
+            self.stack.push_back(value2);
+            }
+            break;
+
         default:
             self.runned_default = true;
             break;
@@ -749,4 +768,26 @@ bool compile(TinyVM* self, TinyNode* node) {
     return true;
 }
 };
+
+imple TinyFun {
+initialize(char* name, vector<string>* params, TinyBlock* block) {
+    self.name = string(name);
+    self.params = clone params;
+    self.block = borrow clone block;
+}
+
+finalize() {
+    delete self.block;
+}
+
+TinyFun*% clone(TinyFun* self) {
+    var result = new TinyFun;
+
+    result.name = clone self.name;
+    result.params = clone self.params;
+    result.block = borrow clone self.block;
+
+    return result;
+}
+}
 

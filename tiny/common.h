@@ -101,7 +101,7 @@ impl TinyNode
     TinyNode*% createPopNode(TinyNode*% self, int value);
 }
 
-enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE };
+enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };
 
 struct TVALUE {
     int type;
@@ -114,11 +114,27 @@ struct TVALUE {
             char* err_value;
             int wait_status;
         } commandValue;
+        
+        struct {
+            void* value;
+        } funValue;
     } uValue;
 };
 
 impl TVALUE {
     initialize();
+}
+
+struct TinyFun {
+    string name;
+    vector<string>%* params;
+    TinyBlock* block;
+};
+
+imple TinyFun {
+    initialize();
+    finalize();
+    TinyFun*% clone(TinyFun* fun);
 }
 
 struct TinyVM
@@ -127,6 +143,7 @@ struct TinyVM
     vector<TinyNode%*>*% nodes;
     vector<TVALUE*%>*% stack;
     bool runned_default;
+    map<string, TinyFun*%>*% fun;
 };
 
 impl TinyVM 

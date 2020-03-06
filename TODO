@@ -1,19 +1,7 @@
-info->no_output dummy value and dummy address
+!managed delete to clone wo okonau
 
-sturct {
-    union {
-        strcut AA { <-- anonymous name ni naru
-        };
-    };
-};
-
-struct rusage {
-};
-
-struct rusage* rusage;
-fun(a, b, rusage);
-が呼び出せない。構造体のstructの省略がだめ。
-
+field de heap to managed de clone to delete wo okonau
+clone function wo yobidasu
 ----------------------
 
 
