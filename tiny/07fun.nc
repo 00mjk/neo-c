@@ -21,47 +21,73 @@ impl TinyNode version 7
 finalize() {
     inherit(self);
 
-    if(self.type == NODETYPE_FUN) {
-        delete self.funValue.name;
+    if(self.type == NODETYPE_CALL_EXTERNAL_FUN) {
+        delete self.callExternalFunValue.name;
 
-        for(int i=0; i<self.funValue.num_params; i++) {
-            TinyNode* node = self.funValue.params[i];
+        for(int i=0; i<self.callExternalFunValue.num_params; i++) {
+            TinyNode* node = self.callExternalFunValue.params[i];
             delete node;
         }
 
+        delete self.callExternalFunValue.params;
+    }
+    else if(self.type == NODETYPE_FUN) {
+        delete self.funValue.name;
         delete self.funValue.params;
+        
+        TinyBlock* block2 = (TinyBlock*)self.funValue.block;
+        delete block2;
     }
 }
 
 TinyNode*% clone(TinyNode* self) {
     var result = inherit(self);
 
-    if(self.type == NODETYPE_FUN) {
+    if(self.type == NODETYPE_CALL_EXTERNAL_FUN) {
         result.varValue.name = borrow clone self.varValue.name;
-        result.funValue.num_params = self.funValue.num_params;
-        result.funValue.params = borrow clone self.funValue.params;
-        for(int i=0; i<self.funValue.num_params; i++) {
-            TinyNode* node = self.funValue.params[i];
-            result.funValue.params[i] = borrow clone self.funValue.params[i];
+        result.callExternalFunValue.num_params = self.callExternalFunValue.num_params;
+        result.callExternalFunValue.params = borrow clone self.callExternalFunValue.params;
+        for(int i=0; i<self.callExternalFunValue.num_params; i++) {
+            TinyNode* node = self.callExternalFunValue.params[i];
+            result.callExternalFunValue.params[i] = borrow clone node;
         }
+    }
+    else if(self.type == NODETYPE_FUN) {
+        result.funValue.name = clone self.funValue.name;
+        result.funValue.params = clone self.funValue.params;
+        
+        TinyBlock* block2 = (TinyBlock*)self.funValue.block;
+
+        result.funValue.block = borrow clone block2;
     }
 
     return result;
 }
 
-TinyNode*% createFunNode(TinyNode%* self, string& name, int num_params, TinyNode** params) {
-    self.type = NODETYPE_FUN;
+TinyNode*% createCallExternalFun(TinyNode%* self, string& name, int num_params, TinyNode** params) {
+    self.type = NODETYPE_CALL_EXTERNAL_FUN;
 
-    self.funValue.name = borrow clone name;
-    self.funValue.num_params = num_params;
-    self.funValue.params = borrow new TinyNode*[num_params];
+    self.callExternalFunValue.name = borrow clone name;
+    self.callExternalFunValue.num_params = num_params;
+    self.callExternalFunValue.params = borrow new TinyNode*[num_params];
     for(int i=0; i<num_params; i++) {
-        self.funValue.params[i] = borrow clone params[i];
+        self.callExternalFunValue.params[i] = borrow clone params[i];
     }
 
-    self.funValue.last_chain = true;
+    self.callExternalFunValue.last_chain = true;
 
     self.stackValue = 1;
+
+    return self;
+}
+TinyNode*% createFun(TinyNode%* self, string fun_name, vector<string>*% params, TinyBlock*% block) {
+    self.type = NODETYPE_FUN;
+
+    self.funValue.name = borrow clone fun_name;
+    self.funValue.params = borrow clone params;
+    self.funValue.block = (void*)borrow clone block;
+
+    self.stackValue = 0;
 
     return self;
 }
@@ -74,9 +100,9 @@ void debug(TinyNode* self) {
     }
     
     switch(self.type) {
-        case NODETYPE_FUN :
+        case NODETYPE_CALL_EXTERNAL_FUN :
             printf("fun node %p\n", self);
-            printf("num_params %d\n", self.funValue.num_params);
+            printf("num_params %d\n", self.callExternalFunValue.num_params);
             break;
 
         default:
@@ -110,8 +136,8 @@ TinyNode*% node(TinyParser* self) {
 
             var params = new vector<TinyNode*%>.initialize();
             
-            if(node.type == NODETYPE_FUN) {
-                node.funValue.last_chain = false;
+            if(node.type == NODETYPE_CALL_EXTERNAL_FUN) {
+                node.callExternalFunValue.last_chain = false;
             }
             else if(node.type == NODETYPE_LOAD_VAR) {
                 node.loadVarValue.last_chain = false;
@@ -154,15 +180,15 @@ TinyNode*% node(TinyParser* self) {
                 params2[it2] = it;
             }
 
-            var result = new TinyNode.createFunNode(buf, num_params, params2);
+            var result = new TinyNode.createCallExternalFun(buf, num_params, params2);
             
             return result;
         }
-        else if(node.type == NODETYPE_FUN || node.type == NODETYPE_LOAD_VAR) {
+        else if(node.type == NODETYPE_CALL_EXTERNAL_FUN || node.type == NODETYPE_LOAD_VAR) {
             var params = new vector<TinyNode*%>.initialize();
             
-            if(node.type == NODETYPE_FUN) {
-                node.funValue.last_chain = false;
+            if(node.type == NODETYPE_CALL_EXTERNAL_FUN) {
+                node.callExternalFunValue.last_chain = false;
             }
             else if(node.type == NODETYPE_LOAD_VAR) {
                 node.loadVarValue.last_chain = false;
@@ -176,7 +202,7 @@ TinyNode*% node(TinyParser* self) {
                 params2[it2] = it;
             }
 
-            var result = new TinyNode.createFunNode(buf, num_params, params2);
+            var result = new TinyNode.createCallExternalFun(buf, num_params, params2);
             
             return result;
         }
@@ -195,7 +221,50 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
         return word_node;
     }
     else {
-        if(*self.p == '(') {
+        if(strcmp(buf, "def") == 0) {
+            if(!isalpha(*self.p)) {
+                self.errMessage(xasprintf("require function name. (%c)", *self.p));
+                self.errNumber++;
+                return null;
+            }
+
+            var fun_name = self.parseWord();
+
+            self.expectNextCharacter('(');
+
+            var params = new vector<string>.initialize();
+
+            while(true) {
+                if(*self->p == ')') {
+                    self->p++;
+                    self.skipSpaces();
+                    break;
+                }
+
+                if(!isalpha(*self.p)) {
+                    self.errMessage("require parametor name");
+                    self.errNumber++;
+                    return null;
+                }
+                var param = self.parseWord();
+
+                params.push_back(param);
+
+                if(*self->p == ',') {
+                    self->p++;
+                    self.skipSpaces();
+                }
+                else if(*self->p == ')') {
+                    self->p++;
+                    self.skipSpaces();
+                    break;
+                }
+            }
+            var block = self.parseBlock();
+
+            return new TinyNode.createFun(fun_name, params, block);
+        }
+        else if(*self.p == '(') {
             self.p++;
             self.skipSpaces();
 
@@ -236,8 +305,7 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
                 params2[it2] = it;
             }
 
-            var result = new TinyNode.createFunNode(buf, num_params, params2);
-            return result;
+            return new TinyNode.createCallExternalFun(buf, num_params, params2);
         }
         else {
             return null;
@@ -553,19 +621,19 @@ bool compile(TinyVM* self, TinyNode* node) {
     }
 
     switch(node.type) {
-        case NODETYPE_FUN : {
-            int num_params = node.funValue.num_params;
+        case NODETYPE_CALL_EXTERNAL_FUN : {
+            int num_params = node.callExternalFunValue.num_params;
 
             /// external command ///
             for(int i=0; i<num_params; i++) {
-                if(!self.compile(node.funValue.params[i])) {
+                if(!self.compile(node.callExternalFunValue.params[i])) {
                     return false;
                 }
             }
 
             char**% argv = new char*[num_params+2];
             
-            var name = node.funValue.name;
+            var name = node.callExternalFunValue.name;
 
             argv[0] = name;
 
@@ -587,7 +655,7 @@ bool compile(TinyVM* self, TinyNode* node) {
 
             TVALUE*% value = self.stack.pop_back(null);
             
-            if(node.funValue.last_chain) {
+            if(node.callExternalFunValue.last_chain) {
                 if(value == null) {
                     TVALUE*% value2 = new TVALUE;
 

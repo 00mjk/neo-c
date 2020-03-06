@@ -92,11 +92,20 @@ impl TinyBlock
 initialize() {
     self.nodes = new vector<TinyNode*%>.initialize();
 }
+
+TinyBlock*% clone(TinyBlock* self) {
+    TinyBlock*% result = new TinyBlock;
+
+    result.nodes = clone self.nodes;
+
+    return result;
+}
+
 }
 
 impl TinyParser version 5 
 {
-void expectNextChararacter(TinyParser* self, char c) {
+void expectNextCharacter(TinyParser* self, char c) {
     if(*self.p == c) {
         self.p++;
         self.skipSpaces();
@@ -107,7 +116,7 @@ void expectNextChararacter(TinyParser* self, char c) {
     }
 }
 TinyBlock*% parseBlock(TinyParser* self) {
-    self.expectNextChararacter('{');
+    self.expectNextCharacter('{');
 
     var result = new TinyBlock.initialize();
 
@@ -120,6 +129,11 @@ TinyBlock*% parseBlock(TinyParser* self) {
             break;
         }
 
+        if(*self.p == ';') {
+            self.p++;
+            self.skipSpaces();
+        }
+
         int stack_num = node.stackValue;
 
         result.nodes.push_back(node);
@@ -129,7 +143,7 @@ TinyBlock*% parseBlock(TinyParser* self) {
         result.nodes.push_back(pop_node);
     }
 
-    self.expectNextChararacter('}');
+    self.expectNextCharacter('}');
 
     return result;
 }
@@ -141,7 +155,7 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
     }
     else {
         if(strcmp(buf, "if") == 0) {
-            self.expectNextChararacter('(');
+            self.expectNextCharacter('(');
 
             var expression = borrow self.expression();
 
@@ -152,7 +166,7 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
                 return null;
             }
 
-            self.expectNextChararacter(')');
+            self.expectNextCharacter(')');
 
             var block = borrow self.parseBlock();
 
@@ -172,7 +186,7 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
                 var word = self.parseWord();
                 
                 if(strcmp(word, "elif") == 0) {
-                    self.expectNextChararacter('(');
+                    self.expectNextCharacter('(');
     
                     var expression = borrow self.expression();
     
@@ -183,7 +197,7 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
                         return null;
                     }
     
-                    self.expectNextChararacter(')');
+                    self.expectNextCharacter(')');
     
                     var block = borrow self.parseBlock();
     

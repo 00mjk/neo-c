@@ -1,1 +1,4 @@
-ls.less
+
+def fun() {
+    echo("HELLO WORLD");
+}

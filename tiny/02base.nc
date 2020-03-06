@@ -232,6 +232,8 @@ initialize(char* source_name) {
 }
 
 bool parser(TinyVM* self) {
+    self.parser.skipSpaces();
+
     while(*self.parser.p) {
         var node = self.parser.expression();
 
@@ -239,6 +241,11 @@ bool parser(TinyVM* self) {
             self.parser.errMessage("null expression");
             self.parser.errNumber++;
             break;
+        }
+
+        if(*self.parser.p == ';') {
+            self.parser.p++;
+            self.parser.skipSpaces();
         }
 
         int stack_num = node.stackValue;

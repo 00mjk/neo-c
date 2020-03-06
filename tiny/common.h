@@ -35,7 +35,7 @@ impl TinyParser version 2
     TinyNode*% expression(TinyParser* self);
 };
 
-enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS, NODETYPE_MULT, NODETYPE_DIV, NODETYPE_VAR, NODETYPE_LOAD_VAR, NODETYPE_IF, NODETYPE_STRING, NODETYPE_FUN };
+enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS, NODETYPE_MULT, NODETYPE_DIV, NODETYPE_VAR, NODETYPE_LOAD_VAR, NODETYPE_IF, NODETYPE_STRING, NODETYPE_CALL_EXTERNAL_FUN, NODETYPE_FUN };
 
 struct TinyNode {
     int type;
@@ -69,6 +69,12 @@ struct TinyNode {
             TinyNode** params;
             int num_params;
             bool last_chain;
+        } callExternalFunValue;
+
+        struct {
+            char* name;
+            vector<string>* params;
+            void* block;
         } funValue;
     };
     
@@ -189,11 +195,12 @@ impl TinyNode version 5
 impl TinyBlock
 {
     initialize();
+    TinyBlock*% clone(TinyBlock* self);
 }
 
 impl TinyParser version 5 
 {
-    void expectNextChararacter(TinyParser* self, char c);
+    void expectNextCharacter(TinyParser* self, char c);
     TinyBlock*% parseBlock(TinyParser* self);
     TinyNode*% wordNode(TinyParser* self, string& buf);
 }
