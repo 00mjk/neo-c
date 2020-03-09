@@ -176,5 +176,8 @@ int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info);
 
 extern GlobalVariable* gMemleakDebugValue;
 
+extern std::map<std::string, std::vector<sFunction*>> gFuncs;
+void create_real_fun_name(char* real_fun_name, size_t size_real_fun_name, char* fun_name, char* struct_name);
+
 #endif
 

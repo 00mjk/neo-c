@@ -1725,14 +1725,29 @@ label1:
 
     printf("%p %p\n", abbbb, &abbbb.stringValue.value);
 
-    var datax2 = new DataX2.initialize();
+    var abcxzzz = new vector<char*>.initialize();
 
+    abcxzzz.push_back("AAA");
+    abcxzzz.push_back("BBB");
+
+    var zbcxzz = clone abcxzzz;
+
+    var abcxzzz2 = new vector<string>.initialize();
+
+    abcxzzz2.push_back(string("AAA"));
+    abcxzzz2.push_back(string("BBB"));
+
+    var zbcxzz2 = clone abcxzzz2;
+
+    var datax2 = new DataX2;
     var datax3 = clone datax2;
 
-/*
-    xassert("clone test", datax3.dataX.data.item(0, null).equals("data"));
-    xassert("clone test2", datax3.dataX.data.item(1, null).equals("data2"));
-*/
+    var datax4 = new DataX2.initialize();
+
+    var datax5 = clone datax4;
+
+    xassert("clone test", datax5.dataX.data.item(0, null).equals("data"));
+    xassert("clone test2", datax5.dataX.data.item(1, null).equals("data2"));
 
     0
 }

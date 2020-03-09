@@ -580,7 +580,7 @@ static BOOL compile_ulong_value(unsigned long long int node, sCompileInfo* info)
 }
 
 
-static void create_real_fun_name(char* real_fun_name, size_t size_real_fun_name, char* fun_name, char* struct_name)
+void create_real_fun_name(char* real_fun_name, size_t size_real_fun_name, char* fun_name, char* struct_name)
 {
     if(strcmp(struct_name, "") == 0) {
         xstrncpy(real_fun_name, fun_name, size_real_fun_name);
@@ -6406,7 +6406,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
         Value* rvalue2 = rvalue.value;
 
-        BOOL alloc = FALSE;
+        BOOL alloc = TRUE;
         std_move(field_address, field_type, &rvalue, alloc, info);
 
         Builder.CreateAlignedStore(rvalue2, field_address, alignment);
@@ -7964,62 +7964,26 @@ static BOOL compile_clone(unsigned int node, sCompileInfo* info)
         }
 
         sNodeType* left_type = clone_node_type(info->type);
+        sNodeType* left_type2 = clone_node_type(left_type);
+        left_type2->mHeap = TRUE;
 
-        char real_fun_name[REAL_FUN_NAME_MAX];
+        Value* obj = clone_object(left_type, lvalue.address, info);
 
-        char struct_name[VAR_NAME_MAX+128];
-        if(strcmp(left_type->mTypeName, "") == 0)
-        {
-            xstrncpy(struct_name, CLASS_NAME(left_type->mClass), VAR_NAME_MAX+128);
-        }
-        else {
-            xstrncpy(struct_name, left_type->mTypeName, VAR_NAME_MAX+128);
-        }
+        dec_stack_ptr(1, info);
 
-        create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "clone", struct_name);
+        LVALUE llvm_value;
+        llvm_value.value = obj;
+        llvm_value.type = clone_node_type(left_type2);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
+        llvm_value.load_field = FALSE;
 
-        std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
+        push_value_to_stack_ptr(&llvm_value, info);
 
-        if(funcs.size() > 0 && left_type->mPointerNum == 1) {
-            Value* params[PARAMS_MAX];
+        append_heap_object_to_right_value(&llvm_value, info);
 
-            params[0] = lvalue.value;
-
-            int num_params = 1;
-
-            if(!call_function("clone", params, num_params, struct_name, FALSE, lvalue.type, info))
-            {
-                compile_err_msg(info, "Not found found clone function");
-                info->err_num++;
-
-                info->type = create_node_type_with_class_name("int"); // dummy
-                return TRUE;
-            }
-        }
-        else {
-            dec_stack_ptr(1, info);
-
-            sNodeType* left_type2 = clone_node_type(left_type);
-            left_type2->mHeap = TRUE;
-
-            if(!info->no_output) {
-                Value* obj = clone_object(left_type, lvalue.address, info);
-
-                LVALUE llvm_value;
-                llvm_value.value = obj;
-                llvm_value.type = clone_node_type(left_type2);
-                llvm_value.address = nullptr;
-                llvm_value.var = nullptr;
-                llvm_value.binded_value = FALSE;
-                llvm_value.load_field = FALSE;
-
-                push_value_to_stack_ptr(&llvm_value, info);
-
-                append_heap_object_to_right_value(&llvm_value, info);
-            }
-
-            info->type = clone_node_type(left_type2);
-        }
+        info->type = clone_node_type(left_type2);
     }
     else {
         info->type->mHeap = TRUE;

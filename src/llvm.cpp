@@ -1672,7 +1672,6 @@ void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL all
     if(!info->no_output) {
         sVar* rvar = rvalue->var;
         sNodeType* rvalue_type = rvalue->type;
-
         if(lvar_type->mHeap && rvalue_type->mHeap) {
             if(lvar_type->mHeap && var_address && !alloc && lvar_type->mPointerNum > 0) {
                 free_object(lvar_type, var_address, FALSE, info);
@@ -1731,6 +1730,7 @@ static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo
     Builder.CreateCondBr(conditional, cond_then_block, cond_end_block);
 
     Builder.SetInsertPoint(cond_then_block);
+    info->current_block = cond_then_block;
 
     sCLClass* klass = node_type->mClass;
 
@@ -1885,7 +1885,8 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
     }
 
     /// free ///
-    if((force_delete || node_type->mHeap ) && node_type->mPointerNum > 0) {
+    if((force_delete || node_type->mHeap ) && node_type->mPointerNum > 0 && !info->no_output) 
+    {
         Function* fun = TheModule->getFunction("xfree");
 
         if(fun == nullptr) {
@@ -1946,94 +1947,202 @@ void free_object(sNodeType* node_type, void* address, BOOL force_delete, sCompil
     }
 }
 
+static BOOL call_clone_method(sNodeType* node_type, Value** address, sCompileInfo* info)
+{
+    LVALUE* llvm_stack = gLLVMStack;
+    int stack_num_before = info->stack_num;
+    sNodeType* info_type_before = info->type;
+
+    char real_fun_name[REAL_FUN_NAME_MAX];
+
+    Value* obj = Builder.CreateAlignedLoad(*address, 8);
+
+    char struct_name[VAR_NAME_MAX+128];
+    if(strcmp(node_type->mTypeName, "") == 0)
+    {
+        xstrncpy(struct_name, CLASS_NAME(node_type->mClass), VAR_NAME_MAX+128);
+    }
+    else {
+        xstrncpy(struct_name, node_type->mTypeName, VAR_NAME_MAX+128);
+    }
+
+    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "clone", struct_name);
+
+    std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
+
+    if(funcs.size() > 0 && node_type->mPointerNum == 1) {
+        Value* obj2 = Builder.CreateCast(Instruction::PtrToInt, obj, IntegerType::get(TheContext, 64));
+        Value* cmp_right_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+        Value* conditional = Builder.CreateICmpNE(obj2, cmp_right_value);
+
+        BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_then_block", gFunction);
+        BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end", gFunction);
+
+        Builder.CreateCondBr(conditional, cond_then_block, cond_end_block);
+
+        Builder.SetInsertPoint(cond_then_block);
+        info->current_block = cond_then_block;
+
+        Value* params[PARAMS_MAX];
+
+        params[0] = obj;
+
+        int num_params = 1;
+
+        if(!call_function("clone", params, num_params, struct_name, FALSE, node_type, info))
+        {
+            compile_err_msg(info, "Not found found clone function");
+            info->err_num++;
+            exit(2);
+        }
+
+        LVALUE llvm_value = *get_value_from_stack(-1);
+
+        *address = llvm_value.value;
+
+        remove_from_right_value_object(*address, info);
+
+        dec_stack_ptr(1, info);
+
+        gLLVMStack = llvm_stack;
+        info->stack_num = stack_num_before;
+        info->type = info_type_before;
+
+        Builder.CreateBr(cond_end_block);
+
+        Builder.SetInsertPoint(cond_end_block);
+        info->current_block = cond_end_block;
+
+        return TRUE;
+    }
+
+    gLLVMStack = llvm_stack;
+    info->stack_num = stack_num_before;
+    info->type = info_type_before;
+
+    return FALSE;
+}
+
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
 {
-    sCLClass* klass = node_type->mClass;
+    BOOL execute_clone_method = call_clone_method(node_type, &address, info);
 
-    Value* src_obj = Builder.CreateAlignedLoad(address, 8);
-
-    sNodeType* left_type = create_node_type_with_class_name("char*");
-    sNodeType* right_type = clone_node_type(node_type);
-
-    LVALUE rvalue;
-    rvalue.value = src_obj;
-    rvalue.type = clone_node_type(node_type);
-    rvalue.address = nullptr;
-    rvalue.var = nullptr;
-    rvalue.binded_value = FALSE;
-    rvalue.load_field = FALSE;
-
-    if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
-    {
-        compile_err_msg(info, "can't clone this value");
-        exit(2);
+    if(execute_clone_method) {
+        return address;
     }
 
-    /// memdup ///
-    Function* fun = TheModule->getFunction("xmemdup");
+    Value* obj = Builder.CreateAlignedLoad(address, 8);
+    if(node_type->mPointerNum > 0) {
+        Value* obj = Builder.CreateAlignedLoad(address, 8);
 
-    if(fun == nullptr) {
-        fprintf(stderr, "require xmemdup\n");
-        exit(2);
-    }
+        Value* obj2 = Builder.CreateCast(Instruction::PtrToInt, obj, IntegerType::get(TheContext, 64));
+        Value* cmp_right_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+        Value* conditional = Builder.CreateICmpNE(obj2, cmp_right_value);
 
-    std::vector<Value*> params2;
-    Value* param = rvalue.value;
-    params2.push_back(param);
+        BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_then_block", gFunction);
+        BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end", gFunction);
 
-    Value* address2 = Builder.CreateCall(fun, params2);
+        Builder.CreateCondBr(conditional, cond_then_block, cond_end_block);
 
-    sNodeType* left_type2 = clone_node_type(node_type);
-    sNodeType* right_type2 = create_node_type_with_class_name("char*");
+        Builder.SetInsertPoint(cond_then_block);
+        info->current_block = cond_then_block;
 
-    LVALUE rvalue2;
-    rvalue2.value = address2;
-    rvalue2.type = create_node_type_with_class_name("char*");
-    rvalue2.address = nullptr;
-    rvalue2.var = nullptr;
-    rvalue2.binded_value = FALSE;
-    rvalue2.load_field = FALSE;
 
-    if(!cast_right_type_to_left_type(left_type2, &right_type2, &rvalue2, info))
-    {
-        compile_err_msg(info, "can't clone this value");
-        exit(2);
-    }
+        sCLClass* klass = node_type->mClass;
 
-    Value* address3 = rvalue2.value;
+        Value* src_obj = Builder.CreateAlignedLoad(address, 8);
 
-    sNodeType* node_type2 = clone_node_type(node_type);
-    node_type2->mPointerNum = 0;
+        sNodeType* left_type = create_node_type_with_class_name("char*");
+        sNodeType* right_type = clone_node_type(node_type);
 
-    Type* llvm_struct_type;
-    (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info);
+        LVALUE rvalue;
+        rvalue.value = src_obj;
+        rvalue.type = clone_node_type(node_type);
+        rvalue.address = nullptr;
+        rvalue.var = nullptr;
+        rvalue.binded_value = FALSE;
+        rvalue.load_field = FALSE;
 
-    if(node_type->mPointerNum == 1) {
-        int i;
-        for(i=0; i<klass->mNumFields; i++) {
-            sNodeType* field_type = clone_node_type(klass->mFields[i]);
-            sCLClass* field_class = field_type->mClass;
+        if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+        {
+            compile_err_msg(info, "can't clone this value");
+            exit(2);
+        }
 
-            Type* llvm_field_type;
-            (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, node_type2, info);
+        /// memdup ///
+        Function* fun = TheModule->getFunction("xmemdup");
 
-            int alignment = get_llvm_alignment_from_node_type(field_type);
+        if(fun == nullptr) {
+            fprintf(stderr, "require xmemdup\n");
+            exit(2);
+        }
 
-            if(field_type->mHeap) 
-            {
+        std::vector<Value*> params2;
+        Value* param = rvalue.value;
+        params2.push_back(param);
+
+        Value* address2 = Builder.CreateCall(fun, params2);
+
+        sNodeType* left_type2 = clone_node_type(node_type);
+        sNodeType* right_type2 = create_node_type_with_class_name("char*");
+
+        LVALUE rvalue2;
+        rvalue2.value = address2;
+        rvalue2.type = create_node_type_with_class_name("char*");
+        rvalue2.address = nullptr;
+        rvalue2.var = nullptr;
+        rvalue2.binded_value = FALSE;
+        rvalue2.load_field = FALSE;
+
+        if(!cast_right_type_to_left_type(left_type2, &right_type2, &rvalue2, info))
+        {
+            compile_err_msg(info, "can't clone this value");
+            exit(2);
+        }
+
+        Value* address3 = rvalue2.value;
+
+        sNodeType* node_type2 = clone_node_type(node_type);
+        node_type2->mPointerNum = 0;
+
+        Type* llvm_struct_type;
+        (void)create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info);
+
+        if(node_type->mPointerNum == 1) {
+            int i;
+            for(i=0; i<klass->mNumFields; i++) {
+                sNodeType* field_type = clone_node_type(klass->mFields[i]);
+                sCLClass* field_class = field_type->mClass;
+
+                Type* llvm_field_type;
+                (void)create_llvm_type_from_node_type(&llvm_field_type, field_type, node_type2, info);
+
+                int alignment = get_llvm_alignment_from_node_type(field_type);
+
+                if(field_type->mHeap) 
+                {
 #if LLVM_VERSION_MAJOR >= 7
-               Value* field_address = Builder.CreateStructGEP(address3, i);
+                    Value* field_address = Builder.CreateStructGEP(address3, i);
 #else
-               Value* field_address = Builder.CreateStructGEP(llvm_struct_type, address3, i);
+                    Value* field_address = Builder.CreateStructGEP(llvm_struct_type, address3, i);
 #endif
-               Value* field_value = clone_object(field_type, field_address, info);
+                    Value* field_value = clone_object(field_type, field_address, info);
 
-                Builder.CreateAlignedStore(field_value,  field_address, alignment);
+                    Builder.CreateAlignedStore(field_value,  field_address, alignment);
+                }
             }
         }
-    }
 
-    return address3;
+        Builder.CreateBr(cond_end_block);
+
+        Builder.SetInsertPoint(cond_end_block);
+        info->current_block = cond_end_block;
+
+        return address3;
+    }
+    else {
+        return obj;
+    }
 }
 
 void llvm_change_block(BasicBlock* current_block, BasicBlock** current_block_before, sCompileInfo* info, BOOL no_free_right_objects)
