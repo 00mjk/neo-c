@@ -1,4 +1,6 @@
 
-def fun() {
-    echo("HELLO WORLD");
-}
+#def fun() {
+#    echo("HELLO WORLD");
+#}
+
+echo("HELLO WORLD")

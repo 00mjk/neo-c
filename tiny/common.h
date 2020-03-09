@@ -131,10 +131,10 @@ struct TinyFun {
     TinyBlock* block;
 };
 
-imple TinyFun {
-    initialize();
-    finalize();
-    TinyFun*% clone(TinyFun* fun);
+impl TinyFun {
+initialize(char* name, vector<string>* params, TinyBlock* block);
+finalize();
+TinyFun*% clone(TinyFun* self);
 }
 
 struct TinyVM

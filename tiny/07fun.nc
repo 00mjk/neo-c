@@ -88,7 +88,7 @@ TinyNode*% createFunNode(TinyNode%* self, string fun_name, vector<string>*% para
     self.funValue.params = borrow clone params;
     self.funValue.block = (void*)borrow clone block;
 
-    self.stackValue = 1;
+    self.stackValue = 0;
 
     return self;
 }
@@ -747,6 +747,7 @@ bool compile(TinyVM* self, TinyNode* node) {
             vector<string>* params = node.funValue.params;
             TinyBlock* block = (TinyBlock*)node.funValue.block;
 
+/*
             TinyFun*% fun = new TinyFun.initialize();
 
             self.insert(fun_name, node.uValue.funValue.name
@@ -757,6 +758,7 @@ bool compile(TinyVM* self, TinyNode* node) {
 
 
             self.stack.push_back(value2);
+*/
             }
             break;
 
@@ -769,7 +771,7 @@ bool compile(TinyVM* self, TinyNode* node) {
 }
 };
 
-imple TinyFun {
+impl TinyFun {
 initialize(char* name, vector<string>* params, TinyBlock* block) {
     self.name = string(name);
     self.params = clone params;
