@@ -347,6 +347,7 @@ void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module
 void expect_next_character_with_one_forward(char* characters, sParserInfo* info);
 void skip_spaces(sParserInfo* info);
 void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name);
+BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info);
 
 extern int gNumLambdaName;
 

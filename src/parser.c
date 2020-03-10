@@ -3617,7 +3617,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
     return TRUE;
 }
 
-static BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info) 
+BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info) 
 {
     char* function_head = info->p;
 

@@ -1,6 +1,1 @@
-
-#def fun() {
-#    echo("HELLO WORLD");
-#}
-
-echo("HELLO WORLD")
+1

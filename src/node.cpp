@@ -886,7 +886,9 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
             std::vector<sFunction*>& funcs2 = gFuncs[real_fun_name];
 
             if(funcs2.size() == 0) {
-                compile_err_msg(info, "function not found(%s) 3", real_fun_name);
+                if(!no_err_output) {
+                    compile_err_msg(info, "function not found(%s) 3", real_fun_name);
+                }
                 return FALSE;
             }
 
@@ -4472,6 +4474,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
     Function* fun;
+
     if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, FALSE, version, &fun, info, FALSE, struct_name, generics_fun_num, simple_fun_name))
     {
         xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);

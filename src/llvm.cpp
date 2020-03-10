@@ -1718,6 +1718,64 @@ void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info)
     }
 }
 
+BOOL make_finalize_for_recursive_field_type(sNodeType* node_type, sCompileInfo* info) 
+{
+    sCLClass* klass = node_type->mClass;
+
+    sBuf source;
+    sBuf_init(&source);
+
+    char buf[BUFSIZ];
+
+    snprintf(buf, BUFSIZ, "() {\n");
+    sBuf_append(&source, buf, strlen(buf));
+
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        char* field_name = CONS_str(&klass->mConst, klass->mFieldNameOffsets[i]);
+        sNodeType* field_type = clone_node_type(klass->mFields[i]);
+
+        if(field_type->mHeap) {
+            char buf[BUFSIZ];
+            snprintf(buf, BUFSIZ, "delete self.%s;\n", field_name);
+
+            sBuf_append(&source, buf, strlen(buf));
+        }
+    }
+
+    snprintf(buf, BUFSIZ, "}\n");
+    sBuf_append(&source, buf, strlen(buf));
+
+    unsigned int node = 0;
+    char* struct_name = CLASS_NAME(klass);
+
+    sParserInfo pinfo;
+
+    memset(&pinfo, 0, sizeof(sParserInfo));
+
+    pinfo.p = source.mBuf;
+    xstrncpy(pinfo.sname, "recursive destructor", PATH_MAX);
+    pinfo.source = source.mBuf;
+    pinfo.module_name = info->pinfo->module_name;
+    pinfo.parse_phase = info->pinfo->parse_phase;
+    pinfo.lv_table = info->pinfo->lv_table;
+    pinfo.in_clang = FALSE;
+    pinfo.mFunVersion = 0;
+
+    if(!parse_destructor(&node, struct_name, &pinfo)) {
+        fprintf(stderr, "fail to implement a destructor of recurive structor. exit.\n");
+        exit(2);
+    }
+
+    if(!compile(node, info)) {
+        return FALSE;
+    }
+
+    free(source.mBuf);
+
+    return TRUE;
+}
+
 static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
 {
     Value* obj2 = Builder.CreateCast(Instruction::PtrToInt, obj, IntegerType::get(TheContext, 64));
@@ -1760,9 +1818,8 @@ static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo
         {
             if(type_identify(node_type, field_type))
             {
-                compile_err_msg(info,"infinity recursive on free object. The same type of object type and field type. %s. You shoud delete the object manually.\n", CLASS_NAME(field_class));
-                show_node_type(node_type);
-                info->err_num++;
+                fprintf(stderr, "%s %d: can't make finalize of recursive field(1)(%s)\n", info->sname, info->sline, CLASS_NAME(field_class));
+                exit(2);
             }
 
             Type* llvm_field_type;
@@ -1787,7 +1844,7 @@ static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo
     info->current_block = cond_end_block;;
 }
 
-static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
+static BOOL call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
 {
     LVALUE* llvm_stack = gLLVMStack;
     int stack_num_before = info->stack_num;
@@ -1807,35 +1864,11 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
 
             Builder.CreateCall(llvm_fun, llvm_params);
 
+            info->stack_num = stack_num_before;
+            gLLVMStack = llvm_stack;
+            info->type = info_type_before;
 
-/*
-            Value* params[PARAMS_MAX];
-
-            params[0] = obj;
-
-            LVALUE llvm_value;
-            llvm_value.value = obj;
-            llvm_value.type = clone_node_type(node_type);
-            llvm_value.address = nullptr;
-            llvm_value.var = nullptr;
-            llvm_value.binded_value = FALSE;
-            llvm_value.load_field = FALSE;
-
-            push_value_to_stack_ptr(&llvm_value, info);
-
-            int num_params = 1;
-
-            char* struct_name = CLASS_NAME(node_type->mClass);
-
-            char type_name[1024];
-            type_name[0] = '\0';
-            create_type_name_from_node_type(type_name, 1024, node_type, FALSE);
-
-            char real_fun_name[REAL_FUN_NAME_MAX];
-            create_generics_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", NULL, 0, node_type, struct_name, finalize_generics_fun_num);
-
-            (void)call_function(real_fun_name, params, num_params, "", TRUE, NULL, info);
-*/
+            return TRUE;
         }
     }
     else {
@@ -1857,12 +1890,20 @@ static void call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
 
         char* struct_name = CLASS_NAME(node_type->mClass);
 
-        (void)call_function("finalize", params, num_params, struct_name, TRUE, NULL, info);
+        if(call_function("finalize", params, num_params, struct_name, TRUE, NULL, info))
+        {
+            info->stack_num = stack_num_before;
+            gLLVMStack = llvm_stack;
+            info->type = info_type_before;
+            return TRUE;
+        }
     }
 
     info->stack_num = stack_num_before;
     gLLVMStack = llvm_stack;
     info->type = info_type_before;
+
+    return FALSE;
 }
 
 static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_delete, sCompileInfo* info)
@@ -1875,12 +1916,76 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
 
     sCLClass* klass = node_type->mClass;
 
+    sNodeType* node_type2 = clone_node_type(node_type);
+    node_type2->mPointerNum = 0;
+
+    Type* llvm_struct_type;
+    if(!create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info))
+    {
+        fprintf(stderr, "%s %d: The error at create_llvm_type_from_node_type\n", info->sname, info->sline);
+        return;
+    }
+
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        sNodeType* field_type = clone_node_type(klass->mFields[i]);
+
+        BOOL success_solve;
+        if(!solve_generics(&field_type, node_type, &success_solve))
+        {
+            fprintf(stderr, "%s %d: The error at solve_generics\n", info->sname, info->sline);
+            return;
+        }
+        sCLClass* field_class = field_type->mClass;
+
+        if(field_type->mHeap && field_type->mPointerNum > 0)
+        {
+            if(type_identify(node_type, field_type))
+            {
+                BOOL exist_finalize_method = FALSE;
+                if(node_type->mNumGenericsTypes > 0) 
+                {
+                    Function* llvm_fun;
+                    int finalize_generics_fun_num = create_generics_finalize_method(node_type, &llvm_fun, info);
+
+                    if(finalize_generics_fun_num != -1)
+                    {
+                        exist_finalize_method = TRUE;
+                    }
+                }
+                else {
+                    char real_fun_name[REAL_FUN_NAME_MAX];
+                    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", CLASS_NAME(klass));
+
+                    std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
+                    if(funcs.size() != 0) {
+                        exist_finalize_method = TRUE;
+                    }
+                }
+
+                if(!exist_finalize_method) {
+                    LVALUE* llvm_stack = gLLVMStack;
+                    int stack_num = info->stack_num;
+
+                    if(!make_finalize_for_recursive_field_type(node_type, info)) {
+                        fprintf(stderr, "%s %d: can't make finalize of recursive field(2)(%s)\n", info->sname, info->sline, CLASS_NAME(node_type->mClass));
+                        exit(2);
+                    }
+
+                    gLLVMStack = llvm_stack;
+                    info->stack_num = stack_num;
+                }
+            }
+        }
+    }
+
     if((force_delete || node_type->mHeap ) && node_type->mPointerNum > 0) 
     {
         if(node_type->mPointerNum == 1 && !info->no_output)
         {
-            call_field_destructor(obj2, node_type, info);
-            call_destructor(obj2, node_type, info);
+            if(!call_destructor(obj2, node_type, info)) {
+                call_field_destructor(obj2, node_type, info);
+            }
         }
     }
 

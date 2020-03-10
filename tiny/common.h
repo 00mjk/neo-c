@@ -7,13 +7,13 @@
 /// 02base.nc ///
 struct TinyParser
 {
-    string sourceName;
-    int sourceLine;
+    string sname;
+    int sline;
     buffer*% source;
     
     char* p;
 
-    int errNumber;
+    int err_num;
 };
 
 impl TinyParser 
@@ -35,58 +35,66 @@ impl TinyParser version 2
     TinyNode*% expression(TinyParser* self);
 };
 
-enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS, NODETYPE_MULT, NODETYPE_DIV, NODETYPE_VAR, NODETYPE_LOAD_VAR, NODETYPE_IF, NODETYPE_STRING, NODETYPE_CALL_EXTERNAL_FUN, NODETYPE_FUN };
+enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS, NODETYPE_MULT, NODETYPE_DIV, NODETYPE_VAR, NODETYPE_LOAD_VAR, NODETYPE_IF, NODETYPE_STRING, NODETYPE_CALL_EXTERNAL_FUN, NODETYPE_FUN, NODETYPE_CALL_FUN };
 
 struct TinyNode {
     int type;
 
-    union {
-        int intValue;
+    int intValue;
 
-        struct {
-            char* name;
-            TinyNode* value;
-        } varValue;
-    
-        struct {
-            char* name;
-            bool last_chain;
-        } loadVarValue;
+    int sline;
+    string sname;
 
-        struct {
-            int num_expressions;
-            TinyNode** expressions;
-            void* blocks;
-            void* else_block;
-        } ifValue;
-
-        struct {
-            char* value;
-        } stringValue;
-
-        struct {
-            char* name;
-            TinyNode** params;
-            int num_params;
-            bool last_chain;
-        } callExternalFunValue;
-
-        struct {
-            char* name;
-            vector<string>* params;
-            void* block;
-        } funValue;
-    };
-    
-
-    TinyNode* left;
-    TinyNode* right;
-    TinyNode* middle;
+    TinyNode*% left;
+    TinyNode*% right;
+    TinyNode*% middle;
 
     int stackValue;
 
     bool debug_runned_default;
 };
+
+/*
+    struct {
+        char* name;
+        TinyNode* value;
+    }% varValue;
+
+    struct {
+        char* name;
+        bool last_chain;
+    }% loadVarValue;
+
+    struct {
+        int num_expressions;
+        TinyNode** expressions;
+        void* blocks;
+        void* else_block;
+    }% ifValue;
+
+    struct {
+        char* value;
+    }% stringValue;
+
+    struct {
+        char* name;
+        TinyNode** params;
+        int num_params;
+        bool last_chain;
+    }% callExternalFunValue;
+
+    struct {
+        char* name;
+        TinyNode** params;
+        int num_params;
+    } callFunValue;
+
+    struct {
+        char* name;
+        vector<string>* params;
+        void* block;
+    } funValue;
+*/
 
 struct TinyBlock
 {
@@ -95,10 +103,7 @@ struct TinyBlock
 
 impl TinyNode 
 {
-    finalize();
     void debug(TinyNode* self);
-    TinyNode*% clone(TinyNode* self);
-    TinyNode*% createPopNode(TinyNode*% self, int value);
 }
 
 enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };
@@ -106,9 +111,10 @@ enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };
 struct TVALUE {
     int type;
     
-    union {
-        int intValue;
-        char* strValue;
+    int intValue;
+    string strValue;
+};
+/*
         struct {
             char* value;
             char* err_value;
@@ -119,23 +125,7 @@ struct TVALUE {
             void* value;
         } funValue;
     } uValue;
-};
-
-impl TVALUE {
-    initialize();
-}
-
-struct TinyFun {
-    string name;
-    vector<string>%* params;
-    TinyBlock* block;
-};
-
-impl TinyFun {
-initialize(char* name, vector<string>* params, TinyBlock* block);
-finalize();
-TinyFun*% clone(TinyFun* self);
-}
+*/
 
 struct TinyVM
 {
@@ -143,7 +133,8 @@ struct TinyVM
     vector<TinyNode%*>*% nodes;
     vector<TVALUE*%>*% stack;
     bool runned_default;
-    map<string, TinyFun*%>*% fun;
+    char* sname;
+    int sline;
 };
 
 impl TinyVM 
@@ -156,6 +147,7 @@ impl TinyVM
     void debug(TinyVM* self);
 };
 
+/*
 /// 03mult.nc ///
 impl TinyNode version 3 
 {
@@ -292,9 +284,26 @@ TinyNode*% node(TinyParser* self);
 TinyNode*% wordNode(TinyParser* self, string& buf);
 }
 
+struct TinyFun {
+    string name;
+    vector<string>%* params;
+    TinyBlock%* block;
+};
+
+impl TinyFun {
+initialize(string name, vector<string>%* params, TinyBlock%* block);
+}
+
+struct TinyVM version 7
+{
+    map<string, TinyFun*%>*% funs;
+}
+
 impl TinyVM version 7
 {
+initialize(char* source_name);
 bool compile(TinyVM* self, TinyNode* node);
 void loadVariable(TinyVM* self, TinyNode* node);
 }
+*/
 

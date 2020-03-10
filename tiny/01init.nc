@@ -4,8 +4,8 @@ impl TinyParser
 {
 
 initialize(char* source_name) {
-    self.sourceName = string(source_name);
-    self.sourceLine = 1;
+    self.sname = string(source_name);
+    self.sline = 1;
     self.source = new buffer.initialize();
     
     FILE* f = fopen(source_name, "r");

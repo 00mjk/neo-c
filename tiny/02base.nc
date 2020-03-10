@@ -2,64 +2,26 @@
 #include <stdio.h>
 #include <signal.h>
 
-impl TVALUE {
-    initialize() {
-    }
-}
-
-impl TinyNode 
+impl TinyNode version 2
 {
-finalize() {
-    if(self.left) {
-        delete self.left;
-    }
-    if(self.right) {
-        delete self.right;
-    }
-    if(self.middle) {
-        delete self.middle;
-    }
-}
-
-TinyNode*% clone(TinyNode* self) {
-    TinyNode*% result = new TinyNode;
-
-    result.type = self.type;
-
-    if(self.type == NODETYPE_INT) {
-        result.intValue = self.intValue;
-    }
-
-    if(self.left) {
-        result.left = borrow clone self.left;
-    }
-
-    if(self.right) {
-        result.right = borrow clone self.right;
-    }
-
-    if(self.middle) {
-        result.middle = borrow clone self.middle;
-    }
-
-    result.stackValue = self.stackValue;
-
-    return result;
-}
-
-TinyNode*% createIntNode(TinyNode*% self, int value) {
+TinyNode*% createIntNode(TinyNode*% self, TinyParser* parser, int value) {
     self.type = NODETYPE_INT;
+
+    self.sname = clone parser.sname;
+    self.sline = parser.sline;
+
     self.intValue = value;
 
     self.stackValue = 1;
 
     return self;
 }
-TinyNode*% createPlusNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
+
+TinyNode*% createPlusNode(TinyNode*% self, TinyParser* parser, TinyNode*% left, TinyNode*% right) {
     self.type = NODETYPE_PLUS;
 
-    managed left;
-    managed right;
+    self.sname = clone parser.sname;
+    self.sline = parser.sline;
 
     self.left = left;
     self.right = right;
@@ -68,11 +30,12 @@ TinyNode*% createPlusNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
 
     return self;
 }
-TinyNode*% createMinusNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
+
+TinyNode*% createMinusNode(TinyNode*% self, TinyParser* parser, TinyNode*% left, TinyNode*% right) {
     self.type = NODETYPE_MINUS;
 
-    managed left;
-    managed right;
+    self.sname = clone parser.sname;
+    self.sline = parser.sline
 
     self.left = left;
     self.right = right;
@@ -82,8 +45,12 @@ TinyNode*% createMinusNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
     return self;
 }
 
-TinyNode*% createPopNode(TinyNode*% self, int value) {
+TinyNode*% createPopNode(TinyNode*% self, TinyParser* parser, int value) {
     self.type = NODETYPE_POP;
+
+    self.sname = clone parser.sname;
+    self.sline = parser.sline
+
     self.intValue = value;
 
     self.stackValue = 0;
@@ -93,6 +60,8 @@ TinyNode*% createPopNode(TinyNode*% self, int value) {
 
 void debug(TinyNode* self) {
     self.debug_runned_default = false;
+
+    printf("source %s sline %d\n", self.sname, self.sline);
 
     switch(self.type) {
         case NODETYPE_POP :
@@ -127,12 +96,12 @@ void debug(TinyNode* self) {
 impl TinyParser version 2 
 {
 void errMessage(TinyParser* self, char* message) {
-    fprintf(stderr, "%s %d: %s\n", self.sourceName, self.sourceLine, message);
+    fprintf(stderr, "%s %d: %s\n", self.sname, self.sline, message);
 }
 void skipSpaces(TinyParser* self) {
     while(*self.p == ' ' || *self.p == '\t' || (*self.p == '\n')) {
         if(*self.p == '\n') {
-            self.sourceLine++;
+            self.sline++;
         }
 
         self.p++;
@@ -147,7 +116,7 @@ TinyNode*% node(TinyParser* self) {
             self.p++;
         }
         self.skipSpaces();
-        return new TinyNode.createIntNode(value);
+        return new TinyNode.createIntNode(self, value);
     }
     else if(*self.p == '#') {
         while(*self.p != '\n' && *self.p) {
@@ -187,11 +156,11 @@ TinyNode*% plus_minus(TinyParser* self) {
 
             if(right == null) {
                 self.errMessage("require right value for operator +");
-                self.errNumber++;
+                self.err_num++;
                 return null;
             }
 
-            return new TinyNode.createPlusNode(clone node, right);
+            return new TinyNode.createPlusNode(self, clone node, right);
         }
         else if(*self.p == '-' && *(self.p+1) != '=' && *(self.p+1) != '-') 
         {
@@ -202,11 +171,11 @@ TinyNode*% plus_minus(TinyParser* self) {
 
             if(right == null) {
                 self.errMessage("require right value for operator -");
-                self.errNumber++;
+                self.err_num++;
                 return null;
             }
 
-            return new TinyNode.createMinusNode(clone node, right);
+            return new TinyNode.createMinusNode(self, clone node, right);
         }
         else {
             break;
@@ -223,7 +192,6 @@ TinyNode*% expression(TinyParser* self) {
 
 impl TinyVM 
 {
-
 initialize(char* source_name) {
     self.parser = new TinyParser.initialize(source_name);
 
@@ -239,11 +207,11 @@ bool parser(TinyVM* self) {
 
         if(node == null) {
             self.parser.errMessage("null expression");
-            self.parser.errNumber++;
+            self.parser.err_num++;
             break;
         }
 
-        if(*self.parser.p == ';') {
+        while (*self.parser.p == ';') {
             self.parser.p++;
             self.parser.skipSpaces();
         }
@@ -252,9 +220,14 @@ bool parser(TinyVM* self) {
 
         self.nodes.push_back(node);
 
-        var pop_node = new TinyNode.createPopNode(stack_num);
+        var pop_node = new TinyNode.createPopNode(self.parser, stack_num);
 
         self.nodes.push_back(pop_node);
+    }
+
+    if(self.parser.err_num > 0) {
+        fprintf(stderr, "parser err number %d\n", self.parser.err_num);
+        return false;
     }
 
     return true;
@@ -265,18 +238,22 @@ void debug(TinyVM* self) {
     self.stack.each {
         switch(it.type) {
             case INT_VALUE:
-                printf("stack[%d] int value %d\n", it2, it.uValue.intValue);
+                printf("stack[%d] int value %d\n", it2, it.intValue);
                 break;
 
             case NULL_VALUE:
-                printf("stack[%d] null value %d\n", it2, it.uValue.intValue);
+                printf("stack[%d] null value\n", it2);
                 break;
 
             case STR_VALUE:
-                printf("stack[%d] str value %s\n", it2, it.uValue.strValue);
+                printf("stack[%d] str value %s\n", it2, it.strValue);
                 break;
         }
     }
+}
+
+void errMessage(TinyVM* self, char* msg) {
+    fprintf(stderr, "%s %d: %s\n", self.sname, self.sline, msg);
 }
 
 bool compile(TinyVM* self, TinyNode* node) {
@@ -285,6 +262,12 @@ bool compile(TinyVM* self, TinyNode* node) {
     switch(node.type) {
         case NODETYPE_POP : {
             int stack_num = node.intValue;
+
+            if(self.stack.length() > stack_num) {
+                self.errMessage("Stack number is error.");
+                return false;
+            }
+
             for(int i=0; i<stack_num; i++) {
                 var tmp = self.stack.pop_back(null);
             }
@@ -292,10 +275,9 @@ bool compile(TinyVM* self, TinyNode* node) {
             break;
 
         case NODETYPE_INT : {
-            TVALUE*% value1 = new TVALUE.initialize();
-printf("%d %p\n", node.intValue, value1);
+            TVALUE*% value1 = new TVALUE;
             value1.type = INT_VALUE;
-            value1.uValue.intValue = node.intValue;
+            value1.intValue = node.intValue;
 
             self.stack.push_back(value1);
             }
@@ -313,11 +295,19 @@ printf("%d %p\n", node.intValue, value1);
             TVALUE*% value2 = self.stack.pop_back(null); 
 
             TVALUE*% value3 = new TVALUE;
+
+            if(value1.type != INT_VALUE) {
+                self.errMessage("Left value type error. Require int value");
+                return false;
+            }
+
+            if(value2.type != INT_VALUE) {
+                self.errMessage("Right value type error. Require int value");
+                return false;
+            }
             
             value3.type = INT_VALUE;
-            value3.uValue.intValue 
-                    = value1.uValue.intValue 
-                    + value2.uValue.intValue;
+            value3.intValue = value1.intValue + value2.intValue;
             
             self.stack.push_back(value3);
             }
@@ -333,12 +323,20 @@ printf("%d %p\n", node.intValue, value1);
 
             TVALUE*% value1 = self.stack.pop_back(null);
             TVALUE*% value2 = self.stack.pop_back(null); 
+
+            if(value1.type != INT_VALUE) {
+                self.errMessage("Left value type error. Require int value");
+                return false;
+            }
+
+            if(value2.type != INT_VALUE) {
+                self.errMessage("Right value type error. Require int value");
+                return false;
+            }
             
             TVALUE*% value3 = new TVALUE;
             value3.type = INT_VALUE;
-            value3.uValue.intValue 
-                    = value1.uValue.intValue 
-                    - value2.uValue.intValue;
+            value3.intValue = value1.intValue - value2.intValue;
             
             self.stack.push_back(value3);
             }
@@ -365,6 +363,10 @@ bool run(TinyVM* self) {
 
     for(int i=0; i<self.nodes.length(); i++) {
         var node = self.nodes.item(i, null);
+
+        self.sname = string(node.sname);
+        self.sline = node.sline;
+
 node.debug();
         if(!self.compile(node)) {
             return false;

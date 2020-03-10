@@ -691,9 +691,9 @@ struct TinyNode {
     };
     
 
-    TinyNode* left;
-    TinyNode* right;
-    TinyNode* middle;
+    TinyNode%* left;
+    TinyNode%* right;
+    TinyNode%* middle;
 
     int stackValue;
 
@@ -1749,7 +1749,7 @@ label1:
     xassert("clone test", datax5.dataX.data.item(0, null).equals("data"));
     xassert("clone test2", datax5.dataX.data.item(1, null).equals("data2"));
 
-    0
+    return 0
 }
 
 /*

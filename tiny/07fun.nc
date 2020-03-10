@@ -38,6 +38,16 @@ finalize() {
         TinyBlock* block2 = (TinyBlock*)self.funValue.block;
         delete block2;
     }
+    else if(self.type == NODETYPE_CALL_FUN) {
+        delete self.callFunValue.name;
+
+        for(int i=0; i<self.callFunValue.num_params; i++) {
+            TinyNode* node = self.callFunValue.params[i];
+            delete node;
+        }
+
+        delete self.callFunValue.params;
+    }
 }
 
 TinyNode*% clone(TinyNode* self) {
@@ -88,7 +98,24 @@ TinyNode*% createFunNode(TinyNode%* self, string fun_name, vector<string>*% para
     self.funValue.params = borrow clone params;
     self.funValue.block = (void*)borrow clone block;
 
-    self.stackValue = 0;
+    self.stackValue = 1;
+
+    return self;
+}
+
+TinyNode*% createCallFun(TinyNode%* self, string& name, int num_params, TinyNode** params) {
+    self.type = NODETYPE_CALL_FUN;
+
+    self.callFunValue.name = borrow clone name;
+    self.callFunValue.num_params = num_params;
+    self.callFunValue.params = borrow new TinyNode*[num_params];
+    for(int i=0; i<num_params; i++) {
+        self.callFunValue.params[i] = borrow clone params[i];
+    }
+
+    self.callExternalFunValue.last_chain = true;
+
+    self.stackValue = 1;
 
     return self;
 }
@@ -102,9 +129,19 @@ void debug(TinyNode* self) {
     
     switch(self.type) {
         case NODETYPE_CALL_EXTERNAL_FUN :
-            printf("fun node %p\n", self);
+            printf("external fun node %p\n", self);
             printf("num_params %d\n", self.callExternalFunValue.num_params);
             break;
+
+        case NODETYPE_FUN:
+            printf("fun node %p\n", self);
+            break;
+
+        case NODETYPE_CALL_FUN :
+            printf("call fun node %p\n", self);
+            printf("num_params %d\n", self.callFunValue.num_params);
+            break;
+
 
         default:
             self.debug_runned_default = true;
@@ -317,6 +354,11 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
 
 impl TinyVM version 7
 {
+initialize(char* source_name) {
+    inherit(self, source_name);
+    self.funs = new map<string, TinyFun*%>.initialize();
+}
+
 bool runCommand(TinyVM* self, char* command, char** argv, buffer* pipe_data, TVALUE* result)
 {
     int child2parent_write_fd = 0;
@@ -747,18 +789,17 @@ bool compile(TinyVM* self, TinyNode* node) {
             vector<string>* params = node.funValue.params;
             TinyBlock* block = (TinyBlock*)node.funValue.block;
 
-/*
-            TinyFun*% fun = new TinyFun.initialize();
+            TinyFun*% fun = new TinyFun.initialize(string(fun_name), clone params, clone block);
 
-            self.insert(fun_name, node.uValue.funValue.name
+            TinyFun* borrow_fun = borrow fun;
+
+            self.funs.insert(string(fun_name), fun);
 
             TVALUE*% value2 = new TVALUE;
 
-            value2.funValue = 
-
+            value2.uValue.funValue.value = (void*)borrow_fun;
 
             self.stack.push_back(value2);
-*/
             }
             break;
 
@@ -772,24 +813,10 @@ bool compile(TinyVM* self, TinyNode* node) {
 };
 
 impl TinyFun {
-initialize(char* name, vector<string>* params, TinyBlock* block) {
-    self.name = string(name);
-    self.params = clone params;
-    self.block = borrow clone block;
-}
-
-finalize() {
-    delete self.block;
-}
-
-TinyFun*% clone(TinyFun* self) {
-    var result = new TinyFun;
-
-    result.name = clone self.name;
-    result.params = clone self.params;
-    result.block = borrow clone self.block;
-
-    return result;
+initialize(string name, vector<string>%* params, TinyBlock%* block) {
+    self.name = name;
+    self.params = params;
+    self.block = block;
 }
 }
 
