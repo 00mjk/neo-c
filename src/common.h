@@ -343,11 +343,12 @@ void parser_err_msg(sParserInfo* info, const char* msg, ...);
 void skip_spaces_and_lf(sParserInfo* info);
 BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf);
 void expect_next_character_with_one_forward(char* characters, sParserInfo* info);
+BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun_name, char* struct_name, sParserInfo* info);
 void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name);
 void expect_next_character_with_one_forward(char* characters, sParserInfo* info);
 void skip_spaces(sParserInfo* info);
 void create_lambda_name(char* lambda_name, size_t size_lambda_name, char* module_name);
-BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info);
+BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info, BOOL recursive);
 
 extern int gNumLambdaName;
 

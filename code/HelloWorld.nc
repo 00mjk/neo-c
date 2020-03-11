@@ -660,37 +660,6 @@ struct TinyNode;
 struct TinyNode {
     int type;
 
-    union {
-        int intValue;
-    
-        struct {
-            char* name;
-            TinyNode* value;
-        } varValue;
-
-        struct {
-            char* name;
-            TinyNode** params;
-            int num_params;
-        } funValue;
-    
-        struct {
-            char* name;
-        } loadVarValue;
-
-        struct {
-            int num_expressions;
-            TinyNode** expressions;
-            void* blocks;
-            void* else_block;
-        } ifValue;
-
-        struct {
-            char* value;
-        } stringValue;
-    };
-    
-
     TinyNode%* left;
     TinyNode%* right;
     TinyNode%* middle;
@@ -1721,10 +1690,6 @@ label1:
         var strU = string("ABC");
     }
 
-    TinyNode* abbbb = new TinyNode;
-
-    printf("%p %p\n", abbbb, &abbbb.stringValue.value);
-
     var abcxzzz = new vector<char*>.initialize();
 
     abcxzzz.push_back("AAA");
@@ -1748,6 +1713,23 @@ label1:
 
     xassert("clone test", datax5.dataX.data.item(0, null).equals("data"));
     xassert("clone test2", datax5.dataX.data.item(1, null).equals("data2"));
+
+    TinyNode%* abbbb = new TinyNode;
+
+    TinyNode%* abbbbcccc = clone abbbb;
+
+    printf("TinyNode %p TinyNode clone %p\n", abbbb, abbbbcccc);
+
+    xassert("clone test3", abbbb.left == null && abbbbcccc.left == null);
+
+    TinyNode%* abbbbz = new TinyNode;
+
+    abbbbz.left = new TinyNode;
+    abbbbz.left.type = 9999;
+
+    TinyNode%* abbbbccccz = clone abbbbz;
+
+    xassert("clone test4", abbbbz.left.type == 9999 && abbbbccccz.left.type == 9999);
 
     return 0
 }

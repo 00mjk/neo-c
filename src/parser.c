@@ -3170,7 +3170,7 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
 
 
 
-static BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun_name, char* struct_name, sParserInfo* info)
+BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun_name, char* struct_name, sParserInfo* info)
 {
     char* function_head = info->p;
 
@@ -3617,7 +3617,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
     return TRUE;
 }
 
-BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info) 
+BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info, BOOL recursive) 
 {
     char* function_head = info->p;
 
@@ -3626,7 +3626,13 @@ BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info)
 
     BOOL operator_fun = FALSE;
 
-    char* fun_name = "finalize";
+    char* fun_name[BUFSIZ];
+    if(recursive) {
+        snprintf(fun_name, BUFSIZ, "finalize_%s", info->sname);
+    }
+    else {
+        snprintf(fun_name, BUFSIZ, "finalize");
+    }
     xstrncpy(info->fun_name, fun_name, VAR_NAME_MAX);
 
     expect_next_character_with_one_forward("(", info);
@@ -6606,7 +6612,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
         
         {
             char* struct_name = info->impl_struct_name;
-            if(!parse_destructor(node, struct_name, info)) {
+            if(!parse_destructor(node, struct_name, info, FALSE)) {
                 return FALSE;
             }
         }

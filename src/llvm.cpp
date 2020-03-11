@@ -1747,14 +1747,14 @@ BOOL make_finalize_for_recursive_field_type(sNodeType* node_type, sCompileInfo* 
     sBuf_append(&source, buf, strlen(buf));
 
     unsigned int node = 0;
-    char* struct_name = CLASS_NAME(klass);
+    char *struct_name = CLASS_NAME(klass);
 
     sParserInfo pinfo;
 
     memset(&pinfo, 0, sizeof(sParserInfo));
 
     pinfo.p = source.mBuf;
-    xstrncpy(pinfo.sname, "recursive destructor", PATH_MAX);
+    xstrncpy(pinfo.sname, info->pinfo->sname, PATH_MAX);
     pinfo.source = source.mBuf;
     pinfo.module_name = info->pinfo->module_name;
     pinfo.parse_phase = info->pinfo->parse_phase;
@@ -1762,7 +1762,7 @@ BOOL make_finalize_for_recursive_field_type(sNodeType* node_type, sCompileInfo* 
     pinfo.in_clang = FALSE;
     pinfo.mFunVersion = 0;
 
-    if(!parse_destructor(&node, struct_name, &pinfo)) {
+    if(!parse_destructor(&node, struct_name, &pinfo, TRUE)) {
         fprintf(stderr, "fail to implement a destructor of recurive structor. exit.\n");
         exit(2);
     }
@@ -1775,6 +1775,7 @@ BOOL make_finalize_for_recursive_field_type(sNodeType* node_type, sCompileInfo* 
 
     return TRUE;
 }
+
 
 static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
 {
@@ -1897,6 +1898,18 @@ static BOOL call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
             info->type = info_type_before;
             return TRUE;
         }
+        else {
+            char method_name[BUFSIZ];
+            snprintf(method_name, BUFSIZ, "finalize_%s", info->sname);
+
+            if(call_function(method_name, params, num_params, struct_name, TRUE, NULL, info))
+            {
+                info->stack_num = stack_num_before;
+                gLLVMStack = llvm_stack;
+                info->type = info_type_before;
+                return TRUE;
+            }
+        }
     }
 
     info->stack_num = stack_num_before;
@@ -1954,8 +1967,11 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
                     }
                 }
                 else {
+                    char fun_name[BUFSIZ];
+                    snprintf(fun_name, BUFSIZ, "finalize_%s", info->sname);
+
                     char real_fun_name[REAL_FUN_NAME_MAX];
-                    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, "finalize", CLASS_NAME(klass));
+                    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, CLASS_NAME(klass));
 
                     std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
                     if(funcs.size() != 0) {
@@ -2096,6 +2112,68 @@ static BOOL call_clone_method(sNodeType* node_type, Value** address, sCompileInf
 
         if(!call_function("clone", params, num_params, struct_name, FALSE, node_type, info))
         {
+            char method_name[BUFSIZ];
+            snprintf(method_name, BUFSIZ, "clone_%s", info->sname);
+
+            if(!call_function(method_name, params, num_params, struct_name, FALSE, node_type, info))
+            {
+                compile_err_msg(info, "Not found found clone function");
+                info->err_num++;
+                exit(2);
+            }
+        }
+
+        LVALUE llvm_value = *get_value_from_stack(-1);
+
+        *address = llvm_value.value;
+
+        remove_from_right_value_object(*address, info);
+
+        dec_stack_ptr(1, info);
+
+        gLLVMStack = llvm_stack;
+        info->stack_num = stack_num_before;
+        info->type = info_type_before;
+
+        Builder.CreateBr(cond_end_block);
+
+        Builder.SetInsertPoint(cond_end_block);
+        info->current_block = cond_end_block;
+
+        return TRUE;
+    }
+
+    char fun_name[BUFSIZ];
+    snprintf(fun_name, BUFSIZ, "clone_%s", info->sname);
+
+    create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
+
+    std::vector<sFunction*>& funcs2 = gFuncs[real_fun_name];
+
+    if(funcs2.size() > 0 && node_type->mPointerNum == 1) {
+        Value* obj2 = Builder.CreateCast(Instruction::PtrToInt, obj, IntegerType::get(TheContext, 64));
+        Value* cmp_right_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+        Value* conditional = Builder.CreateICmpNE(obj2, cmp_right_value);
+
+        BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_then_block", gFunction);
+        BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end", gFunction);
+
+        Builder.CreateCondBr(conditional, cond_then_block, cond_end_block);
+
+        Builder.SetInsertPoint(cond_then_block);
+        info->current_block = cond_then_block;
+
+        Value* params[PARAMS_MAX];
+
+        params[0] = obj;
+
+        int num_params = 1;
+
+        char method_name[BUFSIZ];
+        snprintf(method_name, BUFSIZ, "clone_%s", info->sname);
+
+        if(!call_function(method_name, params, num_params, struct_name, FALSE, node_type, info))
+        {
             compile_err_msg(info, "Not found found clone function");
             info->err_num++;
             exit(2);
@@ -2128,8 +2206,140 @@ static BOOL call_clone_method(sNodeType* node_type, Value** address, sCompileInf
     return FALSE;
 }
 
+BOOL make_clone_for_recursive_field_type(sNodeType* node_type, sCompileInfo* info) 
+{
+    sCLClass* klass = node_type->mClass;
+    char* class_name = CLASS_NAME(klass);
+
+    sBuf source;
+    sBuf_init(&source);
+
+    char buf[BUFSIZ];
+
+    snprintf(buf, BUFSIZ, "(%s* self) {\n", class_name);
+    sBuf_append(&source, buf, strlen(buf));
+
+    snprintf(buf, BUFSIZ, "var result = new %s;\n", class_name);
+    sBuf_append(&source, buf, strlen(buf));
+
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        char* field_name = CONS_str(&klass->mConst, klass->mFieldNameOffsets[i]);
+        sNodeType* field_type = clone_node_type(klass->mFields[i]);
+
+        if(field_type->mHeap) {
+            char buf[BUFSIZ];
+            snprintf(buf, BUFSIZ, "if(self.%s) { result.%s = clone self.%s;}\n", field_name, field_name, field_name);
+
+            sBuf_append(&source, buf, strlen(buf));
+        }
+        else {
+            char buf[BUFSIZ];
+            snprintf(buf, BUFSIZ, "result.%s = self.%s;\n", field_name, field_name);
+
+            sBuf_append(&source, buf, strlen(buf));
+        }
+    }
+
+    snprintf(buf, BUFSIZ, "return result;\n}\n");
+    sBuf_append(&source, buf, strlen(buf));
+
+    unsigned int node = 0;
+
+    sParserInfo pinfo;
+
+    memset(&pinfo, 0, sizeof(sParserInfo));
+
+    pinfo.p = source.mBuf;
+    xstrncpy(pinfo.sname, info->pinfo->sname, PATH_MAX);
+    pinfo.source = source.mBuf;
+    pinfo.module_name = info->pinfo->module_name;
+    pinfo.parse_phase = info->pinfo->parse_phase;
+    pinfo.lv_table = info->pinfo->lv_table;
+    pinfo.in_clang = FALSE;
+    pinfo.mFunVersion = 0;
+
+    sNodeType* result_type = clone_node_type(node_type);
+    result_type->mHeap = TRUE;
+
+    char fun_name[BUFSIZ];
+    snprintf(fun_name, BUFSIZ, "clone_%s", info->sname);
+
+    char* struct_name = CLASS_NAME(node_type->mClass);
+
+    if(!parse_function(&node, result_type, fun_name, struct_name, &pinfo)) {
+        fprintf(stderr, "fail to implement a clone method of recurive structor. exit.\n");
+        exit(2);
+    }
+
+    if(!compile(node, info)) {
+        return FALSE;
+    }
+
+    free(source.mBuf);
+
+    return TRUE;
+}
+
 Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
 {
+    sCLClass* klass = node_type->mClass;
+
+    sNodeType* node_type2 = clone_node_type(node_type);
+    node_type2->mPointerNum = 0;
+
+    Type* llvm_struct_type;
+    if(!create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info))
+    {
+        fprintf(stderr, "%s %d: The error at create_llvm_type_from_node_type\n", info->sname, info->sline);
+        exit(2);
+    }
+
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        sNodeType* field_type = clone_node_type(klass->mFields[i]);
+
+        BOOL success_solve;
+        if(!solve_generics(&field_type, node_type, &success_solve))
+        {
+            fprintf(stderr, "%s %d: The error at solve_generics\n", info->sname, info->sline);
+            exit(2);
+        }
+        sCLClass* field_class = field_type->mClass;
+
+        if(field_type->mHeap && field_type->mPointerNum > 0)
+        {
+            if(type_identify(node_type, field_type))
+            {
+                BOOL exist_clone_method = FALSE;
+
+                char fun_name[BUFSIZ];
+                snprintf(fun_name, BUFSIZ, "clone_%s", info->sname);
+
+                char real_fun_name[REAL_FUN_NAME_MAX];
+                create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, CLASS_NAME(klass));
+
+                std::vector<sFunction*>& funcs = gFuncs[real_fun_name];
+                if(funcs.size() != 0) {
+                    exist_clone_method = TRUE;
+                }
+
+                if(!exist_clone_method) {
+                    LVALUE* llvm_stack = gLLVMStack;
+                    int stack_num = info->stack_num;
+
+                    if(!make_clone_for_recursive_field_type(node_type, info)) {
+                        fprintf(stderr, "%s %d: can't make clone of recursive field(2)(%s)\n", info->sname, info->sline, CLASS_NAME(node_type->mClass));
+                        exit(2);
+                    }
+
+                    gLLVMStack = llvm_stack;
+                    info->stack_num = stack_num;
+                }
+            }
+        }
+    }
+
     BOOL execute_clone_method = call_clone_method(node_type, &address, info);
 
     if(execute_clone_method) {
@@ -2138,8 +2348,6 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
 
     Value* obj = Builder.CreateAlignedLoad(address, 8);
     if(node_type->mPointerNum > 0) {
-        Value* obj = Builder.CreateAlignedLoad(address, 8);
-
         Value* obj2 = Builder.CreateCast(Instruction::PtrToInt, obj, IntegerType::get(TheContext, 64));
         Value* cmp_right_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
         Value* conditional = Builder.CreateICmpNE(obj2, cmp_right_value);
@@ -2151,7 +2359,6 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
 
         Builder.SetInsertPoint(cond_then_block);
         info->current_block = cond_then_block;
-
 
         sCLClass* klass = node_type->mClass;
 
