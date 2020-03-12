@@ -12,7 +12,7 @@ CC	Makefile	/^CC=clang$/;"	m
 CC	tiny/Makefile	/^CC=gcc$/;"	m
 CC	wi/Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -Qunused-arguments$/;"	m
-CFLAGS	tiny/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
+CFLAGS	tiny/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -Qunused-arguments$/;"	m
 CFLAGS	wi/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
 CLASS_FLAGS_ANONYMOUS	src/common.h	85;"	d
 CLASS_FLAGS_ANONYMOUS_VAR_NAME	src/common.h	87;"	d
@@ -104,21 +104,8 @@ OS	wi/Makefile	/^OS=LINUX$/;"	m
 PARAMS_MAX	src/common.h	26;"	d
 PARSER_ERR_MSG_MAX	src/common.h	22;"	d
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c -c code\/External.nc$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c -c code\/HelloWorld5.nc$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c -c code\/HelloWorld6.nc$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c -c neo-c.nc$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld.nc code\/External.o$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld10-5.nc$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld10-6.nc$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld10-7.nc$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld10.nc$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld2.nc -lncursesw$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld3.nc$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld4.nc$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld7.nc code\/HelloWorld5.o code\/HelloWorld6.o$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld8.nc$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld9-5.nc$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/neo-c code\/HelloWorld9.nc$/;"	m
 REAL_FUN_NAME_MAX	src/common.h	31;"	d
 REAL_STRUCT_NAME_MAX	src/common.h	32;"	d
 RUNTIME_OBJS	Makefile	/^RUNTIME_OBJS=$/;"	m
@@ -217,26 +204,31 @@ append_str_to_constant_pool	src/constant.c	/^unsigned int append_str_to_constant
 append_wstr_to_constant_pool	src/constant.c	/^unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
+as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	wi/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	wi/configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	wi/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	wi/configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/configure	/^as_fn_error ()$/;"	f
 as_fn_error	wi/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	wi/configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	wi/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	wi/configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	tiny/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	tiny/configure	/^as_fn_exit ()$/;"	f
@@ -245,6 +237,7 @@ as_fn_exit	wi/configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	tiny/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	wi/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	tiny/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	tiny/configure	/^as_fn_mkdir_p ()$/;"	f
@@ -256,6 +249,7 @@ as_fn_ret_failure	wi/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	tiny/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	wi/configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	tiny/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	tiny/configure	/^as_fn_set_status ()$/;"	f
@@ -264,6 +258,7 @@ as_fn_set_status	wi/configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	tiny/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	wi/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	tiny/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	tiny/configure	/^as_fn_unset ()$/;"	f
@@ -797,6 +792,7 @@ llvm_change_block	src/llvm.cpp	/^void llvm_change_block(BasicBlock* current_bloc
 llvm_create_string	src/llvm.cpp	/^Value* llvm_create_string(char* str)$/;"	f
 llvm_final	src/llvm.cpp	/^void llvm_final()$/;"	f
 llvm_init	src/llvm.cpp	/^void llvm_init()$/;"	f
+loadVarLastChain	tiny/common.h	/^    bool loadVarLastChain;$/;"	m	struct:version
 load_address_to_lvtable	src/llvm.cpp	/^Value* load_address_to_lvtable(int index, sNodeType* var_type, sCompileInfo* info)$/;"	f
 load_class	src/klass.c	/^static sCLClass* load_class(char* class_name, int version)$/;"	f	file:
 load_class_from_class_file	src/klass.c	/^static sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)$/;"	f	file:
@@ -1440,7 +1436,6 @@ store_address_to_lvtable	src/llvm.cpp	/^void store_address_to_lvtable(int index,
 store_lvtable	src/llvm.cpp	/^Value* store_lvtable()$/;"	f
 str	code/neo-c.h	/^    string str;$/;"	m	struct:regex_struct
 str	neo-c.h	/^    string str;$/;"	m	struct:regex_struct
-strValue	tiny/common.h	/^    string strValue;$/;"	m	struct:TVALUE
 string	code/neo-c.h	/^typedef char*% string;$/;"	t
 string	neo-c.h	/^typedef char*% string;$/;"	t
 substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompileInfo* info)$/;"	f
@@ -1510,10 +1505,14 @@ v3	neo-c.h	/^    T3 v3;$/;"	m	struct:tuple4
 v3	neo-c.h	/^    T4 v3;$/;"	m	struct:tuple4
 value	src/llvm_common.hpp	/^    Value* value;$/;"	m	struct:LVALUEStruct
 var	src/llvm_common.hpp	/^    sVar* var;$/;"	m	struct:LVALUEStruct
+varName	tiny/common.h	/^    string varName;$/;"	m	struct:version
+varValue	tiny/common.h	/^    TinyNode%* varValue;$/;"	m	struct:version
 vector	code/neo-c.h	/^struct vector<T> $/;"	s
 vector	neo-c.h	/^struct vector<T> $/;"	s
 version	code/HelloWorld6.h	/^impl StructData1 version 2$/;"	s
 version	code/HelloWorld6.h	/^struct StructData1 version 2$/;"	s
+version	tiny/common.h	/^struct TinyNode version 4 {$/;"	s
+version	tiny/common.h	/^struct TinyVM version 4$/;"	s
 version	wi/common.h	/^impl Vi version 2 $/;"	s
 version	wi/common.h	/^impl Vi version 6$/;"	s
 version	wi/common.h	/^impl Vi version 7 $/;"	s
@@ -1536,6 +1535,7 @@ visualModeHead	wi/common.h	/^    int visualModeHead;$/;"	m	struct:version
 visualModeHeadBefore	wi/common.h	/^    int visualModeHeadBefore;$/;"	m	struct:version
 visualModeTailCursorYBefore	wi/common.h	/^    int visualModeTailCursorYBefore;$/;"	m	struct:version
 visualModeTailScrollBefore	wi/common.h	/^    int visualModeTailScrollBefore;$/;"	m	struct:version
+vtable	tiny/common.h	/^    vector<map<string, TVALUE*%>*%>*% vtable;$/;"	m	struct:version
 width	wi/common.h	/^    int width;$/;"	m	struct:ViFiler
 width	wi/common.h	/^    int width;$/;"	m	struct:ViWin
 win	wi/common.h	/^    WINDOW* win;$/;"	m	struct:ViFiler

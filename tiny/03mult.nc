@@ -4,11 +4,11 @@
 
 impl TinyNode version 3 
 {
-TinyNode*% createMultNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
+TinyNode*% createMultNode(TinyNode*% self, TinyParser* parser, TinyNode*% left, TinyNode*% right) {
     self.type = NODETYPE_MULT;
 
-    managed left;
-    managed right;
+    self.sname = clone parser.sname;
+    self.sline = parser.sline;
 
     self.left = left;
     self.right = right;
@@ -17,11 +17,11 @@ TinyNode*% createMultNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
 
     return self;
 }
-TinyNode*% createDivNode(TinyNode*% self, TinyNode*% left, TinyNode*% right) {
+TinyNode*% createDivNode(TinyNode*% self, TinyParser* parser, TinyNode*% left, TinyNode*% right) {
     self.type = NODETYPE_DIV;
 
-    managed left;
-    managed right;
+    self.sname = clone parser.sname;
+    self.sline = parser.sline;
 
     self.left = left;
     self.right = right;
@@ -79,11 +79,11 @@ TinyNode*% mult_div(TinyParser* self) {
 
             if(right == null) {
                 self.errMessage("require right value for operator *");
-                self.errNumber++;
+                self.err_num++;
                 return null;
             }
 
-            return new TinyNode.createMultNode(clone node, right);
+            return new TinyNode.createMultNode(self, clone node, right);
         }
         else if(*self.p == '/' && *(self.p+1) != '=') 
         {
@@ -94,11 +94,11 @@ TinyNode*% mult_div(TinyParser* self) {
 
             if(right == null) {
                 self.errMessage("require right value for operator /");
-                self.errNumber++;
+                self.err_num++;
                 return null;
             }
 
-            return new TinyNode.createDivNode(clone node, right);
+            return new TinyNode.createDivNode(self, clone node, right);
         }
         else {
             break;
@@ -133,12 +133,20 @@ bool compile(TinyVM* self, TinyNode* node) {
             TVALUE*% value1 = self.stack.pop_back(null);
             TVALUE*% value2 = self.stack.pop_back(null); 
 
+            if(value1.type != INT_VALUE) {
+                self.errMessage("Left value type error. Require int value");
+                return false;
+            }
+
+            if(value2.type != INT_VALUE) {
+                self.errMessage("Right value type error. Require int value");
+                return false;
+            }
+
             TVALUE*% value3 = new TVALUE;
             
             value3.type = INT_VALUE;
-            value3.uValue.intValue 
-                    = value1.uValue.intValue 
-                    * value2.uValue.intValue;
+            value3.intValue = value1.intValue * value2.intValue;
             
             self.stack.push_back(value3);
             }
@@ -154,13 +162,21 @@ bool compile(TinyVM* self, TinyNode* node) {
 
             TVALUE*% value1 = self.stack.pop_back(null);
             TVALUE*% value2 = self.stack.pop_back(null); 
+
+            if(value1.type != INT_VALUE) {
+                self.errMessage("Left value type error. Require int value");
+                return false;
+            }
+
+            if(value2.type != INT_VALUE) {
+                self.errMessage("Right value type error. Require int value");
+                return false;
+            }
             
             TVALUE*% value3 = new TVALUE;
             
             value3.type = INT_VALUE;
-            value3.uValue.intValue 
-                    = value1.uValue.intValue 
-                    / value2.uValue.intValue;
+            value3.intValue = value1.intValue / value2.intValue;
             
             self.stack.push_back(value3);
             }

@@ -4,48 +4,28 @@
 
 impl TinyNode version 4 
 {
-finalize() {
-    inherit(self);
-
-    if(self.type == NODETYPE_VAR) {
-        delete self.varValue.name;
-        delete self.varValue.value;
-    }
-    else if(self.type == NODETYPE_LOAD_VAR) {
-        delete self.loadVarValue.name;
-    }
-}
-
-TinyNode*% clone(TinyNode* self) {
-    var result = inherit(self);
-
-    if(self.type == NODETYPE_VAR) {
-        result.varValue.name = borrow clone self.varValue.name;
-        result.varValue.value = borrow clone self.varValue.value;
-    }
-    else if(self.type == NODETYPE_LOAD_VAR) {
-        result.loadVarValue.name = borrow clone self.loadVarValue.name;
-    }
-
-    return result;
-}
-
-TinyNode*% createAssignNode(TinyNode%* self, string name, TinyNode*% value) {
+TinyNode*% createAssignNode(TinyNode%* self, TinyParser* parser, string name, TinyNode*% value) {
     self.type = NODETYPE_VAR;
 
-    self.varValue.name = borrow clone name;
-    self.varValue.value = borrow clone value;
+    self.sname = clone parser.sname;
+    self.sline = parser.sline;
+
+    self.varName = name;
+    self.varValue = value;
 
     self.stackValue = 1;
 
     return self;
 }
 
-TinyNode*% createLoadNode(TinyNode%* self, string& name) {
+TinyNode*% createLoadNode(TinyNode%* self, TinyParser* parser, string name) {
     self.type = NODETYPE_LOAD_VAR;
 
-    self.loadVarValue.name = borrow clone name;
-    self.loadVarValue.last_chain = true;
+    self.sname = clone parser.sname;
+    self.sline = parser.sline;
+
+    self.varName = name;
+    self.loadVarLastChain = true;
 
     self.stackValue = 1;
 
@@ -62,12 +42,12 @@ void debug(TinyNode* self) {
     switch(self.type) {
         case NODETYPE_VAR :
             printf("var node %p\n", self);
-            self.varValue.value.debug();
+            self.varValue.debug();
             break;
 
         case NODETYPE_LOAD_VAR :
             printf("load var node %p\n", self);
-            puts(self.loadVarValue.name);
+            puts(self.varName);
             break;
 
         default:
@@ -91,13 +71,13 @@ string parseWord(TinyParser* self) {
     return string(buf.buf);
 }
 
-TinyNode*% wordNode(TinyParser* self, string& buf) {
+TinyNode*% wordNode(TinyParser* self, string buf) {
     if(strcmp(buf, "var") == 0) {
         var name = self.parseWord();
 
         if(strcmp(name, "") == 0) {
             self.errMessage("require variable name");
-            self.errNumber++;
+            self.err_num++;
             return null;
         }
 
@@ -107,7 +87,7 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
         }
         else {
             self.errMessage("require = character");
-            self.errNumber++;
+            self.err_num++;
             return null;
         }
 
@@ -115,11 +95,11 @@ TinyNode*% wordNode(TinyParser* self, string& buf) {
 
         if(value == null) {
             self.errMessage("Null expression");
-            self.errNumber++;
+            self.err_num++;
             return null;
         }
 
-        return new TinyNode.createAssignNode(name, value);
+        return new TinyNode.createAssignNode(self, name, value);
     }
     else {
         return null;
@@ -136,10 +116,10 @@ TinyNode*% node(TinyParser* self) {
     if(isalpha(*self.p)) {
         var buf = self.parseWord();
 
-        var word_node = self.wordNode(borrow buf);
+        var word_node = self.wordNode(clone buf);
         
         if(word_node == null) {
-            return new TinyNode.createLoadNode(borrow buf);
+            return new TinyNode.createLoadNode(self, clone buf);
         }
         else {
             return word_node;
@@ -164,7 +144,7 @@ void loadVariable(TinyVM* self, TinyNode* node)
 {
     var vtable = self.vtable.item(-1, null);
     
-    var name = clone node.loadVarValue.name;
+    var name = clone node.varName;
     var item = vtable.at(name, null);
     var value = clone item;
 
@@ -173,7 +153,7 @@ void loadVariable(TinyVM* self, TinyNode* node)
     }
     else {
         self.parser.errMessage(xasprintf("undeclared variable(%s)\n", name));
-        self.parser.errNumber++;
+        self.parser.err_num++;
     }
 }
 
@@ -188,15 +168,20 @@ bool compile(TinyVM* self, TinyNode* node) {
 
     switch(node.type) {
         case NODETYPE_VAR : {
-            if(!self.compile(node.varValue.value)) {
+            if(!self.compile(node.varValue)) {
                 return false;
             }
+            
+            var name = clone node.varName;
 
             TVALUE*% value = self.stack.pop_back(null);
+
+            if(value == null) {
+                self.errMessage(xasprintf("require right value %s\n", name));
+                return false;
+            }
             
             var vtable = self.vtable.item(-1, null);
-            
-            var name = clone node.varValue.name;
             
             vtable.insert(name, clone value);
 

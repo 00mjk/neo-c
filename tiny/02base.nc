@@ -244,10 +244,6 @@ void debug(TinyVM* self) {
             case NULL_VALUE:
                 printf("stack[%d] null value\n", it2);
                 break;
-
-            case STR_VALUE:
-                printf("stack[%d] str value %s\n", it2, it.strValue);
-                break;
         }
     }
 }
@@ -276,6 +272,7 @@ bool compile(TinyVM* self, TinyNode* node) {
 
         case NODETYPE_INT : {
             TVALUE*% value1 = new TVALUE;
+
             value1.type = INT_VALUE;
             value1.intValue = node.intValue;
 

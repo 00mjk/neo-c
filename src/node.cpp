@@ -104,7 +104,20 @@ static BOOL check_same_params(int num_params, sNodeType** param_types, int num_p
     }
     int i;
     for(i=0; i<num_params; i++) {
-        if(!type_identify(param_types[i], param_types2[i]))
+        char* left_class_name = CLASS_NAME(param_types[i]->mClass);
+        char* right_class_name = CLASS_NAME(param_types2[i]->mClass);
+
+        sNodeType* left_type = param_types[i];
+        sNodeType* right_type = param_types2[i];
+
+        if(get_typedef(left_class_name)) {
+            left_type = get_typedef(left_class_name);
+        }
+        if(get_typedef(right_class_name)) {
+            right_type = get_typedef(right_class_name);
+        }
+
+        if(!type_identify(left_type, right_type) || left_type->mHeap != right_type->mHeap)
         {
             compile_err_msg(info, "Invalid Function parametor error(parametor number is %d)", i);
             show_node_type(param_types[i]);
@@ -328,7 +341,7 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
                     return FALSE;
                 }
 
-                if(!type_identify(it->mResultType, result_type))
+                if(!type_identify(it->mResultType, result_type) || it->mResultType->mHeap != result_type->mHeap)
                 {
                     compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
                     info->err_num++;

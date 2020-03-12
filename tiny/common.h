@@ -56,16 +56,6 @@ struct TinyNode {
 
 /*
     struct {
-        char* name;
-        TinyNode* value;
-    }% varValue;
-
-    struct {
-        char* name;
-        bool last_chain;
-    }% loadVarValue;
-
-    struct {
         int num_expressions;
         TinyNode** expressions;
         void* blocks;
@@ -101,7 +91,7 @@ struct TinyBlock
     vector<TinyNode*%>*% nodes;
 };
 
-impl TinyNode 
+impl TinyNode version 2
 {
     void debug(TinyNode* self);
 }
@@ -112,9 +102,9 @@ struct TVALUE {
     int type;
     
     int intValue;
-    string strValue;
 };
 /*
+    string strValue;
         struct {
             char* value;
             char* err_value;
@@ -141,19 +131,18 @@ impl TinyVM
 {
     initialize(char* source_name);
 
+    void errMessage(TinyVM* self, char* msg);
     bool parser(TinyVM* self);
     bool compile(TinyVM* self, TinyNode* node);
     bool run(TinyVM* self);
     void debug(TinyVM* self);
 };
 
-/*
 /// 03mult.nc ///
 impl TinyNode version 3 
 {
     void debug(TinyNode* self);
 };
-
 
 impl TinyParser version 3 
 {
@@ -166,10 +155,15 @@ impl TinyVM version 3
 };
 
 /// 04var.nc 
+struct TinyNode version 4 {
+    string varName;
+    TinyNode%* varValue;
+
+    bool loadVarLastChain;
+};
+
 impl TinyNode version 4 
 {
-    finalize();
-    TinyNode*% clone(TinyNode* self);
     void debug(TinyNode* self);
 }
 
@@ -177,7 +171,7 @@ impl TinyParser version 4
 {
     string parseWord(TinyParser* self);
     TinyNode*% node(TinyParser* self);
-    TinyNode*% wordNode(TinyParser* self, string& buf);
+    TinyNode*% wordNode(TinyParser* self, string buf);
 }
 
 struct TinyVM version 4
@@ -192,6 +186,7 @@ impl TinyVM version 4
     void loadVariable(TinyVM* self, TinyNode* node);
 }
 
+/*
 /// 05if.nc 
 
 impl TinyNode version 5 
