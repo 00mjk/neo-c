@@ -1924,6 +1924,7 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
 #ifdef MDEBUG
     printf("free right value object %p type %s at %s %d\n", obj, CLASS_NAME(node_type->mClass), info->sname, info->sline);
 #endif
+    BOOL exist_recursive_field = FALSE;
 
     Value* obj2 = (Value*)obj;
 
@@ -1987,10 +1988,12 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
                         fprintf(stderr, "%s %d: can't make finalize of recursive field(2)(%s)\n", info->sname, info->sline, CLASS_NAME(node_type->mClass));
                         exit(2);
                     }
-
+                    
                     gLLVMStack = llvm_stack;
                     info->stack_num = stack_num;
                 }
+
+                exist_recursive_field = TRUE;
             }
         }
     }
@@ -1999,8 +2002,15 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
     {
         if(node_type->mPointerNum == 1 && !info->no_output)
         {
-            if(!call_destructor(obj2, node_type, info)) {
+            if(exist_recursive_field) {
+                if(!call_destructor(obj2, node_type, info)) {
+                    fprintf(stderr, "%s %d: can't make finalize of recursive field(3)(%s)\n", info->sname, info->sline, CLASS_NAME(node_type->mClass));
+                    exit(2);
+                }
+            }
+            else {
                 call_field_destructor(obj2, node_type, info);
+                call_destructor(obj2, node_type, info);
             }
         }
     }

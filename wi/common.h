@@ -185,6 +185,7 @@ impl Vi version 5
 /// 6file.h ///
 struct ViWin version 6
 {
+    //char* fileName;
     string fileName;
     bool writed;
 };
@@ -212,6 +213,7 @@ impl Vi version 6
 
     void repositionWindows(Vi* self);
     void exitFromApp(Vi* self);
+    void activateFiler(Vi* self);
 }
 
 /// 7yank.h ///

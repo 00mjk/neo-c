@@ -3217,7 +3217,6 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     int num_generics = gNodes[node].uValue.sFunctionCall.mNumGenerics;
     char generics_type_names[PARAMS_MAX][VAR_NAME_MAX];
 
-
     int i;
     for(i=0; i<num_generics; i++)
     {
@@ -4422,7 +4421,6 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     xstrncpy(compiling_fun_name_before, info->compiling_fun_name, VAR_NAME_MAX);
     xstrncpy(info->compiling_fun_name, simple_fun_name, VAR_NAME_MAX);
-
 
     BOOL operator_fun = gNodes[node].uValue.sFunction.mOperatorFun;
 
@@ -6422,7 +6420,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
         Value* rvalue2 = rvalue.value;
 
-        BOOL alloc = TRUE;
+        BOOL alloc = FALSE;
         std_move(field_address, field_type, &rvalue, alloc, info);
 
         Builder.CreateAlignedStore(rvalue2, field_address, alignment);

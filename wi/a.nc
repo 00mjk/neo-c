@@ -27,7 +27,6 @@ void aaaa()
 
 int main()
 {
-        ^^^^^;
     
     return 0;
 }

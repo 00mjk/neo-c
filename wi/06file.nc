@@ -17,6 +17,7 @@ initialize(int y, int x, int width, int height) {
     inherit(self, y, x, width, height);
 
     self.fileName = string("a.txt");
+    //self.fileName = "a.txt";
 }
 void statusBarView(ViWin* self, Vi* nvi)
 {
@@ -115,6 +116,7 @@ void openFile(ViWin* self, char* file_name, int line_num)
         }
 
         self.fileName = string(file_name);
+        //self.fileName = "a.txt";
         
         self.cursorY = 0;
         self.cursorX = 0;
@@ -132,6 +134,8 @@ void openFile(ViWin* self, char* file_name, int line_num)
         fclose(f);
 
         self.fileName = string(file_name);
+        //self.fileName = "a.txt";
+
         if(line_num == -1) {
             self.readCursorPosition(file_name);
         }
@@ -164,6 +168,9 @@ void writedFlagOn(ViWin* self) {
 
 impl Vi version 6
 {
+void activateFiler(Vi* self) {
+}
+
 void toggleWin(Vi* self) {
     if(self.toggleWin >= 0 && self.toggleWin < self.wins.length()) {
         int toggle_win = self.wins.find(self.activeWin, -1);
