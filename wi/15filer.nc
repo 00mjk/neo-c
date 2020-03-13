@@ -558,8 +558,8 @@ void input(ViFiler* self, Vi* nvi) {
             }
             break; 
 
-        case 'O'-'A'+1:
         case 'C'-'A'+1:
+        case 27:
             self.active = false;
             break;
 

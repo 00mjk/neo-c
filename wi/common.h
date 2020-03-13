@@ -213,7 +213,6 @@ impl Vi version 6
 
     void repositionWindows(Vi* self);
     void exitFromApp(Vi* self);
-    void activateFiler(Vi* self);
 }
 
 /// 7yank.h ///

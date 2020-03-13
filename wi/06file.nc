@@ -168,9 +168,6 @@ void writedFlagOn(ViWin* self) {
 
 impl Vi version 6
 {
-void activateFiler(Vi* self) {
-}
-
 void toggleWin(Vi* self) {
     if(self.toggleWin >= 0 && self.toggleWin < self.wins.length()) {
         int toggle_win = self.wins.find(self.activeWin, -1);
@@ -191,11 +188,6 @@ initialize() {
                 self.toggleWin();
                 break;
         }
-    });
-
-    self.events.replace('O'-'A'+1, lambda(Vi* self, int key) 
-    {
-        self.activateFiler();
     });
 }
 void saveLastOpenFile(Vi* self, char* file_name) {

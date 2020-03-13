@@ -1815,14 +1815,8 @@ static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo
         }
         sCLClass* field_class = field_type->mClass;
 
-        if(field_type->mHeap && field_type->mPointerNum > 0)
+        if(field_type->mHeap && field_type->mPointerNum > 0 && !type_identify(node_type, field_type))
         {
-            if(type_identify(node_type, field_type))
-            {
-                fprintf(stderr, "%s %d: can't make finalize of recursive field(1)(%s)\n", info->sname, info->sline, CLASS_NAME(field_class));
-                exit(2);
-            }
-
             Type* llvm_field_type;
             if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info))
             {
@@ -2003,6 +1997,7 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
         if(node_type->mPointerNum == 1 && !info->no_output)
         {
             if(exist_recursive_field) {
+                call_field_destructor(obj2, node_type, info);
                 if(!call_destructor(obj2, node_type, info)) {
                     fprintf(stderr, "%s %d: can't make finalize of recursive field(3)(%s)\n", info->sname, info->sline, CLASS_NAME(node_type->mClass));
                     exit(2);
