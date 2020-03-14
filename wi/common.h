@@ -126,6 +126,8 @@ impl ViWin version 3
     void completion(ViWin* self);
     void clearInputedKey(ViWin* self);
     void saveInputedKey(ViWin* self);
+    
+    void backwardWord(ViWin* self); // implement after
 }
 
 struct Vi version 3 

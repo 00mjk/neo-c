@@ -346,6 +346,16 @@ void view(ViFiler* self, Vi* nvi)
             mvwprintw(self.win, it2, 0, "%s", it);
         }
     }
+    
+    int maxx = xgetmaxx();
+
+    int filer_width = maxx / 5;
+    
+    for(int y=0; y<maxy; y++) {
+        wattron(self.win, A_REVERSE);
+        mvwprintw(self.win, y, filer_width-1, "|");
+        wattroff(self.win, A_REVERSE);
+    }
     //wrefresh(self.win);
 }
 
@@ -621,13 +631,13 @@ Vi* gVi;
 
 void sig_winch(int sig_num)
 {
-gVi.repositionWindows();
-gVi.repositionFiler();
-
-gVi.clearView();
-gVi.view();
-
-gVi.extraView();
+    gVi.repositionWindows();
+    gVi.repositionFiler();
+    
+    gVi.clearView();
+    gVi.view();
+    
+    gVi.extraView();
 }
 
 impl Vi version 15
@@ -639,6 +649,11 @@ initialize() {
 
     gVi = self;
     signal(SIGWINCH, sig_winch);
+    
+    self.events.replace('F'-'A'+1, lambda(Vi* self, int key) 
+    {
+        self.activateFiler();
+    });
 }
 
 void extraView(Vi* self) {

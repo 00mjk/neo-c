@@ -16,7 +16,8 @@ void searchModeView(ViWin* self, Vi* nvi)
     self.textsView(nvi);
 
     wattron(self.win, A_REVERSE);
-    mvwprintw(self.win, self.height-1, 0, "/%ls", nvi.searchString);
+    mvwprintw(self.win, self.height-1, 0, "/%ls"
+                    , nvi.searchString);
     wattroff(self.win, A_REVERSE);
 
     //wrefresh(self.win);
@@ -32,9 +33,17 @@ void view(ViWin* self, Vi* nvi) {
 }
 
 void search(ViWin* self, Vi* nvi) {
-    var cursor_line = self.texts.item(self.scroll+self.cursorY, null);
+    if(nvi.searchString == null ||
+        wcscmp(nvi.searchString, wstring("")) == 0) 
+    {
+        return;
+    }
+    
+    var cursor_line = self.texts
+            .item(self.scroll+self.cursorY, null);
 
-    int x = cursor_line.substring(self.cursorX+1, -1).index(nvi.searchString, -1)
+    int x = cursor_line.substring(self.cursorX+1, -1)
+                .index(nvi.searchString, -1);
 
     if(x != -1) {
         self.saveReturnPoint();
@@ -60,6 +69,12 @@ void search(ViWin* self, Vi* nvi) {
 }
 
 void searchReverse(ViWin* self, Vi* nvi) {
+    if(nvi.searchString == null
+        || wcscmp(nvi.searchString, wstring("")) == 0) 
+    {
+        return;
+    }
+    
     var cursor_line = self.texts.item(self.scroll+self.cursorY, null);
 
     int x;
@@ -102,9 +117,9 @@ void searchWordOnCursor(ViWin* self, Vi* nvi)
         
         int cursor_x_before = self.cursorX;
 
-        if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9'))
+        if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9') || *p == '_')
         {
-            while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9'))
+            while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9') || *p == '_')
             {
                 p--;
                 self.cursorX--;
@@ -140,9 +155,9 @@ void searchWordOnCursorReverse(ViWin* self, Vi* nvi)
         
         wchar_t* p = line + self.cursorX;
 
-        if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9'))
+        if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9') || (*p == '_'))
         {
-            while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9'))
+            while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9') || *p == '_')
             {
                 p--;
                 self.cursorX--;

@@ -1,12 +1,4 @@
-#
-*
 :%s//
 ta, fa,dta, cta
-insert mode ^w
+^o
 ------------------------------------------------------------
-filer sort with up directory names
-delete blink brace 
-gv
-``
-ma, mb
-filer moving directory

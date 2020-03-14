@@ -406,35 +406,15 @@ void inputInsertMode(ViWin* self, Vi* nvi)
     }
     else if(key == 'W'-'A'+1) {
         int cursor_x = self.cursorX;
-        int cursor_y = self.cursorY;
-        
         self.backwardWord();
-        
-        if(cursor_y == self.cursorY) {
-            int cursor_x2 = self.cursorX;
-
-            var line = self.texts
+        int cursor_x2 = self.cursorX;
+        var old_line = self.texts
                 .item(self.scroll+self.cursorY, wstring(""));
-            line.delete_range(cursor_x2+1, cursor_x+1);
-           
-            self.texts.replace(self.scroll+self.cursorY
-                            , clone line);
-            self.modifyOverCursorXValue();
-            self.cursorX++;
-        }
-        else {
-            self.cursorY = cursor_y;
-            self.cursorX = cursor_x;
-            
-            var line = self.texts
-                .item(self.scroll+self.cursorY, wstring(""));
-            line.delete_range(0, cursor_x+1);
-
-            self.texts.replace(self.scroll+self.cursorY
-                            , clone line);
-                            
-            self.modifyOverCursorXValue();
-        }
+        var new_line = old_line.delete_range(cursor_x2
+                            , cursor_x);
+    
+        self.texts.replace(self.scroll+self.cursorY
+                    , new_line);
     }
     else {
         self.insertText(wstring(xasprintf("%c", key)));
