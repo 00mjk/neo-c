@@ -10,6 +10,13 @@
 
 impl ViWin version 2 
 {
+initialize(int y, int x, int width, int height) {
+    inherit(self, y, x, width, height);
+    
+    self.returnPointStack 
+        = new list<tuple3<int, int, int>*%>.initialize();
+}
+
 void textsView(ViWin* self, Vi* nvi)
 {
     int maxy = getmaxy(self.win);
@@ -300,7 +307,8 @@ void saveReturnPoint(ViWin* self)
     return_point.v2 = self.cursorX;
     return_point.v3 = self.scroll;
 
-    self.returnPoint = return_point;
+    self.returnPoint = clone return_point;
+    self.returnPointStack.push_back(clone return_point);
 }
 }
 

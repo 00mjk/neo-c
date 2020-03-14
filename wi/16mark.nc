@@ -45,6 +45,32 @@ void returnBack(ViWin* self) {
     var point = borrow self.returnPoint;
     
     if(point != null) {
+        int cursor_y = self.cursorY;
+        int cursor_x = self.cursorX;
+        int scroll = self.scroll;
+        
+        self.cursorY = point.v1;
+        self.cursorX = point.v2;
+        self.scroll = point.v3;
+        
+        self.modifyUnderCursorYValue();
+        self.modifyOverCursorYValue();
+        self.modifyOverCursorXValue();
+        
+        var return_point = new tuple3<int,int,int>.initialize();
+
+        return_point.v1 = cursor_y;
+        return_point.v2 = cursor_x;
+        return_point.v3 = scroll;
+
+        self.returnPoint = return_point;
+    }
+}
+
+void returnBackOfStack(ViWin* self) {
+    var point = self.returnPointStack.pop_back(null);
+    
+    if(point != null) {
         self.cursorY = point.v1;
         self.cursorX = point.v2;
         self.scroll = point.v3;
@@ -72,6 +98,11 @@ initialize() {
         var key2 = self.activeWin.getKey();
         
         self.activeWin.markAtCurrentPoint(key2);
+    });
+    
+    self.events.replace('O'-'A'+1, lambda(Vi* self, int key)
+    {
+        self.activeWin.returnBackOfStack();
     });
 
     self.events.replace('`', lambda(Vi* self, int key) 

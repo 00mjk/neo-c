@@ -51,10 +51,13 @@ struct ViWin version 2
     int scroll;
 
     tuple3<int,int,int>*% returnPoint;
+    list<tuple3<int, int, int>*%>*% returnPointStack;
 };
 
 impl ViWin version 2 
 {
+    initialize(int y, int x, int width, int height);
+    
     void textsView(ViWin* self, Vi* nvi);
     void statusBarView(ViWin* self, Vi* nvi);
     void view(ViWin* self, Vi* nvi);
