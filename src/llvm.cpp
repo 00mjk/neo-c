@@ -1776,69 +1776,6 @@ BOOL make_finalize_for_recursive_field_type(sNodeType* node_type, sCompileInfo* 
     return TRUE;
 }
 
-
-static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
-{
-    Value* obj2 = Builder.CreateCast(Instruction::PtrToInt, obj, IntegerType::get(TheContext, 64));
-    Value* cmp_right_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
-    Value* conditional = Builder.CreateICmpNE(obj2, cmp_right_value);
-
-    BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_then_block", gFunction);
-    BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end", gFunction);
-
-    Builder.CreateCondBr(conditional, cond_then_block, cond_end_block);
-
-    Builder.SetInsertPoint(cond_then_block);
-    info->current_block = cond_then_block;
-
-    sCLClass* klass = node_type->mClass;
-
-    sNodeType* node_type2 = clone_node_type(node_type);
-    node_type2->mPointerNum = 0;
-
-    Type* llvm_struct_type;
-    if(!create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info))
-    {
-        fprintf(stderr, "%s %d: The error at create_llvm_type_from_node_type\n", info->sname, info->sline);
-        return;
-    }
-
-    int i;
-    for(i=0; i<klass->mNumFields; i++) {
-        sNodeType* field_type = clone_node_type(klass->mFields[i]);
-
-        BOOL success_solve;
-        if(!solve_generics(&field_type, node_type, &success_solve))
-        {
-            fprintf(stderr, "%s %d: The error at solve_generics\n", info->sname, info->sline);
-            return;
-        }
-        sCLClass* field_class = field_type->mClass;
-
-        if(field_type->mHeap && field_type->mPointerNum > 0 && !type_identify(node_type, field_type))
-        {
-            Type* llvm_field_type;
-            if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info))
-            {
-                fprintf(stderr, "%s %d: The error at create_llvm_type_from_node_type\n", info->sname, info->sline);
-                return;
-            }
-
-#if LLVM_VERSION_MAJOR >= 7
-            Value* field_address = Builder.CreateStructGEP(obj, i);
-#else
-            Value* field_address = Builder.CreateStructGEP(llvm_struct_type, obj, i);
-#endif
-            free_object(field_type, field_address, FALSE, info);
-        }
-    }
-
-    Builder.CreateBr(cond_end_block);
-
-    Builder.SetInsertPoint(cond_end_block);
-    info->current_block = cond_end_block;;
-}
-
 static BOOL call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
 {
     LVALUE* llvm_stack = gLLVMStack;
@@ -1912,6 +1849,86 @@ static BOOL call_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info
 
     return FALSE;
 }
+
+static void call_field_destructor(Value* obj, sNodeType* node_type, sCompileInfo* info)
+{
+    Value* obj2 = Builder.CreateCast(Instruction::PtrToInt, obj, IntegerType::get(TheContext, 64));
+    Value* cmp_right_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+    Value* conditional = Builder.CreateICmpNE(obj2, cmp_right_value);
+
+    BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_then_block", gFunction);
+    BasicBlock* cond_end_block = BasicBlock::Create(TheContext, "cond_end", gFunction);
+
+    Builder.CreateCondBr(conditional, cond_then_block, cond_end_block);
+
+    Builder.SetInsertPoint(cond_then_block);
+    info->current_block = cond_then_block;
+
+    sCLClass* klass = node_type->mClass;
+
+    sNodeType* node_type2 = clone_node_type(node_type);
+    node_type2->mPointerNum = 0;
+
+    Type* llvm_struct_type;
+    if(!create_llvm_type_from_node_type(&llvm_struct_type, node_type2, node_type2, info))
+    {
+        fprintf(stderr, "%s %d: The error at create_llvm_type_from_node_type\n", info->sname, info->sline);
+        return;
+    }
+
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        sNodeType* field_type = clone_node_type(klass->mFields[i]);
+
+        BOOL success_solve;
+        if(!solve_generics(&field_type, node_type, &success_solve))
+        {
+            fprintf(stderr, "%s %d: The error at solve_generics\n", info->sname, info->sline);
+            return;
+        }
+        sCLClass* field_class = field_type->mClass;
+
+        if(field_type->mHeap && field_type->mPointerNum > 0)
+        {
+            if(type_identify(node_type, field_type)) {
+/*
+#if LLVM_VERSION_MAJOR >= 7
+                Value* field_address = Builder.CreateStructGEP(obj, i);
+#else
+                Value* field_address = Builder.CreateStructGEP(llvm_struct_type, obj, i);
+#endif
+                Value* obj2 = Builder.CreateAlignedLoad(field_address, 8);
+
+                if(!call_destructor(obj2, field_type, info)) {
+                    fprintf(stderr, "%s %d: can't make finalize of recursive field(3)(%s)\n", info->sname, info->sline, CLASS_NAME(field_type->mClass));
+                    exit(2);
+                }
+*/
+            }
+            else {
+                Type* llvm_field_type;
+                if(!create_llvm_type_from_node_type(&llvm_field_type, field_type, field_type, info))
+                {
+                    fprintf(stderr, "%s %d: The error at create_llvm_type_from_node_type\n", info->sname, info->sline);
+                    return;
+                }
+
+#if LLVM_VERSION_MAJOR >= 7
+                Value* field_address = Builder.CreateStructGEP(obj, i);
+#else
+                Value* field_address = Builder.CreateStructGEP(llvm_struct_type, obj, i);
+#endif
+                free_object(field_type, field_address, FALSE, info);
+            }
+        }
+    }
+
+    Builder.CreateBr(cond_end_block);
+
+    Builder.SetInsertPoint(cond_end_block);
+    info->current_block = cond_end_block;;
+}
+
 
 static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_delete, sCompileInfo* info)
 {
@@ -1997,7 +2014,7 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
         if(node_type->mPointerNum == 1 && !info->no_output)
         {
             if(exist_recursive_field) {
-                call_field_destructor(obj2, node_type, info);
+                //call_field_destructor(obj2, node_type, info);
                 if(!call_destructor(obj2, node_type, info)) {
                     fprintf(stderr, "%s %d: can't make finalize of recursive field(3)(%s)\n", info->sname, info->sline, CLASS_NAME(node_type->mClass));
                     exit(2);
