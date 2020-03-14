@@ -1164,6 +1164,7 @@ restore_var_table	src/vtable.c	/^void restore_var_table(sVarTable* left, sVarTab
 result_type	src/common.h	/^    sNodeType* result_type;$/;"	m	struct:sCompileInfoStruct
 result_variable	src/common.h	/^    void* result_variable;$/;"	m	struct:sCompileInfoStruct
 returnPoint	wi/common.h	/^    tuple3<int,int,int>*% returnPoint;$/;"	m	struct:version
+returnPointStack	wi/common.h	/^    list<tuple3<int, int, int>*%>*% returnPointStack;$/;"	m	struct:version
 right	tiny/common.h	/^    TinyNode*% right;$/;"	m	struct:TinyNode
 right_value_objects	src/common.h	/^    void* right_value_objects;$/;"	m	struct:sCompileInfoStruct
 runOnModule	src/llvm.cpp	/^    virtual bool runOnModule(Module &M) {$/;"	f	struct:MyModulePass

@@ -13,7 +13,8 @@ impl ViWin version 16
 initialize(int y, int x, int width, int height) {
     inherit(self, y, x, width, height);
     
-    self.mark = new map<wchar_t, tuple3<int,int, int>*%>.initialize();
+    self.mark = new map<wchar_t, tuple3<int,int, int>*%>
+            .initialize();
 }
 
 void markAtCurrentPoint(ViWin* self, wchar_t c) {

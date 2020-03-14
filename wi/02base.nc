@@ -250,8 +250,6 @@ void moveAtHead(ViWin* self) {
 }
 
 void moveAtTail(ViWin* self) {
-    self.saveReturnPoint();
-
     var cursor_line = self.texts.item(self.scroll+self.cursorY, wstring(""));
     var line_max = cursor_line.length();
 
@@ -290,6 +288,8 @@ void keyG(ViWin* self, Vi* nvi) {
 }
 
 void moveBottom(ViWin* self) {
+    self.saveReturnPoint();
+
     self.cursorY = self.texts.length()-1;
 
     self.modifyOverCursorXValue();

@@ -137,7 +137,7 @@ void searchWordOnCursor(ViWin* self, Vi* nvi)
         if((cursor_y_before == self.cursorY) && (scroll_before == self.scroll)) 
         {
             var search_word = self.texts.item(self.scroll+self.cursorY, null)
-                                  .substring(cursor_x_before2, self.cursorX+1);
+                  .substring(cursor_x_before2, self.cursorX);
             nvi.searchString = clone search_word;
             
             self.cursorX = cursor_x_before;
@@ -174,8 +174,9 @@ void searchWordOnCursorReverse(ViWin* self, Vi* nvi)
 
         if((cursor_y_before == self.cursorY) && (scroll_before == self.scroll)) 
         {
-            var search_word = self.texts.item(self.scroll+self.cursorY, null)
-                                 .substring(cursor_x_before2, self.cursorX+1);
+            var search_word 
+                = self.texts.item(self.scroll+self.cursorY, null)
+                 .substring(cursor_x_before2, self.cursorX);
             nvi.searchString = clone search_word;
             
             self.cursorX = cursor_x_before;

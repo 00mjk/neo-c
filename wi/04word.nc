@@ -41,9 +41,9 @@ void forwardWord(ViWin* self) {
 
         self.cursorX = 0;
     }
-    else if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+    else if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
     {
-        while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+        while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
         {
             p++;
             self.cursorX++;
@@ -247,9 +247,9 @@ void backwardWord(ViWin* self) {
             }
         }
     }
-    else if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+    else if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
     {
-        while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z'))
+        while((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
         {
             p--;
             self.cursorX--;
