@@ -128,6 +128,35 @@ void deleteWord(ViWin* self, Vi* nvi) {
         self.modifyCursorOnDeleting();
     }
 }
+
+void deleteForNextCharacter(ViWin* self) {
+    self.pushUndo();
+    
+    var key = self.getKey();
+
+    wstring& line = self.texts.item(self.scroll+self.cursorY, wstring(""));
+
+    if(wcslen(line) > 0) {
+        int x = self.cursorX;
+
+        wchar_t* p = line + x;
+
+        while(*p != key) {
+            p++;
+            x++;
+
+            if(x >= line.length())
+            {
+                break;
+            }
+        }
+        
+        if(*p == key) {
+            line.delete_range(self.cursorX, x);
+        }
+    }
+}
+
 void deleteCursorCharactor(ViWin* self) {
     self.pushUndo();
 
@@ -170,6 +199,12 @@ initialize() {
                 self.activeWin.deleteWord(self);
                 self.activeWin.writed = true;
                 break;
+            
+            case 't':
+            case 'f':
+                self.activeWin.deleteForNextCharacter();
+                self.activeWin.writed = true;
+                break;
         }
 
         self.activeWin.saveInputedKey();
@@ -182,6 +217,13 @@ initialize() {
             case 'w':
             case 'e':
                 self.activeWin.deleteWord(self);
+                self.enterInsertMode();
+                self.activeWin.writed = true;
+                break;
+                
+            case 't':
+            case 'f':
+                self.activeWin.deleteForNextCharacter();
                 self.enterInsertMode();
                 self.activeWin.writed = true;
                 break;

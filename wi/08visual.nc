@@ -151,6 +151,12 @@ void deleteOnVisualMode(ViWin* self, Vi* nvi) {
     }
 }
 
+void makeInputedKeyGVIndent(ViWin* self, Vi* nvi) {
+}
+
+void makeInputedKeyGVDeIndent(ViWin* self, Vi* nvi) {
+}
+
 void inputVisualMode(ViWin* self, Vi* nvi)
 {
     var key = self.getKey();
@@ -215,11 +221,14 @@ void inputVisualMode(ViWin* self, Vi* nvi)
         case '>':
             self.indentVisualMode(nvi);
             nvi.exitFromVisualMode();
+    
+            self.makeInputedKeyGVIndent(nvi);
             break;
 
         case '<':
             self.backIndentVisualMode(nvi);
             nvi.exitFromVisualMode();
+            self.makeInputedKeyGVDeIndent(nvi);
             break;
 
         case 27:

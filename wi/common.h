@@ -262,6 +262,8 @@ impl ViWin version 8
     void inputVisualMode(ViWin* self, Vi* nvi);
     void input(ViWin* self, Vi* nvi);
     void restoreVisualMode(ViWin* self, Vi* nvi);
+    void makeInputedKeyGVIndent(ViWin* self, Vi* nvi);
+    void makeInputedKeyGVDeIndent(ViWin* self, Vi* nvi);
 }
 
 impl Vi version 8
@@ -359,6 +361,8 @@ impl ViWin version 14
     int getKey(ViWin* self);
     void clearInputedKey(ViWin* self);
     void saveInputedKey(ViWin* self);
+    void makeInputedKeyGVIndent(ViWin* self, Vi* nvi);
+    void makeInputedKeyGVDeIndent(ViWin* self, Vi* nvi);
 }
 
 impl Vi version 14

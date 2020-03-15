@@ -4,6 +4,10 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <ncurses.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
 #include <locale.h>
@@ -31,8 +35,120 @@ int main()
     
     return 0;
 }
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+void aaaa()
+{
+
+void aaaa()
+{
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+
+    a.each {
+        if(true) {
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+    var a = new vector<string>.initialize();
+
+    a.each {
+        if(true) {
+    var a = new vector<string>.initialize();
+
+    a.each {
+        if(true) {
+        }
+        else {
+        }
+    }
+}
 
 /*
+void aaaa()
+{
+    var a = new vector<string>.initialize();
+
+    a.each {
+        if(true) {
+        }
+        else {
+        }
+    }
+}
+*/
+void aaaa()
+{
+    var a = new vector<string>.initialize();
+
+    a.each {
+        if(true) {
+        }
+        else {
+        }
+    }
+}
+void aaaa()
+{
+    var a = new vector<string>.initialize();
+
+    a.each {
+        if(true) {
+        }
+        else {
+        }
+    }
+}
+void aaaa()
+{
+    var a = new vector<string>.initialize();
+
+    a.each {
+        if(true) {
+        }
+        else {
+        }
+    }
+}
+*/
 void aaaa()
 {
     var a = new vector<string>.initialize();

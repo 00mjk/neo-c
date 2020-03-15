@@ -72,6 +72,26 @@ void saveInputedKey(ViWin* self) {
         self.savedInputedKeys = clone self.inputedKeys;
     }
 }
+
+void makeInputedKeyGVIndent(ViWin* self, Vi* nvi) {
+    self.inputedKeys = new vector<int>.initialize();
+    
+    self.inputedKeys.push_back('g');
+    self.inputedKeys.push_back('v');
+    self.inputedKeys.push_back('>');
+    
+    self.saveInputedKey();
+}
+
+void makeInputedKeyGVDeIndent(ViWin* self, Vi* nvi) {
+    self.inputedKeys = new vector<int>.initialize();
+    
+    self.inputedKeys.push_back('g');
+    self.inputedKeys.push_back('v');
+    self.inputedKeys.push_back('<');
+    
+    self.saveInputedKey();
+}
 }
 
 impl Vi version 14

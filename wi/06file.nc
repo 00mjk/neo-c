@@ -234,7 +234,7 @@ string readLastOpenFile(Vi* self) {
 
     char file_name[PATH_MAX];
 
-    fscanf(f, "%s", file_name);
+    fscanf(f, "%s", &file_name);
     
     fclose(f);
 

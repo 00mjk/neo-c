@@ -896,7 +896,8 @@ int main_loop(Vi* self) {
     while(!self.appEnd) {
         self.view();
 
-        if(self.mode != kInsertMode) {
+        if(self.mode != kInsertMode)
+        {
             self.activeWin.clearInputedKey();
         }
 
