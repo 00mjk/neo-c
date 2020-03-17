@@ -23,14 +23,56 @@ void pasteAfterCursor(ViWin* self, Vi* nvi) {
         self.pushUndo();
 
         var line = self.texts.item(self.scroll+self.cursorY, null);
+        
+        if(nvi.yank.length() == 1) {
+            var yank_first_line = nvi.yank.item(0, null);
 
-        var yank_first_line = nvi.yank.item(0, null);
+            var new_line = line.substring(0, self.cursorX+1) 
+                                + yank_first_line 
+                                + line.substring(self.cursorX+1, -1);
+    
+            self.texts.replace(self.scroll+self.cursorY, clone new_line);
+        }
+        else if(nvi.yank.length() == 2) {
+            var yank_first_line = nvi.yank.item(0, null);
+    
+            var new_line = line.substring(0, self.cursorX+1) 
+                                + yank_first_line;
 
-        var new_line = line.substring(0, self.cursorX+1) 
-                            + yank_first_line 
-                            + line.substring(self.cursorX-1, -1);
-
-        self.texts.replace(self.scroll+self.cursorY, clone new_line);
+            var after_line = line.substring(self.cursorX+1, -1);
+    
+            self.texts.replace(self.scroll+self.cursorY, clone new_line);
+            
+            var yank_last_line = nvi.yank.item(-1, null);
+            
+            var new_line2 = yank_last_line + after_line;
+            self.texts.insert(
+                self.scroll+self.cursorY+1,
+                clone new_line2);
+        }
+        else if(nvi.yank.length() > 2) {
+            var yank_first_line = nvi.yank.item(0, null);
+    
+            var new_line = line.substring(0, self.cursorX+1) 
+                                + yank_first_line;
+            var after_line = line.substring(self.cursorX+1, -1);
+    
+            self.texts.replace(self.scroll+self.cursorY
+                            , clone new_line);
+            nvi.yank.sublist(1,-2).each {
+                self.texts.insert(
+                    self.scroll+self.cursorY+it2+1, 
+                    clone it);
+            }
+            
+            var yank_last_line = nvi.yank.item(-1, null);
+            
+            var new_line2 = yank_last_line 
+                    + after_line;
+            self.texts.insert(
+                self.scroll+self.cursorY+nvi.yank.length()-1, 
+                clone new_line2);
+        }
     }
 }
 
@@ -47,14 +89,54 @@ void pasteBeforeCursor(ViWin* self, Vi* nvi) {
         self.pushUndo();
 
         var line = self.texts.item(self.scroll+self.cursorY, null);
+        
+        if(nvi.yank.length() == 1) {
+            var yank_first_line = nvi.yank.item(0, null);
 
-        var yank_first_line = nvi.yank.item(0, null);
-
-        var new_line = line.substring(0, self.cursorX) 
-                            + yank_first_line 
-                            + line.substring(self.cursorX, -1);
-
-        self.texts.replace(self.scroll+self.cursorY, clone new_line);
+            var new_line = line.substring(0, self.cursorX) 
+                                + yank_first_line 
+                                + line.substring(self.cursorX, -1);
+    
+            self.texts.replace(self.scroll+self.cursorY, clone new_line);
+        }
+        else if(nvi.yank.length() == 2) {
+            var yank_first_line = nvi.yank.item(0, null);
+    
+            var new_line = line.substring(0, self.cursorX) 
+                                + yank_first_line;
+            var after_line = line.substring(self.cursorX, -1);
+    
+            self.texts.replace(self.scroll+self.cursorY, clone new_line);
+            
+            var yank_last_line = nvi.yank.item(-1, null);
+            
+            var new_line2 = yank_last_line + after_line;
+            self.texts.insert(
+                self.scroll+self.cursorY+1,
+                clone new_line2);
+        }
+        else if(nvi.yank.length() > 2) {
+            var yank_first_line = nvi.yank.item(0, null);
+    
+            var new_line = line.substring(0, self.cursorX) 
+                                + yank_first_line;
+            var after_line = line.substring(self.cursorX, -1);
+    
+            self.texts.replace(self.scroll+self.cursorY
+                            , clone new_line);
+            nvi.yank.sublist(1,-2).each {
+                self.texts.insert(
+                    self.scroll+self.cursorY+it2+1, 
+                    clone it);
+            }
+            
+            var yank_last_line = nvi.yank.item(-1, null);
+            
+            var new_line2 = yank_last_line + after_line;
+            self.texts.insert(
+                self.scroll+self.cursorY+nvi.yank.length()-1, 
+                clone new_line2);
+        }
     }
 }
 }

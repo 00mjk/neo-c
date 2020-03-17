@@ -247,6 +247,10 @@ enum eMode { kVisualMode = kInsertMode + 1 };
 struct ViWin version 8
 {
     int visualModeHead;
+    
+    int visualModeHeadHorizonScroll;
+    int visualModeHeadHorizonX;
+    int visualModeHeadHorizonY;
 
     int visualModeHeadBefore;
     int visualModeTailCursorYBefore;
@@ -264,6 +268,7 @@ impl ViWin version 8
     void restoreVisualMode(ViWin* self, Vi* nvi);
     void makeInputedKeyGVIndent(ViWin* self, Vi* nvi);
     void makeInputedKeyGVDeIndent(ViWin* self, Vi* nvi);
+    void gotoBraceEnd(ViWin* self, Vi* nvi);
 }
 
 impl Vi version 8
@@ -312,6 +317,11 @@ impl Vi version 10
 }
 
 /// 11move.h ///
+impl ViWin version 11
+{
+    void gotoBraceEnd(ViWin* self, Vi* nvi);
+}
+
 impl Vi version 11
 {
     initialize();
@@ -428,4 +438,25 @@ impl ViWin version 16
 impl Vi version 16
 {
     initialize();
+}
+
+enum eMode { kHorizonVisualMode = kCommandMode + 1 };
+
+struct ViWin version 17
+{
+    int visualModeHorizonHeadScroll;
+    int visualModeHorizonHeadX;
+    int visualModeHorizonHeadY;
+};
+
+impl ViWin version 17
+{
+initialize(int y, int x, int width, int height);
+void view(ViWin* self, Vi* nvi);
+void input(ViWin* self, Vi* nvi);
+}
+
+impl Vi version 17
+{
+initialize();
 }

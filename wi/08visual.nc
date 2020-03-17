@@ -19,8 +19,7 @@ initialize(int y, int x, int width, int height) {
     self.visualModeTailScrollBefore = -1;
 }
 
-void visualModeView(ViWin* self, Vi* nvi)
-{
+void visualModeView(ViWin* self, Vi* nvi){
     int maxy = getmaxy(self.win);
     int maxx = getmaxx(self.win);
 
@@ -32,12 +31,17 @@ void visualModeView(ViWin* self, Vi* nvi)
     {
         var line = it.substring(0, maxx-1);
 
-        if(it2 >= (self.visualModeHead-self.scroll) && it2 <= self.cursorY) {
+        if(it2 >= (self.visualModeHead-self.scroll) 
+            && it2 <= self.cursorY) 
+        {
             wattron(self.win, A_REVERSE);
             mvwprintw(self.win, it2, 0, "%s", line.to_string(""));
             wattroff(self.win, A_REVERSE);
         }
-        else if(it2 <= (self.visualModeHead-self.scroll) && it2 >= self.cursorY) {
+        else if(it2 <= 
+            (self.visualModeHead-self.scroll) 
+            && it2 >= self.cursorY) 
+        {
             wattron(self.win, A_REVERSE);
             mvwprintw(self.win, it2, 0, "%s", line.to_string(""));
             wattroff(self.win, A_REVERSE);
@@ -55,7 +59,9 @@ void visualModeView(ViWin* self, Vi* nvi)
 }
 
 void view(ViWin* self, Vi* nvi) {
-    if(nvi.mode == kVisualMode && nvi.activeWin.equals(self)) {
+    if(nvi.mode == kVisualMode 
+        && nvi.activeWin.equals(self)) 
+    {
         self.visualModeView(nvi);
     }
     else {
@@ -77,6 +83,8 @@ void yankOnVisualMode(ViWin* self, Vi* nvi) {
     self.texts.sublist(head, tail+1).each {
         nvi.yank.push_back(clone it);
     }
+    
+    nvi.yankKind = kYankKindLine;
 }
 
 void indentVisualMode(ViWin* self, Vi* nvi) {
@@ -100,8 +108,7 @@ void indentVisualMode(ViWin* self, Vi* nvi) {
     self.modifyOverCursorXValue();
 }
 
-void backIndentVisualMode(ViWin* self, Vi* nvi) 
-{
+void backIndentVisualMode(ViWin* self, Vi* nvi) {
     self.pushUndo();
 
     int head = self.visualModeHead;
@@ -157,8 +164,7 @@ void makeInputedKeyGVIndent(ViWin* self, Vi* nvi) {
 void makeInputedKeyGVDeIndent(ViWin* self, Vi* nvi) {
 }
 
-void inputVisualMode(ViWin* self, Vi* nvi)
-{
+void inputVisualMode(ViWin* self, Vi* nvi){
     var key = self.getKey();
 
     switch(key) {
@@ -230,6 +236,10 @@ void inputVisualMode(ViWin* self, Vi* nvi)
             nvi.exitFromVisualMode();
             self.makeInputedKeyGVDeIndent(nvi);
             break;
+            
+        case '%':
+            self.gotoBraceEnd(nvi);
+            break;
 
         case 27:
             nvi.exitFromVisualMode();
@@ -256,6 +266,10 @@ void restoreVisualMode(ViWin* self, Vi* nvi) {
         self.scroll = self.visualModeTailScrollBefore;
     }
 }
+
+void gotoBraceEnd(ViWin* self, Vi* nvi) {
+}
+
 }
 
 impl Vi version 8
@@ -264,6 +278,7 @@ void enterVisualMode(Vi* self) {
     self.mode = kVisualMode;
     self.activeWin.visualModeHead = self.activeWin.cursorY + self.activeWin.scroll;
 }
+
 void exitFromVisualMode(Vi* self) {
     self.mode = kEditMode;
 
