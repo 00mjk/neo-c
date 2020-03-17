@@ -265,6 +265,52 @@ void yankOnHorizonVisualMode(ViWin* self, Vi* nvi) {
 }
 
 void deleteOnHorizonVisualMode(ViWin* self, Vi* nvi) {
+    self.pushUndo();
+
+    int y = self.scroll+self.cursorY;
+    int hv_y = self.visualModeHorizonHeadScroll 
+              + self.visualModeHorizonHeadY;
+    
+    if(y < hv_y) {
+        self.texts.item(y, null).delete_range(self.cursorX, -1);
+        self.texts.item(hv_y, null).delete_range(0, self.visualModeHorizonHeadX+1);
+        var new_line = self.texts.item(y, null) 
+                + self.texts.item(hv_y, null);
+        self.texts.replace(y, clone new_line);
+
+        self.texts.delete_range(y+1, hv_y+1);
+
+    }
+    else if(y == hv_y) {
+        int head = self.visualModeHorizonHeadX;
+        int tail = self.cursorX;
+        
+        if(head < tail) {
+            var line = self.texts.item(y, null).delete_range(head, tail+1);
+        }
+        else {
+            var line = self.texts.item(y, null).delete_range(tail, head+1);
+        }
+
+        self.cursorX = self.visualModeHorizonHeadX;
+        self.cursorY = self.visualModeHorizonHeadY;
+        self.scroll = self.visualModeHorizonHeadScroll;
+    }
+    else {
+        nvi.yank.reset();
+        self.texts.item(hv_y, null).delete_range(self.visualModeHorizonHeadX, -1);
+        self.texts.item(y, null).delete_range(0, self.cursorX+1);
+
+        var new_line = self.texts.item(hv_y, null) 
+                + self.texts.item(y, null);
+        self.texts.replace(hv_y, clone new_line);
+
+        self.texts.delete_range(hv_y+1, y+1);
+
+        self.cursorX = self.visualModeHorizonHeadX;
+        self.cursorY = self.visualModeHorizonHeadY;
+        self.scroll = self.visualModeHorizonHeadScroll;
+    }
 }
 
 void inputHorizonVisualMode(ViWin* self, Vi* nvi){
