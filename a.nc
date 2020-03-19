@@ -9,19 +9,11 @@
 #include <locale.h>
 #include <wctype.h>
 
-struct rusage {
-    int a;
-    int b;
-};
-
-static pid_t wait3(int* status, int options, struct rusage* rusage) { return wait4(-1, status, options, rusage); }
-
-void fun(struct rusage rusage) 
-{
-}
-
 int main()
 {
+    wstring a = wstring("ABC");
+
+    printf("%ls\n", a.delete_range(1,2));
 
     return 0;
 }

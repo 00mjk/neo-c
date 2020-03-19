@@ -324,6 +324,10 @@ impl string
     }
     string& delete_range(string& str, int head, int tail) {
         int len = strlen(str);
+
+        if(strcmp(str, "") == 0) {
+            return str;
+        }
         
         if(head < 0) {
            head += len;
@@ -939,6 +943,10 @@ impl wstring
     }
     wstring& delete_range(wstring& str, int head, int tail) {
         int len = wcslen(str);
+
+        if(len == 0) {
+            return str;
+        }
         
         if(head < 0) {
            head += len;

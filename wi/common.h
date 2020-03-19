@@ -460,3 +460,29 @@ impl Vi version 17
 {
 initialize();
 }
+
+enum eMode { kVerticalVisualMode = kHorizonVisualMode +1 };
+
+struct ViWin version 18
+{
+    int visualModeVerticalHeadX;
+    int visualModeVerticalHeadY;
+    int visualModeVerticalLen;
+    
+    int visualModeVerticalStartY;
+    int visualModeVerticalStartScroll;
+    int visualModeVerticalStartX;
+};
+
+impl ViWin version 18
+{
+initialize(int y, int x, int width, int height);
+
+void view(ViWin* self, Vi* nvi);
+void input(ViWin* self, Vi* nvi);
+}
+
+impl Vi version 18
+{
+initialize();
+}

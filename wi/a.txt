@@ -1,27 +1,27 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ncurses.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <ncurses.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <unistd.h>
-#include <locale.h>
-#include <wctype.h>
 
-struct aaa {
-    int bbb;
-};
 
-void aaaa()
-{
-    var a = new vector<string>.initialize();
 
-    a.each {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ector<string>.initialize();
+
+
         if(true) {
         }
         else {
@@ -29,21 +29,21 @@ void aaaa()
     }
 }
 
-int main()
-{
-        ^^^^^;
+
+
+^^^;
     
     return 0;
 }
-    var a = new vector<string>.initialize();
-    var a = new vector<string>.initialize();
-    var a = new vector<string>.initialize();
-    var a = new vector<string>.initialize();
-    var a = new vector<string>.initialize();
-    var a = new vector<string>.initialize();
-    var a = new vector<string>.initialize();
-    var a = new vector<string>.initialize();
-    var a = new vector<string>.initialize();
+vector<string>.initialize();
+vector<string>.initialize();
+ = new vector<string>.initialize();
+ = new vector<string>.initialize();
+ = new vector<string>.initialize();
+ = new vector<string>.initialize();
+ = new vector<string>.initialize();
+ = new vector<string>.initialize();
+ = new vector<string>.initialize();
 void aaaa()
 {
 
