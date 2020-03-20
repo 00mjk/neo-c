@@ -472,6 +472,7 @@ struct ViWin version 18
     int visualModeVerticalStartY;
     int visualModeVerticalStartScroll;
     int visualModeVerticalStartX;
+    bool visualModeVerticalInserting;
 };
 
 impl ViWin version 18

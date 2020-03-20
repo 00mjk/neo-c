@@ -37,12 +37,13 @@ char* xstrncpy(char* des, char* src, int size);
 char* xstrncat(char* des, char* str, int size);
 char* xmemcpy(void* mem, void* mem2, long size);
 
-char*% xasprintf(char* str, ...);
-string xbasename(char* path);
-string xrealpath(char* path);
-
 typedef char*% string;
 typedef wchar_t*% wstring;
+
+string xasprintf(char* str, ...);
+string xsprintf(char* str, ...);
+string xbasename(char* path);
+string xrealpath(char* path);
 
 extern string string(char* str);
 extern string string_from_wchar_t(wchar_t* wstr, char* default_value);

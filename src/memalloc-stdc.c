@@ -313,6 +313,44 @@ if(gMemleakDebug){
     return tmp;
 }
 
+void *xsprintf(char* msg, ...)
+{
+    if(gMemleakDebug){
+        gNumMemAlloc++;
+        if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
+    }
+    else {
+        gNumMemAlloc++;
+    }
+
+    va_list args;
+    va_start(args, msg);
+    char* tmp;
+    int len = vasprintf(&tmp, msg, args);
+    va_end(args);
+
+    if(len < 0) {
+        if(gMemleakDebug){
+            FILE* f = fopen("memleak_debug.txt", "a");
+            fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
+            fclose(f);
+        }
+        else {
+            fprintf(stderr, "can't get heap memory. Heap memory number is %d. xasprintf len %d\n", gNumMemAlloc, len);
+        }
+
+        exit(2);
+    }
+
+if(gMemleakDebug){
+    FILE* f = fopen("memleak_debug.txt", "a");
+    fprintf(f, "runtime asprintf %p %d\n", tmp, gNumMemAlloc);
+    fclose(f);
+}
+
+    return tmp;
+}
+
 
 void* xmemcpy(void* mem, void* mem2, size_t size)
 {
