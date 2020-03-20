@@ -234,7 +234,13 @@ string readLastOpenFile(Vi* self) {
 
     char file_name[PATH_MAX];
 
-    fscanf(f, "%s", file_name);
+    if(fgets(file_name, PATH_MAX, f) == NULL) {
+        fclose(f);
+
+        return string("");
+    }
+    
+    file_name[strlen(file_name)-1] = '\0';
     
     fclose(f);
 
