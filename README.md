@@ -20,9 +20,7 @@ int main()
 
 4. Mixin-layers system. You can create apllication with overlaying layers. See wi or tiny application sample included in this source code. 
 
-This is constructing. Maybe unstable for use.
-
-version 0.9.9
+version 1.0.0
 
 * INSTALL
 
