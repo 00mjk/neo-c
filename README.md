@@ -104,7 +104,7 @@ Because it is not a variable-length character string, the heap itself cannot be 
 If you want to use a format string, use:
 
 ```
-char*% xasprintf(char* str, ...);
+char*% xsprintf(char* str, ...);
 ```
 
 An example
@@ -113,7 +113,7 @@ An example
     var str = string("ABC");
     var str2 = string("DEF");
     var n = 1;
-    var str3 = xasprintf("%s+%s+%d", str, str2, n);
+    var str3 = xsprintf("%s+%s+%d", str, str2, n);
 ```
 
 The methods are as follows:
@@ -178,7 +178,7 @@ typedef char*% string;
 フォーマット文字列を使いたい場合は以下を使います。
 
 ```
-char*% xasprintf(char* str, ...);
+char*% xsprintf(char* str, ...);
 ```
 
 例
@@ -187,7 +187,7 @@ char*% xasprintf(char* str, ...);
     var str = string("ABC");
     var str2 = string("DEF");
     var n = 1;
-    var str3 = xasprintf("%s+%s+%d", str, str2, n);
+    var str3 = xsprintf("%s+%s+%d", str, str2, n);
 ```
 
 メソッドには以下があります。
@@ -898,7 +898,7 @@ AAA\nBBB\nCCC\nが出力されます。
 
 * Heap system
 
-Different from Rust. It may be a bit more powerful and easier to handle, but it is a rather dangerous system. Basically the first time there will be a segmentation fault. Debugging methods include printf debugging, comment-out debugging, or ./configure --with-debug to have the compiler log heap generation. printf debugging is quite useful. At this time, as a debugging method, even if it is in the middle of the function, debug it as printf (... etc. at the beginning of the line, and when debugging is completed, detect the position of the debug code as egrep ^ p * .nc and erase it Good, it's a good way to use it in C and other free indented languages ​​too.gdb doesn't know where in the source the segmentation fault occurred at this time, because it knows the function name and stack trace where the segmentation fault occurred , You should try debugging with gdb first, oh yeah, valgrind is also a good way to debug dynamic memory, it can detect all illegal memory accesses, but again in the source file line You don't know the number, so far neo-c doesn't register the source information in the debug information. is.I feel a little nervous, but I'm writing about the heap.The object is created by new.
+Different from Rust. It may be a bit more powerful and easier to handle, but it is a rather dangerous system. Basically the first time there will be a segmentation fault. As a debugging method, there are printf debugging, comment out debugging, or a method of adding heap generation log to memleak_debug.txt with the -g option. printf debugging is quite useful. At this time, as a debugging method, even if it is in the middle of the function, debug it as printf (... etc. at the beginning of the line, and when debugging is completed, detect the position of the debug code as egrep ^ p * .nc and erase it Good, it's a good way to use it in C and other free-indented languages, or if you have a segmentation fault, gdb, oh yeah, valgrind is also a good way to debug dynamic memory. All illegal memory accesses can be detected.I feel a little nervous, but I'm writing about the heap.The object is created by new.
 
 ```
     var a = new char[128];
@@ -1281,7 +1281,7 @@ If you set new vector.initialize_with_values (5, 128), a vector with 5 elements 
 
 * ヒープシステム
 
-Rustとは違います。もう少し楽に扱えて強力かもしれませんが、かなり危険なシステムとなっております。基本的に最初のころはsegmentation faultが起こるでしょう。デバッグ方法としてはprintfデバッグや、コメントアウトデバッグ、または./configure --with-debugとして、コンパイラにヒープの生成のログをとらせる方法があります。printfデバッグがかなり有効です。この時デバッグ方法としては関数の途中であっても行頭にprintf(...などとしてデバッグしてデバッグが終わったらegrep ^p *.ncなどとしてデバッグコードの位置を検出して消してしまう方法がいいと思います。Cやその他フリーインデントの言語でもよく使う方法です。gdbは今のところソースのどの場所でsegmentation faultが起こったかわかりません。segmentation faultが起こった関数名とスタックトレースはわかるので、まずgdbでデバッグしてみてるのがいいでしょう。ああ、そうそう。動的メモリーのデバッグ方法としてはvalgrindも有効です。不正なメモリアクセスすべてを検出できます。ただこの場合もソースファイルの行番号はわからないでしょう。今のところneo-cはデバッグ情報にソースの情報を登録していません。また、対応できればしたいと思います。
+Rustとは違います。もう少し楽に扱えて強力かもしれませんが、かなり危険なシステムとなっております。基本的に最初のころはsegmentation faultが起こるでしょう。デバッグ方法としてはprintfデバッグや、コメントアウトデバッグ、または-gオプションをつけてmemleak_debug.txtにヒープの生成のログをとらせる方法があります。printfデバッグがかなり有効です。この時デバッグ方法としては関数の途中であっても行頭にprintf(...などとしてデバッグしてデバッグが終わったらegrep ^p *.ncなどとしてデバッグコードの位置を検出して消してしまう方法がいいと思います。Cやその他フリーインデントの言語でもよく使う方法です。もしくはsegmentation faultが起こったらgdbを使うのもいいでしょう。ああ、そうそう。動的メモリーのデバッグ方法としてはvalgrindも有効です。不正なメモリアクセスすべてを検出できます。
 
 と、ちょっと気分が萎えたと思いますが、ヒープについて書いています。
 
