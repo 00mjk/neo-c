@@ -4169,7 +4169,7 @@ LIBS="$LIBS"
 
 
 
-CFLAGS="$CFLAGS -Qunused-arguments"
+#CFLAGS="$CFLAGS -Qunused-arguments"
 #CFLAGS="$CFLAGS -Qunused-arguments -Wunused-variable"
 
 COMMON_OBJS="src/buffer.o src/xfunc.o src/alignment.o"
@@ -4190,7 +4190,7 @@ fi
 done
 
 
-CXXFLAGS="$CXXFLAGS -Qunused-arguments"
+#CXXFLAGS="$CXXFLAGS -Qunused-arguments"
 
 
 

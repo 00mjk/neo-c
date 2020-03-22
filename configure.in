@@ -272,7 +272,7 @@ LIBS="$LIBS"
 
 AC_SUBST(CXX)
 
-CFLAGS="$CFLAGS -Qunused-arguments"
+#CFLAGS="$CFLAGS -Qunused-arguments"
 #CFLAGS="$CFLAGS -Qunused-arguments -Wunused-variable"
 
 COMMON_OBJS="src/buffer.o src/xfunc.o src/alignment.o"
@@ -283,7 +283,7 @@ RUNTIME_OBJS=""
 
 AC_CHECK_FUNCS(lchmod)
 
-CXXFLAGS="$CXXFLAGS -Qunused-arguments"
+#CXXFLAGS="$CXXFLAGS -Qunused-arguments"
 
 AC_SUBST(CXXFLAGS)
 AC_SUBST(CFLAGS)
