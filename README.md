@@ -104,7 +104,7 @@ Because it is not a variable-length character string, the heap itself cannot be 
 If you want to use a format string, use:
 
 ```
-char*% xsprintf(char* str, ...);
+string xsprintf(char* str, ...);
 ```
 
 An example
@@ -147,7 +147,7 @@ impl string
 }
 ```
 
-regex is generated as regex!(".+"). Specify options such as regex! (".+" g).
+regex is generated as regex!(".+"). Specify options such as regex!(".+" g).
 
 * string
 
@@ -178,7 +178,7 @@ typedef char*% string;
 フォーマット文字列を使いたい場合は以下を使います。
 
 ```
-char*% xsprintf(char* str, ...);
+string xsprintf(char* str, ...);
 ```
 
 例
@@ -898,7 +898,7 @@ AAA\nBBB\nCCC\nが出力されます。
 
 * Heap system
 
-Different from Rust. It may be a bit more powerful and easier to handle, but it is a rather dangerous system. Basically the first time there will be a segmentation fault. As a debugging method, there are printf debugging, comment out debugging, or a method of adding heap generation log to memleak_debug.txt with the -g option. printf debugging is quite useful. At this time, as a debugging method, even if it is in the middle of the function, debug it as printf (... etc. at the beginning of the line, and when debugging is completed, detect the position of the debug code as egrep ^ p * .nc and erase it Good, it's a good way to use it in C and other free-indented languages, or if you have a segmentation fault, gdb, oh yeah, valgrind is also a good way to debug dynamic memory. All illegal memory accesses can be detected.I feel a little nervous, but I'm writing about the heap.The object is created by new.
+Different from Rust. It may be a bit more powerful and easier to handle, but it is a rather dangerous system. Basically the first time there will be a segmentation fault. As a debugging method, there are printf debugging, comment out debugging, or a method of adding heap generation log to memleak_debug.txt with the -g option. printf debugging is quite useful. At this time, as a debugging method, even if it is in the middle of the function, debug it as printf (... etc. at the beginning of the line, and when debugging is completed, detect the position of the debug code as egrep ^p * .nc and erase it Good, it's a good way to use it in C and other free-indented languages, or if you have a segmentation fault, gdb, oh yeah, valgrind is also a good way to debug dynamic memory. All illegal memory accesses can be detected.I feel a little nervous, but I'm writing about the heap.The object is created by new.
 
 ```
     var a = new char[128];
