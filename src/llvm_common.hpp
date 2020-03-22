@@ -13,6 +13,8 @@ extern "C"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instructions.h"
+#include "llvm/IR/DIBuilder.h"
+#include "llvm/IR/Metadata.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
@@ -169,15 +171,19 @@ Value* get_dummy_value(sNodeType* node_type, sCompileInfo* info);
 BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_name, BOOL no_err_output, sNodeType* generics_type, sCompileInfo* info);
 void append_heap_object_to_right_value(LVALUE* llvm_value, sCompileInfo* info);
 }
-BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param, char* struct_name, int generics_fun_num, char* simple_fun_name);
+BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param, char* struct_name, int generics_fun_num, char* simple_fun_name, sFunction** neo_c_fun);
 void create_generics_fun_name(char* real_fun_name, int size_real_fun_name, char* fun_name, sNodeType** method_generics_types, int num_method_generics_types, sNodeType* generics_type, char* struct_name, int generics_fun_num);
 BOOL get_const_bool_value_from_llvm_value(BOOL* result, LVALUE* llvm_value);
 int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info);
 
-extern GlobalVariable* gMemleakDebugValue;
+extern GlobalVariable* gNCDebugValue;
 
 extern std::map<std::string, std::vector<sFunction*>> gFuncs;
 void create_real_fun_name(char* real_fun_name, size_t size_real_fun_name, char* fun_name, char* struct_name);
+
+void createDebugFunctionInfo(int sline, char* fname, sFunction* function, Function* llvm_function, char* module_name);
+void finishDebugFunctionInfo();
+void setCurrentDebugLocation(int sline);
 
 #endif
 

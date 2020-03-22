@@ -129,9 +129,10 @@ static BOOL check_same_params(int num_params, sNodeType** param_types, int num_p
     return TRUE;
 }
 
-BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param, char* struct_name, int generics_fun_num, char* simple_fun_name)
+BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param, char* struct_name, int generics_fun_num, char* simple_fun_name, sFunction** neo_c_fun)
 {
     sFunction* fun = (sFunction*)calloc(1, sizeof(sFunction));
+    *neo_c_fun = fun;
 
     xstrncpy(fun->mName, name, VAR_NAME_MAX);
     xstrncpy(fun->mSimpleName, simple_fun_name, VAR_NAME_MAX);
@@ -2828,7 +2829,8 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
         memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
         Function* fun;
-        if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, TRUE, version, &fun, info, FALSE, struct_name, -1, fun_name))
+        sFunction* neo_c_fun = NULL;
+        if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, TRUE, version, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
         {
             return TRUE;
         }
@@ -4486,7 +4488,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     Function* fun;
 
-    if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, FALSE, version, &fun, info, FALSE, struct_name, generics_fun_num, simple_fun_name))
+    sFunction* neo_c_fun = NULL;
+    if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, FALSE, version, &fun, info, FALSE, struct_name, generics_fun_num, simple_fun_name, &neo_c_fun))
     {
         xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
         info->function_node_block = function_node_block;
@@ -4510,15 +4513,20 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     Function* function_before = gFunction;
     gFunction = fun;
 
+    if(gNCDebug) {
+        int sline = gNodes[node].mLine;
+        createDebugFunctionInfo(sline, fun_name, neo_c_fun, fun, gMainModulePath);
+    }
+
     BasicBlock* current_block_before;
     BasicBlock* current_block = BasicBlock::Create(TheContext, "entry", fun);
     llvm_change_block(current_block, &current_block_before, info, FALSE);
 
     if(strcmp(real_fun_name, "main") == 0) {
-        if(gMemleakDebug) {
-            Value* value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)gMemleakDebug);
+        if(gNCDebug) {
+            Value* value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)gNCDebug);
 
-            Builder.CreateAlignedStore(value, gMemleakDebugValue, 4);
+            Builder.CreateAlignedStore(value, gNCDebugValue, 4);
         }
     }
 
@@ -4725,7 +4733,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
         Function* fun;
         BOOL var_arg = FALSE;
-        if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, info->pinfo->in_clang, FALSE, version, &fun, info, TRUE, NULL, -1, simple_fun_name))
+        sFunction* neo_c_fun = NULL;
+        if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, info->pinfo->in_clang, FALSE, version, &fun, info, TRUE, NULL, -1, simple_fun_name, &neo_c_fun))
         {
             xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
             info->function_node_block = function_node_block;
@@ -4922,6 +4931,10 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     xstrncpy(info->compiling_struct_name, compiling_struct_name_before, VAR_NAME_MAX);
     xstrncpy(info->compiling_fun_name, compiling_fun_name_before, VAR_NAME_MAX);
 
+    if(gNCDebug) {
+        finishDebugFunctionInfo();
+    }
+
     return TRUE;
 }
 
@@ -5037,7 +5050,8 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
 
     /// go ///
     Function* fun;
-    if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, var_arg, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline, in_clang, FALSE, version, &fun, info, FALSE, struct_name, -1, fun_name))
+    sFunction* neo_c_fun = NULL;
+    if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, var_arg, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline, in_clang, FALSE, version, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
     {
         return TRUE;
     }
@@ -5154,7 +5168,8 @@ BOOL compile_inline_function(unsigned int node, sCompileInfo* info)
 
     /// go ///
     Function* fun;
-    if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, var_arg, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline, in_clang, FALSE, 0, &fun, info, FALSE, struct_name, -1, fun_name))
+    sFunction* neo_c_fun = NULL;
+    if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, var_arg, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline, in_clang, FALSE, 0, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
     {
         return TRUE;
     }

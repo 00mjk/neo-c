@@ -1,7 +1,7 @@
 #include "common.h"
 #include <libgen.h>
 
-BOOL gMemleakDebug = FALSE;
+BOOL gNCDebug = FALSE;
 
 static void compiler_init()
 {
@@ -149,9 +149,9 @@ int main(int argc, char** argv)
         {
             optimize = TRUE;
         }
-        else if(strcmp(argv[i], "-d") == 0)
+        else if(strcmp(argv[i], "-g") == 0)
         {
-            gMemleakDebug = TRUE;
+            gNCDebug = TRUE;
         }
         else if(strstr(argv[i], "-I") == argv[i])
         {
@@ -256,7 +256,26 @@ int main(int argc, char** argv)
     if(!output_object_file) {
         char command[4096*2];
 
-        snprintf(command, 4096*2, "clang -o %s %s.o -lpcre ", program_name, main_module_name);
+        snprintf(command, PATH_MAX+128, "which clang-7");
+        int rc = system(command);
+        if(rc == 0) {
+            if(gNCDebug) {
+                //snprintf(command, 4096*2, "clang -g -o %s %s.o -lpcre ", program_name, main_module_name);
+                snprintf(command, 4096*2, "clang-7 -g -o %s %s.o -lpcre ", program_name, main_module_name);
+            }
+            else {
+                //snprintf(command, 4096*2, "clang -o %s %s.o -lpcre ", program_name, main_module_name);
+                snprintf(command, 4096*2, "clang-7 -o %s %s.o -lpcre ", program_name, main_module_name);
+            }
+        }
+        else {
+            if(gNCDebug) {
+                snprintf(command, 4096*2, "clang -g -o %s %s.o -lpcre ", program_name, main_module_name);
+            }
+            else {
+                snprintf(command, 4096*2, "clang -o %s %s.o -lpcre ", program_name, main_module_name);
+            }
+        }
 
         char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s/lib/neo-c.o", PREFIX);
 
@@ -287,7 +306,7 @@ int main(int argc, char** argv)
             xstrncat(command, " ", 4096*2);
         }
 
-        int rc = system(command);
+        rc = system(command);
         if(rc != 0) {
             fprintf(stderr, "failed to compile(3)\n");
             exit(2);

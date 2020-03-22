@@ -214,6 +214,10 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
             xstrncpy(info->sname, gNodes[node].mSName, PATH_MAX);
             info->sline = gNodes[node].mLine;
 
+            if(gNCDebug) {
+                setCurrentDebugLocation(info->sline);
+            }
+
             if(!compile(node, info)) {
                 info->pinfo->lv_table = old_table;
                 if(!extern_c_lang) {

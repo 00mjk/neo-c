@@ -232,6 +232,7 @@ CXXFLAGS="-I . -I src $CXXFLAGS"
 if which clang++-7 > /dev/null
 then
     CXX=clang++-7
+    #CXX=clang++
 elif which clang++ > /dev/null
 then
     CXX=g++
@@ -244,6 +245,7 @@ if test $DEBUGGING = 1
 then
     if which llvm-config-7 > /dev/null
     then
+        #CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
         CXXFLAGS='`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
     else
         CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
@@ -251,6 +253,7 @@ then
 else
     if which llvm-config-7 > /dev/null
     then
+        #CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
         CXXFLAGS='`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
     else
         CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"

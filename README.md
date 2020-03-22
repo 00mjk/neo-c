@@ -20,7 +20,7 @@ int main()
 
 4. Mixin-layers system. You can create apllication with overlaying layers. See wi or tiny application sample included in this source code. 
 
-version 1.0.0
+version 1.0.1
 
 * INSTALL
 
@@ -35,6 +35,8 @@ cd neo-c
 make
 sudo make install
 ```
+
+This program is tested in LLVM-3.8 and LLVM-7
 
 # neo-c コンパイラ言語
 
@@ -71,6 +73,8 @@ cd neo-c
 make
 sudo make install
 ```
+
+このプログラムはLLVM-3.8とLLVM-7でテストしています。
 
 * string
 

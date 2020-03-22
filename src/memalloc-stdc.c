@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-int gMemleakDebug = 0;
+int gNCDebug = 0;
 
 int gNumMemAlloc = 0;
 
@@ -71,7 +71,7 @@ void *xmalloc(size_t size)
     void* result = malloc(size);
 
     if(result == NULL) {
-        if(gMemleakDebug) {
+        if(gNCDebug) {
             FILE* f = fopen("memleak_debug.txt", "a");
             fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
             fclose(f);
@@ -82,7 +82,7 @@ void *xmalloc(size_t size)
         }
     }
 
-    if(gMemleakDebug) {
+    if(gNCDebug) {
         gNumMemAlloc++;
         if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
         FILE* f = fopen("memleak_debug.txt", "a");
@@ -101,12 +101,12 @@ void *debug_xcalloc(size_t num, size_t nsize, char* type_name, char* sname, int 
 {
     void* result = calloc(num, nsize);
 
-    if(gMemleakDebug) {
+    if(gNCDebug) {
         append_debug_heap_memory(result, type_name, sname, sline, num, nsize, fun_name, real_fun_name);
     }
 
     if(result == NULL) {
-        if(gMemleakDebug) {
+        if(gNCDebug) {
             FILE* f = fopen("memleak_debug.txt", "a");
             fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
             fclose(f);
@@ -120,7 +120,7 @@ void *debug_xcalloc(size_t num, size_t nsize, char* type_name, char* sname, int 
 
     memset(result, 0, num*nsize);
 
-    if(gMemleakDebug) {
+    if(gNCDebug) {
         gNumMemAlloc++;
         if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
 
@@ -152,7 +152,7 @@ void *debug_xcalloc(size_t num, size_t nsize, char* type_name, char* sname, int 
 
 void xfree(void *block)
 {
-    if(gMemleakDebug) {
+    if(gNCDebug) {
         if(block) gNumMemAlloc--;
 
         FILE* f = fopen("memleak_debug.txt", "a");
@@ -195,9 +195,9 @@ void xfree(void *block)
 
 void debug_show_none_freed_heap_memory() 
 {
-    if(gMemleakDebug) {
+    if(gNCDebug) {
         if(gNumMemAlloc > 0) {
-            fprintf(stderr, "Remain heap memory exists. Please add -d option to neo-c for debugging, and then see memleak_debug.txt.\n");
+            fprintf(stderr, "Remain heap memory exists. Please add -g option to neo-c for debugging, and then see memleak_debug.txt.\n");
         }
         if(gHeapDebugs != NULL) {
             FILE* f = fopen("memleak_debug.txt", "a");
@@ -218,7 +218,7 @@ void debug_show_none_freed_heap_memory()
     }
     else {
         if(gNumMemAlloc > 0) {
-            fprintf(stderr, "Remain heap memory exists. Please add -d option to neo-c for debugging, and then see memleak_debug.txt.\n");
+            fprintf(stderr, "Remain heap memory exists. Please add -g option to neo-c for debugging, and then see memleak_debug.txt.\n");
         }
     }
 }
@@ -228,7 +228,7 @@ void *xcalloc(size_t num, size_t nsize)
     void* result = calloc(num, nsize);
 
     if(result == NULL) {
-        if(gMemleakDebug) {
+        if(gNCDebug) {
             FILE* f = fopen("memleak_debug.txt", "a");
             fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
             fclose(f);
@@ -242,7 +242,7 @@ void *xcalloc(size_t num, size_t nsize)
 
     memset(result, 0, num*nsize);
 
-if(gMemleakDebug){
+if(gNCDebug){
     gNumMemAlloc++;
     if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
     FILE* f = fopen("memleak_debug.txt", "a");
@@ -261,7 +261,7 @@ void *xrealloc(void *block, size_t size)
     void* result =  realloc(block, size);
 
     if(result == NULL) {
-        if(gMemleakDebug){
+        if(gNCDebug){
             FILE* f = fopen("memleak_debug.txt", "a");
             fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
             fclose(f);
@@ -277,7 +277,7 @@ void *xrealloc(void *block, size_t size)
 
 void *xasprintf(char* msg, ...)
 {
-    if(gMemleakDebug){
+    if(gNCDebug){
         gNumMemAlloc++;
         if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
     }
@@ -292,7 +292,7 @@ void *xasprintf(char* msg, ...)
     va_end(args);
 
     if(len < 0) {
-        if(gMemleakDebug){
+        if(gNCDebug){
             FILE* f = fopen("memleak_debug.txt", "a");
             fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
             fclose(f);
@@ -304,7 +304,7 @@ void *xasprintf(char* msg, ...)
         exit(2);
     }
 
-if(gMemleakDebug){
+if(gNCDebug){
     FILE* f = fopen("memleak_debug.txt", "a");
     fprintf(f, "runtime asprintf %p %d\n", tmp, gNumMemAlloc);
     fclose(f);
@@ -315,7 +315,7 @@ if(gMemleakDebug){
 
 void *xsprintf(char* msg, ...)
 {
-    if(gMemleakDebug){
+    if(gNCDebug){
         gNumMemAlloc++;
         if(gNumMemAlloc >= gMaxMemAlloc) gMaxMemAlloc = gNumMemAlloc;
     }
@@ -330,7 +330,7 @@ void *xsprintf(char* msg, ...)
     va_end(args);
 
     if(len < 0) {
-        if(gMemleakDebug){
+        if(gNCDebug){
             FILE* f = fopen("memleak_debug.txt", "a");
             fprintf(f, "can't get heap memory. Heap memory number is %d\n", gNumMemAlloc);
             fclose(f);
@@ -342,7 +342,7 @@ void *xsprintf(char* msg, ...)
         exit(2);
     }
 
-if(gMemleakDebug){
+if(gNCDebug){
     FILE* f = fopen("memleak_debug.txt", "a");
     fprintf(f, "runtime asprintf %p %d\n", tmp, gNumMemAlloc);
     fclose(f);

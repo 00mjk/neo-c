@@ -15,7 +15,7 @@ std::map<std::string, std::pair<Type*, sNodeType*>> gLLVMStructType;
 
 GlobalVariable* gLVTableValue;
 
-GlobalVariable* gMemleakDebugValue;
+GlobalVariable* gNCDebugValue;
 
 #if LLVM_VERSION_MAJOR >= 7
 LoopAnalysisManager loopAnalysisManager(false);
@@ -25,6 +25,152 @@ LVALUE* gLLVMStack;
 LVALUE* gLLVMStackHead;
 //Function* gNeoCMainFunction;
 Function* gFunction;
+
+struct DebugInfo {
+    DICompileUnit* TheCU;
+    DIType* DblTy;
+    std::vector<DIScope*> LexicalBlock;
+
+};
+
+DebugInfo KSDbgInfo;
+
+DIBuilder* DBuilder;
+
+static void emitLocaltion(DebugInfo* info, int sline)
+{
+    Builder.SetCurrentDebugLocation(DebugLoc());
+
+    DIScope* scope;
+
+    if(info->LexicalBlock.empty()) {
+        scope = info->TheCU;
+    }
+    else {
+        scope = info->LexicalBlock.back();
+    }
+
+    Builder.SetCurrentDebugLocation(DebugLoc::get(sline, 0, scope));
+}
+
+static DIType* create_debug_type(sNodeType* node_type) 
+{
+
+#if LLVM_VERSION_MAJOR >= 7
+    DIType* result = nullptr;
+    
+    if(node_type->mPointerNum > 0) {
+        result = DBuilder->createBasicType("pointer", 64, dwarf::DW_ATE_address);
+    }
+    else if(node_type->mArrayNum > 0) {
+        result = DBuilder->createBasicType("pointer", 64, dwarf::DW_ATE_address);
+    }
+    else if(type_identify_with_class_name(node_type, "int")) {
+        result = DBuilder->createBasicType("int", 32, dwarf::DW_ATE_signed);
+    }
+    else if(type_identify_with_class_name(node_type, "char")) {
+        result = DBuilder->createBasicType("char", 8, dwarf::DW_ATE_signed);
+    }
+    else if(type_identify_with_class_name(node_type, "short")) {
+        result = DBuilder->createBasicType("short", 16, dwarf::DW_ATE_signed);
+    }
+    else if(type_identify_with_class_name(node_type, "long")) {
+        result = DBuilder->createBasicType("long", 64, dwarf::DW_ATE_signed);
+    }
+    else if(type_identify_with_class_name(node_type, "float")) {
+        result = DBuilder->createBasicType("float", 32, dwarf::DW_ATE_float);
+    }
+else {
+result = DBuilder->createBasicType("int", 32, dwarf::DW_ATE_lo_user);
+}
+
+    return result;
+#else 
+    DIType* result = nullptr;
+    
+    if(node_type->mPointerNum > 0) {
+        result = DBuilder->createBasicType("pointer", 64, 8, dwarf::DW_ATE_address);
+    }
+    else if(node_type->mArrayNum > 0) {
+        result = DBuilder->createBasicType("pointer", 64, 8, dwarf::DW_ATE_address);
+    }
+    else if(type_identify_with_class_name(node_type, "int")) {
+        result = DBuilder->createBasicType("int", 32, 4, dwarf::DW_ATE_signed);
+    }
+    else if(type_identify_with_class_name(node_type, "char")) {
+        result = DBuilder->createBasicType("char", 8, 4, dwarf::DW_ATE_signed);
+    }
+    else if(type_identify_with_class_name(node_type, "short")) {
+        result = DBuilder->createBasicType("short", 16, 4, dwarf::DW_ATE_signed);
+    }
+    else if(type_identify_with_class_name(node_type, "long")) {
+        result = DBuilder->createBasicType("long", 64, 8, dwarf::DW_ATE_signed);
+    }
+    else if(type_identify_with_class_name(node_type, "float")) {
+        result = DBuilder->createBasicType("float", 32, 4, dwarf::DW_ATE_float);
+    }
+else {
+result = DBuilder->createBasicType("int", 32, 4, dwarf::DW_ATE_lo_user);
+}
+
+    return result;
+#endif
+}
+
+static DISubroutineType* createDebugFunctionType(sFunction* function, DIFile* unit)
+{
+    SmallVector<Metadata *, 8> EltTys;
+
+    sNodeType* result_type = function->mResultType;
+    DIType* debug_result_type = create_debug_type(result_type);
+
+    EltTys.push_back(debug_result_type);
+
+    for(int i = 0; i<function->mNumParams; i++) {
+        sNodeType* arg_type = function->mParamTypes[i];
+        DIType* debug_arg_type = create_debug_type(result_type);
+
+        EltTys.push_back(debug_arg_type);
+    }
+
+    return DBuilder->createSubroutineType(DBuilder->getOrCreateTypeArray(EltTys));
+}
+
+void setCurrentDebugLocation(int sline)
+{
+    emitLocaltion(&KSDbgInfo, sline);
+}
+
+void createDebugFunctionInfo(int sline, char* fname, sFunction* function, Function* llvm_function, char* module_name)
+{
+    DebugInfo* info = &KSDbgInfo;
+
+    DIFile* unit = DBuilder->createFile(KSDbgInfo.TheCU->getFilename()
+                    , KSDbgInfo.TheCU->getDirectory());
+
+    std::string fname2 = fname;
+    std::string linkage_name = fname;
+
+    DISubroutineType* subrouting_type 
+        = createDebugFunctionType(function, unit);
+
+//    DITemplateParameterArray retained_nodes = subrouting_type->getTemplateParams();
+
+    DISubprogram* sp = DBuilder->createFunction(
+        unit, fname2, linkage_name, unit, sline
+        , subrouting_type, false, true, sline
+        , llvm::DINode::DIFlags::FlagAccessibility, false, nullptr);
+    llvm_function->setSubprogram(sp);
+
+    KSDbgInfo.LexicalBlock.push_back(sp);
+
+    emitLocaltion(&KSDbgInfo, sline);
+}
+
+void finishDebugFunctionInfo()
+{
+    KSDbgInfo.LexicalBlock.pop_back();
+}
 
 extern "C"
 {
@@ -145,7 +291,7 @@ void create_internal_functions()
 
     gLVTableValue->setInitializer(initializer);
 
-    gMemleakDebugValue = new GlobalVariable(*TheModule, IntegerType::get(TheContext, 32), false, GlobalVariable::ExternalLinkage, 0, "gMemleakDebug");
+    gNCDebugValue = new GlobalVariable(*TheModule, IntegerType::get(TheContext, 32), false, GlobalVariable::ExternalLinkage, 0, "gNCDebug");
 
     Value* lvtable_value2 = Builder.CreateCast(Instruction::BitCast, gLVTableValue, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
 }
@@ -346,7 +492,8 @@ void declare_builtin_functions()
         memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
         Function* llvm_fun;
-        add_function("llvm.va_start", "llvm.va_start", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_start");
+        sFunction* neo_c_fun = NULL;
+        add_function("llvm.va_start", "llvm.va_start", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_start", &neo_c_fun);
     }
 
     /// va_end ///
@@ -379,7 +526,8 @@ void declare_builtin_functions()
         memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
         Function* llvm_fun;
-        add_function("llvm.va_end", "llvm.va_end", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_end");
+        sFunction* neo_c_fun = NULL;
+        add_function("llvm.va_end", "llvm.va_end", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_end", &neo_c_fun);
     }
 
     /// va_copy ///
@@ -416,7 +564,8 @@ void declare_builtin_functions()
         memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
         Function* llvm_fun;
-        add_function("llvm.va_copy", "llvm.va_copy", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_copy");
+        sFunction* neo_c_fun = NULL;
+        add_function("llvm.va_copy", "llvm.va_copy", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_copy", &neo_c_fun);
     }
 }
 
@@ -445,6 +594,27 @@ void start_to_make_native_code(char* sname)
     snprintf(module_name, PATH_MAX, "Module %s", sname4);
     TheModule = new Module(module_name, TheContext);
 
+    if(gNCDebug) {
+        TheModule->addModuleFlag(Module::Warning, "Debug Info Version", DEBUG_METADATA_VERSION);
+        TheModule->addModuleFlag(llvm::Module::Warning, "Dwarf Version", 2);
+    }
+
+    DBuilder = new DIBuilder(*TheModule);
+
+    char* cwd = getenv("PWD");
+
+    if(cwd == NULL) {
+        cwd = ".";
+    }
+
+#if LLVM_VERSION_MAJOR >= 7
+    KSDbgInfo.TheCU = DBuilder->createCompileUnit(
+        dwarf::DW_LANG_C, DBuilder->createFile(sname, cwd), "neo-c", 0, "", 0);
+#else
+    KSDbgInfo.TheCU = DBuilder->createCompileUnit(
+        dwarf::DW_LANG_C, sname, cwd, "neo-c", false, "", 0);
+#endif
+
     TheFPM = llvm::make_unique<FunctionPassManager>(TheModule);
 
     create_internal_functions();
@@ -468,6 +638,7 @@ struct MyModulePass : ModulePass {
 
 void output_native_code(char* sname, BOOL optimize)
 {
+    DBuilder->finalize();
     free(gLLVMStack);
 
     //create_main_function();
@@ -612,7 +783,7 @@ void output_native_code(char* sname, BOOL optimize)
     std::string err_str;
     raw_string_ostream err_ostream(err_str);
 
-    //verifyModule(*TheModule);
+    verifyModule(*TheModule);
 
     llvm::WriteBitcodeToFile(TheModule, output_stream, true);
     output_stream.flush();
@@ -631,7 +802,14 @@ void output_native_code(char* sname, BOOL optimize)
     snprintf(command, PATH_MAX+128, "which clang-7");
     rc = system(command);
     if(rc == 0) {
-        snprintf(command, PATH_MAX+128, "clang-7 -c -o %s.o %s.ll", sname2, sname2);
+        if(gNCDebug) {
+            //snprintf(command, PATH_MAX+128, "clang -g -c -o %s.o %s.ll", sname2, sname2);
+            snprintf(command, PATH_MAX+128, "clang-7 -g -c -o %s.o %s.ll", sname2, sname2);
+        }
+        else {
+            //snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.ll", sname2, sname2);
+            snprintf(command, PATH_MAX+128, "clang-7 -c -o %s.o %s.ll", sname2, sname2);
+        }
         rc = system(command);
         if(rc != 0) {
             fprintf(stderr, "failed to compile(5)\n");
@@ -639,7 +817,13 @@ void output_native_code(char* sname, BOOL optimize)
         }
     }
     else {
-        snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.ll", sname2, sname2);
+        if(gNCDebug) {
+            snprintf(command, PATH_MAX+128, "clang -g -c -o %s.o %s.ll", sname2, sname2);
+        }
+        else {
+            snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.ll", sname2, sname2);
+        }
+
         rc = system(command);
         if(rc != 0) {
             fprintf(stderr, "failed to compile(6)\n");
