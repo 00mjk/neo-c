@@ -50,7 +50,7 @@ extern string string_from_wchar_t(wchar_t* wstr, char* default_value);
 extern wstring wstring(char* str);
 extern wstring wstring_from_wchar_t(wchar_t* str);
 
-void *% debug_xcalloc(long num, long nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name);
+void *% debug_xcalloc(long long int num, long long int nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name);
 void debug_show_none_freed_heap_memory();
 
 void p(char* str);

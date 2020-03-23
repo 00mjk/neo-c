@@ -1,7 +1,7 @@
-!managed delete to clone wo okonau
-
-field de heap to managed de clone to delete wo okonau
-clone function wo yobidasu
+struct {
+    int a:8;
+    int b:8;
+};
 ----------------------
 
 

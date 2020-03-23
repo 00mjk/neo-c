@@ -825,10 +825,12 @@ void output_native_code(char* sname, BOOL optimize)
         }
 
         rc = system(command);
+/*
         if(rc != 0) {
             fprintf(stderr, "failed to compile(6)\n");
             exit(2);
         }
+*/
     }
 
     delete TheModule;

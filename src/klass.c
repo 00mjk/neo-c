@@ -447,7 +447,12 @@ void class_init()
     alloc_class("mgenerics8", FALSE, FALSE, FALSE, FALSE, -1, 8, FALSE, FALSE, FALSE, FALSE);
     alloc_class("mgenerics9", FALSE, FALSE, FALSE, FALSE, -1, 9, FALSE, FALSE, FALSE, FALSE);
 
-    add_typedef("size_t", create_node_type_with_class_name("long"));
+    if(sizeof(size_t) == 4) {
+        add_typedef("size_t", create_node_type_with_class_name("int"));
+    }
+    else {
+        add_typedef("size_t", create_node_type_with_class_name("long"));
+    }
     add_typedef("_Bool", create_node_type_with_class_name("bool"));
 }
 

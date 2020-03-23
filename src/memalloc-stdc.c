@@ -96,8 +96,7 @@ void *xmalloc(size_t size)
     return result;
 }
 
-
-void *debug_xcalloc(size_t num, size_t nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name)
+void *debug_xcalloc(long long int num, long long int nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name)
 {
     void* result = calloc(num, nsize);
 

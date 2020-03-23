@@ -4388,8 +4388,6 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     BOOL generics_function = gNodes[node].uValue.sFunction.mGenericsFunction;
     char fun_name[VAR_NAME_MAX];
     xstrncpy(fun_name, gNodes[node].uValue.sFunction.mName, VAR_NAME_MAX);
-
-
     char simple_fun_name[VAR_NAME_MAX];
     xstrncpy(simple_fun_name, gNodes[node].uValue.sFunction.mSimpleName, VAR_NAME_MAX);
 
@@ -5687,8 +5685,14 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
     Value* object_num;
     if(left_node == 0) {
-        object_num = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)1);
-        //object_num = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)1);
+/*
+        if(sizeof(size_t) == 4) {
+            object_num = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)1);
+        }
+        else {
+*/
+            object_num = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)1);
+//        }
     }
     else {
         if(!compile(left_node, info)) {
@@ -5704,8 +5708,15 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        sNodeType* left_type = create_node_type_with_class_name("long");
-        //sNodeType* left_type = create_node_type_with_class_name("int");
+        sNodeType* left_type;
+/*
+        if(sizeof(size_t) == 4) {
+            left_type = create_node_type_with_class_name("int");
+        }
+        else {
+*/
+            left_type = create_node_type_with_class_name("long");
+//        }
 
         LVALUE llvm_value = *get_value_from_stack(-1);
         dec_stack_ptr(1, info);
@@ -5754,7 +5765,13 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     Value* param = object_num;
     params2.push_back(param);
 
-    Value* param2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)size);
+    Value* param2;
+    //if(sizeof(size_t) == 4) {
+    //    param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)size);
+    //}
+    //else {
+        param2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)size);
+    //}
     params2.push_back(param2);
 
     char type_name[128];

@@ -37,7 +37,7 @@ int main()
 
     xassert("wstring test2", wstr.equals(wstring("ABC")));
 
-    printf("%s\n", wstring("あいうえお").to_string(""));
+    //printf("%s\n", wstring("あいうえお").to_string(""));
 
     method_generics_test(wstr);
 
