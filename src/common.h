@@ -154,6 +154,7 @@ struct sNodeTypeStruct {
     BOOL mRegister;
     BOOL mVolatile;
     BOOL mStatic;
+    int mSizeNum;
 
     struct sNodeTypeStruct* mParamTypes[PARAMS_MAX];
     struct sNodeTypeStruct* mResultType;

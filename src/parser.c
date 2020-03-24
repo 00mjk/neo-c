@@ -699,6 +699,19 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
             }
         }
     }
+    if(*info->p == ':') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        int n = 0;
+        while(isdigit(*info->p)) {
+            n = n * 10 + *info->p - '0';
+            info->p++;
+        }
+        skip_spaces_and_lf(info);
+
+        node_type->mSizeNum = n;
+    }
 
     if(!parse_attribute(info)) {
         return FALSE;

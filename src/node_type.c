@@ -76,6 +76,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
     }
 
     node_type2->mArrayNum = node_type->mArrayNum;
+    node_type2->mSizeNum = node_type->mSizeNum;
     node_type2->mNullable = node_type->mNullable;
     node_type2->mPointerNum = node_type->mPointerNum;
     node_type2->mHeap = node_type->mHeap;
@@ -111,7 +112,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
 
 void show_node_type(sNodeType* node_type)
 {
-    printf("-+- [%s] array num %d nullable %d pointer num %d heap %d unsigned %d no heap  %d constant %d dynamic array num %d -+- array_initialize_num %d\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap, node_type->mUnsigned, node_type->mNoHeap, node_type->mConstant, node_type->mDynamicArrayNum, node_type->mArrayInitializeNum); 
+    printf("-+- [%s] array num %d nullable %d pointer num %d heap %d unsigned %d no heap  %d constant %d dynamic array num %d size num %d -+- array_initialize_num %d\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap, node_type->mUnsigned, node_type->mNoHeap, node_type->mConstant, node_type->mDynamicArrayNum, node_type->mSizeNum, node_type->mArrayInitializeNum); 
 
     printf(">>generics type num %d\n>>generics types\n", node_type->mNumGenericsTypes);
     int i;
@@ -312,7 +313,10 @@ BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)
     sCLClass* left_class = left_type->mClass;
     sCLClass* right_class = right_type->mClass; 
 
-    if(is_number_type(left_type) && is_number_type(right_type))
+    if(left_type->mSizeNum > 0) {
+        return TRUE;
+    }
+    else if(is_number_type(left_type) && is_number_type(right_type))
     {
         return TRUE;
     }

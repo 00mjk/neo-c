@@ -686,6 +686,13 @@ impl DataX2 {
     }
 };
 
+struct DataSized {
+    int a:1;
+    int b:1;
+    int c:1;
+    int d:1;
+};
+
 int main()
 {
     if(1 == 1) {
@@ -1730,6 +1737,20 @@ label1:
     TinyNode%* abbbbccccz = clone abbbbz;
 
     xassert("clone test4", abbbbz.left.type == 9999 && abbbbccccz.left.type == 9999);
+
+    var data_sized = new DataSized;
+
+    data_sized.a = 'a';
+    data_sized.b = 'b';
+    data_sized.c = '\0';
+
+    data_sized.d = 12;
+
+    char* str8 = (char*)data_sized;
+
+    xassert("sized structure test", strcmp(str8, "ab") == 0);
+
+    xassert("sized structure test2", data_sized.d == 12);
 
     return 0
 }

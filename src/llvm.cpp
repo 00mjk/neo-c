@@ -156,10 +156,17 @@ void createDebugFunctionInfo(int sline, char* fname, sFunction* function, Functi
 
 //    DITemplateParameterArray retained_nodes = subrouting_type->getTemplateParams();
 
+#if LLVM_VERSION_MAJOR >= 9
+    DISubprogram* sp = DBuilder->createFunction(
+        unit, fname2, linkage_name, unit, sline
+        , subrouting_type, sline);
+#else
     DISubprogram* sp = DBuilder->createFunction(
         unit, fname2, linkage_name, unit, sline
         , subrouting_type, false, true, sline
         , llvm::DINode::DIFlags::FlagAccessibility, false, nullptr);
+#endif
+
     llvm_function->setSubprogram(sp);
 
     KSDbgInfo.LexicalBlock.push_back(sp);
@@ -1326,6 +1333,9 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
             return FALSE;
         }
     }
+    else if(node_type->mSizeNum > 0) {
+        *result_type = IntegerType::get(TheContext, node_type->mSizeNum*8);
+    }
     else if(type_identify_with_class_name(node_type, "char"))
     {
         *result_type = IntegerType::get(TheContext, 8);
@@ -1521,7 +1531,39 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
     sCLClass* left_class = left_type->mClass;
     sCLClass* right_class = (*right_type)->mClass;
 
-    if(type_identify_with_class_name(left_type, "char*") && type_identify_with_class_name(*right_type, "va_list"))
+    if(left_type->mSizeNum > 0) {
+        Type* llvm_type;
+        if(!create_llvm_type_from_node_type(&llvm_type, left_type, left_type, info))
+        {
+            return FALSE;
+        }
+        
+        if(rvalue) {
+            uint64_t left_alloc_size;
+            if(!get_size_from_node_type(&left_alloc_size, left_type, info))
+            {
+                return FALSE;
+            }
+
+            uint64_t right_alloc_size;
+            if(!get_size_from_node_type(&right_alloc_size, *right_type, info))
+            {
+                return FALSE;
+            }
+
+            if(left_alloc_size < right_alloc_size) {
+                rvalue->value = Builder.CreateCast(Instruction::Trunc, rvalue->value, llvm_type);
+                rvalue->type = clone_node_type(left_type);
+            }
+            else {
+                rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, llvm_type);
+                rvalue->type = clone_node_type(left_type);
+            }
+        }
+
+        *right_type = clone_node_type(left_type);
+    }
+    else if(type_identify_with_class_name(left_type, "char*") && type_identify_with_class_name(*right_type, "va_list"))
     {
         if(rvalue) {
             rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, PointerType::get(IntegerType::get(TheContext, 8),0));
