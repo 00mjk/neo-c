@@ -459,7 +459,6 @@ int main_loop(Vi* self) {
         self.view();
         
         self.activeWin.input(self);
-
     }
 
     0

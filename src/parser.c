@@ -126,6 +126,10 @@ void expect_next_character_with_one_forward(char* characters, sParserInfo* info)
 {
     skip_spaces_and_lf(info);
 
+    while(*info->p == '#') {
+        (void)parse_sharp(info);
+    }
+
     BOOL found = FALSE;
     char* p2 = characters;
     while(*p2) {
@@ -144,6 +148,10 @@ void expect_next_character_with_one_forward(char* characters, sParserInfo* info)
         info->err_num++;
         info->p++;
         skip_spaces_and_lf(info);
+    }
+
+    while(*info->p == '#') {
+        (void)parse_sharp(info);
     }
 }
 
@@ -1848,9 +1856,19 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         }
     }
 
-    if((long_ || long_long ) && type_identify_with_class_name((*result_type), "int"))
+    if(long_long && type_identify_with_class_name((*result_type), "int"))
     {
         *result_type = create_node_type_with_class_name("long");
+    }
+
+    if(long_ && type_identify_with_class_name((*result_type), "int"))
+    {
+        if(sizeof(long int) == 4) {
+            *result_type = create_node_type_with_class_name("int");
+        }
+        else {
+            *result_type = create_node_type_with_class_name("long");
+        }
     }
 
     if((long_ || long_long ) && type_identify_with_class_name((*result_type), "double"))
@@ -7708,8 +7726,20 @@ static BOOL expression_conditional_operator(unsigned int* node, sParserInfo* inf
 
 BOOL expression(unsigned int* node, sParserInfo* info) 
 {
+    while(*info->p == '#') {
+        if(!parse_sharp(info)) {
+            return FALSE;
+        }
+    }
+    
     if(!expression_conditional_operator(node, info)) {
         return FALSE;
+    }
+
+    while(*info->p == '#') {
+        if(!parse_sharp(info)) {
+            return FALSE;
+        }
     }
 
     return TRUE;

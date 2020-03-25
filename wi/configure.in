@@ -82,85 +82,17 @@ fi
 #########################################
 AC_MSG_CHECKING(Operating System)
 
-CFLAGS='-DPREFIX="\"${DESTDIR}/\""'
-
-if test `uname -s` = "Darwin"; then
-    echo "Darwin"
-
-    OS=DARWIN
-
-    AC_DEFINE(__DARWIN__, 1)
-
-    if test $myprefix = /usr/local; then
-        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
-    else 
-        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
-    fi
-elif test `uname -s` = "FreeBSD"; then
-    echo "FreeBSD"
-
-    OS=FREEBSD
-
-    AC_DEFINE(__FREEBSD__, 1)
-
-    CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
-else
-    echo "Linux"
-
-    OS=LINUX
-
-    AC_DEFINE(__LINUX__, 1)
-
-    if test $myprefix = /usr/local; then
-        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
-    else
-        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
-    fi
-
-    AC_HAVE_LIBRARY(util, [ LIBS="$LIBS -lutil" ], [])
-fi
-
 #########################################
 # CFLAGS settings
 #########################################
-if test -d /usr/local/include
-then
-    CFLAGS="$CFLAGS -I/usr/local/include"
-fi
-
-if test -d /usr/local/lib
-then
-    CFLAGS="$CFLAGS -L /usr/local/lib"
-fi
-
-if test -d /opt/local/include
-then
-    CFLAGS="$CFLAGS -I/opt/local/include"
-fi
-
-if test -d /opt/local/lib
-then
-    CFLAGS="$CFLAGS -L /opt/local/lib"
-fi
-
-if test -d /usr/include/i386-linux-gnu/
-then
-    CFLAGS="$CFLAGS -I /usr/include/i386-linux-gnu//"
-fi
-
-if test -d /usr/lib/i386-linux-gnu/
-then
-    CFLAGS="$CFLAGS -L /usr/lib/i386-linux-gnu/"
-fi
-
-if test $ENABLE_OPTIMIZE = 1
-then
-    CFLAGS="$CFLAGS -O3"
-fi
-
+CFLAGS=""
 if test $DEBUGGING = 1
 then
     CFLAGS="$CFLAGS -g -DMDEBUG"
+fi
+if test $ENABLE_OPTIMIZE = 1
+then
+    CFLAGS="-O2"
 fi
 
 AC_SUBST(OS)
@@ -216,8 +148,6 @@ DESTDIR=$myprefix
 AC_SUBST(DESTDIR)
 
 LIBS="$LIBS"
-
-CFLAGS="$CFLAGS -Qunused-arguments"
 
 AC_CHECK_FUNCS(lchmod)
 AC_CHECK_FUNCS(execvpe)

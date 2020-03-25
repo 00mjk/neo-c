@@ -215,6 +215,7 @@ void saveLastOpenFile(Vi* self, char* file_name) {
     
     fclose(f);
 }
+
 string readLastOpenFile(Vi* self) {
     char* home = getenv("HOME");
     
@@ -341,6 +342,7 @@ void closeActiveWin(Vi* self) {
 
     self.activeWin = self.wins.item(0, null);
 }
+
 void exitFromApp(Vi* self) {
     self.wins.each {
         it.writeFile();

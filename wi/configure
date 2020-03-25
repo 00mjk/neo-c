@@ -3741,122 +3741,17 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking Operating System" >&5
 $as_echo_n "checking Operating System... " >&6; }
 
-CFLAGS='-DPREFIX="\"${DESTDIR}/\""'
-
-if test `uname -s` = "Darwin"; then
-    echo "Darwin"
-
-    OS=DARWIN
-
-    $as_echo "#define __DARWIN__ 1" >>confdefs.h
-
-
-    if test $myprefix = /usr/local; then
-        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
-    else
-        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
-    fi
-elif test `uname -s` = "FreeBSD"; then
-    echo "FreeBSD"
-
-    OS=FREEBSD
-
-    $as_echo "#define __FREEBSD__ 1" >>confdefs.h
-
-
-    CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
-else
-    echo "Linux"
-
-    OS=LINUX
-
-    $as_echo "#define __LINUX__ 1" >>confdefs.h
-
-
-    if test $myprefix = /usr/local; then
-        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
-    else
-        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
-    fi
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lutil" >&5
-$as_echo_n "checking for main in -lutil... " >&6; }
-if ${ac_cv_lib_util_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lutil  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_util_main=yes
-else
-  ac_cv_lib_util_main=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_util_main" >&5
-$as_echo "$ac_cv_lib_util_main" >&6; }
-if test "x$ac_cv_lib_util_main" = xyes; then :
-   LIBS="$LIBS -lutil"
-fi
-ac_cv_lib_util=ac_cv_lib_util_main
-
-fi
-
 #########################################
 # CFLAGS settings
 #########################################
-if test -d /usr/local/include
-then
-    CFLAGS="$CFLAGS -I/usr/local/include"
-fi
-
-if test -d /usr/local/lib
-then
-    CFLAGS="$CFLAGS -L /usr/local/lib"
-fi
-
-if test -d /opt/local/include
-then
-    CFLAGS="$CFLAGS -I/opt/local/include"
-fi
-
-if test -d /opt/local/lib
-then
-    CFLAGS="$CFLAGS -L /opt/local/lib"
-fi
-
-if test -d /usr/include/i386-linux-gnu/
-then
-    CFLAGS="$CFLAGS -I /usr/include/i386-linux-gnu//"
-fi
-
-if test -d /usr/lib/i386-linux-gnu/
-then
-    CFLAGS="$CFLAGS -L /usr/lib/i386-linux-gnu/"
-fi
-
-if test $ENABLE_OPTIMIZE = 1
-then
-    CFLAGS="$CFLAGS -O3"
-fi
-
+CFLAGS=""
 if test $DEBUGGING = 1
 then
     CFLAGS="$CFLAGS -g -DMDEBUG"
+fi
+if test $ENABLE_OPTIMIZE = 1
+then
+    CFLAGS="-O2"
 fi
 
 
@@ -4150,8 +4045,6 @@ DESTDIR=$myprefix
 
 
 LIBS="$LIBS"
-
-CFLAGS="$CFLAGS -Qunused-arguments"
 
 for ac_func in lchmod
 do :

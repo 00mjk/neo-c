@@ -145,7 +145,7 @@ int main(int argc, char** argv)
         {
             output_object_file = TRUE;
         }
-        else if(strcmp(argv[i], "-O") == 0)
+        else if(strcmp(argv[i], "-O") == 0 || strcmp(argv[i], "-O1") == 0|| strcmp(argv[i], "-O2") == 0|| strcmp(argv[i], "-O3") == 0|| strcmp(argv[i], "-O4") == 0)
         {
             optimize = TRUE;
         }

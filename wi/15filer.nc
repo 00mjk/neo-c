@@ -337,21 +337,20 @@ void view(ViFiler* self, Vi* nvi)
 {
     //werase(self.win);
     
+    int maxx = xgetmaxx();
+    int filer_width = maxx / 5;
+
     int maxy = xgetmaxy();
     self.files.sublist(self.scroll, self.scroll+maxy+1).each {
         if(it2 == self.cursor && self.active) {
             wattron(self.win, A_REVERSE);
-            mvwprintw(self.win, it2, 0, "%s", it);
+            mvwprintw(self.win, it2, 0, "%s", it.substring(0, filer_width-2));
             wattroff(self.win, A_REVERSE);
         }
         else {
-            mvwprintw(self.win, it2, 0, "%s", it);
+            mvwprintw(self.win, it2, 0, "%s", it.substring(0, filer_width-2));
         }
     }
-    
-    int maxx = xgetmaxx();
-
-    int filer_width = maxx / 5;
     
     for(int y=0; y<maxy; y++) {
         wattron(self.win, A_REVERSE);

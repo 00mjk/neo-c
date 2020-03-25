@@ -810,12 +810,12 @@ void output_native_code(char* sname, BOOL optimize)
     rc = system(command);
     if(rc == 0) {
         if(gNCDebug) {
-            //snprintf(command, PATH_MAX+128, "clang -g -c -o %s.o %s.ll", sname2, sname2);
-            snprintf(command, PATH_MAX+128, "clang-7 -g -c -o %s.o %s.ll", sname2, sname2);
+            snprintf(command, PATH_MAX+128, "clang -g -c -o %s.o %s.ll", sname2, sname2);
+            //snprintf(command, PATH_MAX+128, "clang-7 -g -c -o %s.o %s.ll", sname2, sname2);
         }
         else {
-            //snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.ll", sname2, sname2);
-            snprintf(command, PATH_MAX+128, "clang-7 -c -o %s.o %s.ll", sname2, sname2);
+            snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.ll", sname2, sname2);
+            //snprintf(command, PATH_MAX+128, "clang-7 -c -o %s.o %s.ll", sname2, sname2);
         }
         rc = system(command);
         if(rc != 0) {
@@ -832,12 +832,11 @@ void output_native_code(char* sname, BOOL optimize)
         }
 
         rc = system(command);
-/*
+
         if(rc != 0) {
             fprintf(stderr, "failed to compile(6)\n");
             exit(2);
         }
-*/
     }
 
     delete TheModule;

@@ -9,6 +9,21 @@
 #include <locale.h>
 #include <wctype.h>
 
+int fun() {
+    return 
+# 5 "01init.nc" 3 4
+          ((0 != (const void *)((
+# 5 "01init.nc"
+          stdscr
+# 5 "01init.nc" 3 4
+          ))) ? ((
+# 5 "01init.nc"
+          stdscr
+# 5 "01init.nc" 3 4
+          )->_maxx + 1) : (-1))
+                         ;
+}
+
 int main()
 {
     wstring a = wstring("ABC");

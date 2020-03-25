@@ -2,18 +2,26 @@
 
 int xgetmaxx()
 {
+    return getmaxx(stdscr);
+/*
+Raspberry PI return -1
     var ws = new winsize;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
     
     return ws.ws_col;
+*/
 }
 
 int xgetmaxy()
 {
+    return getmaxy(stdscr);
+/*
+Raspberry PI return -1
     var ws = new winsize;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
 
     return ws.ws_row;
+*/
 }
 
 impl ViWin 
@@ -29,6 +37,7 @@ initialize(int y, int x, int width, int height) {
     self.scroll = 0;
 
     var win = newwin(height, width, y, x);
+
     self.win = win;
 
     keypad(self.win, true);

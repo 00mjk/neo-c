@@ -90,7 +90,7 @@ permission:
 # clean
 #########################################
 clean:
-	rm -fR memleak_debug.txt code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 code/HelloWorld8 code/HelloWorld9 code/HelloWorld10 code/HelloWorld6 code/HelloWorld10-5 code/HelloWorld10-6 code/HelloWorld10-7 code/HelloWorld9-5 neo-c neo-c.dSYM src/*.o config.log config.status *.stackdump autom3te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out code/*.nc.tmp *.nc.tmp *.out memalloc-stdc.o memalloc.o src/*.out
+	rm -fR memleak_debug.txt code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 code/HelloWorld8 code/HelloWorld9 code/HelloWorld10 code/HelloWorld6 code/HelloWorld10-5 code/HelloWorld10-6 code/HelloWorld10-6-2 code/HelloWorld10-7 code/HelloWorld9-5 neo-c neo-c.dSYM src/*.o config.log config.status *.stackdump autom3te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out code/*.nc.tmp *.nc.tmp *.out memalloc-stdc.o memalloc.o src/*.out
 	rm -fR code/*.ll code/*.bc code/*.s
 	(if test -e neo-vi/Makefile; then cd neo-vi && make distclean; fi)
 
@@ -129,6 +129,8 @@ test:
 	./code/HelloWorld10-5
 	PWD=`pwd` ./neo-c code/HelloWorld10-6.nc
 	./code/HelloWorld10-6
+	PWD=`pwd` ./neo-c code/HelloWorld10-6-2.nc
+	./code/HelloWorld10-6-2
 	PWD=`pwd` ./neo-c code/HelloWorld10-7.nc
 	./code/HelloWorld10-7
 

@@ -20,7 +20,7 @@ int main()
 
 4. Mixin-layers system. You can create apllication with overlaying layers. See wi or tiny application sample included in this source code. 
 
-version 1.0.2
+version 1.0.3
 
 * INSTALL
 
@@ -36,7 +36,7 @@ make
 sudo make install
 ```
 
-This program is tested in LLVM-3.8 and LLVM-7
+This program is tested in LLVM-3.8 and LLVM-7, and x86_64 on Debian, Raspberry PI 3B+.
 
 # neo-c コンパイラ言語
 
@@ -75,6 +75,7 @@ sudo make install
 ```
 
 このプログラムはLLVM-3.8とLLVM-7でテストしています。
+x86_64のDebianとRaspberry PI 3B+でテストしています。
 
 * string
 
