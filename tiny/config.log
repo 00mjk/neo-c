@@ -508,7 +508,6 @@ on raspi
 
 config.status:808: creating Makefile
 config.status:808: creating config.h
-config.status:983: config.h is unchanged
 
 ## ---------------- ##
 ## Cache variables. ##

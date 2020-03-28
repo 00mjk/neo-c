@@ -134,9 +134,6 @@ void debug_show_none_freed_heap_memory()
             fprintf(stderr, "Remain heap memory exists. Please add -gm option to neo-c for debugging, and then see memleak_debug.txt.\n");
         }
         if(gHeapDebugs != NULL) {
-            FILE* f = fopen("memleak_debug.txt", "a");
-            fprintf(f, "\nnone free memory lists\n");
-            fclose(f);
             int i;
             for(i=0; i<gNumHeapDebugs; i++) {
                 if(gHeapDebugs[i].freed == 0) {
