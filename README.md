@@ -899,7 +899,7 @@ AAA\nBBB\nCCC\nが出力されます。
 
 * Heap system
 
-Different from Rust. It may be a bit more powerful and easier to handle, but it is a rather dangerous system. Basically the first time there will be a segmentation fault. As a debugging method, there are printf debugging, comment out debugging, or a method of adding heap generation log to memleak_debug.txt with the -g option. printf debugging is quite useful. At this time, as a debugging method, even if it is in the middle of the function, debug it as printf (... etc. at the beginning of the line, and when debugging is completed, detect the position of the debug code as egrep ^p * .nc and erase it Good, it's a good way to use it in C and other free-indented languages, or if you have a segmentation fault, gdb, oh yeah, valgrind is also a good way to debug dynamic memory. All illegal memory accesses can be detected.I feel a little nervous, but I'm writing about the heap.The object is created by new.
+Different from Rust. It may be a bit more powerful and easier to handle, but it is a rather dangerous system. Basically the first time there will be a segmentation fault. As a debugging method, there are printf debugging, comment out debugging, or a method of adding heap generation log to memleak_debug.txt with the -gm option. printf debugging is quite useful. At this time, as a debugging method, even if it is in the middle of the function, debug it as printf (... etc. at the beginning of the line, and when debugging is completed, detect the position of the debug code as egrep ^p * .nc and erase it Good, it's a good way to use it in C and other free-indented languages, or if you have a segmentation fault, gdb, oh yeah, valgrind is also a good way to debug dynamic memory. All illegal memory accesses can be detected.I feel a little nervous, but I'm writing about the heap.The object is created by new.
 
 ```
     var a = new char[128];
@@ -1282,7 +1282,7 @@ If you set new vector.initialize_with_values (5, 128), a vector with 5 elements 
 
 * ヒープシステム
 
-Rustとは違います。もう少し楽に扱えて強力かもしれませんが、かなり危険なシステムとなっております。基本的に最初のころはsegmentation faultが起こるでしょう。デバッグ方法としてはprintfデバッグや、コメントアウトデバッグ、または-gオプションをつけてmemleak_debug.txtにヒープの生成のログをとらせる方法があります。printfデバッグがかなり有効です。この時デバッグ方法としては関数の途中であっても行頭にprintf(...などとしてデバッグしてデバッグが終わったらegrep ^p *.ncなどとしてデバッグコードの位置を検出して消してしまう方法がいいと思います。Cやその他フリーインデントの言語でもよく使う方法です。もしくはsegmentation faultが起こったらgdbを使うのもいいでしょう。ああ、そうそう。動的メモリーのデバッグ方法としてはvalgrindも有効です。不正なメモリアクセスすべてを検出できます。
+Rustとは違います。もう少し楽に扱えて強力かもしれませんが、かなり危険なシステムとなっております。基本的に最初のころはsegmentation faultが起こるでしょう。デバッグ方法としてはprintfデバッグや、コメントアウトデバッグ、または-gmオプションをつけてmemleak_debug.txtにヒープの生成のログをとらせる方法があります。printfデバッグがかなり有効です。この時デバッグ方法としては関数の途中であっても行頭にprintf(...などとしてデバッグしてデバッグが終わったらegrep ^p *.ncなどとしてデバッグコードの位置を検出して消してしまう方法がいいと思います。Cやその他フリーインデントの言語でもよく使う方法です。もしくはsegmentation faultが起こったらgdbを使うのもいいでしょう。ああ、そうそう。動的メモリーのデバッグ方法としてはvalgrindも有効です。不正なメモリアクセスすべてを検出できます。
 
 と、ちょっと気分が萎えたと思いますが、ヒープについて書いています。
 
