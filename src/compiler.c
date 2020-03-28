@@ -149,7 +149,7 @@ int main(int argc, char** argv)
         {
             optimize = TRUE;
         }
-        else if(strcmp(argv[i], "-g") == 0)
+        else if(strcmp(argv[i], "-gm") == 0)
         {
             gNCDebug = TRUE;
         }

@@ -206,7 +206,7 @@ void debug_show_none_freed_heap_memory()
 {
     if(gNCDebug) {
         if(gNumMemAlloc > 0) {
-            fprintf(stderr, "Remain heap memory exists. Please add -g option to neo-c for debugging, and then see memleak_debug.txt.\n");
+            fprintf(stderr, "Remain heap memory exists. Please add -gm option to neo-c for debugging, and then see memleak_debug.txt.\n");
         }
         if(gHeapDebugs != NULL) {
             FILE* f = fopen("memleak_debug.txt", "a");
@@ -227,7 +227,7 @@ void debug_show_none_freed_heap_memory()
     }
     else {
         if(gNumMemAlloc > 0) {
-            fprintf(stderr, "Remain heap memory exists. Please add -g option to neo-c for debugging, and then see memleak_debug.txt.\n");
+            fprintf(stderr, "Remain heap memory exists. Please add -gm option to neo-c for debugging, and then see memleak_debug.txt.\n");
         }
     }
 }
