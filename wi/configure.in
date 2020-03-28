@@ -17,11 +17,11 @@ fi
 # configure arguments
 #########################################
 DEBUGGING=0
-MEMDEBUGING=0
+MEMDEBUGGING=0
 LOGGING=0
 
 AC_ARG_WITH(debug,              [  --with-debug              include debug info ], [ DEBUGGING=1; ], [])
-AC_ARG_WITH(memleak-debug,              [  --with-memleak-debug              include memleak debug info ], [ MEMDEBUGGING=1; ], [])
+AC_ARG_WITH(memleak-debug,              [  --with-meak-debug              include memleak debug info ], [ MEMDEBUGGING=1; ], [])
 AC_ARG_WITH(optimize,           [  --with-optimize           with optimize(-O in CFLAGS) ], [ ENABLE_OPTIMIZE=1 ], [ ENABLE_OPTIMIZE=0 ])
 
 #########################################
@@ -88,22 +88,25 @@ AC_MSG_CHECKING(Operating System)
 # CFLAGS settings
 #########################################
 CFLAGS=""
+NCFLAGS=""
 if test $DEBUGGING = 1
 then
     CFLAGS="$CFLAGS -g -DMDEBUG"
 fi
 if test $MEMDEBUGGING = 1
 then
-    CFLAGS="$CFLAGS -gm"
+    NCFLAGS="$NCFLAGS -gm"
 fi
 if test $ENABLE_OPTIMIZE = 1
 then
-    CFLAGS="-O2"
+    CFLAGS="$CFLAGS -O2"
 fi
 
 AC_SUBST(OS)
+AC_SUBST(NCFLAGS)
 
 export CFLAGS
+export NCFLAGS
 
 ##########################################
 # Libs

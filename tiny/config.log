@@ -27,6 +27,7 @@ uname -v = #1294 SMP Thu Jan 30 13:15:58 GMT 2020
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
 
+PATH: /home/ab25cq/.gem/bin
 PATH: /home/ab25cq/bin
 PATH: /usr/local/sbin
 PATH: /usr/local/bin
@@ -508,6 +509,7 @@ on raspi
 
 config.status:808: creating Makefile
 config.status:808: creating config.h
+config.status:983: config.h is unchanged
 
 ## ---------------- ##
 ## Cache variables. ##

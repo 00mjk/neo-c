@@ -623,6 +623,7 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 DESTDIR
 NCC
+NCFLAGS
 OS
 EGREP
 GREP
@@ -1310,7 +1311,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-debug              include debug info
-  --with-memleak-debug              include memleak debug info
+  --with-meak-debug              include memleak debug info
   --with-optimize           with optimize(-O in CFLAGS)
 
 Some influential environment variables:
@@ -3651,7 +3652,7 @@ fi
 # configure arguments
 #########################################
 DEBUGGING=0
-MEMDEBUGING=0
+MEMDEBUGGING=0
 LOGGING=0
 
 
@@ -3754,22 +3755,25 @@ $as_echo_n "checking Operating System... " >&6; }
 # CFLAGS settings
 #########################################
 CFLAGS=""
+NCFLAGS=""
 if test $DEBUGGING = 1
 then
     CFLAGS="$CFLAGS -g -DMDEBUG"
 fi
 if test $MEMDEBUGGING = 1
 then
-    CFLAGS="$CFLAGS -gm"
+    NCFLAGS="$NCFLAGS -gm"
 fi
 if test $ENABLE_OPTIMIZE = 1
 then
-    CFLAGS="-O2"
+    CFLAGS="$CFLAGS -O2"
 fi
+
 
 
 
 export CFLAGS
+export NCFLAGS
 
 ##########################################
 # Libs
