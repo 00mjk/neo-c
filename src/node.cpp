@@ -4521,10 +4521,10 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     llvm_change_block(current_block, &current_block_before, info, FALSE);
 
     if(strcmp(real_fun_name, "main") == 0) {
-        if(gNCDebug) {
-            Value* value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)gNCDebug);
+        if(gNCDebugHeap) {
+            Value* value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)gNCDebugHeap);
 
-            Builder.CreateAlignedStore(value, gNCDebugValue, 4);
+            Builder.CreateAlignedStore(value, gNCDebugHeapValue, 4);
         }
     }
 

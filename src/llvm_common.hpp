@@ -176,7 +176,7 @@ void create_generics_fun_name(char* real_fun_name, int size_real_fun_name, char*
 BOOL get_const_bool_value_from_llvm_value(BOOL* result, LVALUE* llvm_value);
 int create_generics_finalize_method(sNodeType* node_type2, sCompileInfo* info);
 
-extern GlobalVariable* gNCDebugValue;
+extern GlobalVariable* gNCDebugHeapValue;
 
 extern std::map<std::string, std::vector<sFunction*>> gFuncs;
 void create_real_fun_name(char* real_fun_name, size_t size_real_fun_name, char* fun_name, char* struct_name);

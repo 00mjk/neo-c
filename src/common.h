@@ -852,6 +852,7 @@ unsigned int sNodeTree_create_equal_xor(unsigned int left_node, unsigned int rig
 unsigned int sNodeTree_create_equal_or(unsigned int left_node, unsigned int right_node, sParserInfo* info);
 
 extern BOOL gNCDebug;
+extern BOOL gNCDebugHeap;
 
 #endif
 
