@@ -17,9 +17,11 @@ fi
 # configure arguments
 #########################################
 DEBUGGING=0
+MEMDEBUGING=0
 LOGGING=0
 
 AC_ARG_WITH(debug,              [  --with-debug              include debug info ], [ DEBUGGING=1; ], [])
+AC_ARG_WITH(memleak-debug,              [  --with-memleak-debug              include memleak debug info ], [ MEMDEBUGGING=1; ], [])
 AC_ARG_WITH(optimize,           [  --with-optimize           with optimize(-O in CFLAGS) ], [ ENABLE_OPTIMIZE=1 ], [ ENABLE_OPTIMIZE=0 ])
 
 #########################################
@@ -89,6 +91,10 @@ CFLAGS=""
 if test $DEBUGGING = 1
 then
     CFLAGS="$CFLAGS -g -DMDEBUG"
+fi
+if test $MEMDEBUGGING = 1
+then
+    CFLAGS="$CFLAGS -gm"
 fi
 if test $ENABLE_OPTIMIZE = 1
 then

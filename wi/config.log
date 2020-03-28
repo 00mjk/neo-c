@@ -42,18 +42,18 @@ PATH: /usr/games
 ## Core tests. ##
 ## ----------- ##
 
-configure:2151: checking for gcc
-configure:2167: found /usr/bin/gcc
-configure:2178: result: gcc
-configure:2407: checking for C compiler version
-configure:2416: gcc --version >&5
+configure:2153: checking for gcc
+configure:2169: found /usr/bin/gcc
+configure:2180: result: gcc
+configure:2409: checking for C compiler version
+configure:2418: gcc --version >&5
 gcc (Raspbian 8.3.0-6+rpi1) 8.3.0
 Copyright (C) 2018 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-configure:2427: $? = 0
-configure:2416: gcc -v >&5
+configure:2429: $? = 0
+configure:2418: gcc -v >&5
 Using built-in specs.
 COLLECT_GCC=gcc
 COLLECT_LTO_WRAPPER=/usr/lib/gcc/arm-linux-gnueabihf/8/lto-wrapper
@@ -61,60 +61,60 @@ Target: arm-linux-gnueabihf
 Configured with: ../src/configure -v --with-pkgversion='Raspbian 8.3.0-6+rpi1' --with-bugurl=file:///usr/share/doc/gcc-8/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++ --prefix=/usr --with-gcc-major-version-only --program-suffix=-8 --program-prefix=arm-linux-gnueabihf- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-libitm --disable-libquadmath --disable-libquadmath-support --enable-plugin --with-system-zlib --with-target-system-zlib --enable-objc-gc=auto --enable-multiarch --disable-sjlj-exceptions --with-arch=armv6 --with-fpu=vfp --with-float=hard --disable-werror --enable-checking=release --build=arm-linux-gnueabihf --host=arm-linux-gnueabihf --target=arm-linux-gnueabihf
 Thread model: posix
 gcc version 8.3.0 (Raspbian 8.3.0-6+rpi1) 
-configure:2427: $? = 0
-configure:2416: gcc -V >&5
+configure:2429: $? = 0
+configure:2418: gcc -V >&5
 gcc: error: unrecognized command line option '-V'
 gcc: fatal error: no input files
 compilation terminated.
-configure:2427: $? = 1
-configure:2416: gcc -qversion >&5
+configure:2429: $? = 1
+configure:2418: gcc -qversion >&5
 gcc: error: unrecognized command line option '-qversion'; did you mean '--version'?
 gcc: fatal error: no input files
 compilation terminated.
-configure:2427: $? = 1
-configure:2447: checking whether the C compiler works
-configure:2469: gcc    conftest.c  >&5
-configure:2473: $? = 0
-configure:2521: result: yes
-configure:2524: checking for C compiler default output file name
-configure:2526: result: a.out
-configure:2532: checking for suffix of executables
-configure:2539: gcc -o conftest    conftest.c  >&5
-configure:2543: $? = 0
-configure:2565: result: 
-configure:2587: checking whether we are cross compiling
-configure:2595: gcc -o conftest    conftest.c  >&5
-configure:2599: $? = 0
-configure:2606: ./conftest
-configure:2610: $? = 0
-configure:2598: result: no
-configure:2603: checking for suffix of object files
-configure:2625: gcc -c   conftest.c >&5
-configure:2629: $? = 0
-configure:2650: result: o
-configure:2654: checking whether we are using the GNU C compiler
-configure:2673: gcc -c   conftest.c >&5
-configure:2673: $? = 0
-configure:2682: result: yes
-configure:2691: checking whether gcc accepts -g
-configure:2711: gcc -c -g  conftest.c >&5
-configure:2711: $? = 0
-configure:2752: result: yes
-configure:2769: checking for gcc option to accept ISO C89
-configure:2832: gcc  -c -g -O2  conftest.c >&5
-configure:2832: $? = 0
-configure:2845: result: none needed
-configure:2908: checking for a BSD-compatible install
-configure:2976: result: /usr/bin/install -c
-configure:2993: checking how to run the C preprocessor
-configure:3024: gcc -E  conftest.c
-configure:3024: $? = 0
-configure:3038: gcc -E  conftest.c
+configure:2429: $? = 1
+configure:2449: checking whether the C compiler works
+configure:2471: gcc    conftest.c  >&5
+configure:2475: $? = 0
+configure:2523: result: yes
+configure:2526: checking for C compiler default output file name
+configure:2528: result: a.out
+configure:2534: checking for suffix of executables
+configure:2541: gcc -o conftest    conftest.c  >&5
+configure:2545: $? = 0
+configure:2567: result: 
+configure:2589: checking whether we are cross compiling
+configure:2597: gcc -o conftest    conftest.c  >&5
+configure:2601: $? = 0
+configure:2608: ./conftest
+configure:2612: $? = 0
+configure:2600: result: no
+configure:2605: checking for suffix of object files
+configure:2627: gcc -c   conftest.c >&5
+configure:2631: $? = 0
+configure:2652: result: o
+configure:2656: checking whether we are using the GNU C compiler
+configure:2675: gcc -c   conftest.c >&5
+configure:2675: $? = 0
+configure:2684: result: yes
+configure:2693: checking whether gcc accepts -g
+configure:2713: gcc -c -g  conftest.c >&5
+configure:2713: $? = 0
+configure:2754: result: yes
+configure:2771: checking for gcc option to accept ISO C89
+configure:2834: gcc  -c -g -O2  conftest.c >&5
+configure:2834: $? = 0
+configure:2847: result: none needed
+configure:2910: checking for a BSD-compatible install
+configure:2978: result: /usr/bin/install -c
+configure:2995: checking how to run the C preprocessor
+configure:3026: gcc -E  conftest.c
+configure:3026: $? = 0
+configure:3040: gcc -E  conftest.c
 conftest.c:9:10: fatal error: ac_nonexistent.h: No such file or directory
  #include <ac_nonexistent.h>
           ^~~~~~~~~~~~~~~~~~
 compilation terminated.
-configure:3038: $? = 1
+configure:3040: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME ""
@@ -125,15 +125,15 @@ configure: failed program was:
 | #define PACKAGE_URL ""
 | /* end confdefs.h.  */
 | #include <ac_nonexistent.h>
-configure:3063: result: gcc -E
-configure:3083: gcc -E  conftest.c
-configure:3083: $? = 0
-configure:3097: gcc -E  conftest.c
+configure:3065: result: gcc -E
+configure:3085: gcc -E  conftest.c
+configure:3085: $? = 0
+configure:3099: gcc -E  conftest.c
 conftest.c:9:10: fatal error: ac_nonexistent.h: No such file or directory
  #include <ac_nonexistent.h>
           ^~~~~~~~~~~~~~~~~~
 compilation terminated.
-configure:3097: $? = 1
+configure:3099: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME ""
@@ -144,56 +144,56 @@ configure: failed program was:
 | #define PACKAGE_URL ""
 | /* end confdefs.h.  */
 | #include <ac_nonexistent.h>
-configure:3126: checking for grep that handles long lines and -e
-configure:3184: result: /bin/grep
-configure:3189: checking for egrep
-configure:3251: result: /bin/grep -E
-configure:3256: checking for ANSI C header files
-configure:3276: gcc -c -g -O2  conftest.c >&5
-configure:3276: $? = 0
-configure:3349: gcc -o conftest -g -O2   conftest.c  >&5
-configure:3349: $? = 0
-configure:3349: ./conftest
-configure:3349: $? = 0
-configure:3360: result: yes
-configure:3373: checking for sys/types.h
-configure:3373: gcc -c -g -O2  conftest.c >&5
-configure:3373: $? = 0
-configure:3373: result: yes
-configure:3373: checking for sys/stat.h
-configure:3373: gcc -c -g -O2  conftest.c >&5
-configure:3373: $? = 0
-configure:3373: result: yes
-configure:3373: checking for stdlib.h
-configure:3373: gcc -c -g -O2  conftest.c >&5
-configure:3373: $? = 0
-configure:3373: result: yes
-configure:3373: checking for string.h
-configure:3373: gcc -c -g -O2  conftest.c >&5
-configure:3373: $? = 0
-configure:3373: result: yes
-configure:3373: checking for memory.h
-configure:3373: gcc -c -g -O2  conftest.c >&5
-configure:3373: $? = 0
-configure:3373: result: yes
-configure:3373: checking for strings.h
-configure:3373: gcc -c -g -O2  conftest.c >&5
-configure:3373: $? = 0
-configure:3373: result: yes
-configure:3373: checking for inttypes.h
-configure:3373: gcc -c -g -O2  conftest.c >&5
-configure:3373: $? = 0
-configure:3373: result: yes
-configure:3373: checking for stdint.h
-configure:3373: gcc -c -g -O2  conftest.c >&5
-configure:3373: $? = 0
-configure:3373: result: yes
-configure:3373: checking for unistd.h
-configure:3373: gcc -c -g -O2  conftest.c >&5
-configure:3373: $? = 0
-configure:3373: result: yes
-configure:3385: checking whether byte ordering is bigendian
-configure:3400: gcc -c -g -O2  conftest.c >&5
+configure:3128: checking for grep that handles long lines and -e
+configure:3186: result: /bin/grep
+configure:3191: checking for egrep
+configure:3253: result: /bin/grep -E
+configure:3258: checking for ANSI C header files
+configure:3278: gcc -c -g -O2  conftest.c >&5
+configure:3278: $? = 0
+configure:3351: gcc -o conftest -g -O2   conftest.c  >&5
+configure:3351: $? = 0
+configure:3351: ./conftest
+configure:3351: $? = 0
+configure:3362: result: yes
+configure:3375: checking for sys/types.h
+configure:3375: gcc -c -g -O2  conftest.c >&5
+configure:3375: $? = 0
+configure:3375: result: yes
+configure:3375: checking for sys/stat.h
+configure:3375: gcc -c -g -O2  conftest.c >&5
+configure:3375: $? = 0
+configure:3375: result: yes
+configure:3375: checking for stdlib.h
+configure:3375: gcc -c -g -O2  conftest.c >&5
+configure:3375: $? = 0
+configure:3375: result: yes
+configure:3375: checking for string.h
+configure:3375: gcc -c -g -O2  conftest.c >&5
+configure:3375: $? = 0
+configure:3375: result: yes
+configure:3375: checking for memory.h
+configure:3375: gcc -c -g -O2  conftest.c >&5
+configure:3375: $? = 0
+configure:3375: result: yes
+configure:3375: checking for strings.h
+configure:3375: gcc -c -g -O2  conftest.c >&5
+configure:3375: $? = 0
+configure:3375: result: yes
+configure:3375: checking for inttypes.h
+configure:3375: gcc -c -g -O2  conftest.c >&5
+configure:3375: $? = 0
+configure:3375: result: yes
+configure:3375: checking for stdint.h
+configure:3375: gcc -c -g -O2  conftest.c >&5
+configure:3375: $? = 0
+configure:3375: result: yes
+configure:3375: checking for unistd.h
+configure:3375: gcc -c -g -O2  conftest.c >&5
+configure:3375: $? = 0
+configure:3375: result: yes
+configure:3387: checking whether byte ordering is bigendian
+configure:3402: gcc -c -g -O2  conftest.c >&5
 conftest.c:20:9: error: unknown type name 'not'
          not a universal capable compiler
          ^~~
@@ -201,7 +201,7 @@ conftest.c:20:15: error: expected '=', ',', ';', 'asm' or '__attribute__' before
          not a universal capable compiler
                ^~~~~~~~~
 conftest.c:20:15: error: unknown type name 'universal'
-configure:3400: $? = 1
+configure:3402: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME ""
@@ -226,9 +226,9 @@ configure: failed program was:
 | 	     #endif
 | 	     typedef int dummy;
 | 
-configure:3445: gcc -c -g -O2  conftest.c >&5
-configure:3445: $? = 0
-configure:3463: gcc -c -g -O2  conftest.c >&5
+configure:3447: gcc -c -g -O2  conftest.c >&5
+configure:3447: $? = 0
+configure:3465: gcc -c -g -O2  conftest.c >&5
 conftest.c: In function 'main':
 conftest.c:26:4: error: unknown type name 'not'; did you mean 'ino_t'?
     not big endian
@@ -237,7 +237,7 @@ conftest.c:26:4: error: unknown type name 'not'; did you mean 'ino_t'?
 conftest.c:26:12: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'endian'
     not big endian
             ^~~~~~
-configure:3463: $? = 1
+configure:3465: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME ""
@@ -270,85 +270,85 @@ configure: failed program was:
 |   ;
 |   return 0;
 | }
-configure:3591: result: no
-configure:3641: checking CPU type
-configure:3710: checking Operating System
-configure:3739: checking for main in -ldl
-configure:3758: gcc -o conftest -O2   conftest.c -ldl   >&5
-configure:3758: $? = 0
-configure:3767: result: yes
-configure:3778: checking math.h usability
-configure:3778: gcc -c -O2  conftest.c >&5
-configure:3778: $? = 0
-configure:3778: result: yes
-configure:3778: checking math.h presence
-configure:3778: gcc -E  conftest.c
-configure:3778: $? = 0
-configure:3778: result: yes
-configure:3778: checking for math.h
-configure:3778: result: yes
-configure:3785: checking for main in -lm
-configure:3804: gcc -o conftest -O2   conftest.c -lm   -ldl >&5
-configure:3804: $? = 0
-configure:3813: result: yes
-configure:3820: checking iconv.h usability
-configure:3820: gcc -c -O2  conftest.c >&5
-configure:3820: $? = 0
-configure:3820: result: yes
-configure:3820: checking iconv.h presence
-configure:3820: gcc -E  conftest.c
-configure:3820: $? = 0
-configure:3820: result: yes
-configure:3820: checking for iconv.h
-configure:3820: result: yes
-configure:3833: checking pcre.h usability
+configure:3593: result: no
+configure:3650: checking CPU type
+configure:3719: checking Operating System
+configure:3752: checking for main in -ldl
+configure:3771: gcc -o conftest -O2   conftest.c -ldl   >&5
+configure:3771: $? = 0
+configure:3780: result: yes
+configure:3791: checking math.h usability
+configure:3791: gcc -c -O2  conftest.c >&5
+configure:3791: $? = 0
+configure:3791: result: yes
+configure:3791: checking math.h presence
+configure:3791: gcc -E  conftest.c
+configure:3791: $? = 0
+configure:3791: result: yes
+configure:3791: checking for math.h
+configure:3791: result: yes
+configure:3798: checking for main in -lm
+configure:3817: gcc -o conftest -O2   conftest.c -lm   -ldl >&5
+configure:3817: $? = 0
+configure:3826: result: yes
+configure:3833: checking iconv.h usability
 configure:3833: gcc -c -O2  conftest.c >&5
 configure:3833: $? = 0
 configure:3833: result: yes
-configure:3833: checking pcre.h presence
+configure:3833: checking iconv.h presence
 configure:3833: gcc -E  conftest.c
 configure:3833: $? = 0
 configure:3833: result: yes
-configure:3833: checking for pcre.h
+configure:3833: checking for iconv.h
 configure:3833: result: yes
-configure:3840: checking for main in -lpcre
-configure:3859: gcc -o conftest -O2   conftest.c -lpcre   -ldl -lm >&5
-configure:3859: $? = 0
-configure:3868: result: yes
-configure:3877: checking ncurses.h usability
-configure:3877: gcc -c -O2  conftest.c >&5
-configure:3877: $? = 0
-configure:3877: result: yes
-configure:3877: checking ncurses.h presence
-configure:3877: gcc -E  conftest.c
-configure:3877: $? = 0
-configure:3877: result: yes
-configure:3877: checking for ncurses.h
-configure:3877: result: yes
-configure:3884: checking for main in -lncursesw
-configure:3903: gcc -o conftest -O2   conftest.c -lncursesw   -ldl -lm -lpcre >&5
-configure:3903: $? = 0
-configure:3912: result: yes
-configure:3920: checking for main in -lrt
-configure:3939: gcc -o conftest -O2   conftest.c -lrt   -ldl -lm -lpcre -lncursesw >&5
-configure:3939: $? = 0
-configure:3948: result: yes
-configure:3956: checking pthread.h usability
-configure:3956: gcc -c -O2  conftest.c >&5
-configure:3956: $? = 0
-configure:3956: result: yes
-configure:3956: checking pthread.h presence
-configure:3956: gcc -E  conftest.c
-configure:3956: $? = 0
-configure:3956: result: yes
-configure:3956: checking for pthread.h
-configure:3956: result: yes
-configure:3963: checking for main in -lpthread
-configure:3982: gcc -o conftest -O2   conftest.c -lpthread   -ldl -lm -lpcre -lncursesw -lrt >&5
-configure:3982: $? = 0
-configure:3991: result: yes
-configure:4020: checking for lchmod
-configure:4020: gcc -o conftest -O2   conftest.c  -ldl -lm -lpcre -lncursesw -lrt -lpthread >&5
+configure:3846: checking pcre.h usability
+configure:3846: gcc -c -O2  conftest.c >&5
+configure:3846: $? = 0
+configure:3846: result: yes
+configure:3846: checking pcre.h presence
+configure:3846: gcc -E  conftest.c
+configure:3846: $? = 0
+configure:3846: result: yes
+configure:3846: checking for pcre.h
+configure:3846: result: yes
+configure:3853: checking for main in -lpcre
+configure:3872: gcc -o conftest -O2   conftest.c -lpcre   -ldl -lm >&5
+configure:3872: $? = 0
+configure:3881: result: yes
+configure:3890: checking ncurses.h usability
+configure:3890: gcc -c -O2  conftest.c >&5
+configure:3890: $? = 0
+configure:3890: result: yes
+configure:3890: checking ncurses.h presence
+configure:3890: gcc -E  conftest.c
+configure:3890: $? = 0
+configure:3890: result: yes
+configure:3890: checking for ncurses.h
+configure:3890: result: yes
+configure:3897: checking for main in -lncursesw
+configure:3916: gcc -o conftest -O2   conftest.c -lncursesw   -ldl -lm -lpcre >&5
+configure:3916: $? = 0
+configure:3925: result: yes
+configure:3933: checking for main in -lrt
+configure:3952: gcc -o conftest -O2   conftest.c -lrt   -ldl -lm -lpcre -lncursesw >&5
+configure:3952: $? = 0
+configure:3961: result: yes
+configure:3969: checking pthread.h usability
+configure:3969: gcc -c -O2  conftest.c >&5
+configure:3969: $? = 0
+configure:3969: result: yes
+configure:3969: checking pthread.h presence
+configure:3969: gcc -E  conftest.c
+configure:3969: $? = 0
+configure:3969: result: yes
+configure:3969: checking for pthread.h
+configure:3969: result: yes
+configure:3976: checking for main in -lpthread
+configure:3995: gcc -o conftest -O2   conftest.c -lpthread   -ldl -lm -lpcre -lncursesw -lrt >&5
+configure:3995: $? = 0
+configure:4004: result: yes
+configure:4033: checking for lchmod
+configure:4033: gcc -o conftest -O2   conftest.c  -ldl -lm -lpcre -lncursesw -lrt -lpthread >&5
 conftest.c:53:1: error: unknown type name 'choke'
  choke me
  ^~~~~
@@ -359,7 +359,7 @@ conftest.c:53:9: error: expected ';' before 'int'
 conftest.c:56:1:
  int
  ~~~      
-configure:4020: $? = 1
+configure:4033: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME ""
@@ -423,12 +423,12 @@ configure: failed program was:
 |   ;
 |   return 0;
 | }
-configure:4020: result: no
-configure:4031: checking for execvpe
-configure:4031: gcc -o conftest -O2   conftest.c  -ldl -lm -lpcre -lncursesw -lrt -lpthread >&5
-configure:4031: $? = 0
-configure:4031: result: yes
-configure:4152: creating ./config.status
+configure:4033: result: no
+configure:4044: checking for execvpe
+configure:4044: gcc -o conftest -O2   conftest.c  -ldl -lm -lpcre -lncursesw -lrt -lpthread >&5
+configure:4044: $? = 0
+configure:4044: result: yes
+configure:4165: creating ./config.status
 
 ## ---------------------- ##
 ## Running config.status. ##

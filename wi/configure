@@ -680,6 +680,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 with_debug
+with_memleak_debug
 with_optimize
 '
       ac_precious_vars='build_alias
@@ -1309,6 +1310,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-debug              include debug info
+  --with-memleak-debug              include memleak debug info
   --with-optimize           with optimize(-O in CFLAGS)
 
 Some influential environment variables:
@@ -3649,12 +3651,19 @@ fi
 # configure arguments
 #########################################
 DEBUGGING=0
+MEMDEBUGING=0
 LOGGING=0
 
 
 # Check whether --with-debug was given.
 if test "${with_debug+set}" = set; then :
   withval=$with_debug;  DEBUGGING=1;
+fi
+
+
+# Check whether --with-memleak-debug was given.
+if test "${with_memleak_debug+set}" = set; then :
+  withval=$with_memleak_debug;  MEMDEBUGGING=1;
 fi
 
 
@@ -3748,6 +3757,10 @@ CFLAGS=""
 if test $DEBUGGING = 1
 then
     CFLAGS="$CFLAGS -g -DMDEBUG"
+fi
+if test $MEMDEBUGGING = 1
+then
+    CFLAGS="$CFLAGS -gm"
 fi
 if test $ENABLE_OPTIMIZE = 1
 then
