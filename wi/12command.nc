@@ -61,6 +61,24 @@ void input(ViWin* self, Vi* nvi) {
         inherit(self, nvi);
     }
 }
+void subAllTextsFromCommandMode(ViWin* self, Vi* nvi) {
+    /// parse command ///
+    var command = nvi.commandString
+           .scan(regex!("%s\/\(.+\)\/\(.*\)\/*?"));
+               
+    var str = command.item(1, null);
+    var replace = command.item(2, null);
+    
+    if(str != null && replace != null) {
+        self.texts.each {
+            var reg = regex(str, false, false, true, false
+                        , false, false, false, false);
+            var new_line = it.to_string("")
+                        .sub(reg, replace, null).to_wstring();
+            
+            self.texts.replace(it2, new_line);
+        }
+    }
 }
 
 impl Vi version 12
@@ -70,6 +88,10 @@ void enterComandMode(Vi* self) {
     self.commandString = string("");
 }
 void exitFromComandMode(Vi* self) {
+    if(self.commandString.index("%", -1) != -1) {
+        self.activeWin.subAllTextsFromCommandMode(self);
+        self.mode = kEditMode;
+    }
     if(self.commandString.index("w", -1) != -1) {
         self.activeWin.writeFile();
     }
