@@ -70,6 +70,7 @@ void subAllTextsFromCommandMode(ViWin* self, Vi* nvi) {
     var replace = command.item(2, null);
     
     if(str != null && replace != null) {
+        self.pushUndo();
         self.texts.each {
             var reg = regex(str, false, false, true, false
                         , false, false, false, false);
