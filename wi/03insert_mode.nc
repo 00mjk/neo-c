@@ -436,6 +436,16 @@ void inputInsertMode(ViWin* self, Vi* nvi)
             self.modifyOverCursorXValue();
         }
     }
+    else if(key == 'V'-'A'+1) {
+        var key2 = self.getKey();
+        
+        char str[2];
+        
+        str[0] = key2;
+        str[1] = '\0';
+        
+        self.insertText(wstring(str));
+    }
     else {
         self.insertText(wstring(xasprintf("%c", key)));
     }
