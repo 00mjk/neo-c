@@ -1,4 +1,6 @@
 multiple visible lines at the cursor line
+
+/* on pressing %
 ------------------------------------------------------------
 :%s//
 ta, fa,dta, cta
