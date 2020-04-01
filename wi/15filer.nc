@@ -98,9 +98,16 @@ void textsView(ViWin* self, Vi* nvi)
                 wstring cursor_string = line.substring(cursor_x, cursor_x+1);
                 wstring printable_cursor_string = cursor_string.printable();
 
-                wattron(self.win, A_REVERSE);
-                mvwprintw(self.win, it2, x, "%ls", printable_cursor_string);
-                wattroff(self.win, A_REVERSE);
+                if(printable_cursor_string[0] == '\0') {
+                    wattron(self.win, A_REVERSE);
+                    mvwprintw(self.win, it2, x, " ", printable_cursor_string);
+                    wattroff(self.win, A_REVERSE);
+                }
+                else {
+                    wattron(self.win, A_REVERSE);
+                    mvwprintw(self.win, it2, x, "%ls", printable_cursor_string);
+                    wattroff(self.win, A_REVERSE);
+                }
 
                 x += wcswidth(printable_cursor_string, printable_cursor_string.length());
 

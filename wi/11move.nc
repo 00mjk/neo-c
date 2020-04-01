@@ -146,12 +146,79 @@ void toggleBraceBack(ViWin* self, wchar_t head, wchar_t tail) {
         }
     }
 }
+
+void toggleCommentBackward(ViWin* self)
+{
+    int head = 0;
+    int tail = self.scroll + self.cursorX;
+    
+    self.texts.sublist(head, tail).reverse().each {
+        int index = it.to_string("").index("/*", -1);
+        
+        if(index != -1) {
+            self.saveReturnPoint();
+            self.cursorX = index;
+            self.scroll = 0;
+            self.cursorY = tail - it2 -1;
+            self.modifyOverCursorYValue();
+            *it3 = true;
+            return;
+        }
+    }
+}
+
+void toggleCommentForward(ViWin* self)
+{
+    int head = self.scroll + self.cursorX;
+    int tail = -1;
+    
+    self.texts.sublist(head, tail).each {
+        int index = it.to_string("").index("*/", -1);
+        
+        if(index != -1) {
+            self.saveReturnPoint();
+            self.cursorX = index;
+            self.scroll = 0;
+            self.cursorY = it2 + head;
+            self.modifyOverCursorYValue();
+            *it3 = true;
+            return;
+        }
+    }
+}
+
 void gotoBraceEnd(ViWin* self, Vi* nvi) {
     var line = self.texts.item(self.scroll+self.cursorY, null);
 
     var c = line[self.cursorX];
-
+    wchar_t c1 = 0;
+    wchar_t c2 = 0;
+    if(self.cursorX - 1 >= 0) {
+        c1 = line[self.cursorX-1];
+    }
+    if(self.cursorX + 1 < line.length()) {
+        c2 = line[self.cursorX+1];
+    }
+    
     switch(c) {
+        case '*':
+            if(c1 == '/') {
+                self.toggleCommentForward();
+            }
+            if(c2 == '/') {
+                self.toggleCommentBackward();
+            }
+            break;
+            
+        case '/':
+            if(c1 == '*') {
+                self.toggleCommentBackward();
+            }
+            if(c2 == '*') {
+                self.toggleCommentForward();
+            }
+            break;
+            
         case '(':
             self.toggleBraceForward('(', ')');
             break;

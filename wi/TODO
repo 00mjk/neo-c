@@ -1,5 +1,3 @@
-multiple visible lines at the cursor line
-
 /* on pressing %
 ------------------------------------------------------------
 :%s//
@@ -9,3 +7,4 @@ V, >, dot
 v
 C-v
 insert mode C-v
+multiple visible lines at the cursor line
