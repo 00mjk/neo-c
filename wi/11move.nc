@@ -147,42 +147,68 @@ void toggleBraceBack(ViWin* self, wchar_t head, wchar_t tail) {
     }
 }
 
-void toggleCommentBackward(ViWin* self)
-{
-    int head = 0;
-    int tail = self.scroll + self.cursorX;
-    
-    self.texts.sublist(head, tail).reverse().each {
-        int index = it.to_string("").index("/*", -1);
-        
-        if(index != -1) {
-            self.saveReturnPoint();
-            self.cursorX = index;
-            self.scroll = 0;
-            self.cursorY = tail - it2 -1;
-            self.modifyOverCursorYValue();
-            *it3 = true;
-            return;
-        }
-    }
-}
-
 void toggleCommentForward(ViWin* self)
 {
-    int head = self.scroll + self.cursorX;
+    int head = self.scroll + self.cursorY;
     int tail = -1;
+    
+    int nest = 0;
     
     self.texts.sublist(head, tail).each {
         int index = it.to_string("").index("*/", -1);
         
+        int index2 = it.to_string("").index("/*", -1);
+        
+        if(index2 != -1) {
+            nest++;
+        }
+        
         if(index != -1) {
-            self.saveReturnPoint();
-            self.cursorX = index;
-            self.scroll = 0;
-            self.cursorY = it2 + head;
-            self.modifyOverCursorYValue();
-            *it3 = true;
-            return;
+            nest--;
+            
+            if(nest <= 0) {
+                self.saveReturnPoint();
+                self.cursorX = index;
+                self.scroll = 0;
+                self.cursorY = it2 + head;
+                self.modifyOverCursorYValue();
+                self.centeringCursor();
+                *it3 = true;
+                return;
+            }
+        }
+    }
+}
+
+void toggleCommentBackward(ViWin* self)
+{
+    int head = 0;
+    int tail = self.scroll + self.cursorY + 1;
+    
+    int nest = 0;
+    
+    self.texts.sublist(head, tail).reverse().each {
+        int index = it.to_string("").index("/*", -1);
+        
+        int index2 = it.to_string("").index("*/", -1);
+        
+        if(index2 != -1) {
+            nest++;
+        }
+        
+        if(index != -1) {
+            nest--;
+            
+            if(nest == 0) {
+                self.saveReturnPoint();
+                self.cursorX = index;
+                self.scroll = 0;
+                self.cursorY = tail - it2 -1;
+                self.modifyOverCursorYValue();
+                self.centeringCursor();
+                *it3 = true;
+                return;
+            }
         }
     }
 }
