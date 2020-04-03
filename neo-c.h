@@ -148,6 +148,10 @@ impl char*
     inline int compare(char* left, char* right) {
         return strcmp(left, right);
     }
+    
+    inline wstring to_wstring(char* value) {
+        return wstring(value);
+    }
 }
 
 /// wchar_t ///
@@ -589,6 +593,16 @@ impl vector<T>
 
     void reset(vector<T>* self) {
         self.len = 0;
+    }
+    
+    list<T>*% to_list(vector<T>* self) {
+        var result = new vector<T>.initialize();
+        
+        self.each {
+            result.push_back(clone it);
+        }
+        
+        return result;
     }
 }
 
@@ -1536,6 +1550,16 @@ impl list <T>
         }
 
         result_
+    }
+    
+    vector<T> to_vector(list<T>* self) {
+        var result = new list<T>.initialize();
+        
+        self.each {
+            result.push_back(clone it);
+        }
+        
+        return result;
     }
 }
 
