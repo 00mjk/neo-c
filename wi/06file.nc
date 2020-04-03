@@ -308,6 +308,29 @@ void openFile(Vi* self, char* file_name, int line_num)
             
             self.repositionWindows();
         }
+        else {
+            int active_pos = self.wins.find(self.activeWin, -1);
+            if(active_pos != -1) {
+                self.wins.delete(active_pos);
+            }
+    
+            int rc = system(xsprintf("touch %s", file_name));
+            
+            if(rc == 0) {
+                var maxx = xgetmaxx();
+                var maxy = xgetmaxy();
+                
+                var win = new ViWin.initialize(0,0, maxx-1, maxy);
+        
+                self.activeWin = win;
+                self.wins.push_back(win);
+                
+                self.activeWin.openFile(file_name, line_num);
+                self.saveLastOpenFile(file_name);
+                
+                self.repositionWindows();
+            }
+        }
     }
 }
 
