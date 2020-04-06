@@ -796,6 +796,54 @@ impl list <T>
             return result;
         }
     }
+    
+    T pop_front(list<T>* self, T default_value)
+    {
+        if(self.len == 0) {
+            return default_value;
+        }
+        else if(self.len == 1) {
+            T result = (T)self.head.item;
+
+            delete self.head;
+
+            self.head = null;
+            self.tail = null;
+
+            self.len = 0;
+
+            return result;
+        }
+        else if(self.len == 2) {
+            T result = (T)self.head.item;
+
+            var head_before = self.head;
+
+            self.head = self.head.next;
+            self.head.prev = null;
+            self.head.next = null;
+            
+            delete head_before;
+
+            self.len--;
+
+            return result;
+        }
+        else {
+            T result = (T)self.head.item;
+
+            var head_before = self.head;
+
+            self.head = self.head.next;
+            self.head.prev = null;
+            
+            delete head_before;
+
+            self.len--;
+
+            return result;
+        }
+    }
 
     void insert(list<T>* self, int position, T item)
     {

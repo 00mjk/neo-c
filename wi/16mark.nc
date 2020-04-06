@@ -10,8 +10,8 @@
 
 impl ViWin version 16
 {
-initialize(int y, int x, int width, int height) {
-    inherit(self, y, x, width, height);
+initialize(int y, int x, int width, int height, Vi* vi) {
+    inherit(self, y, x, width, height, vi);
     
     self.mark = new map<wchar_t, tuple3<int,int, int>*%>
             .initialize();

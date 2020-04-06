@@ -20,7 +20,7 @@ int main()
 
 4. Mixin-layers system. You can create apllication with overlaying layers. See wi or tiny application sample included in this source code. 
 
-version 1.0.4
+version 1.0.5
 
 * INSTALL
 
@@ -251,6 +251,7 @@ impl list <T>
     void reset(list<T>* self);
     void push_back(list<T>* self, T item);
     T pop_back(list<T>* self, T default_value);
+    T pop_front(list<T>* self, T default_value);
     void insert(list<T>* self, int position, T item);
     void delete(list<T>* self, int position);
     void delete_range(list<T>* self, int head, int tail);
@@ -381,6 +382,7 @@ impl list <T>
     void reset(list<T>* self);
     void push_back(list<T>* self, T item);
     T pop_back(list<T>* self, T default_value);
+    T pop_front(list<T>* self, T default_value);
     void insert(list<T>* self, int position, T item);
     void delete(list<T>* self, int position);
     void delete_range(list<T>* self, int head, int tail);

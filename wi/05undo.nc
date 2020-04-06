@@ -9,9 +9,9 @@
 
 impl ViWin version 5
 {
-initialize(int y, int x, int width, int height) 
+initialize(int y, int x, int width, int height, Vi* vi) 
 {
-    inherit(self, y, x, width, height);
+    inherit(self, y, x, width, height, vi);
     self.undo = new list<list<wstring>*%>.initialize();
     self.undoScroll = new list<int>.initialize();
     self.undoCursorX = new list<int>.initialize();

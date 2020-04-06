@@ -10,16 +10,18 @@
 
 impl ViWin version 14
 {
-initialize(int y, int x, int width, int height) {
-    inherit(self, y, x, width, height);
+initialize(int y, int x, int width, int height, Vi* vi) {
+    inherit(self, y, x, width, height, vi);
 
     self.inputedKeys = new vector<int>.initialize();
     self.autoInput = false;
+    self.digitInput = 0;
     self.autoInputIndex = 0;
 }
 
 int getKey(ViWin* self) {
-    if(self.autoInput && self.savedInputedKeys) {
+    if(self.autoInput && self.savedInputedKeys) 
+    {
         if(self.autoInputIndex < self.savedInputedKeys.length()) {
             int key = self.savedInputedKeys.item(self.autoInputIndex, -1);
             self.autoInputIndex++;
@@ -33,7 +35,6 @@ int getKey(ViWin* self) {
                 self.pressedDot = false;
 
                 int key = wgetch(self.win);
-                
                 
                 if(self.inputedKeys.length() < SAVE_INPUT_KEY_MAX) {
                     self.inputedKeys.push_back(key);
@@ -54,10 +55,36 @@ int getKey(ViWin* self) {
     }
     else {
         self.pressedDot = false;
+        
         int key = wgetch(self.win);
-        if(self.inputedKeys.length() < SAVE_INPUT_KEY_MAX) {
-            self.inputedKeys.push_back(key);
+        
+        if(key >= '0' && key <= '9' && ((Vi*)self.vi).mode != kInsertMode) {
+            int num = key - '0';
+            
+            key = wgetch(self.win);
+            
+            while(key >= '0' && key <= '9') {
+                num = num * 10 + key - '0';
+                
+                key = wgetch(self.win);
+            }
+            
+            self.digitInput = num-1;
+            
+            if(self.inputedKeys.length() < SAVE_INPUT_KEY_MAX) {
+                self.inputedKeys.push_back(key);
+            }
+
+            return key;
         }
+        else {
+            if(self.inputedKeys.length() < SAVE_INPUT_KEY_MAX) {
+                self.inputedKeys.push_back(key);
+            }
+
+            return key;
+        }
+        
         return key;
     }
 
@@ -69,7 +96,21 @@ void clearInputedKey(ViWin* self) {
 
 void saveInputedKey(ViWin* self) {
     if(!self.autoInput && !self.pressedDot) {
-        self.savedInputedKeys = clone self.inputedKeys;
+        if(self.digitInput > 0) {
+
+            self.autoInput = true;
+            self.autoInputIndex = 0;
+            self.savedInputedKeys = new vector<int>.initialize();
+            for(int i=0; i<self.digitInput; i++) {
+                self.inputedKeys.each {
+                    self.savedInputedKeys.push_back(it);
+                }
+            }
+            self.digitInput = 0;
+        }
+        else {
+            self.savedInputedKeys = clone self.inputedKeys;
+        }
     }
 }
 

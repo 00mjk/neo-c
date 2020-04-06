@@ -26,7 +26,7 @@ Raspberry PI return -1
 
 impl ViWin 
 {
-initialize(int y, int x, int width, int height) {
+initialize(int y, int x, int width, int height, Vi* vi) {
     self.texts = new list<wstring>.initialize();
 
     self.y = y;
@@ -35,6 +35,7 @@ initialize(int y, int x, int width, int height) {
     self.height = height;
 
     self.scroll = 0;
+    self.vi = vi;
 
     var win = newwin(height, width, y, x);
 
@@ -86,7 +87,7 @@ initialize() {
     var maxx = xgetmaxx();
     var maxy = xgetmaxy();
 
-    var win = new ViWin.initialize(0, 0, maxx-1, maxy);
+    var win = new ViWin.initialize(0, 0, maxx-1, maxy, self);
 
     win.texts.push_back(wstring("aaa"));
     win.texts.push_back(wstring("bbb"));

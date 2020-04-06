@@ -13,8 +13,8 @@
 
 impl ViWin version 6
 {
-initialize(int y, int x, int width, int height) {
-    inherit(self, y, x, width, height);
+initialize(int y, int x, int width, int height, Vi* vi) {
+    inherit(self, y, x, width, height, vi);
 
     self.fileName = string("a.txt");
     //self.fileName = "a.txt";
@@ -280,7 +280,7 @@ void openFile(Vi* self, char* file_name, int line_num)
             var maxx = xgetmaxx();
             var maxy = xgetmaxy();
             
-            var win = new ViWin.initialize(0,0, maxx-1, maxy);
+            var win = new ViWin.initialize(0,0, maxx-1, maxy, self);
     
             self.activeWin = win;
             self.wins.push_back(win);
@@ -298,7 +298,7 @@ void openFile(Vi* self, char* file_name, int line_num)
             var maxx = xgetmaxx();
             var maxy = xgetmaxy();
             
-            var win = new ViWin.initialize(0,0, maxx-1, maxy);
+            var win = new ViWin.initialize(0,0, maxx-1, maxy, self);
     
             self.activeWin = win;
             self.wins.push_back(win);
@@ -320,7 +320,7 @@ void openFile(Vi* self, char* file_name, int line_num)
                 var maxx = xgetmaxx();
                 var maxy = xgetmaxy();
                 
-                var win = new ViWin.initialize(0,0, maxx-1, maxy);
+                var win = new ViWin.initialize(0,0, maxx-1, maxy, self);
         
                 self.activeWin = win;
                 self.wins.push_back(win);
@@ -340,7 +340,7 @@ void openNewFile(Vi* self, char* file_name) {
 
     int height = maxy / (self.wins.length() + 1);
 
-    var win = new ViWin.initialize(0,0, maxx-1, height);
+    var win = new ViWin.initialize(0,0, maxx-1, height, self);
     win.openFile(file_name, -1);
 
     self.activeWin = win;

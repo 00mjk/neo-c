@@ -145,6 +145,11 @@ int main()
     var li7 = li6.sort_block { return strcmp(it, it2); }
 
     xassert("string sort test", li7.equals(list!(string("aaa"), string("bbb"), string("ccc"))));
+    
+    var li8 = list!("aaa", "bbb", "ccc");
+    
+    xassert("list pop_front test", strcmp(li8.pop_front(null), "aaa") == 0 && strcmp(li8.pop_front(null), "bbb") == 0 && strcmp(li8.pop_front(null), "ccc") == 0 && li8.pop_front(null) == null);
+    
 
     0
 }

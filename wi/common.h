@@ -18,6 +18,7 @@ struct ViWin
     int x;
     int width;
     int height;
+    void* vi;
 };
 
 struct Vi 
@@ -28,7 +29,7 @@ struct Vi
 
 impl ViWin 
 {
-    initialize(int y, int x, int width, int height);
+    initialize(int y, int x, int width, int height, Vi* vi);
     finalize();
     void view(ViWin* self, Vi* nvi);
     void input(ViWin* self, Vi* nvi);
@@ -56,7 +57,7 @@ struct ViWin version 2
 
 impl ViWin version 2 
 {
-    initialize(int y, int x, int width, int height);
+    initialize(int y, int x, int width, int height, Vi* vi);
     
     void textsView(ViWin* self, Vi* nvi);
     void statusBarView(ViWin* self, Vi* nvi);
@@ -172,7 +173,7 @@ struct ViWin version 5
 
 impl ViWin version 5
 {
-    initialize(int y, int x, int width, int height);
+    initialize(int y, int x, int width, int height, Vi* vi);
 
     void pushUndo(ViWin* self);
 
@@ -197,7 +198,7 @@ struct ViWin version 6
 
 impl ViWin version 6
 {
-    initialize(int y, int x, int width, int height);
+    initialize(int y, int x, int width, int height, Vi* vi);
     void statusBarView(ViWin* self, Vi* nvi);
     void openFile(ViWin* self, char* file_name, int line_num);
     void writeFile(ViWin* self);
@@ -260,7 +261,7 @@ struct ViWin version 8
 
 impl ViWin version 8 
 {
-    initialize(int y, int x, int width, int height);
+    initialize(int y, int x, int width, int height, Vi* vi);
     void visualModeView(ViWin* self, Vi* nvi);
     void view(ViWin* self, Vi* nvi);
     void inputVisualMode(ViWin* self, Vi* nvi);
@@ -360,6 +361,7 @@ struct ViWin version 14
     vector<int>*% inputedKeys;
     vector<int>*% savedInputedKeys;
     bool autoInput;
+    int digitInput;
     int autoInputIndex;
     bool pressedDot;
 };
@@ -367,7 +369,7 @@ struct ViWin version 14
 
 impl ViWin version 14
 {
-    initialize(int y, int x, int width, int height);
+    initialize(int y, int x, int width, int height, Vi* vi);
     int getKey(ViWin* self);
     void clearInputedKey(ViWin* self);
     void saveInputedKey(ViWin* self);
@@ -420,7 +422,7 @@ impl Vi version 15
 impl ViWin version 15
 {
     void textsView(ViWin* self, Vi* nvi);
-    initialize(int y, int x, int width, int height);
+    initialize(int y, int x, int width, int height, Vi* vi);
     void statusBarView(ViWin* self, Vi* nvi);
 }
 
@@ -432,7 +434,7 @@ struct ViWin version 16
 
 impl ViWin version 16
 {
-    initialize(int y, int x, int width, int height);
+    initialize(int y, int x, int width, int height, Vi* vi);
 }
 
 impl Vi version 16
@@ -451,7 +453,7 @@ struct ViWin version 17
 
 impl ViWin version 17
 {
-initialize(int y, int x, int width, int height);
+initialize(int y, int x, int width, int height, Vi* vi);
 void view(ViWin* self, Vi* nvi);
 void input(ViWin* self, Vi* nvi);
 }
@@ -477,7 +479,7 @@ struct ViWin version 18
 
 impl ViWin version 18
 {
-initialize(int y, int x, int width, int height);
+initialize(int y, int x, int width, int height, Vi* vi);
 
 void view(ViWin* self, Vi* nvi);
 void input(ViWin* self, Vi* nvi);

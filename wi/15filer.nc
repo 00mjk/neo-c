@@ -17,12 +17,12 @@
 
 impl ViWin version 15
 {
-initialize(int y, int x, int width, int height) {
+initialize(int y, int x, int width, int height, Vi* vi) {
     int maxx = xgetmaxx();
 
     int filer_width = maxx / 5;
 
-    inherit(self, y, x + filer_width, width-filer_width, height);
+    inherit(self, y, x + filer_width, width-filer_width, height, vi);
 }
 
 void textsView(ViWin* self, Vi* nvi)

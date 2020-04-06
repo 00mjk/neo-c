@@ -9,8 +9,8 @@
 
 impl ViWin version 17
 {
-initialize(int y, int x, int width, int height) {
-    inherit(self, y, x, width, height);
+initialize(int y, int x, int width, int height, Vi* vi) {
+    inherit(self, y, x, width, height, vi);
     
     self.visualModeHorizonHeadX = 0;
     self.visualModeHorizonHeadY = 0;

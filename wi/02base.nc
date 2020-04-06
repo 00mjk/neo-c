@@ -10,8 +10,8 @@
 
 impl ViWin version 2 
 {
-initialize(int y, int x, int width, int height) {
-    inherit(self, y, x, width, height);
+initialize(int y, int x, int width, int height, Vi* vi) {
+    inherit(self, y, x, width, height, vi);
     
     self.returnPointStack 
         = new list<tuple3<int, int, int>*%>.initialize();
@@ -324,7 +324,7 @@ initialize() {
     var maxx = xgetmaxx();
     var maxy = xgetmaxy();
 
-    var win = new ViWin.initialize(0,0, maxx-1, maxy);
+    var win = new ViWin.initialize(0,0, maxx-1, maxy, self);
 
     win.texts.push_back(wstring("abc"));
     win.texts.push_back(wstring("def"));
