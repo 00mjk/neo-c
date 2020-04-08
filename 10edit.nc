@@ -132,7 +132,7 @@ void deleteWord(ViWin* self, Vi* nvi) {
 void deleteForNextCharacter(ViWin* self) {
     self.pushUndo();
     
-    var key = self.getKey(false);
+    var key = self.getKey();
 
     wstring& line = self.texts.item(self.scroll+self.cursorY, wstring(""));
 
@@ -180,7 +180,7 @@ void joinLines(ViWin* self) {
 }
 
 void forwardToNextCharacter1(ViWin* self) {
-    var key = self.getKey(false);
+    var key = self.getKey();
     
     var line = self.texts.item(self.scroll+self.cursorY, null);
     
@@ -192,7 +192,7 @@ void forwardToNextCharacter1(ViWin* self) {
 }
 
 void forwardToNextCharacter2(ViWin* self) {
-    var key = self.getKey(false);
+    var key = self.getKey();
     
     var line = self.texts.item(self.scroll+self.cursorY, null);
     
@@ -204,11 +204,11 @@ void forwardToNextCharacter2(ViWin* self) {
 }
 
 void backwardToNextCharacter(ViWin* self) {
-    var key = self.getKey(false);
+    var key = self.getKey();
     
     var line = self.texts.item(self.scroll+self.cursorY, null);
     
-    var cursor_x = line.substring(0, self.cursorX).rindex(xsprintf("%c", key).to_wstring(), -1);
+    var cursor_x = line.substring(0, self.cursorX).rindex(xsprintf("%c", key).to_wtring(), -1);
     
     if(cursor_x != -1) {
         self.cursorX = cursor_x;
@@ -223,7 +223,7 @@ initialize() {
     inherit(self);
 
     self.events.replace('d', lambda(Vi* self, int key) {
-        var key2 = self.activeWin.getKey(false);
+        var key2 = self.activeWin.getKey();
 
         switch(key2) {
             case 'd':
@@ -248,7 +248,7 @@ initialize() {
     });
 
     self.events.replace('c', lambda(Vi* self, int key) {
-        var key2 = self.activeWin.getKey(false);
+        var key2 = self.activeWin.getKey();
 
         switch(key2) {
             case 'w':
