@@ -27,32 +27,8 @@ initialize(int y, int x, int width, int height, Vi* vi) {
 
 int getKey(ViWin* self) {
     if(self.runningMacro) {
-        if(self.runningMacroIndex1 >= self.runningMacro.length())
-        {
-            self.runningMacro = null;
-            self.runningMacroIndex1 = 0;
-            self.runningMacroIndex2 = 0;
-        }
-        else {
-            var inputed_key_vec = self.runningMacro.item(self.runningMacroIndex1, null);
-            
-            if(self.runningMacroIndex2 < inputed_key_vec.length())
-            {
-                int inputed_key_vec2 = inputed_key_vec.item(self.runningMacroIndex2, -1);
-                self.runningMacroIndex2++;
-                
-                return inputed_key_vec2;
-            }
-            else {
-                self.runningMacroIndex1++;
-                self.runningMacroIndex2 = 0;
-                
-                return self.getKey();
-            }
-        }
     }
-    
-    if(self.autoInput && self.savedInputedKeys) 
+    else if(self.autoInput && self.savedInputedKeys) 
     {
         if(self.autoInputIndex < self.savedInputedKeys.length()) {
             int key = self.savedInputedKeys.item(self.autoInputIndex, -1);

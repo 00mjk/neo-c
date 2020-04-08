@@ -7762,6 +7762,15 @@ BOOL compile_lambda_call(unsigned int node, sCompileInfo* info)
         LVALUE* param = get_value_from_stack(-num_params+i);
 
         lvalue_params[i] = param;
+        
+        if(left_type == NULL || right_type == NULL) {
+            compile_err_msg(info, "null lambda type");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
 
         if(auto_cast_posibility(left_type, right_type)) 
         {
