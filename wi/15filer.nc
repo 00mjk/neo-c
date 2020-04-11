@@ -646,6 +646,14 @@ void sig_winch(int sig_num)
     gVi.view();
     
     gVi.extraView();
+    
+    if(gVi.extraWin) {
+        delwin(gVi.extraWin);
+        
+        int maxx = xgetmaxx();
+        var win = newwin(3,maxx-1, 0, 0);
+        gVi.extraWin = win;
+    }
 }
 
 impl Vi version 15
@@ -665,11 +673,12 @@ initialize() {
 }
 
 void extraView(Vi* self) {
-    var win = self.extraWin;
-    var line = clone self.extraLine;
-    var cursor = self.extraCursor;
-
     if(self.extraWin) {
+        var win = self.extraWin;
+
+        var line = clone self.extraLine;
+        var cursor = self.extraCursor;
+        
         werase(win);
         
         box(win, '|', '-');
