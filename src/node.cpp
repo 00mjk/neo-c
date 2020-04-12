@@ -979,7 +979,8 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
     if(!compile(left_node, info)) {
         return FALSE;
     }
-    sNodeType* left_type = info->type;
+
+    sNodeType* left_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -988,7 +989,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
@@ -1134,6 +1135,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
     else if(is_number_type(left_type) && is_number_type(right_type))
     {
         LVALUE llvm_value;
+
         llvm_value.value = Builder.CreateAdd(lvalue.value, rvalue.value, "addtmp", false, true);
         llvm_value.type = clone_node_type(right_type);
         llvm_value.address = nullptr;
@@ -1200,7 +1202,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
     if(!compile(left_node, info)) {
         return FALSE;
     }
-    sNodeType* left_type = info->type;
+    sNodeType* left_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -1209,7 +1211,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
@@ -1453,7 +1455,7 @@ static BOOL compile_mult(unsigned int node, sCompileInfo* info)
     if(!compile(left_node, info)) {
         return FALSE;
     }
-    sNodeType* left_type = info->type;
+    sNodeType* left_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -1462,7 +1464,7 @@ static BOOL compile_mult(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
@@ -1645,7 +1647,7 @@ static BOOL compile_mod(unsigned int node, sCompileInfo* info)
     if(!compile(left_node, info)) {
         return FALSE;
     }
-    sNodeType* left_type = info->type;
+    sNodeType* left_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -1654,7 +1656,7 @@ static BOOL compile_mod(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
@@ -1739,7 +1741,7 @@ static BOOL compile_equals(unsigned int node, sCompileInfo* info)
     if(!compile(left_node, info)) {
         return FALSE;
     }
-    sNodeType* left_type = info->type;
+    sNodeType* left_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -1748,7 +1750,7 @@ static BOOL compile_equals(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
@@ -1812,7 +1814,7 @@ static BOOL compile_not_equals(unsigned int node, sCompileInfo* info)
     if(!compile(left_node, info)) {
         return FALSE;
     }
-    sNodeType* left_type = info->type;
+    sNodeType* left_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -1821,7 +1823,7 @@ static BOOL compile_not_equals(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
@@ -1884,7 +1886,7 @@ static BOOL compile_gteq(unsigned int node, sCompileInfo* info)
     if(!compile(left_node, info)) {
         return FALSE;
     }
-    sNodeType* left_type = info->type;
+    sNodeType* left_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -1893,7 +1895,7 @@ static BOOL compile_gteq(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
@@ -1956,7 +1958,7 @@ static BOOL compile_leeq(unsigned int node, sCompileInfo* info)
     if(!compile(left_node, info)) {
         return FALSE;
     }
-    sNodeType* left_type = info->type;
+    sNodeType* left_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -1965,7 +1967,7 @@ static BOOL compile_leeq(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
@@ -2028,7 +2030,7 @@ static BOOL compile_gt(unsigned int node, sCompileInfo* info)
     if(!compile(left_node, info)) {
         return FALSE;
     }
-    sNodeType* left_type = info->type;
+    sNodeType* left_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -2037,7 +2039,7 @@ static BOOL compile_gt(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
@@ -2100,7 +2102,7 @@ static BOOL compile_le(unsigned int node, sCompileInfo* info)
     if(!compile(left_node, info)) {
         return FALSE;
     }
-    sNodeType* left_type = info->type;
+    sNodeType* left_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -2109,7 +2111,7 @@ static BOOL compile_le(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* right_type = info->type;
+    sNodeType* right_type = clone_node_type(info->type);
 
     LVALUE rvalue = *get_value_from_stack(-1);
 
@@ -2172,7 +2174,7 @@ static BOOL compile_logical_denial(unsigned int node, sCompileInfo* info)
     if(!compile(left_node, info)) {
         return FALSE;
     }
-    sNodeType* left_type = info->type;
+    sNodeType* left_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
 
@@ -2260,7 +2262,7 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    sNodeType* var_type = var->mType;
+    sNodeType* var_type = clone_node_type(var->mType);
 
     Value* index_value = NULL;
     if(var_type->mDynamicArrayNum != 0) {

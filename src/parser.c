@@ -2740,7 +2740,16 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
         }
     }
     else {
-        *node = sNodeTree_create_define_variable(name, extern_, info);
+        if(*info->p != ',' && *info->p != ';' && isascii(*info->p)) 
+        {
+            parser_err_msg(info, "Require right value for , or ;");
+            info->err_num++;
+
+            *node = 0;
+        }
+        else {
+            *node = sNodeTree_create_define_variable(name, extern_, info);
+        }
     }
 
     if((info->parse_struct_phase && info->mBlockLevel == 0) || (info->mBlockLevel > 0)) 
