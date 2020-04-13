@@ -456,6 +456,34 @@ void joinLines(ViWin* self) {
     self.modifyOverCursorXValue();
 }
 
+void yankOneLine(ViWin* self, Vi* nvi) {
+    if(self.digitInput > 0) {
+        self.pushUndo();
+        
+        nvi.yank.reset();
+        nvi.yankKind = kYankKindLine;
+        
+        for(int i=0; i<self.digitInput+1; i++) {
+            var line = self.texts.item(self.scroll+self.cursorY+i, null);
+            
+            if(line != null) {
+                nvi.yank.push_back(clone line);
+            }
+        }
+        
+        self.digitInput = 0;
+    }
+    else {
+        var line = self.texts.item(self.scroll+self.cursorY, null);
+        if(line != null) {
+            self.pushUndo();
+            nvi.yank.reset();
+            nvi.yank.push_back(clone line);
+            nvi.yankKind = kYankKindLine;
+        }
+    }
+}
+
 void joinLines2(ViWin* self) {
     self.pushUndo();
 
@@ -624,7 +652,7 @@ initialize() {
     });
 
     self.events.replace('c', lambda(Vi* self, int key) {
-        var key2 = self.activeWin.getKey(false);
+        var key2 = self.activeWin.getKey(true);
 
         switch(key2) {
             case '$':
@@ -660,6 +688,18 @@ initialize() {
                 self.activeWin.writed = true;
                 break;
         }
+    });
+    self.events.replace('y', lambda(Vi* self, int key) {
+        var key2 = self.activeWin.getKey(true);
+
+        switch(key2) {
+            case 'y':
+                self.activeWin.yankOneLine(self);
+                break;
+        }
+    });
+    self.events.replace('Y', lambda(Vi* self, int key) {
+        self.activeWin.yankOneLine(self);
     });
     self.events.replace('D', lambda(Vi* self, int key) {
         self.activeWin.deleteUntilTail();
