@@ -20,7 +20,7 @@ int main()
 
 4. Mixin-layers system. You can create apllication with overlaying layers. See wi or tiny application sample included in this source code. 
 
-version 1.0.6
+version 1.0.7
 
 * INSTALL
 
@@ -145,6 +145,8 @@ impl string
     inline int compare(string& left, string& right) {
         return strcmp(left, right);
     }
+    
+    extern void replace(string& self, int index, char c);
 }
 ```
 
@@ -219,6 +221,8 @@ impl string
     inline int compare(string& left, string& right) {
         return strcmp(left, right);
     }
+    
+    extern void replace(string& self, int index, char c);
 }
 ```
 

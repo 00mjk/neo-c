@@ -379,6 +379,8 @@ impl string
     inline int compare(string& left, string& right) {
         return strcmp(left, right);
     }
+    
+    extern void replace(string& self, int index, char c);
 }
 
 /// wstring ///
@@ -403,6 +405,8 @@ impl wstring
     inline int compare(wstring& left, wstring& right) {
         return wcscmp(left, right);
     }
+    
+    extern void replace(wstring& self, int index, wchar_t c);
 }
 
 /// vector ///

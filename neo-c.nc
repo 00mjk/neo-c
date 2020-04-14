@@ -664,6 +664,28 @@ impl string
     wstring to_wstring(string& self) {
         return wstring(self);
     }
+    
+    void replace(string& self, int index, char c) {
+        int len = strlen(self);
+
+        if(strcmp(self, "") == 0) {
+            return;
+        }
+        
+        if(index < 0) {
+           index += len;
+        }
+
+        if(index >= len) {
+            index = len-1;
+        }
+
+        if(index < 0) {
+            index = 0;
+        }
+        
+        self[index] = c;
+    }
 }
 
 /// wstring ///
@@ -997,6 +1019,28 @@ impl wstring
         result[n] = '\0'
 
         return result;
+    }
+    
+    void replace(wstring& self, int index, wchar_t c) {
+        int len = wcslen(self);
+
+        if(wcscmp(self, wstring("")) == 0) {
+            return;
+        }
+        
+        if(index < 0) {
+           index += len;
+        }
+
+        if(index >= len) {
+            index = len-1;
+        }
+
+        if(index < 0) {
+            index = 0;
+        }
+        
+        self[index] = c;
     }
 }
 
