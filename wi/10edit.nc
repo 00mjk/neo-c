@@ -632,6 +632,52 @@ void backwardToNextCharacter2(ViWin* self) {
     }
 }
 
+void changeCase(ViWin* self) {
+    self.pushUndo();
+
+    var line = self.texts.item(self.scroll+self.cursorY, null);
+    
+    if(self.digitInput > 0) {
+        for(int i=0; i<self.digitInput+1; i++) {
+            wchar_t c = line.item(self.cursorX + i, -1);
+            
+            if(c != -1) {
+                if(c >= 'a' && c <= 'z') {
+                    wchar_t c2 = c - 'a' + 'A';
+                    
+                    line.replace(self.cursorX + i, c2);
+                }
+                else if(c >= 'A' && c <= 'Z') {
+                    wchar_t c2 = c - 'A' + 'a';
+                    
+                    line.replace(self.cursorX + i, c2);
+                }
+            }
+            else {
+                break;
+            }
+        }
+        
+        self.digitInput = 0;
+    }
+    else {
+        wchar_t c = line.item(self.cursorX, -1);
+            
+        if(c != -1) {
+            if(c >= 'a' && c <= 'z') {
+                wchar_t c2 = c - 'a' + 'A';
+                
+                line.replace(self.cursorX, c2);
+            }
+            else if(c >= 'A' && c <= 'Z') {
+                wchar_t c2 = c - 'A' + 'a';
+                
+                line.replace(self.cursorX, c2);
+            }
+        }
+    }
+}
+
 }
 
 impl Vi version 10
@@ -780,6 +826,11 @@ initialize() {
         self.activeWin.backwardToNextCharacter2();
 
         self.activeWin.saveInputedKeyOnTheMovingCursor();
+    });
+    self.events.replace('~', lambda(Vi* self, int key) {
+        self.activeWin.changeCase();
+
+        self.activeWin.saveInputedKey();
     });
 }
 }

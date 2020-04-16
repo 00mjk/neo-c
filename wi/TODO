@@ -1,9 +1,6 @@
 resize terminal
-5r
-~
-5~
 ^
-$
+5^
 d`a
 C
 C-wj
@@ -96,3 +93,7 @@ Y
 ct,cf tigai
 ce,cw tigai
 de,dw tigai
+5r
+~
+5~
+5$

@@ -381,6 +381,7 @@ impl string
     }
     
     extern void replace(string& self, int index, char c);
+    extern char item(string& self, int index, char default_value);
 }
 
 /// wstring ///
@@ -407,6 +408,7 @@ impl wstring
     }
     
     extern void replace(wstring& self, int index, wchar_t c);
+    extern wchar_t item(wstring& self, int index, wchar_t default_value);
 }
 
 /// vector ///

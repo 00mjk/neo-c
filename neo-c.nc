@@ -686,6 +686,26 @@ impl string
         
         self[index] = c;
     }
+    
+    char item(string& self, int index, char default_value)
+    {
+        int len = strlen(self);
+
+        if(strcmp(self, "") == 0) {
+            return default_value;
+        }
+        
+        if(index < 0) {
+           index += len;
+        }
+
+        if(index < 0 || index >= len) {
+            return default_value;
+        }
+        
+        
+        return self[index];
+    }
 }
 
 /// wstring ///
@@ -1041,6 +1061,26 @@ impl wstring
         }
         
         self[index] = c;
+    }
+    
+    wchar_t item(wstring& self, int index, wchar_t default_value)
+    {
+        int len = wcslen(self);
+
+        if(wcscmp(self, wstring("")) == 0) {
+            return default_value;
+        }
+        
+        if(index < 0) {
+           index += len;
+        }
+
+        if(index < 0 || index >= len) {
+            return default_value;
+        }
+        
+        
+        return self[index];
     }
 }
 
