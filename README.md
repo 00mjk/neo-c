@@ -1,5 +1,7 @@
 # neo-c compiler language
 
+version 1.1.2
+
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,38 +21,6 @@ int main()
 3. Generics. method Generics, inline function, method block with type infference.
 
 4. Mixin-layers system. You can create apllication with overlaying layers. See wi or tiny application sample included in this source code. 
-
-version 1.1.2
-
-# INSTALL
-
-```
-sudo apt-get install clang gcc make autoconf llvm-dev git libpcre3-dev gdb valgrind xctags ruby
-
-git clone https://github.com/ab25cq/neo-c
-
-cd neo-c
-
-./configure --with-optimize
-make
-sudo make install
-```
-
-This program is tested in LLVM-3.8 and LLVM-7, and x86_64 on Debian, Raspberry PI 3B+.
-
-# neo-c コンパイラ言語
-
-```
-#include <stdio.h>
-#include <stdlib.h>
-
-int main() 
-{
-    printf(string("HO!\n") * 3);
-
-    exit(0);
-}
-```
 
 1. C言語とある程度互換性があります。特にヘッダーファイルをincludeするのには問題ないでしょう。Cプリプロセッサーも動きます。
 
@@ -73,6 +43,8 @@ cd neo-c
 make
 sudo make install
 ```
+
+This program is tested in LLVM-3.8 and LLVM-7, and x86_64 on Debian, Raspberry PI 3B+.
 
 このプログラムはLLVM-3.8とLLVM-7でテストしています。
 x86_64のDebianとRaspberry PI 3B+でテストしています。
