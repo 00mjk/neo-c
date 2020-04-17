@@ -204,6 +204,8 @@ impl string
     extern string substring(string& str, int head, int tail);
     extern int index(string& str, char* search_str, int default_value);
     extern int rindex(string& str, char* search_str, int default_value);
+    extern int index_regex(string& str, nregex reg, int default_value);
+    extern int rindex_regex(string& str, nregex reg, int default_value);
     extern string&delete(string& str, int position);
     extern string& delete_range(string& str, int head, int tail);
     extern string printable(string& str);
@@ -221,6 +223,8 @@ impl string
     
     extern void replace(string& self, int index, char c);
     extern char item(string& self, int index, char default_value);
+    
+    extern nregex to_regex(string& self);
 }
 ```
 
