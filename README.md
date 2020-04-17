@@ -20,7 +20,7 @@ int main()
 
 4. Mixin-layers system. You can create apllication with overlaying layers. See wi or tiny application sample included in this source code. 
 
-version 1.1.1
+version 1.1.2
 
 * INSTALL
 
@@ -76,6 +76,14 @@ sudo make install
 
 このプログラムはLLVM-3.8とLLVM-7でテストしています。
 x86_64のDebianとRaspberry PI 3B+でテストしています。
+
+# CHANGELOG
+
+1.1.2 重要なバグフィックスを行っています。構造体のデストラクターがフィールドのオブジェクトの解放後呼ばれてしまうバグを修正。このバージョンから構造体のデストラクターが呼ばれる時にはフィールドはちゃんと存在します。
+
+1.1.2 We have made important bug fixes. Fixed a bug that the struct destructor is called after releasing the field> field object. The fields are present when the struct> destructor is called from this version.
+
+# INTRODUCTION
 
 * string
 

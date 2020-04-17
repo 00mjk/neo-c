@@ -2229,8 +2229,8 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
                 }
             }
             else {
-                call_field_destructor(obj2, node_type, info);
                 call_destructor(obj2, node_type, info);
+                call_field_destructor(obj2, node_type, info);
             }
         }
     }
