@@ -22,6 +22,18 @@ int main()
 
 4. Mixin-layers system. You can create apllication with overlaying layers. See wi or tiny application sample included in this source code. 
 
+```
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() 
+{
+    printf(string("HO!\n") * 3);
+
+    exit(0);
+}
+```
+
 1. C言語とある程度互換性があります。特にヘッダーファイルをincludeするのには問題ないでしょう。Cプリプロセッサーも動きます。
 
 2. Rustと同じくGCを使わないヒープシステムがあります。オブジェクトは自動的にfreeされます。vector, list, map, string, regexのライブラリがあります。
