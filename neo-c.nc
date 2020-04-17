@@ -782,6 +782,10 @@ impl string
         
         return self[index];
     }
+    
+    nregex to_regex(string& self) {
+        return regex(self, false, false, false, false, false, false, false, false);
+    }
 }
 
 /// wstring ///

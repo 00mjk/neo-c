@@ -385,6 +385,8 @@ impl string
     extern void replace(string& self, int index, char c);
     extern char item(string& self, int index, char default_value);
     extern string reverse(string& self);
+    
+    extern nregex to_regex(string& self);
 }
 
 /// wstring ///

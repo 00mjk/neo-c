@@ -20,7 +20,7 @@ int main()
 
 4. Mixin-layers system. You can create apllication with overlaying layers. See wi or tiny application sample included in this source code. 
 
-version 1.0.9
+version 1.1.1
 
 * INSTALL
 
@@ -150,6 +150,8 @@ impl string
     
     extern void replace(string& self, int index, char c);
     extern char item(string& self, int index, char default_value);
+    
+    extern nregex to_regex(string& self);
 }
 ```
 

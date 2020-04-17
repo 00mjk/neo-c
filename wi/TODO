@@ -1,8 +1,8 @@
 resize terminal
 g/ regex search
 none regex search
-one window mode
 sp completion
+search string saved when finishing
 d`a
 C
 C-wj
@@ -101,3 +101,4 @@ de,dw tigai
 5$
 ^
 5^
+one window mode

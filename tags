@@ -80,7 +80,7 @@ LexicalBlock	src/llvm.cpp	/^    std::vector<DIScope*> LexicalBlock;$/;"	m	struct
 MACRO_MAX	src/common.h	38;"	d
 MANAGED	src/xfunc.h	5;"	d
 MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	1317;"	d
-MAP_TABLE_DEFAULT_SIZE	neo-c.h	1879;"	d
+MAP_TABLE_DEFAULT_SIZE	neo-c.h	1881;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
@@ -1225,6 +1225,7 @@ recordingMacroKey	wi/common.h	/^    int recordingMacroKey;$/;"	m	struct:version
 regex	code/neo-c.h	/^    pcre* regex;$/;"	m	struct:regex_struct
 regex	code/neo-c.h	/^typedef regex_struct*% regex;$/;"	t
 regex	neo-c.h	/^    pcre* regex;$/;"	m	struct:regex_struct
+regexSearch	wi/common.h	/^    bool regexSearch;$/;"	m	struct:version
 regex_struct	code/neo-c.h	/^struct regex_struct {$/;"	s
 regex_struct	neo-c.h	/^struct regex_struct {$/;"	s
 rehash	code/neo-c.h	/^    void rehash(map<T,T2>* self) {$/;"	f	struct:map
