@@ -297,6 +297,82 @@ impl string
 
         return default_value;
     }
+    int index_regex(string& self, nregex reg, int default_value)
+    {
+        int ovec_max = 16;
+        int start[ovec_max];
+        int end[ovec_max];
+        int ovec_value[ovec_max * 3];
+
+        int result = default_value;
+        
+        int offset = 0;
+
+        while(true) {
+            int options = PCRE_NEWLINE_LF;
+            int len = strlen(self);
+            int regex_result = pcre_exec(reg.regex, 0, self, len, offset, options, ovec_value, ovec_max*3);
+
+            for(int i=0; i<ovec_max; i++) {
+                start[i] = ovec_value[i*2];
+            }
+            for(int i=0; i<ovec_max; i++) {
+                end[i] = ovec_value[i*2+1];
+            }
+
+            /// match and no group strings ///
+            if(regex_result == 1 || regex_result > 0) 
+            {
+                result = start[0];
+                break;
+            }
+            /// no match ///
+            {
+                break;
+            }
+        }
+
+        return result;
+    }
+    int rindex_regex(string& self, nregex reg, int default_value)
+    {
+        string self2 = self.reverse();
+        
+        int ovec_max = 16;
+        int start[ovec_max];
+        int end[ovec_max];
+        int ovec_value[ovec_max * 3];
+
+        int result = default_value;
+        
+        int offset = 0;
+
+        while(true) {
+            int options = PCRE_NEWLINE_LF;
+            int len = strlen(self2);
+            int regex_result = pcre_exec(reg.regex, 0, self2, len, offset, options, ovec_value, ovec_max*3);
+
+            for(int i=0; i<ovec_max; i++) {
+                start[i] = ovec_value[i*2];
+            }
+            for(int i=0; i<ovec_max; i++) {
+                end[i] = ovec_value[i*2+1];
+            }
+
+            /// match and no group strings ///
+            if(regex_result == 1 || regex_result > 0) 
+            {
+                result = strlen(self) -1 - start[0];
+                break;
+            }
+            /// no match ///
+            {
+                break;
+            }
+        }
+
+        return result;
+    }
     string& delete(string& str, int position) {
         int len = strlen(str);
         

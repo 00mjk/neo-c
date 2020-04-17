@@ -678,6 +678,16 @@ void changeCase(ViWin* self) {
     }
 }
 
+void moveToHead(ViWin* self) {
+    var line = self.texts.item(self.scroll+self.cursorY, null);
+    
+    var point = line.to_string("").index_regex(regex!("\\S"), -1);
+    
+    if(point != -1) {
+        self.cursorX = point;
+    }
+}
+
 }
 
 impl Vi version 10
@@ -807,6 +817,11 @@ initialize() {
 
         self.activeWin.saveInputedKey();
     });
+    self.events.replace('~', lambda(Vi* self, int key) {
+        self.activeWin.changeCase();
+
+        self.activeWin.saveInputedKey();
+    });
     self.events.replace('f', lambda(Vi* self, int key) {
         self.activeWin.forwardToNextCharacter1();
 
@@ -827,10 +842,10 @@ initialize() {
 
         self.activeWin.saveInputedKeyOnTheMovingCursor();
     });
-    self.events.replace('~', lambda(Vi* self, int key) {
-        self.activeWin.changeCase();
+    self.events.replace('^', lambda(Vi* self, int key) {
+        self.activeWin.moveToHead();
 
-        self.activeWin.saveInputedKey();
+        self.activeWin.saveInputedKeyOnTheMovingCursor();
     });
 }
 }

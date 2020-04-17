@@ -71,6 +71,10 @@ int main()
     while(*data.p == ' ' || *data.p == '\t' || (*data.p == '\n' && data.sline++)) {
         data.p++;
     }
+    
+    var str2 = string("ABCABC");
+    
+    xassert("rindex_regex test", str2.rindex_regex(regex!("B"), -1) == 4);
 
     return 0;
 }
