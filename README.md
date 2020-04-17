@@ -22,7 +22,7 @@ int main()
 
 version 1.1.2
 
-* INSTALL
+# INSTALL
 
 ```
 sudo apt-get install clang gcc make autoconf llvm-dev git libpcre3-dev gdb valgrind xctags ruby
@@ -60,7 +60,7 @@ int main()
 
 4. Mixin-layersシステムを備えます。アプリケーションを実装する場合レイヤーを重ねるように簡単なアプリケーションから実装し始めて、レイヤーを重ねてアプリケーションを拡張していけます。wiとtinyというアプリケーションがソースコードに含まれているので、見てみてください。
 
-* インストール
+# INSTALL
 
 ```
 sudo apt-get install clang gcc make autoconf llvm-dev git libpcre3-dev gdb valgrind xctags ruby
