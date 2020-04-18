@@ -9,26 +9,16 @@
 #include <locale.h>
 #include <wctype.h>
 
-int fun() {
-    return 
-# 5 "01init.nc" 3 4
-          ((0 != (const void *)((
-# 5 "01init.nc"
-          stdscr
-# 5 "01init.nc" 3 4
-          ))) ? ((
-# 5 "01init.nc"
-          stdscr
-# 5 "01init.nc" 3 4
-          )->_maxx + 1) : (-1))
-                         ;
-}
-
 int main()
 {
-    wstring a = wstring("ABC");
-
-    printf("%ls\n", a.delete_range(1,2));
-
+    int key = 123;
+    
+    switch(key) {
+        case 4:
+            break;
+            
+        case 5:
+            break;
+    }
     return 0;
 }

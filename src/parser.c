@@ -5323,6 +5323,7 @@ static BOOL parse_switch(unsigned int* node, sParserInfo* info)
             break;
         }
         else {
+            int sline = info->sline;
 
             if(!expression(switch_expression + num_switch_expression, info)) 
             {
@@ -5341,6 +5342,8 @@ static BOOL parse_switch(unsigned int* node, sParserInfo* info)
             }
 
             unsigned int node = switch_expression[num_switch_expression];
+            
+            gNodes[node].mLine = sline;
 
             if(gNodes[node].mNodeType == kNodeTypeCase) {
                 gNodes[node].uValue.sCase.mFirstCase = info->first_case;

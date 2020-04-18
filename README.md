@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.1.2
+version 1.1.3
 
 ```
 #include <stdio.h>
@@ -63,9 +63,15 @@ x86_64のDebianとRaspberry PI 3B+でテストしています。
 
 # CHANGELOG
 
+1.1.3 switch文の中でエラーがあるとエラー行番号がおかしくなるバグを修正
+
+1.1.3 Fixed a bug that the error line number is wrong when there is an error in the switch statement.
+
 1.1.2 We have made important bug fixes. Fixed a bug that the struct destructor is called after releasing the field object. The fields are present when the struct destructor is called from this version.
 
 1.1.2 重要なバグフィックスを行っています。構造体のデストラクターがフィールドのオブジェクトの解放後呼ばれてしまうバグを修正。このバージョンから構造体のデストラクターが呼ばれる時にはフィールドはちゃんと存在します。
+
+
 
 # INTRODUCTION
 

@@ -10361,8 +10361,13 @@ BOOL compile_switch_expression(unsigned int node, sCompileInfo* info)
     int i;
     unsigned int node2;
     for(i=0; i<num_switch_expression; i++) {
+        int sline = info->sline;
+        gNodes[node].mLine = info->sline;
+        
         /// compile node ///
         node2 = switch_expression[i];
+        
+        info->sline = gNodes[node2].mLine;
 
         if(!compile(node2, info)) {
             info->num_loop--;
