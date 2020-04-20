@@ -291,6 +291,7 @@ impl list <T>
     void delete_range(list<T>* self, int head, int tail);
     void replace(list<T>* self, int position, T item);
     T& item(list<T>* self, int position, T& default_value);
+    T clone_item(list<T>* self, int position, T& default_value);
     void each(list<T>* self, void (*block_)(T&,int,bool*));
     list<T>*% sublist(list<T>* self, int begin, int tail);
     list<T>*% reverse(list<T>* self);
@@ -542,6 +543,7 @@ impl vector<T>
     void push_back(vector<T>* self, T item);
     T pop_back(vector<T>* self, T default_value);
     T& item(vector<T>* self, int index, T& default_value);
+    T clone_item(vector<T>* self, int index, T& default_value);
     void each(vector<T>* self, void (*block_)(T&,int,bool*));
     int find(vector<T>* self, T& item, int default_value);
     template <R> vector<R>*% map(vector<T>* self, R (*block_)(T&));
@@ -653,6 +655,7 @@ impl map <T, T2>
     void rehash(map<T,T2>* self);
     bool find(map<T, T2>* self, T& key);
     T2& at(map<T, T2>* self, T& key, T2& default_value);
+    T2 at_clone(map<T, T2>* self, T& key, T2& default_value);
     void insert(map<T,T2>* self, T key, T2 item);
     bool equals(map<T, T2>* left, map<T, T2>* right);
 }
