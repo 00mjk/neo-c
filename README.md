@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.1.3
+version 1.1.5
 
 ```
 #include <stdio.h>
@@ -63,7 +63,29 @@ x86_64のDebianとRaspberry PI 3B+でテストしています。
 
 # CHANGELOG
 
-1.1.3 switch文の中でエラーがあるとエラー行番号がおかしくなるバグを修正
+1.1.5 map.at, list.item, vector.itemなどの戻り値がT&ではなくTを返すmap.at_clone, list.clone_item, vector.item_cloneができました。このような場合問題になってました。
+
+```
+    var item = string("sp a.txt").scan(regex!("sp (.+)")).item(1, null);
+```
+
+この場合scanの戻り値のlist<string>は右辺値なのでfreeされますが、その場合itemの戻り値もfreeされてしまいます。そのため変数itemの値は不定です。回避するためには以下のようにしてください。
+
+```
+    var item = string("sp a.txt").scan(regex!("sp (.+)")).clone_item(1, null);
+```
+
+1.1.5 I have created map.at_clone, list.clone_item, vector.item_clone where the return value of map.at, list.item, vector.item etc. returns T instead of T&. In such a case, it became a problem.
+
+```
+    var item = string("sp a.txt").scan(regex! ("sp (. +)")).item(1, null);
+```
+
+In this case, the scan return value list<string> is free because it is an rvalue, but in that case the item return value will also be freed. Therefore, the value of the variable item is undefined. To avoid it, do the following.
+
+```
+    var item = string("sp a.txt").scan(regex! ("sp (. +)")).clone_item(1, nul l);
+```
 
 1.1.3 Fixed a bug that the error line number is wrong when there is an error in the switch statement.
 
@@ -280,6 +302,7 @@ impl list <T>
     bool equals(list<T>* left, list<T>* right);
     int length(list<T>* self);
     template <R> list<R>*% map(list<T>* self, R (*block_)(T&));
+    list<T>*% filter(list<T>* self, bool (*block_)(T&))
 }
 ```
 
@@ -411,6 +434,7 @@ impl list <T>
     bool equals(list<T>* left, list<T>* right);
     int length(list<T>* self);
     template <R> list<R>*% map(list<T>* self, R (*block_)(T&));
+    list<T>*% filter(list<T>* self, bool (*block_)(T&))
 }
 ```
 

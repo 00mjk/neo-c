@@ -11,14 +11,9 @@
 
 int main()
 {
-    int key = 123;
+    var str = string("sp a.txt");
+
+    printf("%s\n", str.scan(regex!("sp \(.+\)")).item(1, null));
     
-    switch(key) {
-        case 4:
-            break;
-            
-        case 5:
-            break;
-    }
     return 0;
 }

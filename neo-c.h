@@ -501,10 +501,10 @@ impl vector<T>
         self.len++;
     }
 
-    T pop_back(vector<T>* self, T default_value)
+    T pop_back(vector<T>* self, T& default_value)
     {
         if(self.len == 0) {
-            return default_value;
+            return dummy_heap default_value;
         }
 
         T result = (T)self.items[self.len-1];
@@ -526,6 +526,24 @@ impl vector<T>
         }
 
         return default_value;
+    }
+    T clone_item(vector<T>* self, int index, T& default_value) 
+    {
+        if(index < 0) {
+            index += self.len;
+        }
+
+        if(index >= 0 && index < self.len)
+        {
+            if(isheap(T)) {
+                return clone self.items[index];
+            }
+            else {
+                return dummy_heap self.items[index];
+            }
+        }
+
+        return dummy_heap default_value;
     }
     void each(vector<T>* self, void (*block_)(T&,int,bool*)) {
         for(int i_=0; i_<self.len; i_++) {
@@ -610,7 +628,12 @@ impl vector<T>
         var result = new vector<T>.initialize();
         
         self.each {
-            result.push_back(clone it);
+            if(isheap(T)) {
+                result.push_back(clone it);
+            }
+            else {
+                result.push_back(dummy_heap it);
+            }
         }
         
         return result;
@@ -762,10 +785,10 @@ impl list <T>
         self.len++;
     }
 
-    T pop_back(list<T>* self, T default_value)
+    T pop_back(list<T>* self, T& default_value)
     {
         if(self.len == 0) {
-            return default_value;
+            return dummy_heap default_value;
         }
         else if(self.len == 1) {
             T result = (T)self.head.item;
@@ -777,7 +800,12 @@ impl list <T>
 
             self.len--;
 
-            return result;
+            if(isheap(T)) {
+                return clone result;
+            }
+            else {
+                return dummy_heap result;
+            }
         }
         else if(self.len == 2) {
             T result = (T)self.tail.item;
@@ -790,7 +818,12 @@ impl list <T>
 
             self.len--;
 
-            return result;
+            if(isheap(T)) {
+                return clone result;
+            }
+            else {
+                return dummy_heap result;
+            }
         }
         else {
             T result = (T)self.tail.item;
@@ -804,14 +837,19 @@ impl list <T>
 
             self.len--;
 
-            return result;
+            if(isheap(T)) {
+                return clone result;
+            }
+            else {
+                return dummy_heap result;
+            }
         }
     }
     
-    T pop_front(list<T>* self, T default_value)
+    T pop_front(list<T>* self, T& default_value)
     {
         if(self.len == 0) {
-            return default_value;
+            return dummy_heap default_value;
         }
         else if(self.len == 1) {
             T result = (T)self.head.item;
@@ -823,7 +861,12 @@ impl list <T>
 
             self.len = 0;
 
-            return result;
+            if(isheap(T)) {
+                return clone result;
+            }
+            else {
+                return dummy_heap result;
+            }
         }
         else if(self.len == 2) {
             T result = (T)self.head.item;
@@ -838,7 +881,12 @@ impl list <T>
 
             self.len--;
 
-            return result;
+            if(isheap(T)) {
+                return clone result;
+            }
+            else {
+                return dummy_heap result;
+            }
         }
         else {
             T result = (T)self.head.item;
@@ -852,7 +900,12 @@ impl list <T>
 
             self.len--;
 
-            return result;
+            if(isheap(T)) {
+                return clone result;
+            }
+            else {
+                return dummy_heap result;
+            }
         }
     }
 
@@ -1193,6 +1246,30 @@ impl list <T>
         };
 
         return default_value;
+    }
+
+    T clone_item(list<T>* self, int position, T& default_value) 
+    {
+        if(position < 0) {
+            position += self.len;
+        }
+
+        list_item<T>?* it = self.head;
+        var i = 0;
+        while(it != null) {
+            if(position == i) {
+                if(isheap(T)) {
+                    return clone it.item;
+                }
+                else {
+                    return dummy_heap it.item;
+                }
+            }
+            it = it.next;
+            i++;
+        };
+
+        return dummy_heap default_value;
     }
     
     void each(list<T>* self, void (*block_)(T&,int,bool*)) {
@@ -1610,12 +1687,37 @@ impl list <T>
 
         result_
     }
+    list<T>*% filter(list<T>* self, bool (*block_)(T&))
+    {
+        var result_ = new list<T>.initialize();
+
+        list_item<T>?* it_ = self.head;
+        while(it_ != null) {
+            if(block_(it_.item)) {
+                if(isheap(T)) {
+                    result_.push_back(clone it_.item);
+                }
+                else {
+                    result_.push_back(dummy_heap it_.item);
+                }
+            }
+
+            it_ = it_.next;
+        }
+
+        result_
+    } 
     
     vector<T> to_vector(list<T>* self) {
         var result = new list<T>.initialize();
         
         self.each {
-            result.push_back(clone it);
+            if(isheap(T)) {
+                result.push_back(clone it);
+            }
+            else {
+                result.push_back(dummy_heap it);
+            }
         }
         
         return result;
@@ -2063,6 +2165,41 @@ impl map <T, T2>
         return default_value;
     }
 
+    T2 at_clone(map<T, T2>* self, T& key, T2& default_value) 
+    {
+        int hash = ((T)key).get_hash_key() % self.size;
+        int it = hash;
+
+        while(true) {
+            if(self.item_existance[it])
+            {
+                if(self.keys[it].equals(key))
+                {
+                    if(isheap(T)) {
+                        return clone self.items[it];
+                    }
+                    else {
+                        return dummy_heap self.items[it];
+                    }
+                }
+
+                it++;
+
+                if(it >= self.size) {
+                    it = 0;
+                }
+                else if(it == hash) {
+                    return dummy_heap default_value;
+                }
+            }
+            else {
+                return dummy_heap default_value;
+            }
+        }
+
+        return dummy_heap default_value;
+    }
+
     void insert(map<T,T2>* self, T key, T2 item) 
     {
         managed key;
@@ -2117,7 +2254,7 @@ impl map <T, T2>
         left.each {
             if(right.find(it)) {
                 T2& default_value;
-                T2& item = right.at(it, default_value);
+                T2 item = right.at(it, default_value);
                 if(!it2.equals(item)) {
                     result = false;
                 }

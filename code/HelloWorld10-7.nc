@@ -75,6 +75,12 @@ int main()
     var str2 = string("ABCABC");
     
     xassert("rindex_regex test", str2.rindex_regex(regex!("B"), -1) == 4);
-
+    
+    var li13 = list!("AAA", "ABC", "DEF");
+    
+    var li14 = li13.filter { it[0] == 'A' };
+    
+    xassert("list filter test", li14.equals(list!("AAA", "ABC")));
+    
     return 0;
 }

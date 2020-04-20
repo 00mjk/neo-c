@@ -80,7 +80,7 @@ LexicalBlock	src/llvm.cpp	/^    std::vector<DIScope*> LexicalBlock;$/;"	m	struct
 MACRO_MAX	src/common.h	38;"	d
 MANAGED	src/xfunc.h	5;"	d
 MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	1317;"	d
-MAP_TABLE_DEFAULT_SIZE	neo-c.h	1881;"	d
+MAP_TABLE_DEFAULT_SIZE	neo-c.h	1983;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	27;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
@@ -287,6 +287,7 @@ as_fn_unset	wi/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	wi/configure	/^as_fn_unset ()$/;"	f
 at	code/neo-c.h	/^    T2& at(map<T, T2>* self, T& key, T2& default_value) $/;"	f	struct:map
 at	neo-c.h	/^    T2& at(map<T, T2>* self, T& key, T2& default_value) $/;"	f	struct:map
+at_clone	neo-c.h	/^    T2 at_clone(map<T, T2>* self, T& key, T2& default_value) $/;"	f	struct:map
 autoInput	wi/common.h	/^    bool autoInput;$/;"	m	struct:version
 autoInputIndex	wi/common.h	/^    int autoInputIndex;$/;"	m	struct:version
 auto_cast_posibility	src/node_type.c	/^BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)$/;"	f
