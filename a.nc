@@ -11,9 +11,10 @@
 
 int main()
 {
-    var str = string("sp a.txt");
-
-    printf("%s\n", str.scan(regex!("sp \(.+\)")).item(1, null));
+    if(true) {
+    }
+    else {
+    }
     
     return 0;
 }
