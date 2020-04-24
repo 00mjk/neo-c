@@ -1,3 +1,5 @@
+_Float32, _Float32x
+
 -g ivalid line number
 if error line number bug
 LLVM3.8 OPTIMIZE

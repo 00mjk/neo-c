@@ -336,18 +336,23 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
 
                 if(!check_same_params(it->mNumParams, it->mParamTypes, num_params, param_types, info))
                 {
-                    compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration. (function name is %s. version is %d)", name, it->mVersion);
-                    info->err_num++;
+                    if(!external) {
+                        compile_err_msg(info, "Not the same parametor to external function declaration and function body declaration. (function name is %s. version is %d)", name, it->mVersion);
+                        info->err_num++;
 
-                    return FALSE;
+                        return FALSE;
+                    }
                 }
 
                 if(!type_identify(it->mResultType, result_type) || it->mResultType->mHeap != result_type->mHeap)
                 {
-                    compile_err_msg(info, "Not same parametor or result type to external function declaration and function body declaration.");
-                    info->err_num++;
+                    if(!external) {
+                    {
+                        compile_err_msg(info, "Not the same result type to external function declaration and function body declaration. function name is %s. %s and %s", name, CLASS_NAME(it->mResultType->mClass), CLASS_NAME(result_type->mClass));
+                        info->err_num++;
 
-                    return FALSE;
+                        return FALSE;
+                    }
                 }
             }
 

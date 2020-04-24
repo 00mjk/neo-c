@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.1.5
+version 1.1.6
 
 ```
 #include <stdio.h>

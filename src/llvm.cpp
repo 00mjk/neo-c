@@ -80,6 +80,22 @@ static DIType* create_debug_type(sNodeType* node_type)
     else if(type_identify_with_class_name(node_type, "float")) {
         result = DBuilder->createBasicType("float", 32, dwarf::DW_ATE_float);
     }
+    else if(type_identify_with_class_name(node_type, "_Float16") || type_identify_with_class_name(node_type, "_Float16x")) 
+    {
+        result = DBuilder->createBasicType("float", 16, dwarf::DW_ATE_float);
+    }
+    else if(type_identify_with_class_name(node_type, "_Float32") || type_identify_with_class_name(node_type, "_Float32x")) 
+    {
+        result = DBuilder->createBasicType("float", 32, dwarf::DW_ATE_float);
+    }
+    else if(type_identify_with_class_name(node_type, "_Float64") || type_identify_with_class_name(node_type, "_Float64x")) 
+    {
+        result = DBuilder->createBasicType("float", 64, dwarf::DW_ATE_float);
+    }
+    else if(type_identify_with_class_name(node_type, "_Float128") || type_identify_with_class_name(node_type, "_Float128x")) 
+    {
+        result = DBuilder->createBasicType("float", 128, dwarf::DW_ATE_float);
+    }
 else {
 result = DBuilder->createBasicType("int", 32, dwarf::DW_ATE_lo_user);
 }
