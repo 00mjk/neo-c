@@ -347,7 +347,6 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
                 if(!type_identify(it->mResultType, result_type) || it->mResultType->mHeap != result_type->mHeap)
                 {
                     if(!external) {
-                    {
                         compile_err_msg(info, "Not the same result type to external function declaration and function body declaration. function name is %s. %s and %s", name, CLASS_NAME(it->mResultType->mClass), CLASS_NAME(result_type->mClass));
                         info->err_num++;
 
