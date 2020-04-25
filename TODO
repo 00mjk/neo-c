@@ -1,10 +1,18 @@
-_Float32, _Float32x
+if(true) {
+}
+*v = が}のあとに;をつけないとだめ。パーサーのバグ
 
+
+machine stack structor called destructor when deleting
+rm neo-c.h.out
+Pointer minus Pointer valid size
+Array casts Pointer
 -g ivalid line number
 if error line number bug
 LLVM3.8 OPTIMIZE
 LLVM7.0 -g
 ----------------------
+
 
 
 
