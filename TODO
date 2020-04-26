@@ -2,7 +2,6 @@ if(true) {
 }
 *v = が}のあとに;をつけないとだめ。パーサーのバグ
 
-if() ; else ;
 
 
 machine stack structor called destructor when deleting
@@ -62,3 +61,4 @@ sizeof(exp)
 
 
 
+if() ; else ;
