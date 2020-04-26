@@ -6444,6 +6444,9 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "__PRETTY_FUNCTION__") == 0) {
+            *node = sNodeTree_create_c_string_value(MANAGED xstrdup(info->fun_name), strlen(info->fun_name), info->sline, info);
+        }
         else if(strcmp(buf, "lambda") == 0) {
             if(!parse_lambda(node, info)) {
                 return FALSE;
