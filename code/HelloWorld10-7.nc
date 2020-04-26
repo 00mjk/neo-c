@@ -81,6 +81,20 @@ int main()
     var li14 = li13.filter { it[0] == 'A' };
     
     xassert("list filter test", li14.equals(list!("AAA", "ABC")));
+
+    var axa = 1,2;
+
+    xassert("comman operator", axa == 2);
+
+    var axa2 = __extension__ (1,2);
+
+    xassert("__extension__ () operator", axa2 == 2);
+
+    var axa3 = 1;
+
+    if(true) axa3 = 2;
+
+    xassert("if one line", axa3 ==2);
     
     return 0;
 }

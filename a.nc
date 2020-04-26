@@ -11,6 +11,7 @@
 
 int main()
 {
+    sizeof(1);
     if(true) {
     }
     else {

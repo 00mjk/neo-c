@@ -1243,6 +1243,9 @@ static BOOL parse_anonymous_enum(unsigned int* node, sParserInfo* info)
 {
     expect_next_character_with_one_forward("{", info);
 
+    BOOL no_comma_operator = info->no_comma_operator;
+    info->no_comma_operator = TRUE;
+
     int value = 0;
 
     while(TRUE) {
@@ -1315,6 +1318,8 @@ static BOOL parse_anonymous_enum(unsigned int* node, sParserInfo* info)
         value++;
     }
 
+    info->no_comma_operator = no_comma_operator;
+
     *node = sNodeTree_create_null(info);
 
     return TRUE;
@@ -1323,6 +1328,9 @@ static BOOL parse_anonymous_enum(unsigned int* node, sParserInfo* info)
 BOOL parse_enum(unsigned int* node, char* name, sParserInfo* info) 
 {
     expect_next_character_with_one_forward("{", info);
+
+    BOOL no_comma_operator = info->no_comma_operator;
+    info->no_comma_operator = TRUE;
 
     int value = 0;
 
@@ -1407,6 +1415,8 @@ BOOL parse_enum(unsigned int* node, char* name, sParserInfo* info)
         (void)alloc_enum(name);
     }
 
+    info->no_comma_operator = no_comma_operator;
+
     return TRUE;
 }
 
@@ -1441,7 +1451,7 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
         return FALSE;
     }
 
-    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0 || strcmp(buf, "__extension__") == 0 || strcmp(buf, "typeof") == 0;
+    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0 || (strcmp(buf, "__extension__") == 0 && *info->p != '(')|| strcmp(buf, "typeof") == 0;
 }
 
 static BOOL is_premitive_type(char* buf, sParserInfo* info)
@@ -2402,6 +2412,9 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
             else {
                 expect_next_character_with_one_forward("{", info);
 
+                BOOL no_comma_operator = info->no_comma_operator;
+                info->no_comma_operator = TRUE;
+
                 unsigned int initialize_array_values[INIT_ARRAY_MAX];
                 int num_initialize_array_value = 0;
                 memset(initialize_array_values, 0, sizeof(unsigned int)*INIT_ARRAY_MAX);
@@ -2446,10 +2459,15 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                 *node = sNodeTree_create_define_variable(name, extern_, info);
 
                 *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+
+                info->no_comma_operator = no_comma_operator;
             }
         }
         else if(info->mBlockLevel == 0 && result_type->mArrayNum > 0)
         {
+            BOOL no_comma_operator = info->no_comma_operator;
+            info->no_comma_operator = TRUE;
+
             if(type_identify_with_class_name(result_type, "char*"))
             {
                 unsigned int right_node = 0;
@@ -2521,6 +2539,8 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
 
                 *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
             }
+
+            info->no_comma_operator = no_comma_operator;
         }
         else if(info->mBlockLevel == 0 && result_type->mArrayNum == -1)
         {
@@ -2558,6 +2578,9 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                 }
             }
             else {
+                BOOL no_comma_operator = info->no_comma_operator;
+                info->no_comma_operator = TRUE;
+
                 expect_next_character_with_one_forward("{", info);
 
                 unsigned int initialize_array_values[INIT_ARRAY_MAX];
@@ -2602,6 +2625,8 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                 *node = sNodeTree_create_define_variable(name, extern_, info);
 
                 *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+
+                info->no_comma_operator = no_comma_operator;
             }
         }
         else if(result_type->mDynamicArrayNum != 0) {
@@ -2633,6 +2658,9 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                 }
             }
             else {
+                BOOL no_comma_operator = info->no_comma_operator;
+                info->no_comma_operator = TRUE;
+
                 expect_next_character_with_one_forward("{", info);
 
                 unsigned int initialize_array_values[INIT_ARRAY_MAX];
@@ -2676,9 +2704,14 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
                 *node = sNodeTree_create_define_variable(name, extern_, info);
 
                 *node = sNodeTree_create_array_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+
+                info->no_comma_operator = no_comma_operator;
             }
         }
         else if((result_type->mClass->mFlags & CLASS_FLAGS_STRUCT) && *info->p == '{') {
+            BOOL no_comma_operator = info->no_comma_operator;
+            info->no_comma_operator = TRUE;
+
             expect_next_character_with_one_forward("{", info);
 
             unsigned int initialize_array_values[INIT_ARRAY_MAX];
@@ -2720,6 +2753,8 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
             *node = sNodeTree_create_define_variable(name, extern_, info);
 
             *node = sNodeTree_create_struct_with_initialization(name, num_initialize_array_value, initialize_array_values, *node, info);
+
+            info->no_comma_operator = no_comma_operator;
         }
         else {
             unsigned int right_node = 0;
@@ -3323,7 +3358,7 @@ BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun_name, 
                 }
             }
 
-            if(!parse_block(node_block, FALSE, info)) {
+            if(!parse_block(node_block, FALSE, FALSE, info)) {
                 sNodeBlock_free(node_block);
                 return FALSE;
             }
@@ -3614,7 +3649,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
                     }
                 }
 
-                if(!parse_block(node_block, FALSE, info)) {
+                if(!parse_block(node_block, FALSE, FALSE, info)) {
                     sNodeBlock_free(node_block);
                     return FALSE;
                 }
@@ -3831,7 +3866,7 @@ BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info, 
 
                 info->p = p_before;
 
-                if(!parse_block(node_block, FALSE, info)) {
+                if(!parse_block(node_block, FALSE, FALSE, info)) {
                     sNodeBlock_free(node_block);
                     return FALSE;
                 }
@@ -3859,6 +3894,9 @@ BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info, 
 static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, sParserInfo* info)
 {
     if(*info->p == '(') {
+        BOOL no_comma_operator = info->no_comma_operator;
+        info->no_comma_operator = TRUE;
+
         info->p++;
         skip_spaces_and_lf(info);
 
@@ -3929,6 +3967,8 @@ static BOOL parse_funcation_call_params(int* num_params, unsigned int* params, s
                 }
             }
         }
+
+        info->no_comma_operator = no_comma_operator;
     }
 
     skip_spaces_and_lf(info);
@@ -4724,7 +4764,7 @@ static BOOL parse_for(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* for_node_block = ALLOC sNodeBlock_alloc();
-    if(!parse_block(for_node_block, FALSE, info)) 
+    if(!parse_block(for_node_block, FALSE, FALSE, info)) 
     {
         return FALSE;
     }
@@ -4810,7 +4850,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
         *node = sNodeTree_create_null(info);
     }
     else {
-        if(!parse_block(node_block, FALSE, info)) {
+        if(!parse_block(node_block, FALSE, FALSE, info)) {
             sNodeBlock_free(node_block);
             return FALSE;
         }
@@ -4857,6 +4897,9 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
         }
 
         if(*info->p == '{') {
+            BOOL no_comma_operator = info->no_comma_operator;
+            info->no_comma_operator = TRUE;
+            
             info->p++;
             skip_spaces_and_lf(info);
 
@@ -4906,6 +4949,8 @@ static BOOL parse_new(unsigned int* node, sParserInfo* info)
 
                 *node = sNodeTree_create_struct_with_initialization("", num_initialize_array_value, initialize_array_values, *node, info);
             }
+
+            info->no_comma_operator = no_comma_operator;
         }
         else {
             *node = sNodeTree_create_object(node_type, object_num, info->sname, info->sline, info);
@@ -6109,7 +6154,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
         unsigned int anonymous_enum_node = 0;
         BOOL define_anonymous_enum = FALSE;
 
-        if(strcmp(buf, "__extension__") == 0) {
+        if(strcmp(buf, "__extension__") == 0 && *info->p != '(') {
             if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE))
             {
                 return FALSE;
@@ -6394,7 +6439,12 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
         }
 
 
-        if(strcmp(buf, "lambda") == 0) {
+        if(strcmp(buf, "__extension__") == 0 && *info->p == '(') {
+            if(!expression(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "lambda") == 0) {
             if(!parse_lambda(node, info)) {
                 return FALSE;
             }
@@ -7073,8 +7123,8 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                 *node = sNodeTree_create_load_variable(buf, info);
             }
         }
-        else if((is_type_name(buf, info) && (*info->p != '(' || (*info->p == '(' && *(info->p+1) == '*'))) || strcmp(buf, "typeof") == 0) {
-
+        else if((is_type_name(buf, info) && (*info->p != '(' || (*info->p == '(' && *(info->p+1) == '*'))) || strcmp(buf, "typeof") == 0) 
+        {
             info->p = p_before;
             info->sline = sline_before;
 
@@ -7736,6 +7786,40 @@ static BOOL expression_conditional_operator(unsigned int* node, sParserInfo* inf
     return TRUE;
 }
 
+static BOOL expression_comma_operator(unsigned int* node, sParserInfo* info)
+{
+    if(!expression_conditional_operator(node, info)) {
+        return FALSE;
+    }
+    if(*node == 0) {
+        return TRUE;
+    }
+
+    while(*info->p) {
+        if(!info->no_comma_operator && *info->p == ',') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int node2 = 0;
+            if(!expression_conditional_operator(&node2, info)) {
+                return FALSE;
+            }
+
+            if(node2 == 0) {
+                parser_err_msg(info, "require right value for , operator");
+                info->err_num++;
+            }
+
+            *node = sNodeTree_create_comma(*node, node2, info);
+        }
+        else {
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
 BOOL expression(unsigned int* node, sParserInfo* info) 
 {
     while(*info->p == '#') {
@@ -7744,7 +7828,7 @@ BOOL expression(unsigned int* node, sParserInfo* info)
         }
     }
     
-    if(!expression_conditional_operator(node, info)) {
+    if(!expression_comma_operator(node, info)) {
         return FALSE;
     }
 

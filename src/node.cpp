@@ -789,7 +789,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     }
 
     info2.sline = sline;
-    if(!parse_block(node_block, FALSE, &info2)) {
+    if(!parse_block(node_block, FALSE, FALSE, &info2)) {
         sNodeBlock_free(node_block);
         return FALSE;
     }
@@ -2961,7 +2961,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
         }
     }
 
-    if(!parse_block(node_block, FALSE, &info2)) {
+    if(!parse_block(node_block, FALSE, FALSE, &info2)) {
         sNodeBlock_free(node_block);
         return FALSE;
     }
@@ -3160,7 +3160,7 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
         }
     }
 
-    if(!parse_block(*node_block, FALSE, &info2)) {
+    if(!parse_block(*node_block, FALSE, FALSE, &info2)) {
         return FALSE;
     }
 
@@ -12512,6 +12512,43 @@ static BOOL compile_equal_or(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_comma(unsigned int left_node, unsigned int right_node, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeComma;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_comma(unsigned int node, sCompileInfo* info)
+{
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    dec_stack_ptr(1, info);
+
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -13151,6 +13188,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeEqualOr:
             if(!compile_equal_or(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeComma:
+            if(!compile_comma(node, info))
             {
                 return FALSE;
             }

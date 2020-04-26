@@ -2,6 +2,8 @@ if(true) {
 }
 *v = が}のあとに;をつけないとだめ。パーサーのバグ
 
+if() ; else ;
+
 
 machine stack structor called destructor when deleting
 rm neo-c.h.out
@@ -12,6 +14,11 @@ if error line number bug
 LLVM3.8 OPTIMIZE
 LLVM7.0 -g
 ----------------------
+, 演算子
+__extention__ (exp)
+
+
+sizeof(exp)
 
 
 
