@@ -78,7 +78,7 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR clover3 clover3.dSYM cclover3 cclover3.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.out
+	rm -fR clover3 clover3.dSYM cclover3 cclover3.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.out
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache
