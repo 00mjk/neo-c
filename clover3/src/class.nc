@@ -4,7 +4,7 @@ map<string, sCLClass*%>* gClasses;
 
 void class_init()
 {
-    gClasses = borrow new map<string, sCLClass*%>.initialze();
+    gClasses = borrow new map<string, sCLClass*%>.initialize();
 }
 
 void class_final()

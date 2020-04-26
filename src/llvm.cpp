@@ -943,7 +943,7 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOO
 
     create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
 
-    if(klass->mUndefinedStructType && node_type->mPointerNum == 0) 
+    if(klass->mUndefinedStructType)
     {
         StructType* struct_type = (StructType*)klass->mUndefinedStructType;
         std::vector<Type*> fields;

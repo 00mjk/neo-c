@@ -32,8 +32,8 @@ COMPILER_OBJS=@COMPILER_OBJS@
 all: cclover3
 #	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
-cclover3: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o
-	$(CC) -o cclover3 src/compiler.nc src/parser.o src/node.o src/type.o $(CFLAGS)
+cclover3: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o
+	$(CC) -o cclover3 src/compiler.nc src/parser.o src/node.o src/type.o src/class.o $(CFLAGS)
 
 ##########################################################
 # objects
@@ -46,6 +46,9 @@ src/node.o: config.h src/*.h Makefile configure src/node.nc
 
 src/type.o: config.h src/*.h Makefile configure src/type.nc
 	$(CC) -c src/type.nc $(CFLAGS)
+
+src/class.o: config.h src/*.h Makefile configure src/class.nc
+	$(CC) -c src/class.nc $(CFLAGS)
 
 #########################################################
 # install

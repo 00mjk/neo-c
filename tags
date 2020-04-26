@@ -9,9 +9,11 @@ ALLOC	src/xfunc.h	4;"	d
 BOOL	src/xfunc.h	7;"	d
 BUFFER_H	src/buffer.h	2;"	d
 CC	Makefile	/^CC=clang$/;"	m
+CC	clover3/Makefile	/^CC=neo-c$/;"	m
 CC	tiny/Makefile	/^CC=gcc$/;"	m
 CC	wi/Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O3$/;"	m
+CFLAGS	clover3/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -fPIC -rdynamic -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O2 -Qunused-arguments$/;"	m
 CFLAGS	tiny/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -Qunused-arguments$/;"	m
 CFLAGS	wi/Makefile	/^CFLAGS= -O2$/;"	m
 CLASS_FLAGS_ANONYMOUS	src/common.h	85;"	d
@@ -26,15 +28,20 @@ CLASS_FLAGS_UNION	src/common.h	84;"	d
 CLASS_FLAGS_UNSIGNED_NUMBER	src/common.h	81;"	d
 CLASS_NAME	src/common.h	108;"	d
 CLASS_NUM_MAX	src/common.h	21;"	d
+CLObject	clover3/src/common.h	/^typedef unsigned int CLObject;$/;"	t
+CLVALUE	clover3/src/common.h	/^union CLVALUE {$/;"	u
 COMMAND_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
+COMMON_H	clover3/src/common.h	2;"	d
 COMMON_H	src/common.h	2;"	d
 COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/xfunc.o src\/alignment.o$/;"	m
+COMPILER_OBJS	clover3/Makefile	/^COMPILER_OBJS=src\/parser.o src\/node_type.o src\/node.o src\/vtable.o$/;"	m
 COMPILE_ERR_MSG_MAX	src/common.h	23;"	d
 CONS_str	src/common.h	61;"	d
 CXX	Makefile	/^CXX=clang++$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . -I src -DPREFIX="\\"${DESTDIR}\/\\""$/;"	m
 DBuilder	src/llvm.cpp	/^DIBuilder* DBuilder;$/;"	v
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
+DESTDIR	clover3/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	tiny/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	wi/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DblTy	src/llvm.cpp	/^    DIType* DblTy;$/;"	m	struct:DebugInfo	file:
@@ -43,32 +50,42 @@ ELIF_NUM_MAX	src/common.h	29;"	d
 EXTERNAL_OBJECT_MAX	src/common.h	34;"	d
 FALSE	src/xfunc.h	9;"	d
 FUN_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
+GENERICS_TYPES_MAX	clover3/src/common.h	36;"	d
 GENERICS_TYPES_MAX	src/common.h	19;"	d
+HAVE_BSD_H	clover3/config.h	9;"	d
+HAVE_ICONV_H	clover3/config.h	3;"	d
+HAVE_ICONV_H	clover3/config.h	5;"	d
 HAVE_ICONV_H	config.h	3;"	d
 HAVE_ICONV_H	config.h	5;"	d
 HAVE_ICONV_H	tiny/config.h	3;"	d
 HAVE_ICONV_H	tiny/config.h	5;"	d
 HAVE_ICONV_H	wi/config.h	3;"	d
 HAVE_ICONV_H	wi/config.h	5;"	d
+HAVE_MATH_H	clover3/config.h	2;"	d
 HAVE_MATH_H	config.h	2;"	d
 HAVE_MATH_H	tiny/config.h	2;"	d
 HAVE_MATH_H	wi/config.h	2;"	d
+HAVE_NCURSESW_H	clover3/config.h	8;"	d
 HAVE_NCURSESW_H	tiny/config.h	8;"	d
 HAVE_NCURSESW_H	wi/config.h	8;"	d
+HAVE_PCRE_H	clover3/config.h	6;"	d
 HAVE_PCRE_H	config.h	6;"	d
 HAVE_PCRE_H	tiny/config.h	6;"	d
 HAVE_PCRE_H	wi/config.h	6;"	d
 HAVE_PTHREAD_H	config.h	11;"	d
 HAVE_PTHREAD_H	tiny/config.h	11;"	d
 HAVE_PTHREAD_H	wi/config.h	11;"	d
+HAVE_READLINE_H	clover3/config.h	7;"	d
 IMPL_DEF_MAX	src/common.h	33;"	d
 INIT_ARRAY_MAX	src/common.h	35;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
+INSTALL	clover3/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INSTALL	tiny/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INSTALL	wi/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INT_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
 KSDbgInfo	src/llvm.cpp	/^DebugInfo KSDbgInfo;$/;"	v
 LIBS	Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lpthread -lrt$/;"	m
+LIBS	clover3/Makefile	/^LIBS= -lutil -lncursesw -lreadline -lbsd -ldl -lm -lpcre -lrt$/;"	m
 LIBS	tiny/Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lncursesw -lpthread -lrt$/;"	m
 LIBS	wi/Makefile	/^LIBS= -ldl -lm -lpcre -lncursesw -lrt -lpthread$/;"	m
 LLVM_COMMON_H	src/llvm_common.hpp	2;"	d
@@ -104,9 +121,15 @@ NODETYPE_VAR	tiny/common.h	/^enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, N
 NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
 NULL_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
 OBJS	Makefile	/^OBJS=src\/source_compiler.o src\/parser.o src\/node.o src\/klass.o src\/node_type.o src\/typedef.o src\/constant.o src\/llvm.o src\/vtable.o src\/node_block.o src\/node_alloc.o src\/macro.o$/;"	m
+OBJS	clover3/Makefile	/^OBJS=src\/vm.o src\/objects.o src\/klass.o src\/heap.o src\/type.o$/;"	m
+OP_IADD	clover3/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_IADD };$/;"	e	enum:__anon39
+OP_INT_VALUE	clover3/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_IADD };$/;"	e	enum:__anon39
+OP_POP	clover3/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_IADD };$/;"	e	enum:__anon39
 OS	Makefile	/^OS=LINUX$/;"	m
+OS	clover3/Makefile	/^OS=LINUX$/;"	m
 OS	tiny/Makefile	/^OS=LINUX$/;"	m
 OS	wi/Makefile	/^OS=$/;"	m
+PARAMS_MAX	clover3/src/common.h	38;"	d
 PARAMS_MAX	src/common.h	26;"	d
 PARSER_ERR_MSG_MAX	src/common.h	22;"	d
 PWD	Makefile	/^	PWD=`pwd` .\/neo-c -c code\/External.nc$/;"	m
@@ -149,48 +172,61 @@ TinyNode	tiny/common.h	/^struct TinyNode {$/;"	s
 TinyParser	tiny/common.h	/^struct TinyParser$/;"	s
 TinyVM	tiny/common.h	/^struct TinyVM$/;"	s
 VAR_NAME_MAX	src/common.h	20;"	d
+VM_STACK_MAX	clover3/src/common.h	37;"	d
 Vi	wi/common.h	/^struct Vi $/;"	s
 ViFiler	wi/common.h	/^struct ViFiler$/;"	s
 ViWin	wi/common.h	/^struct ViWin $/;"	s
 XFUNC_H	src/xfunc.h	2;"	d
 _GNU_SOURCE	code/neo-c.h	4;"	d
 _GNU_SOURCE	neo-c.h	4;"	d
+_USE_MISC	clover3/src/common.h	23;"	d
 _USE_MISC	code/neo-c.h	11;"	d
 _USE_MISC	neo-c.h	11;"	d
+__64BIT_CPU__	clover3/config.h	18;"	d
 __64BIT_CPU__	config.h	18;"	d
 __64BIT_CPU__	tiny/config.h	18;"	d
 __64BIT_CPU__	wi/config.h	18;"	d
+__LINUX__	clover3/config.h	16;"	d
 __LINUX__	config.h	16;"	d
 __LINUX__	tiny/config.h	16;"	d
 __STDC_CONSTANT_MACROS	code/neo-c.h	27;"	d
 __STDC_CONSTANT_MACROS	neo-c.h	27;"	d
 __STDC_LIMIT_MACROS	code/neo-c.h	26;"	d
 __STDC_LIMIT_MACROS	neo-c.h	26;"	d
+__USE_BSD	clover3/src/common.h	26;"	d
 __USE_BSD	code/neo-c.h	14;"	d
 __USE_BSD	neo-c.h	14;"	d
+__USE_XOPEN	clover3/src/common.h	20;"	d
 __USE_XOPEN	code/neo-c.h	8;"	d
 __USE_XOPEN	neo-c.h	8;"	d
 __X86_64__	wi/config.h	21;"	d
 __sbrk	src/sbrk.c	/^void * __sbrk (intptr_t increment)$/;"	f
 a	code/HelloWorld5.h	/^    int a;$/;"	m	struct:StructData1
+ac_fn_c_check_func	clover3/configure	/^ac_fn_c_check_func ()$/;"	f
 ac_fn_c_check_func	configure	/^ac_fn_c_check_func ()$/;"	f
 ac_fn_c_check_func	tiny/configure	/^ac_fn_c_check_func ()$/;"	f
 ac_fn_c_check_func	wi/configure	/^ac_fn_c_check_func ()$/;"	f
+ac_fn_c_check_header_compile	clover3/configure	/^ac_fn_c_check_header_compile ()$/;"	f
 ac_fn_c_check_header_compile	configure	/^ac_fn_c_check_header_compile ()$/;"	f
 ac_fn_c_check_header_compile	tiny/configure	/^ac_fn_c_check_header_compile ()$/;"	f
 ac_fn_c_check_header_compile	wi/configure	/^ac_fn_c_check_header_compile ()$/;"	f
+ac_fn_c_check_header_mongrel	clover3/configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
 ac_fn_c_check_header_mongrel	configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
 ac_fn_c_check_header_mongrel	tiny/configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
 ac_fn_c_check_header_mongrel	wi/configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
+ac_fn_c_try_compile	clover3/configure	/^ac_fn_c_try_compile ()$/;"	f
 ac_fn_c_try_compile	configure	/^ac_fn_c_try_compile ()$/;"	f
 ac_fn_c_try_compile	tiny/configure	/^ac_fn_c_try_compile ()$/;"	f
 ac_fn_c_try_compile	wi/configure	/^ac_fn_c_try_compile ()$/;"	f
+ac_fn_c_try_cpp	clover3/configure	/^ac_fn_c_try_cpp ()$/;"	f
 ac_fn_c_try_cpp	configure	/^ac_fn_c_try_cpp ()$/;"	f
 ac_fn_c_try_cpp	tiny/configure	/^ac_fn_c_try_cpp ()$/;"	f
 ac_fn_c_try_cpp	wi/configure	/^ac_fn_c_try_cpp ()$/;"	f
+ac_fn_c_try_link	clover3/configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_link	configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_link	tiny/configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_link	wi/configure	/^ac_fn_c_try_link ()$/;"	f
+ac_fn_c_try_run	clover3/configure	/^ac_fn_c_try_run ()$/;"	f
 ac_fn_c_try_run	configure	/^ac_fn_c_try_run ()$/;"	f
 ac_fn_c_try_run	tiny/configure	/^ac_fn_c_try_run ()$/;"	f
 ac_fn_c_try_run	wi/configure	/^ac_fn_c_try_run ()$/;"	f
@@ -225,60 +261,80 @@ append_str_to_constant_pool	src/constant.c	/^unsigned int append_str_to_constant
 append_wstr_to_constant_pool	src/constant.c	/^unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
+as_fn_append	clover3/config.status	/^  as_fn_append ()$/;"	f
+as_fn_append	clover3/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	wi/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	wi/configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	clover3/config.status	/^  as_fn_arith ()$/;"	f
+as_fn_arith	clover3/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	wi/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	wi/configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	clover3/config.status	/^as_fn_error ()$/;"	f
+as_fn_error	clover3/configure	/^as_fn_error ()$/;"	f
 as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/configure	/^as_fn_error ()$/;"	f
 as_fn_error	wi/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	wi/configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	clover3/config.status	/^as_fn_executable_p ()$/;"	f
+as_fn_executable_p	clover3/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	wi/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	wi/configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	clover3/config.status	/^as_fn_exit ()$/;"	f
+as_fn_exit	clover3/configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	tiny/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	tiny/configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	wi/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	wi/configure	/^as_fn_exit ()$/;"	f
+as_fn_failure	clover3/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	tiny/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	wi/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	clover3/config.status	/^as_fn_mkdir_p ()$/;"	f
+as_fn_mkdir_p	clover3/configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	tiny/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	tiny/configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	wi/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	wi/configure	/^as_fn_mkdir_p ()$/;"	f
+as_fn_ret_failure	clover3/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_failure	tiny/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_failure	wi/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
+as_fn_ret_success	clover3/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	tiny/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	wi/configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	clover3/config.status	/^as_fn_set_status ()$/;"	f
+as_fn_set_status	clover3/configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	tiny/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	tiny/configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	wi/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	wi/configure	/^as_fn_set_status ()$/;"	f
+as_fn_success	clover3/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	tiny/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	wi/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	clover3/config.status	/^as_fn_unset ()$/;"	f
+as_fn_unset	clover3/configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	tiny/config.status	/^as_fn_unset ()$/;"	f
@@ -294,6 +350,7 @@ auto_cast_posibility	src/node_type.c	/^BOOL auto_cast_posibility(sNodeType* left
 b	code/HelloWorld6.h	/^    int b;$/;"	m	struct:version
 binded_value	src/llvm_common.hpp	/^    BOOL binded_value;$/;"	m	struct:LVALUEStruct
 bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
+bindir	clover3/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	tiny/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	wi/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 buf	code/neo-c.h	/^    char* buf;$/;"	m	struct:buffer
@@ -328,12 +385,14 @@ check_the_same_fields	src/node_type.c	/^BOOL check_the_same_fields(sNodeType* le
 class_final	src/klass.c	/^void class_final()$/;"	f
 class_init	src/klass.c	/^void class_init()$/;"	f
 clint64	src/common.h	40;"	d
+cllong	clover3/src/common.h	31;"	d
 clone	code/neo-c.h	/^    map<T, T2>*% clone(map<T, T2>* self)$/;"	f	struct:map
 clone	neo-c.h	/^    map<T, T2>*% clone(map<T, T2>* self)$/;"	f	struct:map
 clone_class	src/klass.c	/^sCLClass* clone_class(sCLClass* klass)$/;"	f
 clone_node_type	src/node_type.c	/^sNodeType* clone_node_type(sNodeType* node_type)$/;"	f
 clone_object	src/llvm.cpp	/^Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)$/;"	f
 clone_var_table	src/vtable.c	/^sVarTable* clone_var_table(sVarTable* lv_table)$/;"	f
+codes	clover3/src/common.h	/^    buffer* codes;$/;"	m	struct:sCompileInfo
 commandString	wi/common.h	/^    string commandString;$/;"	m	struct:version
 compile	src/node.cpp	/^BOOL compile(unsigned int node, sCompileInfo* info)$/;"	f
 compile_add	src/node.cpp	/^static BOOL compile_add(unsigned int node, sCompileInfo* info)$/;"	f	file:
@@ -469,9 +528,11 @@ cursor	wi/common.h	/^    int cursor;$/;"	m	struct:ViFiler
 cursorX	wi/common.h	/^    int cursorX;$/;"	m	struct:version
 cursorY	wi/common.h	/^    int cursorY;$/;"	m	struct:version
 datadir	Makefile	/^datadir=${datarootdir}$/;"	m
+datadir	clover3/Makefile	/^datadir=${datarootdir}$/;"	m
 datadir	tiny/Makefile	/^datadir=${datarootdir}$/;"	m
 datadir	wi/Makefile	/^datadir=${datarootdir}$/;"	m
 datarootdir	Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
+datarootdir	clover3/Makefile	/^datarootdir=${prefix}\/share\/clover3$/;"	m
 datarootdir	tiny/Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
 datarootdir	wi/Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
 debug_runned_default	tiny/common.h	/^    bool debug_runned_default;$/;"	m	struct:TinyNode
@@ -483,6 +544,7 @@ delete_comment	src/source_compiler.c	/^BOOL delete_comment(sBuf* source, sBuf* s
 delete_debug_heap_memory	src/memalloc-stdc.c	/^static void delete_debug_heap_memory(void* mem)$/;"	f	file:
 digitInput	wi/common.h	/^    int digitInput;$/;"	m	struct:version
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
+docdir	clover3/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 docdir	tiny/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 docdir	wi/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 dollar_endonly	code/neo-c.h	/^    bool dollar_endonly;$/;"	m	struct:regex_struct
@@ -517,11 +579,15 @@ equals	neo-c.h	/^    bool equals(tuple1<T>* left, tuple1<T>* right)$/;"	f	struct
 equals	neo-c.h	/^    bool equals(tuple2<T, T2>* left, tuple2<T, T2>* right)$/;"	f	struct:tuple2
 equals	neo-c.h	/^    bool equals(tuple3<T, T2, T3>* left, tuple3<T, T2, T3>* right)$/;"	f	struct:tuple3
 equals	neo-c.h	/^    bool equals(tuple4<T, T2, T3, T4>* left, tuple4<T, T2, T3, T4>* right)$/;"	f	struct:tuple4
+err_num	clover3/src/common.h	/^    int err_num;$/;"	m	struct:sCompileInfo
+err_num	clover3/src/common.h	/^    int err_num;$/;"	m	struct:sParserInfo
 err_num	src/common.h	/^    int err_num;$/;"	m	struct:sCompileInfoStruct
 err_num	src/common.h	/^    int err_num;$/;"	m	struct:sParserInfoStruct
 err_num	tiny/common.h	/^    int err_num;$/;"	m	struct:TinyParser
+err_output_num	clover3/src/common.h	/^    int err_output_num;$/;"	m	struct:sParserInfo
 events	wi/common.h	/^    vector<void (*lambda)(Vi*, int)>*% events;$/;"	m	struct:version
 exec_prefix	Makefile	/^exec_prefix=${prefix}$/;"	m
+exec_prefix	clover3/Makefile	/^exec_prefix=${prefix}$/;"	m
 expect_next_character_with_one_forward	src/parser.c	/^void expect_next_character_with_one_forward(char* characters, sParserInfo* info)$/;"	f
 expression	src/parser.c	/^BOOL expression(unsigned int* node, sParserInfo* info) $/;"	f
 expression_add_sub	src/parser.c	/^static BOOL expression_add_sub(unsigned int* node, sParserInfo* info)$/;"	f	file:
@@ -542,6 +608,7 @@ extname	src/preprocessor.c	/^static char* extname(char* file_name)$/;"	f	file:
 extraCursor	wi/common.h	/^    int extraCursor;$/;"	m	struct:version
 extraLine	wi/common.h	/^    string extraLine;$/;"	m	struct:version
 extraWin	wi/common.h	/^    WINDOW* extraWin;$/;"	m	struct:version
+fNativeMethod	clover3/src/common.h	/^typedef bool (*fNativeMethod)(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);$/;"	t
 fileName	wi/common.h	/^    string fileName;$/;"	m	struct:version
 filer	wi/common.h	/^    ViFiler*% filer;$/;"	m	struct:version
 files	wi/common.h	/^    list<string>*% files;$/;"	m	struct:ViFiler
@@ -648,6 +715,7 @@ in_clang	src/common.h	/^    BOOL in_clang;$/;"	m	struct:sParserInfoStruct
 in_inline_function	src/common.h	/^    BOOL in_inline_function;$/;"	m	struct:sCompileInfoStruct
 included_generics_type	src/node_type.c	/^BOOL included_generics_type(sNodeType* node_type, sCLClass* checked_class[], int* num_checked_class)$/;"	f
 includedir	Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
+includedir	clover3/Makefile	/^includedir=${prefix}\/include\/clover3$/;"	m
 includedir	tiny/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 includedir	wi/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 init_block_vtable	src/vtable.c	/^sVarTable* init_block_vtable(sVarTable* lv_table, BOOL no_increment_block_level)$/;"	f
@@ -693,6 +761,7 @@ kCommandMode	wi/common.h	/^enum eMode { kCommandMode = kSearchMode + 1 };$/;"	e	
 kEditMode	wi/common.h	/^enum eMode { kEditMode, kInsertMode };$/;"	e	enum:eMode
 kHorizonVisualMode	wi/common.h	/^enum eMode { kHorizonVisualMode = kCommandMode + 1 };$/;"	e	enum:eMode
 kInsertMode	wi/common.h	/^enum eMode { kEditMode, kInsertMode };$/;"	e	enum:eMode
+kNodeTypeAdd	clover3/src/common.h	/^enum { kNodeTypeInt, kNodeTypeAdd };$/;"	e	enum:__anon38
 kNodeTypeAdd	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeDummyHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr, kNodeTypeComma };$/;"	e	enum:eNodeType
 kNodeTypeAlignOf	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeDummyHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr, kNodeTypeComma };$/;"	e	enum:eNodeType
 kNodeTypeAlignOfExpression	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeDummyHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr, kNodeTypeComma };$/;"	e	enum:eNodeType
@@ -742,6 +811,7 @@ kNodeTypeGteq	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntVa
 kNodeTypeIf	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeDummyHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr, kNodeTypeComma };$/;"	e	enum:eNodeType
 kNodeTypeImpl	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeDummyHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr, kNodeTypeComma };$/;"	e	enum:eNodeType
 kNodeTypeInlineFunction	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeDummyHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr, kNodeTypeComma };$/;"	e	enum:eNodeType
+kNodeTypeInt	clover3/src/common.h	/^enum { kNodeTypeInt, kNodeTypeAdd };$/;"	e	enum:__anon38
 kNodeTypeIntValue	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeDummyHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr, kNodeTypeComma };$/;"	e	enum:eNodeType
 kNodeTypeIsHeap	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeDummyHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr, kNodeTypeComma };$/;"	e	enum:eNodeType
 kNodeTypeIsHeapExpression	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAdd, kNodeTypeSub, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeDefineVariable, kNodeTypeCString, kNodeTypeFunction, kNodeTypeExternalFunction, kNodeTypeFunctionCall, kNodeTypeIf, kNodeTypeEquals, kNodeTypeNotEquals, kNodeTypeStruct, kNodeTypeObject, kNodeTypeStackObject, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeWhile, kNodeTypeDoWhile, kNodeTypeGteq, kNodeTypeLeeq, kNodeTypeGt, kNodeTypeLe, kNodeTypeLogicalDenial, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeFor, kNodeTypeLambdaCall, kNodeTypeSimpleLambdaParam, kNodeTypeDerefference, kNodeTypeRefference, kNodeTypeNull, kNodeTypeClone, kNodeTypeLoadElement, kNodeTypeStoreElement, kNodeTypeChar, kNodeTypeMult, kNodeTypeDiv, kNodeTypeMod, kNodeTypeCast, kNodeTypeImpl, kNodeTypeGenericsFunction, kNodeTypeInlineFunction, kNodeTypeTypeDef, kNodeTypeUnion, kNodeTypeLeftShift, kNodeTypeRightShift, kNodeTypeAnd, kNodeTypeXor, kNodeTypeOr, kNodeTypeReturn, kNodeTypeSizeOf, kNodeTypeSizeOfExpression, kNodeTypeDefineVariables, kNodeTypeLoadFunction, kNodeTypeArrayWithInitialization, kNodeTypeStructWithInitialization, kNodeTypeNormalBlock, kNodeTypeSwitch, kNodeTypeBreak, kNodeTypeContinue, kNodeTypeCase, kNodeTypeLabel, kNodeTypeGoto, kNodeTypeIsHeap, kNodeTypeIsHeapExpression, kNodeTypeIsManaged, kNodeTypeIsManagedExpression, kNodeTypeVaArg, kNodeTypeDelete, kNodeTypeClassNameExpression, kNodeTypeClassName, kNodeTypeConditional, kNodeTypeAlignOf, kNodeTypeAlignOfExpression, kNodeTypeBorrow, kNodeTypeDummyHeap, kNodeTypeManaged, kNodeTypeComplement, kNodeTypeStoreAddress, kNodeTypeLoadAddressValue, kNodeTypePlusPlus, kNodeTypeMinusMinus, kNodeTypeEqualPlus, kNodeTypeEqualMinus, kNodeTypeEqualMult, kNodeTypeEqualDiv, kNodeTypeEqualMod, kNodeTypeEqualLShift, kNodeTypeEqualRShift, kNodeTypeEqualAnd, kNodeTypeEqualXor, kNodeTypeEqualOr, kNodeTypeComma };$/;"	e	enum:eNodeType
@@ -809,6 +879,7 @@ key	neo-c.h	/^        key = nil;$/;"	m	struct:map
 keys	code/neo-c.h	/^    T&* keys;$/;"	m	struct:map
 keys	neo-c.h	/^    T&* keys;$/;"	m	struct:map
 last_expression_is_return	src/common.h	/^    BOOL last_expression_is_return;$/;"	m	struct:sCompileInfoStruct
+left	clover3/src/common.h	/^    struct sCLNode* left;$/;"	m	struct:sCLNode	typeref:struct:sCLNode::sCLNode
 left	tiny/common.h	/^    TinyNode*% left;$/;"	m	struct:TinyNode
 len	code/neo-c.h	/^    int len;$/;"	m	struct:buffer
 len	code/neo-c.h	/^    int len;$/;"	m	struct:list
@@ -819,6 +890,7 @@ len	neo-c.h	/^    int len;$/;"	m	struct:list
 len	neo-c.h	/^    int len;$/;"	m	struct:map
 len	neo-c.h	/^    int len;$/;"	m	struct:vector
 libdir	Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
+libdir	clover3/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 libdir	tiny/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 libdir	wi/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 list	code/neo-c.h	/^struct list<T>$/;"	s
@@ -847,14 +919,21 @@ mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarStruct
 mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarTableStruct
 mBlockText	src/common.h	/^            char* mBlockText;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mBlockText	src/llvm_common.hpp	/^    char* mBlockText;$/;"	m	struct:sFunctionStruct
+mBlockType	clover3/src/common.h	/^    sCLBlockType%* mBlockType;$/;"	m	struct:sCLType
 mBody	src/macro.c	/^    sBuf mBody;$/;"	m	struct:sMacro	file:
+mBoolValue	clover3/src/common.h	/^    bool mBoolValue;$/;"	m	union:CLVALUE
 mBuf	src/buffer.h	/^    char* mBuf;$/;"	m	struct:sBufStruct
 mBuf	src/common.h	/^            char* mBuf;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon24
+mByteCodes	clover3/src/common.h	/^    buffer*% mByteCodes;$/;"	m	struct:sCLMethod
 mCFFIFunction	src/llvm_common.hpp	/^    BOOL mCFFIFunction;$/;"	m	struct:sFunctionStruct
 mCaseAfterReturn	src/common.h	/^            BOOL mCaseAfterReturn;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon34
+mCharValue	clover3/src/common.h	/^    wchar_t mCharValue;$/;"	m	union:CLVALUE
 mCharValue	src/common.h	/^        char mCharValue;$/;"	m	union:sNodeTreeStruct::__anon5
+mClass	clover3/src/common.h	/^    sCLClass* mClass;$/;"	m	struct:sCLType
 mClass	src/common.h	/^    sCLClass* mClass;$/;"	m	struct:sNodeTypeStruct
+mClassFields	clover3/src/common.h	/^    list<sCLField*%>*% mClassFields;$/;"	m	struct:sCLClass
 mClassNameOffset	src/common.h	/^    int mClassNameOffset;$/;"	m	struct:sCLClassStruct
+mConst	clover3/src/common.h	/^    buffer*% mConst;$/;"	m	struct:sCLClass
 mConst	src/common.h	/^    char* mConst;$/;"	m	struct:sConstStruct
 mConst	src/common.h	/^    sConst mConst;$/;"	m	struct:sCLClassStruct
 mConstant	src/common.h	/^    BOOL mConstant;$/;"	m	struct:sNodeTypeStruct
@@ -879,6 +958,7 @@ mExtern	src/common.h	/^            BOOL mExtern;$/;"	m	struct:sNodeTreeStruct::_
 mExternCLang	src/common.h	/^    int mExternCLang;$/;"	m	struct:sNodeBlockStruct
 mExternal	src/llvm_common.hpp	/^    BOOL mExternal;$/;"	m	struct:sFunctionStruct
 mFieldNameOffsets	src/common.h	/^    unsigned int mFieldNameOffsets[STRUCT_FIELD_MAX];$/;"	m	struct:sCLClassStruct
+mFields	clover3/src/common.h	/^    list<sCLField*%>*% mFields;$/;"	m	struct:sCLClass
 mFields	src/common.h	/^    struct sNodeTypeStruct* mFields[STRUCT_FIELD_MAX];$/;"	m	struct:sCLClassStruct	typeref:struct:sCLClassStruct::sNodeTypeStruct
 mFinalize	src/common.h	/^            BOOL mFinalize;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mFinalizeGenericsFunNum	src/common.h	/^    int mFinalizeGenericsFunNum;$/;"	m	struct:sNodeTypeStruct
@@ -893,12 +973,14 @@ mGenericsFunNum	src/llvm_common.hpp	/^    int mGenericsFunNum;$/;"	m	struct:sFun
 mGenericsFunction	src/common.h	/^            BOOL mGenericsFunction;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mGenericsFunction	src/llvm_common.hpp	/^    BOOL mGenericsFunction;$/;"	m	struct:sFunctionStruct
 mGenericsNum	src/common.h	/^    int mGenericsNum;$/;"	m	struct:sCLClassStruct
+mGenericsParamTypeOffsets	clover3/src/common.h	/^    unsigned int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];$/;"	m	struct:sCLMethod
 mGenericsType	src/common.h	/^    sNodeType* mGenericsType;$/;"	m	struct:sParserInfoStruct
 mGenericsType	src/llvm_common.hpp	/^    sNodeType* mGenericsType;$/;"	m	struct:sFunctionStruct
 mGenericsTypeNames	src/common.h	/^            char mGenericsTypeNames[PARAMS_MAX][VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mGenericsTypeNames	src/common.h	/^            char mGenericsTypeNames[PARAMS_MAX][VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon16
 mGenericsTypeNames	src/common.h	/^    char mGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];$/;"	m	struct:sParserInfoStruct
 mGenericsTypeNames	src/llvm_common.hpp	/^    char mGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];$/;"	m	struct:sFunctionStruct
+mGenericsTypes	clover3/src/common.h	/^    sCLType* mGenericsTypes[GENERICS_TYPES_MAX];$/;"	m	struct:sCLType
 mGenericsTypes	src/common.h	/^    struct sNodeTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeTypeStruct
 mGlobal	src/common.h	/^            BOOL mGlobal;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon10
 mGlobal	src/common.h	/^            BOOL mGlobal;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon6
@@ -921,6 +1003,8 @@ mInherit	src/common.h	/^            BOOL mInherit;$/;"	m	struct:sNodeTreeStruct:
 mInitializeArrayValue	src/common.h	/^            unsigned int mInitializeArrayValue[INIT_ARRAY_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon31
 mInitialized	src/common.h	/^    BOOL mInitialized;$/;"	m	struct:sClassTableStruct
 mInlineFunction	src/llvm_common.hpp	/^    BOOL mInlineFunction;$/;"	m	struct:sFunctionStruct
+mIntValue	clover3/src/common.h	/^        int mIntValue;$/;"	m	union:sCLNode::__anon37
+mIntValue	clover3/src/common.h	/^    int mIntValue;$/;"	m	union:CLVALUE
 mIntValue	src/common.h	/^        int mIntValue;$/;"	m	union:sNodeTreeStruct::__anon5
 mItem	src/common.h	/^    sCLClass* mItem;$/;"	m	struct:sClassTableStruct
 mItem	src/typedef.c	/^    sNodeType* mItem;$/;"	m	struct:sTypeDefTable	file:
@@ -942,7 +1026,13 @@ mMethodGenericsTypeNames	src/common.h	/^            char mMethodGenericsTypeName
 mMethodGenericsTypeNames	src/common.h	/^    char mMethodGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];$/;"	m	struct:sParserInfoStruct
 mMethodGenericsTypeNames	src/llvm_common.hpp	/^    char mMethodGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];$/;"	m	struct:sFunctionStruct
 mMethodGenericsTypes	src/common.h	/^    sNodeType* mMethodGenericsTypes[GENERICS_TYPES_MAX];$/;"	m	struct:sParserInfoStruct
+mMethods	clover3/src/common.h	/^    list<sCLMethod*%>*% mMethods;$/;"	m	struct:sCLClass
 mMiddle	src/common.h	/^    unsigned int mMiddle;$/;"	m	struct:sNodeTreeStruct
+mName	clover3/src/common.h	/^    string mName;$/;"	m	struct:sCLClass
+mName	clover3/src/common.h	/^    string mName;$/;"	m	struct:sCLField
+mName	clover3/src/common.h	/^    string mName;$/;"	m	struct:sCLMethod
+mName	clover3/src/common.h	/^    string mName;$/;"	m	struct:sCLParam
+mName	clover3/src/common.h	/^    string mName;$/;"	m	struct:sCLType
 mName	src/common.h	/^            char mName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mName	src/common.h	/^            char mName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon16
 mName	src/common.h	/^            char mName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon26
@@ -955,6 +1045,7 @@ mName	src/llvm_common.hpp	/^    char mName[VAR_NAME_MAX];$/;"	m	struct:sFunction
 mName	src/macro.c	/^    char mName[VAR_NAME_MAX];$/;"	m	struct:sMacro	file:
 mName	src/preprocessor.c	/^    char* mName;$/;"	m	struct:sPreprocessorFunctionStruct	file:
 mName	src/typedef.c	/^    char mName[VAR_NAME_MAX];$/;"	m	struct:sTypeDefTable	file:
+mNativeMethod	clover3/src/common.h	/^    fNativeMethod mNativeMethod;$/;"	m	struct:sCLMethod
 mNext	src/common.h	/^    struct sVarTableStruct* mNext;              \/\/ for free var table$/;"	m	struct:sVarTableStruct	typeref:struct:sVarTableStruct::sVarTableStruct
 mNextClass	src/common.h	/^    struct sClassTableStruct* mNextClass;$/;"	m	struct:sClassTableStruct	typeref:struct:sClassTableStruct::sClassTableStruct
 mNoHeap	src/common.h	/^    BOOL mNoHeap;$/;"	m	struct:sNodeTypeStruct
@@ -966,13 +1057,16 @@ mNodeType	src/common.h	/^    enum eNodeType mNodeType;$/;"	m	struct:sNodeTreeStr
 mNodes	src/common.h	/^            unsigned int mNodes[IMPL_DEF_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon25
 mNodes	src/common.h	/^            unsigned int mNodes[IMPL_DEF_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon9
 mNodes	src/common.h	/^    unsigned int* mNodes;$/;"	m	struct:sNodeBlockStruct
+mNullable	clover3/src/common.h	/^    bool mNullable;$/;"	m	struct:sCLType
 mNullable	src/common.h	/^    BOOL mNullable;$/;"	m	struct:sNodeTypeStruct
 mNumFields	src/common.h	/^    int mNumFields;$/;"	m	struct:sCLClassStruct
 mNumFields	src/common.h	/^    int mNumFields;$/;"	m	struct:sNodeTypeStruct
+mNumGenerics	clover3/src/common.h	/^    int mNumGenerics;$/;"	m	struct:sCLMethod
 mNumGenerics	src/common.h	/^            int mNumGenerics;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mNumGenerics	src/common.h	/^            int mNumGenerics;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon16
 mNumGenerics	src/common.h	/^    int mNumGenerics;$/;"	m	struct:sParserInfoStruct
 mNumGenerics	src/llvm_common.hpp	/^    int mNumGenerics;$/;"	m	struct:sFunctionStruct
+mNumGenericsTypes	clover3/src/common.h	/^    int mNumGenericsTypes;$/;"	m	struct:sCLType
 mNumGenericsTypes	src/common.h	/^    int mNumGenericsTypes;$/;"	m	struct:sNodeTypeStruct
 mNumInitializeArrayValue	src/common.h	/^            int mNumInitializeArrayValue;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon31
 mNumMethodGenerics	src/common.h	/^            int mNumMethodGenerics;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
@@ -982,6 +1076,8 @@ mNumMethodGenericsTypes	src/common.h	/^    int mNumMethodGenericsTypes;$/;"	m	st
 mNumNodes	src/common.h	/^            int mNumNodes;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon25
 mNumNodes	src/common.h	/^            int mNumNodes;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon9
 mNumNodes	src/common.h	/^    unsigned int mNumNodes;$/;"	m	struct:sNodeBlockStruct
+mNumParams	clover3/src/common.h	/^    int mNumParams;$/;"	m	struct:sCLBlockType
+mNumParams	clover3/src/common.h	/^    int mNumParams;$/;"	m	struct:sCLMethod
 mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon15
 mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon16
@@ -989,10 +1085,13 @@ mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sNodeTypeStruct
 mNumParams	src/llvm_common.hpp	/^    int mNumParams;$/;"	m	struct:sFunctionStruct
 mNumSwitchExpression	src/common.h	/^            int mNumSwitchExpression;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon33
 mNumVarTables	src/vtable.c	/^static int mNumVarTables = 0;$/;"	v	file:
+mObjectValue	clover3/src/common.h	/^    CLObject mObjectValue;$/;"	m	union:CLVALUE
 mOperatorFun	src/common.h	/^            BOOL mOperatorFun;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mParamNames	src/llvm_common.hpp	/^    char mParamNames[PARAMS_MAX][VAR_NAME_MAX];$/;"	m	struct:sFunctionStruct
 mParamTypes	src/common.h	/^    struct sNodeTypeStruct* mParamTypes[PARAMS_MAX];$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeTypeStruct
 mParamTypes	src/llvm_common.hpp	/^    sNodeType* mParamTypes[PARAMS_MAX];$/;"	m	struct:sFunctionStruct
+mParams	clover3/src/common.h	/^    sCLParam mParams[PARAMS_MAX];$/;"	m	struct:sCLMethod
+mParams	clover3/src/common.h	/^    sCLType* mParams[PARAMS_MAX];$/;"	m	struct:sCLBlockType
 mParams	src/common.h	/^            sParserParam mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon15
 mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon16
@@ -1003,6 +1102,9 @@ mPointerNum	src/common.h	/^    int mPointerNum;$/;"	m	struct:sNodeTypeStruct
 mReadOnly	src/common.h	/^    BOOL mReadOnly;$/;"	m	struct:sVarStruct
 mRealName	src/llvm_common.hpp	/^    char mRealName[REAL_FUN_NAME_MAX];$/;"	m	struct:sFunctionStruct
 mRegister	src/common.h	/^    BOOL mRegister;$/;"	m	struct:sNodeTypeStruct
+mResultType	clover3/src/common.h	/^    sCLType* mResultType;$/;"	m	struct:sCLBlockType
+mResultType	clover3/src/common.h	/^    sCLType*% mResultType;$/;"	m	struct:sCLField
+mResultType	clover3/src/common.h	/^    sCLType*% mResultType;$/;"	m	struct:sCLMethod
 mResultType	src/common.h	/^            sNodeType* mResultType;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mResultType	src/common.h	/^    struct sNodeTypeStruct* mResultType;$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeTypeStruct
 mResultType	src/llvm_common.hpp	/^    sNodeType* mResultType;$/;"	m	struct:sFunctionStruct
@@ -1024,11 +1126,14 @@ mSizeNodes	src/common.h	/^    unsigned int mSizeNodes;$/;"	m	struct:sNodeBlockSt
 mSizeNum	src/common.h	/^    int mSizeNum;$/;"	m	struct:sNodeTypeStruct
 mSource	src/common.h	/^    sBuf mSource;$/;"	m	struct:sNodeBlockStruct
 mSource	src/preprocessor.c	/^    sBuf mSource;$/;"	m	struct:sPreprocessorFunctionStruct	file:
+mStack	clover3/src/common.h	/^    CLVALUE* mStack;$/;"	m	struct:sCLStack
+mStackPtr	clover3/src/common.h	/^    CLVALUE** mStackPtr;$/;"	m	struct:sCLStack
 mStatic	src/common.h	/^    BOOL mStatic;$/;"	m	struct:sNodeTypeStruct
 mString	src/common.h	/^            char* mString;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon12
 mStructName	src/common.h	/^            char mStructName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mStructName	src/llvm_common.hpp	/^    char mStructName[VAR_NAME_MAX];$/;"	m	struct:sFunctionStruct
 mSwitchExpression	src/common.h	/^            unsigned int* mSwitchExpression;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon33
+mType	clover3/src/common.h	/^    sCLType%* mType;$/;"	m	struct:sCLParam
 mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon19
 mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon20
 mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon27
@@ -1044,6 +1149,7 @@ mTypePointerNum	src/common.h	/^    int mTypePointerNum;$/;"	m	struct:sNodeTypeSt
 mULongValue	src/common.h	/^        unsigned long long int mULongValue;$/;"	m	union:sNodeTreeStruct::__anon5
 mUndefinedStructType	src/common.h	/^    void* mUndefinedStructType;$/;"	m	struct:sCLClassStruct
 mUnsigned	src/common.h	/^    BOOL mUnsigned;$/;"	m	struct:sNodeTypeStruct
+mValue	clover3/src/common.h	/^    CLVALUE mValue;$/;"	m	struct:sCLField
 mVarArg	src/common.h	/^            BOOL mVarArg;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mVarArg	src/llvm_common.hpp	/^    BOOL mVarArg;$/;"	m	struct:sFunctionStruct
 mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon10
@@ -1053,6 +1159,7 @@ mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sN
 mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon31
 mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon6
 mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon7
+mVarNum	clover3/src/common.h	/^    int mVarNum;$/;"	m	struct:sCLMethod
 mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sVarTableStruct
 mVarTable	src/common.h	/^            sVarTable* mVarTable;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mVersion	src/common.h	/^            int mVersion;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
@@ -1071,6 +1178,7 @@ main	wi/a.c	/^int main()$/;"	f
 make_clone_for_recursive_field_type	src/llvm.cpp	/^BOOL make_clone_for_recursive_field_type(sNodeType* node_type, sCompileInfo* info) $/;"	f
 make_finalize_for_recursive_field_type	src/llvm.cpp	/^BOOL make_finalize_for_recursive_field_type(sNodeType* node_type, sCompileInfo* info) $/;"	f
 mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
+mandir	clover3/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 mandir	tiny/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 mandir	wi/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 map	code/neo-c.h	/^impl map <T, T2>$/;"	s
@@ -1081,6 +1189,7 @@ map	neo-c.h	/^ruby_macro map {$/;"	s
 map	neo-c.h	/^struct map<T, T2>$/;"	s
 mark	wi/common.h	/^    map<wchar_t, tuple3<int,int, int>*%>*% mark;$/;"	m	struct:version
 mem	src/memalloc-stdc.c	/^    void* mem;$/;"	m	struct:sHeapDebug	file:
+middle	clover3/src/common.h	/^    struct sCLNode* middle;$/;"	m	struct:sCLNode	typeref:struct:sCLNode::sCLNode
 middle	tiny/common.h	/^    TinyNode*% middle;$/;"	m	struct:TinyNode
 mode	wi/common.h	/^    int mode;$/;"	m	struct:version
 module_name	src/common.h	/^    char* module_name;$/;"	m	struct:sParserInfoStruct
@@ -1104,12 +1213,14 @@ next	neo-c.h	/^    struct list_item<T>*? next;$/;"	m	struct:list_item	typeref:st
 next	src/memalloc.c	/^    struct header_t *next;$/;"	m	struct:header_t	typeref:struct:header_t::header_t	file:
 no_comma_operator	src/common.h	/^    BOOL no_comma_operator;$/;"	m	struct:sParserInfoStruct
 no_output	src/common.h	/^    BOOL no_output;$/;"	m	struct:sCompileInfoStruct
+nodes	clover3/src/common.h	/^    vector<sCLNode*%>* nodes;$/;"	m	struct:sParserInfo
 nodes	tiny/common.h	/^    vector<TinyNode%*>*% nodes;$/;"	m	struct:TinyVM
 nodes	tiny/common.h	/^    vector<TinyNode*%>*% nodes;$/;"	m	struct:TinyBlock
 nregex	neo-c.h	/^typedef regex_struct*% nregex;$/;"	t
 num_loop	src/common.h	/^    int num_loop;$/;"	m	struct:sCompileInfoStruct
 num_loop2	src/common.h	/^    int num_loop2;$/;"	m	struct:sCompileInfoStruct
 output_native_code	src/llvm.cpp	/^void output_native_code(char* sname, BOOL optimize)$/;"	f
+p	clover3/src/common.h	/^    char* p;$/;"	m	struct:sParserInfo
 p	src/common.h	/^    char* p;$/;"	m	struct:sParserInfoStruct
 p	tiny/common.h	/^    char* p;$/;"	m	struct:TinyParser
 param	code/neo-c.h	/^                params.push(param); param = ""$/;"	m	struct:map
@@ -1197,9 +1308,11 @@ parser_err_msg	src/parser.c	/^void parser_err_msg(sParserInfo* info, const char*
 parser_final	src/parser.c	/^void parser_final()$/;"	f
 parser_init	src/parser.c	/^void parser_init()$/;"	f
 path	wi/common.h	/^    string path;$/;"	m	struct:ViFiler
+pinfo	clover3/src/common.h	/^    sParserInfo* pinfo;$/;"	m	struct:sCompileInfo
 pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sParserInfoStruct
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sParserInfo* info)$/;"	f	file:
 prefix	Makefile	/^prefix=\/usr\/local$/;"	m
+prefix	clover3/Makefile	/^prefix=\/usr\/local$/;"	m
 prefix	tiny/Makefile	/^prefix=\/usr\/local exec_prefix=${prefix}$/;"	m
 prefix	wi/Makefile	/^prefix=\/usr\/local exec_prefix=${prefix}$/;"	m
 preprocess_source	src/preprocessor.c	/^static BOOL preprocess_source(char* sname, char* output_sname)$/;"	f	file:
@@ -1211,6 +1324,7 @@ prev	code/neo-c.h	/^    struct list_item<T>*? prev;$/;"	m	struct:list_item	typer
 prev	neo-c.h	/^    struct list_item<T>*? prev;$/;"	m	struct:list_item	typeref:struct:list_item::list_item
 prevent_from_free_right_value_objects	src/common.h	/^    BOOL prevent_from_free_right_value_objects;$/;"	m	struct:sCompileInfoStruct
 prevent_from_right_object_free	src/llvm.cpp	/^void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info)$/;"	f
+prototypes	clover3/configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
 prototypes	configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
 prototypes	tiny/configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
 prototypes	wi/configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
@@ -1244,6 +1358,7 @@ result_type	src/common.h	/^    sNodeType* result_type;$/;"	m	struct:sCompileInfo
 result_variable	src/common.h	/^    void* result_variable;$/;"	m	struct:sCompileInfoStruct
 returnPoint	wi/common.h	/^    tuple3<int,int,int>*% returnPoint;$/;"	m	struct:version
 returnPointStack	wi/common.h	/^    list<tuple3<int, int, int>*%>*% returnPointStack;$/;"	m	struct:version
+right	clover3/src/common.h	/^    struct sCLNode* right;$/;"	m	struct:sCLNode	typeref:struct:sCLNode::sCLNode
 right	tiny/common.h	/^    TinyNode*% right;$/;"	m	struct:TinyNode
 right_value_objects	src/common.h	/^    void* right_value_objects;$/;"	m	struct:sCompileInfoStruct
 runOnModule	src/llvm.cpp	/^    virtual bool runOnModule(Module &M) {$/;"	f	struct:MyModulePass
@@ -1262,11 +1377,20 @@ sBuf_append_long	src/buffer.c	/^void sBuf_append_long(sBuf* self, long long valu
 sBuf_append_str	src/buffer.c	/^void sBuf_append_str(sBuf* self, char* str)$/;"	f
 sBuf_clone	src/buffer.c	/^void sBuf_clone(sBuf* self, sBuf* buf)$/;"	f
 sBuf_init	src/buffer.c	/^void sBuf_init(sBuf* self)$/;"	f
+sCLBlockType	clover3/src/common.h	/^struct sCLBlockType {$/;"	s
+sCLClass	clover3/src/common.h	/^struct sCLClass {$/;"	s
 sCLClass	src/common.h	/^typedef struct sCLClassStruct sCLClass;$/;"	t	typeref:struct:sCLClassStruct
 sCLClassStruct	src/common.h	/^struct sCLClassStruct {$/;"	s
+sCLField	clover3/src/common.h	/^struct sCLField {$/;"	s
+sCLMethod	clover3/src/common.h	/^struct sCLMethod {$/;"	s
+sCLNode	clover3/src/common.h	/^struct sCLNode {$/;"	s
+sCLParam	clover3/src/common.h	/^struct sCLParam {$/;"	s
+sCLStack	clover3/src/common.h	/^struct sCLStack {$/;"	s
+sCLType	clover3/src/common.h	/^struct sCLType {$/;"	s
 sCase	src/common.h	/^        } sCase;$/;"	m	union:sNodeTreeStruct::__anon5	typeref:struct:sNodeTreeStruct::__anon5::__anon34
 sClassTable	src/common.h	/^typedef struct sClassTableStruct sClassTable;$/;"	t	typeref:struct:sClassTableStruct
 sClassTableStruct	src/common.h	/^struct sClassTableStruct$/;"	s
+sCompileInfo	clover3/src/common.h	/^struct sCompileInfo {$/;"	s
 sCompileInfo	src/common.h	/^typedef struct sCompileInfoStruct sCompileInfo;$/;"	t	typeref:struct:sCompileInfoStruct
 sCompileInfoStruct	src/common.h	/^struct sCompileInfoStruct$/;"	s
 sConst	src/common.h	/^typedef struct sConstStruct sConst;$/;"	t	typeref:struct:sConstStruct
@@ -1403,6 +1527,7 @@ sNodeType	src/common.h	/^typedef struct sNodeTypeStruct sNodeType;$/;"	t	typeref
 sNodeTypeStruct	src/common.h	/^struct sNodeTypeStruct {$/;"	s
 sNormalBlock	src/common.h	/^        } sNormalBlock;$/;"	m	union:sNodeTreeStruct::__anon5	typeref:struct:sNodeTreeStruct::__anon5::__anon32
 sObject	src/common.h	/^        } sObject;$/;"	m	union:sNodeTreeStruct::__anon5	typeref:struct:sNodeTreeStruct::__anon5::__anon20
+sParserInfo	clover3/src/common.h	/^struct sParserInfo {$/;"	s
 sParserInfo	src/common.h	/^typedef struct sParserInfoStruct sParserInfo;$/;"	t	typeref:struct:sParserInfoStruct
 sParserInfoStruct	src/common.h	/^struct sParserInfoStruct$/;"	s
 sParserParam	src/common.h	/^typedef struct sParserParamStruct sParserParam;$/;"	t	typeref:struct:sParserParamStruct
@@ -1418,6 +1543,7 @@ sStruct	src/common.h	/^        } sStruct;$/;"	m	union:sNodeTreeStruct::__anon5	t
 sSwitch	src/common.h	/^        } sSwitch;$/;"	m	union:sNodeTreeStruct::__anon5	typeref:struct:sNodeTreeStruct::__anon5::__anon33
 sTypeDef	src/common.h	/^        } sTypeDef;$/;"	m	union:sNodeTreeStruct::__anon5	typeref:struct:sNodeTreeStruct::__anon5::__anon26
 sTypeDefTable	src/typedef.c	/^struct sTypeDefTable$/;"	s	file:
+sVMInfo	clover3/src/common.h	/^struct sVMInfo {$/;"	s
 sVaArg	src/common.h	/^        } sVaArg;$/;"	m	union:sNodeTreeStruct::__anon5	typeref:struct:sNodeTreeStruct::__anon5::__anon13
 sVar	src/common.h	/^typedef struct sVarStruct sVar;$/;"	t	typeref:struct:sVarStruct
 sVarStruct	src/common.h	/^struct sVarStruct {$/;"	s
@@ -1435,6 +1561,7 @@ search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* clas
 setCurrentDebugLocation	src/llvm.cpp	/^void setCurrentDebugLocation(int sline)$/;"	f
 set_max_block_var_num	src/vtable.c	/^void set_max_block_var_num(sVarTable* lv_table, sVarTable* old_table)$/;"	f
 sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
+sharedstatedir	clover3/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 sharedstatedir	tiny/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 sharedstatedir	wi/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 show_node	src/node.cpp	/^void show_node(unsigned int node)$/;"	f
@@ -1453,6 +1580,10 @@ skip_paren	src/parser.c	/^static BOOL skip_paren(char head_char, char tail_char,
 skip_spaces	src/parser.c	/^void skip_spaces(sParserInfo* info)$/;"	f
 skip_spaces_and_lf	src/parser.c	/^void skip_spaces_and_lf(sParserInfo* info)$/;"	f
 skip_spaces_for_parse_class_name	src/node_type.c	/^static void skip_spaces_for_parse_class_name(char** p) $/;"	f	file:
+sline	clover3/src/common.h	/^    int sline;$/;"	m	struct:sCLNode
+sline	clover3/src/common.h	/^    int sline;$/;"	m	struct:sCompileInfo
+sline	clover3/src/common.h	/^    int sline;$/;"	m	struct:sParserInfo
+sline	clover3/src/common.h	/^    int sline;$/;"	m	struct:sVMInfo
 sline	src/common.h	/^    int sline;$/;"	m	struct:sCompileInfoStruct
 sline	src/common.h	/^    int sline;$/;"	m	struct:sParserInfoStruct
 sline	src/memalloc-stdc.c	/^    int sline;$/;"	m	struct:sHeapDebug	file:
@@ -1460,6 +1591,10 @@ sline	tiny/common.h	/^    int sline;$/;"	m	struct:TinyNode
 sline	tiny/common.h	/^    int sline;$/;"	m	struct:TinyParser
 sline	tiny/common.h	/^    int sline;$/;"	m	struct:TinyVM
 sline_top	src/common.h	/^    int sline_top;$/;"	m	struct:sParserInfoStruct
+sname	clover3/src/common.h	/^    char sname[PATH_MAX];$/;"	m	struct:sCLNode
+sname	clover3/src/common.h	/^    char sname[PATH_MAX];$/;"	m	struct:sCompileInfo
+sname	clover3/src/common.h	/^    char sname[PATH_MAX];$/;"	m	struct:sParserInfo
+sname	clover3/src/common.h	/^    char sname[PATH_MAX];$/;"	m	struct:sVMInfo
 sname	src/common.h	/^    char sname[PATH_MAX];$/;"	m	struct:sCompileInfoStruct
 sname	src/common.h	/^    char sname[PATH_MAX];$/;"	m	struct:sParserInfoStruct
 sname	src/memalloc-stdc.c	/^    char sname[128];$/;"	m	struct:sHeapDebug	file:
@@ -1479,6 +1614,7 @@ squort	neo-c.h	/^            squort = !squort$/;"	m	struct:map
 squort	neo-c.h	/^            squort = !squort$/;"	m	struct:tuple
 squort	neo-c.h	/^    squort = false;$/;"	m	struct:map
 squort	neo-c.h	/^    squort = false;$/;"	m	struct:tuple
+stack	clover3/src/common.h	/^    CLVALUE* stack;$/;"	m	struct:sVMInfo
 stack	tiny/common.h	/^    vector<TVALUE*%>*% stack;$/;"	m	struct:TinyVM
 stackValue	tiny/common.h	/^    int stackValue;$/;"	m	struct:TinyNode
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
@@ -1495,6 +1631,7 @@ switch_expression	src/common.h	/^    void* switch_expression;$/;"	m	struct:sComp
 switch_expression_type	src/common.h	/^    sNodeType* switch_expression_type;$/;"	m	struct:sCompileInfoStruct
 switch_nest	src/common.h	/^    int switch_nest;$/;"	m	struct:sParserInfoStruct
 sysconfdir	Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
+sysconfdir	clover3/Makefile	/^sysconfdir=${prefix}\/etc\/clover3$/;"	m
 sysconfdir	tiny/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
 sysconfdir	wi/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
 tail	code/neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
@@ -1520,6 +1657,8 @@ tuple4	code/neo-c.h	/^impl tuple4 <T, T2, T3, T4>$/;"	s
 tuple4	code/neo-c.h	/^struct tuple4<T, T2, T3, T4>$/;"	s
 tuple4	neo-c.h	/^impl tuple4 <T, T2, T3, T4>$/;"	s
 tuple4	neo-c.h	/^struct tuple4<T, T2, T3, T4>$/;"	s
+type	clover3/src/common.h	/^    int type;$/;"	m	struct:sCLNode
+type	clover3/src/common.h	/^    sCLType* type;$/;"	m	struct:sCompileInfo
 type	src/common.h	/^    sNodeType* type;$/;"	m	struct:sCompileInfoStruct
 type	src/llvm_common.hpp	/^    sNodeType* type;$/;"	m	struct:LVALUEStruct
 type	tiny/common.h	/^    int type;$/;"	m	struct:TVALUE
@@ -1527,6 +1666,8 @@ type	tiny/common.h	/^    int type;$/;"	m	struct:TinyNode
 type_identify	src/node_type.c	/^BOOL type_identify(sNodeType* left, sNodeType* right)$/;"	f
 type_identify_with_class_name	src/node_type.c	/^BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
 type_name	src/memalloc-stdc.c	/^    char type_name[128];$/;"	m	struct:sHeapDebug	file:
+types	clover3/src/common.h	/^    vector<sCLType*%>* types;$/;"	m	struct:sCompileInfo
+uValue	clover3/src/common.h	/^    } uValue;$/;"	m	struct:sCLNode	typeref:union:sCLNode::__anon37
 uValue	src/common.h	/^    } uValue;$/;"	m	struct:sNodeTreeStruct	typeref:union:sNodeTreeStruct::__anon5
 undo	wi/common.h	/^    list<list<wstring>*%>%* undo;$/;"	m	struct:version
 undoCursorX	wi/common.h	/^    list<int>%* undoCursorX;$/;"	m	struct:version

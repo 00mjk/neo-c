@@ -2366,23 +2366,25 @@ static BOOL compile_define_variable(unsigned int node, sCompileInfo* info)
             }
         }
         else {
-            if(var->mLLVMValue == NULL && TheModule->getNamedGlobal(var_name) == nullptr)
+            if(TheModule->getNamedGlobal(var_name) != nullptr)
             {
-                GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
-
-                address->setAlignment(alignment);
-
-                ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
-
-                address->setInitializer(initializer);
-
-                var->mLLVMValue = address;
-
-                BOOL parent = FALSE;
-                int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
-
-                store_address_to_lvtable(index, address);
+                TheModule->getNamedGlobal(var_name)->eraseFromParent();
             }
+            
+            GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, false, GlobalValue::ExternalLinkage, 0, var_name, nullptr, GlobalValue::NotThreadLocal, 0, false);
+
+            address->setAlignment(alignment);
+
+            ConstantAggregateZero* initializer = ConstantAggregateZero::get(llvm_var_type);
+
+            address->setInitializer(initializer);
+
+            var->mLLVMValue = address;
+
+            BOOL parent = FALSE;
+            int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+            store_address_to_lvtable(index, address);
         }
     }
     else {
@@ -11092,6 +11094,7 @@ static BOOL compile_conditional(unsigned int node, sCompileInfo* info)
             }
         }
 
+/*
         if(!type_identify(value1_result_type, value2_result_type))
         {
             compile_err_msg(info, "Different result type for conditional operator");
@@ -11104,6 +11107,7 @@ static BOOL compile_conditional(unsigned int node, sCompileInfo* info)
 
             return TRUE;
         }
+*/
 
         Builder.CreateAlignedStore(value2.value, result_value, result_value_alignment);
 

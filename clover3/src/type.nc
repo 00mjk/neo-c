@@ -36,5 +36,5 @@ bool type_identify_with_class_name(sCLType* left_type, char* right_class, sCompi
 
 void show_type(sCLType* type)
 {
-    printf("class %s\n", type.mClass.name);
+    printf("class %s\n", type.mClass.mName);
 }

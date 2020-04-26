@@ -126,7 +126,7 @@ struct sCLClass {
     list<sCLField*%>*% mClassFields;
 };
 
-extern map<char*, sCLClass*%>* gClasses;
+extern map<string, sCLClass*%>* gClasses;
 
 /// class.nc ///
 void class_init();
