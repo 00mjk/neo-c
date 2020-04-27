@@ -11017,7 +11017,12 @@ static BOOL compile_conditional(unsigned int node, sCompileInfo* info)
             }
         }
 
-        llvm_value = *get_value_from_stack(-1);
+        if(type_identify_with_class_name(info->type, "void")) {
+            memset(&llvm_value, 0, sizeof(LVALUE));
+        }
+        else {
+            llvm_value = *get_value_from_stack(-1);
+        }
     }
     else {
         BasicBlock* cond_then_block = BasicBlock::Create(TheContext, "cond_jump_then", gFunction);
@@ -11039,29 +11044,63 @@ static BOOL compile_conditional(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        LVALUE value1 = *get_value_from_stack(-1);
-        dec_stack_ptr(1, info);
-        sNodeType* value1_result_type = clone_node_type(info->type);
+        LVALUE value1;
+        Value* result_value;
+        int result_value_alignment;
+        sNodeType* value1_result_type;
+        if(type_identify_with_class_name(info->type, "void")) {
+            memset(&value1, 0, sizeof(LVALUE));
 
-        Type* llvm_result_type;
-        if(!create_llvm_type_from_node_type(&llvm_result_type, value1_result_type, value1_result_type, info))
-        {
-            compile_err_msg(info, "Getting llvm type failed(99)");
-            show_node_type(value1_result_type);
-            info->err_num++;
+            value1_result_type = create_node_type_with_class_name("int");
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            Type* llvm_result_type;
+            if(!create_llvm_type_from_node_type(&llvm_result_type, value1_result_type, value1_result_type, info))
+            {
+                compile_err_msg(info, "Getting llvm type failed(99)");
+                show_node_type(value1_result_type);
+                info->err_num++;
 
-            return TRUE;
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
+
+            result_value = builder.CreateAlloca(llvm_result_type, 0, "condtional_result_value");
+
+            result_value_alignment = get_llvm_alignment_from_node_type(value1_result_type);
+
+            Value* zero_value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+
+            Builder.CreateAlignedStore(zero_value, result_value, result_value_alignment);
         }
+        else {
+            LVALUE value1 = *get_value_from_stack(-1);
+            dec_stack_ptr(1, info);
 
-        IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
+            value1_result_type = clone_node_type(info->type);
 
-        Value* result_value = builder.CreateAlloca(llvm_result_type, 0, "condtional_result_value");
+            Type* llvm_result_type;
+            if(!create_llvm_type_from_node_type(&llvm_result_type, value1_result_type, value1_result_type, info))
+            {
+                compile_err_msg(info, "Getting llvm type failed(99)");
+                show_node_type(value1_result_type);
+                info->err_num++;
 
-        int result_value_alignment = get_llvm_alignment_from_node_type(value1_result_type);
+                info->type = create_node_type_with_class_name("int"); // dummy
 
-        Builder.CreateAlignedStore(value1.value, result_value, result_value_alignment);
+                return TRUE;
+            }
+
+            IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
+
+            Value* result_value = builder.CreateAlloca(llvm_result_type, 0, "condtional_result_value");
+
+            int result_value_alignment = get_llvm_alignment_from_node_type(value1_result_type);
+
+            Builder.CreateAlignedStore(value1.value, result_value, result_value_alignment);
+        }
 
         free_right_value_objects(info);
         Builder.CreateBr(cond_end_block);
@@ -11076,40 +11115,65 @@ static BOOL compile_conditional(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        LVALUE value2 = *get_value_from_stack(-1);
-        dec_stack_ptr(1, info);
-        sNodeType* value2_result_type = clone_node_type(info->type);
+        LVALUE value2;
+        if(type_identify_with_class_name(info->type, "void")) {
+            memset(&value2, 0, sizeof(LVALUE));
 
-        if(auto_cast_posibility(value1_result_type, value2_result_type)) 
-        {
-            if(!cast_right_type_to_left_type(value1_result_type
-                            , &value2_result_type, &value2, info))
+            sNodeType* value2_result_type = create_node_type_with_class_name("int");
+
+            Type* llvm_result_type;
+            if(!create_llvm_type_from_node_type(&llvm_result_type, value2_result_type, value2_result_type, info))
             {
-                compile_err_msg(info, "Cast failed");
+                compile_err_msg(info, "Getting llvm type failed(99)");
+                show_node_type(value2_result_type);
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
 
                 return TRUE;
             }
+
+            IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
+
+            Value* zero_value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+
+            if(auto_cast_posibility(value1_result_type, value2_result_type)) 
+            {
+                if(!cast_right_type_to_left_type(value1_result_type
+                                , &value2_result_type, &value2, info))
+                {
+                    compile_err_msg(info, "Cast failed");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    return TRUE;
+                }
+            }
+
+            Builder.CreateAlignedStore(zero_value, result_value, result_value_alignment);
         }
+        else {
+            value2 = *get_value_from_stack(-1);
+            dec_stack_ptr(1, info);
+            sNodeType* value2_result_type = clone_node_type(info->type);
 
-/*
-        if(!type_identify(value1_result_type, value2_result_type))
-        {
-            compile_err_msg(info, "Different result type for conditional operator");
-            info->err_num++;
+            if(auto_cast_posibility(value1_result_type, value2_result_type)) 
+            {
+                if(!cast_right_type_to_left_type(value1_result_type
+                                , &value2_result_type, &value2, info))
+                {
+                    compile_err_msg(info, "Cast failed");
+                    info->err_num++;
 
-            show_node_type(value1_result_type);
-            show_node_type(value2_result_type);
+                    info->type = create_node_type_with_class_name("int"); // dummy
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+                    return TRUE;
+                }
+            }
 
-            return TRUE;
+            Builder.CreateAlignedStore(value2.value, result_value, result_value_alignment);
         }
-*/
-
-        Builder.CreateAlignedStore(value2.value, result_value, result_value_alignment);
 
         free_right_value_objects(info);
         Builder.CreateBr(cond_end_block);
