@@ -5,6 +5,8 @@ map<string, sCLClass*%>* gClasses;
 void class_init()
 {
     gClasses = borrow new map<string, sCLClass*%>.initialize();
+    
+    append_class("int");
 }
 
 void class_final()

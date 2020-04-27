@@ -42,6 +42,7 @@ static bool compile_int_value(sCLNode* node, sCompileInfo* info)
     info.codes.append_int(node.uValue.mIntValue);
     
     info.type = create_type("int", info);
+    info.stack_num++;
     
     return true;
 }
@@ -97,6 +98,9 @@ static bool compile_add(sCLNode* node, sCompileInfo* info)
         
         return true;
     }
+    
+    info.stack_num -= 2;
+    info.stack_num++;
     
     return true;
 }

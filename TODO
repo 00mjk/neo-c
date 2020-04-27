@@ -3,7 +3,8 @@ if(true) {
 *v = が}のあとに;をつけないとだめ。パーサーのバグ
 
 
-
+alloc initialize
+alloc destructor
 machine stack structor called destructor when deleting
 rm neo-c.h.out
 Pointer minus Pointer valid size

@@ -21,6 +21,7 @@ LOGGING=0
 
 AC_ARG_WITH(debug,              [  --with-debug              include debug info ], [ DEBUGGING=1; ], [])
 AC_ARG_WITH(optimize,           [  --with-optimize           with optimize(-O in CFLAGS) ], [ ENABLE_OPTIMIZE=1 ], [ ENABLE_OPTIMIZE=0 ])
+AC_ARG_WITH(memleak-debug,           [  --with-memleak-debug      with memleak debug ], [ ENABLE_MLDEBUG=1 ], [ ENABLE_MLDEBUG=0 ])
 
 ##############################################################
 # check cpu type
@@ -185,6 +186,11 @@ then
     #CFLAGS="$CFLAGS -g -DMDEBUG -Werror"
 fi
 
+if test $ENABLE_MLDEBUG = 1
+then
+    NCFLAGS="-gm"
+fi
+
 AC_SUBST(OS)
 
 export CFLAGS
@@ -241,6 +247,7 @@ AC_SUBST(DESTDIR)
 
 CFLAGS="$CFLAGS -Qunused-arguments"
 AC_SUBST(CFLAGS)
+AC_SUBST(NCFLAGS)
 
 AC_CHECK_FUNCS(execvpe)
 

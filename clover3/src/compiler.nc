@@ -108,10 +108,29 @@ bool compile_script(char* fname, buffer* source)
             delete cinfo.types;
             return false;
         }
+        
+        /// POP ///
+        for(int i=0; i<cinfo.stack_num; i++) {
+            cinfo.codes.append_int(OP_POP);
+        }
+        
+        cinfo.stack_num = 0;
     }
     
     if(info.err_num > 0) {
         fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
+        delete info.nodes;
+        delete cinfo.codes;
+        delete cinfo.types;
+        return false;
+    }
+    
+    sVMInfo vminfo;
+    
+    memset(&vminfo, 0, sizeof(sVMInfo));
+    
+    if(!vm(cinfo.codes, &vminfo)) {
+        fprintf(stderr, "VM error.\n");
         delete info.nodes;
         delete cinfo.codes;
         delete cinfo.types;

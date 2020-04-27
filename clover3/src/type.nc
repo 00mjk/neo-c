@@ -7,7 +7,7 @@ sCLType* create_type(char* type_name, sCompileInfo* info)
     
     info.types.push_back(dummy_heap result);
     
-    result.mClass = gClasses.at(string(type_name), null);
+    result.mClass = gClasses.at(type_name, null);
     
     assert(result.mClass != null);
     

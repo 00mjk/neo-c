@@ -40,6 +40,11 @@
 //////////////////////////////////////////
 /// runtime side
 //////////////////////////////////////////
+struct sCLType;
+struct sCLClass;
+struct sCompileInfo;
+struct sVMInfo;
+
 typedef unsigned int CLObject;
 
 union CLVALUE {
@@ -53,10 +58,6 @@ struct sCLStack {
     CLVALUE* mStack;
     CLVALUE** mStackPtr;
 };
-
-struct sCLType;
-struct sCLClass;
-struct sCompileInfo;
 
 struct sCLParam {
     string mName;
@@ -81,13 +82,6 @@ struct sCLType {
     bool mNullable;
 
     sCLBlockType%* mBlockType;
-};
-
-struct sVMInfo {
-    char sname[PATH_MAX];
-    int sline;
-
-    CLVALUE* stack;
 };
 
 typedef bool (*fNativeMethod)(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
@@ -140,7 +134,7 @@ bool type_identify_with_class_name(sCLType* left_type, char* right_class, sCompi
 void show_type(sCLType* type);
 
 //////////////////////////////////////////
-/// parser, compiler side
+/// compiler side
 //////////////////////////////////////////
 struct sCLNode {
     int type;
@@ -178,6 +172,8 @@ struct sCompileInfo {
     
     int err_num;
     
+    int stack_num;
+    
     sParserInfo* pinfo;
     buffer* codes;
     
@@ -193,5 +189,18 @@ bool compile(sCLNode* node, sCompileInfo* info);
 
 sCLNode* sNodeTree_create_add(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_int_value(int value, sParserInfo* info);
+
+//////////////////////////////
+/// runtime side
+//////////////////////////////
+struct sVMInfo {
+    char sname[PATH_MAX];
+    int sline;
+
+    CLVALUE* stack;
+    CLVALUE* stack_ptr;
+};
+
+bool vm(buffer* codes, sVMInfo* info);
 
 #endif

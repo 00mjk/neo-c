@@ -4,38 +4,10 @@
 
 static void clover3_init(bool no_load_fudamental_classes)
 {
-/*
-    class_system_init();
-    thread_init();
-#ifdef ENABLE_JIT
-    jit_init_on_runtime();
-#endif
-    native_method_init();
-    class_init();
-    heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
-    stack_init();
-    script_init();
-    //(void)class_init_on_runtime();
-    if(!no_load_fudamental_classes) {
-        class_init_on_runtime();
-    }
-*/
 }
 
 static void clover3_final()
 {
-/*
-    script_final();
-    thread_final();
-    class_final_on_runtime();
-    heap_final();
-    stack_final();
-    class_final();
-    native_method_final();
-#ifdef ENABLE_JIT
-    jit_final_on_runtime();
-#endif
-*/
 }
 
 static void set_signal()

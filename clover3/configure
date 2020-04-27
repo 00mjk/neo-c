@@ -623,6 +623,7 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 OBJS
 COMPILER_OBJS
+NCFLAGS
 DESTDIR
 OS
 EGREP
@@ -682,6 +683,7 @@ ac_user_opts='
 enable_option_checking
 with_debug
 with_optimize
+with_memleak_debug
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1311,6 +1313,7 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-debug              include debug info
   --with-optimize           with optimize(-O in CFLAGS)
+  --with-memleak-debug      with memleak debug
 
 Some influential environment variables:
   CC          C compiler command
@@ -3667,6 +3670,14 @@ else
 fi
 
 
+# Check whether --with-memleak-debug was given.
+if test "${with_memleak_debug+set}" = set; then :
+  withval=$with_memleak_debug;  ENABLE_MLDEBUG=1
+else
+   ENABLE_MLDEBUG=0
+fi
+
+
 ##############################################################
 # check cpu type
 ##############################################################
@@ -3881,6 +3892,11 @@ if test $DEBUGGING = 1
 then
     CFLAGS="$CFLAGS -g -DMDEBUG"
     #CFLAGS="$CFLAGS -g -DMDEBUG -Werror"
+fi
+
+if test $ENABLE_MLDEBUG = 1
+then
+    NCFLAGS="-gm"
 fi
 
 
@@ -4200,8 +4216,10 @@ fi
 ac_cv_lib_rt=ac_cv_lib_rt_main
 
 
-OBJS="src/vm.o src/objects.o src/klass.o src/heap.o src/type.o"
-COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/vtable.o"
+OBJS="src/vm.o"
+#OBJS="src/vm.o src/objects.o src/klass.o src/heap.o src/type.o"
+COMPILER_OBJS="src/parser.o src/node.o"
+#COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/vtable.o"
 
 
 
@@ -4214,6 +4232,7 @@ DESTDIR=$myprefix
 
 
 CFLAGS="$CFLAGS -Qunused-arguments"
+
 
 
 for ac_func in execvpe
