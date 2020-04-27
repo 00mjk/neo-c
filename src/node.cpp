@@ -11095,9 +11095,9 @@ static BOOL compile_conditional(unsigned int node, sCompileInfo* info)
 
             IRBuilder<> builder(&gFunction->getEntryBlock(), gFunction->getEntryBlock().begin());
 
-            Value* result_value = builder.CreateAlloca(llvm_result_type, 0, "condtional_result_value");
+            result_value = builder.CreateAlloca(llvm_result_type, 0, "condtional_result_value");
 
-            int result_value_alignment = get_llvm_alignment_from_node_type(value1_result_type);
+            result_value_alignment = get_llvm_alignment_from_node_type(value1_result_type);
 
             Builder.CreateAlignedStore(value1.value, result_value, result_value_alignment);
         }

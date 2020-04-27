@@ -1533,7 +1533,9 @@ squort	neo-c.h	/^    squort = false;$/;"	m	struct:tuple
 stack	clover3/src/common.h	/^    CLVALUE* stack;$/;"	m	struct:sVMInfo
 stack	tiny/common.h	/^    vector<TVALUE*%>*% stack;$/;"	m	struct:TinyVM
 stackValue	tiny/common.h	/^    int stackValue;$/;"	m	struct:TinyNode
+stack_num	clover3/src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfo
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
+stack_ptr	clover3/src/common.h	/^    CLVALUE* stack_ptr;$/;"	m	struct:sVMInfo
 start_to_make_native_code	src/llvm.cpp	/^void start_to_make_native_code(char* sname)$/;"	f
 std_move	src/llvm.cpp	/^void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL alloc, sCompileInfo* info)$/;"	f
 store_address_to_lvtable	src/llvm.cpp	/^void store_address_to_lvtable(int index, Value* address)$/;"	f
