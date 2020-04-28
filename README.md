@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.2.1
+version 1.2.2
 
 ```
 #include <stdio.h>
@@ -658,6 +658,7 @@ impl map <T, T2>
     T2 at_clone(map<T, T2>* self, T& key, T2& default_value);
     void insert(map<T,T2>* self, T key, T2 item);
     bool equals(map<T, T2>* left, map<T, T2>* right);
+    int length(map<T, T2>* self);
 }
 ```
 

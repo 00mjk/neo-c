@@ -1,10 +1,12 @@
 #include "common.h"
+#include <ctype.h>
 
 void parser_err_msg(sParserInfo* info, char* msg)
 {
     fprintf(stderr, "%s:%d: %s\n", info->sname, info->sline, msg);
 
     info->err_output_num++;
+    info->err_num++;
 }
 
 void skip_spaces_and_lf(sParserInfo* info)
@@ -64,12 +66,25 @@ static bool get_number(bool minus, sCLNode** node, sParserInfo* info)
     }
     else {
         parser_err_msg(info, "require digits after + or -");
-        info->err_num++;
 
         *node = null;
     }
 
     return true;
+}
+
+buffer*% parse_word(sParserInfo* info)
+{
+    buffer*% result = new buffer.initialize();
+    
+    while(isalnum(*info->p) || *info->p == '_') {
+        result.append_char(*info->p);
+        info->p++;
+    }
+
+    skip_spaces_and_lf(info);
+    
+    return result;
 }
 
 static bool expression_node(sCLNode** node, sParserInfo* info)
@@ -95,7 +110,6 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
                 if(*node == 0) {
                     parser_err_msg(info, "require right value for -");
-                    info->err_num++;
                 }
 
 //                *node = sNodeTree_create_operand(kOpMinus, *node, 0, 0, info);
@@ -117,7 +131,6 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
                 if(*node == 0) {
                     parser_err_msg(info, "require right value for +");
-                    info->err_num++;
                 }
             }
         }
@@ -128,7 +141,40 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             return false;
         }
     }
-
+    /// alnum ///
+    else if(isalpha(*info->p) || *info->p == '_') {
+        var word = parse_word(info).to_string();
+        
+        if(strcmp(word, "var") == 0) {
+            if(isalpha(*info->p) || *info->p == '_') {
+                var var_name = parse_word(info).to_string();
+                
+                check_already_added_variable(info, var_name);
+                add_variable_to_table(info, var_name, null, false);
+                
+                if(*info->p == '=') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    
+                    sCLNode* exp = null;
+                    if(!expression_node(&exp, info)) {
+                        return false;
+                    };
+                    
+                    *node = sNodeTree_create_store_variable(var_name, exp, info);
+                }
+            }
+            else {
+                parser_err_msg(info, "require var name");
+            }
+        }
+/*
+        else {
+            sVar* v = get_variable_from_table(info, word);
+        }
+*/
+    }
+    
     return true;
 }
 
@@ -154,7 +200,6 @@ static bool expression_add_sub(sCLNode** node, sParserInfo* info)
 
             if(right == null) {
                 parser_err_msg(info, "require right value for operator +");
-                info->err_num++;
             };
 
             *node = sNodeTree_create_add(*node, right, info);
@@ -170,7 +215,6 @@ static bool expression_add_sub(sCLNode** node, sParserInfo* info)
 
             if(right == null) {
                 parser_err_msg(info, "require right value for operator -");
-                info->err_num++;
             }
 
 //            *node = sNodeTree_create_sub(*node, right, info);

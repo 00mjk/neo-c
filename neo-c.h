@@ -2275,6 +2275,10 @@ impl map <T, T2>
 
         return result;
     }
+
+    int length(map<T, T2>* self) {
+        return self.len;
+    }
 }
 
 ruby_macro map {

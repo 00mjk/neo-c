@@ -1,11 +1,18 @@
 #include "common.h"
 
-void print_stack(CLVALUE* stack, CLVALUE* stack_ptr)
+void print_stack(CLVALUE* stack, CLVALUE* stack_ptr, int var_num)
 {
     CLVALUE* p = stack;
     
     while(p < stack_ptr) {
-        fprintf(stderr, "[%d] %d\n", (stack_ptr-p) / sizeof(CLVALUE), p.mIntValue);
+        int index = (p-stack) / sizeof(CLVALUE);
+        
+        if(index < var_num) {
+            fprintf(stderr, "v[%d] %d \n", index, p.mIntValue);
+        }
+        else {
+            fprintf(stderr, " [%d] %d\n", index, p.mIntValue);
+        }
         
         p++;
     }
@@ -24,6 +31,10 @@ void print_op(int op)
         case OP_IADD:
             puts("OP_IADD");
             break;
+
+        case OP_STORE_VARIABLE:
+            puts("OP_STORE_VARIABLE");
+            break;
             
         default:
             printf("OP %d\n", op);
@@ -34,7 +45,10 @@ void print_op(int op)
 bool vm(buffer* codes, sVMInfo* info)
 {
     CLVALUE stack[VM_STACK_MAX];
-    CLVALUE* stack_ptr = (CLVALUE*)stack;
+    
+    memset(stack, 0, sizeof(CLVALUE) * VM_STACK_MAX);
+    
+    CLVALUE* stack_ptr = (CLVALUE*)stack + info.var_num;
     
     int* head_codes = (int*)codes.buf;
     int* p = (int*)codes.buf;
@@ -65,8 +79,17 @@ print_op(op);
                 stack_ptr++;
                 
                 break;
+                
+            case OP_STORE_VARIABLE:
+                int var_index = *p;
+                p++;
+                
+                stack[var_index] = *(stack_ptr-1);
+                
+                break;
+                
         }
-print_stack(stack, stack_ptr);
+print_stack(stack, stack_ptr, info.var_num);
     }
     
     return true;

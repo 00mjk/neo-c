@@ -1,3 +1,6 @@
+save /tmp tmp texts
+backup function
+
 C-w j, k
 visual mode zz
 search mode in visual mode

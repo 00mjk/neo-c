@@ -1,6 +1,5 @@
 #ifndef COMMON_H
-#define COMMON_H
-
+#define COMMON_H 
 #include "config.h"
 
 #include <string.h>
@@ -146,10 +145,36 @@ struct sCLNode {
         int mIntValue;
     } uValue;
     
+    string mStringValue;
+    
     struct sCLNode* left;
     struct sCLNode* middle;
     struct sCLNode* right;
 };
+
+struct sVar {
+    string mName
+    int mIndex;
+    sCLType%* mType;
+
+    int mBlockLevel;
+    bool mReadOnly;
+};
+
+struct sVarTable {
+    map<string, sVar*%>*% mLocalVariables;
+    int mVarNum;
+    int mMaxBlockVarNum;
+
+    int mBlockLevel;
+    
+    sVarTable* mParent;
+};
+
+impl sVarTable
+{
+    initialize();
+}
 
 struct sParserInfo {
     char sname[PATH_MAX];
@@ -162,9 +187,10 @@ struct sParserInfo {
     char* p;
     
     vector<sCLNode*%>* nodes;
+    vector<sVarTable*%>* vtables;
 };
 
-enum { kNodeTypeInt, kNodeTypeAdd };
+enum { kNodeTypeInt, kNodeTypeAdd, kNodeTypeStoreVariable };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -182,13 +208,22 @@ struct sCompileInfo {
     sCLType* type;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_IADD };
+enum { OP_POP, OP_INT_VALUE, OP_IADD, OP_STORE_VARIABLE  };
+
+void parser_err_msg(sParserInfo* info, char* msg);
 
 bool expression(sCLNode** node, sParserInfo* info);
 bool compile(sCLNode* node, sCompileInfo* info);
 
+void init_var_table(sParserInfo* info);
+void add_variable_to_table(sParserInfo* info, char* name, sCLType* type, bool readonly);
+sVar* get_variable_from_table(sParserInfo* info, char* name);
+void check_already_added_variable(sParserInfo* info, char* name);
+int get_var_num(sParserInfo* info);
+
 sCLNode* sNodeTree_create_add(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_int_value(int value, sParserInfo* info);
+sCLNode* sNodeTree_create_store_variable(char* var_name, sCLNode* exp, sParserInfo* info);
 
 //////////////////////////////
 /// runtime side
@@ -199,6 +234,8 @@ struct sVMInfo {
 
     CLVALUE* stack;
     CLVALUE* stack_ptr;
+    
+    int var_num;
 };
 
 bool vm(buffer* codes, sVMInfo* info);

@@ -105,6 +105,47 @@ static bool compile_add(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_store_variable(char* var_name, sCLNode* exp, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeStoreVariable;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.mStringValue = string(var_name);
+    
+    result.left = exp;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_store_variable(sCLNode* node, sCompileInfo* info)
+{
+    if(!compile(node.left, info)) {
+        return false;
+    }
+    
+    char* var_name = borrow node.mStringValue;
+    
+    sVar* v = get_variable_from_table(info.pinfo, var_name);
+    
+    if(v == null) {
+        compile_err_msg(info, xsprintf("The variable named %s is not defined", var_name));
+        return true;
+    }
+    
+    info.codes.append_int(OP_STORE_VARIABLE);
+    info.codes.append_int(v.mIndex);
+    
+    return true;
+}
+
+
+
 bool compile(sCLNode* node, sCompileInfo* info) 
 {
     switch(node.type) {
@@ -116,6 +157,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
             
         case kNodeTypeAdd:
             if(!compile_add(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypeStoreVariable:
+            if(!compile_store_variable(node, info)) {
                 return false;
             }
             break;

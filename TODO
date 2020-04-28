@@ -2,6 +2,8 @@ if(true) {
 }
 *v = が}のあとに;をつけないとだめ。パーサーのバグ
 
+if文の行番号がおかしい
+
 
 alloc initialize
 alloc destructor

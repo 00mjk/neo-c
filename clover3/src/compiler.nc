@@ -68,6 +68,9 @@ bool compile_script(char* fname, buffer* source)
     info.err_num = 0;
     
     info.nodes = borrow new vector<sCLNode*%>.initialize();
+    info.vtables = borrow new vector<sVarTable*%>.initialize();
+    
+    init_var_table(&info);
 
     sCompileInfo cinfo;
     
@@ -87,6 +90,7 @@ bool compile_script(char* fname, buffer* source)
         sCLNode* node;
         if(!expression(&node, &info)) {
             delete info.nodes;
+            delete info.vtables;
             delete cinfo.codes;
             delete cinfo.types;
             return false;
@@ -96,6 +100,7 @@ bool compile_script(char* fname, buffer* source)
         
         if(!compile(node, &cinfo)) {
             delete info.nodes;
+            delete info.vtables;
             delete cinfo.codes;
             delete cinfo.types;
             return false;
@@ -104,6 +109,7 @@ bool compile_script(char* fname, buffer* source)
         if(cinfo.err_num > 0) {
             fprintf(stderr, "Compile error\n");
             delete info.nodes;
+            delete info.vtables;
             delete cinfo.codes;
             delete cinfo.types;
             return false;
@@ -120,6 +126,7 @@ bool compile_script(char* fname, buffer* source)
     if(info.err_num > 0) {
         fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
         delete info.nodes;
+        delete info.vtables;
         delete cinfo.codes;
         delete cinfo.types;
         return false;
@@ -129,15 +136,19 @@ bool compile_script(char* fname, buffer* source)
     
     memset(&vminfo, 0, sizeof(sVMInfo));
     
+    vminfo.var_num = get_var_num(&info);
+    
     if(!vm(cinfo.codes, &vminfo)) {
         fprintf(stderr, "VM error.\n");
         delete info.nodes;
+        delete info.vtables;
         delete cinfo.codes;
         delete cinfo.types;
         return false;
     }
     
     delete info.nodes;
+    delete info.vtables;
     delete cinfo.codes;
     delete cinfo.types;
     
