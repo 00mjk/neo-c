@@ -2,8 +2,9 @@ if(true) {
 }
 *v = が}のあとに;をつけないとだめ。パーサーのバグ
 
-if文の行番号がおかしい
+ifがらみで、エラー行番号がおかしい
 
+staticローカル変数がない
 
 alloc initialize
 alloc destructor

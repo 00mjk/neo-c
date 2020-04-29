@@ -31,6 +31,7 @@
 void*% xcalloc(long num, long size);
 void*% xmalloc(long size);
 void*% xmemdup(void* mem);
+void*% xrealloc(void* mem, long size);
 void xfree(void*% mem);
 
 char* xstrncpy(char* des, char* src, int size);

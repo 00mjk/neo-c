@@ -73,7 +73,7 @@ static bool get_number(bool minus, sCLNode** node, sParserInfo* info)
     return true;
 }
 
-buffer*% parse_word(sParserInfo* info)
+string parse_word(sParserInfo* info)
 {
     buffer*% result = new buffer.initialize();
     
@@ -84,7 +84,7 @@ buffer*% parse_word(sParserInfo* info)
 
     skip_spaces_and_lf(info);
     
-    return result;
+    return result.to_string();
 }
 
 static bool expression_node(sCLNode** node, sParserInfo* info)
@@ -143,11 +143,11 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
     }
     /// alnum ///
     else if(isalpha(*info->p) || *info->p == '_') {
-        var word = parse_word(info).to_string();
+        var word = parse_word(info);
         
         if(strcmp(word, "var") == 0) {
             if(isalpha(*info->p) || *info->p == '_') {
-                var var_name = parse_word(info).to_string();
+                var var_name = parse_word(info);
                 
                 check_already_added_variable(info, var_name);
                 add_variable_to_table(info, var_name, null, false);
@@ -157,7 +157,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                     skip_spaces_and_lf(info);
                     
                     sCLNode* exp = null;
-                    if(!expression_node(&exp, info)) {
+                    if(!expression(&exp, info)) {
                         return false;
                     };
                     
@@ -168,11 +168,71 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 parser_err_msg(info, "require var name");
             }
         }
-/*
         else {
-            sVar* v = get_variable_from_table(info, word);
+            *node = sNodeTree_create_load_variable(word, info);
         }
-*/
+    }
+    /// string ///
+    else if(*info->p == '"') {
+        info->p++;
+        
+        int sline = info->sline;
+        
+        buffer*% buf = new buffer.initialize();
+        
+        while(true) {
+            if(*info->p == '"') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else if(*info->p == '\0') {
+                parser_err_msg(info, xsprintf("close \" character from the line %d\n", sline));
+                return false;
+            }
+            else if(*info->p == '\n') {
+                info->sline++;
+
+                buf.append_char(*info->p);
+                info->p++;
+            }
+            else {
+                buf.append_char(*info->p);
+                info->p++;
+            }
+        }
+
+        skip_spaces_and_lf(info);
+        
+        var str = buf.to_string();
+        
+        *node = sNodeTree_create_string_value(str, info);
+    }
+    /// comment ///
+    else if(*info->p == '#') {
+        info->p++;
+
+        while(true) {
+            if(*info->p == '\n') {
+                info->p++;
+                info->sline++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else if(*info->p == '\0') {
+                break;
+            }
+            else {
+                info->p++;
+            }
+        }
+
+        sCLNode* node2 = null;
+        if(!expression(&node2, info)) {
+            return false;
+        };
+
+        *node = node2;
     }
     
     return true;
@@ -227,11 +287,60 @@ static bool expression_add_sub(sCLNode** node, sParserInfo* info)
     return true;
 }
 
+static bool expression_comparison_equal_operator(sCLNode** node, sParserInfo* info)
+{
+    if(!expression_add_sub(node, info)) {
+        return false;
+    }
+    if(*node == 0) {
+        return true;
+    }
+
+
+    while(*info->p) {
+        if(*info->p == '=' && *(info->p+1) == '=') {
+            info->p += 2;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_add_sub(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator +");
+            };
+
+            *node = sNodeTree_create_equal(*node, right, info);
+        }
+        else if(*info->p == '!' && *(info->p+1) == '=') {
+            info->p += 2;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_add_sub(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator +");
+            };
+
+            *node = sNodeTree_create_not_equal(*node, right, info);
+        }
+        else {
+            break;
+        }
+    }
+
+    return true;
+}
+
 bool expression(sCLNode** node, sParserInfo* info) 
 {
     skip_spaces_and_lf(info);
 
-    if(!expression_add_sub(node, info)) {
+    if(!expression_comparison_equal_operator(node, info)) {
         return false;
     }
 

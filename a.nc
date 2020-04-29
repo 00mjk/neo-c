@@ -9,13 +9,18 @@
 #include <locale.h>
 #include <wctype.h>
 
+void alignment(unsigned int* size)
+{
+    *size = (*size + 3) & ~3;
+}
+
+
 int main()
 {
-    sizeof(1);
-    if(true) {
-    }
-    else {
-    }
+    int size = 3;
+    alignment(&size);
+
+    printf("%x\n", size);
     
     return 0;
 }

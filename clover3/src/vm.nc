@@ -36,6 +36,18 @@ void print_op(int op)
             puts("OP_STORE_VARIABLE");
             break;
             
+        case OP_LOAD_VARIABLE:
+            puts("OP_LOAD_VARIABLE");
+            break;
+
+        case OP_IEQ:
+            puts("OP_IEQ");
+            break;
+            
+        case OP_INOTEQ:
+            puts("OP_INOTEQ");
+            break;
+            
         default:
             printf("OP %d\n", op);
             break;
@@ -59,32 +71,76 @@ bool vm(buffer* codes, sVMInfo* info)
         
         switch(op) {
 print_op(op);
-            case OP_POP:
+            case OP_POP: {
                 stack_ptr--;
+                }
                 break;
                 
-            case OP_INT_VALUE:
+            case OP_INT_VALUE: {
                 stack_ptr.mIntValue = *p;
                 p++;
                 
                 stack_ptr++;
+                }
                 break;
                 
-            case OP_IADD:
+            case OP_STRING_VALUE: {
+                char* str = (char*)p;
+                p+= strlen(str);
+                
+                stack_ptr.mObjectValue = create_string_object(str, info);
+                stack_ptr++;
+                }
+                break;
+                
+            case OP_IADD: {
                 int lvalue = (stack_ptr-2).mIntValue;
                 int rvalue = (stack_ptr-1).mIntValue;
                 stack_ptr -= 2;
                 
                 stack_ptr.mIntValue = lvalue + rvalue;
                 stack_ptr++;
+                }
                 
                 break;
                 
-            case OP_STORE_VARIABLE:
+            case OP_IEQ: {
+                int lvalue = (stack_ptr-2).mIntValue;
+                int rvalue = (stack_ptr-1).mIntValue;
+                stack_ptr -= 2;
+                
+                stack_ptr.mBoolValue = lvalue == rvalue;
+                stack_ptr++;
+                }
+                
+                break;
+                
+            case OP_INOTEQ: {
+                int lvalue = (stack_ptr-2).mIntValue;
+                int rvalue = (stack_ptr-1).mIntValue;
+                stack_ptr -= 2;
+                
+                stack_ptr.mBoolValue = lvalue != rvalue;
+                stack_ptr++;
+                }
+                
+                break;
+                
+            case OP_STORE_VARIABLE: {
                 int var_index = *p;
                 p++;
                 
                 stack[var_index] = *(stack_ptr-1);
+                }
+                break;
+                
+            case OP_LOAD_VARIABLE: {
+                int var_index = *p;
+                p++;
+                
+                *stack_ptr = stack[var_index];
+                stack_ptr++;
+                }
                 
                 break;
                 

@@ -7,10 +7,12 @@ static void compiler_init(bool no_load_fudamental_classes)
 static void clover3_init()
 {
     class_init();
+    heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
 }
 
 static void clover3_final()
 {
+    heap_final();
     class_final();
 }
 
@@ -96,6 +98,11 @@ bool compile_script(char* fname, buffer* source)
             return false;
         }
         
+        while(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(&info);
+        }
+        
         cinfo.sline = sline;
         
         if(!compile(node, &cinfo)) {
@@ -137,6 +144,8 @@ bool compile_script(char* fname, buffer* source)
     memset(&vminfo, 0, sizeof(sVMInfo));
     
     vminfo.var_num = get_var_num(&info);
+    vminfo.pinfo = &info;
+    vminfo.cinfo = &cinfo;
     
     if(!vm(cinfo.codes, &vminfo)) {
         fprintf(stderr, "VM error.\n");

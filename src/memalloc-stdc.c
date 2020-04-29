@@ -179,7 +179,7 @@ void *xcalloc(size_t num, size_t nsize)
 
 void *xrealloc(void *block, size_t size)
 {
-    void* result =  realloc(block, size);
+    void* result = realloc(block, size);
 
     if(result == NULL) {
         fprintf(stderr, "can't get heap memory. Heap memory number is %d.realloc size %d. realloc memory %p\n", gNumMemAlloc, size, block);

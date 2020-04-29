@@ -5669,18 +5669,6 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
         return FALSE;
     }
 
-/*
-    if(*info->p == '#') {
-        if(!parse_sharp(info)) {
-            return FALSE;
-        }
-
-        if(!expression(node, info)) {
-            return FALSE;
-        }
-    }
-    else 
-*/
     if(*info->p == '(') {
         info->p++;
         skip_spaces_and_lf(info);
@@ -5772,7 +5760,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
             skip_spaces_and_lf(info);
 
             unsigned int node2 = 0;
-            if(!expression_node(&node2, TRUE, info)) 
+            if(!expression(&node2, info)) 
             {
                 return FALSE;
             }
@@ -7331,7 +7319,7 @@ static BOOL expression_mult_div(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression(&right, info)) {
+            if(!expression_node(&right, TRUE, info)) {
                 return FALSE;
             }
 

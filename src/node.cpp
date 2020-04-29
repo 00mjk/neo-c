@@ -11225,10 +11225,9 @@ static BOOL compile_complement(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* left_node_type = info->type;
+    sNodeType* left_node_type = clone_node_type(info->type);
 
     LVALUE lvalue = *get_value_from_stack(-1);
-    dec_stack_ptr(1, info);
     
     if(type_identify_with_class_name(left_node_type, "char"))
     {
@@ -11243,7 +11242,10 @@ static BOOL compile_complement(unsigned int node, sCompileInfo* info)
         llvm_value.binded_value = FALSE;
         llvm_value.load_field = FALSE;
 
+        dec_stack_ptr(1, info);
         push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type= left_node_type;
     }
     else if(type_identify_with_class_name(left_node_type, "short"))
     {
@@ -11258,7 +11260,10 @@ static BOOL compile_complement(unsigned int node, sCompileInfo* info)
         llvm_value.binded_value = FALSE;
         llvm_value.load_field = FALSE;
 
+        dec_stack_ptr(1, info);
         push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type= left_node_type;
     }
     else if(type_identify_with_class_name(left_node_type, "int"))
     {
@@ -11273,7 +11278,10 @@ static BOOL compile_complement(unsigned int node, sCompileInfo* info)
         llvm_value.binded_value = FALSE;
         llvm_value.load_field = FALSE;
 
+        dec_stack_ptr(1, info);
         push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type= left_node_type;
     }
     else if(type_identify_with_class_name(left_node_type, "long"))
     {
@@ -11288,7 +11296,10 @@ static BOOL compile_complement(unsigned int node, sCompileInfo* info)
         llvm_value.binded_value = FALSE;
         llvm_value.load_field = FALSE;
 
+        dec_stack_ptr(1, info);
         push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type= left_node_type;
     }
     else {
         compile_err_msg(info, "Invalid type for complement operator");

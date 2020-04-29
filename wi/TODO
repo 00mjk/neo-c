@@ -1,7 +1,11 @@
 save /tmp tmp texts
-backup function
+backup 
+yank save when finishing
+
+cursor in last chararacter is unvisible
 
 C-w j, k
+C-w,w が閉じたときおかしい
 visual mode zz
 search mode in visual mode
 d`a

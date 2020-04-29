@@ -35,6 +35,8 @@
 #define GENERICS_TYPES_MAX 32
 #define VM_STACK_MAX 1024
 #define PARAMS_MAX 32
+#define HEAP_INIT_SIZE 128
+#define HEAP_HANDLE_INIT_SIZE 128
 
 //////////////////////////////////////////
 /// runtime side
@@ -112,7 +114,6 @@ struct sCLField {
 
 struct sCLClass {
     string mName;
-    buffer*% mConst;
 
     list<sCLMethod*%>*% mMethods;
     list<sCLField*%>*% mFields;
@@ -190,7 +191,7 @@ struct sParserInfo {
     vector<sVarTable*%>* vtables;
 };
 
-enum { kNodeTypeInt, kNodeTypeAdd, kNodeTypeStoreVariable };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -208,9 +209,10 @@ struct sCompileInfo {
     sCLType* type;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_IADD, OP_STORE_VARIABLE  };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ  };
 
 void parser_err_msg(sParserInfo* info, char* msg);
+void skip_spaces_and_lf(sParserInfo* info);
 
 bool expression(sCLNode** node, sParserInfo* info);
 bool compile(sCLNode* node, sCompileInfo* info);
@@ -224,6 +226,10 @@ int get_var_num(sParserInfo* info);
 sCLNode* sNodeTree_create_add(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_int_value(int value, sParserInfo* info);
 sCLNode* sNodeTree_create_store_variable(char* var_name, sCLNode* exp, sParserInfo* info);
+sCLNode* sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
+sCLNode* sNodeTree_create_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_not_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_string_value(char* value, sParserInfo* info);
 
 //////////////////////////////
 /// runtime side
@@ -236,8 +242,50 @@ struct sVMInfo {
     CLVALUE* stack_ptr;
     
     int var_num;
+
+    sParserInfo* pinfo;
+    sCompileInfo* cinfo;
+
+    bool in_finalize_method;
 };
 
 bool vm(buffer* codes, sVMInfo* info);
+CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMInfo* info);
+void heap_init(int heap_size, int size_handles);
+void heap_final();
+
+struct sCLHeapMem {
+    sCLClass* mClass;       // NULL --> no class only memory
+    char* mType;
+    int mSize;
+    int mArrayNum;
+    void* mMem;
+};
+
+#define DUMMY_ARRAY_SIZE 32
+
+struct sCLObject {
+    sCLClass* mClass;
+    char* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    union {
+        CLVALUE mFields[DUMMY_ARRAY_SIZE];
+        void* mMem;
+    };
+};
+
+#define CLOBJECT(obj) ((sCLObject*)(get_object_pointer((obj))))
+
+CLObject create_object(sCLClass* klass, char* type, sVMInfo* info);
+CLObject create_string_object(char* str, sVMInfo* info);
+void mark_object(CLObject obj, unsigned char* mark_flg);
+void alignment(unsigned int* size);
+
+bool free_object(CLObject self);
+void object_mark_fun(CLObject self, unsigned char* mark_flg);
+sCLHeapMem* get_object_pointer(CLObject obj);
 
 #endif

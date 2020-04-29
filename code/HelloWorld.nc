@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+static int gc_timing = 0;
+
 enum EnumTest
 {
     EnumA, EnumB
@@ -54,6 +56,10 @@ typedef union sigval {
 
 int sigqueue(pid_t __pid, int __signal, union sigval __value) __attribute__((annotate("introduced_in=" "23")));
 
+void alignment(unsigned int* size)
+{
+    *size = (*size + 3) & ~3;
+}
 
 void unsupported_function();
 
@@ -693,8 +699,20 @@ struct DataSized {
     int d:1;
 };
 
+int funStaticVariable() {
+    static int gc_timing = 0;
+
+    return ++gc_timing;
+}
+
 int main()
 {
+//    xassert("static variable test", funStaticVariable() == 1);
+//    xassert("static variable test2", funStaticVariable() == 2);
+
+    xassert("mod test", 0 % 1024 == 0);
+    xassert("mod test2", 1 % 1024 == 1);
+
     if(1 == 1) {
         puts("TRUE");
     }
