@@ -28,6 +28,10 @@ void print_op(int op)
             puts("OP_INT_VALUE");
             break;
             
+        case OP_STRING_VALUE:
+            puts("OP_STRING_VALUE");
+            break;
+            
         case OP_IADD:
             puts("OP_IADD");
             break;
@@ -86,9 +90,15 @@ print_op(op);
                 
             case OP_STRING_VALUE: {
                 char* str = (char*)p;
-                p+= strlen(str);
+                int len = strlen(str);
+                alignment(&len);
+                len = len / sizeof(int);
+
+                p += len;
+
+                int obj = create_string_object(str, info);
                 
-                stack_ptr.mObjectValue = create_string_object(str, info);
+                stack_ptr.mObjectValue = obj;
                 stack_ptr++;
                 }
                 break;

@@ -87,6 +87,8 @@ static bool compile_strig_value(sCLNode* node, sCompileInfo* info)
     
     info.codes.append_int(OP_STRING_VALUE);
     info.codes.append_str(str_value);
+
+    info.codes.alignment();
     
     info.type = create_type("string", info);
     info.stack_num++;

@@ -248,6 +248,14 @@ impl buffer
     inline void append_short(buffer* self, short value) {
         self.append((char*)&value, sizeof(short));
     }
+    inline void alignment(buffer* self) {
+        int len = self.len;
+        len = (len + 3) & ~3;
+
+        for(int i=self.len; i<len; i++) {
+            self.append_char('\0');
+        }
+    }
 
     string to_string(buffer* self);
 

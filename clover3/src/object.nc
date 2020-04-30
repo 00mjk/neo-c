@@ -64,7 +64,6 @@ CLObject create_object(sCLClass* klass, char* type, sVMInfo* info)
 
 CLObject create_string_object(char* str, sVMInfo* info)
 {
-//    int obj = 1555;
     int len = strlen(str);
 
     sCLClass* string_class = gClasses.at("string", null);
@@ -76,13 +75,11 @@ CLObject create_string_object(char* str, sVMInfo* info)
 
     CLObject obj = alloc_heap_mem(size, string_class, -1, info);
 
-/*
     sCLObject* object_data = CLOBJECT(obj);
 
     object_data->mType = borrow string("string");
-    
-    strcpy(object_data.mMem, str);
-*/
+
+    strcpy(&object_data.mMem, str);
 
     return obj;
 }
