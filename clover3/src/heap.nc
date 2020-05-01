@@ -196,11 +196,11 @@ void heap_init(int heap_size, int size_handles)
     gHeapPages[0].mOffset = 0;
 }
 
-static void delete_all_object();
+static void delete_all_object(sVMInfo* info);
 
-void heap_final()
+void heap_final(sVMInfo* info)
 {
-    delete_all_object();
+    delete_all_object(info);
     int i;
     for(i=0; i<=gNumHeapPages; i++) {
         xfree(gHeapPages[i].mMem);
@@ -240,7 +240,6 @@ static void free_handle(unsigned int handle_num)
         CLObject obj = handle_num + FIRST_OBJ;
 
         sCLObject* data = CLOBJECT(obj);
-        sCLClass* klass = data->mClass;
 
         gCLHeap.mHandles[handle_num].mNoneFreeHandle = false;
 
@@ -271,36 +270,16 @@ static void free_handle(unsigned int handle_num)
     }
 }
 
-static void call_finalizer(unsigned int handle_num)
+static void call_finalizer(unsigned int handle_num, sVMInfo* info)
 {
     if(gCLHeap.mHandles[handle_num].mNoneFreeHandle) {
         CLObject obj = handle_num + FIRST_OBJ;
 
-        sCLObject* data = CLOBJECT(obj);
-        sCLClass* klass = data->mClass;
-
-        /// call the destructor ///
-        int array_num = ((sCLHeapMem*)data)->mArrayNum;
-
-/*
-        if(klass && klass->mFreeFun && array_num == -1) {
-            klass->mFreeFun(obj);
-        }
-*/
-
-        if(array_num == -2) {   // block, regex
-        }
-        else if(array_num == -1) {
-            (void)free_object(obj);
-        }
-/*
-        else {
-        }
-*/
+        free_object(obj, info);
     }
 }
 
-void mark_object(CLObject obj, unsigned char* mark_flg)
+void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info)
 {
     if(is_valid_object(obj)) {
         if(mark_flg[obj - FIRST_OBJ] == false) {
@@ -309,48 +288,32 @@ void mark_object(CLObject obj, unsigned char* mark_flg)
             sCLHeapMem* object = get_object_pointer(obj);
 
             if(object != NULL) {
-                sCLClass* klass = object->mClass;
-                int array_num = object->mArrayNum;
-
-                /// mark objects which is contained in ///
-                if(array_num == -1) {
-                    if(klass) {
-                        object_mark_fun(obj, mark_flg);
-                    }
-                }
-                else if(array_num >= 0) {
-//                    array_mark_fun(obj, mark_flg);
-                }
-/*
-                else if(klass == gLambdaClass) {
-                    block_mark_fun(obj, mark_flg);
-                }
-*/
+                mark_belong_objects(obj, mark_flg, info);
             }
         }
     }
 }
 
-static void mark_all_class_fields(unsigned char* mark_flg)
+static void mark_all_class_fields(unsigned char* mark_flg, sVMInfo* info)
 {
     gClasses.each {
         it2.mClassFields.each {
-            mark_object(it.mValue.mObjectValue, mark_flg);
+            mark_object(it.mValue.mObjectValue, mark_flg, info);
         }
     }
 }
 
-static void mark(sVMInfo* info, unsigned char* mark_flg)
+static void mark(sVMInfo* info, unsigned char* mark_flg, sVMInfo* info)
 {
     CLVALUE* p = info->stack;
     
     while(p < info->stack_ptr) {
-        mark_object(p.mObjectValue, mark_flg);
+        mark_object(p.mObjectValue, mark_flg, info);
         p++;
     }
 }
 
-static void free_objects(unsigned char* mark_flg)
+static void free_objects(unsigned char* mark_flg, sVMInfo* info)
 {
     int i;
     unsigned char* mem;
@@ -358,7 +321,7 @@ static void free_objects(unsigned char* mark_flg)
     // call all destructor before free object ///
     for(i=0; i<gCLHeap.mSizeHandles; i++) {
         if(!mark_flg[i]) {
-            call_finalizer(i);
+            call_finalizer(i, info);
         }
     }
 
@@ -382,13 +345,13 @@ static void free_malloced_memory()
     }
 }
 
-static void delete_all_object()
+static void delete_all_object(sVMInfo* info)
 {
     memset(gCLHeap.mMarkFlags, 0, sizeof(unsigned char)*gCLHeap.mSizeHandles);
 
     unsigned char* mark_flg = gCLHeap.mMarkFlags;
 
-    free_objects(mark_flg);
+    free_objects(mark_flg, info);
 
     free_malloced_memory();
 }
@@ -399,12 +362,12 @@ void gc(sVMInfo* info)
         memset(gCLHeap.mMarkFlags, 0, sizeof(unsigned char)*gCLHeap.mSizeHandles);
 
         /// mark class fields ///
-        mark_all_class_fields(gCLHeap.mMarkFlags);
+        mark_all_class_fields(gCLHeap.mMarkFlags, info);
 
         /// mark ///
-        mark(info, gCLHeap.mMarkFlags);
+        mark(info, gCLHeap.mMarkFlags, info);
 
-        free_objects(gCLHeap.mMarkFlags);
+        free_objects(gCLHeap.mMarkFlags, info);
     }
 }
 
@@ -413,7 +376,7 @@ void gc(sVMInfo* info)
 
 static int gc_timing = 0;
 
-CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMInfo* info)
+CLObject alloc_heap_mem(unsigned int size, sCLType* type, int field_num, sVMInfo* info)
 {
     int handle;
     CLObject obj;
@@ -510,9 +473,8 @@ CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMIn
 
     object_ptr->mSize = size;
 
-    object_ptr->mClass = klass;
-    object_ptr->mType = NULL;
-    object_ptr->mArrayNum = array_num;
+    object_ptr->mType = type;
+    object_ptr->mArrayNum = field_num;
 
     return obj;
 }

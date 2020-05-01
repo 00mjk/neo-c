@@ -1,0 +1,8 @@
+
+remain the heap memory(0x1499e40) with type name vector%<sCLNode*> at src/parser.nc.128. calloc num is 1. calloc_size is 16. fun_name is parse_if_expression parse_if_expression
+
+remain the heap memory(0x1499e80) with type name sCLNode*% at /usr/local//include/neo-c.h.451. calloc num is 16. calloc_size is 8. fun_name is initialize_sCLNodep0_src/parser vector_initialize_sCLNodep0_src/parser
+
+remain the heap memory(0x1499f10) with type name vector%<sCLNodeBlock*> at src/parser.nc.129. calloc num is 1. calloc_size is 16. fun_name is parse_if_expression parse_if_expression
+
+remain the heap memory(0x1499f30) with type name sCLNodeBlock*% at /usr/local//include/neo-c.h.451. calloc num is 16. calloc_size is 8. fun_name is initialize_sCLNodeBlockp1_src/parser vector_initialize_sCLNodeBlockp1_src/parser

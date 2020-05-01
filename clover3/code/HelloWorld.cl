@@ -1,9 +1,11 @@
 
-#var a = 2 + 1 + 1
-#var b = a + a
-#
-#b == 8
+var b = 123;
 
-var c = "HELLO WORLD"
+if(true) {
+    b = 234;
+}
+#else {
+#    b = 456;
+#}
 
 

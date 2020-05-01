@@ -1056,7 +1056,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
         left_type3->mPointerNum--;
 
         uint64_t alloc_size = 0;
-        if(!get_size_from_node_type(&alloc_size, left_type3, info))
+        if(!get_size_from_node_type(&alloc_size, left_type3, left_type3, info))
         {
             return FALSE;
         }
@@ -1110,7 +1110,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
         left_type3->mPointerNum--;
 
         uint64_t alloc_size = 0;
-        if(!get_size_from_node_type(&alloc_size, left_type3, info))
+        if(!get_size_from_node_type(&alloc_size, left_type3, left_type3, info))
         {
             return FALSE;
         }
@@ -1278,7 +1278,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
         left_type3->mPointerNum--;
 
         uint64_t alloc_size = 0;
-        if(!get_size_from_node_type(&alloc_size, left_type3, info))
+        if(!get_size_from_node_type(&alloc_size, left_type3, left_type3, info))
         {
             return FALSE;
         }
@@ -1332,7 +1332,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
         left_type3->mPointerNum--;
 
         uint64_t alloc_size = 0;
-        if(!get_size_from_node_type(&alloc_size, left_type3, info))
+        if(!get_size_from_node_type(&alloc_size, left_type3, left_type3, info))
         {
             return FALSE;
         }
@@ -5749,7 +5749,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
     /// calloc ///
     uint64_t size;
-    if(!get_size_from_node_type(&size, node_type2, info))
+    if(!get_size_from_node_type(&size, node_type2, info->pinfo->mGenericsType, info))
     {
         compile_err_msg(info, "Getting allocate size error(8)");
         show_node_type(node_type2);
@@ -9163,7 +9163,7 @@ static BOOL compile_sizeof(unsigned int node, sCompileInfo* info)
     sNodeType* node_type2 = clone_node_type(node_type);
 
     uint64_t alloc_size = 0;
-    if(!get_size_from_node_type(&alloc_size, node_type2, info))
+    if(!get_size_from_node_type(&alloc_size, node_type2, node_type2, info))
     {
         return FALSE;
     }
@@ -9219,7 +9219,7 @@ BOOL compile_sizeof_expression(unsigned int node, sCompileInfo* info)
     dec_stack_ptr(1, info);
 
     uint64_t alloc_size = 0;
-    if(!get_size_from_node_type(&alloc_size, node_type, info))
+    if(!get_size_from_node_type(&alloc_size, node_type, node_type, info))
     {
         return FALSE;
     }

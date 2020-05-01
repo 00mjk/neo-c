@@ -1,24 +1,27 @@
 #include "common.h"
 
-void object_mark_fun(CLObject self, unsigned char* mark_flg)
+void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info)
 {
     sCLObject* object = CLOBJECT(self);
-    sCLClass* klass = object->mClass;
+    sCLType* type = object->mType;
     
-    if(strcmp(klass->mName, "string") == 0) {
+    if(type_identify_with_class_name(type, "string", info.cinfo)) {
     }
     else {
         int i;
         for(i=0; i<object->mNumFields; i++) {
-            mark_object(object->mFields[i].mObjectValue, mark_flg);
+            mark_object(object->mFields[i].mObjectValue, mark_flg, info);
         }
     }
 }
 
-bool free_object(CLObject self)
+bool free_object(CLObject self, sVMInfo* info)
 {
     sCLObject* object_data = CLOBJECT(self);
-    sCLClass* klass = object_data->mClass;
+    sCLType* type = object_data->mType;
+
+    if(type_identify_with_class_name(type, "lambda", info.cinfo)) {
+    }
 
 /*
     if(!call_finalize_method_on_free_object(klass, self)) {
@@ -26,10 +29,6 @@ bool free_object(CLObject self)
     }
 */
 
-    object_data = CLOBJECT(self);
-    
-    delete object_data->mType;
-    
     return true;
 }
 
@@ -47,17 +46,13 @@ static cllong object_size(sCLClass* klass)
     return size;
 }
 
-CLObject create_object(sCLClass* klass, char* type, sVMInfo* info)
+CLObject create_object(sCLClass* klass, sCLType* type, sVMInfo* info)
 {
     unsigned int size = (unsigned int)object_size(klass);
 
     alignment(&size);
 
-    CLObject obj = alloc_heap_mem(size, klass, -1, info);
-
-    sCLObject* object_data = CLOBJECT(obj);
-
-    object_data->mType = borrow string(type);
+    CLObject obj = alloc_heap_mem(size, type, -1, info);
 
     return obj;
 }
@@ -66,18 +61,16 @@ CLObject create_string_object(char* str, sVMInfo* info)
 {
     int len = strlen(str);
 
-    sCLClass* string_class = gClasses.at("string", null);
+    sCLType* string_type = create_type("string", info.cinfo);
     
     int size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
     size += len + 1;
 
     alignment(&size);
 
-    CLObject obj = alloc_heap_mem(size, string_class, -1, info);
+    CLObject obj = alloc_heap_mem(size, string_type, -1, info);
 
     sCLObject* object_data = CLOBJECT(obj);
-
-    object_data->mType = borrow string("string");
 
     strcpy(&object_data.mMem, str);
 

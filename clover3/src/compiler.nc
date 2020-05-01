@@ -7,12 +7,10 @@ static void compiler_init(bool no_load_fudamental_classes)
 static void clover3_init()
 {
     class_init();
-    heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
 }
 
 static void clover3_final()
 {
-    heap_final();
     class_final();
 }
 
@@ -71,6 +69,7 @@ bool compile_script(char* fname, buffer* source)
     
     info.nodes = borrow new vector<sCLNode*%>.initialize();
     info.vtables = borrow new vector<sVarTable*%>.initialize();
+    info.blocks = borrow new vector<sCLNodeBlock*%>.initialize();
     
     init_var_table(&info);
 
@@ -93,6 +92,7 @@ bool compile_script(char* fname, buffer* source)
         if(!expression(&node, &info)) {
             delete info.nodes;
             delete info.vtables;
+            delete info.blocks;
             delete cinfo.codes;
             delete cinfo.types;
             return false;
@@ -108,6 +108,7 @@ bool compile_script(char* fname, buffer* source)
         if(!compile(node, &cinfo)) {
             delete info.nodes;
             delete info.vtables;
+            delete info.blocks;
             delete cinfo.codes;
             delete cinfo.types;
             return false;
@@ -117,6 +118,7 @@ bool compile_script(char* fname, buffer* source)
             fprintf(stderr, "Compile error\n");
             delete info.nodes;
             delete info.vtables;
+            delete info.blocks;
             delete cinfo.codes;
             delete cinfo.types;
             return false;
@@ -124,16 +126,21 @@ bool compile_script(char* fname, buffer* source)
         
         /// POP ///
         for(int i=0; i<cinfo.stack_num; i++) {
-            cinfo.codes.append_int(OP_POP);
+            if(!cinfo.no_output) {
+                cinfo.codes.append_int(OP_POP);
+            }
         }
         
         cinfo.stack_num = 0;
+
+        cinfo.type = create_type("void", &cinfo);
     }
     
     if(info.err_num > 0) {
         fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
         delete info.nodes;
         delete info.vtables;
+        delete info.blocks;
         delete cinfo.codes;
         delete cinfo.types;
         return false;
@@ -146,18 +153,26 @@ bool compile_script(char* fname, buffer* source)
     vminfo.var_num = get_var_num(&info);
     vminfo.pinfo = &info;
     vminfo.cinfo = &cinfo;
+
+    heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     
     if(!vm(cinfo.codes, &vminfo)) {
         fprintf(stderr, "VM error.\n");
+        heap_final(&vminfo);
+
         delete info.nodes;
         delete info.vtables;
+        delete info.blocks;
         delete cinfo.codes;
         delete cinfo.types;
         return false;
     }
+
+    heap_final(&vminfo);
     
     delete info.nodes;
     delete info.vtables;
+    delete info.blocks;
     delete cinfo.codes;
     delete cinfo.types;
     

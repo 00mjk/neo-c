@@ -53,6 +53,7 @@ static void emitLocaltion(DebugInfo* info, int sline)
     Builder.SetCurrentDebugLocation(DebugLoc::get(sline, 0, scope));
 }
 
+
 static DIType* create_debug_type(sNodeType* node_type) 
 {
 
@@ -916,35 +917,11 @@ static BOOL is_generics_type(sNodeType* node_type)
     return FALSE;
 }
 
-BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOOL new_create, sCompileInfo* info)
+static BOOL solve_undefined_strcut_type(sNodeType* node_type, sNodeType* generics_type, char* real_struct_name, sCompileInfo* info)
 {
-    int i;
-    for(i=0; i<generics_type->mNumGenericsTypes; i++)
-    {
-        sNodeType* node_type2 = generics_type->mGenericsTypes[i];
-
-        sCLClass* klass = node_type2->mClass;
-        if(klass->mFlags & CLASS_FLAGS_STRUCT)
-        {
-            if(!create_llvm_struct_type(node_type2, node_type2, new_create, info))
-            {
-                return FALSE;
-            }
-        }
-    }
-
     sCLClass* klass = node_type->mClass;
 
-    char* class_name = CLASS_NAME(klass);
-
-    char real_struct_name[REAL_STRUCT_NAME_MAX];
-    int size_real_struct_name = REAL_STRUCT_NAME_MAX;
-    xstrncpy(real_struct_name, class_name, size_real_struct_name);
-
-    create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
-
-    if(klass->mUndefinedStructType)
-    {
+    if(klass->mUndefinedStructType) {
         StructType* struct_type = (StructType*)klass->mUndefinedStructType;
         std::vector<Type*> fields;
 
@@ -997,6 +974,44 @@ BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOO
         pair_value.second->mNumFields = node_type->mClass->mNumFields;
 
         gLLVMStructType[real_struct_name] = pair_value;
+    }
+
+    return TRUE;
+}
+
+BOOL create_llvm_struct_type(sNodeType* node_type, sNodeType* generics_type, BOOL new_create, sCompileInfo* info)
+{
+    int i;
+    for(i=0; i<generics_type->mNumGenericsTypes; i++)
+    {
+        sNodeType* node_type2 = generics_type->mGenericsTypes[i];
+
+        sCLClass* klass = node_type2->mClass;
+        if(klass->mFlags & CLASS_FLAGS_STRUCT)
+        {
+            if(!create_llvm_struct_type(node_type2, node_type2, new_create, info))
+            {
+                return FALSE;
+            }
+        }
+    }
+
+    sCLClass* klass = node_type->mClass;
+
+    char* class_name = CLASS_NAME(klass);
+
+    char real_struct_name[REAL_STRUCT_NAME_MAX];
+    int size_real_struct_name = REAL_STRUCT_NAME_MAX;
+    xstrncpy(real_struct_name, class_name, size_real_struct_name);
+
+    create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
+
+    if(klass->mUndefinedStructType)
+    {
+        if(!solve_undefined_strcut_type(node_type, generics_type, real_struct_name, info))
+        {
+            return FALSE;
+        }
     }
     else if(gLLVMStructType[real_struct_name].first == nullptr || (info->pinfo && info->pinfo->parse_struct_phase && (node_type->mClass->mNumFields != gLLVMStructType[real_struct_name].second->mNumFields)))
     {
@@ -1111,7 +1126,7 @@ BOOL create_llvm_union_type(sNodeType* node_type, sNodeType* generics_type, sCom
             }
 
             uint64_t alloc_size = 0;
-            if(!get_size_from_node_type(&alloc_size, field, info))
+            if(!get_size_from_node_type(&alloc_size, field, generics_type2, info))
             {
                 return FALSE;
             }
@@ -1175,7 +1190,7 @@ BOOL create_llvm_union_type(sNodeType* node_type, sNodeType* generics_type, sCom
             }
 
             uint64_t alloc_size = 0;
-            if(!get_size_from_node_type(&alloc_size, field, info))
+            if(!get_size_from_node_type(&alloc_size, field, generics_type2, info))
             {
                 return FALSE;
             }
@@ -1481,7 +1496,7 @@ Value* get_dummy_value(sNodeType* node_type, sCompileInfo* info)
     return Builder.CreateAlignedLoad(address, alignment, "dummy_value");
 }
 
-BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sCompileInfo* info)
+BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info)
 {
     sNodeType* node_type2 = clone_node_type(node_type);
 
@@ -1490,10 +1505,29 @@ BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sCompileInf
         node_type2->mArrayNum = node_type2->mArrayInitializeNum;
     }
 
+    sCLClass* klass = node_type->mClass;
+
+    char* class_name = CLASS_NAME(klass);
+
+    char real_struct_name[REAL_STRUCT_NAME_MAX];
+    int size_real_struct_name = REAL_STRUCT_NAME_MAX;
+    xstrncpy(real_struct_name, class_name, size_real_struct_name);
+
+    create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
+
+
+    if(!solve_undefined_strcut_type(node_type2, generics_type, real_struct_name, info))
+    {
+        return FALSE;
+    }
+
     if(node_type2->mPointerNum > 0) {
         *result = 8;
     }
     else {
+        if(node_type2->mClass->mUndefinedStructType) {
+        }
+
         Type* llvm_type;
         if(!create_llvm_type_from_node_type(&llvm_type, node_type2, node_type2, info))
         {
@@ -1536,13 +1570,13 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         
         if(rvalue) {
             uint64_t left_alloc_size;
-            if(!get_size_from_node_type(&left_alloc_size, left_type, info))
+            if(!get_size_from_node_type(&left_alloc_size, left_type, left_type, info))
             {
                 return FALSE;
             }
 
             uint64_t right_alloc_size;
-            if(!get_size_from_node_type(&right_alloc_size, *right_type, info))
+            if(!get_size_from_node_type(&right_alloc_size, *right_type, *right_type, info))
             {
                 return FALSE;
             }

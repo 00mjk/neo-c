@@ -705,10 +705,20 @@ int funStaticVariable() {
     return ++gc_timing;
 }
 
+struct sRecursiveStruct;
+
+struct sRecursiveStruct {
+    vector<char*>*% mData;
+};
+
 int main()
 {
 //    xassert("static variable test", funStaticVariable() == 1);
 //    xassert("static variable test2", funStaticVariable() == 2);
+
+
+//    var rst = new sRecursiveStruct;
+//    rst.mData = new vector<char*>.initialize();
 
     xassert("mod test", 0 % 1024 == 0);
     xassert("mod test2", 1 % 1024 == 1);

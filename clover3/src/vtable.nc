@@ -23,6 +23,12 @@ void init_var_table(sParserInfo* info)
     info.vtables.push_back(vtable);
 }
 
+void final_var_table(sParserInfo* info)
+{
+    var vtable = borrow info.vtables.pop_back(null);
+    delete vtable;
+}
+
 void add_variable_to_table(sParserInfo* info, char* name, sCLType* type, bool readonly)
 {
     sVarTable* vtable = info.vtables.item(-1, null);

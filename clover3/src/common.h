@@ -37,6 +37,7 @@
 #define PARAMS_MAX 32
 #define HEAP_INIT_SIZE 128
 #define HEAP_HANDLE_INIT_SIZE 128
+#define ELIF_MAX 64
 
 //////////////////////////////////////////
 /// runtime side
@@ -45,6 +46,8 @@ struct sCLType;
 struct sCLClass;
 struct sCompileInfo;
 struct sVMInfo;
+struct sCLNode;
+struct sCLNodeBlock;
 
 typedef unsigned int CLObject;
 
@@ -52,7 +55,6 @@ union CLVALUE {
     int mIntValue;
     CLObject mObjectValue;
     wchar_t mCharValue;
-    bool mBoolValue;
 };
 
 struct sCLStack {
@@ -144,6 +146,15 @@ struct sCLNode {
     
     union {
         int mIntValue;
+
+        struct {
+            sCLNode* mIfExpression;
+            sCLNodeBlock* mIfNodeBlock;
+            int mNumElif;
+            void* mElifExpressions[ELIF_MAX];
+            void* mElifBlocks[ELIF_MAX];
+            sCLNodeBlock* mElseBlock;
+        } uIfExpression;
     } uValue;
     
     string mStringValue;
@@ -177,6 +188,12 @@ impl sVarTable
     initialize();
 }
 
+struct sCLNodeBlock {
+    vector<sCLNode*>*% nodes;
+    vector<sVarTable*%>*% vtables;
+    bool has_last_value;
+};
+
 struct sParserInfo {
     char sname[PATH_MAX];
     int sline;
@@ -189,9 +206,10 @@ struct sParserInfo {
     
     vector<sCLNode*%>* nodes;
     vector<sVarTable*%>* vtables;
+    vector<sCLNodeBlock*%>* blocks;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -207,9 +225,11 @@ struct sCompileInfo {
     vector<sCLType*%>* types;
     
     sCLType* type;
+
+    bool no_output;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ  };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO  };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -218,6 +238,7 @@ bool expression(sCLNode** node, sParserInfo* info);
 bool compile(sCLNode* node, sCompileInfo* info);
 
 void init_var_table(sParserInfo* info);
+void final_var_table(sParserInfo* info);
 void add_variable_to_table(sParserInfo* info, char* name, sCLType* type, bool readonly);
 sVar* get_variable_from_table(sParserInfo* info, char* name);
 void check_already_added_variable(sParserInfo* info, char* name);
@@ -230,6 +251,9 @@ sCLNode* sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
 sCLNode* sNodeTree_create_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_not_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_string_value(char* value, sParserInfo* info);
+sCLNode* sNodeTree_create_true_value(sParserInfo* info);
+sCLNode* sNodeTree_create_false_value(sParserInfo* info);
+sCLNode* sNodeTree_create_if_expression(sCLNode* if_expression, sCLNodeBlock* if_node_block, int num_elif, sCLNode** elif_expressions, sCLNodeBlock** elif_blocks, sCLNodeBlock* else_block, sParserInfo* info);
 
 //////////////////////////////
 /// runtime side
@@ -250,13 +274,12 @@ struct sVMInfo {
 };
 
 bool vm(buffer* codes, sVMInfo* info);
-CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMInfo* info);
+CLObject alloc_heap_mem(unsigned int size, sCLType* type, int field_num, sVMInfo* info);
 void heap_init(int heap_size, int size_handles);
-void heap_final();
+void heap_final(sVMInfo* info);
 
 struct sCLHeapMem {
-    sCLClass* mClass;       // NULL --> no class only memory
-    char* mType;
+    sCLType* mType;
     int mSize;
     int mArrayNum;
     void* mMem;
@@ -265,8 +288,7 @@ struct sCLHeapMem {
 #define DUMMY_ARRAY_SIZE 32
 
 struct sCLObject {
-    sCLClass* mClass;
-    char* mType;
+    sCLType* mType;
     int mSize;
     
     int mNumFields;
@@ -279,13 +301,18 @@ struct sCLObject {
 
 #define CLOBJECT(obj) ((sCLObject*)(get_object_pointer((obj))))
 
-CLObject create_object(sCLClass* klass, char* type, sVMInfo* info);
+sCLHeapMem* get_object_pointer(CLObject obj);
+
+CLObject create_object(sCLClass* klass, sCLType* type, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
-void mark_object(CLObject obj, unsigned char* mark_flg);
+void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info);
+
+bool free_object(CLObject self, sVMInfo* info);
+void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info);
+
 void alignment(unsigned int* size);
 
-bool free_object(CLObject self);
-void object_mark_fun(CLObject self, unsigned char* mark_flg);
-sCLHeapMem* get_object_pointer(CLObject obj);
+bool parse_block(sCLNodeBlock** node_block, sParserInfo* info);
+bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info);
 
 #endif

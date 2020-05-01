@@ -51,6 +51,18 @@ void print_op(int op)
         case OP_INOTEQ:
             puts("OP_INOTEQ");
             break;
+                
+        case OP_COND_JUMP: 
+            puts("OP_COND_JUMP");
+            break;
+
+        case OP_COND_NOT_JUMP: 
+            puts("OP_COND_NOT_JUMP");
+            break;
+
+        case OP_GOTO: 
+            puts("OP_GOTO");
+            break;
             
         default:
             printf("OP %d\n", op);
@@ -119,7 +131,7 @@ print_op(op);
                 int rvalue = (stack_ptr-1).mIntValue;
                 stack_ptr -= 2;
                 
-                stack_ptr.mBoolValue = lvalue == rvalue;
+                stack_ptr.mIntValue = lvalue == rvalue;
                 stack_ptr++;
                 }
                 
@@ -130,7 +142,7 @@ print_op(op);
                 int rvalue = (stack_ptr-1).mIntValue;
                 stack_ptr -= 2;
                 
-                stack_ptr.mBoolValue = lvalue != rvalue;
+                stack_ptr.mIntValue = lvalue != rvalue;
                 stack_ptr++;
                 }
                 
@@ -151,7 +163,39 @@ print_op(op);
                 *stack_ptr = stack[var_index];
                 stack_ptr++;
                 }
-                
+
+            case OP_COND_JUMP: {
+                int jump_size = *p;
+                p++;
+
+                bool value = (stack_ptr-1).mIntValue;
+                stack_ptr--;
+
+                if(value) {
+                    p += jump_size;
+                }
+                }
+                break;
+
+            case OP_COND_NOT_JUMP: {
+                int jump_size = *p;
+                p++;
+
+                bool value = (stack_ptr-1).mIntValue;
+                stack_ptr--;
+
+                if(!value) {
+                    p += jump_size;
+                }
+                }
+                break;
+
+            case OP_GOTO: {
+                int goto_point = *p;
+                p++;
+
+                p = (int*)(((char*)head_codes) + goto_point);
+                }
                 break;
                 
         }

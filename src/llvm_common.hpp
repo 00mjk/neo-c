@@ -158,7 +158,7 @@ Value* llvm_create_string(char* str);
 BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, LVALUE* rvalue, struct sCompileInfoStruct* info);
 void store_address_to_lvtable(int index, Value* address);
 Value* load_address_to_lvtable(int index, sNodeType* var_type, sCompileInfo* info);
-BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sCompileInfo* info);
+BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info);
 void std_move(Value* var_address, sNodeType* lvar_type, LVALUE* rvalue, BOOL alloc, sCompileInfo* info);
 void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info);
 void remove_from_right_value_object(Value* value, sCompileInfo* info);
