@@ -168,7 +168,7 @@ static bool compile_store_variable(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
-    sCLType*% right_value_type = clone info.type;
+    sCLType* right_value_type = borrow info.type;
     
     char* var_name = borrow node.mStringValue;
     
@@ -179,7 +179,15 @@ static bool compile_store_variable(sCLNode* node, sCompileInfo* info)
         return true;
     }
 
-    v.mType = right_value_type;
+    if(v.mType == null) {
+        v.mType = right_value_type;
+    }
+    else {
+        if(!substitution_posibility(v.mType, right_value_type)) {
+            compile_err_msg(info, "Type error on the asignment a variabe..");
+            return true;
+        }
+    }
     
     if(!info.no_output) {
         info.codes.append_int(OP_STORE_VARIABLE);
@@ -225,7 +233,7 @@ static bool compile_load_variable(sCLNode* node, sCompileInfo* info)
     
     info.stack_num++;
 
-    info.type = borrow v.mType;
+    info.type = v.mType;
     
     return true;
 }
@@ -467,6 +475,14 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
+    int end_points[ELIF_MAX+1];
+    memset(end_points, 0, sizeof(int)*(ELIF_MAX+1));
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_GOTO);
+        end_points[0] = info.codes.len;
+        info.codes.append_int(0);
+    }
 
     if(num_elif > 0) {
         for(int i=0; i<num_elif; i++) {
@@ -506,6 +522,12 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
                 int* p = (int*)(info.codes.buf + len);
                 *p = info.codes.len;
             }
+
+            if(!info.no_output) {
+                info.codes.append_int(OP_GOTO);
+                end_points[1+i] = info.codes.len;
+                info.codes.append_int(0);
+            }
         }
 
         if(!info.no_output) {
@@ -524,6 +546,11 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
         if(!compile_block(else_block, info)) {
             return false;
         }
+    }
+
+    for(int i=0; i<num_elif+1; i++) {
+        int* p = (int*)(info.codes.buf + end_points[i]);
+        *p = info.codes.len;
     }
 
     return true;

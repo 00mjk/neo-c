@@ -13,6 +13,10 @@ bool parse_block(sCLNodeBlock** node_block, sParserInfo* info)
     init_var_table(info);
     
     while(*info->p) {
+        if(*info->p == '}') {
+            break;
+        }
+
         int sline = info.sline;
         
         sCLNode* node;
@@ -30,10 +34,6 @@ bool parse_block(sCLNodeBlock** node_block, sParserInfo* info)
         }
 
         (*node_block).nodes.push_back(node);
-
-        if(*info->p == '}') {
-            break;
-        }
     }
     
     if(info.err_num > 0) {

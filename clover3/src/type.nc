@@ -26,6 +26,11 @@ bool type_identify(sCLType* left_type, sCLType* right_type)
     return false;
 }
 
+bool substitution_posibility(sCLType* left_type, sCLType* right_type)
+{
+    return type_identify(left_type, right_type);
+}
+
 bool type_identify_with_class_name(sCLType* left_type, char* right_class, sCompileInfo* info)
 {
     sCLType* right_type = create_type(right_class, info);

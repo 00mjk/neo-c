@@ -161,9 +161,12 @@ bool parse_if_expression(sCLNode** node, sParserInfo* info)
             char* p_before = info.p;
             int sline_before = info.sline;
 
-            var word = parse_word(info);
+            word = parse_word(info);
 
-            if(strcmp(word, "elif") != 0) {
+            if(strcmp(word, "else") == 0) {
+                break;
+            }
+            else if(strcmp(word, "elif") != 0) {
                 info.p = p_before;
                 info.sline = sline_before;
                 break;
@@ -182,9 +185,7 @@ bool parse_if_expression(sCLNode** node, sParserInfo* info)
 
     sCLNodeBlock* else_block = null;
 
-    var word2 = parse_word(info);
-
-    if(strcmp(word2, "else") == 0) {
+    if(strcmp(word, "else") == 0) {
         expected_next_character('{', info);
 
         sCLNodeBlock* node_block = null;

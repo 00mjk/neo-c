@@ -96,7 +96,7 @@ struct sCLMethod {
     sCLParam mParams[PARAMS_MAX];
     int mNumParams;
 
-    sCLType*% mResultType;
+    sCLType* mResultType;
 
     buffer*% mByteCodes;
     fNativeMethod mNativeMethod;
@@ -110,7 +110,7 @@ struct sCLMethod {
 struct sCLField {
     string mName;
 
-    sCLType*% mResultType;
+    sCLType* mResultType;
     CLVALUE mValue;
 };
 
@@ -132,6 +132,7 @@ void append_class(char* name);
 /// type.nc ///
 sCLType* create_type(char* type_name, sCompileInfo* info);
 bool type_identify(sCLType* left_type, sCLType* right_type);
+bool substitution_posibility(sCLType* left_type, sCLType* right_type);
 bool type_identify_with_class_name(sCLType* left_type, char* right_class, sCompileInfo* info);
 void show_type(sCLType* type);
 
@@ -167,7 +168,7 @@ struct sCLNode {
 struct sVar {
     string mName
     int mIndex;
-    sCLType%* mType;
+    sCLType* mType;
 
     int mBlockLevel;
     bool mReadOnly;

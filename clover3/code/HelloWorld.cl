@@ -2,10 +2,16 @@
 var b = 123;
 
 if(true) {
-    b = 234;
+    b = 111;
 }
-#else {
-#    b = 456;
-#}
+elif(false) {
+    b = 222;
+}
+elif(false) {
+    b = 333;
+}
+else {
+    b = 444;
+}
 
 
