@@ -556,6 +556,40 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_class(char* str, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeClass;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.mStringValue = string(str);
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_class(sCLNode* node, sCompileInfo* info)
+{
+    char* str = node.mStringValue;
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_CLASS);
+        info.codes.append_str(str);
+
+        info.codes.alignment();
+    }
+
+    info.type = create_type("void", info.pinfo);
+
+    return true;
+}
+
 sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
@@ -656,6 +690,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
 
         case kNodeTypeLambda:
             if(!compile_lambda(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeClass:
+            if(!compile_class(node, info)) {
                 return false;
             }
             break;

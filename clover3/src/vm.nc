@@ -1,5 +1,10 @@
 #include "common.h"
 
+static void vm_err_msg(sVMInfo* info, char* msg)
+{
+    fprintf(stderr, "%s %d: %s\n", info.sname, info.sline, msg);
+}
+
 void print_stack(CLVALUE* stack, CLVALUE* stack_ptr, int var_num)
 {
     CLVALUE* p = stack;
@@ -63,6 +68,10 @@ void print_op(int op)
         case OP_GOTO: 
             puts("OP_GOTO");
             break;
+
+        case OP_CLASS: 
+            puts("OP_CLASS");
+            break;
             
         default:
             printf("OP %d\n", op);
@@ -112,6 +121,23 @@ print_op(op);
                 
                 stack_ptr.mObjectValue = obj;
                 stack_ptr++;
+                }
+                break;
+
+            case OP_CLASS: {
+                char* str = (char*)p;
+
+                int len = strlen(str);
+
+                alignment(&len);
+
+                len = len / sizeof(int);
+
+                p += len;
+
+                if(!eval_class(str, info)) {
+                    return false;
+                }
                 }
                 break;
                 

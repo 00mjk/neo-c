@@ -30,3 +30,8 @@ void append_class(char* name)
     gClasses.insert(string(name), klass);
 }
 
+bool eval_class(char* source, sVMInfo* vminfo)
+{
+    puts(source);
+    return true;
+}

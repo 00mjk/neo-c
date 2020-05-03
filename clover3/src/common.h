@@ -129,6 +129,7 @@ extern map<string, sCLClass*%>* gClasses;
 void class_init();
 void class_final();
 void append_class(char* name);
+bool eval_class(char* source, sVMInfo* vminfo);
 
 //////////////////////////////////////////
 /// compiler side
@@ -210,7 +211,7 @@ struct sParserInfo {
     vector<sCLType*%>* types;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -228,7 +229,7 @@ struct sCompileInfo {
     bool no_output;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO  };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CLASS };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -261,6 +262,7 @@ sCLNode* sNodeTree_create_true_value(sParserInfo* info);
 sCLNode* sNodeTree_create_false_value(sParserInfo* info);
 sCLNode* sNodeTree_create_if_expression(sCLNode* if_expression, sCLNodeBlock* if_node_block, int num_elif, sCLNode** elif_expressions, sCLNodeBlock** elif_blocks, sCLNodeBlock* else_block, sParserInfo* info);
 sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sParserInfo* info);
+sCLNode* sNodeTree_create_class(char* str, sParserInfo* info);
 
 //////////////////////////////
 /// runtime side

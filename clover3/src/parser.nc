@@ -312,6 +312,64 @@ bool parse_lambda_expression(sCLNode** node, sParserInfo* info)
     return true;
 }
 
+bool parse_class(sCLNode** node, sParserInfo* info) 
+{
+    string name = parse_word(info);
+
+    buffer*% buf = new buffer.initialize();
+
+    bool dquort = false;
+    int nest = 0;
+    while(true) {
+        if(dquort && *info->p == '\\') {
+            buf.append_char(*info->p);
+            info->p++;
+            buf.append_char(*info->p);
+            info->p++;
+        }
+        else if(!dquort && *info->p == '\'') {
+            buf.append_char(*info->p);
+            info->p++;
+            buf.append_char(*info->p);
+            info->p++;
+        }
+        else if(*info->p == '"') {
+            dquort = !dquort;
+            buf.append_char(*info->p);
+            info->p++;
+        }
+        else if(dquort) {
+            buf.append_char(*info->p);
+            info->p++;
+        }
+        else if(*info->p == '{') {
+            buf.append_char(*info->p);
+            info->p++;
+
+            nest++;
+        }
+        else if(*info->p == '}') {
+            buf.append_char(*info->p);
+            info->p++;
+
+            if(nest == 1) {
+                skip_spaces_and_lf(info);
+                break;
+            }
+
+            nest--;
+        }
+        else {
+            buf.append_char(*info->p);
+            info->p++;
+        }
+    };
+
+    *node = sNodeTree_create_class(buf.buf, info);
+
+    return true;
+}
+
 static bool expression_node(sCLNode** node, sParserInfo* info)
 {
     int num_method_chains = 0;
@@ -412,6 +470,11 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 return false;
             }
         }
+        else if(strcmp(word, "class") == 0) {
+            if(!parse_class(node, info)) {
+                return false;
+            }
+        }
         else {
             if(*info->p == '=' && *(info->p+1) != '=') {
                 info->p++;
@@ -446,6 +509,49 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             else if(*info->p == '\0') {
                 parser_err_msg(info, xsprintf("close \" character from the line %d\n", sline));
                 return false;
+            }
+            else if(*info->p == '\\') {
+                info->p++;
+
+                char c;
+                switch(*info->p) {
+                    case 'n':
+                        c = '\n';
+                        info->p++;
+                        break;
+
+                    case 't':
+                        c = '\t';
+                        info->p++;
+                        break;
+
+                    case 'r':
+                        c = '\r';
+                        info->p++;
+                        break;
+
+                    case 'a':
+                        c = '\a';
+                        info->p++;
+                        break;
+
+                    case '\\':
+                        c = '\\';
+                        info->p++;
+                        break;
+
+                    case '0':
+                        c = '\0';
+                        info->p++;
+                        break;
+
+                    default:
+                        c = *info->p;
+                        info->p++;
+                        break;
+                }
+
+                buf.append_char(c);
             }
             else if(*info->p == '\n') {
                 info->sline++;
