@@ -70,6 +70,7 @@ bool compile_script(char* fname, buffer* source)
     info.nodes = borrow new vector<sCLNode*%>.initialize();
     info.vtables = borrow new vector<sVarTable*%>.initialize();
     info.blocks = borrow new vector<sCLNodeBlock*%>.initialize();
+    info.types = borrow new vector<sCLType*%>.initialize();
     
     init_var_table(&info);
 
@@ -83,7 +84,6 @@ bool compile_script(char* fname, buffer* source)
     cinfo.err_num = 0;
     
     cinfo.codes = borrow new buffer.initialize();
-    cinfo.types = borrow new vector<sCLType*%>.initialize();
     
     while(*info->p) {
         int sline = info.sline;
@@ -93,8 +93,8 @@ bool compile_script(char* fname, buffer* source)
             delete info.nodes;
             delete info.vtables;
             delete info.blocks;
+            delete info.types;
             delete cinfo.codes;
-            delete cinfo.types;
             return false;
         }
         
@@ -109,8 +109,8 @@ bool compile_script(char* fname, buffer* source)
             delete info.nodes;
             delete info.vtables;
             delete info.blocks;
+            delete info.types;
             delete cinfo.codes;
-            delete cinfo.types;
             return false;
         }
         
@@ -119,8 +119,8 @@ bool compile_script(char* fname, buffer* source)
             delete info.nodes;
             delete info.vtables;
             delete info.blocks;
+            delete info.types;
             delete cinfo.codes;
-            delete cinfo.types;
             return false;
         }
         
@@ -133,7 +133,7 @@ bool compile_script(char* fname, buffer* source)
         
         cinfo.stack_num = 0;
 
-        cinfo.type = create_type("void", &cinfo);
+        cinfo.type = create_type("void", &info);
     }
     
     if(info.err_num > 0) {
@@ -141,8 +141,8 @@ bool compile_script(char* fname, buffer* source)
         delete info.nodes;
         delete info.vtables;
         delete info.blocks;
+        delete info.types;
         delete cinfo.codes;
-        delete cinfo.types;
         return false;
     }
     
@@ -163,8 +163,8 @@ bool compile_script(char* fname, buffer* source)
         delete info.nodes;
         delete info.vtables;
         delete info.blocks;
+        delete info.types;
         delete cinfo.codes;
-        delete cinfo.types;
         return false;
     }
 
@@ -173,8 +173,8 @@ bool compile_script(char* fname, buffer* source)
     delete info.nodes;
     delete info.vtables;
     delete info.blocks;
+    delete info.types;
     delete cinfo.codes;
-    delete cinfo.types;
     
     return true;
 }

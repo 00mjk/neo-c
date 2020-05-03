@@ -1,17 +1,8 @@
 
-var b = 123;
+var aaa = lambda(a:int, b:int) {
+    1 + 2
+}
 
-if(true) {
-    b = 111;
-}
-elif(false) {
-    b = 222;
-}
-elif(false) {
-    b = 333;
-}
-else {
-    b = 444;
-}
+#1aaa(1, 2);
 
 

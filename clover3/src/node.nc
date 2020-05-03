@@ -6,7 +6,7 @@ static void compile_err_msg(sCompileInfo* info, char* msg)
     
     info.err_num++;
 
-    info.type = create_type("int", info);
+    info.type = create_type("int", info.pinfo);
 }
 
 sCLNode* alloc_node(sParserInfo* info)
@@ -43,7 +43,7 @@ static bool compile_int_value(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(node.uValue.mIntValue);
     }
     
-    info.type = create_type("int", info);
+    info.type = create_type("int", info.pinfo);
     info.stack_num++;
     
     return true;
@@ -94,7 +94,7 @@ static bool compile_strig_value(sCLNode* node, sCompileInfo* info)
         info.codes.alignment();
     }
     
-    info.type = create_type("string", info);
+    info.type = create_type("string", info.pinfo);
     info.stack_num++;
     
     return true;
@@ -124,12 +124,12 @@ static bool compile_add(sCLNode* node, sCompileInfo* info)
         return true;
     }
     
-    if(type_identify_with_class_name(left_type, "int", info)) {
+    if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
         if(!info.no_output) {
             info.codes.append_int(OP_IADD);
         }
         
-        info.type = create_type("int", info);
+        info.type = create_type("int", info.pinfo);
     }
     else {
         compile_err_msg(info, "This type is invalid for operator + ");
@@ -278,12 +278,12 @@ static bool compile_equal(sCLNode* node, sCompileInfo* info)
         return true;
     }
     
-    if(type_identify_with_class_name(left_type, "int", info)) {
+    if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
         if(!info.no_output) {
             info.codes.append_int(OP_IEQ);
         }
         
-        info.type = create_type("bool", info);
+        info.type = create_type("bool", info.pinfo);
     }
     else {
         compile_err_msg(info, "This type is invalid for operator + ");
@@ -338,12 +338,12 @@ static bool compile_not_equal(sCLNode* node, sCompileInfo* info)
         return true;
     }
     
-    if(type_identify_with_class_name(left_type, "int", info)) {
+    if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
         if(!info.no_output) {
             info.codes.append_int(OP_INOTEQ);
         }
         
-        info.type = create_type("bool", info);
+        info.type = create_type("bool", info.pinfo);
     }
     else {
         compile_err_msg(info, "This type is invalid for operator + ");
@@ -381,7 +381,7 @@ static bool compile_true_value(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(1);
     }
 
-    info.type = create_type("bool", info);
+    info.type = create_type("bool", info.pinfo);
     info.stack_num++;
     
     return true;
@@ -410,7 +410,7 @@ static bool compile_false_value(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(0);
     }
 
-    info.type = create_type("bool", info);
+    info.type = create_type("bool", info.pinfo);
     info.stack_num++;
     
     return true;
@@ -454,7 +454,7 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
-    if(!type_identify_with_class_name(info.type, "bool", info)) {
+    if(!type_identify_with_class_name(info.type, "bool", info.pinfo)) {
         compile_err_msg(info, "The condition expression of if requires bool type");
         return true;
     }
@@ -498,7 +498,7 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
                 return false;
             }
 
-            if(!type_identify_with_class_name(info.type, "bool", info)) {
+            if(!type_identify_with_class_name(info.type, "bool", info.pinfo)) {
                 compile_err_msg(info, "The condition expression of elif requires bool type");
                 return true;
             }
@@ -552,6 +552,38 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
         int* p = (int*)(info.codes.buf + end_points[i]);
         *p = info.codes.len;
     }
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeLambda;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.uValue.uLambda.mNumParams = num_params;
+    for(int i=0; i<num_params; i++) {
+        result.uValue.uLambda.mParams[i] = params[i];
+    }
+
+    result.uValue.uLambda.mNodeBlock = node_block;
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_lambda(sCLNode* node, sCompileInfo* info)
+{
+    sCLNodeBlock* node_block = node.uValue.uLambda.mNodeBlock;
+    int num_params = node.uValue.uLambda.mNumParams;
+    sCLParam* params = node.uValue.uLambda.mParams;
 
     return true;
 }
@@ -618,6 +650,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
     
         case kNodeTypeIf:
             if(!compile_if_expression(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeLambda:
+            if(!compile_lambda(node, info)) {
                 return false;
             }
             break;

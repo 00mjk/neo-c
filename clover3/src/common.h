@@ -37,6 +37,7 @@
 #define PARAMS_MAX 32
 #define HEAP_INIT_SIZE 128
 #define HEAP_HANDLE_INIT_SIZE 128
+#define VAR_NAME_MAX 128
 #define ELIF_MAX 64
 
 //////////////////////////////////////////
@@ -63,8 +64,8 @@ struct sCLStack {
 };
 
 struct sCLParam {
-    string mName;
-    sCLType%* mType;
+    char mName[VAR_NAME_MAX];
+    sCLType* mType;
 };
 
 struct sCLBlockType {
@@ -129,13 +130,6 @@ void class_init();
 void class_final();
 void append_class(char* name);
 
-/// type.nc ///
-sCLType* create_type(char* type_name, sCompileInfo* info);
-bool type_identify(sCLType* left_type, sCLType* right_type);
-bool substitution_posibility(sCLType* left_type, sCLType* right_type);
-bool type_identify_with_class_name(sCLType* left_type, char* right_class, sCompileInfo* info);
-void show_type(sCLType* type);
-
 //////////////////////////////////////////
 /// compiler side
 //////////////////////////////////////////
@@ -156,6 +150,11 @@ struct sCLNode {
             void* mElifBlocks[ELIF_MAX];
             sCLNodeBlock* mElseBlock;
         } uIfExpression;
+        struct {
+            sCLNodeBlock* mNodeBlock;
+            sCLParam mParams[PARAMS_MAX];
+            int mNumParams;
+        } uLambda;
     } uValue;
     
     string mStringValue;
@@ -208,9 +207,10 @@ struct sParserInfo {
     vector<sCLNode*%>* nodes;
     vector<sVarTable*%>* vtables;
     vector<sCLNodeBlock*%>* blocks;
+    vector<sCLType*%>* types;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -222,8 +222,6 @@ struct sCompileInfo {
     
     sParserInfo* pinfo;
     buffer* codes;
-    
-    vector<sCLType*%>* types;
     
     sCLType* type;
 
@@ -245,6 +243,13 @@ sVar* get_variable_from_table(sParserInfo* info, char* name);
 void check_already_added_variable(sParserInfo* info, char* name);
 int get_var_num(sParserInfo* info);
 
+/// type.nc ///
+sCLType* create_type(char* type_name, sParserInfo* info);
+bool type_identify(sCLType* left_type, sCLType* right_type);
+bool substitution_posibility(sCLType* left_type, sCLType* right_type);
+bool type_identify_with_class_name(sCLType* left_type, char* right_class, sParserInfo* info);
+void show_type(sCLType* type);
+
 sCLNode* sNodeTree_create_add(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_int_value(int value, sParserInfo* info);
 sCLNode* sNodeTree_create_store_variable(char* var_name, sCLNode* exp, sParserInfo* info);
@@ -255,6 +260,7 @@ sCLNode* sNodeTree_create_string_value(char* value, sParserInfo* info);
 sCLNode* sNodeTree_create_true_value(sParserInfo* info);
 sCLNode* sNodeTree_create_false_value(sParserInfo* info);
 sCLNode* sNodeTree_create_if_expression(sCLNode* if_expression, sCLNodeBlock* if_node_block, int num_elif, sCLNode** elif_expressions, sCLNodeBlock** elif_blocks, sCLNodeBlock* else_block, sParserInfo* info);
+sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sParserInfo* info);
 
 //////////////////////////////
 /// runtime side

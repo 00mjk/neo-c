@@ -5,7 +5,7 @@ void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info)
     sCLObject* object = CLOBJECT(self);
     sCLType* type = object->mType;
     
-    if(type_identify_with_class_name(type, "string", info.cinfo)) {
+    if(type_identify_with_class_name(type, "string", info.cinfo.pinfo)) {
     }
     else {
         int i;
@@ -20,7 +20,7 @@ bool free_object(CLObject self, sVMInfo* info)
     sCLObject* object_data = CLOBJECT(self);
     sCLType* type = object_data->mType;
 
-    if(type_identify_with_class_name(type, "lambda", info.cinfo)) {
+    if(type_identify_with_class_name(type, "lambda", info.cinfo.pinfo)) {
     }
 
 /*
@@ -61,7 +61,7 @@ CLObject create_string_object(char* str, sVMInfo* info)
 {
     int len = strlen(str);
 
-    sCLType* string_type = create_type("string", info.cinfo);
+    sCLType* string_type = create_type("string", info.cinfo.pinfo);
     
     int size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
     size += len + 1;

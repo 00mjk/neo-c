@@ -81,7 +81,7 @@ bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info)
             
             info.stack_num = 0;
 
-            info.type = create_type("void", info);
+            info.type = create_type("void", info.pinfo);
         }
     }
 

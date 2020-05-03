@@ -9,8 +9,32 @@ void parser_err_msg(sParserInfo* info, char* msg)
     info->err_num++;
 }
 
+void parse_comment(sParserInfo* info)
+{
+    while(*info->p == '#') {
+        info->p++;
+
+        while(true) {
+            if(*info->p == '\n') {
+                info->p++;
+                info->sline++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else if(*info->p == '\0') {
+                break;
+            }
+            else {
+                info->p++;
+            }
+        }
+    }
+}
+
 void skip_spaces_and_lf(sParserInfo* info)
 {
+    parse_comment(info);
+
     while(true) {
         if(*info->p == ' ' || *info->p == '\t') {
             info->p++;
@@ -23,13 +47,17 @@ void skip_spaces_and_lf(sParserInfo* info)
             break;
         }
     }
+
+    parse_comment(info);
 }
 
 void skip_spaces(sParserInfo* info)
 {
+    parse_comment(info);
     while(*info->p == ' ' || *info->p == '\t') {
         info->p++;
     }
+    parse_comment(info);
 }
 
 
@@ -75,6 +103,8 @@ static bool get_number(bool minus, sCLNode** node, sParserInfo* info)
 
 string parse_word(sParserInfo* info)
 {
+    parse_comment(info);
+
     buffer*% result = new buffer.initialize();
     
     while(isalnum(*info->p) || *info->p == '_') {
@@ -89,6 +119,7 @@ string parse_word(sParserInfo* info)
 
 void expected_next_character(char c, sParserInfo* info) 
 {
+    parse_comment(info);
     if(*info->p == c) {
         info->p++;
         skip_spaces_and_lf(info);
@@ -207,6 +238,80 @@ bool parse_if_expression(sCLNode** node, sParserInfo* info)
     return true;
 }
 
+bool parse_type(sCLType** type, sParserInfo* info)
+{
+    string name = parse_word(info);
+
+    *type = create_type(name, info);
+
+    if((*type).mClass == null) {
+        parser_err_msg(info, xsprintf("invalid type name(%s)", name));
+    }
+
+    return true;
+}
+
+bool parse_params(sCLParam* params, int* num_params, sParserInfo* info)
+{
+    *num_params = 0;
+
+    expected_next_character('(', info);
+
+    while(true) {
+        string var_name = parse_word(info);
+
+        expected_next_character(':', info);
+
+        sCLType* type = null;
+
+        if(!parse_type(&type, info)) {
+            return false;
+        }
+
+        xstrncpy(params[*num_params].mName, var_name, VAR_NAME_MAX);
+        params[*num_params].mType = type;
+
+        if(*info->p == ',') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+        else if(*info->p == ')') {
+            break;
+        }
+        else if(*info->p == '\0') {
+            parser_err_msg(info, "Unexpected source end in parsing parametors");
+            return false;
+        }
+    }
+
+    expected_next_character(')', info);
+
+    return true;
+}
+
+bool parse_lambda_expression(sCLNode** node, sParserInfo* info) 
+{
+    sCLParam params[PARAMS_MAX];
+    int num_params = 0;
+
+    if(!parse_params(params, &num_params, info)) {
+        return false;
+    }
+
+    expected_next_character('{', info);
+
+    sCLNodeBlock* node_block = null;
+    if(!parse_block(&node_block, info)) {
+        return false;
+    }
+
+    expected_next_character('}', info);
+
+    *node = sNodeTree_create_lambda(num_params, params, node_block, info);
+
+    return true;
+}
+
 static bool expression_node(sCLNode** node, sParserInfo* info)
 {
     int num_method_chains = 0;
@@ -302,6 +407,11 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 return false;
             }
         }
+        else if(strcmp(word, "lambda") == 0) {
+            if(!parse_lambda_expression(node, info)) {
+                return false;
+            }
+        }
         else {
             if(*info->p == '=' && *(info->p+1) != '=') {
                 info->p++;
@@ -357,22 +467,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
     }
     /// comment ///
     else if(*info->p == '#') {
-        info->p++;
-
-        while(true) {
-            if(*info->p == '\n') {
-                info->p++;
-                info->sline++;
-                skip_spaces_and_lf(info);
-                break;
-            }
-            else if(*info->p == '\0') {
-                break;
-            }
-            else {
-                info->p++;
-            }
-        }
+        parse_comment(info);
 
         sCLNode* node2 = null;
         if(!expression(&node2, info)) {
@@ -380,6 +475,10 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
         };
 
         *node = node2;
+    }
+    else {
+        parser_err_msg(info, xsprintf("unexpected character %c", *info->p));
+        return false;
     }
     
     return true;
@@ -485,11 +584,14 @@ static bool expression_comparison_equal_operator(sCLNode** node, sParserInfo* in
 
 bool expression(sCLNode** node, sParserInfo* info) 
 {
+    parse_comment(info);
     skip_spaces_and_lf(info);
 
     if(!expression_comparison_equal_operator(node, info)) {
         return false;
     }
+
+    parse_comment(info);
 
     return true;
 }

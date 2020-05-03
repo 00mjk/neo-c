@@ -1,7 +1,7 @@
 #include "common.h"
 #include <assert.h>
 
-sCLType* create_type(char* type_name, sCompileInfo* info)
+sCLType* create_type(char* type_name, sParserInfo* info)
 {
     sCLType* result = borrow new sCLType;
     
@@ -31,7 +31,7 @@ bool substitution_posibility(sCLType* left_type, sCLType* right_type)
     return type_identify(left_type, right_type);
 }
 
-bool type_identify_with_class_name(sCLType* left_type, char* right_class, sCompileInfo* info)
+bool type_identify_with_class_name(sCLType* left_type, char* right_class, sParserInfo* info)
 {
     sCLType* right_type = create_type(right_class, info);
     
