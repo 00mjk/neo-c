@@ -1,6 +1,6 @@
 #include "common.h"
 
-static void vm_err_msg(sVMInfo* info, char* msg)
+void vm_err_msg(sVMInfo* info, char* msg)
 {
     fprintf(stderr, "%s %d: %s\n", info.sname, info.sline, msg);
 }
@@ -125,9 +125,9 @@ print_op(op);
                 break;
 
             case OP_CLASS: {
-                char* str = (char*)p;
+                char* source = (char*)p;
 
-                int len = strlen(str);
+                int len = strlen(source);
 
                 alignment(&len);
 
@@ -135,7 +135,7 @@ print_op(op);
 
                 p += len;
 
-                if(!eval_class(str, info)) {
+                if(!eval_class(source, info)) {
                     return false;
                 }
                 }

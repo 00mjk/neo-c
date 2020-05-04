@@ -158,6 +158,7 @@ struct sCLNode {
         } uLambda;
     } uValue;
     
+    string mClassName;
     string mStringValue;
     
     struct sCLNode* left;
@@ -233,6 +234,10 @@ enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOA
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
+bool parse_params(sCLParam* params, int* num_params, sParserInfo* info);
+string parse_word(sParserInfo* info);
+bool parse_type(sCLType** type, sParserInfo* info);
+void expected_next_character(char c, sParserInfo* info);
 
 bool expression(sCLNode** node, sParserInfo* info);
 bool compile(sCLNode* node, sCompileInfo* info);
@@ -262,7 +267,7 @@ sCLNode* sNodeTree_create_true_value(sParserInfo* info);
 sCLNode* sNodeTree_create_false_value(sParserInfo* info);
 sCLNode* sNodeTree_create_if_expression(sCLNode* if_expression, sCLNodeBlock* if_node_block, int num_elif, sCLNode** elif_expressions, sCLNodeBlock** elif_blocks, sCLNodeBlock* else_block, sParserInfo* info);
 sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sParserInfo* info);
-sCLNode* sNodeTree_create_class(char* str, sParserInfo* info);
+sCLNode* sNodeTree_create_class(char* source, sParserInfo* info);
 
 //////////////////////////////
 /// runtime side
@@ -282,6 +287,7 @@ struct sVMInfo {
     bool in_finalize_method;
 };
 
+void vm_err_msg(sVMInfo* info, char* msg);
 bool vm(buffer* codes, sVMInfo* info);
 CLObject alloc_heap_mem(unsigned int size, sCLType* type, int field_num, sVMInfo* info);
 void heap_init(int heap_size, int size_handles);

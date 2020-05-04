@@ -556,7 +556,7 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-sCLNode* sNodeTree_create_class(char* str, sParserInfo* info)
+sCLNode* sNodeTree_create_class(char* source, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
     
@@ -565,7 +565,7 @@ sCLNode* sNodeTree_create_class(char* str, sParserInfo* info)
     xstrncpy(result.sname, info.sname, PATH_MAX);
     result.sline = info.sline;
 
-    result.mStringValue = string(str);
+    result.mStringValue = string(source);
 
     result.left = null;
     result.right = null;
@@ -576,11 +576,11 @@ sCLNode* sNodeTree_create_class(char* str, sParserInfo* info)
 
 static bool compile_class(sCLNode* node, sCompileInfo* info)
 {
-    char* str = node.mStringValue;
+    char* source = node.mStringValue;
 
     if(!info.no_output) {
         info.codes.append_int(OP_CLASS);
-        info.codes.append_str(str);
+        info.codes.append_str(source);
 
         info.codes.alignment();
     }

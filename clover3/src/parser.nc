@@ -318,6 +318,9 @@ bool parse_class(sCLNode** node, sParserInfo* info)
 
     buffer*% buf = new buffer.initialize();
 
+    buf.append_str(name);
+    buf.append_char(' ');
+
     bool dquort = false;
     int nest = 0;
     while(true) {

@@ -3,9 +3,13 @@
 #    1 + 2
 #}
 
-class {
-    a:int;
-    b:int;
+class HelloClass {
+    var a:int;
+    var b:int;
+
+    def method() : int {
+        1 + 1
+    }
 }
 
 
