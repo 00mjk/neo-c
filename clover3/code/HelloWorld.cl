@@ -12,4 +12,8 @@ class HelloClass {
     }
 }
 
+var a = HelloClass();
+
+a.method();
+
 

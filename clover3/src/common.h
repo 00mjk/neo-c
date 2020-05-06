@@ -58,11 +58,6 @@ union CLVALUE {
     wchar_t mCharValue;
 };
 
-struct sCLStack {
-    CLVALUE* mStack;
-    CLVALUE** mStackPtr;
-};
-
 struct sCLParam {
     char mName[VAR_NAME_MAX];
     sCLType* mType;
@@ -101,11 +96,8 @@ struct sCLMethod {
 
     buffer*% mByteCodes;
     fNativeMethod mNativeMethod;
-    
-    int mVarNum;
 
-    int mNumGenerics;
-    unsigned int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
+    sCLNodeBlock* mNodeBlock;
 };
 
 struct sCLField {
@@ -118,7 +110,7 @@ struct sCLField {
 struct sCLClass {
     string mName;
 
-    list<sCLMethod*%>*% mMethods;
+    map<string,sCLMethod*%>*% mMethods;
     list<sCLField*%>*% mFields;
     list<sCLField*%>*% mClassFields;
 };
@@ -129,7 +121,7 @@ extern map<string, sCLClass*%>* gClasses;
 void class_init();
 void class_final();
 void append_class(char* name);
-bool eval_class(char* source, sVMInfo* vminfo);
+bool eval_class(char* source, sCompileInfo* vminfo);
 
 //////////////////////////////////////////
 /// compiler side
@@ -156,6 +148,10 @@ struct sCLNode {
             sCLParam mParams[PARAMS_MAX];
             int mNumParams;
         } uLambda;
+        struct {
+            int mNumParams;
+            sCLNode* mParams[PARAMS_MAX];
+        } uMethodCall;
     } uValue;
     
     string mClassName;
@@ -212,7 +208,7 @@ struct sParserInfo {
     vector<sCLType*%>* types;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -230,7 +226,7 @@ struct sCompileInfo {
     bool no_output;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CLASS };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -241,13 +237,14 @@ void expected_next_character(char c, sParserInfo* info);
 
 bool expression(sCLNode** node, sParserInfo* info);
 bool compile(sCLNode* node, sCompileInfo* info);
+void compile_err_msg(sCompileInfo* info, char* msg);
 
 void init_var_table(sParserInfo* info);
 void final_var_table(sParserInfo* info);
 void add_variable_to_table(sParserInfo* info, char* name, sCLType* type, bool readonly);
 sVar* get_variable_from_table(sParserInfo* info, char* name);
 void check_already_added_variable(sParserInfo* info, char* name);
-int get_var_num(sParserInfo* info);
+int get_var_num(vector<sVarTable*%>* vtables);
 
 /// type.nc ///
 sCLType* create_type(char* type_name, sParserInfo* info);
@@ -268,33 +265,38 @@ sCLNode* sNodeTree_create_false_value(sParserInfo* info);
 sCLNode* sNodeTree_create_if_expression(sCLNode* if_expression, sCLNodeBlock* if_node_block, int num_elif, sCLNode** elif_expressions, sCLNodeBlock** elif_blocks, sCLNodeBlock* else_block, sParserInfo* info);
 sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sParserInfo* info);
 sCLNode* sNodeTree_create_class(char* source, sParserInfo* info);
+sCLNode* sNodeTree_create_object(char* class_name_, sParserInfo* info);
+sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, sParserInfo* info);
 
 //////////////////////////////
 /// runtime side
 //////////////////////////////
+struct sCLStackFrame {
+    CLVALUE* stack;
+    CLVALUE** stack_ptr;
+    int var_num;
+};
+
 struct sVMInfo {
     char sname[PATH_MAX];
     int sline;
-
-    CLVALUE* stack;
-    CLVALUE* stack_ptr;
-    
-    int var_num;
 
     sParserInfo* pinfo;
     sCompileInfo* cinfo;
 
     bool in_finalize_method;
+
+    vector<sCLStackFrame>* stack_frames;
 };
 
 void vm_err_msg(sVMInfo* info, char* msg);
-bool vm(buffer* codes, sVMInfo* info);
-CLObject alloc_heap_mem(unsigned int size, sCLType* type, int field_num, sVMInfo* info);
+bool vm(buffer* codes, int var_num, int parent_stack_frame_index, sVMInfo* info);
+CLObject alloc_heap_mem(unsigned int size, sCLClass* type, int field_num, sVMInfo* info);
 void heap_init(int heap_size, int size_handles);
 void heap_final(sVMInfo* info);
 
 struct sCLHeapMem {
-    sCLType* mType;
+    sCLClass* mType;
     int mSize;
     int mArrayNum;
     void* mMem;
@@ -303,7 +305,7 @@ struct sCLHeapMem {
 #define DUMMY_ARRAY_SIZE 32
 
 struct sCLObject {
-    sCLType* mType;
+    sCLClass* mType;
     int mSize;
     
     int mNumFields;
@@ -318,7 +320,7 @@ struct sCLObject {
 
 sCLHeapMem* get_object_pointer(CLObject obj);
 
-CLObject create_object(sCLClass* klass, sCLType* type, sVMInfo* info);
+CLObject create_object(sCLClass* klass, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info);
 

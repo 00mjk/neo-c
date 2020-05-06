@@ -36,7 +36,7 @@ void add_variable_to_table(sParserInfo* info, char* name, sCLType* type, bool re
     sVar*% v = new sVar;
     
     v.mName = string(name);
-    v.mIndex = get_var_num(info);
+    v.mIndex = get_var_num(info.vtables);
     if(type) {
         v.mType = clone type;
     }
@@ -75,10 +75,10 @@ void check_already_added_variable(sParserInfo* info, char* name)
     }
 }
 
-int get_var_num(sParserInfo* info) 
+int get_var_num(vector<sVarTable*%>* vtables)
 {
     int result = 0;
-    sVarTable* it = info.vtables.item(-1, null);
+    sVarTable* it = vtables.item(-1, null);
 
     while(it) {
         result += it.mLocalVariables.length();

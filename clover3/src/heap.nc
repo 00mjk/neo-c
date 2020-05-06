@@ -305,11 +305,13 @@ static void mark_all_class_fields(unsigned char* mark_flg, sVMInfo* info)
 
 static void mark(sVMInfo* info, unsigned char* mark_flg, sVMInfo* info)
 {
-    CLVALUE* p = info->stack;
-    
-    while(p < info->stack_ptr) {
-        mark_object(p.mObjectValue, mark_flg, info);
-        p++;
+    info.stack_frames.each {
+        CLVALUE* p = it.stack;
+
+        while(p < it.stack + it.var_num) {
+            mark_object(p.mObjectValue, mark_flg, info);
+            p++;
+        }
     }
 }
 
@@ -376,7 +378,7 @@ void gc(sVMInfo* info)
 
 static int gc_timing = 0;
 
-CLObject alloc_heap_mem(unsigned int size, sCLType* type, int field_num, sVMInfo* info)
+CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int field_num, sVMInfo* info)
 {
     int handle;
     CLObject obj;
@@ -473,7 +475,7 @@ CLObject alloc_heap_mem(unsigned int size, sCLType* type, int field_num, sVMInfo
 
     object_ptr->mSize = size;
 
-    object_ptr->mType = type;
+    object_ptr->mType = klass;
     object_ptr->mArrayNum = field_num;
 
     return obj;

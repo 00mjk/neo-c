@@ -258,6 +258,10 @@ bool parse_params(sCLParam* params, int* num_params, sParserInfo* info)
     expected_next_character('(', info);
 
     while(true) {
+        if(*info->p == ')') {
+            break;
+        }
+
         string var_name = parse_word(info);
 
         expected_next_character(':', info);
@@ -373,6 +377,87 @@ bool parse_class(sCLNode** node, sParserInfo* info)
     return true;
 }
 
+bool parse_calling_params(int* num_params, sCLNode** params, sParserInfo* info) 
+{
+    while(true) {
+        if(*info->p == ')') {
+            break;
+        }
+
+        sCLNode* node = null;
+        if(!expression(&node, info)) {
+            return false;
+        };
+
+        params[*num_params] = node;
+        (*num_params)++;
+
+        if(*num_params >= PARAMS_MAX) {
+            fprintf(stderr, "overflow pram number\n");
+            exit(1);
+        }
+
+        if(*info->p == ')') {
+            break;
+        }
+        else if(*info->p == '\0') {
+            parser_err_msg(info, "unexpexted source end. require ) or ,");
+        }
+        else if(*info->p == ',') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+    }
+    
+    return true;
+}
+
+static bool postposition_operator(sCLNode** node, sParserInfo* info)
+{
+    if(*node == null) {
+        return true;
+    }
+
+    while(*info->p) {
+        if(*info->p == '.') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            var name = parse_word(info);
+
+            /// method ///
+            if(*info->p == '(') {
+                info->p++;
+                skip_spaces_and_lf(info);
+
+                int num_params = 0;
+                sCLNode* params[PARAMS_MAX];
+
+                params[0] = *node;
+                num_params = 1;
+
+                if(!parse_calling_params(&num_params, params, info)) 
+                {
+                    return false;
+                }
+
+                expected_next_character(')', info);
+
+                *node = sNodeTree_create_method_call(name, num_params, params, info);
+            }
+            //// field ///
+            else {
+                break;
+            }
+        }
+        else {
+            break;
+        }
+    }
+
+    return true;
+}
+
 static bool expression_node(sCLNode** node, sParserInfo* info)
 {
     int num_method_chains = 0;
@@ -430,6 +515,8 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
     /// alnum ///
     else if(isalpha(*info->p) || *info->p == '_') {
         var word = parse_word(info);
+
+        sCLClass* klass = gClasses.at(word, null);
         
         if(strcmp(word, "var") == 0) {
             if(isalpha(*info->p) || *info->p == '_') {
@@ -477,6 +564,14 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             if(!parse_class(node, info)) {
                 return false;
             }
+        }
+        else if(klass && *info->p == '(') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            expected_next_character(')', info);
+
+            *node = sNodeTree_create_object(klass.mName, info);
         }
         else {
             if(*info->p == '=' && *(info->p+1) != '=') {
@@ -587,6 +682,10 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
     }
     else {
         parser_err_msg(info, xsprintf("unexpected character %c", *info->p));
+        return false;
+    }
+
+    if(!postposition_operator(node, info)) {
         return false;
     }
     

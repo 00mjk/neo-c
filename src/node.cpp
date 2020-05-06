@@ -5611,6 +5611,13 @@ unsigned int sNodeTree_struct(sNodeType* struct_type, sParserInfo* info, char* s
 
 static BOOL compile_struct(unsigned int node, sCompileInfo* info)
 {
+    sNodeType* node_type = gNodes[node].uValue.sStruct.mType;
+
+    if(!solve_undefined_strcut_type_when_definision(node_type, info))
+    {
+        return FALSE;
+    }
+
     return TRUE;
 }
 

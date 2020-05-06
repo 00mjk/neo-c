@@ -921,6 +921,7 @@ static BOOL solve_undefined_strcut_type(sNodeType* node_type, sNodeType* generic
 {
     sCLClass* klass = node_type->mClass;
 
+
     if(klass->mUndefinedStructType) {
         StructType* struct_type = (StructType*)klass->mUndefinedStructType;
         std::vector<Type*> fields;
@@ -974,6 +975,28 @@ static BOOL solve_undefined_strcut_type(sNodeType* node_type, sNodeType* generic
         pair_value.second->mNumFields = node_type->mClass->mNumFields;
 
         gLLVMStructType[real_struct_name] = pair_value;
+    }
+
+    return TRUE;
+}
+
+BOOL solve_undefined_strcut_type_when_definision(sNodeType* node_type, sCompileInfo* info)
+{
+    sCLClass* klass = node_type->mClass;
+
+    char* class_name = CLASS_NAME(klass);
+
+    char real_struct_name[REAL_STRUCT_NAME_MAX];
+    int size_real_struct_name = REAL_STRUCT_NAME_MAX;
+    xstrncpy(real_struct_name, class_name, size_real_struct_name);
+
+    create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
+
+    sNodeType* generics_type = node_type;
+
+    if(!solve_undefined_strcut_type(node_type, generics_type, real_struct_name, info))
+    {
+        return FALSE;
     }
 
     return TRUE;

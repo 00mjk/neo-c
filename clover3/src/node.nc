@@ -1,6 +1,7 @@
 #include "common.h"
+#include <assert.h>
 
-static void compile_err_msg(sCompileInfo* info, char* msg)
+void compile_err_msg(sCompileInfo* info, char* msg)
 {
     fprintf(stderr, "%s %d: %s\n", info.sname, info.sline, msg);
     
@@ -234,7 +235,7 @@ static bool compile_load_variable(sCLNode* node, sCompileInfo* info)
     info.stack_num++;
 
     info.type = v.mType;
-    
+
     return true;
 }
 
@@ -578,11 +579,8 @@ static bool compile_class(sCLNode* node, sCompileInfo* info)
 {
     char* source = node.mStringValue;
 
-    if(!info.no_output) {
-        info.codes.append_int(OP_CLASS);
-        info.codes.append_str(source);
-
-        info.codes.alignment();
+    if(!eval_class(source, info)) {
+        return false;
     }
 
     info.type = create_type("void", info.pinfo);
@@ -618,6 +616,125 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
     sCLNodeBlock* node_block = node.uValue.uLambda.mNodeBlock;
     int num_params = node.uValue.uLambda.mNumParams;
     sCLParam* params = node.uValue.uLambda.mParams;
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_object(char* class_name_, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeCreateObject;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.mStringValue = string(class_name_);
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_create_object(sCLNode* node, sCompileInfo* info)
+{
+    char* class_name_ = node.mStringValue;
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_CREATE_OBJECT);
+        info.codes.append_str(class_name_);
+
+        info.codes.alignment();
+    }
+
+    info.type = create_type(class_name_, info.pinfo);
+    info.stack_num++;
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeMethodCall;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.mStringValue = string(name);
+
+    result.uValue.uMethodCall.mNumParams = num_params;
+    for(int i=0; i<num_params; i++) {
+        result.uValue.uMethodCall.mParams[i] = params[i];
+    }
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+bool compile_method_call(sCLNode* node, sCompileInfo* info)
+{
+    char* method_name = node.mStringValue;
+
+    int num_params = node.uValue.uMethodCall.mNumParams;
+    sCLNode* params[PARAMS_MAX];
+    for(int i=0; i<num_params; i++) {
+        params[i] = node.uValue.uMethodCall.mParams[i];
+    }
+
+    assert(num_params > 0);
+
+    sCLNode* first_node = params[0];
+
+    if(!compile(first_node, info)) {
+        return false;
+    }
+
+    sCLClass* klass = info.type.mClass;
+
+    sCLMethod* method = klass.mMethods.at(method_name, null);
+
+    if(method == null) {
+        compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass.mName, method_name));
+        return true;
+    }
+
+    int var_num = get_var_num(method.mNodeBlock.vtables);
+
+    /// type checking ///
+    sCLType* param_types[PARAMS_MAX];
+    for(int i=1; i<num_params; i++) {
+        if(!compile(params[i], info)) {
+            return false;
+        }
+
+        param_types[i] = info.type;
+    }
+
+    /// go ///
+    if(!info.no_output) {
+        info.codes.append_int(OP_INVOKE_METHOD);
+        info.codes.append_str(klass.mName);
+
+        info.codes.alignment();
+
+        info.codes.append_str(method_name);
+
+        info.codes.alignment();
+
+        info.codes.append_int(num_params);
+
+        info.codes.append_int(var_num);
+    }
+
+    info.stack_num -= num_params;
+    info.stack_num++;
 
     return true;
 }
@@ -697,6 +814,20 @@ bool compile(sCLNode* node, sCompileInfo* info)
         case kNodeTypeClass:
             if(!compile_class(node, info)) {
                 return false;
+            }
+            break;
+
+        case kNodeTypeCreateObject: {
+            if(!compile_create_object(node, info)) {
+                return false;
+            }
+            }
+            break;
+
+        case kNodeTypeMethodCall: {
+            if(!compile_method_call(node, info)) {
+                return false;
+            }
             }
             break;
             

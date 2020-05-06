@@ -69,8 +69,12 @@ void print_op(int op)
             puts("OP_GOTO");
             break;
 
-        case OP_CLASS: 
-            puts("OP_CLASS");
+        case OP_CREATE_OBJECT: 
+            puts("OP_CREATE_OBJECT");
+            break;
+
+        case OP_INVOKE_METHOD: 
+            puts("OP_INVOKE_METHOD");
             break;
             
         default:
@@ -79,16 +83,32 @@ void print_op(int op)
     }
 }
 
-bool vm(buffer* codes, sVMInfo* info)
+bool vm(buffer* codes, int var_num, int parent_stack_frame_index, sVMInfo* info)
 {
+    sCLStackFrame null_paret_stack_frame;
+    memset(&null_paret_stack_frame, 0, sizeof(sCLStackFrame));
+
     CLVALUE stack[VM_STACK_MAX];
+    sCLStackFrame stack_frame;
     
     memset(stack, 0, sizeof(CLVALUE) * VM_STACK_MAX);
     
-    CLVALUE* stack_ptr = (CLVALUE*)stack + info.var_num;
-    
+    CLVALUE* stack_ptr = (CLVALUE*)stack + var_num;
+
     int* head_codes = (int*)codes.buf;
     int* p = (int*)codes.buf;
+
+    stack_frame.stack = stack;
+    stack_frame.stack_ptr = &stack_ptr;
+    stack_frame.var_num = var_num;
+
+    info.stack_frames.push_back(stack_frame);
+
+    if(parent_stack_frame_index >= 0) {
+        sCLStackFrame parent_stack_frame = info.stack_frames.item(parent_stack_frame_index, null_paret_stack_frame);
+
+        memcpy(&stack, &parent_stack_frame.stack, sizeof(CLVALUE)*parent_stack_frame.var_num);
+    }
     
     while(p - head_codes < codes.len) {
         int op = *p;
@@ -124,10 +144,10 @@ print_op(op);
                 }
                 break;
 
-            case OP_CLASS: {
-                char* source = (char*)p;
+            case OP_CREATE_OBJECT: {
+                char* name = (char*)p;
 
-                int len = strlen(source);
+                int len = strlen(name);
 
                 alignment(&len);
 
@@ -135,9 +155,18 @@ print_op(op);
 
                 p += len;
 
-                if(!eval_class(source, info)) {
+                sCLClass* klass = gClasses.at(name, null);
+
+                if(klass == null) {
+                    vm_err_msg(info, xsprintf("class not found(%s)\n", name));
+                    info.stack_frames.pop_back(null_paret_stack_frame);
                     return false;
                 }
+
+                int obj = create_object(klass, info);
+
+                stack_ptr.mObjectValue = obj;
+                stack_ptr++;
                 }
                 break;
                 
@@ -223,9 +252,69 @@ print_op(op);
                 p = (int*)(((char*)head_codes) + goto_point);
                 }
                 break;
+
+            case OP_INVOKE_METHOD: { 
+                char* klass_name = (char*)p;
+
+                int len = strlen(klass_name);
+
+                alignment(&len);
+
+                len = len / sizeof(int);
+
+                p += len;
+
+                char* method_name = (char*)p;
+
+                len = strlen(method_name);
+
+                alignment(&len);
+
+                len = len / sizeof(int);
+
+                p += len;
+
+                int num_params = *p;
+                p++;
+
+                int var_num = *p;
+                p++;
+
+                sCLClass* klass = gClasses.at(klass_name, null);
+
+                if(klass == null) {
+                    vm_err_msg(info, xsprintf("class not found(%s)\n", klass_name));
+                    info.stack_frames.pop_back(null_paret_stack_frame);
+                    return false;
+                }
+                
+
+                sCLMethod* method = klass.mMethods.at(method_name, null);
+
+                if(method == null) {
+                    vm_err_msg(info, xsprintf("method not found(%s.%s)\n", klass_name, method_name));
+                    info.stack_frames.pop_back(null_paret_stack_frame);
+                    return false;
+                }
+
+                buffer* codes = method.mByteCodes;
+                if(!vm(codes, var_num, info.stack_frames.length()-1, info)) {
+                    info.stack_frames.pop_back(null_paret_stack_frame);
+                    return false;
+                }
+
+                sCLStackFrame parent_stack_frame = info.stack_frames.pop_back(null_paret_stack_frame);
+
+                stack_ptr -= num_params;
+
+                *stack_ptr = *(*parent_stack_frame.stack_ptr-1);
+                stack_ptr++;
+
+                }
+                break;
                 
         }
-print_stack(stack, stack_ptr, info.var_num);
+print_stack(stack, stack_ptr, var_num);
     }
     
     return true;

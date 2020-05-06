@@ -150,13 +150,14 @@ bool compile_script(char* fname, buffer* source)
     
     memset(&vminfo, 0, sizeof(sVMInfo));
     
-    vminfo.var_num = get_var_num(&info);
+    int var_num = get_var_num(info.vtables);
     vminfo.pinfo = &info;
     vminfo.cinfo = &cinfo;
+    vminfo.stack_frames = borrow new vector<sCLStackFrame*>.initialize();
 
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     
-    if(!vm(cinfo.codes, &vminfo)) {
+    if(!vm(cinfo.codes, var_num, -1, &vminfo)) {
         fprintf(stderr, "VM error.\n");
         heap_final(&vminfo);
 
@@ -165,6 +166,7 @@ bool compile_script(char* fname, buffer* source)
         delete info.blocks;
         delete info.types;
         delete cinfo.codes;
+        delete vminfo.stack_frames;
         return false;
     }
 
@@ -175,6 +177,7 @@ bool compile_script(char* fname, buffer* source)
     delete info.blocks;
     delete info.types;
     delete cinfo.codes;
+    delete vminfo.stack_frames;
     
     return true;
 }

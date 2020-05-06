@@ -711,8 +711,30 @@ struct sRecursiveStruct {
     vector<char*>*% mData;
 };
 
+
+struct sVectorData {
+    int a;
+    int b;
+};
+
+struct sVectorStructDefinition;
+
+struct sVectorStructDefinition* aaaaaaaaxxxxccc;
+
+struct sVectorStructDefinition {
+    vector<sVectorData>* data;
+};
+
+sVectorStructDefinition* funsssssss(sVectorStructDefinition* info) 
+{
+    info.data = null;
+    return info;
+}
+
 int main()
 {
+    sVectorStructDefinition* ssssdata;
+
 //    xassert("static variable test", funStaticVariable() == 1);
 //    xassert("static variable test2", funStaticVariable() == 2);
 
