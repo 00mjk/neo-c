@@ -145,7 +145,7 @@ bool parse_if_expression(sCLNode** node, sParserInfo* info)
     expected_next_character('{', info);
 
     sCLNodeBlock* node_block = null;
-    if(!parse_block(&node_block, info)) {
+    if(!parse_block(&node_block, 0, NULL, info)) {
         return false;
     }
 
@@ -173,7 +173,7 @@ bool parse_if_expression(sCLNode** node, sParserInfo* info)
             expected_next_character('{', info);
 
             sCLNodeBlock* node_block = null;
-            if(!parse_block(&node_block, info)) {
+            if(!parse_block(&node_block, 0, NULL, info)) {
                 return false;
             }
 
@@ -220,7 +220,7 @@ bool parse_if_expression(sCLNode** node, sParserInfo* info)
         expected_next_character('{', info);
 
         sCLNodeBlock* node_block = null;
-        if(!parse_block(&node_block, info)) {
+        if(!parse_block(&node_block, 0, NULL, info)) {
             return false;
         }
 
@@ -253,8 +253,6 @@ bool parse_type(sCLType** type, sParserInfo* info)
 
 bool parse_params(sCLParam* params, int* num_params, sParserInfo* info)
 {
-    *num_params = 0;
-
     expected_next_character('(', info);
 
     while(true) {
@@ -274,6 +272,8 @@ bool parse_params(sCLParam* params, int* num_params, sParserInfo* info)
 
         xstrncpy(params[*num_params].mName, var_name, VAR_NAME_MAX);
         params[*num_params].mType = type;
+
+        (*num_params)++;
 
         if(*info->p == ',') {
             info->p++;
@@ -302,16 +302,23 @@ bool parse_lambda_expression(sCLNode** node, sParserInfo* info)
         return false;
     }
 
+    expected_next_character(':', info);
+
+    sCLType* block_type = null;
+    if(!parse_type(&block_type, info)) {
+        return false;
+    }
+
     expected_next_character('{', info);
 
     sCLNodeBlock* node_block = null;
-    if(!parse_block(&node_block, info)) {
+    if(!parse_block(&node_block, num_params, params, info)) {
         return false;
     }
 
     expected_next_character('}', info);
 
-    *node = sNodeTree_create_lambda(num_params, params, node_block, info);
+    *node = sNodeTree_create_lambda(num_params, params, node_block, block_type, info);
 
     return true;
 }
@@ -449,6 +456,25 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
             else {
                 break;
             }
+        }
+        else if(*info->p == '(') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            int num_params = 0;
+            sCLNode* params[PARAMS_MAX];
+
+            params[0] = *node;
+            num_params = 1;
+
+            if(!parse_calling_params(&num_params, params, info)) 
+            {
+                return false;
+            }
+
+            expected_next_character(')', info);
+
+            *node = sNodeTree_create_block_object_call(num_params, params, info);
         }
         else {
             break;

@@ -145,19 +145,26 @@ bool compile_script(char* fname, buffer* source)
         delete cinfo.codes;
         return false;
     }
+
+    int var_num = get_var_num(info.vtables);
+
+    if(var_num > info.max_var_num) {
+        info.max_var_num = var_num;
+    }
+
+    var_num = info.max_var_num;
     
     sVMInfo vminfo;
     
     memset(&vminfo, 0, sizeof(sVMInfo));
     
-    int var_num = get_var_num(info.vtables);
     vminfo.pinfo = &info;
     vminfo.cinfo = &cinfo;
-    vminfo.stack_frames = borrow new vector<sCLStackFrame*>.initialize();
+    vminfo.stack_frames = borrow new vector<sCLStackFrame>.initialize();
 
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     
-    if(!vm(cinfo.codes, var_num, -1, &vminfo)) {
+    if(!vm(cinfo.codes, 0, 0, var_num, -1, false, &vminfo)) {
         fprintf(stderr, "VM error.\n");
         heap_final(&vminfo);
 

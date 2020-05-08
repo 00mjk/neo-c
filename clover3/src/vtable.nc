@@ -38,7 +38,7 @@ void add_variable_to_table(sParserInfo* info, char* name, sCLType* type, bool re
     v.mName = string(name);
     v.mIndex = get_var_num(info.vtables);
     if(type) {
-        v.mType = clone type;
+        v.mType = type;
     }
     else {
         v.mType = null;

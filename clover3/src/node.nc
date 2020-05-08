@@ -108,7 +108,7 @@ static bool compile_add(sCLNode* node, sCompileInfo* info)
     }
     
     sCLType* left_type = info.type;
-    
+
     if(!compile(node.right, info)) {
         return false;
     }
@@ -125,6 +125,7 @@ static bool compile_add(sCLNode* node, sCompileInfo* info)
         return true;
     }
     
+
     if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
         if(!info.no_output) {
             info.codes.append_int(OP_IADD);
@@ -174,7 +175,7 @@ static bool compile_store_variable(sCLNode* node, sCompileInfo* info)
     char* var_name = borrow node.mStringValue;
     
     sVar* v = get_variable_from_table(info.pinfo, var_name);
-    
+
     if(v == null) {
         compile_err_msg(info, xsprintf("The variable named %s is not defined", var_name));
         return true;
@@ -221,7 +222,7 @@ static bool compile_load_variable(sCLNode* node, sCompileInfo* info)
     char* var_name = borrow node.mStringValue;
     
     sVar* v = get_variable_from_table(info.pinfo, var_name);
-    
+
     if(v == null) {
         compile_err_msg(info, xsprintf("The variable named %s is not defined", var_name));
         return true;
@@ -577,9 +578,12 @@ sCLNode* sNodeTree_create_class(char* source, sParserInfo* info)
 
 static bool compile_class(sCLNode* node, sCompileInfo* info)
 {
+    char* sname = node.sname;
+    int sline = node.sline;
+
     char* source = node.mStringValue;
 
-    if(!eval_class(source, info)) {
+    if(!eval_class(source, info, sname, sline)) {
         return false;
     }
 
@@ -588,7 +592,7 @@ static bool compile_class(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sParserInfo* info)
+sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sCLType* block_type, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
     
@@ -603,6 +607,7 @@ sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock*
     }
 
     result.uValue.uLambda.mNodeBlock = node_block;
+    result.uValue.uLambda.mResultType = block_type;
 
     result.left = null;
     result.right = null;
@@ -613,9 +618,54 @@ sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock*
 
 static bool compile_lambda(sCLNode* node, sCompileInfo* info)
 {
+    char* sname = node.sname;
+    int sline = node.sline;
+
     sCLNodeBlock* node_block = node.uValue.uLambda.mNodeBlock;
     int num_params = node.uValue.uLambda.mNumParams;
     sCLParam* params = node.uValue.uLambda.mParams;
+    sCLType* result_type = node.uValue.uLambda.mResultType;
+
+    int node_block_index = -1;
+    info->pinfo->blocks.each {
+        if(it == node_block) {
+            node_block_index = it2;
+            *it3 = true;
+            return;
+        }
+    }
+
+    assert(node_block_index != -1);
+
+    sCompileInfo cinfo2 = *info;
+
+    xstrncpy(cinfo2.sname, sname, PATH_MAX);
+    cinfo2.sline = sline;
+
+    cinfo2.codes = borrow new buffer.initialize();
+    cinfo2.type = null;
+    cinfo2.no_output = false;
+
+    if(!compile_block(node_block, &cinfo2)) {
+        delete cinfo2.codes;
+        return false;
+    }
+
+    if(cinfo2.err_num > 0) {
+        delete cinfo2.codes;
+        return false;
+    }
+
+    node_block.codes = dummy_heap cinfo2.codes;
+    node_block->mResultType = result_type;
+
+    info.codes.append_int(OP_CREATE_BLOCK_OBJECT);
+    info.codes.append_int(node_block_index);
+
+    info.type = create_type("lambda", info.pinfo);
+    info.type.mNodeBlock = node_block;
+
+    info.stack_num++;
 
     return true;
 }
@@ -700,14 +750,13 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
 
     sCLMethod* method = klass.mMethods.at(method_name, null);
 
-    if(method == null) {
-        compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass.mName, method_name));
+    if(method == null) { compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass.mName, method_name));
         return true;
     }
 
     int var_num = get_var_num(method.mNodeBlock.vtables);
 
-    /// type checking ///
+    /// compile parametors ///
     sCLType* param_types[PARAMS_MAX];
     for(int i=1; i<num_params; i++) {
         if(!compile(params[i], info)) {
@@ -715,6 +764,11 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         }
 
         param_types[i] = info.type;
+
+        if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
+            compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
+            return true;
+        }
     }
 
     /// go ///
@@ -731,10 +785,95 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(num_params);
 
         info.codes.append_int(var_num);
+
+        bool result_existance = !type_identify_with_class_name(method->mResultType, "void", info.pinfo);
+        info.codes.append_int(result_existance);
     }
 
     info.stack_num -= num_params;
-    info.stack_num++;
+
+    if(!type_identify_with_class_name(method->mResultType, "void", info.pinfo)) {
+        info.stack_num++;
+    }
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_block_object_call(int num_params, sCLNode** params, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeBlockObjectCall;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.uValue.uMethodCall.mNumParams = num_params;
+    for(int i=0; i<num_params; i++) {
+        result.uValue.uMethodCall.mParams[i] = params[i];
+    }
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+bool compile_block_object_call(sCLNode* node, sCompileInfo* info)
+{
+    int num_params = node.uValue.uMethodCall.mNumParams;
+    sCLNode* params[PARAMS_MAX];
+    for(int i=0; i<num_params; i++) {
+        params[i] = node.uValue.uMethodCall.mParams[i];
+    }
+
+    if(!compile(params[0], info)) {
+        return false;
+    }
+
+    sCLType* node_type = info.type;
+    sCLNodeBlock* node_block = node_type->mNodeBlock;
+
+    /// compile parametors ///
+    sCLType* param_types[PARAMS_MAX];
+    for(int i=1; i<num_params; i++) {
+        if(!compile(params[i], info)) {
+            return false;
+        }
+
+        param_types[i] = info.type;
+    }
+
+    int node_block_index = -1;
+    info->pinfo->blocks.each {
+        if(it == node_block) {
+            node_block_index = it2;
+            *it3 = true;
+            return;
+        }
+    }
+
+    assert(node_block_index != -1);
+
+    /// go ///
+    if(!info.no_output) {
+        info.codes.append_int(OP_INVOKE_BLOCK_OBJECT);
+        info.codes.append_int(node_block_index);
+
+        info.codes.append_int(node_block->mVarNum);
+        info.codes.append_int(num_params);
+
+        bool result_existance = !type_identify_with_class_name(node_block->mResultType, "void", info.pinfo);
+        info.codes.append_int(result_existance);
+    }
+
+    info.stack_num -= num_params;
+
+    if(!type_identify_with_class_name(node_block->mResultType, "void", info.pinfo))
+    {
+        info.stack_num++;
+    }
 
     return true;
 }
@@ -826,6 +965,13 @@ bool compile(sCLNode* node, sCompileInfo* info)
 
         case kNodeTypeMethodCall: {
             if(!compile_method_call(node, info)) {
+                return false;
+            }
+            }
+            break;
+
+        case kNodeTypeBlockObjectCall: {
+            if(!compile_block_object_call(node, info)) {
                 return false;
             }
             }

@@ -1,4 +1,5 @@
 #include "common.h"
+#include <assert.h>
 
 void vm_err_msg(sVMInfo* info, char* msg)
 {
@@ -22,6 +23,27 @@ void print_stack(CLVALUE* stack, CLVALUE* stack_ptr, int var_num)
         p++;
     }
 }
+
+void print_method(sCLClass* klass, sCLMethod* method, int num_params, int var_num)
+{
+    printf("invoke method %s.%s num_params %d var_num %d\n", klass.mName, method.mName, num_params, var_num);
+}
+
+void print_method_end(sCLClass* klass, sCLMethod* method, CLVALUE result)
+{
+    printf("invoked method %s.%s result %d\n", klass.mName, method.mName, result.mIntValue);
+}
+
+void print_block(int num_params, int var_num)
+{
+    printf("invoke block num_params %d var_num %d\n", num_params, var_num);
+}
+
+void print_block_end(CLVALUE result)
+{
+    printf("invoked block result %d\n", result.mIntValue);
+}
+
 void print_op(int op)
 {
     switch(op) {
@@ -76,6 +98,14 @@ void print_op(int op)
         case OP_INVOKE_METHOD: 
             puts("OP_INVOKE_METHOD");
             break;
+
+        case OP_CREATE_BLOCK_OBJECT:
+            puts("OP_CREATE_BLOCK_OBJECT");
+            break;
+
+        case OP_INVOKE_BLOCK_OBJECT:
+            puts("OP_INVOKE_BLOCK_OBJECT");
+            break;
             
         default:
             printf("OP %d\n", op);
@@ -83,7 +113,7 @@ void print_op(int op)
     }
 }
 
-bool vm(buffer* codes, int var_num, int parent_stack_frame_index, sVMInfo* info)
+bool vm(buffer* codes, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info)
 {
     sCLStackFrame null_paret_stack_frame;
     memset(&null_paret_stack_frame, 0, sizeof(sCLStackFrame));
@@ -107,7 +137,14 @@ bool vm(buffer* codes, int var_num, int parent_stack_frame_index, sVMInfo* info)
     if(parent_stack_frame_index >= 0) {
         sCLStackFrame parent_stack_frame = info.stack_frames.item(parent_stack_frame_index, null_paret_stack_frame);
 
-        memcpy(&stack, &parent_stack_frame.stack, sizeof(CLVALUE)*parent_stack_frame.var_num);
+
+        if(enable_parent_stack) {
+            memcpy(stack, parent_stack_frame.stack, sizeof(CLVALUE)*parent_stack_frame.var_num);
+            memcpy(stack + head_params, (*parent_stack_frame.stack_ptr) - num_params+1, sizeof(CLVALUE)*(num_params-1));
+        }
+        else {
+            memcpy(stack, (*parent_stack_frame.stack_ptr) - num_params, sizeof(CLVALUE)*num_params);
+        }
     }
     
     while(p - head_codes < codes.len) {
@@ -169,6 +206,21 @@ print_op(op);
                 stack_ptr++;
                 }
                 break;
+
+            case OP_CREATE_BLOCK_OBJECT: {
+                int node_block_index = *p;
+                p++;
+
+                sCLNodeBlock* node_block = info->pinfo.blocks.item(node_block_index, null);
+
+                assert(node_block != null);
+
+                int obj = create_block_object(node_block, info);
+
+                stack_ptr.mObjectValue = obj;
+                stack_ptr++;
+                }
+                break;
                 
             case OP_IADD: {
                 int lvalue = (stack_ptr-2).mIntValue;
@@ -214,7 +266,7 @@ print_op(op);
             case OP_LOAD_VARIABLE: {
                 int var_index = *p;
                 p++;
-                
+
                 *stack_ptr = stack[var_index];
                 stack_ptr++;
                 }
@@ -280,6 +332,9 @@ print_op(op);
                 int var_num = *p;
                 p++;
 
+                int result_existance = *p
+                p++;
+
                 sCLClass* klass = gClasses.at(klass_name, null);
 
                 if(klass == null) {
@@ -296,23 +351,66 @@ print_op(op);
                     info.stack_frames.pop_back(null_paret_stack_frame);
                     return false;
                 }
+print_method(klass, method, num_params, var_num);
 
                 buffer* codes = method.mByteCodes;
-                if(!vm(codes, var_num, info.stack_frames.length()-1, info)) {
+                if(!vm(codes, 0, num_params, var_num, info.stack_frames.length()-1, false, info)) {
                     info.stack_frames.pop_back(null_paret_stack_frame);
                     return false;
                 }
 
-                sCLStackFrame parent_stack_frame = info.stack_frames.pop_back(null_paret_stack_frame);
-
                 stack_ptr -= num_params;
 
-                *stack_ptr = *(*parent_stack_frame.stack_ptr-1);
-                stack_ptr++;
+                if(result_existance) {
+                    sCLStackFrame parent_stack_frame = info.stack_frames.pop_back(null_paret_stack_frame);
+
+                    *stack_ptr = *(*parent_stack_frame.stack_ptr-1);
+                    stack_ptr++;
+                }
+print_method_end(klass, method, *(stack_ptr-1));
 
                 }
                 break;
-                
+
+            case OP_INVOKE_BLOCK_OBJECT: {
+                int node_block_index = *p;
+                p++;
+
+                sCLNodeBlock* node_block = info->pinfo.blocks.item(node_block_index, null);
+
+                assert(node_block != null);
+
+                int var_num = *p;
+                p++;
+
+                int num_params = *p;
+                p++;
+
+                int result_existance = *p;
+                p++;
+print_block(num_params, var_num);
+
+                buffer* codes = node_block->codes;
+
+                int head_params = node_block->head_params;
+
+                if(!vm(codes, head_params, num_params, var_num, info.stack_frames.length()-1, true, info)) {
+                    info.stack_frames.pop_back(null_paret_stack_frame);
+                    return false;
+                }
+
+                stack_ptr -= num_params;
+
+                if(result_existance) {
+                    sCLStackFrame parent_stack_frame = info.stack_frames.pop_back(null_paret_stack_frame);
+
+                    *stack_ptr = *(*parent_stack_frame.stack_ptr-1);
+                    stack_ptr++;
+                }
+print_block_end(*(stack_ptr-1));
+
+                }
+                break;
         }
 print_stack(stack, stack_ptr, var_num);
     }

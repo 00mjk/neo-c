@@ -63,13 +63,6 @@ struct sCLParam {
     sCLType* mType;
 };
 
-struct sCLBlockType {
-    sCLType* mParams[PARAMS_MAX];
-    int mNumParams;
-
-    sCLType* mResultType;
-};
-
 struct sCLType {
     string mName;
     
@@ -80,7 +73,7 @@ struct sCLType {
 
     bool mNullable;
 
-    sCLBlockType%* mBlockType;
+    sCLNodeBlock* mNodeBlock;
 };
 
 typedef bool (*fNativeMethod)(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
@@ -121,7 +114,7 @@ extern map<string, sCLClass*%>* gClasses;
 void class_init();
 void class_final();
 void append_class(char* name);
-bool eval_class(char* source, sCompileInfo* vminfo);
+bool eval_class(char* source, sCompileInfo* vminfo, char* sname, int sline);
 
 //////////////////////////////////////////
 /// compiler side
@@ -147,6 +140,7 @@ struct sCLNode {
             sCLNodeBlock* mNodeBlock;
             sCLParam mParams[PARAMS_MAX];
             int mNumParams;
+            sCLType* mResultType;
         } uLambda;
         struct {
             int mNumParams;
@@ -190,6 +184,16 @@ struct sCLNodeBlock {
     vector<sCLNode*>*% nodes;
     vector<sVarTable*%>*% vtables;
     bool has_last_value;
+
+    int mNumParams;
+    sCLParam mParams[PARAMS_MAX];
+
+    sCLType* mResultType;
+    int mVarNum;
+
+    buffer*% codes;
+
+    int head_params;
 };
 
 struct sParserInfo {
@@ -206,9 +210,11 @@ struct sParserInfo {
     vector<sVarTable*%>* vtables;
     vector<sCLNodeBlock*%>* blocks;
     vector<sCLType*%>* types;
+
+    int max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeBlockObjectCall };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -226,7 +232,7 @@ struct sCompileInfo {
     bool no_output;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -263,10 +269,12 @@ sCLNode* sNodeTree_create_string_value(char* value, sParserInfo* info);
 sCLNode* sNodeTree_create_true_value(sParserInfo* info);
 sCLNode* sNodeTree_create_false_value(sParserInfo* info);
 sCLNode* sNodeTree_create_if_expression(sCLNode* if_expression, sCLNodeBlock* if_node_block, int num_elif, sCLNode** elif_expressions, sCLNodeBlock** elif_blocks, sCLNodeBlock* else_block, sParserInfo* info);
-sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sParserInfo* info);
+sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sCLType* block_type, sParserInfo* info);
 sCLNode* sNodeTree_create_class(char* source, sParserInfo* info);
 sCLNode* sNodeTree_create_object(char* class_name_, sParserInfo* info);
+CLObject create_block_object(sCLNodeBlock* node_block, sVMInfo* info);
 sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, sParserInfo* info);
+sCLNode* sNodeTree_create_block_object_call(int num_params, sCLNode** params, sParserInfo* info);
 
 //////////////////////////////
 /// runtime side
@@ -290,7 +298,7 @@ struct sVMInfo {
 };
 
 void vm_err_msg(sVMInfo* info, char* msg);
-bool vm(buffer* codes, int var_num, int parent_stack_frame_index, sVMInfo* info);
+bool vm(buffer* codes, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info);
 CLObject alloc_heap_mem(unsigned int size, sCLClass* type, int field_num, sVMInfo* info);
 void heap_init(int heap_size, int size_handles);
 void heap_final(sVMInfo* info);
@@ -316,7 +324,18 @@ struct sCLObject {
     };
 };
 
+struct sCLBlock {
+    sCLClass* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    sCLNodeBlock* mNodeBlock;
+};
+
+
 #define CLOBJECT(obj) ((sCLObject*)(get_object_pointer((obj))))
+#define CLBLOCK(obj) ((sCLBlock*)(get_object_pointer((obj))))
 
 sCLHeapMem* get_object_pointer(CLObject obj);
 
@@ -329,7 +348,7 @@ void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info);
 
 void alignment(unsigned int* size);
 
-bool parse_block(sCLNodeBlock** node_block, sParserInfo* info);
+bool parse_block(sCLNodeBlock** node_block, int num_params, sCLParam* params, sParserInfo* info);
 bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info);
 
 #endif

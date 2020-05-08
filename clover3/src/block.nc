@@ -1,16 +1,26 @@
 #include "common.h"
 
-bool parse_block(sCLNodeBlock** node_block, sParserInfo* info)
+bool parse_block(sCLNodeBlock** node_block, int num_params, sCLParam* params, sParserInfo* info)
 {
     info.blocks.push_back(new sCLNodeBlock);
 
     *node_block = info.blocks.item(-1, null);
 
     (*node_block)->nodes = new vector<sCLNode*>.initialize();
-
     (*node_block)->vtables = clone info.vtables;
+    
+    var vtables_before = info.vtables;
+    info.vtables = (*node_block)->vtables;
 
     init_var_table(info);
+
+    (*node_block)->head_params = get_var_num(info.vtables);
+
+    for(int i=0; i<num_params; i++) {
+        sCLParam param = params[i];
+        check_already_added_variable(info, param.mName);
+        add_variable_to_table(info, param.mName, param.mType, false);
+    }
     
     while(*info->p) {
         if(*info->p == '}') {
@@ -21,7 +31,7 @@ bool parse_block(sCLNodeBlock** node_block, sParserInfo* info)
         
         sCLNode* node;
         if(!expression(&node, info)) {
-            final_var_table(info);
+            info.vtables = vtables_before;
             return false;
         }
         
@@ -38,11 +48,23 @@ bool parse_block(sCLNodeBlock** node_block, sParserInfo* info)
     
     if(info.err_num > 0) {
         fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
-        final_var_table(info);
+        info.vtables = vtables_before;
         return false;
     }
 
-    final_var_table(info);
+    int var_num = get_var_num(info.vtables);
+
+    if(var_num > info.max_var_num) {
+        info.max_var_num = var_num;
+    }
+
+    (*node_block)->mVarNum = info.max_var_num;
+    (*node_block)->mNumParams = num_params;
+    for(int i=0; i<num_params; i++) {
+        (*node_block)->mParams[i] = params[i];
+    }
+
+    info.vtables = vtables_before;
     
     return true;
 }

@@ -10,6 +10,7 @@ void class_init()
     append_class("bool");
     append_class("string");
     append_class("void");
+    append_class("lambda");
 }
 
 void class_final()
@@ -59,20 +60,20 @@ void append_method(sCLClass* klass, char* method_name, sCLType* method_type, int
     klass.mMethods.insert(string(method_name), method);
 }
 
-bool eval_class(char* source, sCompileInfo* cinfo)
+bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
 {
     sParserInfo info;
 
     info = *cinfo.pinfo;
 
     info.p = source;
-    info.sline = 1;
+    info.sline = sline-1;
 
     info.vtables = borrow new vector<sVarTable*%>.initialize();
 
     var name = parse_word(&info);
 
-    xstrncpy(info.sname, name, PATH_MAX);
+    xstrncpy(info.sname, sname, PATH_MAX);
 
     append_class(name);
     sCLClass* klass = gClasses.at(name, null);
@@ -103,7 +104,9 @@ bool eval_class(char* source, sCompileInfo* cinfo)
             var method_name = parse_word(&info);
 
             sCLParam params[PARAMS_MAX];
-            int num_params = 0;
+            int num_params = 1;
+            xstrncpy(params[0].mName, "self", VAR_NAME_MAX);
+            params[0].mType = create_type(name, &info);
 
             if(!parse_params(params, &num_params, &info)) {
                 delete info.vtables;
@@ -121,14 +124,14 @@ bool eval_class(char* source, sCompileInfo* cinfo)
             expected_next_character('{', &info);
 
             sCLNodeBlock* node_block = null;
-            if(!parse_block(&node_block, &info)) {
+            if(!parse_block(&node_block, num_params, params, &info)) {
                 delete info.vtables;
                 return false;
             }
 
             sCompileInfo cinfo2 = *cinfo;
 
-            xstrncpy(cinfo2.sname, name, PATH_MAX);
+            xstrncpy(cinfo2.sname, sname, PATH_MAX);
             cinfo2.sline = info.sline;
 
             cinfo2.err_num = 0;
@@ -147,6 +150,18 @@ bool eval_class(char* source, sCompileInfo* cinfo)
                 return false;
             }
 
+            if(!substitution_posibility(method_type, cinfo2.type)) {
+                compile_err_msg(&cinfo2, "Invalid method result type");
+                cinfo2.err_num++;
+            }
+
+            if(cinfo2.err_num > 0) {
+                fprintf(stderr, "Compile error\n");
+                delete info.vtables;
+                delete cinfo2.codes;
+                return false;
+            }
+
             expected_next_character('}', &info);
 
             append_method(klass, method_name, method_type, num_params, params, node_block, cinfo2.codes);
@@ -159,6 +174,12 @@ bool eval_class(char* source, sCompileInfo* cinfo)
             delete info.vtables;
             return false;
         }
+    }
+
+    if(info.err_num > 0) {
+        fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
+        delete info.vtables;
+        return false;
     }
 
     delete info.vtables;
