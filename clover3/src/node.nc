@@ -626,17 +626,6 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
     sCLParam* params = node.uValue.uLambda.mParams;
     sCLType* result_type = node.uValue.uLambda.mResultType;
 
-    int node_block_index = -1;
-    info->pinfo->blocks.each {
-        if(it == node_block) {
-            node_block_index = it2;
-            *it3 = true;
-            return;
-        }
-    }
-
-    assert(node_block_index != -1);
-
     sCompileInfo cinfo2 = *info;
 
     xstrncpy(cinfo2.sname, sname, PATH_MAX);
@@ -659,8 +648,13 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
     node_block.codes = dummy_heap cinfo2.codes;
     node_block->mResultType = result_type;
 
-    info.codes.append_int(OP_CREATE_BLOCK_OBJECT);
-    info.codes.append_int(node_block_index);
+    if(!info.no_output) {
+        info.codes.append_int(OP_CREATE_BLOCK_OBJECT);
+
+        info.codes.append_int(node_block->head_params);
+        info.codes.append_int(node_block->codes.len);
+        info.codes.append(node_block->codes.buf, node_block->codes.len);
+    }
 
     info.type = create_type("lambda", info.pinfo);
     info.type.mNodeBlock = node_block;
@@ -845,21 +839,9 @@ bool compile_block_object_call(sCLNode* node, sCompileInfo* info)
         param_types[i] = info.type;
     }
 
-    int node_block_index = -1;
-    info->pinfo->blocks.each {
-        if(it == node_block) {
-            node_block_index = it2;
-            *it3 = true;
-            return;
-        }
-    }
-
-    assert(node_block_index != -1);
-
     /// go ///
     if(!info.no_output) {
         info.codes.append_int(OP_INVOKE_BLOCK_OBJECT);
-        info.codes.append_int(node_block_index);
 
         info.codes.append_int(node_block->mVarNum);
         info.codes.append_int(num_params);

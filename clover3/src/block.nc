@@ -115,8 +115,3 @@ bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info)
     
     return true;
 }
-
-CLObject create_block(sCLClass* klass, sCLType* type, sVMInfo* info)
-{
-}
-

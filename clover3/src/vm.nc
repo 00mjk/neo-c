@@ -208,14 +208,17 @@ print_op(op);
                 break;
 
             case OP_CREATE_BLOCK_OBJECT: {
-                int node_block_index = *p;
+                int head_params = *p;
                 p++;
 
-                sCLNodeBlock* node_block = info->pinfo.blocks.item(node_block_index, null);
+                int codes_len = *p;
+                p++;
 
-                assert(node_block != null);
+                int* codes = p;
 
-                int obj = create_block_object(node_block, info);
+                p += codes_len / sizeof(int);
+
+                int obj = create_block_object(codes, codes_len, head_params, info);
 
                 stack_ptr.mObjectValue = obj;
                 stack_ptr++;
@@ -373,13 +376,6 @@ print_method_end(klass, method, *(stack_ptr-1));
                 break;
 
             case OP_INVOKE_BLOCK_OBJECT: {
-                int node_block_index = *p;
-                p++;
-
-                sCLNodeBlock* node_block = info->pinfo.blocks.item(node_block_index, null);
-
-                assert(node_block != null);
-
                 int var_num = *p;
                 p++;
 
@@ -388,13 +384,22 @@ print_method_end(klass, method, *(stack_ptr-1));
 
                 int result_existance = *p;
                 p++;
+
+                int block_object = (*(stack_ptr-num_params)).mObjectValue;
+
+                sCLBlock* block_data = CLBLOCK(block_object);
+
+                int* codes = block_data->codes;
+                int codes_len = block_data->codes_len;
+                int head_params = block_data->head_params;
+
+                buffer*% buffer = new buffer.initialize();
+
+                buffer.append((char*)codes, codes_len);
+
 print_block(num_params, var_num);
 
-                buffer* codes = node_block->codes;
-
-                int head_params = node_block->head_params;
-
-                if(!vm(codes, head_params, num_params, var_num, info.stack_frames.length()-1, true, info)) {
+                if(!vm(buffer, head_params, num_params, var_num, info.stack_frames.length()-1, true, info)) {
                     info.stack_frames.pop_back(null_paret_stack_frame);
                     return false;
                 }
