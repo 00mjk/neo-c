@@ -1,2 +1,1 @@
-class compiler & 埋め込みstring \{ } & stringに型変換 method
-lambda & block object & function
+method block, return, throw, try&catch

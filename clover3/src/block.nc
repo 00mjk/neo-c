@@ -80,13 +80,17 @@ bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info)
 
     bool return_false = false;
 
+    if(nodes.length() == 0) {
+        info.type = create_type("void", info.pinfo);
+    }
+
     nodes.each {
         int sline = it.sline;
     
         sCLNode* node = it;
         
         info.sline = sline;
-        
+
         if(!compile(node, info)) {
             *it3 = true;
             return_false = true;

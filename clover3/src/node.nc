@@ -657,7 +657,13 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
     }
 
     info.type = create_type("lambda", info.pinfo);
-    info.type.mNodeBlock = node_block;
+    info.type.mResultType = node_block->mResultType;
+    info.type.mNumParams = node_block->mNumParams;
+    for(int i=0; i<node_block->mNumParams; i++) 
+    {
+        info.type.mParams[i] = node_block->mParams[i];
+    }
+    info.type.mVarNum = node_block->mVarNum;
 
     info.stack_num++;
 
@@ -827,7 +833,6 @@ bool compile_block_object_call(sCLNode* node, sCompileInfo* info)
     }
 
     sCLType* node_type = info.type;
-    sCLNodeBlock* node_block = node_type->mNodeBlock;
 
     /// compile parametors ///
     sCLType* param_types[PARAMS_MAX];
@@ -843,16 +848,16 @@ bool compile_block_object_call(sCLNode* node, sCompileInfo* info)
     if(!info.no_output) {
         info.codes.append_int(OP_INVOKE_BLOCK_OBJECT);
 
-        info.codes.append_int(node_block->mVarNum);
+        info.codes.append_int(node_type->mVarNum);
         info.codes.append_int(num_params);
 
-        bool result_existance = !type_identify_with_class_name(node_block->mResultType, "void", info.pinfo);
+        bool result_existance = !type_identify_with_class_name(node_type->mResultType, "void", info.pinfo);
         info.codes.append_int(result_existance);
     }
 
     info.stack_num -= num_params;
 
-    if(!type_identify_with_class_name(node_block->mResultType, "void", info.pinfo))
+    if(!type_identify_with_class_name(node_type->mResultType, "void", info.pinfo))
     {
         info.stack_num++;
     }

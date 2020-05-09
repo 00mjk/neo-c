@@ -244,6 +244,29 @@ bool parse_type(sCLType** type, sParserInfo* info)
 
     *type = create_type(name, info);
 
+    if(strcmp(name, "lambda") == 0) {
+        sCLParam params[PARAMS_MAX];
+        int num_params = 0;
+
+        if(!parse_params(params, &num_params, info)) {
+            return false;
+        }
+
+        (*type)->mNumParams = num_params;
+        for(int i=0; i<num_params; i++) {
+            (*type)->mParams[i] = params[i];
+        }
+
+        expected_next_character(':', info);
+
+        sCLType* result_type = NULL;
+        if(!parse_type(&result_type, info)) {
+            return false;
+        }
+
+        (*type)->mResultType = result_type;
+    }
+
     if((*type).mClass == null) {
         parser_err_msg(info, xsprintf("invalid type name(%s)", name));
     }

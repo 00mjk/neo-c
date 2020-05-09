@@ -73,7 +73,12 @@ struct sCLType {
 
     bool mNullable;
 
-    sCLNodeBlock* mNodeBlock;
+    sCLParam mParams[PARAMS_MAX];
+    int mNumParams;
+
+    sCLType* mResultType;
+
+    int mVarNum;
 };
 
 typedef bool (*fNativeMethod)(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
