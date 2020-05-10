@@ -34,24 +34,25 @@
 #    b = 2;
 #    2 + a + b
 #}
-#
+
 #aaa(3)
 #b
 
-# test 4
-class HelloClass2 {
-    var a:int;
-    var b:int;
-
-    def method(a:int, block:lambda(b:int):int) : int {
-        a + block(2)
-    }
-}
-
-#var obj2 = HelloClass2();
-
-#var a = 1;
+## test 4
+#class HelloClass2 {
+#    var a:int;
+#    var b:int;
 #
-#obj2.method(2) {
-#    it + 2 + a
+#    def method(a:int, block:lambda(b:int):int) : int {
+#        a + block(2)
+#    }
 #}
+#
+#var obj2 = HelloClass2();
+#
+##var a = 1;
+#
+#obj2.method(1, lambda(b:int):int {
+#    b + 4
+#});
+#

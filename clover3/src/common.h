@@ -277,7 +277,7 @@ sCLNode* sNodeTree_create_if_expression(sCLNode* if_expression, sCLNodeBlock* if
 sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sCLType* block_type, sParserInfo* info);
 sCLNode* sNodeTree_create_class(char* source, sParserInfo* info);
 sCLNode* sNodeTree_create_object(char* class_name_, sParserInfo* info);
-CLObject create_block_object(int* codes, int codes_len, int head_params, sVMInfo* info);
+CLObject create_block_object(int* codes, int codes_len, int head_params, int var_num, int stack_frame_index, sVMInfo* info);
 sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, sParserInfo* info);
 sCLNode* sNodeTree_create_block_object_call(int num_params, sCLNode** params, sParserInfo* info);
 
@@ -285,6 +285,8 @@ sCLNode* sNodeTree_create_block_object_call(int num_params, sCLNode** params, sP
 /// runtime side
 //////////////////////////////
 struct sCLStackFrame {
+    int index;
+
     CLVALUE* stack;
     CLVALUE** stack_ptr;
     int var_num;
@@ -338,6 +340,8 @@ struct sCLBlock {
     int* codes;
     int codes_len;
     int head_params;
+    int stack_frame_index;
+    int var_num;
 };
 
 

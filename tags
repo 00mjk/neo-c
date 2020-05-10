@@ -11,7 +11,7 @@ BUFFER_H	src/buffer.h	2;"	d
 CC	Makefile	/^CC=clang$/;"	m
 CC	clover3/Makefile	/^CC=neo-c$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O3$/;"	m
-CFLAGS	clover3/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -fPIC -rdynamic -DPREFIX="\\"${DESTDIR}\/\\"" -O2 -Qunused-arguments$/;"	m
+CFLAGS	clover3/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/data\/data\/com.termux\/files\/home\/include -L\/data\/data\/com.termux\/files\/home\/lib -fPIC -rdynamic -DPREFIX="\\"${DESTDIR}\/\\"" -O2 -Qunused-arguments$/;"	m
 CLASS_FLAGS_ANONYMOUS	src/common.h	85;"	d
 CLASS_FLAGS_ANONYMOUS_VAR_NAME	src/common.h	87;"	d
 CLASS_FLAGS_ENUM	src/common.h	86;"	d
@@ -24,8 +24,8 @@ CLASS_FLAGS_UNION	src/common.h	84;"	d
 CLASS_FLAGS_UNSIGNED_NUMBER	src/common.h	81;"	d
 CLASS_NAME	src/common.h	108;"	d
 CLASS_NUM_MAX	src/common.h	21;"	d
-CLBLOCK	clover3/src/common.h	345;"	d
-CLOBJECT	clover3/src/common.h	344;"	d
+CLBLOCK	clover3/src/common.h	349;"	d
+CLOBJECT	clover3/src/common.h	348;"	d
 CLObject	clover3/src/common.h	/^typedef unsigned int CLObject;$/;"	t
 CLVALUE	clover3/src/common.h	/^union CLVALUE {$/;"	u
 COMMAND_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
@@ -39,8 +39,8 @@ CXX	Makefile	/^CXX=clang++$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . -I src -DPREFIX="\\"${DESTDIR}\/\\""$/;"	m
 DBuilder	src/llvm.cpp	/^DIBuilder* DBuilder;$/;"	v
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
-DESTDIR	clover3/Makefile	/^DESTDIR=\/usr\/local$/;"	m
-DUMMY_ARRAY_SIZE	clover3/src/common.h	318;"	d
+DESTDIR	clover3/Makefile	/^DESTDIR=\/data\/data\/com.termux\/files\/home$/;"	m
+DUMMY_ARRAY_SIZE	clover3/src/common.h	320;"	d
 DblTy	src/llvm.cpp	/^    DIType* DblTy;$/;"	m	struct:DebugInfo	file:
 DebugInfo	src/llvm.cpp	/^struct DebugInfo {$/;"	s	file:
 ELIF_MAX	clover3/src/common.h	41;"	d
@@ -249,6 +249,7 @@ append_str_to_constant_pool	src/constant.c	/^unsigned int append_str_to_constant
 append_wstr_to_constant_pool	src/constant.c	/^unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
+as_fn_append	clover3/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	clover3/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
@@ -256,6 +257,7 @@ as_fn_append	tiny/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	wi/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	wi/configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	clover3/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	clover3/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
@@ -263,6 +265,7 @@ as_fn_arith	tiny/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	wi/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	wi/configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	clover3/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	clover3/configure	/^as_fn_error ()$/;"	f
 as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
@@ -270,6 +273,7 @@ as_fn_error	tiny/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/configure	/^as_fn_error ()$/;"	f
 as_fn_error	wi/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	wi/configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	clover3/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	clover3/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
@@ -277,6 +281,7 @@ as_fn_executable_p	tiny/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	wi/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	wi/configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	clover3/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	clover3/configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
@@ -288,6 +293,7 @@ as_fn_failure	clover3/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	tiny/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	wi/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	clover3/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	clover3/configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
@@ -303,6 +309,7 @@ as_fn_ret_success	clover3/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	tiny/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	wi/configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	clover3/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	clover3/configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
@@ -314,6 +321,7 @@ as_fn_success	clover3/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	tiny/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	wi/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	clover3/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	clover3/configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
@@ -697,6 +705,7 @@ in_inline_function	src/common.h	/^    BOOL in_inline_function;$/;"	m	struct:sCom
 included_generics_type	src/node_type.c	/^BOOL included_generics_type(sNodeType* node_type, sCLClass* checked_class[], int* num_checked_class)$/;"	f
 includedir	Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 includedir	clover3/Makefile	/^includedir=${prefix}\/include\/clover3$/;"	m
+index	clover3/src/common.h	/^    int index;$/;"	m	struct:sCLStackFrame
 init_block_vtable	src/vtable.c	/^sVarTable* init_block_vtable(sVarTable* lv_table, BOOL no_increment_block_level)$/;"	f
 init_macro	src/macro.c	/^void init_macro()$/;"	f
 init_node_types	src/node_type.c	/^void init_node_types()$/;"	f
@@ -1338,7 +1347,7 @@ pinfo	clover3/src/common.h	/^    sParserInfo* pinfo;$/;"	m	struct:sVMInfo
 pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sParserInfoStruct
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sParserInfo* info)$/;"	f	file:
 prefix	Makefile	/^prefix=\/usr\/local$/;"	m
-prefix	clover3/Makefile	/^prefix=\/usr\/local$/;"	m
+prefix	clover3/Makefile	/^prefix=\/data\/data\/com.termux\/files\/home$/;"	m
 preprocess_source	src/preprocessor.c	/^static BOOL preprocess_source(char* sname, char* output_sname)$/;"	f	file:
 preprocessor	src/preprocessor.c	/^static BOOL preprocessor(sBuf* source, sBuf* source2)$/;"	f	file:
 preprocessor_final	src/preprocessor.c	/^static void preprocessor_final()$/;"	f	file:
@@ -1646,6 +1655,7 @@ squort	neo-c.h	/^    squort = false;$/;"	m	struct:tuple
 stack	clover3/src/common.h	/^    CLVALUE* stack;$/;"	m	struct:sCLStackFrame
 stack	tiny/common.h	/^    vector<TVALUE*%>*% stack;$/;"	m	struct:TinyVM
 stackValue	tiny/common.h	/^    int stackValue;$/;"	m	struct:TinyNode
+stack_frame_index	clover3/src/common.h	/^    int stack_frame_index;$/;"	m	struct:sCLBlock
 stack_frames	clover3/src/common.h	/^    vector<sCLStackFrame>* stack_frames;$/;"	m	struct:sVMInfo
 stack_num	clover3/src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfo
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
@@ -1733,6 +1743,7 @@ value	src/llvm_common.hpp	/^    Value* value;$/;"	m	struct:LVALUEStruct
 var	src/llvm_common.hpp	/^    sVar* var;$/;"	m	struct:LVALUEStruct
 varName	tiny/common.h	/^    string varName;$/;"	m	struct:version
 varValue	tiny/common.h	/^    TinyNode%* varValue;$/;"	m	struct:version
+var_num	clover3/src/common.h	/^    int var_num;$/;"	m	struct:sCLBlock
 var_num	clover3/src/common.h	/^    int var_num;$/;"	m	struct:sCLStackFrame
 vector	code/neo-c.h	/^struct vector<T> $/;"	s
 vector	neo-c.h	/^struct vector<T> $/;"	s

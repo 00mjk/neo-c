@@ -91,7 +91,7 @@ static cllong block_object_size()
     return size;
 }
 
-CLObject create_block_object(int* codes, int codes_len, int head_params, sVMInfo* info)
+CLObject create_block_object(int* codes, int codes_len, int head_params , int var_num, int stack_frame_index, sVMInfo* info)
 {
     unsigned int size = (unsigned int)block_object_size();
 
@@ -108,6 +108,8 @@ CLObject create_block_object(int* codes, int codes_len, int head_params, sVMInfo
     block_data->codes = codes;
     block_data->codes_len = codes_len;
     block_data->head_params = head_params;
+    block_data->stack_frame_index = stack_frame_index;
+    block_data->var_num = var_num;
 
     return obj;
 }

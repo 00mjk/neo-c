@@ -652,6 +652,7 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(OP_CREATE_BLOCK_OBJECT);
 
         info.codes.append_int(node_block->head_params);
+        info.codes.append_int(node_block->mVarNum);
         info.codes.append_int(node_block->codes.len);
         info.codes.append(node_block->codes.buf, node_block->codes.len);
     }

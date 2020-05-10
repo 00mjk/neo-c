@@ -113,7 +113,7 @@ void print_op(int op)
     }
 }
 
-void repare_vm_stack(CLVALUE* stack, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info)
+void ready_for_vm_stack(CLVALUE* stack, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info)
 {
     sCLStackFrame null_paret_stack_frame;
     memset(&null_paret_stack_frame, 0, sizeof(sCLStackFrame));
@@ -124,7 +124,9 @@ void repare_vm_stack(CLVALUE* stack, int head_params, int num_params, int var_nu
 
         if(enable_parent_stack) {
             memcpy(stack, parent_stack_frame.stack, sizeof(CLVALUE)*parent_stack_frame.var_num);
-            memcpy(stack + head_params, (*parent_stack_frame.stack_ptr) - num_params+1, sizeof(CLVALUE)*(num_params-1));
+            sCLStackFrame parent_stack_frame2 = info.stack_frames.item(-2, null_paret_stack_frame);
+            
+            memcpy(stack + head_params, (*parent_stack_frame2.stack_ptr) - (num_params-1), sizeof(CLVALUE)*(num_params-1));
         }
         else {
             memcpy(stack, (*parent_stack_frame.stack_ptr) - num_params, sizeof(CLVALUE)*num_params);
@@ -165,10 +167,11 @@ bool vm(buffer* codes, int head_params, int num_params, int var_num, int parent_
     stack_frame.stack = stack;
     stack_frame.stack_ptr = &stack_ptr;
     stack_frame.var_num = var_num;
+    stack_frame.index = info.stack_frames.length();
 
     info.stack_frames.push_back(stack_frame);
 
-    repare_vm_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
+    ready_for_vm_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
     
     while(p - head_codes < codes.len) {
         int op = *p;
@@ -235,6 +238,9 @@ print_op(op);
                 int head_params = *p;
                 p++;
 
+                int var_num = *p;
+                p++;
+
                 int codes_len = *p;
                 p++;
 
@@ -242,7 +248,7 @@ print_op(op);
 
                 p += codes_len / sizeof(int);
 
-                int obj = create_block_object(codes, codes_len, head_params, info);
+                int obj = create_block_object(codes, codes_len, head_params, var_num, info.stack_frames.length()-1, info);
 
                 stack_ptr.mObjectValue = obj;
                 stack_ptr++;
@@ -419,14 +425,17 @@ print_method_end(klass, method, *(stack_ptr-1));
                 int* codes = block_data->codes;
                 int codes_len = block_data->codes_len;
                 int head_params = block_data->head_params;
+                int parent_stack_frame_index = block_data->stack_frame_index;
+
+                int var_num2 = block_data->var_num;
 
                 buffer*% buffer = new buffer.initialize();
 
                 buffer.append((char*)codes, codes_len);
 
-print_block(num_params, var_num);
+print_block(num_params, var_num2);
 
-                if(!vm(buffer, head_params, num_params, var_num, info.stack_frames.length()-1, true, info)) {
+                if(!vm(buffer, head_params, num_params, var_num2, parent_stack_frame_index, true, info)) {
                     info.stack_frames.pop_back(null_paret_stack_frame);
                     update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
                     return false;
