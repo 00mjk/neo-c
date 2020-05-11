@@ -125,7 +125,7 @@ void expected_next_character(char c, sParserInfo* info)
         skip_spaces_and_lf(info);
     }
     else {
-        parser_err_msg(info, xsprintf("expects next character %c, but it is %c", c, *info->p));
+        parser_err_msg(info, xsprintf("expects next character %c, but it is (character code %d)(%c)", c, *info->p, *info->p));
 
         info->p++;
         skip_spaces_and_lf(info);
@@ -346,27 +346,26 @@ bool parse_lambda_expression(sCLNode** node, sParserInfo* info)
     return true;
 }
 
-bool parse_class(sCLNode** node, sParserInfo* info) 
+static bool get_block_text(buffer* buf, sParserInfo* info)
 {
-    string name = parse_word(info);
-
-    buffer*% buf = new buffer.initialize();
-
-    buf.append_str(name);
-    buf.append_char(' ');
-
     bool dquort = false;
     int nest = 0;
     while(true) {
         if(dquort && *info->p == '\\') {
             buf.append_char(*info->p);
             info->p++;
+            if(*info->p == '\n') {
+                info->sline++;
+            }
             buf.append_char(*info->p);
             info->p++;
         }
         else if(!dquort && *info->p == '\'') {
             buf.append_char(*info->p);
             info->p++;
+            if(*info->p == '\n') {
+                info->sline++;
+            }
             buf.append_char(*info->p);
             info->p++;
         }
@@ -376,6 +375,9 @@ bool parse_class(sCLNode** node, sParserInfo* info)
             info->p++;
         }
         else if(dquort) {
+            if(*info->p == '\n') {
+                info->sline++;
+            }
             buf.append_char(*info->p);
             info->p++;
         }
@@ -397,20 +399,42 @@ bool parse_class(sCLNode** node, sParserInfo* info)
             nest--;
         }
         else {
+            if(*info->p == '\n') {
+                info->sline++;
+            }
             buf.append_char(*info->p);
             info->p++;
         }
     };
 
-    *node = sNodeTree_create_class(buf.buf, info);
+    return true;
+}
+
+bool parse_class(sCLNode** node, sParserInfo* info) 
+{
+    int sline = info->sline;
+    string name = parse_word(info);
+
+    buffer*% block_text = new buffer.initialize();
+
+    block_text.append_str(name);
+    block_text.append_char(' ');
+
+    if(!get_block_text(block_text, info)) {
+        return false;
+    };
+
+    *node = sNodeTree_create_class(block_text.buf, info.sname, sline, info);
 
     return true;
 }
+
 
 bool parse_calling_params(int* num_params, sCLNode** params, sParserInfo* info) 
 {
     while(true) {
         if(*info->p == ')') {
+            expected_next_character(')', info);
             break;
         }
 
@@ -428,6 +452,7 @@ bool parse_calling_params(int* num_params, sCLNode** params, sParserInfo* info)
         }
 
         if(*info->p == ')') {
+            expected_next_character(')', info);
             break;
         }
         else if(*info->p == '\0') {
@@ -438,7 +463,27 @@ bool parse_calling_params(int* num_params, sCLNode** params, sParserInfo* info)
             skip_spaces_and_lf(info);
         }
     }
-    
+
+    /// method block ///
+    if(*info->p == '{') {
+        int sline = info.sline;
+
+        expected_next_character('{', info);
+
+        var block_text = new buffer.initialize();
+        if(!get_block_text(block_text, info)) {
+            return false;
+        }
+
+        params[*num_params] = sNodeTree_create_method_block(info->sname, sline, block_text, info);
+        (*num_params)++;
+
+        if(*num_params >= PARAMS_MAX) {
+            fprintf(stderr, "overflow pram number\n");
+            exit(1);
+        }
+    }
+
     return true;
 }
 
@@ -469,9 +514,7 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
                 if(!parse_calling_params(&num_params, params, info)) 
                 {
                     return false;
-                }
-
-                expected_next_character(')', info);
+                };
 
                 *node = sNodeTree_create_method_call(name, num_params, params, info);
             }
@@ -493,9 +536,7 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
             if(!parse_calling_params(&num_params, params, info)) 
             {
                 return false;
-            }
-
-            expected_next_character(')', info);
+            };
 
             *node = sNodeTree_create_block_object_call(num_params, params, info);
         }

@@ -558,14 +558,14 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-sCLNode* sNodeTree_create_class(char* source, sParserInfo* info)
+sCLNode* sNodeTree_create_class(char* source, char* sname, int sline, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
     
     result.type = kNodeTypeClass;
     
-    xstrncpy(result.sname, info.sname, PATH_MAX);
-    result.sline = info.sline;
+    xstrncpy(result.sname, sname, PATH_MAX);
+    result.sline = sline;
 
     result.mStringValue = string(source);
 
@@ -645,6 +645,13 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
+    if(!substitution_posibility(result_type, cinfo2.type))
+    {
+        compile_err_msg(&cinfo2, "block result error");
+        delete cinfo2.codes;
+        return true;
+    }
+
     node_block.codes = dummy_heap cinfo2.codes;
     node_block->mResultType = result_type;
 
@@ -658,7 +665,7 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
     }
 
     info.type = create_type("lambda", info.pinfo);
-    info.type.mResultType = node_block->mResultType;
+    info.type.mResultType = result_type;
     info.type.mNumParams = node_block->mNumParams;
     for(int i=0; i<node_block->mNumParams; i++) 
     {
@@ -669,6 +676,29 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
     info.stack_num++;
 
     return true;
+}
+
+sCLNode* sNodeTree_create_method_block(char* sname, int sline, buffer*% block_text, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeMethodBlock;
+    
+    xstrncpy(result.sname, sname, PATH_MAX);
+    result.sline = sline;
+
+    result.mBufferValue = block_text;
+
+    result.uValue.uLambda.mNumParams = 0;
+
+    result.uValue.uLambda.mNodeBlock = null;
+    result.uValue.uLambda.mResultType = null;
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
 }
 
 sCLNode* sNodeTree_create_object(char* class_name_, sParserInfo* info)
@@ -758,17 +788,65 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
     int var_num = get_var_num(method.mNodeBlock.vtables);
 
     /// compile parametors ///
+    if(method->mNumParams != num_params) {
+        compile_err_msg(info, xsprintf("invalid method prametor number.  invalid %d number instead of %d(%s.%s)", num_params, method->mNumParams, klass.mName, method_name));
+        return true;
+    }
+
     sCLType* param_types[PARAMS_MAX];
     for(int i=1; i<num_params; i++) {
-        if(!compile(params[i], info)) {
-            return false;
+        if(params[i].type == kNodeTypeMethodBlock) {
+            sCLNode* node = params[i];
+
+            sCLType* method_param_type = method->mParams[i].mType;
+
+            node.uValue.uLambda.mNumParams = method_param_type->mNumParams;
+            for(int j=0; j<method_param_type->mNumParams; j++) {
+                node.uValue.uLambda.mParams[i] = method_param_type->mParams[j];
+            }
+
+            node.uValue.uLambda.mResultType = method_param_type->mResultType;
+
+            char* p_before = info->pinfo->p;
+            int sline_before = info->pinfo->sline;
+            info->pinfo->p = node.mBufferValue.buf;
+            info->pinfo->sline = node.sline;
+
+            sCLNodeBlock* node_block = null;
+            if(!parse_block(&node_block, method_param_type->mNumParams, method_param_type->mParams, info->pinfo))
+            {
+                info->pinfo->p = p_before;
+                info->pinfo->sline = sline_before;
+                return false;
+            }
+
+            info->pinfo->p = p_before;
+            info->pinfo->sline = sline_before;
+
+            node.uValue.uLambda.mNodeBlock = node_block;
+
+            if(!compile(params[i], info)) {
+                return false;
+            }
+
+            param_types[i] = info.type;
+
+            if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
+                compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
+                return true;
+            }
         }
+        else {
+            if(!compile(params[i], info)) {
+                return false;
+            }
 
-        param_types[i] = info.type;
+            param_types[i] = info.type;
 
-        if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
-            compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
-            return true;
+            if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
+                compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
+                return true;
+            }
         }
     }
 
@@ -833,7 +911,12 @@ bool compile_block_object_call(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
-    sCLType* node_type = info.type;
+    sCLType* block_type = info.type;
+
+    if(block_type->mNumParams != num_params-1) {
+        compile_err_msg(info, xsprintf("invalid block param parametor number. valid is %d. This is %d", block_type->mNumParams, num_params-1));
+        return true;
+    }
 
     /// compile parametors ///
     sCLType* param_types[PARAMS_MAX];
@@ -843,22 +926,28 @@ bool compile_block_object_call(sCLNode* node, sCompileInfo* info)
         }
 
         param_types[i] = info.type;
+
+        if(!substitution_posibility(block_type.mParams[i-1].mType, param_types[i])) 
+        {
+            compile_err_msg(info, xsprintf("block param error #%d.", i));
+            return true;
+        }
     }
 
     /// go ///
     if(!info.no_output) {
         info.codes.append_int(OP_INVOKE_BLOCK_OBJECT);
 
-        info.codes.append_int(node_type->mVarNum);
+        info.codes.append_int(block_type->mVarNum);
         info.codes.append_int(num_params);
 
-        bool result_existance = !type_identify_with_class_name(node_type->mResultType, "void", info.pinfo);
+        bool result_existance = !type_identify_with_class_name(block_type->mResultType, "void", info.pinfo);
         info.codes.append_int(result_existance);
     }
 
     info.stack_num -= num_params;
 
-    if(!type_identify_with_class_name(node_type->mResultType, "void", info.pinfo))
+    if(!type_identify_with_class_name(block_type->mResultType, "void", info.pinfo))
     {
         info.stack_num++;
     }
@@ -933,6 +1022,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
             break;
 
         case kNodeTypeLambda:
+            if(!compile_lambda(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeMethodBlock:
             if(!compile_lambda(node, info)) {
                 return false;
             }

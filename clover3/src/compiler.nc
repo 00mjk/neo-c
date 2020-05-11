@@ -61,7 +61,7 @@ bool compile_script(char* fname, buffer* source)
     
     info.p = source.buf;
     xstrncpy(info.sname, fname, PATH_MAX);
-    info.sline = 0;
+    info.sline = 1;
     
     info.err_output_num = 0;
     

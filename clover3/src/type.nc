@@ -28,6 +28,31 @@ bool type_identify(sCLType* left_type, sCLType* right_type)
 
 bool substitution_posibility(sCLType* left_type, sCLType* right_type)
 {
+    sCLClass* left_class = left_type.mClass;
+    sCLClass* right_class = right_type.mClass;
+
+    if(strcmp(left_class.mName, "lambda") == 0
+        && strcmp(right_class.mName, "lambda") == 0)
+    {
+        if(!substitution_posibility(left_type.mResultType, right_type.mResultType))
+        {
+            return false;
+        }
+
+        if(left_type.mNumParams != right_type.mNumParams) {
+            return false;
+        }
+
+        for(int i=0; i<left_type.mNumParams; i++) {
+            if(!substitution_posibility(left_type.mParams[i].mType, right_type.mParams[i].mType))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     return type_identify(left_type, right_type);
 }
 
