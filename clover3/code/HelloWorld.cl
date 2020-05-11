@@ -1,20 +1,22 @@
 # test4
-class HelloClass2 {
-    var a:int;
-    var b:int;
+#class HelloClass2 {
+#    var a:int;
+#    var b:int;
+#
+#    def method(a:int, block:lambda(b:int):int) : int {
+#        a + block(2)
+#    }
+#}
+#
+#var obj2 = HelloClass2();
+#
+#var c = 1;
+#
+#obj2.method(2) {
+#    c + b + 2
+#}
 
-    def method(a:int, block:lambda(b:int):int) : int {
-        a + block(2)
-    }
-}
-
-var obj2 = HelloClass2();
-
-var c = 1;
-
-obj2.method(2) {
-    c + b + 2
-}
+echo("HELLO WORLD");
 
 
 

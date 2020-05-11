@@ -9,6 +9,7 @@ void class_init()
     append_class("int");
     append_class("bool");
     append_class("string");
+    append_class("command");
     append_class("void");
     append_class("lambda");
 }

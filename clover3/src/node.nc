@@ -878,6 +878,76 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_command_call(char* name, int num_params, sCLNode** params, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeCommandCall;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.mStringValue = string(name);
+
+    result.uValue.uMethodCall.mNumParams = num_params;
+    for(int i=0; i<num_params; i++) {
+        result.uValue.uMethodCall.mParams[i] = params[i];
+    }
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+bool compile_command_call(sCLNode* node, sCompileInfo* info)
+{
+    char* method_name = node.mStringValue;
+
+    int num_params = node.uValue.uMethodCall.mNumParams;
+    sCLNode* params[PARAMS_MAX];
+    for(int i=0; i<num_params; i++) {
+        params[i] = node.uValue.uMethodCall.mParams[i];
+    }
+
+    sCLType* string_type = create_type("string", info.pinfo);
+
+    sCLType* param_types[PARAMS_MAX];
+    for(int i=0; i<num_params; i++) {
+        if(!compile(params[i], info)) {
+            return false;
+        }
+
+        param_types[i] = info.type;
+
+        if(!substitution_posibility(param_types[i], string_type)) 
+        {
+            compile_err_msg(info, xsprintf("command param error #%d. It is not string.", i));
+            return true;
+        }
+    }
+
+printf("NUM_PARRAMS %d\n", num_params);
+
+    /// go ///
+    if(!info.no_output) {
+        info.codes.append_int(OP_INVOKE_COMMAND);
+
+        info.codes.append_str(method_name);
+
+        info.codes.alignment();
+
+        info.codes.append_int(num_params);
+    }
+
+    info.stack_num -= num_params;
+
+    info.stack_num++;
+
+    return true;
+}
+
 sCLNode* sNodeTree_create_block_object_call(int num_params, sCLNode** params, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
@@ -1048,6 +1118,13 @@ bool compile(sCLNode* node, sCompileInfo* info)
 
         case kNodeTypeMethodCall: {
             if(!compile_method_call(node, info)) {
+                return false;
+            }
+            }
+            break;
+
+        case kNodeTypeCommandCall: {
+            if(!compile_command_call(node, info)) {
                 return false;
             }
             }

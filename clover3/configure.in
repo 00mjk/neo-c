@@ -1,4 +1,4 @@
-AC_INIT(src/main.nc)
+AC_INIT(src/compiler.nc)
 
 AC_CONFIG_HEADER(config.h)
 
@@ -219,6 +219,10 @@ fi
 AC_CHECK_HEADER(math.h, [AC_DEFINE(HAVE_MATH_H,1)], [])
 AC_HAVE_LIBRARY(m, [ LIBS="$LIBS -lm"; ], [])
 AC_CHECK_HEADER(iconv.h, [AC_DEFINE(HAVE_ICONV_H, 1)], [])
+
+AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
+AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
+AC_SUBST(ENABLE_THREAD)
 
 if test "$OS" = CYGWIN || test "$OS" = DARWIN || test "$OS" = FREEBSD
 then

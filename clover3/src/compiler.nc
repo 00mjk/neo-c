@@ -1,4 +1,18 @@
 #include "common.h"
+#include <signal.h>
+
+static void set_signal()
+{
+    struct sigaction sa;
+    sigset_t signal_set;
+
+    sigemptyset(&signal_set);
+    sigaddset(&signal_set, SIGTTOU);
+    sigaddset(&signal_set, SIGTTIN);
+    sigaddset(&signal_set, SIGPIPE);
+
+    sigprocmask(SIG_BLOCK, &signal_set, NULL);
+}
 
 static void compiler_init(bool no_load_fudamental_classes)
 {
@@ -221,6 +235,8 @@ int main(int argc, char** argv)
     int i;
 
     setlocale(LC_ALL, "");
+
+    set_signal();
 
     bool no_load_fudamental_classes = false;
     char sname[PATH_MAX];

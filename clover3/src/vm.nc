@@ -1,5 +1,7 @@
 #include "common.h"
 #include <assert.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 void vm_err_msg(sVMInfo* info, char* msg)
 {
@@ -106,6 +108,10 @@ void print_op(int op)
         case OP_INVOKE_BLOCK_OBJECT:
             puts("OP_INVOKE_BLOCK_OBJECT");
             break;
+
+        case OP_INVOKE_COMMAND:
+            puts("OP_INVOKE_COMMAND");
+            break;
             
         default:
             printf("OP %d\n", op);
@@ -147,6 +153,47 @@ void update_parent_stack(CLVALUE* stack, int head_params, int num_params, int va
             memcpy(parent_stack_frame.stack, stack, sizeof(CLVALUE)*parent_stack_frame.var_num);
         }
     }
+}
+
+bool invoke_command_with_control_terminal(char* name, char** argv, CLVALUE** stack_ptr, sVMInfo* info)
+{
+    pid_t pid = fork();
+    
+    if(pid == 0) {
+        pid = getpid();
+
+        setpgid(0, 0);
+        tcsetpgrp(0, pid);
+
+        if(execvp(name, argv) < 0) {
+            fprintf(stderr, "execv error\n");
+            exit(64);
+        }
+
+        exit(0);
+    }
+
+    setpgid(pid, pid);
+    tcsetpgrp(0, pid);
+
+    int status = 0;
+
+    pid_t pid2 = waitpid(pid, &status, WUNTRACED);
+
+    if(WEXITSTATUS(status) == 64) {
+        fprintf(stderr, "Command not found\n");
+        exit(1);
+    }
+
+    setpgid(getpid(), getpid());
+    tcsetpgrp(0, getpid());
+
+    int rcode = WEXITSTATUS(status);
+
+    (*stack_ptr)->mObjectValue = create_command_object("", rcode, info);
+    (*stack_ptr)++;
+
+    return true;
 }
 
 bool vm(buffer* codes, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info)
@@ -194,8 +241,10 @@ print_op(op);
                 
             case OP_STRING_VALUE: {
                 char* str = (char*)p;
-                int len = strlen(str);
+                int len = strlen(str) + 1;
+
                 alignment(&len);
+
                 len = len / sizeof(int);
 
                 p += len;
@@ -210,7 +259,7 @@ print_op(op);
             case OP_CREATE_OBJECT: {
                 char* name = (char*)p;
 
-                int len = strlen(name);
+                int len = strlen(name) + 1;
 
                 alignment(&len);
 
@@ -341,7 +390,7 @@ print_op(op);
             case OP_INVOKE_METHOD: { 
                 char* klass_name = (char*)p;
 
-                int len = strlen(klass_name);
+                int len = strlen(klass_name) + 1;
 
                 alignment(&len);
 
@@ -453,6 +502,41 @@ print_block_end(*(stack_ptr-1));
 
                 }
                 break;
+                
+            case OP_INVOKE_COMMAND: { 
+                char* command_name = (char*)p;
+
+                int len = strlen(command_name) + 1;
+
+                alignment(&len);
+
+                len = len / sizeof(int);
+
+                p += len;
+
+                int num_params = *p;
+                p++;
+
+                char* argv[PARAMS_MAX];
+
+                argv[0] = command_name;
+
+                for(int i=0; i<num_params+1; i++) {
+                    CLObject obj = (stack_ptr-num_params)->mObjectValue;
+                    sCLString* object_data = CLSTRING(obj);
+                    argv[i+1] = object_data->mData;
+                }
+                argv[num_params+1] = null;
+
+                stack_ptr -= num_params;
+
+                if(!invoke_command_with_control_terminal(command_name, argv, &stack_ptr, info))
+                {
+                    return false;
+                }
+                }
+                break;
+
         }
 print_stack(stack, stack_ptr, var_num);
     }

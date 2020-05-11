@@ -220,7 +220,7 @@ struct sParserInfo {
     int max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -238,7 +238,7 @@ struct sCompileInfo {
     bool no_output;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -281,6 +281,7 @@ sCLNode* sNodeTree_create_class(char* source, char* sname, int sline, sParserInf
 sCLNode* sNodeTree_create_object(char* class_name_, sParserInfo* info);
 CLObject create_block_object(int* codes, int codes_len, int head_params, int var_num, int stack_frame_index, sVMInfo* info);
 sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, sParserInfo* info);
+sCLNode* sNodeTree_create_command_call(char* name, int num_params, sCLNode** params, sParserInfo* info);
 sCLNode* sNodeTree_create_block_object_call(int num_params, sCLNode** params, sParserInfo* info);
 
 //////////////////////////////
@@ -346,14 +347,36 @@ struct sCLBlock {
     int var_num;
 };
 
+struct sCLCommand {
+    sCLClass* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    int mRCode;
+    char mData[DUMMY_ARRAY_SIZE];
+};
+
+struct sCLString {
+    sCLClass* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    char mData[DUMMY_ARRAY_SIZE];
+};
+
 
 #define CLOBJECT(obj) ((sCLObject*)(get_object_pointer((obj))))
 #define CLBLOCK(obj) ((sCLBlock*)(get_object_pointer((obj))))
+#define CLCOMMAND(obj) ((sCLCommand*)(get_object_pointer((obj))))
+#define CLSTRING(obj) ((sCLString*)(get_object_pointer((obj))))
 
 sCLHeapMem* get_object_pointer(CLObject obj);
 
 CLObject create_object(sCLClass* klass, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
+CLObject create_command_object(char* str, int rcode, sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info);
 
 bool free_object(CLObject self, sVMInfo* info);

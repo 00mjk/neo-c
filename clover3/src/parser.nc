@@ -675,6 +675,20 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 
                 *node = sNodeTree_create_store_variable(word, exp, info);
             }
+            else if(*info->p == '(') {
+                info->p++;
+                skip_spaces_and_lf(info);
+
+                int num_params = 0;
+                sCLNode* params[PARAMS_MAX];
+
+                if(!parse_calling_params(&num_params, params, info)) 
+                {
+                    return false;
+                };
+
+                *node = sNodeTree_create_command_call(word, num_params, params, info);
+            }
             else {
                 *node = sNodeTree_create_load_variable(word, info);
             }

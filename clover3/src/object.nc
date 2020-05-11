@@ -78,6 +78,29 @@ CLObject create_string_object(char* str, sVMInfo* info)
     return obj;
 }
 
+CLObject create_command_object(char* str, int rcode, sVMInfo* info)
+{
+    int len = strlen(str);
+
+    sCLClass* command_class = gClasses.at("command", null);
+    
+    int size = sizeof(sCLCommand) - sizeof(char) * DUMMY_ARRAY_SIZE;
+    size += sizeof(int); // mRCode
+    size += len + 1;
+
+    alignment(&size);
+
+    CLObject obj = alloc_heap_mem(size, command_class, -1, info);
+
+    sCLCommand* object_data = CLCOMMAND(obj);
+
+    object_data.mRCode = rcode;
+
+    strcpy((char*)&object_data.mData, str);
+
+    return obj;
+}
+
 static cllong block_object_size()
 {
     cllong size = sizeof(sCLBlock);
