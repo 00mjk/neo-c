@@ -761,6 +761,10 @@ int main()
 
     xassert("pointer dec test", ppp.bbb == 0);
 
+    int aaaabbbxxxxxxxxxxxxx = (int)true;
+
+    xassert("cast test", aaaabbbxxxxxxxxxxxxx == 1);
+
     sVectorStructDefinition* ssssdata;
 
 //    xassert("static variable test", funStaticVariable() == 1);

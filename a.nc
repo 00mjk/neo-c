@@ -17,10 +17,9 @@ void alignment(unsigned int* size)
 
 int main()
 {
-    int size = 3;
-    alignment(&size);
+    int size = true;
 
-    printf("%x\n", size);
+    printf("%d\n", size);
     
     return 0;
 }

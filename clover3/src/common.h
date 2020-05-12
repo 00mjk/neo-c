@@ -150,6 +150,7 @@ struct sCLNode {
         struct {
             int mNumParams;
             sCLNode* mParams[PARAMS_MAX];
+            bool mLastMethodChain;
         } uMethodCall;
     } uValue;
     
@@ -281,7 +282,7 @@ sCLNode* sNodeTree_create_class(char* source, char* sname, int sline, sParserInf
 sCLNode* sNodeTree_create_object(char* class_name_, sParserInfo* info);
 CLObject create_block_object(int* codes, int codes_len, int head_params, int var_num, int stack_frame_index, sVMInfo* info);
 sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, sParserInfo* info);
-sCLNode* sNodeTree_create_command_call(char* name, int num_params, sCLNode** params, sParserInfo* info);
+sCLNode* sNodeTree_create_command_call(sCLNode* node, char* name, int num_params, sCLNode** params, sParserInfo* info);
 sCLNode* sNodeTree_create_block_object_call(int num_params, sCLNode** params, sParserInfo* info);
 
 //////////////////////////////

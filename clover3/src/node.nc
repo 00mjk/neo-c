@@ -751,6 +751,12 @@ sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** para
     for(int i=0; i<num_params; i++) {
         result.uValue.uMethodCall.mParams[i] = params[i];
     }
+    result.uValue.uMethodCall.mLastMethodChain = true;
+
+    if(num_params > 0 && (params[0].type == kNodeTypeCommandCall || params[0].type == kNodeTypeMethodCall))
+    {
+        params[0].uValue.uMethodCall.mLastMethodChain = false;
+    }
 
     result.left = null;
     result.right = null;
@@ -773,11 +779,53 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
 
     sCLNode* first_node = params[0];
 
+puts("compile first_node");
     if(!compile(first_node, info)) {
         return false;
     }
 
     sCLClass* klass = info.type.mClass;
+
+    if(klass == gClasses.at("command", null)) {
+        int last_method_chain = node.uValue.uMethodCall.mLastMethodChain;
+printf("compile_method_call last_method_chain %d\n", last_method_chain);
+
+        sCLType* string_type = create_type("string", info.pinfo);
+
+        sCLType* param_types[PARAMS_MAX];
+        for(int i=1; i<num_params; i++) {
+            if(!compile(params[i], info)) {
+                return false;
+            }
+
+            param_types[i] = info.type;
+
+            if(!substitution_posibility(param_types[i], string_type)) 
+            {
+                compile_err_msg(info, xsprintf("command param error #%d. It is not string.", i));
+                return true;
+            }
+        }
+
+        /// go ///
+        if(!info.no_output) {
+            info.codes.append_int(OP_INVOKE_COMMAND);
+
+            info.codes.append_str(method_name);
+
+            info.codes.alignment();
+
+            info.codes.append_int(num_params-1);
+
+            info.codes.append_int(last_method_chain);
+        }
+
+        info.stack_num -= num_params;
+
+        info.stack_num++;
+
+        return true;
+    }
 
     sCLMethod* method = klass.mMethods.at(method_name, null);
 
@@ -878,7 +926,7 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-sCLNode* sNodeTree_create_command_call(char* name, int num_params, sCLNode** params, sParserInfo* info)
+sCLNode* sNodeTree_create_command_call(sCLNode* node, char* name, int num_params, sCLNode** params, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
     
@@ -893,8 +941,14 @@ sCLNode* sNodeTree_create_command_call(char* name, int num_params, sCLNode** par
     for(int i=0; i<num_params; i++) {
         result.uValue.uMethodCall.mParams[i] = params[i];
     }
+    result.uValue.uMethodCall.mLastMethodChain = true;
 
-    result.left = null;
+    if(node && (node.type == kNodeTypeCommandCall || node.type == kNodeTypeMethodCall))
+    {
+        node.uValue.uMethodCall.mLastMethodChain = false;
+    }
+
+    result.left = node;
     result.right = null;
     result.middle = null;
 
@@ -909,6 +963,30 @@ bool compile_command_call(sCLNode* node, sCompileInfo* info)
     sCLNode* params[PARAMS_MAX];
     for(int i=0; i<num_params; i++) {
         params[i] = node.uValue.uMethodCall.mParams[i];
+    }
+
+    int last_method_chain = node.uValue.uMethodCall.mLastMethodChain;
+printf("compile_command_call last_method_chain %d\n", last_method_chain);
+
+    if(node.left) {
+        if(!compile(node.left, info)) {
+            return false;
+        }
+        
+        sCLType* left_type = info.type;
+
+        if(!type_identify_with_class_name(left_type, "command", info.pinfo)) {
+            compile_err_msg(info, "require command type");
+            return true;
+        }
+    }
+    else {
+        if(!info.no_output) {
+            info.codes.append_int(OP_INT_VALUE);
+            info.codes.append_int(0);
+
+            info->stack_num++;
+        }
     }
 
     sCLType* string_type = create_type("string", info.pinfo);
@@ -928,8 +1006,6 @@ bool compile_command_call(sCLNode* node, sCompileInfo* info)
         }
     }
 
-printf("NUM_PARRAMS %d\n", num_params);
-
     /// go ///
     if(!info.no_output) {
         info.codes.append_int(OP_INVOKE_COMMAND);
@@ -939,11 +1015,15 @@ printf("NUM_PARRAMS %d\n", num_params);
         info.codes.alignment();
 
         info.codes.append_int(num_params);
+
+        info.codes.append_int(last_method_chain);
     }
 
-    info.stack_num -= num_params;
+    info.stack_num -= num_params + 1;
 
     info.stack_num++;
+
+    info.type = create_type("command", info.pinfo);
 
     return true;
 }

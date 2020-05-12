@@ -687,7 +687,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                     return false;
                 };
 
-                *node = sNodeTree_create_command_call(word, num_params, params, info);
+                *node = sNodeTree_create_command_call(*node, word, num_params, params, info);
             }
             else {
                 *node = sNodeTree_create_load_variable(word, info);

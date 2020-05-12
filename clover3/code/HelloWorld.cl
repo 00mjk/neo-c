@@ -16,7 +16,7 @@
 #    c + b + 2
 #}
 
-echo("HELLO WORLD");
+ls().echo("HELLO WORLD");
 
 
 

@@ -196,6 +196,36 @@ bool invoke_command_with_control_terminal(char* name, char** argv, CLVALUE** sta
     return true;
 }
 
+bool invoke_command(char* name, char** argv, CLVALUE** stack_ptr, sVMInfo* info)
+{
+puts("invoke_command");
+    int rcode = 0;
+    (*stack_ptr)->mObjectValue = create_command_object("", rcode, info);
+    (*stack_ptr)++;
+
+    return true;
+}
+
+bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* name, char** argv, CLVALUE** stack_ptr, sVMInfo* info)
+{
+puts("invoke_command_with_control_terminal_and_pipe");
+    int rcode = 0;
+    (*stack_ptr)->mObjectValue = create_command_object("", rcode, info);
+    (*stack_ptr)++;
+
+    return true;
+}
+
+bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVALUE** stack_ptr, sVMInfo* info)
+{
+puts("invoke_command_with_pipe");
+    int rcode = 0;
+    (*stack_ptr)->mObjectValue = create_command_object("", rcode, info);
+    (*stack_ptr)++;
+
+    return true;
+}
+
 bool vm(buffer* codes, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info)
 {
     sCLStackFrame null_paret_stack_frame;
@@ -517,9 +547,24 @@ print_block_end(*(stack_ptr-1));
                 int num_params = *p;
                 p++;
 
+                int last_method_chain = *p;
+                p++;
+
                 char* argv[PARAMS_MAX];
 
                 argv[0] = command_name;
+
+                CLObject parent_obj = (stack_ptr-num_params-1)->mObjectValue;
+
+                bool first_method_chain;
+                if(parent_obj == 0) {
+                    first_method_chain = true;
+                }
+                else {
+                    first_method_chain = false;
+                }
+
+printf("first_method_chain %d last_method_chain %d\n", first_method_chain, last_method_chain);
 
                 for(int i=0; i<num_params+1; i++) {
                     CLObject obj = (stack_ptr-num_params)->mObjectValue;
@@ -528,11 +573,35 @@ print_block_end(*(stack_ptr-1));
                 }
                 argv[num_params+1] = null;
 
-                stack_ptr -= num_params;
+                stack_ptr -= num_params + 1;
 
-                if(!invoke_command_with_control_terminal(command_name, argv, &stack_ptr, info))
-                {
-                    return false;
+                if(first_method_chain) {
+                    if(last_method_chain) {
+                        if(!invoke_command_with_control_terminal(command_name, argv, &stack_ptr, info))
+                        {
+                            return false;
+                        }
+                    }
+                    else {
+                        if(!invoke_command(command_name, argv, &stack_ptr, info))
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else {
+                    if(last_method_chain) {
+                        if(!invoke_command_with_control_terminal_and_pipe(parent_obj, command_name, argv, &stack_ptr, info))
+                        {
+                            return false;
+                        }
+                    }
+                    else {
+                        if(!invoke_command_with_pipe(parent_obj, command_name, argv, &stack_ptr, info))
+                        {
+                            return false;
+                        }
+                    }
                 }
                 }
                 break;

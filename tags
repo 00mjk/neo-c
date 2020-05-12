@@ -28,11 +28,11 @@ CLASS_FLAGS_UNION	src/common.h	84;"	d
 CLASS_FLAGS_UNSIGNED_NUMBER	src/common.h	81;"	d
 CLASS_NAME	src/common.h	108;"	d
 CLASS_NUM_MAX	src/common.h	21;"	d
-CLBLOCK	clover3/src/common.h	371;"	d
-CLCOMMAND	clover3/src/common.h	372;"	d
-CLOBJECT	clover3/src/common.h	370;"	d
+CLBLOCK	clover3/src/common.h	372;"	d
+CLCOMMAND	clover3/src/common.h	373;"	d
+CLOBJECT	clover3/src/common.h	371;"	d
 CLObject	clover3/src/common.h	/^typedef unsigned int CLObject;$/;"	t
-CLSTRING	clover3/src/common.h	373;"	d
+CLSTRING	clover3/src/common.h	374;"	d
 CLVALUE	clover3/src/common.h	/^union CLVALUE {$/;"	u
 COMMAND_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
 COMMON_H	clover3/src/common.h	2;"	d
@@ -48,7 +48,7 @@ DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	clover3/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	tiny/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	wi/Makefile	/^DESTDIR=\/usr\/local$/;"	m
-DUMMY_ARRAY_SIZE	clover3/src/common.h	323;"	d
+DUMMY_ARRAY_SIZE	clover3/src/common.h	324;"	d
 DblTy	src/llvm.cpp	/^    DIType* DblTy;$/;"	m	struct:DebugInfo	file:
 DebugInfo	src/llvm.cpp	/^struct DebugInfo {$/;"	s	file:
 ELIF_MAX	clover3/src/common.h	41;"	d
@@ -1065,6 +1065,7 @@ mLLVMValue	src/common.h	/^    void* mLLVMValue;$/;"	m	struct:sVarStruct
 mLVTable	src/common.h	/^    sVarTable* mLVTable;$/;"	m	struct:sNodeBlockStruct
 mLambda	src/common.h	/^            BOOL mLambda;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mLastCase	src/common.h	/^            BOOL mLastCase;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon34
+mLastMethodChain	clover3/src/common.h	/^            bool mLastMethodChain;$/;"	m	struct:sCLNode::__anon37::__anon40
 mLeft	src/common.h	/^    unsigned int mLeft;$/;"	m	struct:sNodeTreeStruct
 mLen	src/buffer.h	/^    int mLen;$/;"	m	struct:sBufStruct
 mLen	src/common.h	/^    unsigned int mLen;$/;"	m	struct:sConstStruct
