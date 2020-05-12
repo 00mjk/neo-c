@@ -748,12 +748,18 @@ int main()
     
     CLVALUE** ppp2 = &ppp;
 
-printf("ppp2 %p *ppp2 %p ppp %p\n", ppp2, *ppp2, ppp);
-
     (*ppp2)++;
 
-printf("ppp - stack %d\n", ppp - stack);
     xassert("pointer inc test", ppp.bbb == 1);
+    (*ppp2)--;
+
+    xassert("pointer dec test", ppp.bbb == 0);
+    (*ppp2)+=2;
+
+    xassert("pointer inc test", ppp.bbb == 2);
+    (*ppp2)-=2;
+
+    xassert("pointer dec test", ppp.bbb == 0);
 
     sVectorStructDefinition* ssssdata;
 

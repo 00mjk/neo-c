@@ -11609,6 +11609,8 @@ static BOOL compile_minus_minus(unsigned int node, sCompileInfo* info)
 {
     unsigned int left_node = gNodes[node].mLeft;
 
+    BOOL derefference = gNodes[left_node].mNodeType == kNodeTypeDerefference;
+
     if(!compile(left_node, info)) {
         return FALSE;
     }
@@ -11632,28 +11634,72 @@ static BOOL compile_minus_minus(unsigned int node, sCompileInfo* info)
     if(left_type->mPointerNum > 0) {
         left_type->mPointerNum--;
 
-        int alignment = get_llvm_alignment_from_node_type(left_type);
+        if(derefference && left_type->mPointerNum == 0) {
+            int alignment = get_llvm_alignment_from_node_type(left_type);
 
-        if(auto_cast_posibility(left_type, right_type)) {
-            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            Value* address = lvalue.value;
+
+            Type* llvm_left_type;
+            if(!create_llvm_type_from_node_type(&llvm_left_type, left_type, left_type, info))
             {
-                compile_err_msg(info, "Cast failed");
+                compile_err_msg(info, "Getting llvm type failed(10)");
+                show_node_type(left_type);
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
 
                 return TRUE;
             }
+
+            Value* left_value = address;
+            Value* left_value2 = Builder.CreateCast(Instruction::PtrToInt, left_value, IntegerType::get(TheContext, 64));
+
+            Value* right_value;
+            if(type_identify_with_class_name(right_type, "long")) {
+                right_value = rvalue.value;
+            }
+            else {
+                right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext2");
+            }
+
+            uint64_t alloc_size = 0;
+            if(!get_size_from_node_type(&alloc_size, left_type, left_type, info))
+            {
+                return FALSE;
+            }
+
+            Value* alloc_size_value = ConstantInt::get(Type::getInt64Ty(TheContext), alloc_size);
+
+            right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
+
+            Value* value = Builder.CreateSub(left_value2, right_value, "subtmp", false, true);
+            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0));
+            Builder.CreateAlignedStore(value, lvalue.address, alignment);
         }
+        else {
+            int alignment = get_llvm_alignment_from_node_type(left_type);
 
-        Value* address = lvalue.value;
+            if(auto_cast_posibility(left_type, right_type)) {
+                if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+                {
+                    compile_err_msg(info, "Cast failed");
+                    info->err_num++;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+                    info->type = create_node_type_with_class_name("int"); // dummy
 
-        Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "addtmp", false, true);
+                    return TRUE;
+                }
+            }
 
-        Builder.CreateAlignedStore(value, address, alignment);
+            Value* address = lvalue.value;
+
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
+
+            Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "subtmp", false, true);
+
+            Builder.CreateAlignedStore(value, address, alignment);
+        }
     }
     else {
         int alignment = get_llvm_alignment_from_node_type(left_type);
@@ -11705,6 +11751,8 @@ static BOOL compile_equal_plus(unsigned int node, sCompileInfo* info)
 {
     unsigned int left_node = gNodes[node].mLeft;
 
+    BOOL derefference = gNodes[left_node].mNodeType == kNodeTypeDerefference;
+
     if(!compile(left_node, info)) {
         return FALSE;
     }
@@ -11728,28 +11776,72 @@ static BOOL compile_equal_plus(unsigned int node, sCompileInfo* info)
     if(left_type->mPointerNum > 0) {
         left_type->mPointerNum--;
 
-        int alignment = get_llvm_alignment_from_node_type(left_type);
+        if(derefference && left_type->mPointerNum == 0) {
+            int alignment = get_llvm_alignment_from_node_type(left_type);
 
-        if(auto_cast_posibility(left_type, right_type)) {
-            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            Value* address = lvalue.value;
+
+            Type* llvm_left_type;
+            if(!create_llvm_type_from_node_type(&llvm_left_type, left_type, left_type, info))
             {
-                compile_err_msg(info, "Cast failed");
+                compile_err_msg(info, "Getting llvm type failed(10)");
+                show_node_type(left_type);
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
 
                 return TRUE;
             }
+
+            Value* left_value = address;
+            Value* left_value2 = Builder.CreateCast(Instruction::PtrToInt, left_value, IntegerType::get(TheContext, 64));
+
+            Value* right_value;
+            if(type_identify_with_class_name(right_type, "long")) {
+                right_value = rvalue.value;
+            }
+            else {
+                right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext2");
+            }
+
+            uint64_t alloc_size = 0;
+            if(!get_size_from_node_type(&alloc_size, left_type, left_type, info))
+            {
+                return FALSE;
+            }
+
+            Value* alloc_size_value = ConstantInt::get(Type::getInt64Ty(TheContext), alloc_size);
+
+            right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
+
+            Value* value = Builder.CreateAdd(left_value2, right_value, "adddtmp", false, true);
+            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0));
+            Builder.CreateAlignedStore(value, lvalue.address, alignment);
         }
+        else {
+            int alignment = get_llvm_alignment_from_node_type(left_type);
 
-        Value* address = lvalue.value;
+            if(auto_cast_posibility(left_type, right_type)) {
+                if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+                {
+                    compile_err_msg(info, "Cast failed");
+                    info->err_num++;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+                    info->type = create_node_type_with_class_name("int"); // dummy
 
-        Value* value = Builder.CreateAdd(add_lvalue, add_rvalue, "addtmp", false, true);
+                    return TRUE;
+                }
+            }
 
-        Builder.CreateAlignedStore(value, address, alignment);
+            Value* address = lvalue.value;
+
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
+
+            Value* value = Builder.CreateAdd(add_lvalue, add_rvalue, "addtmp", false, true);
+
+            Builder.CreateAlignedStore(value, address, alignment);
+        }
     }
     else {
         int alignment = get_llvm_alignment_from_node_type(left_type);
@@ -11800,6 +11892,7 @@ unsigned int sNodeTree_create_equal_minus(unsigned int left_node, unsigned int r
 static BOOL compile_equal_minus(unsigned int node, sCompileInfo* info)
 {
     unsigned int left_node = gNodes[node].mLeft;
+    BOOL derefference = gNodes[left_node].mNodeType == kNodeTypeDerefference;
 
     if(!compile(left_node, info)) {
         return FALSE;
@@ -11824,28 +11917,72 @@ static BOOL compile_equal_minus(unsigned int node, sCompileInfo* info)
     if(left_type->mPointerNum > 0) {
         left_type->mPointerNum--;
 
-        int alignment = get_llvm_alignment_from_node_type(left_type);
+        if(derefference && left_type->mPointerNum == 0) {
+            int alignment = get_llvm_alignment_from_node_type(left_type);
 
-        if(auto_cast_posibility(left_type, right_type)) {
-            if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+            Value* address = lvalue.value;
+
+            Type* llvm_left_type;
+            if(!create_llvm_type_from_node_type(&llvm_left_type, left_type, left_type, info))
             {
-                compile_err_msg(info, "Cast failed");
+                compile_err_msg(info, "Getting llvm type failed(10)");
+                show_node_type(left_type);
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
 
                 return TRUE;
             }
+
+            Value* left_value = address;
+            Value* left_value2 = Builder.CreateCast(Instruction::PtrToInt, left_value, IntegerType::get(TheContext, 64));
+
+            Value* right_value;
+            if(type_identify_with_class_name(right_type, "long")) {
+                right_value = rvalue.value;
+            }
+            else {
+                right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext2");
+            }
+
+            uint64_t alloc_size = 0;
+            if(!get_size_from_node_type(&alloc_size, left_type, left_type, info))
+            {
+                return FALSE;
+            }
+
+            Value* alloc_size_value = ConstantInt::get(Type::getInt64Ty(TheContext), alloc_size);
+
+            right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
+
+            Value* value = Builder.CreateSub(left_value2, right_value, "subtmp", false, true);
+            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0));
+            Builder.CreateAlignedStore(value, lvalue.address, alignment);
         }
+        else {
+            int alignment = get_llvm_alignment_from_node_type(left_type);
 
-        Value* address = lvalue.value;
+            if(auto_cast_posibility(left_type, right_type)) {
+                if(!cast_right_type_to_left_type(left_type, &right_type, &rvalue, info))
+                {
+                    compile_err_msg(info, "Cast failed");
+                    info->err_num++;
 
-        Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
-        Value* add_rvalue = rvalue.value;
+                    info->type = create_node_type_with_class_name("int"); // dummy
 
-        Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "subtmp", false, true);
+                    return TRUE;
+                }
+            }
 
-        Builder.CreateAlignedStore(value, address, alignment);
+            Value* address = lvalue.value;
+
+            Value* add_lvalue = Builder.CreateAlignedLoad(address, alignment);
+            Value* add_rvalue = rvalue.value;
+
+            Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "subtmp", false, true);
+
+            Builder.CreateAlignedStore(value, address, alignment);
+        }
     }
     else {
         int alignment = get_llvm_alignment_from_node_type(left_type);
