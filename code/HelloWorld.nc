@@ -731,8 +731,30 @@ sVectorStructDefinition* funsssssss(sVectorStructDefinition* info)
     return info;
 }
 
+union CLVALUE {
+    long long int aaa;
+    int bbb;
+};
+
 int main()
 {
+    CLVALUE stack[128];
+
+    stack[0].bbb = 0;
+    stack[1].bbb = 1;
+    stack[2].bbb = 2;
+
+    CLVALUE* ppp = stack;
+    
+    CLVALUE** ppp2 = &ppp;
+
+printf("ppp2 %p *ppp2 %p ppp %p\n", ppp2, *ppp2, ppp);
+
+    (*ppp2)++;
+
+printf("ppp - stack %d\n", ppp - stack);
+    xassert("pointer inc test", ppp.bbb == 1);
+
     sVectorStructDefinition* ssssdata;
 
 //    xassert("static variable test", funStaticVariable() == 1);

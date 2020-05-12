@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.2.5
+version 1.2.6
 
 ```
 #include <stdio.h>
@@ -62,6 +62,8 @@ This program is tested in LLVM-3.8 and LLVM-7, and x86_64 on Debian, Raspberry P
 x86_64のDebianとRaspberry PI 3B+でテストしています。
 
 # CHANGELOG
+
+1.1.6 some changes to buffer.append_str. Pointer increment bug was fixed.
 
 1.1.5 map.at, list.item, vector.itemなどの戻り値がT&ではなくTを返すmap.at_clone, list.clone_item, vector.item_cloneができました。このような場合問題になってました。
 
