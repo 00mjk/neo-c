@@ -3746,7 +3746,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking Operating System" >&5
 $as_echo_n "checking Operating System... " >&6; }
 
-CFLAGS='-DPREFIX="\"${DESTDIR}/\""'
+CFLAGS='-DPREFIX="\"${DESTDIR}/\"" -fPIC'
 #CFLAGS="-fPIC -rdynamic $CFLAGS"
 
 AR_LIB=
@@ -4126,11 +4126,7 @@ CXXFLAGS='-DPREFIX="\"${DESTDIR}/\""'
 CXXFLAGS="-I . -I src $CXXFLAGS"
 #CXXFLAGS="-fPIC -rdynamic $CXXFLAGS"
 
-if which clang++-7 > /dev/null
-then
-    #CXX=clang++-7
-    CXX=clang++
-elif which clang++ > /dev/null
+if which clang++ > /dev/null
 then
     CXX=g++
 else
@@ -4140,21 +4136,9 @@ fi
 
 if test $DEBUGGING = 1
 then
-    if which llvm-config-7 > /dev/null
-    then
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
-        #CXXFLAGS='`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
-    else
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
-    fi
+    CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all`  -DMDEBUG -g'" $CXXFLAGS"
 else
-    if which llvm-config-7 > /dev/null
-    then
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
-        #CXXFLAGS='`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
-    else
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
-    fi
+    CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all`  -O3'" $CXXFLAGS"
 fi
 
 CLANG=clang
