@@ -355,7 +355,11 @@ struct sCLCommand {
     int mNumFields;
     
     int mRCode;
-    char mData[DUMMY_ARRAY_SIZE];
+    int mOutputLen;
+    int mErrOutputLen;
+    char* mErrData;
+    char mOutput[DUMMY_ARRAY_SIZE];
+
 };
 
 struct sCLString {
@@ -377,7 +381,7 @@ sCLHeapMem* get_object_pointer(CLObject obj);
 
 CLObject create_object(sCLClass* klass, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
-CLObject create_command_object(char* str, int rcode, sVMInfo* info);
+CLObject create_command_object(char* output, int output_len, char* err_output, int err_output_len, int rcode, sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info);
 
 bool free_object(CLObject self, sVMInfo* info);

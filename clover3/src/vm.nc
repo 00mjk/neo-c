@@ -155,7 +155,7 @@ void update_parent_stack(CLVALUE* stack, int head_params, int num_params, int va
     }
 }
 
-bool invoke_command_with_control_terminal(char* name, char** argv, CLVALUE** stack_ptr, sVMInfo* info)
+bool invoke_command_with_control_terminal(char* name, char** argv, int num_params, CLVALUE** stack_ptr, sVMInfo* info)
 {
     pid_t pid = fork();
     
@@ -166,8 +166,7 @@ bool invoke_command_with_control_terminal(char* name, char** argv, CLVALUE** sta
         tcsetpgrp(0, pid);
 
         if(execvp(name, argv) < 0) {
-            fprintf(stderr, "execv error\n");
-            exit(64);
+            return false;
         }
 
         exit(0);
@@ -181,8 +180,7 @@ bool invoke_command_with_control_terminal(char* name, char** argv, CLVALUE** sta
     pid_t pid2 = waitpid(pid, &status, WUNTRACED);
 
     if(WEXITSTATUS(status) == 64) {
-        fprintf(stderr, "Command not found\n");
-        exit(1);
+        return false;
     }
 
     setpgid(getpid(), getpid());
@@ -190,37 +188,260 @@ bool invoke_command_with_control_terminal(char* name, char** argv, CLVALUE** sta
 
     int rcode = WEXITSTATUS(status);
 
-    (*stack_ptr)->mObjectValue = create_command_object("", rcode, info);
+    (*stack_ptr) -= num_params + 1;
+
+    (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode, info);
     (*stack_ptr)++;
 
     return true;
 }
 
-bool invoke_command(char* name, char** argv, CLVALUE** stack_ptr, sVMInfo* info)
+bool invoke_command(char* name, char** argv, CLVALUE** stack_ptr, int num_params, sVMInfo* info)
 {
-puts("invoke_command");
-    int rcode = 0;
-    (*stack_ptr)->mObjectValue = create_command_object("", rcode, info);
+    int child2parent_write_fd = 0;
+    int child2parent_read_fd = 0;
+    int parent2child_write_fd = 0;
+    int parent2child_read_fd = 0;
+    int child2parent_read_fd_err = 0;
+    int child2parent_write_fd_err = 0;
+
+    int pipes[2];
+
+    pipe(pipes);
+    child2parent_read_fd = pipes[0];
+    child2parent_write_fd = pipes[1];
+    pipe(pipes);
+    parent2child_read_fd = pipes[0];
+    parent2child_write_fd = pipes[1];
+    pipe(pipes);
+    child2parent_read_fd_err = pipes[0];
+    child2parent_write_fd_err = pipes[1];
+
+    pid_t pid = fork();
+    
+    if(pid == 0) {
+        close(parent2child_write_fd);
+        close(child2parent_read_fd);
+        close(child2parent_read_fd_err);
+
+        dup2(parent2child_read_fd, 0);
+        dup2(child2parent_write_fd, 1);
+        dup2(child2parent_write_fd_err, 2);
+
+        close(parent2child_read_fd);
+        close(child2parent_write_fd);
+        close(child2parent_write_fd_err);
+
+        if(execvp(name, argv) < 0) {
+            return false;
+        }
+
+        exit(2);
+    }
+
+    close(parent2child_read_fd);
+    close(child2parent_write_fd);
+    close(child2parent_write_fd_err);
+    close(parent2child_write_fd);
+
+    buffer*% child_output = new buffer.initialize();
+    buffer*% child_output_error = new buffer.initialize();
+    
+    while(true) {
+        char pipe_data[128];
+        int readed_byte = read(child2parent_read_fd, pipe_data, 128);
+
+        char pipe_data_err[128];
+        int readed_byte_err = read(child2parent_read_fd_err, pipe_data_err, 128);
+
+        if(readed_byte == 0 && readed_byte_err == 0) {
+            break;
+        }
+
+        child_output.append(pipe_data, readed_byte);
+        child_output_error.append(pipe_data_err, readed_byte_err);
+    }
+
+    close(child2parent_read_fd);
+    close(child2parent_read_fd_err);
+
+    int status = 0;
+
+    pid_t pid2 = waitpid(pid, &status, WUNTRACED);
+
+    if(WEXITSTATUS(status) == 64) {
+        return false;
+    }
+
+    (*stack_ptr) -= num_params + 1;
+
+    int rcode = WEXITSTATUS(status);
+    (*stack_ptr)->mObjectValue = create_command_object(child_output.buf, child_output.len, child_output_error.buf, child_output_error.len, rcode, info);
     (*stack_ptr)++;
 
     return true;
 }
 
-bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* name, char** argv, CLVALUE** stack_ptr, sVMInfo* info)
+bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* name, char** argv, int num_params, CLVALUE** stack_ptr, sVMInfo* info)
 {
-puts("invoke_command_with_control_terminal_and_pipe");
-    int rcode = 0;
-    (*stack_ptr)->mObjectValue = create_command_object("", rcode, info);
+    int parent2child_write_fd = 0;
+    int parent2child_read_fd = 0;
+
+    int pipes[2];
+
+    if(pipe(pipes) < 0) {
+        return false;
+    }
+
+    parent2child_read_fd = pipes[0];
+    parent2child_write_fd = pipes[1];
+
+    pid_t pid = fork() 
+    
+    if(pid == 0) {
+        close(parent2child_write_fd);
+
+        pid_t pid = getpid();
+
+        setpgid(0, 0);
+        tcsetpgrp(0, pid);
+
+        if(dup2(parent2child_read_fd, 0) < 0) {
+            fprintf(stderr, "dup2 error\n");
+            exit(1);
+        }
+        close(parent2child_read_fd);
+
+        if(execvp(name, argv) < 0) {
+            fprintf(stderr, "execv error\n");
+            exit(64);
+        }
+
+        exit(0);
+    }
+
+    setpgid(pid, pid);
+    tcsetpgrp(0, pid);
+
+    close(parent2child_read_fd);
+    
+    CLObject obj = (*stack_ptr-1)->mObjectValue;
+    sCLCommand* command_data = CLCOMMAND(obj);
+
+    if(write(parent2child_write_fd, command_data->mOutput, command_data->mOutputLen) < 0) {
+        return false;
+    }
+    close(parent2child_write_fd);
+
+    int status = 0;
+
+    pid_t pid2 = waitpid(pid, &status, WUNTRACED);
+
+    if(WEXITSTATUS(status) == 64) {
+        return false;
+    }
+
+    setpgid(getpid(), getpid());
+    tcsetpgrp(0, getpid());
+
+    int rcode = WEXITSTATUS(status);
+
+    (*stack_ptr) -= num_params + 1;
+
+    (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode, info);
     (*stack_ptr)++;
 
     return true;
 }
 
-bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVALUE** stack_ptr, sVMInfo* info)
+bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVALUE** stack_ptr, int num_params, sVMInfo* info)
 {
-puts("invoke_command_with_pipe");
-    int rcode = 0;
-    (*stack_ptr)->mObjectValue = create_command_object("", rcode, info);
+    int child2parent_write_fd = 0;
+    int child2parent_read_fd = 0;
+    int parent2child_write_fd = 0;
+    int parent2child_read_fd = 0;
+    int child2parent_read_fd_err = 0;
+    int child2parent_write_fd_err = 0;
+
+    int pipes[2];
+
+    pipe(pipes);
+    child2parent_read_fd = pipes[0];
+    child2parent_write_fd = pipes[1];
+    pipe(pipes);
+    parent2child_read_fd = pipes[0];
+    parent2child_write_fd = pipes[1];
+    pipe(pipes);
+    child2parent_read_fd_err = pipes[0];
+    child2parent_write_fd_err = pipes[1];
+
+    pid_t pid = fork();
+    
+    if(pid == 0) {
+        close(parent2child_write_fd);
+        close(child2parent_read_fd);
+        close(child2parent_read_fd_err);
+
+        dup2(parent2child_read_fd, 0);
+        dup2(child2parent_write_fd, 1);
+        dup2(child2parent_write_fd_err, 2);
+
+        close(parent2child_read_fd);
+        close(child2parent_write_fd);
+        close(child2parent_write_fd_err);
+
+        if(execvp(name, argv) < 0) {
+            return false;
+        }
+
+        exit(2);
+    }
+
+    close(parent2child_read_fd);
+    close(child2parent_write_fd);
+    close(child2parent_write_fd_err);
+
+    CLObject obj = (*stack_ptr-1)->mObjectValue;
+    sCLCommand* command_data = CLCOMMAND(obj);
+
+    if(write(parent2child_write_fd, command_data->mOutput, command_data->mOutputLen) < 0) {
+        return false;
+    }
+    close(parent2child_write_fd);
+
+    buffer*% child_output = new buffer.initialize();
+    buffer*% child_output_error = new buffer.initialize();
+    
+    while(true) {
+        char pipe_data[128];
+        int readed_byte = read(child2parent_read_fd, pipe_data, 128);
+
+        char pipe_data_err[128];
+        int readed_byte_err = read(child2parent_read_fd_err, pipe_data_err, 128);
+
+        if(readed_byte == 0 && readed_byte_err == 0) {
+            break;
+        }
+
+        child_output.append(pipe_data, readed_byte);
+        child_output_error.append(pipe_data_err, readed_byte_err);
+    }
+
+    close(child2parent_read_fd);
+    close(child2parent_read_fd_err);
+
+    int status = 0;
+
+    pid_t pid2 = waitpid(pid, &status, WUNTRACED);
+
+    if(WEXITSTATUS(status) == 64) {
+        return false;
+    }
+
+    (*stack_ptr) -= num_params + 1;
+
+    int rcode = WEXITSTATUS(status);
+    (*stack_ptr)->mObjectValue = create_command_object(child_output.buf, child_output.len, child_output_error.buf, child_output_error.len, rcode, info);
     (*stack_ptr)++;
 
     return true;
@@ -564,8 +785,6 @@ print_block_end(*(stack_ptr-1));
                     first_method_chain = false;
                 }
 
-printf("first_method_chain %d last_method_chain %d\n", first_method_chain, last_method_chain);
-
                 for(int i=0; i<num_params+1; i++) {
                     CLObject obj = (stack_ptr-num_params)->mObjectValue;
                     sCLString* object_data = CLSTRING(obj);
@@ -573,17 +792,15 @@ printf("first_method_chain %d last_method_chain %d\n", first_method_chain, last_
                 }
                 argv[num_params+1] = null;
 
-                stack_ptr -= num_params + 1;
-
                 if(first_method_chain) {
                     if(last_method_chain) {
-                        if(!invoke_command_with_control_terminal(command_name, argv, &stack_ptr, info))
+                        if(!invoke_command_with_control_terminal(command_name, argv, num_params, &stack_ptr, info))
                         {
                             return false;
                         }
                     }
                     else {
-                        if(!invoke_command(command_name, argv, &stack_ptr, info))
+                        if(!invoke_command(command_name, argv, &stack_ptr, num_params, info))
                         {
                             return false;
                         }
@@ -591,13 +808,13 @@ printf("first_method_chain %d last_method_chain %d\n", first_method_chain, last_
                 }
                 else {
                     if(last_method_chain) {
-                        if(!invoke_command_with_control_terminal_and_pipe(parent_obj, command_name, argv, &stack_ptr, info))
+                        if(!invoke_command_with_control_terminal_and_pipe(parent_obj, command_name, argv, num_params, &stack_ptr, info))
                         {
                             return false;
                         }
                     }
                     else {
-                        if(!invoke_command_with_pipe(parent_obj, command_name, argv, &stack_ptr, info))
+                        if(!invoke_command_with_pipe(parent_obj, command_name, argv, &stack_ptr, num_params, info))
                         {
                             return false;
                         }

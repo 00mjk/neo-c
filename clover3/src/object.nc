@@ -78,15 +78,12 @@ CLObject create_string_object(char* str, sVMInfo* info)
     return obj;
 }
 
-CLObject create_command_object(char* str, int rcode, sVMInfo* info)
+CLObject create_command_object(char* output, int output_len, char* err_output, int err_output_len, int rcode, sVMInfo* info)
 {
-    int len = strlen(str);
-
     sCLClass* command_class = gClasses.at("command", null);
     
     int size = sizeof(sCLCommand) - sizeof(char) * DUMMY_ARRAY_SIZE;
-    size += sizeof(int); // mRCode
-    size += len + 1;
+    size += output_len + 1 + err_output_len + 1;
 
     alignment(&size);
 
@@ -95,8 +92,12 @@ CLObject create_command_object(char* str, int rcode, sVMInfo* info)
     sCLCommand* object_data = CLCOMMAND(obj);
 
     object_data.mRCode = rcode;
+    object_data.mOutputLen = output_len;
+    object_data.mErrOutputLen = err_output;
+    memcpy(object_data.mOutput, output, output_len+1);
+    memcpy(object_data.mOutput + output_len + 1, err_output, err_output_len+1);
 
-    strcpy((char*)&object_data.mData, str);
+    object_data.mErrData = object_data.mOutput + output_len + 1;
 
     return obj;
 }

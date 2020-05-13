@@ -16,7 +16,7 @@
 #    c + b + 2
 #}
 
-ls().echo("HELLO WORLD");
+pwd().less();
 
 
 
