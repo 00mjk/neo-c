@@ -16,7 +16,8 @@
 #    c + b + 2
 #}
 
-pwd().less();
+ls("-al").grep("src").less();
+#vim("src/vm.nc");
 
 
 

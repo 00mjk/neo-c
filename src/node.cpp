@@ -6788,6 +6788,18 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
             llvm_value.binded_value = TRUE;
             llvm_value.load_field = FALSE;
 
+            if(field_type->mArrayNum > 0) {
+                sNodeType* field_type2 = clone_node_type(field_type);
+
+                field_type2->mArrayNum = 0;
+                field_type2->mPointerNum++;
+
+                if(!cast_right_type_to_left_type(field_type2, &field_type, &llvm_value, info))
+                {
+                    return FALSE;
+                }
+            }
+
             dec_stack_ptr(1, info);
             push_value_to_stack_ptr(&llvm_value, info);
 
@@ -6908,6 +6920,18 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         llvm_value.var = nullptr;
         llvm_value.binded_value = TRUE;
         llvm_value.load_field = TRUE;
+
+        if(field_type->mArrayNum > 0) {
+            sNodeType* field_type2 = clone_node_type(field_type);
+
+            field_type2->mArrayNum = 0;
+            field_type2->mPointerNum++;
+
+            if(!cast_right_type_to_left_type(field_type2, &field_type, &llvm_value, info))
+            {
+                return FALSE;
+            }
+        }
 
         info->type = clone_node_type(field_type);
 

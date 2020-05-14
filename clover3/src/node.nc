@@ -779,7 +779,6 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
 
     sCLNode* first_node = params[0];
 
-puts("compile first_node");
     if(!compile(first_node, info)) {
         return false;
     }
@@ -788,7 +787,6 @@ puts("compile first_node");
 
     if(klass == gClasses.at("command", null)) {
         int last_method_chain = node.uValue.uMethodCall.mLastMethodChain;
-printf("compile_method_call last_method_chain %d\n", last_method_chain);
 
         sCLType* string_type = create_type("string", info.pinfo);
 
@@ -823,6 +821,8 @@ printf("compile_method_call last_method_chain %d\n", last_method_chain);
         info.stack_num -= num_params;
 
         info.stack_num++;
+
+        info->type = create_type("command", info.pinfo);
 
         return true;
     }
@@ -966,7 +966,6 @@ bool compile_command_call(sCLNode* node, sCompileInfo* info)
     }
 
     int last_method_chain = node.uValue.uMethodCall.mLastMethodChain;
-printf("compile_command_call last_method_chain %d\n", last_method_chain);
 
     if(node.left) {
         if(!compile(node.left, info)) {

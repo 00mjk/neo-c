@@ -276,6 +276,7 @@ bool invoke_command(char* name, char** argv, CLVALUE** stack_ptr, int num_params
     (*stack_ptr) -= num_params + 1;
 
     int rcode = WEXITSTATUS(status);
+
     (*stack_ptr)->mObjectValue = create_command_object(child_output.buf, child_output.len, child_output_error.buf, child_output_error.len, rcode, info);
     (*stack_ptr)++;
 
@@ -325,7 +326,7 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
 
     close(parent2child_read_fd);
     
-    CLObject obj = (*stack_ptr-1)->mObjectValue;
+    CLObject obj = (*stack_ptr-num_params-1)->mObjectValue;
     sCLCommand* command_data = CLCOMMAND(obj);
 
     if(write(parent2child_write_fd, command_data->mOutput, command_data->mOutputLen) < 0) {
@@ -401,7 +402,7 @@ bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVA
     close(child2parent_write_fd);
     close(child2parent_write_fd_err);
 
-    CLObject obj = (*stack_ptr-1)->mObjectValue;
+    CLObject obj = (*stack_ptr-num_params-1)->mObjectValue;
     sCLCommand* command_data = CLCOMMAND(obj);
 
     if(write(parent2child_write_fd, command_data->mOutput, command_data->mOutputLen) < 0) {
@@ -771,11 +772,8 @@ print_block_end(*(stack_ptr-1));
                 int last_method_chain = *p;
                 p++;
 
-                char* argv[PARAMS_MAX];
-
-                argv[0] = command_name;
-
                 CLObject parent_obj = (stack_ptr-num_params-1)->mObjectValue;
+
 
                 bool first_method_chain;
                 if(parent_obj == 0) {
@@ -785,8 +783,12 @@ print_block_end(*(stack_ptr-1));
                     first_method_chain = false;
                 }
 
-                for(int i=0; i<num_params+1; i++) {
-                    CLObject obj = (stack_ptr-num_params)->mObjectValue;
+                char* argv[PARAMS_MAX];
+
+                argv[0] = command_name;
+
+                for(int i=0; i<num_params; i++) {
+                    CLObject obj = (stack_ptr-num_params+i)->mObjectValue;
                     sCLString* object_data = CLSTRING(obj);
                     argv[i+1] = object_data->mData;
                 }

@@ -97,6 +97,7 @@ CLObject create_command_object(char* output, int output_len, char* err_output, i
     memcpy(object_data.mOutput, output, output_len+1);
     memcpy(object_data.mOutput + output_len + 1, err_output, err_output_len+1);
 
+
     object_data.mErrData = object_data.mOutput + output_len + 1;
 
     return obj;
