@@ -1,6 +1,7 @@
 #include "common.h"
 
 map<string, sCLClass*%>* gClasses;
+vector<CLObject>* gJobs;
 
 void class_init()
 {
@@ -10,12 +11,16 @@ void class_init()
     append_class("bool");
     append_class("string");
     append_class("command");
+    append_class("job");
     append_class("void");
     append_class("lambda");
+
+    gJobs = borrow new vector<CLObject>.initialize();
 }
 
 void class_final()
 {
+    delete gJobs;
     delete gClasses;
 }
 

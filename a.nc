@@ -9,17 +9,12 @@
 #include <locale.h>
 #include <wctype.h>
 
-void alignment(unsigned int* size)
-{
-    *size = (*size + 3) & ~3;
-}
-
 
 int main()
 {
-    int size = true;
+    char buf[128];
 
-    printf("%d\n", size);
-    
+    xstrncpy(buf, "AAA", 128);
+
     return 0;
 }

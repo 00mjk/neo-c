@@ -103,6 +103,25 @@ CLObject create_command_object(char* output, int output_len, char* err_output, i
     return obj;
 }
 
+CLObject create_job_object(char* title, termios* tinfo, pid_t pgrp, sVMInfo* info)
+{
+    sCLClass* job_class = gClasses.at("job", null);
+    
+    int size = sizeof(sCLJob);
+
+    alignment(&size);
+
+    CLObject obj = alloc_heap_mem(size, job_class, -1, info);
+
+    sCLJob* object_data = CLJOB(obj);
+
+    xstrncpy(object_data.mTitle, title, JOB_TITLE_MAX);
+    object_data.mTermInfo = *tinfo
+    object_data.mPGrp = pgrp;
+
+    return obj;
+}
+
 static cllong block_object_size()
 {
     cllong size = sizeof(sCLBlock);
@@ -138,3 +157,4 @@ CLObject create_block_object(int* codes, int codes_len, int head_params , int va
 
     return obj;
 }
+

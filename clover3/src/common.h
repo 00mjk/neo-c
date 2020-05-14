@@ -15,6 +15,7 @@
 #include <locale.h>
 #include <pcre.h>
 #include <dlfcn.h>
+#include <termios.h>
 #ifndef __USE_XOPEN
 #define __USE_XOPEN
 #endif
@@ -39,6 +40,7 @@
 #define HEAP_HANDLE_INIT_SIZE 128
 #define VAR_NAME_MAX 128
 #define ELIF_MAX 64
+#define JOB_TITLE_MAX 32
 
 //////////////////////////////////////////
 /// runtime side
@@ -114,6 +116,7 @@ struct sCLClass {
 };
 
 extern map<string, sCLClass*%>* gClasses;
+extern vector<CLObject>* gJobs;
 
 /// class.nc ///
 void class_init();
@@ -221,7 +224,7 @@ struct sParserInfo {
     int max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -239,7 +242,7 @@ struct sCompileInfo {
     bool no_output;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -284,6 +287,8 @@ CLObject create_block_object(int* codes, int codes_len, int head_params, int var
 sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, sParserInfo* info);
 sCLNode* sNodeTree_create_command_call(sCLNode* node, char* name, int num_params, sCLNode** params, sParserInfo* info);
 sCLNode* sNodeTree_create_block_object_call(int num_params, sCLNode** params, sParserInfo* info);
+sCLNode* sNodeTree_create_jobs(sParserInfo* info);
+sCLNode* sNodeTree_create_fg(int job_num, sParserInfo* info);
 
 //////////////////////////////
 /// runtime side
@@ -362,6 +367,18 @@ struct sCLCommand {
 
 };
 
+struct sCLJob {
+    sCLClass* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    char mTitle[JOB_TITLE_MAX];
+    termios mTermInfo;
+    pid_t mPGrp;
+};
+
+
 struct sCLString {
     sCLClass* mType;
     int mSize;
@@ -376,12 +393,14 @@ struct sCLString {
 #define CLBLOCK(obj) ((sCLBlock*)(get_object_pointer((obj))))
 #define CLCOMMAND(obj) ((sCLCommand*)(get_object_pointer((obj))))
 #define CLSTRING(obj) ((sCLString*)(get_object_pointer((obj))))
+#define CLJOB(obj) ((sCLJob*)(get_object_pointer((obj))))
 
 sCLHeapMem* get_object_pointer(CLObject obj);
 
 CLObject create_object(sCLClass* klass, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
 CLObject create_command_object(char* output, int output_len, char* err_output, int err_output_len, int rcode, sVMInfo* info);
+CLObject create_job_object(char* title, termios* tinfo, pid_t pgrp, sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info);
 
 bool free_object(CLObject self, sVMInfo* info);

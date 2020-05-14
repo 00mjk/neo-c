@@ -767,6 +767,15 @@ int main()
 
     sVectorStructDefinition* ssssdata;
 
+    var vecxxx = vec!(1,2,3);
+
+    vecxxx.each {
+        char buf[128];
+        xstrncpy(buf, "aaa", 128);
+
+        xassert("char array in method block test", strcmp(buf, "aaa") == 0);
+    }
+
 //    xassert("static variable test", funStaticVariable() == 1);
 //    xassert("static variable test2", funStaticVariable() == 2);
 

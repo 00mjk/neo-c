@@ -1690,8 +1690,10 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
                     return FALSE;
                 }
 
-                rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->address, llvm_type);
-                rvalue->type = clone_node_type(left_type);
+                if(!info->no_output) {
+                    rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->address, llvm_type);
+                    rvalue->type = clone_node_type(left_type);
+                }
             }
 
             *right_type = clone_node_type(left_type);

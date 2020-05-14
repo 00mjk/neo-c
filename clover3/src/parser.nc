@@ -655,6 +655,33 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 return false;
             }
         }
+        else if(strcmp(word, "jobs") == 0) {
+            *node = sNodeTree_create_jobs(info);
+        }
+        else if(strcmp(word, "fg") == 0) {
+            const int buf_size = 128;
+            char buf[128+1];
+            char* p2 = buf;
+
+            while(isdigit(*info->p) || *info->p == '_') {
+                if(*info->p ==  '_') {
+                    info->p++;
+                }
+                else {
+                    *p2++ = *info->p;
+                    info->p++;
+                }
+
+                if(p2 - (char*)buf >= buf_size) {
+                    parser_err_msg(info, "overflow node of number");
+                    return false;
+                }
+            };
+            *p2 = 0;
+            skip_spaces_and_lf(info);
+            
+            *node = sNodeTree_create_fg(atoi(buf), info);
+        }
         else if(klass && *info->p == '(') {
             info->p++;
             skip_spaces_and_lf(info);

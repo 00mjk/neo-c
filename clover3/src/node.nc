@@ -1104,6 +1104,90 @@ bool compile_block_object_call(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_jobs(sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeJobs;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+bool compile_jobs(sCLNode* node, sCompileInfo* info)
+{
+    if(!info.no_output) {
+        info.codes.append_int(OP_JOBS);
+    }
+
+    info->type = create_type("void", info.pinfo);
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_fg(int job_num, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeFg;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.uValue.mIntValue = job_num;
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+bool compile_fg(sCLNode* node, sCompileInfo* info)
+{
+    int job_num = node.uValue.mIntValue;
+    
+    if(!info.no_output) {
+        info.codes.append_int(OP_FG);
+
+        info.codes.append_int(job_num);
+    }
+
+    info->type = create_type("void", info.pinfo);
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_fg(int job_num, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeFg;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+bool compile_fg(sCLNode* node, sCompileInfo* info)
+{
+
+    info->type = create_type("void", info.pinfo);
+
+    return true;
+}
+
 bool compile(sCLNode* node, sCompileInfo* info) 
 {
     if(node == null) {
@@ -1213,6 +1297,19 @@ bool compile(sCLNode* node, sCompileInfo* info)
             if(!compile_block_object_call(node, info)) {
                 return false;
             }
+            }
+            break;
+
+        case kNodeTypeJobs: {
+            if(!compile_jobs(node, info)) {
+                return false;
+            }
+            }
+            break;
+
+        case kNodeTypeFg:
+            if(!compile_fg(node, info)) {
+                return false;
             }
             break;
             

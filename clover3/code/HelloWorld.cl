@@ -17,6 +17,8 @@
 #}
 
 ls("-al").grep("src").less();
+jobs;
+fg;
 #vim("src/vm.nc");
 
 

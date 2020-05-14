@@ -183,15 +183,44 @@ bool invoke_command_with_control_terminal(char* name, char** argv, int num_param
         return false;
     }
 
-    setpgid(getpid(), getpid());
-    tcsetpgrp(0, getpid());
+    if(WIFSTOPPED(status)) {
+        int rcode = WSTOPSIG(status) +128;
 
-    int rcode = WEXITSTATUS(status);
+        char title[JOB_TITLE_MAX];
+        xstrncpy(title, name, JOB_TITLE_MAX);
 
-    (*stack_ptr) -= num_params + 1;
+        termios tinfo;
+        if(tcgetattr(0, &tinfo) < 0) {
+            return false;
+        }
 
-    (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode, info);
-    (*stack_ptr)++;
+        int pgrp = pid;
+
+        CLObject job = create_job_object(title, &tinfo, pgrp, info);
+
+        gJobs.push_back(job);
+
+        setpgid(getpid(), getpid());
+        tcsetpgrp(0, getpid());
+
+        int rcode2 = WEXITSTATUS(status);
+
+        (*stack_ptr) -= num_params + 1;
+
+        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode2, info);
+        (*stack_ptr)++;
+    }
+    else {
+        setpgid(getpid(), getpid());
+        tcsetpgrp(0, getpid());
+
+        int rcode = WEXITSTATUS(status);
+
+        (*stack_ptr) -= num_params + 1;
+
+        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode, info);
+        (*stack_ptr)++;
+    }
 
     return true;
 }
@@ -342,15 +371,44 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
         return false;
     }
 
-    setpgid(getpid(), getpid());
-    tcsetpgrp(0, getpid());
+    if(WIFSTOPPED(status)) {
+        int rcode = WSTOPSIG(status) +128;
 
-    int rcode = WEXITSTATUS(status);
+        char title[JOB_TITLE_MAX];
+        xstrncpy(title, name, JOB_TITLE_MAX);
 
-    (*stack_ptr) -= num_params + 1;
+        termios tinfo;
+        if(tcgetattr(0, &tinfo) < 0) {
+            return false;
+        }
 
-    (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode, info);
-    (*stack_ptr)++;
+        int pgrp = pid;
+
+        CLObject job = create_job_object(title, &tinfo, pgrp, info);
+
+        gJobs.push_back(job);
+
+        setpgid(getpid(), getpid());
+        tcsetpgrp(0, getpid());
+
+        int rcode2 = WEXITSTATUS(status);
+
+        (*stack_ptr) -= num_params + 1;
+
+        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode2, info);
+        (*stack_ptr)++;
+    }
+    else {
+        setpgid(getpid(), getpid());
+        tcsetpgrp(0, getpid());
+
+        int rcode = WEXITSTATUS(status);
+
+        (*stack_ptr) -= num_params + 1;
+
+        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode, info);
+        (*stack_ptr)++;
+    }
 
     return true;
 }
@@ -444,6 +502,67 @@ bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVA
     int rcode = WEXITSTATUS(status);
     (*stack_ptr)->mObjectValue = create_command_object(child_output.buf, child_output.len, child_output_error.buf, child_output_error.len, rcode, info);
     (*stack_ptr)++;
+
+    return true;
+}
+
+void jobs(sVMInfo* info)
+{
+    gJobs.each {
+        sCLJob* job_data = CLJOB(it);
+
+        char title[JOB_TITLE_MAX];
+
+        xstrncpy(title, job_data->mTitle, JOB_TITLE_MAX);
+
+        printf("job %d %s\n", it2, title);
+    }
+}
+
+bool forgroud_job(int job_num, sVMInfo* info)
+{
+    CLObject job_object = gJobs.item(job_num, 9999);
+
+    if(job_object != 9999) {
+        sCLJob* job_data = CLJOB(job_object);
+
+        char title[JOB_TITLE_MAX];
+        xstrncpy(title, job_data.mTitle, JOB_TITLE_MAX);
+
+        termios tinfo = job_data.mTermInfo;
+        pid_t pgrp = job_data.mPGrp;
+
+        termios tinfo2;
+        if(tcgetattr(0, &tinfo2) < 0) {
+            return false;
+        }
+
+        tcsetattr(0, TCSANOW, &tinfo);
+        tcsetpgrp(0, pgrp);
+
+        kill(pgrp, SIGCONT);
+
+        int status = 0;
+        pid_t pid2 = waitpid(pgrp, &status, WUNTRACED);
+
+        if(WIFSTOPPED(status)) {
+            tcsetattr(0, TCSANOW, &tinfo2);
+            tcsetpgrp(0, getpid());
+        }
+        else if(WIFSIGNALED(status)) {
+            gJobs.replace(job_num, 9999);
+            printf("Job<%s> is done.\n", title);
+
+            tcsetattr(0, TCSANOW, &tinfo2);
+            tcsetpgrp(0, getpid());
+        }
+        else {
+            gJobs.replace(job_num, 9999);
+
+            tcsetattr(0, TCSANOW, &tinfo2);
+            tcsetpgrp(0, getpid());
+        }
+    }
 
     return true;
 }
@@ -821,6 +940,21 @@ print_block_end(*(stack_ptr-1));
                             return false;
                         }
                     }
+                }
+                }
+                break;
+
+            case OP_JOBS: {
+                jobs(info);
+                }
+                break;
+
+            case OP_FG: {
+                int job_num = *p;
+                p++;
+
+                if(!forgroud_job(job_num, info)) {
+                    return false;
                 }
                 }
                 break;

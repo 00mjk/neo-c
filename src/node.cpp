@@ -5260,100 +5260,62 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
         info->type = clone_node_type(result_type);
     }
     else {
-        if(type_identify_with_class_name(var_type, "__builtin_va_list")) {
-            BOOL parent = FALSE;
-            int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+        BOOL parent = FALSE;
+        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
 
-            Value* var_address;
-
-            if(var->mLLVMValue == NULL) {
-                compile_err_msg(info, "Invalid variable. %s. load variable(1)", var_name);
-                info->err_num++;
-
-                info->type = create_node_type_with_class_name("int"); // dummy
-                return TRUE;
-            }
-
+        Value* var_address;
+        if(parent && !var->mGlobal) {
+            var_address = load_address_to_lvtable(index, var_type, info);
+        }
+        else {
             var_address = (Value*)var->mLLVMValue;
+        }
 
-            if(var_address == nullptr) {
-                compile_err_msg(info, "Invalid variable. %s. load variable(2)", var_name);
-                info->err_num++;
+        if(var_address == nullptr && !info->no_output) {
+            compile_err_msg(info, "Invalid variable. %s. load variable(3)", var_name);
+            info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int"); // dummy
 
-                return TRUE;
+            return TRUE;
+        }
+
+        int alignment = get_llvm_alignment_from_node_type(var_type);
+
+        LVALUE llvm_value;
+
+        if(!info->no_output) {
+            if(var_type->mArrayNum > 0) {
+                llvm_value.value = var_address;
+            }
+            else {
+                llvm_value.value = Builder.CreateAlignedLoad(var_address, alignment, var_name);
             }
 
-            sNodeType* var_type2 = clone_node_type(var_type);
-            var_type2->mPointerNum++;
-
-            LVALUE llvm_value;
-            llvm_value.value = var_address;
-            llvm_value.type = var_type2;
-            llvm_value.address = nullptr;
+            llvm_value.type = var_type;
+            llvm_value.address = var_address;
             llvm_value.var = var;
             llvm_value.binded_value = TRUE;
             llvm_value.load_field = FALSE;
-
-            push_value_to_stack_ptr(&llvm_value, info);
-
-            sNodeType* result_type = var_type2;
-
-            info->type = clone_node_type(result_type);
         }
         else {
-            BOOL parent = FALSE;
-            int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+            llvm_value.value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)1);
+            llvm_value.type = var_type;
+            llvm_value.address = var_address;
+            llvm_value.var = nullptr;
+            llvm_value.binded_value = FALSE;
+            llvm_value.load_field = FALSE;
 
-            Value* var_address;
-            if(parent && !var->mGlobal) {
-                var_address = load_address_to_lvtable(index, var_type, info);
-            }
-            else {
-                var_address = (Value*)var->mLLVMValue;
-            }
+            sNodeType* right_type = create_node_type_with_class_name("long");
 
-            if(var_address == nullptr && !info->no_output) {
-                compile_err_msg(info, "Invalid variable. %s. load variable(3)", var_name);
-                info->err_num++;
-
-                info->type = create_node_type_with_class_name("int"); // dummy
-
-                return TRUE;
-            }
-
-            int alignment = get_llvm_alignment_from_node_type(var_type);
-
-            LVALUE llvm_value;
-
-            if(!info->no_output) {
-                llvm_value.value = Builder.CreateAlignedLoad(var_address, alignment, var_name);
-                llvm_value.type = var_type;
-                llvm_value.address = var_address;
-                llvm_value.var = var;
-                llvm_value.binded_value = TRUE;
-                llvm_value.load_field = FALSE;
-            }
-            else {
-                llvm_value.value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)1);
-                llvm_value.type = var_type;
-                llvm_value.address = nullptr;
-                llvm_value.var = nullptr;
-                llvm_value.binded_value = FALSE;
-                llvm_value.load_field = FALSE;
-
-                sNodeType* right_type = create_node_type_with_class_name("long");
-
-                (void)cast_right_type_to_left_type(var_type, &right_type, &llvm_value, info);
-            }
-
-            push_value_to_stack_ptr(&llvm_value, info);
-
-            sNodeType* result_type = var_type;
-
-            info->type = clone_node_type(result_type);
+            (void)cast_right_type_to_left_type(var_type, &right_type, &llvm_value, info);
         }
+
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        sNodeType* result_type = var_type;
+
+        info->type = clone_node_type(result_type);
     }
 
     return TRUE;
@@ -6781,7 +6743,14 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
             Value* field_address2 = Builder.CreateCast(Instruction::BitCast, field_address, PointerType::get(llvm_field_type, 0));
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
+
+            if(field_type->mArrayNum > 0) {
+                llvm_value.value = field_address2;
+            }
+            else {
+                llvm_value.value = Builder.CreateAlignedLoad(field_address2, alignment);
+            }
+
             llvm_value.type = clone_node_type(field_type);
             llvm_value.address = field_address2;
             llvm_value.var = nullptr;

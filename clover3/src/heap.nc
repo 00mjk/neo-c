@@ -305,6 +305,9 @@ static void mark_all_class_fields(unsigned char* mark_flg, sVMInfo* info)
 
 static void mark(sVMInfo* info, unsigned char* mark_flg, sVMInfo* info)
 {
+    gJobs.each {
+        mark_object(it, mark_flg, info);
+    }
     info.stack_frames.each {
         CLVALUE* p = it.stack;
 

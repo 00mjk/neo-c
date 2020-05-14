@@ -18,6 +18,5 @@ then
     (cd ..; tar cvfz neo-c.tgz neo-c)
     (cd ..; scp neo-c.tgz ab25cq@clover-lang.org:)
     ssh ab25cq@clover-lang.org bash -c '"cp -f neo-c.tgz repo/; cd repo; rm -rf neo-c; tar xvfz neo-c.tgz"'
-    ssh ab25cq@clover-lang.org
 fi
 

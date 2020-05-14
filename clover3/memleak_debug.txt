@@ -1,6 +1,0 @@
-
-remain the heap memory(0xb3baf0) with type name buffer% at src/class.nc.138. calloc num is 1. calloc_size is 16. fun_name is eval_class eval_class
-
-remain the heap memory(0x1922af0) with type name buffer% at src/class.nc.138. calloc num is 1. calloc_size is 16. fun_name is eval_class eval_class
-
-remain the heap memory(0x17d3af0) with type name buffer% at src/class.nc.138. calloc num is 1. calloc_size is 16. fun_name is eval_class eval_class
