@@ -1,4 +1,4 @@
-# test4
+# test 4
 #class HelloClass2 {
 #    var a:int;
 #    var b:int;
@@ -16,12 +16,14 @@
 #    c + b + 2
 #}
 
-ls("-al").grep("src").less();
-jobs;
-fg;
+#obj2.a = 2;
+#obj2.a = 3;
+
+# test5
+#ls("-al").grep("src").less();
+#jobs;
+#fg;
 #vim("src/vm.nc");
-
-
 
 # test 1
 #var a = 1;
@@ -52,11 +54,11 @@ fg;
 #obj.method(2, 2);
 
 # test3
-#var b = 1;
-#var aaa = lambda(a:int):int {
-#    b = 2;
-#    2 + a + b
-#}
+var b = 1;
+var aaa = lambda(a:int):int {
+    b = 2;
+    2 + a + b
+}
 
-#aaa(3)
-#b
+aaa(3)
+b

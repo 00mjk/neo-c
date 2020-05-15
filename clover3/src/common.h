@@ -105,14 +105,15 @@ struct sCLField {
 
     sCLType* mResultType;
     CLVALUE mValue;
+    int mIndex;
 };
 
 struct sCLClass {
     string mName;
 
     map<string,sCLMethod*%>*% mMethods;
-    list<sCLField*%>*% mFields;
-    list<sCLField*%>*% mClassFields;
+    map<string, sCLField*%>*% mFields;
+    map<string, sCLField*%>*% mClassFields;
 };
 
 extern map<string, sCLClass*%>* gClasses;
@@ -224,7 +225,7 @@ struct sParserInfo {
     int max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -242,7 +243,7 @@ struct sCompileInfo {
     bool no_output;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -289,6 +290,10 @@ sCLNode* sNodeTree_create_command_call(sCLNode* node, char* name, int num_params
 sCLNode* sNodeTree_create_block_object_call(int num_params, sCLNode** params, sParserInfo* info);
 sCLNode* sNodeTree_create_jobs(sParserInfo* info);
 sCLNode* sNodeTree_create_fg(int job_num, sParserInfo* info);
+sCLNode* sNodeTree_create_load_field(sCLNode* obj, char* name, sParserInfo* info);
+sCLNode* NodeTree_create_store_field(sCLNode* obj, char* name, sCLNode* exp, sParserInfo* info);
+sCLNode* sNodeTree_create_load_field(sCLNode* obj, char* name, sParserInfo* info);
+sCLNode* sNodeTree_create_store_field(sCLNode* obj, char* name, sCLNode* exp, sParserInfo* info);
 
 //////////////////////////////
 /// runtime side

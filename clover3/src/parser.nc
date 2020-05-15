@@ -520,7 +520,20 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
             }
             //// field ///
             else {
-                break;
+                info->p++;
+                skip_spaces_and_lf(info);
+
+                if(*info->p == '=') {
+                    sCLNode* exp = null;
+                    if(!expression(&exp, info)) {
+                        return false;
+                    };
+
+                    *node = sNodeTree_create_store_field(*node, name, exp, info);
+                }
+                else {
+                    *node = sNodeTree_create_load_field(*node, name, info);
+                }
             }
         }
         else if(*info->p == '(') {
@@ -546,6 +559,13 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
     }
 
     return true;
+}
+
+bool is_local_variable(char* word, sParserInfo* info)
+{
+    sVar* v = get_variable_from_table(info, word);
+
+    return v != null;
 }
 
 static bool expression_node(sCLNode** node, sParserInfo* info)
@@ -702,7 +722,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 
                 *node = sNodeTree_create_store_variable(word, exp, info);
             }
-            else if(*info->p == '(') {
+            else if(!is_local_variable(word, info) && *info->p == '(') {
                 info->p++;
                 skip_spaces_and_lf(info);
 

@@ -90,7 +90,7 @@ static bool compile_strig_value(sCLNode* node, sCompileInfo* info)
     
     if(!info.no_output) {
         info.codes.append_int(OP_STRING_VALUE);
-        info.codes.append_str(str_value);
+        info.codes.append_bytes(str_value);
 
         info.codes.alignment();
     }
@@ -725,7 +725,7 @@ static bool compile_create_object(sCLNode* node, sCompileInfo* info)
 
     if(!info.no_output) {
         info.codes.append_int(OP_CREATE_OBJECT);
-        info.codes.append_str(class_name_);
+        info.codes.append_bytes(class_name_);
 
         info.codes.alignment();
     }
@@ -809,7 +809,7 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         if(!info.no_output) {
             info.codes.append_int(OP_INVOKE_COMMAND);
 
-            info.codes.append_str(method_name);
+            info.codes.append_bytes(method_name);
 
             info.codes.alignment();
 
@@ -901,11 +901,11 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
     /// go ///
     if(!info.no_output) {
         info.codes.append_int(OP_INVOKE_METHOD);
-        info.codes.append_str(klass.mName);
+        info.codes.append_bytes(klass.mName);
 
         info.codes.alignment();
 
-        info.codes.append_str(method_name);
+        info.codes.append_bytes(method_name);
 
         info.codes.alignment();
 
@@ -1009,7 +1009,7 @@ bool compile_command_call(sCLNode* node, sCompileInfo* info)
     if(!info.no_output) {
         info.codes.append_int(OP_INVOKE_COMMAND);
 
-        info.codes.append_str(method_name);
+        info.codes.append_bytes(method_name);
 
         info.codes.alignment();
 
@@ -1182,8 +1182,124 @@ sCLNode* sNodeTree_create_fg(int job_num, sParserInfo* info)
 
 bool compile_fg(sCLNode* node, sCompileInfo* info)
 {
-
     info->type = create_type("void", info.pinfo);
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_store_field(sCLNode* obj, char* name, sCLNode* exp, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeStoreField;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.mStringValue = string(name);
+
+    result.left = obj;
+    result.right = exp;
+    result.middle = null;
+
+    return result;
+}
+
+bool compile_store_field(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* obj_node = node.left;
+    char* name = node.mStringValue;
+    sCLNode* exp_node = node.right;
+
+    if(!compile(obj_node, info)) {
+        return false;
+    }
+
+    sCLType* obj_type = info.type;
+
+    sCLClass* klass = obj_type.mClass;
+
+    sCLField* field = klass.mFields.at(name, null);
+
+    if(field == null) {
+        compile_err_msg(info, xsprintf("There is no field named %s in class %s", name, klass.mName));
+        return true;
+    }
+
+    sCLType* field_type = field.mResultType;
+
+    int field_index = field.mIndex;
+
+    if(!compile(exp_node, info)) {
+        return false;
+    }
+
+    sCLType* exp_type = info.type;
+
+    if(!substitution_posibility(field_type, exp_type)) {
+        compile_err_msg(info, xsprintf("Invalid type storing field %s", name));
+
+        return true;
+    }
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_STORE_FIELD);
+        info.codes.append_int(field_index);
+    }
+    
+    info->type = field_type;
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_load_field(sCLNode* obj, char* name, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeLoadField;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.mStringValue = string(name);
+
+    result.left = obj;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+bool compile_load_field(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* obj_node = node.left;
+    char* name = node.mStringValue;
+
+    if(!compile(obj_node, info)) {
+        return false;
+    }
+
+    sCLType* obj_type = info.type;
+
+    sCLClass* klass = obj_type.mClass;
+
+    sCLField* field = klass.mFields.at(name, null);
+
+    if(field == null) {
+        compile_err_msg(info, xsprintf("There is no field named %s in class %s", name, klass.mName));
+        return true;
+    }
+
+    sCLType* field_type = field.mResultType;
+
+    int field_index = field.mIndex;
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_LOAD_FIELD);
+        info.codes.append_int(field_index);
+    }
+    
+    info->type = field_type;
 
     return true;
 }
@@ -1309,6 +1425,18 @@ bool compile(sCLNode* node, sCompileInfo* info)
 
         case kNodeTypeFg:
             if(!compile_fg(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeLoadField:
+            if(!compile_load_field(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeStoreField:
+            if(!compile_store_field(node, info)) {
                 return false;
             }
             break;

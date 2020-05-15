@@ -736,8 +736,17 @@ union CLVALUE {
     int bbb;
 };
 
+struct Info {
+    char *p;
+};
+
 int main()
 {
+    Info info;
+    info.p = "ABC";
+
+    xassert("pointer test", *info.p == 'A' && *(info->p+1) == 'B');
+
     CLVALUE stack[128];
 
     stack[0].bbb = 0;

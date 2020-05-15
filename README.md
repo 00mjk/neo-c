@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.1.9
+version 1.2.0
 
 ```
 #include <stdio.h>
@@ -62,6 +62,8 @@ This program is tested in LLVM-3.8 and LLVM-7, and x86_64 on Debian, Raspberry P
 x86_64のDebianとRaspberry PI 3B+でテストしています。
 
 # CHANGELOG
+
+1.2.08 some changes to buffer.append_str. Append buffer.append_bytes.
 
 1.1.7 cast bug was fixed
 
@@ -868,6 +870,7 @@ impl buffer
     void append(buffer* self, char* mem, size_t size);
     void append_char(buffer* self, char c);
     void append_str(buffer* self, char* str);
+    void append_bytes(buffer* self, char* str);
 
     string to_string(buffer* self);
 

@@ -298,7 +298,7 @@ static void mark_all_class_fields(unsigned char* mark_flg, sVMInfo* info)
 {
     gClasses.each {
         it2.mClassFields.each {
-            mark_object(it.mValue.mObjectValue, mark_flg, info);
+            mark_object(it2.mValue.mObjectValue, mark_flg, info);
         }
     }
 }

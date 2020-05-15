@@ -104,6 +104,11 @@ impl buffer
     void append_str(buffer* self, char* str)
     {
         self.append(str, strlen(str));
+    }
+
+    void append_bytes(buffer* self, char* str)
+    {
+        self.append(str, strlen(str));
         self.append_char('\0');
     }
 

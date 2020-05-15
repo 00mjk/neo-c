@@ -31,8 +31,8 @@ void append_class(char* name)
     klass.mName = string(name);
 
     klass.mMethods = new map<string, sCLMethod*%>.initialize();
-    klass.mFields = new list<sCLField*%>.initialize();
-    klass.mClassFields = new list<sCLField*%>.initialize();
+    klass.mFields = new map<string, sCLField*%>.initialize();
+    klass.mClassFields = new map<string, sCLField*%>.initialize();
     
     gClasses.insert(string(name), klass);
 }
@@ -43,8 +43,9 @@ void append_field(sCLClass* klass, char* field_name, sCLType* field_type)
 
     field.mName = string(field_name);
     field.mResultType = field_type;
+    field.mIndex = klass.mFields.length();
 
-    klass.mFields.push_back(field);
+    klass.mFields.insert(string(field_name), field);
 }
 
 void append_method(sCLClass* klass, char* method_name, sCLType* method_type, int num_params, sCLParam* params, sCLNodeBlock* node_block, buffer* codes)

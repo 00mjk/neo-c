@@ -239,6 +239,7 @@ impl buffer
     void append(buffer* self, char* mem, size_t size);
     void append_char(buffer* self, char c);
     void append_str(buffer* self, char* str);
+    void append_bytes(buffer* self, char* str);
     inline void append_int(buffer* self, int value) {
         self.append((char*)&value, sizeof(int));
     }
