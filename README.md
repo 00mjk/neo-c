@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.2.0
+version 1.2.1
 
 ```
 #include <stdio.h>
@@ -63,7 +63,8 @@ x86_64のDebianとRaspberry PI 3B+でテストしています。
 
 # CHANGELOG
 
-1.2.08 some changes to buffer.append_str. Append buffer.append_bytes.
+1.2.1 rename apend_bytes --> append_nullteminated_str
+1.2.0 some changes to buffer.append_str. Append buffer.append_bytes.
 
 1.1.7 cast bug was fixed
 

@@ -90,7 +90,7 @@ static bool compile_strig_value(sCLNode* node, sCompileInfo* info)
     
     if(!info.no_output) {
         info.codes.append_int(OP_STRING_VALUE);
-        info.codes.append_bytes(str_value);
+        info.codes.append_nullterminated_str(str_value);
 
         info.codes.alignment();
     }
@@ -725,7 +725,7 @@ static bool compile_create_object(sCLNode* node, sCompileInfo* info)
 
     if(!info.no_output) {
         info.codes.append_int(OP_CREATE_OBJECT);
-        info.codes.append_bytes(class_name_);
+        info.codes.append_nullterminated_str(class_name_);
 
         info.codes.alignment();
     }
@@ -809,7 +809,7 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         if(!info.no_output) {
             info.codes.append_int(OP_INVOKE_COMMAND);
 
-            info.codes.append_bytes(method_name);
+            info.codes.append_nullterminated_str(method_name);
 
             info.codes.alignment();
 
@@ -901,11 +901,11 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
     /// go ///
     if(!info.no_output) {
         info.codes.append_int(OP_INVOKE_METHOD);
-        info.codes.append_bytes(klass.mName);
+        info.codes.append_nullterminated_str(klass.mName);
 
         info.codes.alignment();
 
-        info.codes.append_bytes(method_name);
+        info.codes.append_nullterminated_str(method_name);
 
         info.codes.alignment();
 
@@ -1009,7 +1009,7 @@ bool compile_command_call(sCLNode* node, sCompileInfo* info)
     if(!info.no_output) {
         info.codes.append_int(OP_INVOKE_COMMAND);
 
-        info.codes.append_bytes(method_name);
+        info.codes.append_nullterminated_str(method_name);
 
         info.codes.alignment();
 
