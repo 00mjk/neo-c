@@ -316,6 +316,8 @@ static void mark(sVMInfo* info, unsigned char* mark_flg, sVMInfo* info)
             p++;
         }
     }
+
+    mark_object(info->thrown_object.mObjectValue, mark_flg, info);
 }
 
 static void free_objects(unsigned char* mark_flg, sVMInfo* info)
@@ -381,7 +383,7 @@ void gc(sVMInfo* info)
 
 static int gc_timing = 0;
 
-CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int field_num, sVMInfo* info)
+CLObject alloc_heap_mem(unsigned int size, sCLType* type, int field_num, sVMInfo* info)
 {
     int handle;
     CLObject obj;
@@ -478,7 +480,7 @@ CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int field_num, sVMIn
 
     object_ptr->mSize = size;
 
-    object_ptr->mType = klass;
+    object_ptr->mType = type;
     object_ptr->mArrayNum = field_num;
 
     return obj;

@@ -1,3 +1,18 @@
+class HellClass3 {
+    def method(a:int, b:string): int {
+        123
+    }
+}
+
+var obj3 = HellClass3();
+
+obj3.method(1, "ABC");
+
+
+#echo(1);
+#throw "Exception";
+
+
 # test 4
 #class HelloClass2 {
 #    var a:int;
@@ -15,9 +30,9 @@
 #obj2.method(2) {
 #    c + b + 2
 #}
-
-#obj2.a = 2;
+#
 #obj2.a = 3;
+#obj2.a;
 
 # test5
 #ls("-al").grep("src").less();
@@ -54,11 +69,11 @@
 #obj.method(2, 2);
 
 # test3
-var b = 1;
-var aaa = lambda(a:int):int {
-    b = 2;
-    2 + a + b
-}
-
-aaa(3)
-b
+#var b = 1;
+#var aaa = lambda(a:int):int {
+#    b = 2;
+#    2 + a + b
+#}
+#
+#aaa(3)
+#b

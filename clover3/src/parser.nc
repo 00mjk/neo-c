@@ -18,7 +18,19 @@ void parse_comment(sParserInfo* info)
             if(*info->p == '\n') {
                 info->p++;
                 info->sline++;
-                skip_spaces_and_lf(info);
+
+                while(true) {
+                    if(*info->p == ' ' || *info->p == '\t') {
+                        info->p++;
+                    }
+                    else if(*info->p == '\n') {
+                        info->p++;
+                        info->sline++;
+                    }
+                    else {
+                        break;
+                    }
+                }
                 break;
             }
             else if(*info->p == '\0') {
@@ -234,6 +246,18 @@ bool parse_if_expression(sCLNode** node, sParserInfo* info)
     };
     
     *node = sNodeTree_create_if_expression(exp, node_block, num_elif, elif_expressions, elif_blocks, else_block, info);
+
+    return true;
+}
+
+bool parse_throw(sCLNode** node, sParserInfo* info) 
+{
+    sCLNode* obj = null;
+    if(!expression(&obj, info)) {
+        return false;
+    };
+
+    *node = sNodeTree_create_throw_exception(obj, info);
 
     return true;
 }
@@ -520,10 +544,10 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
             }
             //// field ///
             else {
-                info->p++;
-                skip_spaces_and_lf(info);
+                if(*info->p == '=' && *(info->p+1) != '=') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
 
-                if(*info->p == '=') {
                     sCLNode* exp = null;
                     if(!expression(&exp, info)) {
                         return false;
@@ -662,6 +686,11 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
         }
         else if(strcmp(word, "if") == 0) {
             if(!parse_if_expression(node, info)) {
+                return false;
+            }
+        }
+        else if(strcmp(word, "throw") == 0) {
+            if(!parse_throw(node, info)) {
                 return false;
             }
         }

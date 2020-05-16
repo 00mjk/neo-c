@@ -1,4 +1,10 @@
-field load store
+演算子のメッセージパッシング化
+
+intをヒープに確保する。intのオブジェクト化
+INVOKE_METHODの実行時の型チェック、型が違うと例外を出す。
+
+INVOKE_BLOCK_OBJECTの実行時の型チェック
+
 return, throw, try&catch
 break;
 while

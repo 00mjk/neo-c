@@ -24,12 +24,12 @@ CLASS_FLAGS_UNION	src/common.h	85;"	d
 CLASS_FLAGS_UNSIGNED_NUMBER	src/common.h	82;"	d
 CLASS_NAME	src/common.h	109;"	d
 CLASS_NUM_MAX	src/common.h	22;"	d
-CLBLOCK	clover3/src/common.h	398;"	d
-CLCOMMAND	clover3/src/common.h	399;"	d
-CLJOB	clover3/src/common.h	401;"	d
-CLOBJECT	clover3/src/common.h	397;"	d
+CLBLOCK	clover3/src/common.h	397;"	d
+CLCOMMAND	clover3/src/common.h	398;"	d
+CLJOB	clover3/src/common.h	400;"	d
+CLOBJECT	clover3/src/common.h	396;"	d
 CLObject	clover3/src/common.h	/^typedef unsigned int CLObject;$/;"	t
-CLSTRING	clover3/src/common.h	400;"	d
+CLSTRING	clover3/src/common.h	399;"	d
 CLVALUE	clover3/src/common.h	/^union CLVALUE {$/;"	u
 COMMAND_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
 COMMON_H	clover3/src/common.h	2;"	d
@@ -85,7 +85,7 @@ LexicalBlock	src/llvm.cpp	/^    std::vector<DIScope*> LexicalBlock;$/;"	m	struct
 MACRO_MAX	src/common.h	39;"	d
 MANAGED	src/xfunc.h	5;"	d
 MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	1317;"	d
-MAP_TABLE_DEFAULT_SIZE	neo-c.h	2001;"	d
+MAP_TABLE_DEFAULT_SIZE	neo-c.h	2002;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	28;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
@@ -392,8 +392,8 @@ clone_object	src/llvm.cpp	/^Value* clone_object(sNodeType* node_type, Value* add
 clone_var_table	src/vtable.c	/^sVarTable* clone_var_table(sVarTable* lv_table)$/;"	f
 codes	clover3/src/common.h	/^    buffer* codes;$/;"	m	struct:sCompileInfo
 codes	clover3/src/common.h	/^    buffer*% codes;$/;"	m	struct:sCLNodeBlock
-codes	clover3/src/common.h	/^    int* codes;$/;"	m	struct:sCLBlock
-codes_len	clover3/src/common.h	/^    int codes_len;$/;"	m	struct:sCLBlock
+codes	clover3/src/common.h	/^    int* codes;$/;"	m	struct:sCLObject::sCLBlock
+codes_len	clover3/src/common.h	/^    int codes_len;$/;"	m	struct:sCLObject::sCLBlock
 commandString	wi/common.h	/^    string commandString;$/;"	m	struct:version
 compile	src/node.cpp	/^BOOL compile(unsigned int node, sCompileInfo* info)$/;"	f
 compile_add	src/node.cpp	/^static BOOL compile_add(unsigned int node, sCompileInfo* info)$/;"	f	file:
@@ -702,8 +702,8 @@ has_last_value	clover3/src/common.h	/^    bool has_last_value;$/;"	m	struct:sCLN
 head	code/neo-c.h	/^    list_item<T>*? head;$/;"	m	struct:list
 head	neo-c.h	/^    list_item<T>*? head;$/;"	m	struct:list
 head	src/memalloc.c	/^struct header_t *head = NULL, *tail = NULL;$/;"	v	typeref:struct:header_t
-head_params	clover3/src/common.h	/^    int head_params;$/;"	m	struct:sCLBlock
 head_params	clover3/src/common.h	/^    int head_params;$/;"	m	struct:sCLNodeBlock
+head_params	clover3/src/common.h	/^    int head_params;$/;"	m	struct:sCLObject::sCLBlock
 header_t	src/memalloc.c	/^struct header_t {$/;"	s	file:
 height	wi/common.h	/^    int height;$/;"	m	struct:ViWin
 ignore_case	code/neo-c.h	/^    bool ignore_case;$/;"	m	struct:regex_struct
@@ -958,7 +958,7 @@ mConst	src/common.h	/^    sConst mConst;$/;"	m	struct:sCLClassStruct
 mConstant	src/common.h	/^    BOOL mConstant;$/;"	m	struct:sNodeTypeStruct
 mConstant	src/common.h	/^    BOOL mConstant;$/;"	m	struct:sVarStruct
 mConstructorFun	src/common.h	/^            BOOL mConstructorFun;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
-mData	clover3/src/common.h	/^    char mData[DUMMY_ARRAY_SIZE];$/;"	m	struct:sCLString
+mData	clover3/src/common.h	/^    char mData[DUMMY_ARRAY_SIZE];$/;"	m	struct:sCLObject::sCLString
 mDefaultValue	src/common.h	/^    char mDefaultValue[METHOD_DEFAULT_PARAM_MAX];$/;"	m	struct:sParserParamStruct
 mDummyHeap	src/common.h	/^    BOOL mDummyHeap;$/;"	m	struct:sNodeTypeStruct
 mDynamicArrayNum	src/common.h	/^    unsigned int mDynamicArrayNum;$/;"	m	struct:sNodeTypeStruct
@@ -969,8 +969,8 @@ mElifNodeBlocks	src/common.h	/^            MANAGED struct sNodeBlockStruct* mEli
 mElifNum	src/common.h	/^            int mElifNum;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon17
 mElseBlock	clover3/src/common.h	/^            sCLNodeBlock* mElseBlock;$/;"	m	struct:sCLNode::__anon37::__anon38
 mElseNodeBlock	src/common.h	/^            MANAGED struct sNodeBlockStruct* mElseNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon17	typeref:struct:sNodeTreeStruct::__anon5::__anon17::sNodeBlockStruct
-mErrData	clover3/src/common.h	/^    char* mErrData;$/;"	m	struct:sCLCommand
-mErrOutputLen	clover3/src/common.h	/^    int mErrOutputLen;$/;"	m	struct:sCLCommand
+mErrData	clover3/src/common.h	/^    char* mErrData;$/;"	m	struct:sCLObject::sCLCommand
+mErrOutputLen	clover3/src/common.h	/^    int mErrOutputLen;$/;"	m	struct:sCLObject::sCLCommand
 mExpression	src/common.h	/^            unsigned int mExpression;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon33
 mExpression	src/common.h	/^            unsigned int mExpression;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon34
 mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon17
@@ -1096,11 +1096,11 @@ mNodes	src/common.h	/^    unsigned int* mNodes;$/;"	m	struct:sNodeBlockStruct
 mNullable	clover3/src/common.h	/^    bool mNullable;$/;"	m	struct:sCLType
 mNullable	src/common.h	/^    BOOL mNullable;$/;"	m	struct:sNodeTypeStruct
 mNumElif	clover3/src/common.h	/^            int mNumElif;$/;"	m	struct:sCLNode::__anon37::__anon38
-mNumFields	clover3/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLBlock
-mNumFields	clover3/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLCommand
-mNumFields	clover3/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLJob
 mNumFields	clover3/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLObject
-mNumFields	clover3/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLString
+mNumFields	clover3/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLObject::sCLBlock
+mNumFields	clover3/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLObject::sCLCommand
+mNumFields	clover3/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLObject::sCLJob
+mNumFields	clover3/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLObject::sCLString
 mNumFields	src/common.h	/^    int mNumFields;$/;"	m	struct:sCLClassStruct
 mNumFields	src/common.h	/^    int mNumFields;$/;"	m	struct:sNodeTypeStruct
 mNumGenerics	src/common.h	/^            int mNumGenerics;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
@@ -1131,9 +1131,9 @@ mNumSwitchExpression	src/common.h	/^            int mNumSwitchExpression;$/;"	m	
 mNumVarTables	src/vtable.c	/^static int mNumVarTables = 0;$/;"	v	file:
 mObjectValue	clover3/src/common.h	/^    CLObject mObjectValue;$/;"	m	union:CLVALUE
 mOperatorFun	src/common.h	/^            BOOL mOperatorFun;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
-mOutput	clover3/src/common.h	/^    char mOutput[DUMMY_ARRAY_SIZE];$/;"	m	struct:sCLCommand
-mOutputLen	clover3/src/common.h	/^    int mOutputLen;$/;"	m	struct:sCLCommand
-mPGrp	clover3/src/common.h	/^    pid_t mPGrp;$/;"	m	struct:sCLJob
+mOutput	clover3/src/common.h	/^    char mOutput[DUMMY_ARRAY_SIZE];$/;"	m	struct:sCLObject::sCLCommand
+mOutputLen	clover3/src/common.h	/^    int mOutputLen;$/;"	m	struct:sCLObject::sCLCommand
+mPGrp	clover3/src/common.h	/^    pid_t mPGrp;$/;"	m	struct:sCLObject::sCLJob
 mParamNames	src/llvm_common.hpp	/^    char mParamNames[PARAMS_MAX][VAR_NAME_MAX];$/;"	m	struct:sFunctionStruct
 mParamTypes	src/common.h	/^    struct sNodeTypeStruct* mParamTypes[PARAMS_MAX];$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeTypeStruct
 mParamTypes	src/llvm_common.hpp	/^    sNodeType* mParamTypes[PARAMS_MAX];$/;"	m	struct:sFunctionStruct
@@ -1150,7 +1150,7 @@ mParent	src/common.h	/^    struct sVarTableStruct* mParent;            \/\/ make
 mParseStructPhase	src/common.h	/^            BOOL mParseStructPhase;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mParseStructPhase	src/common.h	/^            BOOL mParseStructPhase;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon6
 mPointerNum	src/common.h	/^    int mPointerNum;$/;"	m	struct:sNodeTypeStruct
-mRCode	clover3/src/common.h	/^    int mRCode;$/;"	m	struct:sCLCommand
+mRCode	clover3/src/common.h	/^    int mRCode;$/;"	m	struct:sCLObject::sCLCommand
 mReadOnly	clover3/src/common.h	/^    bool mReadOnly;$/;"	m	struct:sVar
 mReadOnly	src/common.h	/^    BOOL mReadOnly;$/;"	m	struct:sVarStruct
 mRealName	src/llvm_common.hpp	/^    char mRealName[REAL_FUN_NAME_MAX];$/;"	m	struct:sFunctionStruct
@@ -1175,12 +1175,12 @@ mSName	src/llvm_common.hpp	/^    char mSName[PATH_MAX];$/;"	m	struct:sFunctionSt
 mSimpleLambdaParam	src/common.h	/^            BOOL mSimpleLambdaParam;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mSimpleName	src/common.h	/^            char mSimpleName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mSimpleName	src/llvm_common.hpp	/^    char mSimpleName[VAR_NAME_MAX];$/;"	m	struct:sFunctionStruct
-mSize	clover3/src/common.h	/^    int mSize;$/;"	m	struct:sCLBlock
-mSize	clover3/src/common.h	/^    int mSize;$/;"	m	struct:sCLCommand
 mSize	clover3/src/common.h	/^    int mSize;$/;"	m	struct:sCLHeapMem
-mSize	clover3/src/common.h	/^    int mSize;$/;"	m	struct:sCLJob
 mSize	clover3/src/common.h	/^    int mSize;$/;"	m	struct:sCLObject
-mSize	clover3/src/common.h	/^    int mSize;$/;"	m	struct:sCLString
+mSize	clover3/src/common.h	/^    int mSize;$/;"	m	struct:sCLObject::sCLBlock
+mSize	clover3/src/common.h	/^    int mSize;$/;"	m	struct:sCLObject::sCLCommand
+mSize	clover3/src/common.h	/^    int mSize;$/;"	m	struct:sCLObject::sCLJob
+mSize	clover3/src/common.h	/^    int mSize;$/;"	m	struct:sCLObject::sCLString
 mSize	src/buffer.h	/^    int mSize;$/;"	m	struct:sBufStruct
 mSize	src/common.h	/^    unsigned int mSize;$/;"	m	struct:sConstStruct
 mSizeNodes	src/common.h	/^    unsigned int mSizeNodes;$/;"	m	struct:sNodeBlockStruct
@@ -1193,14 +1193,14 @@ mStringValue	clover3/src/common.h	/^    string mStringValue;$/;"	m	struct:sCLNod
 mStructName	src/common.h	/^            char mStructName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon5::__anon14
 mStructName	src/llvm_common.hpp	/^    char mStructName[VAR_NAME_MAX];$/;"	m	struct:sFunctionStruct
 mSwitchExpression	src/common.h	/^            unsigned int* mSwitchExpression;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon33
-mTermInfo	clover3/src/common.h	/^    termios mTermInfo;$/;"	m	struct:sCLJob
-mTitle	clover3/src/common.h	/^    char mTitle[JOB_TITLE_MAX];$/;"	m	struct:sCLJob
-mType	clover3/src/common.h	/^    sCLClass* mType;$/;"	m	struct:sCLBlock
-mType	clover3/src/common.h	/^    sCLClass* mType;$/;"	m	struct:sCLCommand
+mTermInfo	clover3/src/common.h	/^    termios mTermInfo;$/;"	m	struct:sCLObject::sCLJob
+mTitle	clover3/src/common.h	/^    char mTitle[JOB_TITLE_MAX];$/;"	m	struct:sCLObject::sCLJob
 mType	clover3/src/common.h	/^    sCLClass* mType;$/;"	m	struct:sCLHeapMem
-mType	clover3/src/common.h	/^    sCLClass* mType;$/;"	m	struct:sCLJob
 mType	clover3/src/common.h	/^    sCLClass* mType;$/;"	m	struct:sCLObject
-mType	clover3/src/common.h	/^    sCLClass* mType;$/;"	m	struct:sCLString
+mType	clover3/src/common.h	/^    sCLClass* mType;$/;"	m	struct:sCLObject::sCLBlock
+mType	clover3/src/common.h	/^    sCLClass* mType;$/;"	m	struct:sCLObject::sCLCommand
+mType	clover3/src/common.h	/^    sCLClass* mType;$/;"	m	struct:sCLObject::sCLJob
+mType	clover3/src/common.h	/^    sCLClass* mType;$/;"	m	struct:sCLObject::sCLString
 mType	clover3/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLParam
 mType	clover3/src/common.h	/^    sCLType* mType;$/;"	m	struct:sVar
 mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct::__anon5::__anon19
@@ -1448,21 +1448,21 @@ sBuf_append_long	src/buffer.c	/^void sBuf_append_long(sBuf* self, long long valu
 sBuf_append_str	src/buffer.c	/^void sBuf_append_str(sBuf* self, char* str)$/;"	f
 sBuf_clone	src/buffer.c	/^void sBuf_clone(sBuf* self, sBuf* buf)$/;"	f
 sBuf_init	src/buffer.c	/^void sBuf_init(sBuf* self)$/;"	f
-sCLBlock	clover3/src/common.h	/^struct sCLBlock {$/;"	s
+sCLBlock	clover3/src/common.h	/^struct sCLBlock {$/;"	s	struct:sCLObject
 sCLClass	clover3/src/common.h	/^struct sCLClass {$/;"	s
 sCLClass	src/common.h	/^typedef struct sCLClassStruct sCLClass;$/;"	t	typeref:struct:sCLClassStruct
 sCLClassStruct	src/common.h	/^struct sCLClassStruct {$/;"	s
-sCLCommand	clover3/src/common.h	/^struct sCLCommand {$/;"	s
+sCLCommand	clover3/src/common.h	/^struct sCLCommand {$/;"	s	struct:sCLObject
 sCLField	clover3/src/common.h	/^struct sCLField {$/;"	s
 sCLHeapMem	clover3/src/common.h	/^struct sCLHeapMem {$/;"	s
-sCLJob	clover3/src/common.h	/^struct sCLJob {$/;"	s
+sCLJob	clover3/src/common.h	/^struct sCLJob {$/;"	s	struct:sCLObject
 sCLMethod	clover3/src/common.h	/^struct sCLMethod {$/;"	s
 sCLNode	clover3/src/common.h	/^struct sCLNode {$/;"	s
 sCLNodeBlock	clover3/src/common.h	/^struct sCLNodeBlock {$/;"	s
 sCLObject	clover3/src/common.h	/^struct sCLObject {$/;"	s
 sCLParam	clover3/src/common.h	/^struct sCLParam {$/;"	s
 sCLStackFrame	clover3/src/common.h	/^struct sCLStackFrame {$/;"	s
-sCLString	clover3/src/common.h	/^struct sCLString {$/;"	s
+sCLString	clover3/src/common.h	/^struct sCLString {$/;"	s	struct:sCLObject
 sCLType	clover3/src/common.h	/^struct sCLType {$/;"	s
 sCase	src/common.h	/^        } sCase;$/;"	m	union:sNodeTreeStruct::__anon5	typeref:struct:sNodeTreeStruct::__anon5::__anon34
 sClassTable	src/common.h	/^typedef struct sClassTableStruct sClassTable;$/;"	t	typeref:struct:sClassTableStruct
@@ -1696,7 +1696,7 @@ squort	neo-c.h	/^    squort = false;$/;"	m	struct:tuple
 stack	clover3/src/common.h	/^    CLVALUE* stack;$/;"	m	struct:sCLStackFrame
 stack	tiny/common.h	/^    vector<TVALUE*%>*% stack;$/;"	m	struct:TinyVM
 stackValue	tiny/common.h	/^    int stackValue;$/;"	m	struct:TinyNode
-stack_frame_index	clover3/src/common.h	/^    int stack_frame_index;$/;"	m	struct:sCLBlock
+stack_frame_index	clover3/src/common.h	/^    int stack_frame_index;$/;"	m	struct:sCLObject::sCLBlock
 stack_frames	clover3/src/common.h	/^    vector<sCLStackFrame>* stack_frames;$/;"	m	struct:sVMInfo
 stack_num	clover3/src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfo
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
@@ -1784,7 +1784,7 @@ value	src/llvm_common.hpp	/^    Value* value;$/;"	m	struct:LVALUEStruct
 var	src/llvm_common.hpp	/^    sVar* var;$/;"	m	struct:LVALUEStruct
 varName	tiny/common.h	/^    string varName;$/;"	m	struct:version
 varValue	tiny/common.h	/^    TinyNode%* varValue;$/;"	m	struct:version
-var_num	clover3/src/common.h	/^    int var_num;$/;"	m	struct:sCLBlock
+var_num	clover3/src/common.h	/^    int var_num;$/;"	m	struct:sCLObject::sCLBlock
 var_num	clover3/src/common.h	/^    int var_num;$/;"	m	struct:sCLStackFrame
 vector	code/neo-c.h	/^struct vector<T> $/;"	s
 vector	neo-c.h	/^struct vector<T> $/;"	s

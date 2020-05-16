@@ -4,14 +4,15 @@
 void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info)
 {
     sCLObject* object_data = CLOBJECT(self);
-    sCLClass* type = object_data->mType;
+    sCLType* type = object_data->mType;
     
-    if(type == gClasses.at("string", null)) {
+    if(type_identify_with_class_name(type, "string", info.cinfo.pinfo))
+    {
     }
     else {
         int i;
         for(i=0; i<object_data->mNumFields; i++) {
-            mark_object(object_data->mFields[i].mObjectValue, mark_flg, info);
+            mark_object(object_data->uValue.mFields[i].mObjectValue, mark_flg, info);
         }
     }
 }
@@ -19,9 +20,9 @@ void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info)
 bool free_object(CLObject self, sVMInfo* info)
 {
     sCLObject* object_data = CLOBJECT(self);
-    sCLClass* type = object_data->mType;
+    sCLType* type = object_data->mType;
 
-    if(type == gClasses.at("lambda", null)) {
+    if(type->mClass == gClasses.at("lambda", null)) {
     }
 
 /*
@@ -47,13 +48,29 @@ static cllong object_size(sCLClass* klass)
     return size;
 }
 
-CLObject create_object(sCLClass* klass, sVMInfo* info)
+CLObject create_object(sCLType* type, sVMInfo* info)
 {
-    unsigned int size = (unsigned int)object_size(klass);
+    unsigned int size = (unsigned int)object_size(type->mClass);
+
+
+    CLObject obj = alloc_heap_mem(size, type, type->mClass->mFields.length(), info);
+
+    return obj;
+}
+
+CLObject create_int_object(int value, sVMInfo* info)
+{
+    sCLType* int_type = create_type("int", info.cinfo.pinfo);
+    
+    int size = sizeof(sCLInt);
 
     alignment(&size);
 
-    CLObject obj = alloc_heap_mem(size, klass, -1, info);
+    CLObject obj = alloc_heap_mem(size, int_type, -1, info);
+
+    sCLInt* object_data = CLINT(obj);
+
+    object_data->mValue = value;
 
     return obj;
 }
@@ -62,7 +79,7 @@ CLObject create_string_object(char* str, sVMInfo* info)
 {
     int len = strlen(str);
 
-    sCLClass* string_type = gClasses.at("string", null);
+    sCLType* string_type = create_type("string", info.cinfo.pinfo);
     
     int size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
     size += len + 1;
@@ -73,21 +90,21 @@ CLObject create_string_object(char* str, sVMInfo* info)
 
     sCLObject* object_data = CLOBJECT(obj);
 
-    strcpy(&object_data.mMem, str);
+    strcpy(&object_data.uValue.mMem, str);
 
     return obj;
 }
 
 CLObject create_command_object(char* output, int output_len, char* err_output, int err_output_len, int rcode, sVMInfo* info)
 {
-    sCLClass* command_class = gClasses.at("command", null);
+    sCLType* command_type = create_type("command", info.cinfo.pinfo);
     
     int size = sizeof(sCLCommand) - sizeof(char) * DUMMY_ARRAY_SIZE;
     size += output_len + 1 + err_output_len + 1;
 
     alignment(&size);
 
-    CLObject obj = alloc_heap_mem(size, command_class, -1, info);
+    CLObject obj = alloc_heap_mem(size, command_type, -1, info);
 
     sCLCommand* object_data = CLCOMMAND(obj);
 
@@ -105,13 +122,13 @@ CLObject create_command_object(char* output, int output_len, char* err_output, i
 
 CLObject create_job_object(char* title, termios* tinfo, pid_t pgrp, sVMInfo* info)
 {
-    sCLClass* job_class = gClasses.at("job", null);
+    sCLType* job_type = create_type("job", info.cinfo.pinfo);
     
     int size = sizeof(sCLJob);
 
     alignment(&size);
 
-    CLObject obj = alloc_heap_mem(size, job_class, -1, info);
+    CLObject obj = alloc_heap_mem(size, job_type, -1, info);
 
     sCLJob* object_data = CLJOB(obj);
 
@@ -141,11 +158,9 @@ CLObject create_block_object(int* codes, int codes_len, int head_params , int va
 
     alignment(&size);
 
-    sCLClass* klass = gClasses.at("lambda", null);
+    sCLType* lambda_type = create_type("lambda", info.cinfo.pinfo);
 
-    assert(klass != null);
-
-    CLObject obj = alloc_heap_mem(size, klass, -1, info);
+    CLObject obj = alloc_heap_mem(size, lambda_type, -1, info);
 
     sCLBlock* block_data = CLBLOCK(obj);
 

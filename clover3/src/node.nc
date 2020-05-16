@@ -901,9 +901,6 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
     /// go ///
     if(!info.no_output) {
         info.codes.append_int(OP_INVOKE_METHOD);
-        info.codes.append_nullterminated_str(klass.mName);
-
-        info.codes.alignment();
 
         info.codes.append_nullterminated_str(method_name);
 
@@ -1247,6 +1244,9 @@ bool compile_store_field(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(field_index);
     }
     
+    info->stack_num -= 2;
+    info->stack_num++;
+
     info->type = field_type;
 
     return true;
@@ -1300,6 +1300,41 @@ bool compile_load_field(sCLNode* node, sCompileInfo* info)
     }
     
     info->type = field_type;
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_throw_exception(sCLNode* obj, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeThrow;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = obj;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+bool compile_throw_exception(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* obj_node = node.left;
+
+    if(!compile(obj_node, info)) {
+        return false;
+    }
+
+    sCLType* obj_type = info.type;
+
+    if(!info->no_output) {
+        info.codes.append_int(OP_THROW);
+    }
+
+    info->type = obj_type;
 
     return true;
 }
@@ -1440,7 +1475,14 @@ bool compile(sCLNode* node, sCompileInfo* info)
                 return false;
             }
             break;
-            
+
+        case kNodeTypeThrow: {
+            if(!compile_throw_exception(node, info)) {
+                return false;
+            }
+            }
+            break;
+    
         default:
             compile_err_msg(info, xsprintf("unexpected node type. No. %d", node.type));
             return false;

@@ -55,9 +55,7 @@ struct sCLNodeBlock;
 typedef unsigned int CLObject;
 
 union CLVALUE {
-    int mIntValue;
     CLObject mObjectValue;
-    wchar_t mCharValue;
 };
 
 struct sCLParam {
@@ -225,7 +223,7 @@ struct sParserInfo {
     int max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -243,7 +241,7 @@ struct sCompileInfo {
     bool no_output;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -294,6 +292,7 @@ sCLNode* sNodeTree_create_load_field(sCLNode* obj, char* name, sParserInfo* info
 sCLNode* NodeTree_create_store_field(sCLNode* obj, char* name, sCLNode* exp, sParserInfo* info);
 sCLNode* sNodeTree_create_load_field(sCLNode* obj, char* name, sParserInfo* info);
 sCLNode* sNodeTree_create_store_field(sCLNode* obj, char* name, sCLNode* exp, sParserInfo* info);
+sCLNode* sNodeTree_create_throw_exception(sCLNode* obj, sParserInfo* info);
 
 //////////////////////////////
 /// runtime side
@@ -316,16 +315,18 @@ struct sVMInfo {
     bool in_finalize_method;
 
     vector<sCLStackFrame>* stack_frames;
+
+    CLVALUE thrown_object;
 };
 
 void vm_err_msg(sVMInfo* info, char* msg);
 bool vm(buffer* codes, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info);
-CLObject alloc_heap_mem(unsigned int size, sCLClass* type, int field_num, sVMInfo* info);
+CLObject alloc_heap_mem(unsigned int size, sCLType* type, int field_num, sVMInfo* info);
 void heap_init(int heap_size, int size_handles);
 void heap_final(sVMInfo* info);
 
 struct sCLHeapMem {
-    sCLClass* mType;
+    sCLType* mType;
     int mSize;
     int mArrayNum;
     void* mMem;
@@ -334,19 +335,19 @@ struct sCLHeapMem {
 #define DUMMY_ARRAY_SIZE 32
 
 struct sCLObject {
-    sCLClass* mType;
+    sCLType* mType;
     int mSize;
     
     int mNumFields;
     
     union {
-        CLVALUE mFields[DUMMY_ARRAY_SIZE];
         void* mMem;
-    };
+        CLVALUE mFields[DUMMY_ARRAY_SIZE];
+    } uValue;
 };
 
 struct sCLBlock {
-    sCLClass* mType;
+    sCLType* mType;
     int mSize;
     
     int mNumFields;
@@ -359,7 +360,7 @@ struct sCLBlock {
 };
 
 struct sCLCommand {
-    sCLClass* mType;
+    sCLType* mType;
     int mSize;
     
     int mNumFields;
@@ -369,11 +370,10 @@ struct sCLCommand {
     int mErrOutputLen;
     char* mErrData;
     char mOutput[DUMMY_ARRAY_SIZE];
-
 };
 
 struct sCLJob {
-    sCLClass* mType;
+    sCLType* mType;
     int mSize;
     
     int mNumFields;
@@ -385,7 +385,7 @@ struct sCLJob {
 
 
 struct sCLString {
-    sCLClass* mType;
+    sCLType* mType;
     int mSize;
     
     int mNumFields;
@@ -393,16 +393,28 @@ struct sCLString {
     char mData[DUMMY_ARRAY_SIZE];
 };
 
+struct sCLInt {
+    sCLType* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    int mValue;
+};
+
+
 
 #define CLOBJECT(obj) ((sCLObject*)(get_object_pointer((obj))))
 #define CLBLOCK(obj) ((sCLBlock*)(get_object_pointer((obj))))
 #define CLCOMMAND(obj) ((sCLCommand*)(get_object_pointer((obj))))
 #define CLSTRING(obj) ((sCLString*)(get_object_pointer((obj))))
+#define CLINT(obj) ((sCLInt*)(get_object_pointer((obj))))
 #define CLJOB(obj) ((sCLJob*)(get_object_pointer((obj))))
 
 sCLHeapMem* get_object_pointer(CLObject obj);
 
-CLObject create_object(sCLClass* klass, sVMInfo* info);
+CLObject create_object(sCLType* type, sVMInfo* info);
+CLObject create_int_object(int value, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
 CLObject create_command_object(char* output, int output_len, char* err_output, int err_output_len, int rcode, sVMInfo* info);
 CLObject create_job_object(char* title, termios* tinfo, pid_t pgrp, sVMInfo* info);

@@ -16,10 +16,10 @@ void print_stack(CLVALUE* stack, CLVALUE* stack_ptr, int var_num)
         int index = (p-stack) / sizeof(CLVALUE);
         
         if(index < var_num) {
-            fprintf(stderr, "v[%d] %d \n", index, p.mIntValue);
+            fprintf(stderr, "v[%d] %d \n", index, p.mObjectValue);
         }
         else {
-            fprintf(stderr, " [%d] %d\n", index, p.mIntValue);
+            fprintf(stderr, " [%d] %d\n", index, p.mObjectValue);
         }
         
         p++;
@@ -33,7 +33,7 @@ void print_method(sCLClass* klass, sCLMethod* method, int num_params, int var_nu
 
 void print_method_end(sCLClass* klass, sCLMethod* method, CLVALUE result)
 {
-    printf("invoked method %s.%s result %d\n", klass.mName, method.mName, result.mIntValue);
+    printf("invoked method %s.%s result %d\n", klass.mName, method.mName, result.mObjectValue);
 }
 
 void print_block(int num_params, int var_num)
@@ -43,7 +43,7 @@ void print_block(int num_params, int var_num)
 
 void print_block_end(CLVALUE result)
 {
-    printf("invoked block result %d\n", result.mIntValue);
+    printf("invoked block result %d\n", result.mObjectValue);
 }
 
 void print_op(int op)
@@ -51,6 +51,10 @@ void print_op(int op)
     switch(op) {
         case OP_POP:
             puts("OP_POP");
+            break;
+
+        case OP_THROW:
+            puts("OP_THROW");
             break;
             
         case OP_INT_VALUE:
@@ -111,6 +115,14 @@ void print_op(int op)
 
         case OP_INVOKE_COMMAND:
             puts("OP_INVOKE_COMMAND");
+            break;
+
+        case OP_STORE_FIELD: 
+            puts("OP_STORE_FIELD");
+            break;
+
+        case OP_LOAD_FIELD: 
+            puts("OP_LOAD_FIELD");
             break;
             
         default:
@@ -567,6 +579,25 @@ bool forgroud_job(int job_num, sVMInfo* info)
     return true;
 }
 
+bool param_check(sCLParam* method_params, int num_params, CLVALUE* stack_ptr)
+{
+    for(int i=0; i<num_params; i++) {
+        CLObject obj = (stack_ptr-num_params+i)->mObjectValue;
+
+        sCLObject* object_data = CLOBJECT(obj);
+
+        sCLType* stack_param = object_data->mType;
+
+        sCLParam* param = method_params + i;
+
+        if(!substitution_posibility(param->mType, stack_param)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool vm(buffer* codes, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info)
 {
     sCLStackFrame null_paret_stack_frame;
@@ -603,7 +634,7 @@ print_op(op);
                 break;
                 
             case OP_INT_VALUE: {
-                stack_ptr.mIntValue = *p;
+                stack_ptr.mObjectValue = create_int_object(*p, info);
                 p++;
                 
                 stack_ptr++;
@@ -638,16 +669,16 @@ print_op(op);
 
                 p += len;
 
-                sCLClass* klass = gClasses.at(name, null);
+                sCLType* type = create_type(name, info.cinfo.pinfo);
 
-                if(klass == null) {
+                if(type == null) {
                     vm_err_msg(info, xsprintf("class not found(%s)\n", name));
                     info.stack_frames.pop_back(null_paret_stack_frame);
                     update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
                     return false;
                 }
 
-                int obj = create_object(klass, info);
+                int obj = create_object(type, info);
 
                 stack_ptr.mObjectValue = obj;
                 stack_ptr++;
@@ -675,6 +706,7 @@ print_op(op);
                 }
                 break;
                 
+/*
             case OP_IADD: {
                 int lvalue = (stack_ptr-2).mIntValue;
                 int rvalue = (stack_ptr-1).mIntValue;
@@ -707,6 +739,7 @@ print_op(op);
                 }
                 
                 break;
+*/
                 
             case OP_STORE_VARIABLE: {
                 int var_index = *p;
@@ -724,6 +757,7 @@ print_op(op);
                 stack_ptr++;
                 }
 
+/*
             case OP_COND_JUMP: {
                 int jump_size = *p;
                 p++;
@@ -749,6 +783,7 @@ print_op(op);
                 }
                 }
                 break;
+*/
 
             case OP_GOTO: {
                 int goto_point = *p;
@@ -759,19 +794,9 @@ print_op(op);
                 break;
 
             case OP_INVOKE_METHOD: { 
-                char* klass_name = (char*)p;
-
-                int len = strlen(klass_name) + 1;
-
-                alignment(&len);
-
-                len = len / sizeof(int);
-
-                p += len;
-
                 char* method_name = (char*)p;
 
-                len = strlen(method_name);
+                int len = strlen(method_name);
 
                 alignment(&len);
 
@@ -788,10 +813,14 @@ print_op(op);
                 int result_existance = *p
                 p++;
 
-                sCLClass* klass = gClasses.at(klass_name, null);
+                CLObject obj = (stack_ptr-var_num)->mObjectValue;
+
+                sCLObject* object_data = CLOBJECT(obj);
+
+                sCLClass* klass = object_data->mType->mClass;
 
                 if(klass == null) {
-                    vm_err_msg(info, xsprintf("class not found(%s)\n", klass_name));
+                    vm_err_msg(info, xsprintf("class not found(%s)\n", klass->mName));
                     info.stack_frames.pop_back(null_paret_stack_frame);
                     update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
                     return false;
@@ -801,12 +830,17 @@ print_op(op);
                 sCLMethod* method = klass.mMethods.at(method_name, null);
 
                 if(method == null) {
-                    vm_err_msg(info, xsprintf("method not found(%s.%s)\n", klass_name, method_name));
+                    vm_err_msg(info, xsprintf("method not found(%s.%s)\n", klass->mName, method_name));
                     info.stack_frames.pop_back(null_paret_stack_frame);
                     update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
                     return false;
                 }
 print_method(klass, method, num_params, var_num);
+
+                if(!param_check(method->mParams, method->mNumParams, stack_ptr))
+                {
+                    return false;
+                }
 
                 buffer* codes = method.mByteCodes;
                 if(!vm(codes, 0, num_params, var_num, info.stack_frames.length()-1, false, info)) {
@@ -908,7 +942,14 @@ print_block_end(*(stack_ptr-1));
 
                 for(int i=0; i<num_params; i++) {
                     CLObject obj = (stack_ptr-num_params+i)->mObjectValue;
+
                     sCLString* object_data = CLSTRING(obj);
+
+                    if(!type_identify_with_class_name(object_data->mType, "string", info.cinfo.pinfo))
+                    {
+                        return false;
+                    }
+
                     argv[i+1] = object_data->mData;
                 }
                 argv[num_params+1] = null;
@@ -957,6 +998,45 @@ print_block_end(*(stack_ptr-1));
                     return false;
                 }
                 }
+                break;
+
+            case OP_STORE_FIELD: {
+                int field_index = *p;
+                p++;
+                
+                CLObject obj =  (stack_ptr-2)->mObjectValue;
+                CLVALUE value =  *(stack_ptr-1);
+                sCLObject* object_data = CLOBJECT(obj);
+
+                object_data->uValue.mFields[field_index] = value;
+
+                stack_ptr -= 2;
+                *stack_ptr = value;
+                stack_ptr++;
+                }
+                break;
+
+            case OP_LOAD_FIELD: {
+                int field_index = *p;
+                p++;
+                
+                CLObject obj =  (stack_ptr-1)->mObjectValue;
+                sCLObject* object_data = CLOBJECT(obj);
+
+                stack_ptr --;
+
+                *stack_ptr = object_data->uValue.mFields[field_index];
+                stack_ptr++;
+                }
+                break;
+
+            case OP_THROW: 
+                info->thrown_object = *(stack_ptr-1);
+                stack_ptr--;
+
+                update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
+    
+                return false;
                 break;
 
         }
