@@ -41,6 +41,7 @@
 #define VAR_NAME_MAX 128
 #define ELIF_MAX 64
 #define JOB_TITLE_MAX 32
+#define NATIVE_METHOD_NAME_MAX 128
 
 //////////////////////////////////////////
 /// runtime side
@@ -81,8 +82,7 @@ struct sCLType {
     int mVarNum;
 };
 
-typedef bool (*fNativeMethod)(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
-
+typedef bool (*fNativeMethod)(CLVALUE** stack_ptr, sVMInfo* info);
 
 struct sCLMethod {
     string mName;
@@ -122,6 +122,7 @@ void class_init();
 void class_final();
 void append_class(char* name);
 bool eval_class(char* source, sCompileInfo* vminfo, char* sname, int sline);
+bool invoke_native_method(sCLClass* klass, sCLMethod* method, CLVALUE** stack_ptr, sVMInfo* info);
 
 //////////////////////////////////////////
 /// compiler side
@@ -223,7 +224,7 @@ struct sParserInfo {
     int max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypeAdd, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -249,6 +250,7 @@ bool parse_params(sCLParam* params, int* num_params, sParserInfo* info);
 string parse_word(sParserInfo* info);
 bool parse_type(sCLType** type, sParserInfo* info);
 void expected_next_character(char c, sParserInfo* info);
+void parse_comment(sParserInfo* info);
 
 bool expression(sCLNode** node, sParserInfo* info);
 bool compile(sCLNode* node, sCompileInfo* info);
@@ -268,7 +270,8 @@ bool substitution_posibility(sCLType* left_type, sCLType* right_type);
 bool type_identify_with_class_name(sCLType* left_type, char* right_class, sParserInfo* info);
 void show_type(sCLType* type);
 
-sCLNode* sNodeTree_create_add(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_primitive_plus(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_plus(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_int_value(int value, sParserInfo* info);
 sCLNode* sNodeTree_create_store_variable(char* var_name, sCLNode* exp, sParserInfo* info);
 sCLNode* sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
@@ -429,3 +432,4 @@ bool parse_block(sCLNodeBlock** node_block, int num_params, sCLParam* params, sP
 bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info);
 
 #endif
+

@@ -50,22 +50,6 @@ static bool compile_int_value(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-sCLNode* sNodeTree_create_add(sCLNode* left, sCLNode* right, sParserInfo* info)
-{
-    sCLNode* result = alloc_node(info);
-    
-    result.type = kNodeTypeAdd;
-    
-    xstrncpy(result.sname, info.sname, PATH_MAX);
-    result.sline = info.sline;
-
-    result.left = left;
-    result.right = right;
-    result.middle = null;
-
-    return result;
-}
-
 sCLNode* sNodeTree_create_string_value(char* value, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
@@ -101,7 +85,121 @@ static bool compile_strig_value(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-static bool compile_add(sCLNode* node, sCompileInfo* info)
+sCLNode* sNodeTree_create_plus(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypePlus;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool invoke_method(char* method_name, int num_params, sCLNode** params, sCompileInfo* info)
+{
+    assert(num_params > 0);
+
+    sCLNode* first_node = params[0];
+
+    if(!compile(first_node, info)) {
+        return false;
+    }
+
+    sCLClass* klass = info.type.mClass;
+
+    sCLMethod* method = klass.mMethods.at(method_name, null);
+
+    if(method == null) { compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass.mName, method_name));
+        return true;
+    }
+
+    int var_num = get_var_num(method.mNodeBlock.vtables);
+
+    /// compile parametors ///
+    if(method->mNumParams != num_params) {
+        compile_err_msg(info, xsprintf("invalid method prametor number.  invalid %d number instead of %d(%s.%s)", num_params, method->mNumParams, klass.mName, method_name));
+        return true;
+    }
+
+    sCLType* param_types[PARAMS_MAX];
+    for(int i=1; i<num_params; i++) {
+        if(!compile(params[i], info)) {
+            return false;
+        }
+
+        param_types[i] = info.type;
+
+        if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
+            compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
+            return true;
+        }
+    }
+
+    /// go ///
+    if(!info.no_output) {
+        info.codes.append_int(OP_INVOKE_METHOD);
+
+        info.codes.append_nullterminated_str(method_name);
+
+        info.codes.alignment();
+
+        info.codes.append_int(num_params);
+
+        info.codes.append_int(var_num);
+
+        bool result_existance = !type_identify_with_class_name(method->mResultType, "void", info.pinfo);
+        info.codes.append_int(result_existance);
+    }
+
+    info.stack_num -= num_params;
+
+    if(!type_identify_with_class_name(method->mResultType, "void", info.pinfo)) {
+        info.stack_num++;
+    }
+
+    return true;
+}
+
+static bool compile_plus(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* params[PARAMS_MAX];
+    int num_params = 0;
+
+    params[num_params] = node.left;
+    num_params++;
+    params[num_params] = node.right;
+    num_params++;
+
+    if(!invoke_method("plus", num_params, params, info)) {
+        return false;
+    }
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_primitive_plus(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypePrimitivePlus;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_primitive_plus(sCLNode* node, sCompileInfo* info)
 {
     if(!compile(node.left, info)) {
         return false;
@@ -833,7 +931,13 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         return true;
     }
 
-    int var_num = get_var_num(method.mNodeBlock.vtables);
+    int var_num;
+    if(method.mNodeBlock) {
+        var_num = get_var_num(method.mNodeBlock.vtables);
+    }
+    else { // native method
+        var_num = num_params;
+    }
 
     /// compile parametors ///
     if(method->mNumParams != num_params) {
@@ -919,6 +1023,8 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
     if(!type_identify_with_class_name(method->mResultType, "void", info.pinfo)) {
         info.stack_num++;
     }
+
+    info.type = method.mResultType;
 
     return true;
 }
@@ -1055,6 +1161,11 @@ bool compile_block_object_call(sCLNode* node, sCompileInfo* info)
 
     if(!compile(params[0], info)) {
         return false;
+    }
+
+    if(!type_identify_with_class_name(info.type, "lambda", info.pinfo)) {
+        compile_err_msg(info, "Invalid block call. Type error");
+        return true;
     }
 
     sCLType* block_type = info.type;
@@ -1351,8 +1462,14 @@ bool compile(sCLNode* node, sCompileInfo* info)
             }
             break;
             
-        case kNodeTypeAdd:
-            if(!compile_add(node, info)) {
+        case kNodeTypePlus:
+            if(!compile_plus(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypePrimitivePlus:
+            if(!compile_primitive_plus(node, info)) {
                 return false;
             }
             break;

@@ -1,14 +1,27 @@
-class HellClass3 {
-    def method(a:int, b:string): int {
-        123
+# test 7
+class int {
+    def plus(right:int):int {
+        self \+ right
     }
-}
+    def toString():string;
+    def toCommand():command;
+};
 
-var obj3 = HellClass3();
+(1+3).toCommand().less();
 
-obj3.method(1, "ABC");
+# test 6
+#class HellClass3 {
+#    def method(a:int, b:string): int {
+#        123
+#    }
+#}
+#
+#var obj3 = HellClass3();
+#
+#obj3.method(1, "ABC");
+#
 
-
+# test 5
 #echo(1);
 #throw "Exception";
 

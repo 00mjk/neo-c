@@ -100,6 +100,8 @@ bool compile_script(char* fname, buffer* source)
     cinfo.codes = borrow new buffer.initialize();
     
     while(*info->p) {
+        parse_comment(&info);
+
         int sline = info.sline;
         
         sCLNode* node;

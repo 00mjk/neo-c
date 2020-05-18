@@ -860,6 +860,21 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
         *node = node2;
     }
+    else if(*info->p == '(') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!expression(node, info)) {
+            return false;
+        }
+        skip_spaces_and_lf(info);
+
+        if(*node == null) {
+            parser_err_msg(info, "require expression as ( operand");
+        }
+
+        expected_next_character(')', info);
+    }
     else {
         parser_err_msg(info, xsprintf("unexpected character %c", *info->p));
         return false;
@@ -873,7 +888,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 }
 
 // from left to right order
-static bool expression_add_sub(sCLNode** node, sParserInfo* info)
+static bool expression_plus_minus(sCLNode** node, sParserInfo* info)
 {
     if(!expression_node(node, info)) {
         return false;
@@ -896,9 +911,9 @@ static bool expression_add_sub(sCLNode** node, sParserInfo* info)
                 parser_err_msg(info, "require right value for operator +");
             };
 
-            *node = sNodeTree_create_add(*node, right, info);
+            *node = sNodeTree_create_plus(*node, right, info);
         }
-        else if(*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-' && *(info->p+1) != '>') {
+        else if(*info->p == '\\' && *(info->p+1) == '+') {
             info->p++;
             skip_spaces_and_lf(info);
 
@@ -908,10 +923,10 @@ static bool expression_add_sub(sCLNode** node, sParserInfo* info)
             }
 
             if(right == null) {
-                parser_err_msg(info, "require right value for operator -");
-            }
+                parser_err_msg(info, "require right value for operator \\+");
+            };
 
-//            *node = sNodeTree_create_sub(*node, right, info);
+            *node = sNodeTree_create_primitive_plus(*node, right, info);
         }
         else {
             break;
@@ -923,7 +938,7 @@ static bool expression_add_sub(sCLNode** node, sParserInfo* info)
 
 static bool expression_comparison_equal_operator(sCLNode** node, sParserInfo* info)
 {
-    if(!expression_add_sub(node, info)) {
+    if(!expression_plus_minus(node, info)) {
         return false;
     }
     if(*node == 0) {
@@ -937,7 +952,7 @@ static bool expression_comparison_equal_operator(sCLNode** node, sParserInfo* in
             skip_spaces_and_lf(info);
 
             sCLNode* right = null;
-            if(!expression_add_sub(&right, info)) {
+            if(!expression_plus_minus(&right, info)) {
                 return false;
             }
 
@@ -952,7 +967,7 @@ static bool expression_comparison_equal_operator(sCLNode** node, sParserInfo* in
             skip_spaces_and_lf(info);
 
             sCLNode* right = null;
-            if(!expression_add_sub(&right, info)) {
+            if(!expression_plus_minus(&right, info)) {
                 return false;
             }
 

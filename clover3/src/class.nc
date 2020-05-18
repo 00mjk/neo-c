@@ -2,6 +2,67 @@
 
 map<string, sCLClass*%>* gClasses;
 vector<CLObject>* gJobs;
+map<string, fNativeMethod>* gNativeMethods;
+
+bool int_toString(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* left = (*stack_ptr-1);
+
+    sCLInt* object_data = CLINT(left->mObjectValue);
+    
+    char buf[128];
+
+    snprintf(buf, 128, "%d", object_data->mValue);
+
+    CLObject obj = create_string_object(buf, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
+bool int_toCommand(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* left = (*stack_ptr-1);
+
+    sCLInt* object_data = CLINT(left->mObjectValue);
+    
+    char buf[128];
+
+    snprintf(buf, 128, "%d", object_data->mValue);
+
+    CLObject obj = create_command_object(buf, strlen(buf), "", 0, 0, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
+void create_native_method_name(char* result, sCLClass* klass, sCLMethod* method)
+{
+    snprintf(result, NATIVE_METHOD_NAME_MAX, "%s.%s", klass.mName, method.mName);
+}
+
+bool invoke_native_method(sCLClass* klass, sCLMethod* method, CLVALUE** stack_ptr, sVMInfo* info)
+{
+    char buf[NATIVE_METHOD_NAME_MAX];
+
+    create_native_method_name(buf, klass, method);
+
+    fNativeMethod native_method = gNativeMethods.at(buf, null);
+
+    if(native_method == null) {
+        return false;
+    }
+
+    if(!native_method(stack_ptr, info)) {
+        return false;
+    }
+
+    return true;
+}
 
 void class_init()
 {
@@ -15,6 +76,11 @@ void class_init()
     append_class("void");
     append_class("lambda");
 
+    gNativeMethods = borrow new map<string, fNativeMethod>.initialize();
+
+    gNativeMethods.insert(string("int.toString"), int_toString);
+    gNativeMethods.insert(string("int.toCommand"), int_toCommand);
+
     gJobs = borrow new vector<CLObject>.initialize();
 }
 
@@ -22,6 +88,7 @@ void class_final()
 {
     delete gJobs;
     delete gClasses;
+    delete gNativeMethods;
 }
 
 void append_class(char* name)
@@ -48,7 +115,7 @@ void append_field(sCLClass* klass, char* field_name, sCLType* field_type)
     klass.mFields.insert(string(field_name), field);
 }
 
-void append_method(sCLClass* klass, char* method_name, sCLType* method_type, int num_params, sCLParam* params, sCLNodeBlock* node_block, buffer* codes)
+void append_method(sCLClass* klass, char* method_name, sCLType* method_type, int num_params, sCLParam* params, bool native, sCLNodeBlock* node_block, buffer* codes)
 {
     sCLMethod*% method = new sCLMethod;
 
@@ -60,9 +127,14 @@ void append_method(sCLClass* klass, char* method_name, sCLType* method_type, int
     method.mName = string(method_name);
     method.mResultType = method_type;
 
-    method.mByteCodes = dummy_heap codes;
-
-    method.mNodeBlock = node_block;
+    if(native) {
+        method.mByteCodes = null;
+        method.mNodeBlock = null;
+    }
+    else {
+        method.mByteCodes = dummy_heap codes;
+        method.mNodeBlock = node_block;
+    }
 
     klass.mMethods.insert(string(method_name), method);
 }
@@ -74,7 +146,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
     info = *cinfo.pinfo;
 
     info.p = source;
-    info.sline = sline-1;
+    info.sline = sline;
 
     info.vtables = borrow new vector<sVarTable*%>.initialize();
 
@@ -82,7 +154,10 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
 
     xstrncpy(info.sname, sname, PATH_MAX);
 
-    append_class(name);
+    if(gClasses.at(name, null) == null) {
+        append_class(name);
+    }
+
     sCLClass* klass = gClasses.at(name, null);
 
     expected_next_character('{', &info);
@@ -128,50 +203,59 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
                 return false;
             }
 
-            expected_next_character('{', &info);
+            if(*info->p == ';') {
+                info->p++;
+                skip_spaces_and_lf(&info);
 
-            sCLNodeBlock* node_block = null;
-            if(!parse_block(&node_block, num_params, params, &info)) {
-                delete info.vtables;
-                return false;
+
+                append_method(klass, method_name, method_type, num_params, params, true, null, null);
             }
+            else {
+                expected_next_character('{', &info);
 
-            sCompileInfo cinfo2 = *cinfo;
+                sCLNodeBlock* node_block = null;
+                if(!parse_block(&node_block, num_params, params, &info)) {
+                    delete info.vtables;
+                    return false;
+                }
 
-            xstrncpy(cinfo2.sname, sname, PATH_MAX);
-            cinfo2.sline = info.sline;
+                sCompileInfo cinfo2 = *cinfo;
 
-            cinfo2.err_num = 0;
-            cinfo2.stack_num = 0;
+                xstrncpy(cinfo2.sname, sname, PATH_MAX);
+                cinfo2.sline = info.sline;
 
-            cinfo2.pinfo = &info;
-            cinfo2.codes = borrow new buffer.initialize();
+                cinfo2.err_num = 0;
+                cinfo2.stack_num = 0;
 
-            cinfo2.type = null;
+                cinfo2.pinfo = &info;
+                cinfo2.codes = borrow new buffer.initialize();
 
-            cinfo2.no_output = false;
+                cinfo2.type = null;
 
-            if(!compile_block(node_block, &cinfo2)) {
-                delete info.vtables;
-                delete cinfo2.codes;
-                return false;
+                cinfo2.no_output = false;
+
+                if(!compile_block(node_block, &cinfo2)) {
+                    delete info.vtables;
+                    delete cinfo2.codes;
+                    return false;
+                }
+
+                if(!substitution_posibility(method_type, cinfo2.type)) {
+                    compile_err_msg(&cinfo2, "Invalid method result type");
+                    cinfo2.err_num++;
+                }
+
+                if(cinfo2.err_num > 0) {
+                    fprintf(stderr, "Compile error\n");
+                    delete info.vtables;
+                    delete cinfo2.codes;
+                    return false;
+                }
+
+                expected_next_character('}', &info);
+
+                append_method(klass, method_name, method_type, num_params, params, false, node_block, cinfo2.codes);
             }
-
-            if(!substitution_posibility(method_type, cinfo2.type)) {
-                compile_err_msg(&cinfo2, "Invalid method result type");
-                cinfo2.err_num++;
-            }
-
-            if(cinfo2.err_num > 0) {
-                fprintf(stderr, "Compile error\n");
-                delete info.vtables;
-                delete cinfo2.codes;
-                return false;
-            }
-
-            expected_next_character('}', &info);
-
-            append_method(klass, method_name, method_type, num_params, params, node_block, cinfo2.codes);
         }
         else if(*info.p == '}') {
             break;

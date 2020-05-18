@@ -27,13 +27,17 @@ bool parse_block(sCLNodeBlock** node_block, int num_params, sCLParam* params, sP
             break;
         }
 
+        parse_comment(info);
+
         int sline = info.sline;
-        
+
         sCLNode* node;
         if(!expression(&node, info)) {
             info.vtables = vtables_before;
             return false;
         }
+
+        node.sline = sline;
         
         (*node_block)->has_last_value = true;
 

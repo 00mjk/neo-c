@@ -706,18 +706,24 @@ print_op(op);
                 }
                 break;
                 
-/*
             case OP_IADD: {
-                int lvalue = (stack_ptr-2).mIntValue;
-                int rvalue = (stack_ptr-1).mIntValue;
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+                sCLInt* rvalue_data = CLINT(rvalue);
+
+                int value = lvalue_data->mValue + rvalue_data->mValue;
+                CLObject new_obj = create_int_object(value, info);
+
                 stack_ptr -= 2;
-                
-                stack_ptr.mIntValue = lvalue + rvalue;
+                stack_ptr.mObjectValue = new_obj;
                 stack_ptr++;
                 }
                 
                 break;
                 
+/*
             case OP_IEQ: {
                 int lvalue = (stack_ptr-2).mIntValue;
                 int rvalue = (stack_ptr-1).mIntValue;
@@ -796,7 +802,7 @@ print_op(op);
             case OP_INVOKE_METHOD: { 
                 char* method_name = (char*)p;
 
-                int len = strlen(method_name);
+                int len = strlen(method_name) + 1;
 
                 alignment(&len);
 
@@ -842,20 +848,38 @@ print_method(klass, method, num_params, var_num);
                     return false;
                 }
 
-                buffer* codes = method.mByteCodes;
-                if(!vm(codes, 0, num_params, var_num, info.stack_frames.length()-1, false, info)) {
-                    info.stack_frames.pop_back(null_paret_stack_frame);
-                    update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
-                    return false;
+                if(method.mByteCodes == null) {
+                    if(!invoke_native_method(klass, method, &stack_ptr, info)) 
+                    {
+                        return false;
+                    }
+
+                    CLVALUE result_value = *(stack_ptr-1);
+
+                    stack_ptr -= num_params;
+
+                    if(result_existance) {
+                        stack_ptr--;
+                        *stack_ptr = result_value;
+                        stack_ptr++;
+                    }
                 }
+                else {
+                    buffer* codes = method.mByteCodes;
+                    if(!vm(codes, 0, num_params, var_num, info.stack_frames.length()-1, false, info)) {
+                        info.stack_frames.pop_back(null_paret_stack_frame);
+                        update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
+                        return false;
+                    }
 
-                stack_ptr -= num_params;
+                    stack_ptr -= num_params;
 
-                if(result_existance) {
-                    sCLStackFrame parent_stack_frame = info.stack_frames.pop_back(null_paret_stack_frame);
+                    if(result_existance) {
+                        sCLStackFrame parent_stack_frame = info.stack_frames.pop_back(null_paret_stack_frame);
 
-                    *stack_ptr = *(*parent_stack_frame.stack_ptr-1);
-                    stack_ptr++;
+                        *stack_ptr = *(*parent_stack_frame.stack_ptr-1);
+                        stack_ptr++;
+                    }
                 }
 print_method_end(klass, method, *(stack_ptr-1));
 
