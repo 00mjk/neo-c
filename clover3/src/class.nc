@@ -40,6 +40,66 @@ bool int_toCommand(CLVALUE** stack_ptr, sVMInfo* info)
     return true;
 }
 
+bool bool_toInteger(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* left = (*stack_ptr-1);
+
+    sCLInt* object_data = CLINT(left->mObjectValue);
+
+    CLObject obj = create_int_object(object_data->mValue, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
+bool bool_toString(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* left = (*stack_ptr-1);
+
+    sCLInt* object_data = CLINT(left->mObjectValue);
+    
+    char buf[128];
+
+    if(object_data->mValue) {
+        snprintf(buf, 128, "true");
+    }
+    else {
+        snprintf(buf, 128, "false");
+    }
+
+    CLObject obj = create_string_object(buf, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
+bool bool_toCommand(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* left = (*stack_ptr-1);
+
+    sCLInt* object_data = CLINT(left->mObjectValue);
+    
+    char buf[128];
+
+    if(object_data->mValue) {
+        snprintf(buf, 128, "true");
+    }
+    else {
+        snprintf(buf, 128, "false");
+    }
+
+    CLObject obj = create_command_object(buf, strlen(buf), "", 0, 0, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
 void create_native_method_name(char* result, sCLClass* klass, sCLMethod* method)
 {
     snprintf(result, NATIVE_METHOD_NAME_MAX, "%s.%s", klass.mName, method.mName);
@@ -80,6 +140,9 @@ void class_init()
 
     gNativeMethods.insert(string("int.toString"), int_toString);
     gNativeMethods.insert(string("int.toCommand"), int_toCommand);
+    gNativeMethods.insert(string("bool.toInteger"), bool_toInteger);
+    gNativeMethods.insert(string("bool.toString"), bool_toString);
+    gNativeMethods.insert(string("bool.toCommand"), bool_toCommand);
 
     gJobs = borrow new vector<CLObject>.initialize();
 }

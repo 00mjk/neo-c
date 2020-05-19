@@ -75,6 +75,23 @@ CLObject create_int_object(int value, sVMInfo* info)
     return obj;
 }
 
+CLObject create_bool_object(int value, sVMInfo* info)
+{
+    sCLType* int_type = create_type("bool", info.cinfo.pinfo);
+    
+    int size = sizeof(sCLInt);
+
+    alignment(&size);
+
+    CLObject obj = alloc_heap_mem(size, int_type, -1, info);
+
+    sCLInt* object_data = CLINT(obj);
+
+    object_data->mValue = value;
+
+    return obj;
+}
+
 CLObject create_string_object(char* str, sVMInfo* info)
 {
     int len = strlen(str);

@@ -42,6 +42,7 @@
 #define ELIF_MAX 64
 #define JOB_TITLE_MAX 32
 #define NATIVE_METHOD_NAME_MAX 128
+#define BREAK_MAX 128
 
 //////////////////////////////////////////
 /// runtime side
@@ -155,6 +156,12 @@ struct sCLNode {
             sCLNode* mParams[PARAMS_MAX];
             bool mLastMethodChain;
         } uMethodCall;
+        struct {
+            sCLNode* mExpression;
+            sCLNodeBlock* mNodeBlock;
+            int mBreakGotoPoints[BREAK_MAX];
+            int mNumBreakGotoPoints;
+        } uWhileExpression;
     } uValue;
     
     string mClassName;
@@ -176,7 +183,7 @@ struct sVar {
 };
 
 struct sVarTable {
-    map<string, sVar*%>*% mLocalVariables;
+    map<string, sVar*>*% mLocalVariables;
     int mVarNum;
     int mMaxBlockVarNum;
 
@@ -220,11 +227,12 @@ struct sParserInfo {
     vector<sVarTable*%>* vtables;
     vector<sCLNodeBlock*%>* blocks;
     vector<sCLType*%>* types;
+    vector<sVar*%>* vars;
 
     int max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypeNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -240,9 +248,11 @@ struct sCompileInfo {
     sCLType* type;
 
     bool no_output;
+
+    sCLNode* while_node;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_TRUE_VALUE, OP_FALSE_VALUE };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -262,6 +272,7 @@ void add_variable_to_table(sParserInfo* info, char* name, sCLType* type, bool re
 sVar* get_variable_from_table(sParserInfo* info, char* name);
 void check_already_added_variable(sParserInfo* info, char* name);
 int get_var_num(vector<sVarTable*%>* vtables);
+void show_vtable(sParserInfo* info);
 
 /// type.nc ///
 sCLType* create_type(char* type_name, sParserInfo* info);
@@ -270,13 +281,25 @@ bool substitution_posibility(sCLType* left_type, sCLType* right_type);
 bool type_identify_with_class_name(sCLType* left_type, char* right_class, sParserInfo* info);
 void show_type(sCLType* type);
 
+sCLNode* sNodeTree_create_break(sParserInfo* info);
 sCLNode* sNodeTree_create_primitive_plus(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_while_expression(sCLNode* expression, sCLNodeBlock* node_block, sParserInfo* info);
 sCLNode* sNodeTree_create_plus(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_primitive_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_primitive_not_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_primitive_greater(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_primitive_lesser(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_primitive_lesser_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_primitive_greater_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_int_value(int value, sParserInfo* info);
 sCLNode* sNodeTree_create_store_variable(char* var_name, sCLNode* exp, sParserInfo* info);
 sCLNode* sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
 sCLNode* sNodeTree_create_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_not_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_greater(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_lesser(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_lesser_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_greater_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_string_value(char* value, sParserInfo* info);
 sCLNode* sNodeTree_create_true_value(sParserInfo* info);
 sCLNode* sNodeTree_create_false_value(sParserInfo* info);
@@ -285,7 +308,6 @@ sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock*
 sCLNode* sNodeTree_create_method_block(char* sname, int sline, buffer*% block_text, sParserInfo* info);
 sCLNode* sNodeTree_create_class(char* source, char* sname, int sline, sParserInfo* info);
 sCLNode* sNodeTree_create_object(char* class_name_, sParserInfo* info);
-CLObject create_block_object(int* codes, int codes_len, int head_params, int var_num, int stack_frame_index, sVMInfo* info);
 sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, sParserInfo* info);
 sCLNode* sNodeTree_create_command_call(sCLNode* node, char* name, int num_params, sCLNode** params, sParserInfo* info);
 sCLNode* sNodeTree_create_block_object_call(int num_params, sCLNode** params, sParserInfo* info);
@@ -419,6 +441,8 @@ sCLHeapMem* get_object_pointer(CLObject obj);
 CLObject create_object(sCLType* type, sVMInfo* info);
 CLObject create_int_object(int value, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
+CLObject create_bool_object(int value, sVMInfo* info);
+CLObject create_block_object(int* codes, int codes_len, int head_params, int var_num, int stack_frame_index, sVMInfo* info);
 CLObject create_command_object(char* output, int output_len, char* err_output, int err_output_len, int rcode, sVMInfo* info);
 CLObject create_job_object(char* title, termios* tinfo, pid_t pgrp, sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info);

@@ -85,22 +85,6 @@ static bool compile_strig_value(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-sCLNode* sNodeTree_create_plus(sCLNode* left, sCLNode* right, sParserInfo* info)
-{
-    sCLNode* result = alloc_node(info);
-    
-    result.type = kNodeTypePlus;
-    
-    xstrncpy(result.sname, info.sname, PATH_MAX);
-    result.sline = info.sline;
-
-    result.left = left;
-    result.right = right;
-    result.middle = null;
-
-    return result;
-}
-
 static bool invoke_method(char* method_name, int num_params, sCLNode** params, sCompileInfo* info)
 {
     assert(num_params > 0);
@@ -163,7 +147,25 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
         info.stack_num++;
     }
 
+    info->type = method->mResultType;
+
     return true;
+}
+
+sCLNode* sNodeTree_create_plus(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypePlus;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
 }
 
 static bool compile_plus(sCLNode* node, sCompileInfo* info)
@@ -271,6 +273,7 @@ static bool compile_store_variable(sCLNode* node, sCompileInfo* info)
     sCLType* right_value_type = borrow info.type;
     
     char* var_name = borrow node.mStringValue;
+show_vtable(info.pinfo);
     
     sVar* v = get_variable_from_table(info.pinfo, var_name);
 
@@ -338,11 +341,11 @@ static bool compile_load_variable(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-sCLNode* sNodeTree_create_equal(sCLNode* left, sCLNode* right, sParserInfo* info)
+sCLNode* sNodeTree_create_primitive_equal(sCLNode* left, sCLNode* right, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
     
-    result.type = kNodeTypeEqual;
+    result.type = kNodeTypePrimitiveEqual;
     
     xstrncpy(result.sname, info.sname, PATH_MAX);
     result.sline = info.sline;
@@ -354,7 +357,7 @@ sCLNode* sNodeTree_create_equal(sCLNode* left, sCLNode* right, sParserInfo* info
     return result;
 }
 
-static bool compile_equal(sCLNode* node, sCompileInfo* info)
+static bool compile_primitive_equal(sCLNode* node, sCompileInfo* info)
 {
     if(!compile(node.left, info)) {
         return false;
@@ -394,15 +397,17 @@ static bool compile_equal(sCLNode* node, sCompileInfo* info)
     
     info.stack_num -= 2;
     info.stack_num++;
+
+    info->type = create_type("bool", info.pinfo);
     
     return true;
 }
 
-sCLNode* sNodeTree_create_not_equal(sCLNode* left, sCLNode* right, sParserInfo* info)
+sCLNode* sNodeTree_create_primitive_not_equal(sCLNode* left, sCLNode* right, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
     
-    result.type = kNodeTypeNotEqual;
+    result.type = kNodeTypePrimitiveNotEqual;
     
     xstrncpy(result.sname, info.sname, PATH_MAX);
     result.sline = info.sline;
@@ -414,7 +419,7 @@ sCLNode* sNodeTree_create_not_equal(sCLNode* left, sCLNode* right, sParserInfo* 
     return result;
 }
 
-static bool compile_not_equal(sCLNode* node, sCompileInfo* info)
+static bool compile_primitive_not_equal(sCLNode* node, sCompileInfo* info)
 {
     if(!compile(node.left, info)) {
         return false;
@@ -454,6 +459,458 @@ static bool compile_not_equal(sCLNode* node, sCompileInfo* info)
     
     info.stack_num -= 2;
     info.stack_num++;
+
+    info->type = create_type("bool", info.pinfo);
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_primitive_greater(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypePrimitiveGreater;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_primitive_greater(sCLNode* node, sCompileInfo* info)
+{
+    if(!compile(node.left, info)) {
+        return false;
+    }
+    
+    sCLType* left_type = info.type;
+    
+    if(!compile(node.right, info)) {
+        return false;
+    }
+    
+    sCLType* right_type = info.type;
+    
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "The different type between left type and rigt type at + operator");
+        puts("left type -->");
+        show_type(left_type);
+        puts("right type -->");
+        show_type(right_type);
+        
+        return true;
+    }
+    
+    if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
+        if(!info.no_output) {
+            info.codes.append_int(OP_IGT);
+        }
+        
+        info.type = create_type("bool", info.pinfo);
+    }
+    else {
+        compile_err_msg(info, "This type is invalid for operator + ");
+        show_type(left_type);
+        
+        return true;
+    }
+    
+    info.stack_num -= 2;
+    info.stack_num++;
+
+    info->type = create_type("bool", info.pinfo);
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_primitive_lesser(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypePrimitiveLesser;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_primitive_lesser(sCLNode* node, sCompileInfo* info)
+{
+    if(!compile(node.left, info)) {
+        return false;
+    }
+    
+    sCLType* left_type = info.type;
+    
+    if(!compile(node.right, info)) {
+        return false;
+    }
+    
+    sCLType* right_type = info.type;
+    
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "The different type between left type and rigt type at + operator");
+        puts("left type -->");
+        show_type(left_type);
+        puts("right type -->");
+        show_type(right_type);
+        
+        return true;
+    }
+    
+    if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
+        if(!info.no_output) {
+            info.codes.append_int(OP_ILT);
+        }
+    }
+    else {
+        compile_err_msg(info, "This type is invalid for operator + ");
+        show_type(left_type);
+        
+        return true;
+    }
+    
+    info.stack_num -= 2;
+    info.stack_num++;
+
+    info->type = create_type("bool", info.pinfo);
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_primitive_lesser_equal(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypePrimitiveLesserEqual;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_primitive_lesser_equal(sCLNode* node, sCompileInfo* info)
+{
+    if(!compile(node.left, info)) {
+        return false;
+    }
+    
+    sCLType* left_type = info.type;
+    
+    if(!compile(node.right, info)) {
+        return false;
+    }
+    
+    sCLType* right_type = info.type;
+    
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "The different type between left type and rigt type at + operator");
+        puts("left type -->");
+        show_type(left_type);
+        puts("right type -->");
+        show_type(right_type);
+        
+        return true;
+    }
+    
+    if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
+        if(!info.no_output) {
+            info.codes.append_int(OP_ILE);
+        }
+        
+        info.type = create_type("bool", info.pinfo);
+    }
+    else {
+        compile_err_msg(info, "This type is invalid for operator + ");
+        show_type(left_type);
+        
+        return true;
+    }
+    
+    info.stack_num -= 2;
+    info.stack_num++;
+
+    info->type = create_type("bool", info.pinfo);
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_primitive_greater_equal(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypePrimitiveGreaterEqual;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_primitive_greater_equal(sCLNode* node, sCompileInfo* info)
+{
+    if(!compile(node.left, info)) {
+        return false;
+    }
+    
+    sCLType* left_type = info.type;
+    
+    if(!compile(node.right, info)) {
+        return false;
+    }
+    
+    sCLType* right_type = info.type;
+    
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "The different type between left type and rigt type at + operator");
+        puts("left type -->");
+        show_type(left_type);
+        puts("right type -->");
+        show_type(right_type);
+        
+        return true;
+    }
+    
+    if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
+        if(!info.no_output) {
+            info.codes.append_int(OP_IGE);
+        }
+        
+        info.type = create_type("bool", info.pinfo);
+    }
+    else {
+        compile_err_msg(info, "This type is invalid for operator + ");
+        show_type(left_type);
+        
+        return true;
+    }
+    
+    info.stack_num -= 2;
+    info.stack_num++;
+
+    info->type = create_type("bool", info.pinfo);
+    
+    return true;
+}
+
+
+
+
+
+
+
+sCLNode* sNodeTree_create_equal(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeEqual;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_equal(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* params[PARAMS_MAX];
+    int num_params = 0;
+
+    params[num_params] = node.left;
+    num_params++;
+    params[num_params] = node.right;
+    num_params++;
+
+    if(!invoke_method("equal", num_params, params, info)) {
+        return false;
+    }
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_not_equal(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeNotEqual;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_not_equal(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* params[PARAMS_MAX];
+    int num_params = 0;
+
+    params[num_params] = node.left;
+    num_params++;
+    params[num_params] = node.right;
+    num_params++;
+
+    if(!invoke_method("notEqual", num_params, params, info)) {
+        return false;
+    }
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_greater(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeGreater;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_greater(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* params[PARAMS_MAX];
+    int num_params = 0;
+
+    params[num_params] = node.left;
+    num_params++;
+    params[num_params] = node.right;
+    num_params++;
+
+    if(!invoke_method("greater", num_params, params, info)) {
+        return false;
+    }
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_lesser(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeLesser;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_lesser(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* params[PARAMS_MAX];
+    int num_params = 0;
+
+    params[num_params] = node.left;
+    num_params++;
+    params[num_params] = node.right;
+    num_params++;
+
+    if(!invoke_method("lesser", num_params, params, info)) {
+        return false;
+    }
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_lesser_equal(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeLesserEqual;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_lesser_equal(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* params[PARAMS_MAX];
+    int num_params = 0;
+
+    params[num_params] = node.left;
+    num_params++;
+    params[num_params] = node.right;
+    num_params++;
+
+    if(!invoke_method("lesserEqual", num_params, params, info)) {
+        return false;
+    }
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_greater_equal(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeGreaterEqual;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_greater_equal(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* params[PARAMS_MAX];
+    int num_params = 0;
+
+    params[num_params] = node.left;
+    num_params++;
+    params[num_params] = node.right;
+    num_params++;
+
+    if(!invoke_method("greaterEqual", num_params, params, info)) {
+        return false;
+    }
     
     return true;
 }
@@ -477,8 +934,7 @@ sCLNode* sNodeTree_create_true_value(sParserInfo* info)
 static bool compile_true_value(sCLNode* node, sCompileInfo* info)
 {
     if(!info.no_output) {
-        info.codes.append_int(OP_INT_VALUE);
-        info.codes.append_int(1);
+        info.codes.append_int(OP_TRUE_VALUE);
     }
 
     info.type = create_type("bool", info.pinfo);
@@ -506,8 +962,7 @@ sCLNode* sNodeTree_create_false_value(sParserInfo* info)
 static bool compile_false_value(sCLNode* node, sCompileInfo* info)
 {
     if(!info.no_output) {
-        info.codes.append_int(OP_INT_VALUE);
-        info.codes.append_int(0);
+        info.codes.append_int(OP_FALSE_VALUE);
     }
 
     info.type = create_type("bool", info.pinfo);
@@ -652,6 +1107,127 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
         int* p = (int*)(info.codes.buf + end_points[i]);
         *p = info.codes.len;
     }
+    info.type = create_type("void", info.pinfo);
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_while_expression(sCLNode* expression, sCLNodeBlock* node_block, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeWhile;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.uValue.uWhileExpression.mExpression = expression;
+    result.uValue.uWhileExpression.mNodeBlock = node_block;
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_while_expression(sCLNode* node, sCompileInfo* info)
+{
+    var expression = node.uValue.uWhileExpression.mExpression;
+    var node_block = node.uValue.uWhileExpression.mNodeBlock;
+
+    int head_while = info.codes.len;
+
+    if(!compile(expression, info)) {
+        return false;
+    }
+
+    if(!type_identify_with_class_name(info.type, "bool", info.pinfo)) {
+        compile_err_msg(info, "The condition expression of while requires bool type");
+        return true;
+    }
+
+    int len = 0;
+    if(!info.no_output) {
+        info.codes.append_int(OP_COND_JUMP);
+        info.codes.append_int(2);
+
+        info.codes.append_int(OP_GOTO);
+        len = info.codes.len;
+        info.codes.append_int(0);
+    }
+
+    info.stack_num--;
+
+    sCLNode* while_node_beore = info->while_node;
+    info->while_node = node;
+
+    node.uValue.uWhileExpression.mNumBreakGotoPoints = 0;
+
+    if(!compile_block(node_block, info)) {
+        info->while_node = while_node_beore;
+        return false;
+    }
+    info->while_node = while_node_beore;
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_GOTO);
+        info.codes.append_int(head_while);
+
+        int* p = (int*)(info.codes.buf + len);
+        *p = info.codes.len;
+
+        for(int i=0; i<node.uValue.uWhileExpression.mNumBreakGotoPoints; i++) {
+            int len = node.uValue.uWhileExpression.mBreakGotoPoints[i];
+
+            int* p = (int*)(info.codes.buf + len);
+            *p = info.codes.len;
+        }
+    }
+
+    info.type = create_type("void", info.pinfo);
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_break(sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeBreak;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_break(sCLNode* node, sCompileInfo* info)
+{
+    if(info->while_node == null) {
+        compile_err_msg(info, "Invalid break. Not in the while loop.");
+        return true;
+    }
+
+    info.codes.append_int(OP_GOTO);
+    int len = info.codes.len;
+    info.codes.append_int(0);
+
+    int n = info->while_node.uValue.uWhileExpression.mNumBreakGotoPoints;
+
+    info->while_node.uValue.uWhileExpression.mBreakGotoPoints[n]= len;
+    info->while_node.uValue.uWhileExpression.mNumBreakGotoPoints++;
+
+    if(info->while_node.uValue.uWhileExpression.mNumBreakGotoPoints >= BREAK_MAX) {
+        fprintf(stderr, "overflow break number.");
+        exit(2);
+    }
+
+    info->type = create_type("void", info.pinfo);
 
     return true;
 }
@@ -1209,6 +1785,8 @@ bool compile_block_object_call(sCLNode* node, sCompileInfo* info)
         info.stack_num++;
     }
 
+    info.type = block_type->mResultType;
+
     return true;
 }
 
@@ -1498,6 +2076,66 @@ bool compile(sCLNode* node, sCompileInfo* info)
             }
             break;
             
+        case kNodeTypeGreater:
+            if(!compile_greater(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypeGreaterEqual:
+            if(!compile_greater_equal(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypeLesser:
+            if(!compile_lesser(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypeLesserEqual:
+            if(!compile_lesser_equal(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypePrimitiveEqual:
+            if(!compile_primitive_equal(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypePrimitiveNotEqual:
+            if(!compile_primitive_not_equal(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypePrimitiveLesser:
+            if(!compile_primitive_lesser(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypePrimitiveLesserEqual:
+            if(!compile_primitive_lesser_equal(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypePrimitiveGreater:
+            if(!compile_primitive_greater(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypePrimitiveGreaterEqual:
+            if(!compile_primitive_greater_equal(node, info)) {
+                return false;
+            }
+            break;
+
         case kNodeTypeString:
             if(!compile_strig_value(node, info)) {
                 return false;
@@ -1518,6 +2156,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
     
         case kNodeTypeIf:
             if(!compile_if_expression(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeWhile:
+            if(!compile_while_expression(node, info)) {
                 return false;
             }
             break;
@@ -1599,6 +2243,14 @@ bool compile(sCLNode* node, sCompileInfo* info)
             }
             }
             break;
+
+        case kNodeTypeBreak: {
+            if(!compile_break(node, info)) {
+                return false;
+            }
+            }
+            break;
+    
     
         default:
             compile_err_msg(info, xsprintf("unexpected node type. No. %d", node.type));

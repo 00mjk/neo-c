@@ -250,6 +250,37 @@ bool parse_if_expression(sCLNode** node, sParserInfo* info)
     return true;
 }
 
+bool parse_while_expression(sCLNode** node, sParserInfo* info) 
+{
+    expected_next_character('(', info);
+
+    sCLNode* exp = null;
+    if(!expression(&exp, info)) {
+        return false;
+    };
+
+    expected_next_character(')', info);
+    expected_next_character('{', info);
+
+    sCLNodeBlock* node_block = null;
+    if(!parse_block(&node_block, 0, NULL, info)) {
+        return false;
+    }
+
+    expected_next_character('}', info);
+
+    *node = sNodeTree_create_while_expression(exp, node_block, info);
+
+    return true;
+}
+
+bool parse_break_expression(sCLNode** node, sParserInfo* info) 
+{
+    *node = sNodeTree_create_break(info);
+
+    return true;
+}
+
 bool parse_throw(sCLNode** node, sParserInfo* info) 
 {
     sCLNode* obj = null;
@@ -689,6 +720,16 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 return false;
             }
         }
+        else if(strcmp(word, "break") == 0) {
+            if(!parse_break_expression(node, info)) {
+                return false;
+            }
+        }
+        else if(strcmp(word, "while") == 0) {
+            if(!parse_while_expression(node, info)) {
+                return false;
+            }
+        }
         else if(strcmp(word, "throw") == 0) {
             if(!parse_throw(node, info)) {
                 return false;
@@ -936,12 +977,159 @@ static bool expression_plus_minus(sCLNode** node, sParserInfo* info)
     return true;
 }
 
-static bool expression_comparison_equal_operator(sCLNode** node, sParserInfo* info)
+bool expression_comparison_operator(sCLNode** node, sParserInfo* info)
 {
     if(!expression_plus_minus(node, info)) {
         return false;
     }
-    if(*node == 0) {
+
+    if(*node == null) {
+        return true;
+    }
+
+    while(*info->p) {
+        if(*info->p == '>' && *(info->p+1) == '=') {
+            info->p += 2;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_plus_minus(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for >= operator");
+                return true;
+            };
+
+            *node = sNodeTree_create_greater_equal(*node, right, info);
+        }
+        else if(*info->p == '\\' && *(info->p+1) == '>' && *(info->p+2) == '=') {
+            info->p += 3;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_plus_minus(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for >= operator");
+                return true;
+            };
+
+            *node = sNodeTree_create_primitive_greater_equal(*node, right, info);
+        }
+        else if(*info->p == '<' && *(info->p+1) == '=') {
+            info->p += 2;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_plus_minus(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for <= operator");
+                return true;
+            };
+
+            *node = sNodeTree_create_lesser_equal(*node, right, info);
+        }
+        else if(*info->p == '\\' && *(info->p+1) == '<' && *(info->p+2) == '=') {
+            info->p += 3;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_plus_minus(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for <= operator");
+                return true;
+            };
+
+            *node = sNodeTree_create_primitive_lesser_equal(*node, right, info);
+        }
+        else if(*info->p == '>' && *(info->p+1) != '>') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_plus_minus(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for > operator");
+                return true;
+            };
+
+            *node = sNodeTree_create_greater(*node, right, info);
+        }
+        else if(*info->p == '\\' && *(info->p+1) == '>' && *(info->p+2) != '>') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_plus_minus(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for > operator");
+                return true;
+            };
+
+            *node = sNodeTree_create_primitive_greater(*node, right, info);
+        }
+        else if(*info->p == '<' && *(info->p+1) != '<') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_plus_minus(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for < operator");
+                return true;
+            };
+
+            *node = sNodeTree_create_lesser(*node, right, info);
+        }
+        else if(*info->p == '\\' && *(info->p+1) == '<' && *(info->p+2) != '<') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_plus_minus(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for < operator");
+                return true;
+            };
+
+            *node = sNodeTree_create_primitive_lesser(*node, right, info);
+        }
+        else {
+            break;
+        }
+    }
+
+    return true;
+}
+
+static bool expression_comparison_equal_operator(sCLNode** node, sParserInfo* info)
+{
+    if(!expression_comparison_operator(node, info)) {
+        return false;
+    }
+    if(*node == null) {
         return true;
     }
 
@@ -952,7 +1140,7 @@ static bool expression_comparison_equal_operator(sCLNode** node, sParserInfo* in
             skip_spaces_and_lf(info);
 
             sCLNode* right = null;
-            if(!expression_plus_minus(&right, info)) {
+            if(!expression_comparison_operator(&right, info)) {
                 return false;
             }
 
@@ -962,12 +1150,27 @@ static bool expression_comparison_equal_operator(sCLNode** node, sParserInfo* in
 
             *node = sNodeTree_create_equal(*node, right, info);
         }
+        else if(*info->p == '\\' && *(info->p+1) == '=' && *(info->p+2) == '=') {
+            info->p += 3;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_comparison_operator(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator +");
+            };
+
+            *node = sNodeTree_create_primitive_equal(*node, right, info);
+        }
         else if(*info->p == '!' && *(info->p+1) == '=') {
             info->p += 2;
             skip_spaces_and_lf(info);
 
             sCLNode* right = null;
-            if(!expression_plus_minus(&right, info)) {
+            if(!expression_comparison_operator(&right, info)) {
                 return false;
             }
 
@@ -976,6 +1179,22 @@ static bool expression_comparison_equal_operator(sCLNode** node, sParserInfo* in
             };
 
             *node = sNodeTree_create_not_equal(*node, right, info);
+        }
+        else if(*info->p == '\\' && *(info->p+1) == '!' && *(info->p+2) == '=') 
+        {
+            info->p += 3;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_comparison_operator(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator +");
+            };
+
+            *node = sNodeTree_create_primitive_not_equal(*node, right, info);
         }
         else {
             break;

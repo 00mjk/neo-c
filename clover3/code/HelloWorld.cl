@@ -1,13 +1,63 @@
-# test 7
 class int {
     def plus(right:int):int {
         self \+ right
+    }
+    def lesser(right:int):bool {
+        self \< right
+    }
+    def lesserEqual(right:int):bool {
+        self \<= right
+    }
+    def greater(right:int):bool {
+        self \> right
+    }
+    def greaterEqual(right:int):bool {
+        self \>= right
+    }
+    def equal(right:int):bool {
+        self \== right
+    }
+    def notEqual(right:int):bool {
+        self \!= right
     }
     def toString():string;
     def toCommand():command;
 };
 
-(1+3).toCommand().less();
+class bool {
+    def toInteger():int;
+    def toString():int;
+    def toCommand():command;
+};
+
+# test 6
+
+#(3 <= 2).toInteger().toCommand().less()
+
+# test 7
+var m = 0;
+while(m < 2) {
+    var n = 0;
+
+    while(n < 5) {
+        n.toCommand().less();
+        n = n + 1;
+
+        if(n >= 3) {
+            break;
+        }
+    };
+
+    m = m + 1;
+};
+
+# test 5
+#throw "Exception";
+
+# test 7
+
+#echo(1.toString());
+#(1+3).toCommand().less();
 
 # test 6
 #class HellClass3 {
@@ -20,10 +70,6 @@ class int {
 #
 #obj3.method(1, "ABC");
 #
-
-# test 5
-#echo(1);
-#throw "Exception";
 
 
 # test 4

@@ -5,7 +5,7 @@ impl sVarTable
 
 initialize()
 {
-    self.mLocalVariables = new map<string, sVar*%>.initialize();
+    self.mLocalVariables = new map<string, sVar*>.initialize();
     self.mVarNum = 0;
     self.mMaxBlockVarNum = 0;
 
@@ -47,6 +47,8 @@ void add_variable_to_table(sParserInfo* info, char* name, sCLType* type, bool re
     v.mReadOnly = readonly;
     
     vtable.mLocalVariables.insert(string(name), v);
+
+    info->vars.push_back(v);
 }
 
 // result: (null) not found (sVar*) found
@@ -87,5 +89,26 @@ int get_var_num(vector<sVarTable*%>* vtables)
     }
 
     return result;
+}
+
+
+void show_vtable(sParserInfo* info)
+{
+    puts("show_vtable");
+    sVarTable* it = info.vtables.item(-1, null);
+
+    while(it) {
+        it.mLocalVariables.each {
+            if(it2->mType) {
+                printf("%s %p %s\n", it, it2, it2->mType->mClass->mName);
+            }
+            else {
+                printf("%s %p type null\n", it, it2);
+            }
+        }
+
+        it = it.mParent;
+    }
+    puts("show_vtable end");
 }
 

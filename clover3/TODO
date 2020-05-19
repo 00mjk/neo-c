@@ -1,11 +1,12 @@
-演算子のメッセージパッシング化
+throw
+try&catch
+return
+string.libraries
+generics
+list, buffer, map, tuple
 
-intをヒープに確保する。intのオブジェクト化
-INVOKE_METHODの実行時の型チェック、型が違うと例外を出す。
+メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
 
 INVOKE_BLOCK_OBJECTの実行時の型チェック
 
-return, throw, try&catch
-break;
-while
 

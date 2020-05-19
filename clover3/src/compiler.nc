@@ -85,6 +85,7 @@ bool compile_script(char* fname, buffer* source)
     info.vtables = borrow new vector<sVarTable*%>.initialize();
     info.blocks = borrow new vector<sCLNodeBlock*%>.initialize();
     info.types = borrow new vector<sCLType*%>.initialize();
+    info.vars = borrow new vector<sVar*%>.initialize();
     
     init_var_table(&info);
 
@@ -110,6 +111,7 @@ bool compile_script(char* fname, buffer* source)
             delete info.vtables;
             delete info.blocks;
             delete info.types;
+            delete info.vars;
             delete cinfo.codes;
             return false;
         }
@@ -126,6 +128,7 @@ bool compile_script(char* fname, buffer* source)
             delete info.vtables;
             delete info.blocks;
             delete info.types;
+            delete info.vars;
             delete cinfo.codes;
             return false;
         }
@@ -136,6 +139,7 @@ bool compile_script(char* fname, buffer* source)
             delete info.vtables;
             delete info.blocks;
             delete info.types;
+            delete info.vars;
             delete cinfo.codes;
             return false;
         }
@@ -158,6 +162,7 @@ bool compile_script(char* fname, buffer* source)
         delete info.vtables;
         delete info.blocks;
         delete info.types;
+        delete info.vars;
         delete cinfo.codes;
         return false;
     }
@@ -188,6 +193,7 @@ bool compile_script(char* fname, buffer* source)
         delete info.vtables;
         delete info.blocks;
         delete info.types;
+        delete info.vars;
         delete cinfo.codes;
         delete vminfo.stack_frames;
         return false;
@@ -199,6 +205,7 @@ bool compile_script(char* fname, buffer* source)
     delete info.vtables;
     delete info.blocks;
     delete info.types;
+    delete info.vars;
     delete cinfo.codes;
     delete vminfo.stack_frames;
     

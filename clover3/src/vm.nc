@@ -84,6 +84,22 @@ void print_op(int op)
         case OP_INOTEQ:
             puts("OP_INOTEQ");
             break;
+
+        case OP_ILT:
+            puts("OP_ILT");
+            break;
+            
+        case OP_IGT:
+            puts("OP_IGT");
+            break;
+
+        case OP_ILE:
+            puts("OP_ILE");
+            break;
+            
+        case OP_IGE:
+            puts("OP_IGE");
+            break;
                 
         case OP_COND_JUMP: 
             puts("OP_COND_JUMP");
@@ -641,6 +657,19 @@ print_op(op);
                 }
                 break;
                 
+            case OP_TRUE_VALUE: {
+                stack_ptr.mObjectValue = create_bool_object(1, info);
+                
+                stack_ptr++;
+                }
+                break;
+                
+            case OP_FALSE_VALUE: {
+                stack_ptr.mObjectValue = create_bool_object(0, info);
+                stack_ptr++;
+                }
+                break;
+                
             case OP_STRING_VALUE: {
                 char* str = (char*)p;
                 int len = strlen(str) + 1;
@@ -723,30 +752,109 @@ print_op(op);
                 
                 break;
                 
-/*
+
             case OP_IEQ: {
-                int lvalue = (stack_ptr-2).mIntValue;
-                int rvalue = (stack_ptr-1).mIntValue;
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+                sCLInt* rvalue_data = CLINT(rvalue);
+
+                int value = lvalue_data->mValue == rvalue_data->mValue;
+                CLObject new_obj = create_bool_object(value, info);
+
                 stack_ptr -= 2;
-                
-                stack_ptr.mIntValue = lvalue == rvalue;
+                stack_ptr.mObjectValue = new_obj;
                 stack_ptr++;
                 }
                 
                 break;
                 
             case OP_INOTEQ: {
-                int lvalue = (stack_ptr-2).mIntValue;
-                int rvalue = (stack_ptr-1).mIntValue;
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+                sCLInt* rvalue_data = CLINT(rvalue);
+
+                int value = lvalue_data->mValue != rvalue_data->mValue;
+                CLObject new_obj = create_bool_object(value, info);
+
                 stack_ptr -= 2;
-                
-                stack_ptr.mIntValue = lvalue != rvalue;
+                stack_ptr.mObjectValue = new_obj;
                 stack_ptr++;
                 }
                 
                 break;
-*/
                 
+            case OP_ILT: {
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+                sCLInt* rvalue_data = CLINT(rvalue);
+
+                int value = lvalue_data->mValue < rvalue_data->mValue;
+                CLObject new_obj = create_bool_object(value, info);
+
+                stack_ptr -= 2;
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
+                }
+                
+                break;
+
+            case OP_IGT: {
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+                sCLInt* rvalue_data = CLINT(rvalue);
+
+                int value = lvalue_data->mValue > rvalue_data->mValue;
+                CLObject new_obj = create_bool_object(value, info);
+
+                stack_ptr -= 2;
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
+                }
+                
+                break;
+
+            case OP_ILE: {
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+                sCLInt* rvalue_data = CLINT(rvalue);
+
+                int value = lvalue_data->mValue <= rvalue_data->mValue;
+                CLObject new_obj = create_bool_object(value, info);
+
+                stack_ptr -= 2;
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
+                }
+                
+                break;
+
+            case OP_IGE: {
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+                sCLInt* rvalue_data = CLINT(rvalue);
+
+                int value = lvalue_data->mValue >= rvalue_data->mValue;
+                CLObject new_obj = create_bool_object(value, info);
+
+                stack_ptr -= 2;
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
+                }
+                
+                break;
+
             case OP_STORE_VARIABLE: {
                 int var_index = *p;
                 p++;
@@ -763,12 +871,14 @@ print_op(op);
                 stack_ptr++;
                 }
 
-/*
             case OP_COND_JUMP: {
                 int jump_size = *p;
                 p++;
 
-                bool value = (stack_ptr-1).mIntValue;
+                CLObject conditional = (stack_ptr-1).mObjectValue;
+                sCLInt* conditional_data = CLINT(conditional);
+
+                int value = conditional_data->mValue;
                 stack_ptr--;
 
                 if(value) {
@@ -781,7 +891,10 @@ print_op(op);
                 int jump_size = *p;
                 p++;
 
-                bool value = (stack_ptr-1).mIntValue;
+                CLObject conditional = (stack_ptr-1).mObjectValue;
+                sCLInt* conditional_data = CLINT(conditional);
+
+                int value = conditional_data->mValue;
                 stack_ptr--;
 
                 if(!value) {
@@ -789,7 +902,6 @@ print_op(op);
                 }
                 }
                 break;
-*/
 
             case OP_GOTO: {
                 int goto_point = *p;
