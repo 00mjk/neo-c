@@ -446,7 +446,7 @@ static bool get_block_text(buffer* buf, sParserInfo* info)
             buf.append_char(*info->p);
             info->p++;
 
-            if(nest == 1) {
+            if(nest == 0) {
                 skip_spaces_and_lf(info);
                 break;
             }
@@ -474,6 +474,8 @@ bool parse_class(sCLNode** node, sParserInfo* info)
 
     block_text.append_str(name);
     block_text.append_char(' ');
+
+    expected_next_character('{', info);
 
     if(!get_block_text(block_text, info)) {
         return false;
@@ -747,6 +749,13 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
         }
         else if(strcmp(word, "jobs") == 0) {
             *node = sNodeTree_create_jobs(info);
+        }
+        else if(strcmp(word, "exit") == 0) {
+            if(!expression(node, info)) {
+                return false;
+            };
+            
+            *node = sNodeTree_create_exit(*node, info);
         }
         else if(strcmp(word, "fg") == 0) {
             const int buf_size = 128;

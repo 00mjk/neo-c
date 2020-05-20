@@ -169,13 +169,13 @@ static cllong block_object_size()
     return size;
 }
 
-CLObject create_block_object(int* codes, int codes_len, int head_params , int var_num, int stack_frame_index, sVMInfo* info)
+CLObject create_block_object(char* type_name, int* codes, int codes_len, int head_params , int var_num, int stack_frame_index, sVMInfo* info)
 {
     unsigned int size = (unsigned int)block_object_size();
 
     alignment(&size);
 
-    sCLType* lambda_type = create_type("lambda", info.cinfo.pinfo);
+    sCLType* lambda_type = parse_type_runtime(type_name, info);
 
     CLObject obj = alloc_heap_mem(size, lambda_type, -1, info);
 

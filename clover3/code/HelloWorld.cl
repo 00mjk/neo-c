@@ -1,3 +1,15 @@
+var xassert = lambda(str:string, exp:bool):void {
+    echo(str);
+
+    if(exp) {
+        echo("true");
+    }
+    else {
+        echo("false");
+        exit(1);
+    }
+}
+
 class int {
     def plus(right:int):int {
         self \+ right
@@ -35,21 +47,21 @@ class bool {
 #(3 <= 2).toInteger().toCommand().less()
 
 # test 7
-var m = 0;
-while(m < 2) {
-    var n = 0;
-
-    while(n < 5) {
-        n.toCommand().less();
-        n = n + 1;
-
-        if(n >= 3) {
-            break;
-        }
-    };
-
-    m = m + 1;
-};
+#var m = 0;
+#while(m < 2) {
+#    var n = 0;
+#
+#    while(n < 5) {
+#        n.toCommand().less();
+#        n = n + 1;
+#
+#        if(n >= 3) {
+#            break;
+#        }
+#    };
+#
+#    m = m + 1;
+#};
 
 # test 5
 #throw "Exception";
@@ -73,25 +85,25 @@ while(m < 2) {
 
 
 # test 4
-#class HelloClass2 {
-#    var a:int;
-#    var b:int;
-#
-#    def method(a:int, block:lambda(b:int):int) : int {
-#        a + block(2)
-#    }
-#}
-#
-#var obj2 = HelloClass2();
-#
-#var c = 1;
-#
-#obj2.method(2) {
-#    c + b + 2
-#}
-#
-#obj2.a = 3;
-#obj2.a;
+class HelloClass2 {
+    var a:int;
+    var b:int;
+
+    def method(a:int, block:lambda(b:int):int) : int {
+        a + block(2)
+    }
+}
+
+var obj2 = HelloClass2();
+
+var c = 1;
+
+obj2.method(2) {
+    c + b + 2
+}
+
+obj2.a = 3;
+obj2.a;
 
 # test5
 #ls("-al").grep("src").less();

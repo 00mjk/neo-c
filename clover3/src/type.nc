@@ -1,12 +1,72 @@
 #include "common.h"
 #include <assert.h>
 
+sCLType* parse_type_runtime(char* type_name, sVMInfo* info)
+{
+    char* p_before = info.cinfo.pinfo.p;
+
+    info.cinfo.pinfo.p = type_name;
+
+    sCLType* result = null;
+    if(!parse_type(&result, info.cinfo.pinfo)) {
+        fprintf(stderr, "parse_type_name error.\n");
+        exit(1);
+    }
+
+    info.cinfo.pinfo.p = p_before;
+
+    return result;
+}
+
+string create_type_name(sCLType* type)
+{
+    buffer*% result = new buffer.initialize();
+
+    result.append_str(type.mClass.mName);
+
+    if(strcmp(type.mClass.mName, "lambda") == 0) {
+        result.append_str("(");
+
+        for(int i=0; i<type.mNumParams; i++) {
+            result.append_str(type.mParams[i].mName);
+            result.append_str(":");
+            result.append_str(create_type_name(type.mParams[i].mType));
+
+            if(i != type.mNumParams-1) {
+                result.append_str(",");
+            }
+        }
+
+        result.append_str(")");
+        result.append_str(":");
+
+        result.append_str(create_type_name(type.mResultType));
+    }
+    else {
+        if(type.mNumGenericsTypes > 0) {
+            result.append_str("<");
+
+            for(int i=0; i<type.mNumGenericsTypes; i++) {
+                result.append_str(create_type_name(type.mGenericsTypes[i]));
+
+                if(i != type.mNumParams-1) {
+                    result.append_str(",");
+                }
+            }
+
+            result.append_str(">");
+        }
+    }
+
+    return result.to_string();
+}
+
 sCLType* create_type(char* type_name, sParserInfo* info)
 {
     sCLType* result = borrow new sCLType;
     
     info.types.push_back(dummy_heap result);
-    
+
     result.mClass = gClasses.at(type_name, null);
     
     assert(result.mClass != null);

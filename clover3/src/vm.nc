@@ -715,6 +715,16 @@ print_op(op);
                 break;
 
             case OP_CREATE_BLOCK_OBJECT: {
+                char* type_name = (char*)p;
+
+                int len = strlen(type_name) + 1;
+
+                alignment(&len);
+
+                len = len / sizeof(int);
+
+                p += len;
+
                 int head_params = *p;
                 p++;
 
@@ -728,7 +738,7 @@ print_op(op);
 
                 p += codes_len / sizeof(int);
 
-                int obj = create_block_object(codes, codes_len, head_params, var_num, info.stack_frames.length()-1, info);
+                int obj = create_block_object(type_name, codes, codes_len, head_params, var_num, info.stack_frames.length()-1, info);
 
                 stack_ptr.mObjectValue = obj;
                 stack_ptr++;
@@ -1166,6 +1176,17 @@ print_block_end(*(stack_ptr-1));
                 }
                 break;
 
+            case OP_EXIT: {
+                CLObject obj = (stack_ptr-1)->mObjectValue;
+                sCLInt* object_data = CLINT(obj);
+
+                exit(object_data->mValue);
+
+                stack_ptr --;
+                }
+                break;
+
+
             case OP_THROW: 
                 info->thrown_object = *(stack_ptr-1);
                 stack_ptr--;
@@ -1174,7 +1195,6 @@ print_block_end(*(stack_ptr-1));
     
                 return false;
                 break;
-
         }
 print_stack(stack, stack_ptr, var_num);
     }

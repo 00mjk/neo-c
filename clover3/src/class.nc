@@ -223,7 +223,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
 
     sCLClass* klass = gClasses.at(name, null);
 
-    expected_next_character('{', &info);
+    //expected_next_character('{', &info);
 
     while(*info.p) {
         var word = parse_word(&info);

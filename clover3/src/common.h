@@ -232,7 +232,7 @@ struct sParserInfo {
     int max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeExit };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -252,7 +252,7 @@ struct sCompileInfo {
     sCLNode* while_node;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_TRUE_VALUE, OP_FALSE_VALUE };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -276,12 +276,15 @@ void show_vtable(sParserInfo* info);
 
 /// type.nc ///
 sCLType* create_type(char* type_name, sParserInfo* info);
+sCLType* parse_type_runtime(char* type_name, sVMInfo* info);
+string create_type_name(sCLType* type);
 bool type_identify(sCLType* left_type, sCLType* right_type);
 bool substitution_posibility(sCLType* left_type, sCLType* right_type);
 bool type_identify_with_class_name(sCLType* left_type, char* right_class, sParserInfo* info);
 void show_type(sCLType* type);
 
 sCLNode* sNodeTree_create_break(sParserInfo* info);
+sCLNode* sNodeTree_create_exit(sCLNode* node, sParserInfo* info);
 sCLNode* sNodeTree_create_primitive_plus(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_while_expression(sCLNode* expression, sCLNodeBlock* node_block, sParserInfo* info);
 sCLNode* sNodeTree_create_plus(sCLNode* left, sCLNode* right, sParserInfo* info);
@@ -442,7 +445,7 @@ CLObject create_object(sCLType* type, sVMInfo* info);
 CLObject create_int_object(int value, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
 CLObject create_bool_object(int value, sVMInfo* info);
-CLObject create_block_object(int* codes, int codes_len, int head_params, int var_num, int stack_frame_index, sVMInfo* info);
+CLObject create_block_object(char* type_name, int* codes, int codes_len, int head_params , int var_num, int stack_frame_index, sVMInfo* info);
 CLObject create_command_object(char* output, int output_len, char* err_output, int err_output_len, int rcode, sVMInfo* info);
 CLObject create_job_object(char* title, termios* tinfo, pid_t pgrp, sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info);

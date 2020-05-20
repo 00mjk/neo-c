@@ -273,7 +273,6 @@ static bool compile_store_variable(sCLNode* node, sCompileInfo* info)
     sCLType* right_value_type = borrow info.type;
     
     char* var_name = borrow node.mStringValue;
-show_vtable(info.pinfo);
     
     sVar* v = get_variable_from_table(info.pinfo, var_name);
 
@@ -1329,15 +1328,6 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
     node_block.codes = dummy_heap cinfo2.codes;
     node_block->mResultType = result_type;
 
-    if(!info.no_output) {
-        info.codes.append_int(OP_CREATE_BLOCK_OBJECT);
-
-        info.codes.append_int(node_block->head_params);
-        info.codes.append_int(node_block->mVarNum);
-        info.codes.append_int(node_block->codes.len);
-        info.codes.append(node_block->codes.buf, node_block->codes.len);
-    }
-
     info.type = create_type("lambda", info.pinfo);
     info.type.mResultType = result_type;
     info.type.mNumParams = node_block->mNumParams;
@@ -1346,6 +1336,21 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
         info.type.mParams[i] = node_block->mParams[i];
     }
     info.type.mVarNum = node_block->mVarNum;
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_CREATE_BLOCK_OBJECT);
+
+        string block_type_name = create_type_name(info.type);
+
+        info.codes.append_nullterminated_str(block_type_name);
+
+        info.codes.alignment();
+
+        info.codes.append_int(node_block->head_params);
+        info.codes.append_int(node_block->mVarNum);
+        info.codes.append_int(node_block->codes.len);
+        info.codes.append(node_block->codes.buf, node_block->codes.len);
+    }
 
     info.stack_num++;
 
@@ -1817,6 +1822,48 @@ bool compile_jobs(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_exit(sCLNode* node, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeExit;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = node;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+bool compile_exit(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* left_node = node.left;
+
+    if(!compile(left_node, info)) {
+        return false;
+    }
+
+/*
+    if(!type_identify_with_class_name(info->type, "int", info.pinfo)) {
+        compile_err_msg(info, "Invalid exit parametor type");
+        return true;
+    }
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_EXIT);
+    }
+
+    info->type = create_type("void", info.pinfo);
+*/
+
+    info->stack_num--;
+
+    return true;
+}
+
 sCLNode* sNodeTree_create_fg(int job_num, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
@@ -2251,7 +2298,13 @@ bool compile(sCLNode* node, sCompileInfo* info)
             }
             break;
     
-    
+        case kNodeTypeExit: {
+            if(!compile_exit(node, info)) {
+                return false;
+            }
+            }
+            break;
+
         default:
             compile_err_msg(info, xsprintf("unexpected node type. No. %d", node.type));
             return false;
