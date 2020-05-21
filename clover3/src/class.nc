@@ -131,6 +131,7 @@ void class_init()
     append_class("int");
     append_class("bool");
     append_class("string");
+    append_class("any");
     append_class("command");
     append_class("job");
     append_class("void");

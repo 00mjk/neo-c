@@ -1,11 +1,11 @@
 var xassert = lambda(str:string, exp:bool):void {
-    echo(str);
+    echo("-n", str);
 
     if(exp) {
-        echo("true");
+        echo("...true");
     }
     else {
-        echo("false");
+        echo("...false");
         exit(1);
     }
 }
@@ -42,46 +42,43 @@ class bool {
     def toCommand():command;
 };
 
-# test 6
+# test
 
-#(3 <= 2).toInteger().toCommand().less()
+xassert("test1", (3 <= 2).toInteger() == 0);
 
 # test 7
-#var m = 0;
-#while(m < 2) {
-#    var n = 0;
-#
-#    while(n < 5) {
-#        n.toCommand().less();
-#        n = n + 1;
-#
-#        if(n >= 3) {
-#            break;
-#        }
-#    };
-#
-#    m = m + 1;
-#};
+var m = 0;
+while(m < 2) {
+    var n = 0;
 
-# test 5
-#throw "Exception";
+    while(n < 5) {
+        #n.toCommand().less();
+        n = n + 1;
+
+       if(n >= 3) {
+           break;
+        }
+    };
+
+    m = m + 1;
+};
 
 # test 7
 
-#echo(1.toString());
-#(1+3).toCommand().less();
+#echo(1.toString()).less();
+xassert("test1.5", (1+3) == 4);
 
 # test 6
-#class HellClass3 {
-#    def method(a:int, b:string): int {
-#        123
-#    }
-#}
-#
-#var obj3 = HellClass3();
-#
-#obj3.method(1, "ABC");
-#
+class HellClass3 {
+    def method(a:int, b:string): int {
+        123
+    }
+}
+
+var obj3 = HellClass3();
+
+xassert("test2", obj3.method(1, "ABC") == 123);
+
 
 
 # test 4
@@ -98,12 +95,12 @@ var obj2 = HelloClass2();
 
 var c = 1;
 
-obj2.method(2) {
+xassert("test3", obj2.method(2) {
     c + b + 2
-}
+} == 7);
 
 obj2.a = 3;
-obj2.a;
+xassert("test4", obj2.a == 3);
 
 # test5
 #ls("-al").grep("src").less();
@@ -112,39 +109,50 @@ obj2.a;
 #vim("src/vm.nc");
 
 # test 1
-#var a = 1;
-#
-#if(true) {
-#    a = 2;
-#    var b = 222;
-#}
-#
-#if(true) {
-#    a = 3;
-#    var c = 333;
-#}
+var a = 1;
+
+if(true) {
+    a = 2;
+    var b = 222;
+}
+
+if(true) {
+    a = 3;
+    var c = 333;
+}
+
+xassert("test5", a == 3);
 
 # test 2
-#class HelloClass {
-#    var a:int;
-#    var b:int;
-#
-#    def method(a:int, b:int) : int {
-#        var c = 2;
-#        a + b + c
-#    }
-#}
-#
-#var obj = HelloClass();
-#
-#obj.method(2, 2);
+class HelloClass {
+    var a:int;
+    var b:int;
+
+    def method(a:int, b:int) : int {
+        var c = 3;
+        a + b + c
+    }
+}
+
+var obj = HelloClass();
+
+xassert("test5.5", obj.method(2, 2) == 7);
 
 # test3
-#var b = 1;
-#var aaa = lambda(a:int):int {
-#    b = 2;
-#    2 + a + b
-#}
-#
-#aaa(3)
-#b
+var b = 1;
+var aaa = lambda(a:int):int {
+    b = 2;
+    2 + a + b
+}
+
+xassert("test6", aaa(3) == 7);
+xassert("test7", b == 2)
+
+# test 5
+
+try {
+    throw "Exception";
+    xassert("try test", false);
+} catch {
+    xassert("try test", true);
+}

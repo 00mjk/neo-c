@@ -274,6 +274,41 @@ bool parse_while_expression(sCLNode** node, sParserInfo* info)
     return true;
 }
 
+bool parse_try(sCLNode** node, sParserInfo* info) 
+{
+    expected_next_character('{', info);
+
+    sCLNodeBlock* node_block = null;
+    if(!parse_block(&node_block, 0, NULL, info)) {
+        return false;
+    }
+
+    expected_next_character('}', info);
+
+    string name = parse_word(info);
+
+    expected_next_character('{', info);
+
+    sCLParam params[PARAMS_MAX];
+    int num_params = 0;
+
+    xstrncpy(params[0].mName, "it", VAR_NAME_MAX);
+    params[0].mType = create_type("any", info);
+
+    num_params++;
+
+    sCLNodeBlock* node_block2 = null;
+    if(!parse_block(&node_block2, num_params, params, info)) {
+        return false;
+    }
+
+    expected_next_character('}', info);
+
+    *node = sNodeTree_create_try(node_block, node_block2, info);
+
+    return true;
+}
+
 bool parse_break_expression(sCLNode** node, sParserInfo* info) 
 {
     *node = sNodeTree_create_break(info);
@@ -734,6 +769,11 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
         }
         else if(strcmp(word, "throw") == 0) {
             if(!parse_throw(node, info)) {
+                return false;
+            }
+        }
+        else if(strcmp(word, "try") == 0) {
+            if(!parse_try(node, info)) {
                 return false;
             }
         }

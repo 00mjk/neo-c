@@ -185,7 +185,8 @@ bool compile_script(char* fname, buffer* source)
 
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     
-    if(!vm(cinfo.codes, 0, 0, var_num, -1, false, &vminfo)) {
+    CLVALUE result;
+    if(!vm(cinfo.codes, 0, 0, var_num, -1, false, &result, &vminfo)) {
         fprintf(stderr, "VM error.\n");
         heap_final(&vminfo);
 

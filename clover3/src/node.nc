@@ -135,8 +135,6 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
 
         info.codes.append_int(num_params);
 
-        info.codes.append_int(var_num);
-
         bool result_existance = !type_identify_with_class_name(method->mResultType, "void", info.pinfo);
         info.codes.append_int(result_existance);
     }
@@ -1593,8 +1591,6 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
 
         info.codes.append_int(num_params);
 
-        info.codes.append_int(var_num);
-
         bool result_existance = !type_identify_with_class_name(method->mResultType, "void", info.pinfo);
         info.codes.append_int(result_existance);
     }
@@ -2075,6 +2071,91 @@ bool compile_throw_exception(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_try(sCLNodeBlock* node_block, sCLNodeBlock* node_block2, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeTry;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.uValue.uTry.mNodeBlock = node_block;
+    result.uValue.uTry.mNodeBlock2 = node_block2;
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_try_expression(sCLNode* node, sCompileInfo* info)
+{
+    var node_block = node.uValue.uTry.mNodeBlock;
+    var node_block2 = node.uValue.uTry.mNodeBlock2;
+
+    char* sname = node.sname;
+    int sline = node.sline;
+
+    sCompileInfo cinfo2 = *info;
+
+    xstrncpy(cinfo2.sname, sname, PATH_MAX);
+    cinfo2.sline = sline;
+
+    cinfo2.codes = borrow new buffer.initialize();
+    cinfo2.type = null;
+    cinfo2.no_output = false;
+
+    if(!compile_block(node_block, &cinfo2)) {
+        delete cinfo2.codes;
+        return false;
+    }
+
+    if(cinfo2.err_num > 0) {
+        delete cinfo2.codes;
+        return false;
+    }
+
+    node_block.codes = dummy_heap cinfo2.codes;
+
+    cinfo2 = *info;
+
+    xstrncpy(cinfo2.sname, sname, PATH_MAX);
+    cinfo2.sline = sline;
+
+    cinfo2.codes = borrow new buffer.initialize();
+    cinfo2.type = null;
+    cinfo2.no_output = false;
+
+    if(!compile_block(node_block2, info)) {
+        return false;
+    }
+
+    node_block2.codes = dummy_heap cinfo2.codes;
+
+    if(!info->no_output) {
+        info.codes.append_int(OP_TRY);
+
+        info.codes.append_int(node_block->codes.len);
+
+        info.codes.append(node_block->codes.buf, node_block->codes.len);
+
+        info.codes.append_int(node_block->mVarNum);
+
+        info.codes.append_int(node_block2->codes.len);
+
+        info.codes.append(node_block2->codes.buf, node_block2->codes.len);
+
+        info.codes.append_int(node_block2->mVarNum);
+    }
+
+    info.type = create_type("void", info.pinfo);
+
+    return true;
+}
+
+
 bool compile(sCLNode* node, sCompileInfo* info) 
 {
     if(node == null) {
@@ -2302,6 +2383,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
             if(!compile_exit(node, info)) {
                 return false;
             }
+            }
+            break;
+    
+        case kNodeTypeTry:
+            if(!compile_try_expression(node, info)) {
+                return false;
             }
             break;
 

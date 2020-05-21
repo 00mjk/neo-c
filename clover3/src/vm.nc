@@ -77,6 +77,10 @@ void print_op(int op)
             puts("OP_LOAD_VARIABLE");
             break;
 
+        case OP_TRY: 
+            puts("OP_TRY");
+            break;
+
         case OP_IEQ:
             puts("OP_IEQ");
             break;
@@ -147,7 +151,7 @@ void print_op(int op)
     }
 }
 
-void ready_for_vm_stack(CLVALUE* stack, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info)
+void ready_for_vm_stack(CLVALUE* stack, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool vm_enable_parent_stack, sVMInfo* info)
 {
     sCLStackFrame null_paret_stack_frame;
     memset(&null_paret_stack_frame, 0, sizeof(sCLStackFrame));
@@ -155,27 +159,30 @@ void ready_for_vm_stack(CLVALUE* stack, int head_params, int num_params, int var
     if(parent_stack_frame_index >= 0) {
         sCLStackFrame parent_stack_frame = info.stack_frames.item(parent_stack_frame_index, null_paret_stack_frame);
 
-
-        if(enable_parent_stack) {
+        if(vm_enable_parent_stack) {
             memcpy(stack, parent_stack_frame.stack, sizeof(CLVALUE)*parent_stack_frame.var_num);
             sCLStackFrame parent_stack_frame2 = info.stack_frames.item(-2, null_paret_stack_frame);
             
-            memcpy(stack + head_params, (*parent_stack_frame2.stack_ptr) - (num_params-1), sizeof(CLVALUE)*(num_params-1));
+            if(num_params > 0) {
+                memcpy(stack + head_params, (*parent_stack_frame2.stack_ptr) - (num_params-1), sizeof(CLVALUE)*(num_params-1));
+            }
         }
         else {
-            memcpy(stack, (*parent_stack_frame.stack_ptr) - num_params, sizeof(CLVALUE)*num_params);
+            if(num_params > 0) {
+                memcpy(stack, (*parent_stack_frame.stack_ptr) - num_params, sizeof(CLVALUE)*num_params);
+            }
         }
     }
 }
 
-void update_parent_stack(CLVALUE* stack, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info)
+void update_parent_stack(CLVALUE* stack, int vm_head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info)
 {
     sCLStackFrame null_paret_stack_frame;
     memset(&null_paret_stack_frame, 0, sizeof(sCLStackFrame));
 
     if(parent_stack_frame_index >= 0) {
+        info.stack_frames.pop_back(null_paret_stack_frame);
         sCLStackFrame parent_stack_frame = info.stack_frames.item(parent_stack_frame_index, null_paret_stack_frame);
-
 
         if(enable_parent_stack) {
             memcpy(parent_stack_frame.stack, stack, sizeof(CLVALUE)*parent_stack_frame.var_num);
@@ -614,7 +621,7 @@ bool param_check(sCLParam* method_params, int num_params, CLVALUE* stack_ptr)
     return true;
 }
 
-bool vm(buffer* codes, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info)
+bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, int vm_parent_stack_frame_index, bool vm_enable_parent_stack, CLVALUE* result, sVMInfo* info)
 {
     sCLStackFrame null_paret_stack_frame;
     memset(&null_paret_stack_frame, 0, sizeof(sCLStackFrame));
@@ -624,26 +631,26 @@ bool vm(buffer* codes, int head_params, int num_params, int var_num, int parent_
     
     memset(stack, 0, sizeof(CLVALUE) * VM_STACK_MAX);
     
-    CLVALUE* stack_ptr = (CLVALUE*)stack + var_num;
+    CLVALUE* stack_ptr = (CLVALUE*)stack + vm_var_num;
 
     int* head_codes = (int*)codes.buf;
     int* p = (int*)codes.buf;
 
     stack_frame.stack = stack;
     stack_frame.stack_ptr = &stack_ptr;
-    stack_frame.var_num = var_num;
+    stack_frame.var_num = vm_var_num;
     stack_frame.index = info.stack_frames.length();
 
     info.stack_frames.push_back(stack_frame);
 
-    ready_for_vm_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
+    ready_for_vm_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
     
     while(p - head_codes < codes.len) {
         int op = *p;
         p++;
         
         switch(op) {
-print_op(op);
+//print_op(op);
             case OP_POP: {
                 stack_ptr--;
                 }
@@ -702,8 +709,7 @@ print_op(op);
 
                 if(type == null) {
                     vm_err_msg(info, xsprintf("class not found(%s)\n", name));
-                    info.stack_frames.pop_back(null_paret_stack_frame);
-                    update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
+                    update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
 
@@ -935,13 +941,10 @@ print_op(op);
                 int num_params = *p;
                 p++;
 
-                int var_num = *p;
-                p++;
-
                 int result_existance = *p
                 p++;
 
-                CLObject obj = (stack_ptr-var_num)->mObjectValue;
+                CLObject obj = (stack_ptr-num_params)->mObjectValue;
 
                 sCLObject* object_data = CLOBJECT(obj);
 
@@ -949,8 +952,7 @@ print_op(op);
 
                 if(klass == null) {
                     vm_err_msg(info, xsprintf("class not found(%s)\n", klass->mName));
-                    info.stack_frames.pop_back(null_paret_stack_frame);
-                    update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
+                    update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
                 
@@ -959,11 +961,10 @@ print_op(op);
 
                 if(method == null) {
                     vm_err_msg(info, xsprintf("method not found(%s.%s)\n", klass->mName, method_name));
-                    info.stack_frames.pop_back(null_paret_stack_frame);
-                    update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
+                    update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
-print_method(klass, method, num_params, var_num);
+//print_method(klass, method, num_params, vm_var_num);
 
                 if(!param_check(method->mParams, method->mNumParams, stack_ptr))
                 {
@@ -988,22 +989,23 @@ print_method(klass, method, num_params, var_num);
                 }
                 else {
                     buffer* codes = method.mByteCodes;
-                    if(!vm(codes, 0, num_params, var_num, info.stack_frames.length()-1, false, info)) {
-                        info.stack_frames.pop_back(null_paret_stack_frame);
-                        update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
+
+                    int var_num = get_var_num(method.mNodeBlock.vtables);
+
+                    CLVALUE result;
+                    if(!vm(codes, 0, num_params, var_num, info.stack_frames.length()-1, false, &result, info)) {
+                        update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                         return false;
                     }
 
                     stack_ptr -= num_params;
 
                     if(result_existance) {
-                        sCLStackFrame parent_stack_frame = info.stack_frames.pop_back(null_paret_stack_frame);
-
-                        *stack_ptr = *(*parent_stack_frame.stack_ptr-1);
+                        *stack_ptr = result;
                         stack_ptr++;
                     }
                 }
-print_method_end(klass, method, *(stack_ptr-1));
+//print_method_end(klass, method, *(stack_ptr-1));
 
                 }
                 break;
@@ -1033,23 +1035,21 @@ print_method_end(klass, method, *(stack_ptr-1));
 
                 buffer.append((char*)codes, codes_len);
 
-print_block(num_params, var_num2);
+//print_block(num_params, var_num2);
 
-                if(!vm(buffer, head_params, num_params, var_num2, parent_stack_frame_index, true, info)) {
-                    info.stack_frames.pop_back(null_paret_stack_frame);
-                    update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
+                CLVALUE result;
+                if(!vm(buffer, head_params, num_params, var_num2, parent_stack_frame_index, true, &result, info)) {
+                    update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
 
                 stack_ptr -= num_params;
 
                 if(result_existance) {
-                    sCLStackFrame parent_stack_frame = info.stack_frames.pop_back(null_paret_stack_frame);
-
-                    *stack_ptr = *(*parent_stack_frame.stack_ptr-1);
+                    *stack_ptr = result;
                     stack_ptr++;
                 }
-print_block_end(*(stack_ptr-1));
+//print_block_end(*(stack_ptr-1));
 
                 }
                 break;
@@ -1186,20 +1186,79 @@ print_block_end(*(stack_ptr-1));
                 }
                 break;
 
+            case OP_TRY: {
+                int try_codes_len = *p;
+                p++;
+
+                int* try_head_codes = p;
+
+                p += try_codes_len / sizeof(int);
+
+                int try_var_num = *p;
+                p++;
+
+                int catch_codes_len = *p;
+                p++;
+
+                int* catch_head_codes = p;
+
+                p += catch_codes_len / sizeof(int);
+
+                int catch_var_num = *p;
+                p++;
+
+                buffer*% try_codes = new buffer.initialize();
+                try_codes.append((char*)try_head_codes, try_codes_len);
+
+                int head_params = 0;
+                int num_params = 0;
+                int var_num = try_var_num;
+
+                int parent_stack_frame_index = info.stack_frames.length()-1;
+                bool enable_parent_stack = true;
+
+                CLVALUE result_obj;
+                bool result = vm(try_codes, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, &result_obj, info);
+
+                if(!result) {
+                    buffer*% catch_codes = new buffer.initialize();
+                    catch_codes.append((char*)catch_head_codes, catch_codes_len);
+
+                    int head_params = 0;
+                    int num_params = 1;
+                    int var_num = catch_var_num;
+
+                    int parent_stack_frame_index = info.stack_frames.length()-1;
+                    bool enable_parent_stack = true;
+
+                    CLVALUE result_obj;
+                    if(!vm(catch_codes, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, &result_obj, info))
+                    {
+                        update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
+                        return false;
+                    }
+                }
+
+                }
+                
+                break;
+
 
             case OP_THROW: 
                 info->thrown_object = *(stack_ptr-1);
                 stack_ptr--;
 
-                update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
+                update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
     
                 return false;
                 break;
         }
-print_stack(stack, stack_ptr, var_num);
-    }
+//print_stack(stack, stack_ptr, vm_var_num);
+    };
 
-    update_parent_stack(stack, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, info);
+    *result = *(stack_ptr-1);
+
+    update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
     
     return true;
 }
