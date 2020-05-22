@@ -58,11 +58,17 @@ bool parse_block(sCLNodeBlock** node_block, int num_params, sCLParam* params, sP
 
     int var_num = get_var_num(info.vtables);
 
-    if(var_num > info.max_var_num) {
+    if(!info.no_increment_max_var_num && (var_num > info.max_var_num)) {
         info.max_var_num = var_num;
     }
 
-    (*node_block)->mVarNum = info.max_var_num;
+    if(info.no_increment_max_var_num) {
+        (*node_block)->mVarNum = var_num;
+    }
+    else {
+        (*node_block)->mVarNum = info.max_var_num;
+    }
+
     (*node_block)->mNumParams = num_params;
     for(int i=0; i<num_params; i++) {
         (*node_block)->mParams[i] = params[i];
@@ -100,7 +106,7 @@ bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info)
             return_false = true;
             return;
         }
-        
+
         if(it2 != nodes.length() -1 || (!has_last_value && it2 == nodes.length()-1)) {
             /// POP ///
             for(int i=0; i<info.stack_num; i++) {

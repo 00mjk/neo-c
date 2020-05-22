@@ -95,34 +95,46 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
         return false;
     }
 
-    sCLClass* klass = info.type.mClass;
-
-    sCLMethod* method = klass.mMethods.at(method_name, null);
-
-    if(method == null) { compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass.mName, method_name));
-        return true;
-    }
-
-    int var_num = get_var_num(method.mNodeBlock.vtables);
-
-    /// compile parametors ///
-    if(method->mNumParams != num_params) {
-        compile_err_msg(info, xsprintf("invalid method prametor number.  invalid %d number instead of %d(%s.%s)", num_params, method->mNumParams, klass.mName, method_name));
-        return true;
-    }
-
-    sCLType* param_types[PARAMS_MAX];
-    for(int i=1; i<num_params; i++) {
-        if(!compile(params[i], info)) {
-            return false;
+    if(type_identify_with_class_name(info.type, "any", info.pinfo))
+    {
+        for(int i=1; i<num_params; i++) {
+            if(!compile(params[i], info)) {
+                return false;
+            }
         }
 
-        param_types[i] = info.type;
+        info->type = create_type("any", info.pinfo);
+    }
+    else {
+        sCLClass* klass = info.type.mClass;
 
-        if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
-            compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
+        sCLMethod* method = klass.mMethods.at(method_name, null);
+
+        if(method == null) { compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass.mName, method_name));
             return true;
         }
+
+        /// compile parametors ///
+        if(method->mNumParams != num_params) {
+            compile_err_msg(info, xsprintf("invalid method prametor number.  invalid %d number instead of %d(%s.%s)", num_params, method->mNumParams, klass.mName, method_name));
+            return true;
+        }
+
+        sCLType* param_types[PARAMS_MAX];
+        for(int i=1; i<num_params; i++) {
+            if(!compile(params[i], info)) {
+                return false;
+            }
+
+            param_types[i] = info.type;
+
+            if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
+                compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
+                return true;
+            }
+        }
+
+        info->type = method->mResultType;
     }
 
     /// go ///
@@ -134,18 +146,11 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
         info.codes.alignment();
 
         info.codes.append_int(num_params);
-
-        bool result_existance = !type_identify_with_class_name(method->mResultType, "void", info.pinfo);
-        info.codes.append_int(result_existance);
     }
 
     info.stack_num -= num_params;
 
-    if(!type_identify_with_class_name(method->mResultType, "void", info.pinfo)) {
-        info.stack_num++;
-    }
-
-    info->type = method->mResultType;
+    info.stack_num++;
 
     return true;
 }
@@ -1475,7 +1480,7 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
 
             param_types[i] = info.type;
 
-            if(!substitution_posibility(param_types[i], string_type)) 
+            if(!substitution_posibility(string_type, param_types[i])) 
             {
                 compile_err_msg(info, xsprintf("command param error #%d. It is not string.", i));
                 return true;
@@ -1504,81 +1509,98 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         return true;
     }
 
-    sCLMethod* method = klass.mMethods.at(method_name, null);
-
-    if(method == null) { compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass.mName, method_name));
-        return true;
-    }
-
-    int var_num;
-    if(method.mNodeBlock) {
-        var_num = get_var_num(method.mNodeBlock.vtables);
-    }
-    else { // native method
-        var_num = num_params;
-    }
-
-    /// compile parametors ///
-    if(method->mNumParams != num_params) {
-        compile_err_msg(info, xsprintf("invalid method prametor number.  invalid %d number instead of %d(%s.%s)", num_params, method->mNumParams, klass.mName, method_name));
-        return true;
-    }
-
-    sCLType* param_types[PARAMS_MAX];
-    for(int i=1; i<num_params; i++) {
-        if(params[i].type == kNodeTypeMethodBlock) {
-            sCLNode* node = params[i];
-
-            sCLType* method_param_type = method->mParams[i].mType;
-
-            node.uValue.uLambda.mNumParams = method_param_type->mNumParams;
-            for(int j=0; j<method_param_type->mNumParams; j++) {
-                node.uValue.uLambda.mParams[i] = method_param_type->mParams[j];
+    if(type_identify_with_class_name(info.type, "any", info.pinfo))
+    {
+        for(int i=1; i<num_params; i++) {
+            if(!compile(params[i], info)) {
+                return false;
             }
+        }
 
-            node.uValue.uLambda.mResultType = method_param_type->mResultType;
+        info->type = create_type("any", info.pinfo);
+    }
+    else {
+        sCLMethod* method = klass.mMethods.at(method_name, null);
 
-            char* p_before = info->pinfo->p;
-            int sline_before = info->pinfo->sline;
-            info->pinfo->p = node.mBufferValue.buf;
-            info->pinfo->sline = node.sline;
+        if(method == null) { compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass.mName, method_name));
+            return true;
+        }
 
-            sCLNodeBlock* node_block = null;
-            if(!parse_block(&node_block, method_param_type->mNumParams, method_param_type->mParams, info->pinfo))
-            {
+        int var_num;
+        if(method.mNodeBlock) {
+            var_num = get_var_num(method.mNodeBlock.vtables);
+        }
+        else { // native method
+            var_num = num_params;
+        }
+
+        /// compile parametors ///
+        if(method->mNumParams != num_params) {
+            compile_err_msg(info, xsprintf("invalid method prametor number.  invalid %d number instead of %d(%s.%s)", num_params, method->mNumParams, klass.mName, method_name));
+            return true;
+        }
+
+        sCLType* param_types[PARAMS_MAX];
+        for(int i=1; i<num_params; i++) {
+            if(params[i].type == kNodeTypeMethodBlock) {
+                sCLNode* node = params[i];
+
+                sCLType* method_param_type = method->mParams[i].mType;
+
+                node.uValue.uLambda.mNumParams = method_param_type->mNumParams;
+                for(int j=0; j<method_param_type->mNumParams; j++) {
+                    node.uValue.uLambda.mParams[i] = method_param_type->mParams[j];
+                }
+
+                node.uValue.uLambda.mResultType = method_param_type->mResultType;
+
+                char* p_before = info->pinfo->p;
+                int sline_before = info->pinfo->sline;
+                info->pinfo->p = node.mBufferValue.buf;
+                info->pinfo->sline = node.sline;
+
+                sCLNodeBlock* node_block = null;
+                info->pinfo->no_increment_max_var_num = true;
+                if(!parse_block(&node_block, method_param_type->mNumParams, method_param_type->mParams, info->pinfo))
+                {
+                    info->pinfo->no_increment_max_var_num = false;
+                    info->pinfo->p = p_before;
+                    info->pinfo->sline = sline_before;
+                    return false;
+                }
+                info->pinfo->no_increment_max_var_num = false;
+
                 info->pinfo->p = p_before;
                 info->pinfo->sline = sline_before;
-                return false;
+
+                node.uValue.uLambda.mNodeBlock = node_block;
+
+                if(!compile(params[i], info)) {
+                    return false;
+                }
+
+                param_types[i] = info.type;
+
+                if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
+                    compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
+                    return true;
+                }
             }
+            else {
+                if(!compile(params[i], info)) {
+                    return false;
+                }
 
-            info->pinfo->p = p_before;
-            info->pinfo->sline = sline_before;
+                param_types[i] = info.type;
 
-            node.uValue.uLambda.mNodeBlock = node_block;
-
-            if(!compile(params[i], info)) {
-                return false;
-            }
-
-            param_types[i] = info.type;
-
-            if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
-                compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
-                return true;
-            }
-        }
-        else {
-            if(!compile(params[i], info)) {
-                return false;
-            }
-
-            param_types[i] = info.type;
-
-            if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
-                compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
-                return true;
+                if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
+                    compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
+                    return true;
+                }
             }
         }
+
+        info.type = method.mResultType;
     }
 
     /// go ///
@@ -1590,18 +1612,11 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         info.codes.alignment();
 
         info.codes.append_int(num_params);
-
-        bool result_existance = !type_identify_with_class_name(method->mResultType, "void", info.pinfo);
-        info.codes.append_int(result_existance);
     }
 
     info.stack_num -= num_params;
 
-    if(!type_identify_with_class_name(method->mResultType, "void", info.pinfo)) {
-        info.stack_num++;
-    }
-
-    info.type = method.mResultType;
+    info.stack_num++;
 
     return true;
 }
@@ -1678,7 +1693,7 @@ bool compile_command_call(sCLNode* node, sCompileInfo* info)
 
         param_types[i] = info.type;
 
-        if(!substitution_posibility(param_types[i], string_type)) 
+        if(!substitution_posibility(string_type, param_types[i])) 
         {
             compile_err_msg(info, xsprintf("command param error #%d. It is not string.", i));
             return true;
@@ -2128,7 +2143,7 @@ static bool compile_try_expression(sCLNode* node, sCompileInfo* info)
     cinfo2.type = null;
     cinfo2.no_output = false;
 
-    if(!compile_block(node_block2, info)) {
+    if(!compile_block(node_block2, &cinfo2)) {
         return false;
     }
 

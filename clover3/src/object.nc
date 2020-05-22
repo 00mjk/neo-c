@@ -58,6 +58,25 @@ CLObject create_object(sCLType* type, sVMInfo* info)
     return obj;
 }
 
+CLObject create_null_object(sVMInfo* info)
+{
+    sCLType* int_type = create_type("void", info.cinfo.pinfo);
+    
+    int size = sizeof(sCLInt);
+
+    alignment(&size);
+
+    int value = 0;
+
+    CLObject obj = alloc_heap_mem(size, int_type, -1, info);
+
+    sCLInt* object_data = CLINT(obj);
+
+    object_data->mValue = value;
+
+    return obj;
+}
+
 CLObject create_int_object(int value, sVMInfo* info)
 {
     sCLType* int_type = create_type("int", info.cinfo.pinfo);

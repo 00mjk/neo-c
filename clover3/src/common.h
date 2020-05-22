@@ -234,6 +234,7 @@ struct sParserInfo {
     vector<sVar*%>* vars;
 
     int max_var_num;
+    bool no_increment_max_var_num;
 };
 
 enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeExit, kNodeTypeTry };
@@ -276,7 +277,7 @@ void add_variable_to_table(sParserInfo* info, char* name, sCLType* type, bool re
 sVar* get_variable_from_table(sParserInfo* info, char* name);
 void check_already_added_variable(sParserInfo* info, char* name);
 int get_var_num(vector<sVarTable*%>* vtables);
-void show_vtable(sParserInfo* info);
+void show_vtable(vector<sVarTable*%>* vtables);
 
 /// type.nc ///
 sCLType* create_type(char* type_name, sParserInfo* info);
@@ -447,6 +448,7 @@ struct sCLInt {
 sCLHeapMem* get_object_pointer(CLObject obj);
 
 CLObject create_object(sCLType* type, sVMInfo* info);
+CLObject create_null_object(sVMInfo* info);
 CLObject create_int_object(int value, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
 CLObject create_bool_object(int value, sVMInfo* info);

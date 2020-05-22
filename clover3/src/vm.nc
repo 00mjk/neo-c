@@ -941,9 +941,6 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 int num_params = *p;
                 p++;
 
-                int result_existance = *p
-                p++;
-
                 CLObject obj = (stack_ptr-num_params)->mObjectValue;
 
                 sCLObject* object_data = CLOBJECT(obj);
@@ -980,6 +977,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     CLVALUE result_value = *(stack_ptr-1);
 
                     stack_ptr -= num_params;
+                    bool result_existance = !type_identify_with_class_name(method->mResultType, "void", info.pinfo);
 
                     if(result_existance) {
                         stack_ptr--;
@@ -999,9 +997,14 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     }
 
                     stack_ptr -= num_params;
+                    bool result_existance = !type_identify_with_class_name(method->mResultType, "void", info.pinfo);
 
                     if(result_existance) {
                         *stack_ptr = result;
+                        stack_ptr++;
+                    }
+                    else {
+                        (*stack_ptr).mObjectValue = create_null_object(info);
                         stack_ptr++;
                     }
                 }
@@ -1091,7 +1094,8 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
 
                     sCLString* object_data = CLSTRING(obj);
 
-                    if(!type_identify_with_class_name(object_data->mType, "string", info.cinfo.pinfo))
+                    sCLType* string_type = create_type("string", info.cinfo.pinfo);
+                    if(!substitution_posibility(string_type, object_data->mType))
                     {
                         return false;
                     }
@@ -1218,7 +1222,9 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 bool enable_parent_stack = true;
 
                 CLVALUE result_obj;
+//puts("try block");
                 bool result = vm(try_codes, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, &result_obj, info);
+//puts("try block end");
 
                 if(!result) {
                     buffer*% catch_codes = new buffer.initialize();
@@ -1231,12 +1237,15 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     int parent_stack_frame_index = info.stack_frames.length()-1;
                     bool enable_parent_stack = true;
 
+
                     CLVALUE result_obj;
+//puts("catch block");
                     if(!vm(catch_codes, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, &result_obj, info))
                     {
                         update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                         return false;
                     }
+//puts("catch block end");
                 }
 
                 }
@@ -1253,6 +1262,8 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 return false;
                 break;
         }
+//print_op(op);
+//puts("end");
 //print_stack(stack, stack_ptr, vm_var_num);
     };
 

@@ -112,6 +112,10 @@ bool substitution_posibility(sCLType* left_type, sCLType* right_type)
 
         return true;
     }
+    else if(strcmp(right_class.mName, "any") == 0)
+    {
+        return true;
+    }
 
     return type_identify(left_type, right_type);
 }

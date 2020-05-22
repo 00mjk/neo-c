@@ -92,10 +92,10 @@ int get_var_num(vector<sVarTable*%>* vtables)
 }
 
 
-void show_vtable(sParserInfo* info)
+void show_vtable(vector<sVarTable*%>* vtables)
 {
     puts("show_vtable");
-    sVarTable* it = info.vtables.item(-1, null);
+    sVarTable* it = vtables.item(-1, null);
 
     while(it) {
         it.mLocalVariables.each {

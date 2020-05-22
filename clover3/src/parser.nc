@@ -425,9 +425,12 @@ bool parse_lambda_expression(sCLNode** node, sParserInfo* info)
     expected_next_character('{', info);
 
     sCLNodeBlock* node_block = null;
+    info->no_increment_max_var_num = true;
     if(!parse_block(&node_block, num_params, params, info)) {
+        info->no_increment_max_var_num = false;
         return false;
     }
+    info->no_increment_max_var_num = false;
 
     expected_next_character('}', info);
 
