@@ -425,12 +425,12 @@ bool parse_lambda_expression(sCLNode** node, sParserInfo* info)
     expected_next_character('{', info);
 
     sCLNodeBlock* node_block = null;
-    info->no_increment_max_var_num = true;
+    int max_var_num = info.max_var_num;
     if(!parse_block(&node_block, num_params, params, info)) {
-        info->no_increment_max_var_num = false;
+        info.max_var_num = max_var_num;
         return false;
     }
-    info->no_increment_max_var_num = false;
+    info.max_var_num = max_var_num;
 
     expected_next_character('}', info);
 
@@ -799,6 +799,13 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             };
             
             *node = sNodeTree_create_exit(*node, info);
+        }
+        else if(strcmp(word, "return") == 0) {
+            if(!expression(node, info)) {
+                return false;
+            };
+            
+            *node = sNodeTree_create_return(*node, info);
         }
         else if(strcmp(word, "fg") == 0) {
             const int buf_size = 128;

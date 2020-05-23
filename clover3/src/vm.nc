@@ -56,6 +56,10 @@ void print_op(int op)
         case OP_THROW:
             puts("OP_THROW");
             break;
+
+        case OP_RETURN:
+            puts("OP_RETURN");
+            break;
             
         case OP_INT_VALUE:
             puts("OP_INT_VALUE");
@@ -123,6 +127,18 @@ void print_op(int op)
 
         case OP_INVOKE_METHOD: 
             puts("OP_INVOKE_METHOD");
+            break;
+
+        case OP_EXIT: 
+            puts("OP_EXIT");
+            break;
+
+        case OP_TRUE_VALUE: 
+            puts("OP_TRUE_VALUE");
+            break;
+
+        case OP_FALSE_VALUE: 
+            puts("OP_FALSE_VALUE");
             break;
 
         case OP_CREATE_BLOCK_OBJECT:
@@ -1252,6 +1268,12 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 
                 break;
 
+            case OP_RETURN:
+                update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
+
+                *result = *(stack_ptr-1);
+    
+                return true;
 
             case OP_THROW: 
                 info->thrown_object = *(stack_ptr-1);

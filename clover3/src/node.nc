@@ -1560,16 +1560,16 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
                 info->pinfo->sline = node.sline;
 
                 sCLNodeBlock* node_block = null;
-                info->pinfo->no_increment_max_var_num = true;
+                int max_var_num = info->pinfo.max_var_num;
                 if(!parse_block(&node_block, method_param_type->mNumParams, method_param_type->mParams, info->pinfo))
                 {
-                    info->pinfo->no_increment_max_var_num = false;
+                    info->pinfo.max_var_num = max_var_num;
                     info->pinfo->p = p_before;
                     info->pinfo->sline = sline_before;
                     return false;
                 }
-                info->pinfo->no_increment_max_var_num = false;
 
+                info->pinfo.max_var_num = max_var_num;
                 info->pinfo->p = p_before;
                 info->pinfo->sline = sline_before;
 
@@ -1857,7 +1857,6 @@ bool compile_exit(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
-/*
     if(!type_identify_with_class_name(info->type, "int", info.pinfo)) {
         compile_err_msg(info, "Invalid exit parametor type");
         return true;
@@ -1868,7 +1867,6 @@ bool compile_exit(sCLNode* node, sCompileInfo* info)
     }
 
     info->type = create_type("void", info.pinfo);
-*/
 
     info->stack_num--;
 
@@ -2082,6 +2080,41 @@ bool compile_throw_exception(sCLNode* node, sCompileInfo* info)
     }
 
     info->type = obj_type;
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_return(sCLNode* obj, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeReturn;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = obj;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+bool compile_return(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* obj_node = node.left;
+
+    if(!compile(obj_node, info)) {
+        return false;
+    }
+
+    sCLType* obj_type = info.type;
+
+    if(!info->no_output) {
+        info.codes.append_int(OP_RETURN);
+    }
+
+    info->type = create_type("void", info.pinfo);
 
     return true;
 }
@@ -2403,6 +2436,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
     
         case kNodeTypeTry:
             if(!compile_try_expression(node, info)) {
+                return false;
+            }
+            break;
+    
+        case kNodeTypeReturn:
+            if(!compile_return(node, info)) {
                 return false;
             }
             break;

@@ -100,6 +100,24 @@ bool bool_toCommand(CLVALUE** stack_ptr, sVMInfo* info)
     return true;
 }
 
+bool string_equal(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* left = (*stack_ptr-2);
+    CLVALUE* right = (*stack_ptr-1);
+
+    sCLString* object_data = CLSTRING(left->mObjectValue);
+    sCLString* object_data2 = CLSTRING(right->mObjectValue);
+
+    int value = strcmp(object_data->mData, object_data2->mData) == 0;
+    
+    CLObject obj = create_bool_object(value, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
 void create_native_method_name(char* result, sCLClass* klass, sCLMethod* method)
 {
     snprintf(result, NATIVE_METHOD_NAME_MAX, "%s.%s", klass.mName, method.mName);
@@ -144,6 +162,7 @@ void class_init()
     gNativeMethods.insert(string("bool.toInteger"), bool_toInteger);
     gNativeMethods.insert(string("bool.toString"), bool_toString);
     gNativeMethods.insert(string("bool.toCommand"), bool_toCommand);
+    gNativeMethods.insert(string("string.equal"), string_equal);
 
     gJobs = borrow new vector<CLObject>.initialize();
 }
@@ -278,13 +297,13 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
                 expected_next_character('{', &info);
 
                 sCLNodeBlock* node_block = null;
-                info->no_increment_max_var_num = true;
+                int max_var_num = info.max_var_num;
                 if(!parse_block(&node_block, num_params, params, &info)) {
+                    info.max_var_num = max_var_num;
                     delete info.vtables;
-                    info->no_increment_max_var_num = false;
                     return false;
                 }
-                info->no_increment_max_var_num = false;
+                info.max_var_num = max_var_num;
 
                 sCompileInfo cinfo2 = *cinfo;
 

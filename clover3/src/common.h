@@ -234,10 +234,9 @@ struct sParserInfo {
     vector<sVar*%>* vars;
 
     int max_var_num;
-    bool no_increment_max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeExit, kNodeTypeTry };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeExit, kNodeTypeTry, kNodeTypeReturn };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -257,7 +256,7 @@ struct sCompileInfo {
     sCLNode* while_node;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -289,6 +288,7 @@ bool type_identify_with_class_name(sCLType* left_type, char* right_class, sParse
 void show_type(sCLType* type);
 
 sCLNode* sNodeTree_create_break(sParserInfo* info);
+sCLNode* sNodeTree_create_return(sCLNode* obj, sParserInfo* info);
 sCLNode* sNodeTree_create_try(sCLNodeBlock* node_block, sCLNodeBlock* node_block2, sParserInfo* info);
 sCLNode* sNodeTree_create_exit(sCLNode* node, sParserInfo* info);
 sCLNode* sNodeTree_create_primitive_plus(sCLNode* left, sCLNode* right, sParserInfo* info);
