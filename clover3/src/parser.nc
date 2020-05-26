@@ -902,12 +902,30 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             sCLType* type = null;
             if(!parse_type(&type, info)) {
                 return false;
-            }
-
-            expected_next_character('(', info);
-            expected_next_character(')', info);
+            };
 
             *node = sNodeTree_create_object(type, info);
+
+            /// method ///
+            if(*info->p == '(') {
+                char* name = "initialize";
+
+                info->p++;
+                skip_spaces_and_lf(info);
+
+                int num_params = 0;
+                sCLNode* params[PARAMS_MAX];
+
+                params[0] = *node;
+                num_params = 1;
+
+                if(!parse_calling_params(&num_params, params, info)) 
+                {
+                    return false;
+                };
+
+                *node = sNodeTree_create_method_call(name, num_params, params, info);
+            }
         }
         else {
             if(*info->p == '=' && *(info->p+1) != '=') {

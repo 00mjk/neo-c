@@ -93,7 +93,7 @@ class HellClass3 {
     }
 }
 
-var obj3 = HellClass3();
+var obj3 = HellClass3;
 
 xassert("test2", obj3.method(1, "ABC") == 123);
 
@@ -109,7 +109,7 @@ class HelloClass2 {
     }
 }
 
-var obj2 = HelloClass2();
+var obj2 = HelloClass2;
 
 var c = 1;
 
@@ -152,7 +152,7 @@ class HelloClass {
     }
 }
 
-var obj = HelloClass();
+var obj = HelloClass;
 
 xassert("test5.5", obj.method(2, 2) == 7);
 
@@ -197,7 +197,7 @@ class GenericsTest <T>
     }
 }
 
-var gg = GenericsTest<int>();
+var gg = GenericsTest<int>;
 
 gg.a = 1;
 
@@ -214,3 +214,21 @@ try {
 catch {
     echo(it);
 }
+
+class GenericsTest2<T>
+{
+    var a:T;
+    var b:T;
+
+    def initialize(a:T, b:T):GenericsTest2<T> {
+        self.a = a;
+        self.b = b;
+
+        self
+    }
+}
+
+var gg2 = GenericsTest2<int>(1, 2);
+
+xassert("generics test b", gg2.a == 1);
+xassert("generics test b2", gg2.b == 2);

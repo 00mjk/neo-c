@@ -175,45 +175,6 @@ void print_op(int op)
     }
 }
 
-void ready_for_vm_stack(CLVALUE* stack, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool vm_enable_parent_stack, sVMInfo* info)
-{
-    sCLStackFrame null_paret_stack_frame;
-    memset(&null_paret_stack_frame, 0, sizeof(sCLStackFrame));
-
-    if(parent_stack_frame_index >= 0) {
-        sCLStackFrame parent_stack_frame = info.stack_frames.item(parent_stack_frame_index, null_paret_stack_frame);
-
-        if(vm_enable_parent_stack) {
-            memcpy(stack, parent_stack_frame.stack, sizeof(CLVALUE)*parent_stack_frame.var_num);
-            sCLStackFrame parent_stack_frame2 = info.stack_frames.item(-2, null_paret_stack_frame);
-            
-            if(num_params > 0) {
-                memcpy(stack + head_params, (*parent_stack_frame2.stack_ptr) - (num_params-1), sizeof(CLVALUE)*(num_params-1));
-            }
-        }
-        else {
-            if(num_params > 0) {
-                memcpy(stack, (*parent_stack_frame.stack_ptr) - num_params, sizeof(CLVALUE)*num_params);
-            }
-        }
-    }
-}
-
-void update_parent_stack(CLVALUE* stack, int vm_head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info)
-{
-    sCLStackFrame null_paret_stack_frame;
-    memset(&null_paret_stack_frame, 0, sizeof(sCLStackFrame));
-
-    if(parent_stack_frame_index >= 0) {
-        info.stack_frames.pop_back(null_paret_stack_frame);
-        sCLStackFrame parent_stack_frame = info.stack_frames.item(parent_stack_frame_index, null_paret_stack_frame);
-
-        if(enable_parent_stack) {
-            memcpy(parent_stack_frame.stack, stack, sizeof(CLVALUE)*parent_stack_frame.var_num);
-        }
-    }
-}
-
 bool invoke_command_with_control_terminal(char* name, char** argv, int num_params, CLVALUE** stack_ptr, sVMInfo* info)
 {
     pid_t pid = fork();
@@ -649,6 +610,45 @@ bool param_check(sCLParam* method_params, int num_params, CLVALUE* stack_ptr, sC
     return true;
 }
 
+void ready_for_vm_stack(CLVALUE* stack, int head_params, int num_params, int var_num, int parent_stack_frame_index, bool vm_enable_parent_stack, sVMInfo* info)
+{
+    sCLStackFrame null_paret_stack_frame;
+    memset(&null_paret_stack_frame, 0, sizeof(sCLStackFrame));
+
+    if(parent_stack_frame_index >= 0) {
+        sCLStackFrame parent_stack_frame = info.stack_frames.item(parent_stack_frame_index, null_paret_stack_frame);
+
+        if(vm_enable_parent_stack) {
+            memcpy(stack, parent_stack_frame.stack, sizeof(CLVALUE)*parent_stack_frame.var_num);
+            sCLStackFrame parent_stack_frame2 = info.stack_frames.item(-2, null_paret_stack_frame);
+            
+            if(num_params > 0) {
+                memcpy(stack + head_params, (*parent_stack_frame2.stack_ptr) - (num_params-1), sizeof(CLVALUE)*(num_params-1));
+            }
+        }
+        else {
+            if(num_params > 0) {
+                memcpy(stack, (*parent_stack_frame.stack_ptr) - num_params, sizeof(CLVALUE)*num_params);
+            }
+        }
+    }
+}
+
+void update_parent_stack(CLVALUE* stack, int vm_head_params, int num_params, int var_num, int parent_stack_frame_index, bool enable_parent_stack, sVMInfo* info)
+{
+    sCLStackFrame null_paret_stack_frame;
+    memset(&null_paret_stack_frame, 0, sizeof(sCLStackFrame));
+
+    if(parent_stack_frame_index >= 0) {
+        info.stack_frames.pop_back(null_paret_stack_frame);
+        sCLStackFrame parent_stack_frame = info.stack_frames.item(parent_stack_frame_index, null_paret_stack_frame);
+
+        if(enable_parent_stack) {
+            memcpy(parent_stack_frame.stack, stack, sizeof(CLVALUE)*parent_stack_frame.var_num);
+        }
+    }
+}
+
 bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, int vm_parent_stack_frame_index, bool vm_enable_parent_stack, CLVALUE* result, sVMInfo* info)
 {
     sCLStackFrame null_paret_stack_frame;
@@ -998,12 +998,14 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
 
                 if(!param_check(method->mParams, method->mNumParams, stack_ptr, generics_types, info))
                 {
+                    update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
 
                 if(method.mByteCodes == null) {
                     if(!invoke_native_method(klass, method, &stack_ptr, info)) 
                     {
+                        update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                         return false;
                     }
 
@@ -1130,6 +1132,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     sCLType* string_type = create_type("string", info.cinfo.pinfo);
                     if(!substitution_posibility(string_type, object_data->mType))
                     {
+                        update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                         return false;
                     }
 
@@ -1141,12 +1144,14 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     if(last_method_chain) {
                         if(!invoke_command_with_control_terminal(command_name, argv, num_params, &stack_ptr, info))
                         {
+                            update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                             return false;
                         }
                     }
                     else {
                         if(!invoke_command(command_name, argv, &stack_ptr, num_params, info))
                         {
+                            update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                             return false;
                         }
                     }
@@ -1155,12 +1160,14 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     if(last_method_chain) {
                         if(!invoke_command_with_control_terminal_and_pipe(parent_obj, command_name, argv, num_params, &stack_ptr, info))
                         {
+                            update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                             return false;
                         }
                     }
                     else {
                         if(!invoke_command_with_pipe(parent_obj, command_name, argv, &stack_ptr, num_params, info))
                         {
+                            update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                             return false;
                         }
                     }
@@ -1178,6 +1185,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 p++;
 
                 if(!forgroud_job(job_num, info)) {
+                    update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
                 }
