@@ -94,8 +94,11 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
     if(!compile(first_node, info)) {
         return false;
     }
+    
+    sCLType* generics_types = info.type;
 
-    if(type_identify_with_class_name(info.type, "any", info.pinfo))
+    if(type_identify_with_class_name(info.type, "any", info.pinfo)
+        || is_generics_type(info.type, info.pinfo))
     {
         for(int i=1; i<num_params; i++) {
             if(!compile(params[i], info)) {
@@ -128,8 +131,10 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
 
             param_types[i] = info.type;
 
-            if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
-                compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
+            sCLType* type = solve_generics(method->mParams[i].mType, generics_types, info.pinfo);
+
+            if(!substitution_posibility(type, param_types[i])) {
+                compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 1", i, klass.mName, method_name));
                 return true;
             }
         }
@@ -1383,7 +1388,7 @@ sCLNode* sNodeTree_create_method_block(char* sname, int sline, buffer*% block_te
     return result;
 }
 
-sCLNode* sNodeTree_create_object(char* class_name_, sParserInfo* info)
+sCLNode* sNodeTree_create_object(sCLType* type, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
     
@@ -1392,7 +1397,7 @@ sCLNode* sNodeTree_create_object(char* class_name_, sParserInfo* info)
     xstrncpy(result.sname, info.sname, PATH_MAX);
     result.sline = info.sline;
 
-    result.mStringValue = string(class_name_);
+    result.mType = type;
 
     result.left = null;
     result.right = null;
@@ -1403,16 +1408,18 @@ sCLNode* sNodeTree_create_object(char* class_name_, sParserInfo* info)
 
 static bool compile_create_object(sCLNode* node, sCompileInfo* info)
 {
-    char* class_name_ = node.mStringValue;
+    sCLType* type = node.mType;
 
     if(!info.no_output) {
         info.codes.append_int(OP_CREATE_OBJECT);
-        info.codes.append_nullterminated_str(class_name_);
+
+        string type_name = create_type_name(type);
+        info.codes.append_nullterminated_str(type_name);
 
         info.codes.alignment();
     }
 
-    info.type = create_type(class_name_, info.pinfo);
+    info.type = type;
     info.stack_num++;
 
     return true;
@@ -1465,6 +1472,8 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
+    sCLType* generics_types = info.type;
+
     sCLClass* klass = info.type.mClass;
 
     if(klass == gClasses.at("command", null)) {
@@ -1509,7 +1518,8 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         return true;
     }
 
-    if(type_identify_with_class_name(info.type, "any", info.pinfo))
+    if(type_identify_with_class_name(info.type, "any", info.pinfo)
+        || is_generics_type(info.type, info.pinfo))
     {
         for(int i=1; i<num_params; i++) {
             if(!compile(params[i], info)) {
@@ -1593,7 +1603,9 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
 
                 param_types[i] = info.type;
 
-                if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
+                sCLType* type = solve_generics(method->mParams[i].mType, generics_types, info.pinfo);
+
+                if(!substitution_posibility(type, param_types[i])) {
                     compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
                     return true;
                 }
@@ -1959,6 +1971,8 @@ bool compile_store_field(sCLNode* node, sCompileInfo* info)
 
     sCLType* obj_type = info.type;
 
+    sCLType* generics_types = info.type;
+
     sCLClass* klass = obj_type.mClass;
 
     sCLField* field = klass.mFields.at(name, null);
@@ -1970,6 +1984,8 @@ bool compile_store_field(sCLNode* node, sCompileInfo* info)
 
     sCLType* field_type = field.mResultType;
 
+    field_type = solve_generics(field_type, generics_types, info.pinfo);
+
     int field_index = field.mIndex;
 
     if(!compile(exp_node, info)) {
@@ -1977,6 +1993,8 @@ bool compile_store_field(sCLNode* node, sCompileInfo* info)
     }
 
     sCLType* exp_type = info.type;
+
+
 
     if(!substitution_posibility(field_type, exp_type)) {
         compile_err_msg(info, xsprintf("Invalid type storing field %s", name));
@@ -2026,6 +2044,8 @@ bool compile_load_field(sCLNode* node, sCompileInfo* info)
 
     sCLType* obj_type = info.type;
 
+    sCLType* generics_types = info.type;
+
     sCLClass* klass = obj_type.mClass;
 
     sCLField* field = klass.mFields.at(name, null);
@@ -2037,6 +2057,8 @@ bool compile_load_field(sCLNode* node, sCompileInfo* info)
 
     sCLType* field_type = field.mResultType;
 
+    sCLType* solved_field_type = solve_generics(field_type, generics_types, info.pinfo);
+
     int field_index = field.mIndex;
 
     if(!info.no_output) {
@@ -2044,7 +2066,7 @@ bool compile_load_field(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(field_index);
     }
     
-    info->type = field_type;
+    info->type = solved_field_type;
 
     return true;
 }

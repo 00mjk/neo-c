@@ -332,6 +332,18 @@ bool parse_type(sCLType** type, sParserInfo* info)
 {
     string name = parse_word(info);
 
+    if(info.generics_type_names != null) {
+        for(int i=0; i<info.generics_type_names.length(); i++) {
+            if(strcmp(name, info.generics_type_names.item(i, null)) == 0) {
+                char*% generics_type_name = xsprintf("generics_type%d", i);
+
+                *type = create_type(generics_type_name, info);
+
+                return true;
+            }
+        }
+    };
+
     *type = create_type(name, info);
 
     if(strcmp(name, "lambda") == 0) {
@@ -355,10 +367,36 @@ bool parse_type(sCLType** type, sParserInfo* info)
         }
 
         (*type)->mResultType = result_type;
+
+        if((*type).mClass == null) {
+            parser_err_msg(info, xsprintf("invalid type name(%s)", name));
+        }
+
+        return true;
     }
 
-    if((*type).mClass == null) {
-        parser_err_msg(info, xsprintf("invalid type name(%s)", name));
+    (*type)->mNumGenericsTypes = 0;
+
+    if(*info->p == '<') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        for(int i=0; i<GENERICS_TYPES_MAX; i++) {
+            if(!parse_type((*type)->mGenericsTypes + i, info)) {
+                return false;
+            }
+            (*type)->mNumGenericsTypes++;
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '>') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+        }
     }
 
     return true;
@@ -512,6 +550,29 @@ bool parse_class(sCLNode** node, sParserInfo* info)
 
     block_text.append_str(name);
     block_text.append_char(' ');
+
+    if(*info->p == '<') {
+        while(true) {
+            block_text.append_char(*info->p);
+
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(*info->p == '>') {
+                block_text.append_char(*info->p);
+
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else if(*info->p == '\0') {
+                parser_err_msg(info, "unexpexted the source end in generics type names");
+                return false;
+            }
+        }
+    }
+
+    block_text.append_char('\n');
 
     expected_next_character('{', info);
 
@@ -719,6 +780,9 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
     }
     /// alnum ///
     else if(isalpha(*info->p) || *info->p == '_') {
+        char* p_before = info->p;
+        int sline_before = info->sline;
+
         var word = parse_word(info);
 
         sCLClass* klass = gClasses.at(word, null);
@@ -831,13 +895,19 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             
             *node = sNodeTree_create_fg(atoi(buf), info);
         }
-        else if(klass && *info->p == '(') {
-            info->p++;
-            skip_spaces_and_lf(info);
+        else if(klass) {
+            info->p = p_before;
+            info->sline = sline_before;
 
+            sCLType* type = null;
+            if(!parse_type(&type, info)) {
+                return false;
+            }
+
+            expected_next_character('(', info);
             expected_next_character(')', info);
 
-            *node = sNodeTree_create_object(klass.mName, info);
+            *node = sNodeTree_create_object(type, info);
         }
         else {
             if(*info->p == '=' && *(info->p+1) != '=') {

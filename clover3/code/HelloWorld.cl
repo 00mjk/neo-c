@@ -46,6 +46,20 @@ class string {
     def equal(left:string):bool;
 };
 
+class list_item<T>
+{
+    var item:T;
+    var prev:list_item<T>;
+    var next:list_item<T>;
+}
+
+class list<T>
+{
+    var head: list_item<T>;
+    var tail: list_item<T>;
+    var len:int;
+}
+
 # test
 
 xassert("test1", (3 <= 2).toInteger() == 0);
@@ -157,7 +171,8 @@ xassert("test7", b == 2)
 try {
     throw "Exception";
     xassert("try test", false);
-} catch {
+}
+catch {
     xassert("try test", it == "Exception");
     xassert("try test2", true);
 }
@@ -171,3 +186,31 @@ var fun = lambda(a:int, b:int): int {
 }
 
 xassert("return test", fun(1, 2) == 3);
+
+class GenericsTest <T>
+{
+    var a:T;
+    var b:T;
+
+    def method(c:T): T {
+        self.a + self.b + c
+    }
+}
+
+var gg = GenericsTest<int>();
+
+gg.a = 1;
+
+xassert("generics test", gg.a == 1);
+
+gg.b = 2;
+
+xassert("generics test2", gg.b == 2);
+xassert("generics test3", gg.method(4) == 7);
+
+try {
+    lx();
+}
+catch {
+    echo(it);
+}

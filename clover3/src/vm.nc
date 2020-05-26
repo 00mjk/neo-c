@@ -3,9 +3,17 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-void vm_err_msg(sVMInfo* info, char* msg)
+void vm_err_msg(CLVALUE** stack_ptr, sVMInfo* info, char* msg)
 {
-    fprintf(stderr, "%s %d: %s\n", info.sname, info.sline, msg);
+    char buf[128];
+    snprintf(buf, 128, "%s %d: %s", info.sname, info.sline, msg);
+
+    CLObject obj = create_string_object(buf, info);
+
+    (*stack_ptr).mObjectValue = obj;
+    (*stack_ptr)++;
+
+    info->thrown_object.mObjectValue = obj;
 }
 
 void print_stack(CLVALUE* stack, CLVALUE* stack_ptr, int var_num)
@@ -217,7 +225,7 @@ bool invoke_command_with_control_terminal(char* name, char** argv, int num_param
         tcsetpgrp(0, pid);
 
         if(execvp(name, argv) < 0) {
-            return false;
+           exit(64);
         }
 
         exit(0);
@@ -231,6 +239,7 @@ bool invoke_command_with_control_terminal(char* name, char** argv, int num_param
     pid_t pid2 = waitpid(pid, &status, WUNTRACED);
 
     if(WEXITSTATUS(status) == 64) {
+        vm_err_msg(stack_ptr, info, xsprintf("command not found(%s)\n", name));
         return false;
     }
 
@@ -313,7 +322,7 @@ bool invoke_command(char* name, char** argv, CLVALUE** stack_ptr, int num_params
         close(child2parent_write_fd_err);
 
         if(execvp(name, argv) < 0) {
-            return false;
+            exit(64);
         }
 
         exit(2);
@@ -350,6 +359,7 @@ bool invoke_command(char* name, char** argv, CLVALUE** stack_ptr, int num_params
     pid_t pid2 = waitpid(pid, &status, WUNTRACED);
 
     if(WEXITSTATUS(status) == 64) {
+        vm_err_msg(stack_ptr, info, xsprintf("command not found(%s)\n", name));
         return false;
     }
 
@@ -394,7 +404,6 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
         close(parent2child_read_fd);
 
         if(execvp(name, argv) < 0) {
-            fprintf(stderr, "execv error\n");
             exit(64);
         }
 
@@ -419,6 +428,7 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
     pid_t pid2 = waitpid(pid, &status, WUNTRACED);
 
     if(WEXITSTATUS(status) == 64) {
+        vm_err_msg(stack_ptr, info, xsprintf("command not found(%s)\n", name));
         return false;
     }
 
@@ -501,7 +511,7 @@ bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVA
         close(child2parent_write_fd_err);
 
         if(execvp(name, argv) < 0) {
-            return false;
+            exit(64);
         }
 
         exit(2);
@@ -545,6 +555,7 @@ bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVA
     pid_t pid2 = waitpid(pid, &status, WUNTRACED);
 
     if(WEXITSTATUS(status) == 64) {
+        vm_err_msg(stack_ptr, info, xsprintf("command not found(%s)\n", name));
         return false;
     }
 
@@ -618,7 +629,7 @@ bool forgroud_job(int job_num, sVMInfo* info)
     return true;
 }
 
-bool param_check(sCLParam* method_params, int num_params, CLVALUE* stack_ptr)
+bool param_check(sCLParam* method_params, int num_params, CLVALUE* stack_ptr, sCLType * generics_types, sVMInfo* info)
 {
     for(int i=0; i<num_params; i++) {
         CLObject obj = (stack_ptr-num_params+i)->mObjectValue;
@@ -628,8 +639,9 @@ bool param_check(sCLParam* method_params, int num_params, CLVALUE* stack_ptr)
         sCLType* stack_param = object_data->mType;
 
         sCLParam* param = method_params + i;
+        sCLType* type = solve_generics(param->mType, generics_types, info.cinfo.pinfo);
 
-        if(!substitution_posibility(param->mType, stack_param)) {
+        if(!substitution_posibility(type, stack_param)) {
             return false;
         }
     }
@@ -660,6 +672,10 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
     info.stack_frames.push_back(stack_frame);
 
     ready_for_vm_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
+
+    if(info->thrown_object.mObjectValue) {
+        *(stack_ptr-1) = info->thrown_object;
+    }
     
     while(p - head_codes < codes.len) {
         int op = *p;
@@ -711,9 +727,9 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 break;
 
             case OP_CREATE_OBJECT: {
-                char* name = (char*)p;
+                char* type_name = (char*)p;
 
-                int len = strlen(name) + 1;
+                int len = strlen(type_name) + 1;
 
                 alignment(&len);
 
@@ -721,10 +737,10 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
 
                 p += len;
 
-                sCLType* type = create_type(name, info.cinfo.pinfo);
+                sCLType* type = parse_type_runtime(type_name, info);
 
                 if(type == null) {
-                    vm_err_msg(info, xsprintf("class not found(%s)\n", name));
+                    vm_err_msg(&stack_ptr, info, xsprintf("class not found(%s)\n", type_name));
                     update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
@@ -960,11 +976,12 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 CLObject obj = (stack_ptr-num_params)->mObjectValue;
 
                 sCLObject* object_data = CLOBJECT(obj);
+                sCLType* generics_types = object_data->mType;
 
                 sCLClass* klass = object_data->mType->mClass;
 
                 if(klass == null) {
-                    vm_err_msg(info, xsprintf("class not found(%s)\n", klass->mName));
+                    vm_err_msg(&stack_ptr, info, xsprintf("class not found(%s)\n", klass->mName));
                     update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
@@ -973,13 +990,13 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 sCLMethod* method = klass.mMethods.at(method_name, null);
 
                 if(method == null) {
-                    vm_err_msg(info, xsprintf("method not found(%s.%s)\n", klass->mName, method_name));
+                    vm_err_msg(&stack_ptr, info, xsprintf("method not found(%s.%s)\n", klass->mName, method_name));
                     update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
 //print_method(klass, method, num_params, vm_var_num);
 
-                if(!param_check(method->mParams, method->mNumParams, stack_ptr))
+                if(!param_check(method->mParams, method->mNumParams, stack_ptr, generics_types, info))
                 {
                     return false;
                 }
@@ -1239,6 +1256,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
 
                 CLVALUE result_obj;
 //puts("try block");
+                info->thrown_object.mObjectValue = 0;
                 bool result = vm(try_codes, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, &result_obj, info);
 //puts("try block end");
 
@@ -1253,7 +1271,6 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     int parent_stack_frame_index = info.stack_frames.length()-1;
                     bool enable_parent_stack = true;
 
-
                     CLVALUE result_obj;
 //puts("catch block");
                     if(!vm(catch_codes, head_params, num_params, var_num, parent_stack_frame_index, enable_parent_stack, &result_obj, info))
@@ -1263,6 +1280,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     }
 //puts("catch block end");
                 }
+                info->thrown_object.mObjectValue = 0;
 
                 }
                 
@@ -1284,7 +1302,6 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 return false;
                 break;
         }
-//print_op(op);
 //puts("end");
 //print_stack(stack, stack_ptr, vm_var_num);
     };

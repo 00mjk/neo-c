@@ -1,6 +1,40 @@
 #include "common.h"
 #include <assert.h>
 
+/*
+impl sCLType
+{
+    sCLType*% clone(sCLType* self)
+    {
+        sCLType*% result = new sCLType;
+
+        result.mName = clone self.mName;
+
+        result.mClass = self.mClass;
+
+        result.mNumGenericsTypes = self.mNumGenericsTypes;
+
+        for(int i=0; i<self.mNumGenericsTypes; i++) {
+            result.mGenericsTypes[i] = self.mGenericsTypes[i];
+        }
+
+        result.mNullable = self.mNullable;
+
+        result.mNumParams = self.mNumParams;
+
+        for(int i=0; i<self.mNumParams; i++) {
+            result.mParams[i] = self.mParams[i];
+        }
+
+        result.mResultType = self.mResultType;
+
+        result.mVarNum = self.mVarNum;
+
+        return result;
+    }
+}
+*/
+
 sCLType* parse_type_runtime(char* type_name, sVMInfo* info)
 {
     char* p_before = info.cinfo.pinfo.p;
@@ -49,7 +83,7 @@ string create_type_name(sCLType* type)
             for(int i=0; i<type.mNumGenericsTypes; i++) {
                 result.append_str(create_type_name(type.mGenericsTypes[i]));
 
-                if(i != type.mNumParams-1) {
+                if(i != type.mNumGenericsTypes-1) {
                     result.append_str(",");
                 }
             }
@@ -73,6 +107,51 @@ sCLType* create_type(char* type_name, sParserInfo* info)
     
     return result;
 }
+
+sCLType* clone_type(sCLType* type, sParserInfo* info)
+{
+    sCLType* result = borrow new sCLType;
+
+    info.types.push_back(dummy_heap result);
+
+    if(type.mName) {
+        result.mName = string(type.mName);
+    }
+    else {
+        result.mName = null;
+    }
+
+    result.mClass = type.mClass;
+
+    result.mNumGenericsTypes = type.mNumGenericsTypes;
+    for(int i = 0; i<result.mNumGenericsTypes; i++) 
+    {
+        result.mGenericsTypes[i] = clone_type(type.mGenericsTypes[i], info); 
+    }
+
+    result.mNullable = type.mNullable;
+
+    result.mNumParams = type.mNumParams;
+
+    for(int i=0; i<type.mNumParams; i++)
+    {
+        xstrncpy(result.mParams[i].mName, type.mParams[i].mName, VAR_NAME_MAX);
+        result.mParams[i].mType = clone_type(type.mParams[i].mType, info);
+    }
+
+    if(type.mResultType) {
+        result.mResultType = clone_type(type.mResultType, info);
+    }
+    else {
+        result.mResultType = null;
+    }
+
+    result.mVarNum = type.mVarNum;
+    
+    return result;
+}
+
+
 
 bool type_identify(sCLType* left_type, sCLType* right_type)
 {
@@ -131,4 +210,61 @@ bool type_identify_with_class_name(sCLType* left_type, char* right_class, sParse
 void show_type(sCLType* type)
 {
     printf("class %s\n", type.mClass.mName);
+    for(int i=0; i<type.mNumGenericsTypes; i++) {
+        show_type(type.mGenericsTypes[i]);
+    }
+}
+
+bool is_generics_type(sCLType* type, sParserInfo* info)
+{
+    for(int i= 0; i<GENERICS_TYPES_MAX; i++) {
+        char*% generics_type_name = xsprintf("generics_type%d", i);
+
+        if(type_identify_with_class_name(type, generics_type_name, info)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int get_generics_type_number(sCLType* type, sParserInfo* info)
+{
+    for(int i= 0; i<GENERICS_TYPES_MAX; i++) {
+        char*% generics_type_name = xsprintf("generics_type%d", i);
+
+        if(type_identify_with_class_name(type, generics_type_name, info)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+sCLType* solve_generics(sCLType* node_type, sCLType* generics_type, sParserInfo* info)
+{
+    int generics_num = get_generics_type_number(node_type, info);
+
+    if(generics_num !=-1 && generics_num<generics_type->mNumGenericsTypes)
+    {
+        sCLType* result = clone_type(generics_type->mGenericsTypes[generics_num], info);
+
+        return result;
+    }
+    else {
+        sCLType* result = clone_type(node_type, info);
+
+        for(int i=0; i<node_type->mNumGenericsTypes; i++) {
+            sCLType* type = node_type->mGenericsTypes[i];
+
+            int generics_num = get_generics_type_number(type, info);
+
+            if(generics_num !=-1 && generics_num < generics_type->mNumGenericsTypes) 
+            {
+                result->mGenericsTypes[i] = clone_type(generics_type->mGenericsTypes[generics_num], info);
+            }
+        }
+
+        return result;
+    }
 }

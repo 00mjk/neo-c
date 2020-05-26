@@ -83,6 +83,13 @@ struct sCLType {
     int mVarNum;
 };
 
+/*
+impl sCLType
+{
+    sCLType*% clone(sCLType* self);
+}
+*/
+
 typedef bool (*fNativeMethod)(CLVALUE** stack_ptr, sVMInfo* info);
 
 struct sCLMethod {
@@ -171,6 +178,7 @@ struct sCLNode {
     string mClassName;
     string mStringValue;
     buffer*% mBufferValue;
+    sCLType* mType;
     
     struct sCLNode* left;
     struct sCLNode* middle;
@@ -226,6 +234,8 @@ struct sParserInfo {
     int err_num;
     
     char* p;
+
+    vector<string>* generics_type_names;
     
     vector<sCLNode*%>* nodes;
     vector<sVarTable*%>* vtables;
@@ -285,7 +295,13 @@ string create_type_name(sCLType* type);
 bool type_identify(sCLType* left_type, sCLType* right_type);
 bool substitution_posibility(sCLType* left_type, sCLType* right_type);
 bool type_identify_with_class_name(sCLType* left_type, char* right_class, sParserInfo* info);
+bool is_generics_type(sCLType* type, sParserInfo* info);
+int get_generics_type_number(sCLType* type, sParserInfo* info);
+sCLType* solve_generics(sCLType* node_type, sCLType* generics_type, sParserInfo* info);
 void show_type(sCLType* type);
+
+void codes_append_type(buffer* codes, sCLType* type);
+void codes_read_type(char* p, sCLType** type);
 
 sCLNode* sNodeTree_create_break(sParserInfo* info);
 sCLNode* sNodeTree_create_return(sCLNode* obj, sParserInfo* info);
@@ -316,7 +332,7 @@ sCLNode* sNodeTree_create_if_expression(sCLNode* if_expression, sCLNodeBlock* if
 sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sCLType* block_type, sParserInfo* info);
 sCLNode* sNodeTree_create_method_block(char* sname, int sline, buffer*% block_text, sParserInfo* info);
 sCLNode* sNodeTree_create_class(char* source, char* sname, int sline, sParserInfo* info);
-sCLNode* sNodeTree_create_object(char* class_name_, sParserInfo* info);
+sCLNode* sNodeTree_create_object(sCLType* type, sParserInfo* info);
 sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, sParserInfo* info);
 sCLNode* sNodeTree_create_command_call(sCLNode* node, char* name, int num_params, sCLNode** params, sParserInfo* info);
 sCLNode* sNodeTree_create_block_object_call(int num_params, sCLNode** params, sParserInfo* info);
@@ -353,7 +369,7 @@ struct sVMInfo {
     CLVALUE thrown_object;
 };
 
-void vm_err_msg(sVMInfo* info, char* msg);
+void vm_err_msg(CLVALUE** stack_ptr, sVMInfo* info, char* msg);
 bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, int vm_parent_stack_frame_index, bool enable_parent_stack, CLVALUE* result, sVMInfo* info);
 CLObject alloc_heap_mem(unsigned int size, sCLType* type, int field_num, sVMInfo* info);
 void heap_init(int heap_size, int size_handles);

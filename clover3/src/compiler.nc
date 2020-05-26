@@ -105,7 +105,7 @@ bool compile_script(char* fname, buffer* source)
 
         int sline = info.sline;
         
-        sCLNode* node;
+        sCLNode* node = null;
         if(!expression(&node, &info)) {
             delete info.nodes;
             delete info.vtables;
@@ -188,6 +188,17 @@ bool compile_script(char* fname, buffer* source)
     CLVALUE result;
     if(!vm(cinfo.codes, 0, 0, var_num, -1, false, &result, &vminfo)) {
         fprintf(stderr, "VM error.\n");
+        CLObject obj = vminfo.thrown_object.mObjectValue;
+        if(obj) {
+            sCLObject* object_data = CLOBJECT(obj);
+
+            sCLType* type = object_data->mType;
+            if(type_identify_with_class_name(type, "string", &info))
+            {
+                sCLString* str_data = CLSTRING(obj);
+                fprintf(stderr, "%s", str_data->mData);
+            }
+        }
         heap_final(&vminfo);
 
         delete info.nodes;

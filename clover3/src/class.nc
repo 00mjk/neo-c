@@ -154,6 +154,38 @@ void class_init()
     append_class("job");
     append_class("void");
     append_class("lambda");
+    append_class("generics_type0");
+    append_class("generics_type1");
+    append_class("generics_type2");
+    append_class("generics_type3");
+    append_class("generics_type4");
+    append_class("generics_type5");
+    append_class("generics_type6");
+    append_class("generics_type7");
+    append_class("generics_type8");
+    append_class("generics_type9");
+    append_class("generics_type10");
+    append_class("generics_type11");
+    append_class("generics_type12");
+    append_class("generics_type13");
+    append_class("generics_type14");
+    append_class("generics_type15");
+    append_class("generics_type16");
+    append_class("generics_type17");
+    append_class("generics_type18");
+    append_class("generics_type19");
+    append_class("generics_type20");
+    append_class("generics_type21");
+    append_class("generics_type22");
+    append_class("generics_type23");
+    append_class("generics_type24");
+    append_class("generics_type25");
+    append_class("generics_type26");
+    append_class("generics_type27");
+    append_class("generics_type28");
+    append_class("generics_type29");
+    append_class("generics_type30");
+    append_class("generics_type31");
 
     gNativeMethods = borrow new map<string, fNativeMethod>.initialize();
 
@@ -232,6 +264,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
     info.sline = sline;
 
     info.vtables = borrow new vector<sVarTable*%>.initialize();
+    info.generics_type_names = borrow new vector<string>.initialize();
 
     var name = parse_word(&info);
 
@@ -239,6 +272,40 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
 
     if(gClasses.at(name, null) == null) {
         append_class(name);
+    }
+
+    if(*info->p == '<') {
+        info->p++;
+        skip_spaces_and_lf(&info);
+
+        while(true) {
+            string generics_name = parse_word(&info);
+
+            if(strcmp(generics_name, "") != 0) {
+                info.generics_type_names.push_back(clone generics_name);
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(&info);
+            }
+            else if(*info->p == '\0') {
+                fprintf(stderr, "unexpected the source end\n");
+                exit(1);
+            }
+            else if(*info->p == '>') {
+                info->p++;
+                skip_spaces_and_lf(&info);
+                break;
+            }
+        }
+    }
+
+    if(info.err_num > 0) {
+        fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
+        delete info.vtables;
+        delete info.generics_type_names;
+        return false;
     }
 
     sCLClass* klass = gClasses.at(name, null);
@@ -255,6 +322,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
             sCLType* field_type = null;
             if(!parse_type(&field_type, &info)) {
                 delete info.vtables;
+                delete info.generics_type_names;
                 return false;
             }
 
@@ -275,6 +343,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
 
             if(!parse_params(params, &num_params, &info)) {
                 delete info.vtables;
+                delete info.generics_type_names;
                 return false;
             }
 
@@ -283,6 +352,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
             sCLType* method_type = null;
             if(!parse_type(&method_type, &info)) {
                 delete info.vtables;
+                delete info.generics_type_names;
                 return false;
             }
 
@@ -301,6 +371,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
                 if(!parse_block(&node_block, num_params, params, &info)) {
                     info.max_var_num = max_var_num;
                     delete info.vtables;
+                    delete info.generics_type_names;
                     return false;
                 }
                 info.max_var_num = max_var_num;
@@ -323,6 +394,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
                 if(!compile_block(node_block, &cinfo2)) {
                     delete info.vtables;
                     delete cinfo2.codes;
+                    delete info.generics_type_names;
                     return false;
                 }
 
@@ -335,6 +407,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
                     fprintf(stderr, "Compile error\n");
                     delete info.vtables;
                     delete cinfo2.codes;
+                    delete info.generics_type_names;
                     return false;
                 }
 
@@ -349,6 +422,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
         else {
             compile_err_msg(cinfo, xsprintf("Require var or def keyword in the class. This is %s", word));
             delete info.vtables;
+            delete info.generics_type_names;
             return false;
         }
     }
@@ -356,10 +430,12 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
     if(info.err_num > 0) {
         fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
         delete info.vtables;
+        delete info.generics_type_names;
         return false;
     }
 
     delete info.vtables;
+    delete info.generics_type_names;
 
     return true;
 }

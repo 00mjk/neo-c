@@ -31,7 +31,7 @@ bool parse_block(sCLNodeBlock** node_block, int num_params, sCLParam* params, sP
 
         int sline = info.sline;
 
-        sCLNode* node;
+        sCLNode* node = null;
         if(!expression(&node, info)) {
             info.vtables = vtables_before;
             return false;

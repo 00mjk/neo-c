@@ -1,9 +1,6 @@
-throw
-try&catch
-return
-string.libraries
 generics
 list, buffer, map, tuple
+string.libraries
 
 メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
 
