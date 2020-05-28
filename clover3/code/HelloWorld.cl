@@ -43,22 +43,156 @@ class bool {
 };
 
 class string {
-    def equal(left:string):bool;
+    def equal(right:string):bool;
+    def notEqual(right:string):bool;
 };
 
-class list_item<T>
-{
-    var item:T;
-    var prev:list_item<T>;
-    var next:list_item<T>;
+class object {
+    def type_name():string;
+    def equal(right:object):bool {
+        if(self.type_name() == "void" && right.type_name() == "void") {
+            return true;
+        }
+
+        self \== right
+    }
 }
 
-class list<T>
-{
-    var head: list_item<T>;
-    var tail: list_item<T>;
-    var len:int;
+#class list_item<T>
+#{
+#    var item:T;
+#    var prev:list_item<T>;
+#    var next:list_item<T>;
+#}
+#
+#class list<T>
+#{
+#    var head: list_item<T>;
+#    var tail: list_item<T>;
+#    var len:int;
+#
+#    def initialize():list<T> {
+#        self.head = null;
+#        self.tail = null;
+#        self.len = 0;
+#
+#        self
+#    }
+#
+#    def push_back(item:T):void {
+#        if(self.len == 0) {
+#            var litem = new list_item<T>;
+#
+#            litem.prev = null;
+#            litem.next = null;
+#            litem.item = item;
+#            
+#            self.tail = litem;
+#            self.head = litem;
+#        }
+#        elif(self.len == 1) {
+#            var litem = new list_item<T>;
+#
+#            litem.prev = self.head;
+#            litem.next = null;
+#            litem.item = item;
+#            
+#            self.tail = litem;
+#            self.head.next = litem;
+#        }
+#        else {
+#            var litem = new list_item<T>;
+#
+#            litem.prev = self.tail;
+#            litem.next = null;
+#            litem.item = item;
+#            
+#            self.tail.next = litem;
+#            self.tail = litem;
+#        }
+#
+#        self.len++;
+#    }
+#
+#    def item(position:int, default_value:T) : T
+#    {
+#        if(position < 0) {
+#            position += self.len;
+#        }
+#
+#        var it = self.head;
+#        var i = 0;
+#        while(it != null) {
+#            if(position == i) {
+#                return it.item;
+#            }
+#            it = it.next;
+#            i++;
+#        };
+#
+#        return default_value;
+#    }
+#}
+#
+#var li = new list<int>();
+#
+#li.push_back(1);
+#li.push_back(2);
+#
+#xassert("list test", li.item(0, -1) == 1);
+#xassert("list test2", li.item(1, -1) == 2);
+
+class EQTest {
+    var a:int;
+    var b:int;
+
+    def initialize(a:int, b:int):EQTest {
+        self.a = a;
+        self.b = b;
+
+        self
+    }
 }
+
+var ax = new EQTest(1, 1);
+var bx = ax;
+
+xassert("eq", ax == bx);
+ax = null;
+
+xassert("eq", ax == null);
+
+class VarTestData {
+    var a:int;
+    var b:int;
+}
+
+class VarTest {
+    var a:VarTestData;
+    var b:int
+
+    def initialize():VarTest {
+        self.a = null;
+        self.b = 0;
+        self
+    }
+
+    def push():void {
+        var v = new VarTestData;
+
+        self.a = v;
+        self.a.a = 123;
+        self.a.b = 234;
+
+        self.b++;
+    }
+}
+
+var data = new VarTest();
+
+data.push();
+
+xassert("TEST", data.a.a == 123);
 
 # test
 
@@ -93,7 +227,7 @@ class HellClass3 {
     }
 }
 
-var obj3 = HellClass3;
+var obj3 = new HellClass3;
 
 xassert("test2", obj3.method(1, "ABC") == 123);
 
@@ -109,7 +243,7 @@ class HelloClass2 {
     }
 }
 
-var obj2 = HelloClass2;
+var obj2 = new HelloClass2;
 
 var c = 1;
 
@@ -152,7 +286,7 @@ class HelloClass {
     }
 }
 
-var obj = HelloClass;
+var obj = new HelloClass;
 
 xassert("test5.5", obj.method(2, 2) == 7);
 
@@ -197,7 +331,7 @@ class GenericsTest <T>
     }
 }
 
-var gg = GenericsTest<int>;
+var gg = new GenericsTest<int>;
 
 gg.a = 1;
 
@@ -228,7 +362,10 @@ class GenericsTest2<T>
     }
 }
 
-var gg2 = GenericsTest2<int>(1, 2);
+var gg2 = new GenericsTest2<int>(1, 2);
 
 xassert("generics test b", gg2.a == 1);
 xassert("generics test b2", gg2.b == 2);
+
+xassert("string test", "abc" == "abc");
+xassert("string test2", "abc" != "ABC");

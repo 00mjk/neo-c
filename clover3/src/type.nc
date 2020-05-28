@@ -170,6 +170,15 @@ bool substitution_posibility(sCLType* left_type, sCLType* right_type)
     sCLClass* left_class = left_type.mClass;
     sCLClass* right_class = right_type.mClass;
 
+    sCLClass* it = right_class;
+    while(it) {
+        if(left_class == it) {
+            return true;
+        }
+
+        it = it->mParent;
+    }
+
     if(strcmp(left_class.mName, "lambda") == 0
         && strcmp(right_class.mName, "lambda") == 0)
     {
@@ -192,6 +201,10 @@ bool substitution_posibility(sCLType* left_type, sCLType* right_type)
         return true;
     }
     else if(strcmp(right_class.mName, "any") == 0)
+    {
+        return true;
+    }
+    else if(strcmp(right_class.mName, "void") == 0)
     {
         return true;
     }

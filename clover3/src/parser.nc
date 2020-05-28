@@ -688,7 +688,33 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
                     *node = sNodeTree_create_store_field(*node, name, exp, info);
                 }
                 else {
+                    sCLNode* obj_node = *node;
+
                     *node = sNodeTree_create_load_field(*node, name, info);
+                    if(*info->p == '+' && *(info->p+1) == '+') {
+                        info->p+=2;
+                        skip_spaces_and_lf(info);
+
+                        sCLNode* right = sNodeTree_create_int_value(1, info);
+
+                        sCLNode* exp = sNodeTree_create_plus(*node, right, info);
+
+                        *node = sNodeTree_create_store_field(obj_node, name, exp, info);
+                    }
+                    else if(*info->p == '+' && *(info->p+1) == '=') 
+                    {
+                        info->p+=2;
+                        skip_spaces_and_lf(info);
+
+                        sCLNode* right = null;
+                        if(!expression(&right, info)) {
+                            return false;
+                        };
+
+                        sCLNode* exp = sNodeTree_create_plus(*node, right, info);
+
+                        *node = sNodeTree_create_store_field(obj_node, name, exp, info);
+                    }
                 }
             }
         }
@@ -780,13 +806,8 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
     }
     /// alnum ///
     else if(isalpha(*info->p) || *info->p == '_') {
-        char* p_before = info->p;
-        int sline_before = info->sline;
-
         var word = parse_word(info);
 
-        sCLClass* klass = gClasses.at(word, null);
-        
         if(strcmp(word, "var") == 0) {
             if(isalpha(*info->p) || *info->p == '_') {
                 var var_name = parse_word(info);
@@ -818,6 +839,9 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
         }
         else if(strcmp(word, "false") == 0) {
             *node = sNodeTree_create_false_value(info);
+        }
+        else if(strcmp(word, "null") == 0) {
+            *node = sNodeTree_create_null_value(info);
         }
         else if(strcmp(word, "if") == 0) {
             if(!parse_if_expression(node, info)) {
@@ -895,10 +919,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             
             *node = sNodeTree_create_fg(atoi(buf), info);
         }
-        else if(klass) {
-            info->p = p_before;
-            info->sline = sline_before;
-
+        else if(strcmp(word, "new") == 0) {
             sCLType* type = null;
             if(!parse_type(&type, info)) {
                 return false;
@@ -955,6 +976,31 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             }
             else {
                 *node = sNodeTree_create_load_variable(word, info);
+
+                if(*info->p == '+' && *(info->p+1) == '+') {
+                    info->p+=2;
+                    skip_spaces_and_lf(info);
+
+                    sCLNode* right = sNodeTree_create_int_value(1, info);
+
+                    sCLNode* exp = sNodeTree_create_plus(*node, right, info);
+
+                    *node = sNodeTree_create_store_variable(word, exp, info);
+                }
+                else if(*info->p == '+' && *(info->p+1) == '=') 
+                {
+                    info->p+=2;
+                    skip_spaces_and_lf(info);
+
+                    sCLNode* right = null;
+                    if(!expression(&right, info)) {
+                        return false;
+                    };
+
+                    sCLNode* exp = sNodeTree_create_plus(*node, right, info);
+
+                    *node = sNodeTree_create_store_variable(word, exp, info);
+                }
             }
         }
     }
@@ -1351,12 +1397,60 @@ static bool expression_comparison_equal_operator(sCLNode** node, sParserInfo* in
     return true;
 }
 
+static bool expression_and_and_or_or(sCLNode** node, sParserInfo* info)
+{
+    if(!expression_comparison_equal_operator(node, info)) {
+        return false;
+    }
+    if(*node == null) {
+        return true;
+    }
+
+    while(*info->p) {
+        if(*info->p == '&' && *(info->p+1) == '&') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = 0;
+            if(!expression_comparison_equal_operator(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for && operator");
+            };
+
+            *node = sNodeTree_create_and_and(*node, right, info);
+        }
+        else if(*info->p == '|' && *(info->p+1) == '|') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = 0;
+            if(!expression_comparison_equal_operator(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator ||");
+            };
+
+            *node = sNodeTree_create_or_or(*node, right, info);
+        }
+        else {
+            break;
+        }
+    }
+
+    return true;
+}
+
 bool expression(sCLNode** node, sParserInfo* info) 
 {
     parse_comment(info);
     skip_spaces_and_lf(info);
 
-    if(!expression_comparison_equal_operator(node, info)) {
+    if(!expression_and_and_or_or(node, info)) {
         return false;
     }
 

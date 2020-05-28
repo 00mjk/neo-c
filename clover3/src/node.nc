@@ -111,9 +111,21 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
     else {
         sCLClass* klass = info.type.mClass;
 
-        sCLMethod* method = klass.mMethods.at(method_name, null);
+        char* klass_name = klass->mName;
 
-        if(method == null) { compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass.mName, method_name));
+        sCLMethod* method = null;
+        while(klass) {
+            method = klass.mMethods.at(method_name, null);
+
+            if(method) {
+                break;
+            }
+
+            klass = klass->mParent;
+        }
+
+        if(method == null) { 
+            compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass_name, method_name));
             return true;
         }
 
@@ -135,6 +147,8 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
 
             if(!substitution_posibility(type, param_types[i])) {
                 compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 1", i, klass.mName, method_name));
+                show_type(type);
+                show_type(param_types[i]);
                 return true;
             }
         }
@@ -254,6 +268,127 @@ static bool compile_primitive_plus(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_and_and(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeAndAnd;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_and_and(sCLNode* node, sCompileInfo* info)
+{
+    if(!compile(node.left, info)) {
+        return false;
+    }
+    
+    sCLType* left_type = info.type;
+
+    if(!compile(node.right, info)) {
+        return false;
+    }
+    
+    sCLType* right_type = info.type;
+    
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "The different type between left type and rigt type at && operator");
+        puts("left type -->");
+        show_type(left_type);
+        puts("right type -->");
+        show_type(right_type);
+        
+        return true;
+    }
+    
+
+    if(type_identify_with_class_name(left_type, "bool", info.pinfo)) {
+        if(!info.no_output) {
+            info.codes.append_int(OP_ANDAND);
+        }
+        
+        info.type = create_type("bool", info.pinfo);
+    }
+    else {
+        compile_err_msg(info, "This type is invalid for operator && ");
+        show_type(left_type);
+        
+        return true;
+    }
+    
+    info.stack_num -= 2;
+    info.stack_num++;
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_or_or(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeOrOr;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_or_or(sCLNode* node, sCompileInfo* info)
+{
+    if(!compile(node.left, info)) {
+        return false;
+    }
+    
+    sCLType* left_type = info.type;
+
+    if(!compile(node.right, info)) {
+        return false;
+    }
+    
+    sCLType* right_type = info.type;
+    
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "The different type between left type and rigt type at || operator");
+        puts("left type -->");
+        show_type(left_type);
+        puts("right type -->");
+        show_type(right_type);
+        
+        return true;
+    }
+
+    if(type_identify_with_class_name(left_type, "bool", info.pinfo)) {
+        if(!info.no_output) {
+            info.codes.append_int(OP_OROR);
+        }
+        
+        info.type = create_type("bool", info.pinfo);
+    }
+    else {
+        compile_err_msg(info, "This type is invalid for operator || ");
+        show_type(left_type);
+        
+        return true;
+    }
+    
+    info.stack_num -= 2;
+    info.stack_num++;
+    
+    return true;
+}
+
 sCLNode* sNodeTree_create_store_variable(char* var_name, sCLNode* exp, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
@@ -279,7 +414,7 @@ static bool compile_store_variable(sCLNode* node, sCompileInfo* info)
     }
 
     sCLType* right_value_type = borrow info.type;
-    
+
     char* var_name = borrow node.mStringValue;
     
     sVar* v = get_variable_from_table(info.pinfo, var_name);
@@ -378,16 +513,6 @@ static bool compile_primitive_equal(sCLNode* node, sCompileInfo* info)
     
     sCLType* right_type = info.type;
     
-    if(!type_identify(left_type, right_type)) {
-        compile_err_msg(info, "The different type between left type and rigt type at + operator");
-        puts("left type -->");
-        show_type(left_type);
-        puts("right type -->");
-        show_type(right_type);
-        
-        return true;
-    }
-    
     if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
         if(!info.no_output) {
             info.codes.append_int(OP_IEQ);
@@ -396,10 +521,11 @@ static bool compile_primitive_equal(sCLNode* node, sCompileInfo* info)
         info.type = create_type("bool", info.pinfo);
     }
     else {
-        compile_err_msg(info, "This type is invalid for operator + ");
-        show_type(left_type);
+        if(!info.no_output) {
+            info.codes.append_int(OP_EQ);
+        }
         
-        return true;
+        info.type = create_type("bool", info.pinfo);
     }
     
     info.stack_num -= 2;
@@ -440,16 +566,6 @@ static bool compile_primitive_not_equal(sCLNode* node, sCompileInfo* info)
     
     sCLType* right_type = info.type;
     
-    if(!type_identify(left_type, right_type)) {
-        compile_err_msg(info, "The different type between left type and rigt type at + operator");
-        puts("left type -->");
-        show_type(left_type);
-        puts("right type -->");
-        show_type(right_type);
-        
-        return true;
-    }
-    
     if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
         if(!info.no_output) {
             info.codes.append_int(OP_INOTEQ);
@@ -458,10 +574,11 @@ static bool compile_primitive_not_equal(sCLNode* node, sCompileInfo* info)
         info.type = create_type("bool", info.pinfo);
     }
     else {
-        compile_err_msg(info, "This type is invalid for operator + ");
-        show_type(left_type);
+        if(!info.no_output) {
+            info.codes.append_int(OP_NOTEQ);
+        }
         
-        return true;
+        info.type = create_type("bool", info.pinfo);
     }
     
     info.stack_num -= 2;
@@ -718,12 +835,6 @@ static bool compile_primitive_greater_equal(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-
-
-
-
-
-
 sCLNode* sNodeTree_create_equal(sCLNode* left, sCLNode* right, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
@@ -973,6 +1084,34 @@ static bool compile_false_value(sCLNode* node, sCompileInfo* info)
     }
 
     info.type = create_type("bool", info.pinfo);
+    info.stack_num++;
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_null_value(sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeNull;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_null_value(sCLNode* node, sCompileInfo* info)
+{
+    if(!info.no_output) {
+        info.codes.append_int(OP_NULL_VALUE);
+    }
+
+    info.type = create_type("void", info.pinfo);
     info.stack_num++;
     
     return true;
@@ -1530,9 +1669,21 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         info->type = create_type("any", info.pinfo);
     }
     else {
-        sCLMethod* method = klass.mMethods.at(method_name, null);
+        char* klass_name = klass->mName;
 
-        if(method == null) { compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass.mName, method_name));
+        sCLMethod* method = null;
+        while(klass) {
+            method = klass.mMethods.at(method_name, null);
+
+            if(method) {
+                break;
+            }
+
+            klass = klass->mParent;
+        }
+
+        if(method == null) { 
+            compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass_name, method_name));
             return true;
         }
 
@@ -1591,8 +1742,12 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
 
                 param_types[i] = info.type;
 
-                if(!substitution_posibility(method->mParams[i].mType, param_types[i])) {
-                    compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
+                sCLType* type = solve_generics(method->mParams[i].mType, generics_types, info.pinfo);
+
+                if(!substitution_posibility(type, param_types[i])) {
+                    compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 2", i, klass.mName, method_name));
+                    show_type(type);
+                    show_type(param_types[i]);
                     return true;
                 }
             }
@@ -1606,13 +1761,15 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
                 sCLType* type = solve_generics(method->mParams[i].mType, generics_types, info.pinfo);
 
                 if(!substitution_posibility(type, param_types[i])) {
-                    compile_err_msg(info, xsprintf("method param error #%d. (%s.%s)", i, klass.mName, method_name));
+                    compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 3", i, klass.mName, method_name));
+                    show_type(type);
+                    show_type(param_types[i]);
                     return true;
                 }
             }
         }
 
-        info.type = method.mResultType;
+        info.type = solve_generics(method.mResultType, generics_types, info.pinfo);
     }
 
     /// go ///
@@ -2351,6 +2508,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
                 return false;
             }
             break;
+
+        case kNodeTypeNull:
+            if(!compile_null_value(node, info)) {
+                return false;
+            }
+            break;
     
         case kNodeTypeIf:
             if(!compile_if_expression(node, info)) {
@@ -2464,6 +2627,18 @@ bool compile(sCLNode* node, sCompileInfo* info)
     
         case kNodeTypeReturn:
             if(!compile_return(node, info)) {
+                return false;
+            }
+            break;
+    
+        case kNodeTypeAndAnd:
+            if(!compile_and_and(node, info)) {
+                return false;
+            }
+            break;
+    
+        case kNodeTypeOrOr:
+            if(!compile_or_or(node, info)) {
                 return false;
             }
             break;

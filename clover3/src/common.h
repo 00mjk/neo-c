@@ -104,6 +104,8 @@ struct sCLMethod {
     fNativeMethod mNativeMethod;
 
     sCLNodeBlock* mNodeBlock;
+
+    int mMaxVarNum;
 };
 
 struct sCLField {
@@ -120,6 +122,8 @@ struct sCLClass {
     map<string,sCLMethod*%>*% mMethods;
     map<string, sCLField*%>*% mFields;
     map<string, sCLField*%>*% mClassFields;
+
+    sCLClass* mParent;
 };
 
 extern map<string, sCLClass*%>* gClasses;
@@ -246,7 +250,7 @@ struct sParserInfo {
     int max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeExit, kNodeTypeTry, kNodeTypeReturn };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeExit, kNodeTypeTry, kNodeTypeReturn, kNodeTypeNull };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -266,7 +270,7 @@ struct sCompileInfo {
     sCLNode* while_node;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -325,9 +329,12 @@ sCLNode* sNodeTree_create_greater(sCLNode* left, sCLNode* right, sParserInfo* in
 sCLNode* sNodeTree_create_lesser(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_lesser_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_greater_equal(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_and_and(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_or_or(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_string_value(char* value, sParserInfo* info);
 sCLNode* sNodeTree_create_true_value(sParserInfo* info);
 sCLNode* sNodeTree_create_false_value(sParserInfo* info);
+sCLNode* sNodeTree_create_null_value(sParserInfo* info);
 sCLNode* sNodeTree_create_if_expression(sCLNode* if_expression, sCLNodeBlock* if_node_block, int num_elif, sCLNode** elif_expressions, sCLNodeBlock** elif_blocks, sCLNodeBlock* else_block, sParserInfo* info);
 sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock* node_block, sCLType* block_type, sParserInfo* info);
 sCLNode* sNodeTree_create_method_block(char* sname, int sline, buffer*% block_text, sParserInfo* info);

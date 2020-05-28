@@ -25,9 +25,17 @@ void print_stack(CLVALUE* stack, CLVALUE* stack_ptr, int var_num)
         
         if(index < var_num) {
             fprintf(stderr, "v[%d] %d \n", index, p.mObjectValue);
+            if(p.mObjectValue) {
+                sCLObject* object_data = CLOBJECT(p.mObjectValue);
+                show_type(object_data->mType);
+            }
         }
         else {
             fprintf(stderr, " [%d] %d\n", index, p.mObjectValue);
+            if(p.mObjectValue) {
+                sCLObject* object_data = CLOBJECT(p.mObjectValue);
+                show_type(object_data->mType);
+            }
         }
         
         p++;
@@ -57,6 +65,14 @@ void print_block_end(CLVALUE result)
 void print_op(int op)
 {
     switch(op) {
+        case OP_NOTEQ: 
+            puts("OP_NOTEQ");
+            break;
+
+        case OP_EQ: 
+            puts("OP_EQ");
+            break;
+            
         case OP_POP:
             puts("OP_POP");
             break;
@@ -167,6 +183,10 @@ void print_op(int op)
 
         case OP_LOAD_FIELD: 
             puts("OP_LOAD_FIELD");
+            break;
+
+        case OP_NULL_VALUE: 
+            puts("OP_NULL_VALUE");
             break;
             
         default:
@@ -708,6 +728,15 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 stack_ptr++;
                 }
                 break;
+
+            case OP_NULL_VALUE: {
+                CLObject obj = create_null_object(info);
+                stack_ptr.mObjectValue = obj;
+                
+                stack_ptr++;
+                }
+                break;
+                
                 
             case OP_STRING_VALUE: {
                 char* str = (char*)p;
@@ -738,6 +767,8 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 p += len;
 
                 sCLType* type = parse_type_runtime(type_name, info);
+
+
 
                 if(type == null) {
                     vm_err_msg(&stack_ptr, info, xsprintf("class not found(%s)\n", type_name));
@@ -817,6 +848,20 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 }
                 
                 break;
+
+            case OP_EQ: {
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                int value = lvalue == rvalue;
+                CLObject new_obj = create_bool_object(value, info);
+
+                stack_ptr -= 2;
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
+                }
+                
+                break;
                 
             case OP_INOTEQ: {
                 int lvalue = (stack_ptr-2).mObjectValue;
@@ -826,6 +871,54 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 sCLInt* rvalue_data = CLINT(rvalue);
 
                 int value = lvalue_data->mValue != rvalue_data->mValue;
+                CLObject new_obj = create_bool_object(value, info);
+
+                stack_ptr -= 2;
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
+                }
+                
+                break;
+
+            case OP_NOTEQ: {
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                int value = lvalue != rvalue;
+                CLObject new_obj = create_bool_object(value, info);
+
+                stack_ptr -= 2;
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
+                }
+                
+                break;
+
+            case OP_ANDAND: {
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+                sCLInt* rvalue_data = CLINT(rvalue);
+
+                int value = lvalue_data->mValue && rvalue_data->mValue;
+                CLObject new_obj = create_bool_object(value, info);
+
+                stack_ptr -= 2;
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
+                }
+                
+                break;
+
+            case OP_OROR: {
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+                sCLInt* rvalue_data = CLINT(rvalue);
+
+                int value = lvalue_data->mValue || rvalue_data->mValue;
                 CLObject new_obj = create_bool_object(value, info);
 
                 stack_ptr -= 2;
@@ -906,6 +999,8 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
             case OP_STORE_VARIABLE: {
                 int var_index = *p;
                 p++;
+
+//printf("STORE_VARIABLE var_index %d\n", var_index);
                 
                 stack[var_index] = *(stack_ptr-1);
                 }
@@ -914,6 +1009,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
             case OP_LOAD_VARIABLE: {
                 int var_index = *p;
                 p++;
+//printf("LOAD_VARIABLE var_index %d\n", var_index);
 
                 *stack_ptr = stack[var_index];
                 stack_ptr++;
@@ -987,17 +1083,28 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 }
                 
 
-                sCLMethod* method = klass.mMethods.at(method_name, null);
+                sCLMethod* method = null;
+                while(klass) {
+                    method = klass.mMethods.at(method_name, null);
+
+                    if(method) {
+                        break;
+                    }
+
+                    klass = klass->mParent;
+                }
 
                 if(method == null) {
                     vm_err_msg(&stack_ptr, info, xsprintf("method not found(%s.%s)\n", klass->mName, method_name));
                     update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
-//print_method(klass, method, num_params, vm_var_num);
+int var_num = method.mMaxVarNum;
+//print_method(klass, method, num_params, var_num);
 
                 if(!param_check(method->mParams, method->mNumParams, stack_ptr, generics_types, info))
                 {
+                    vm_err_msg(&stack_ptr, info, xsprintf("method parametor is invalid(%s.%s)\n", klass->mName, method_name));
                     update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
@@ -1005,6 +1112,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 if(method.mByteCodes == null) {
                     if(!invoke_native_method(klass, method, &stack_ptr, info)) 
                     {
+                        vm_err_msg(&stack_ptr, info, xsprintf("native method error(%s.%s)\n", klass->mName, method_name));
                         update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                         return false;
                     }
@@ -1023,7 +1131,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 else {
                     buffer* codes = method.mByteCodes;
 
-                    int var_num = get_var_num(method.mNodeBlock.vtables);
+                    int var_num = method.mMaxVarNum;
 
                     CLVALUE result;
                     if(!vm(codes, 0, num_params, var_num, info.stack_frames.length()-1, false, &result, info)) {
@@ -1132,6 +1240,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     sCLType* string_type = create_type("string", info.cinfo.pinfo);
                     if(!substitution_posibility(string_type, object_data->mType))
                     {
+                        vm_err_msg(&stack_ptr, info, "type error command parametor");
                         update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                         return false;
                     }
@@ -1144,6 +1253,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     if(last_method_chain) {
                         if(!invoke_command_with_control_terminal(command_name, argv, num_params, &stack_ptr, info))
                         {
+                            vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", command_name));
                             update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                             return false;
                         }
@@ -1151,6 +1261,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     else {
                         if(!invoke_command(command_name, argv, &stack_ptr, num_params, info))
                         {
+                            vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", command_name));
                             update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                             return false;
                         }
@@ -1160,6 +1271,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     if(last_method_chain) {
                         if(!invoke_command_with_control_terminal_and_pipe(parent_obj, command_name, argv, num_params, &stack_ptr, info))
                         {
+                            vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", command_name));
                             update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                             return false;
                         }
@@ -1167,6 +1279,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     else {
                         if(!invoke_command_with_pipe(parent_obj, command_name, argv, &stack_ptr, num_params, info))
                         {
+                            vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", command_name));
                             update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                             return false;
                         }
@@ -1185,6 +1298,7 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 p++;
 
                 if(!forgroud_job(job_num, info)) {
+                    vm_err_msg(&stack_ptr, info, "fg error");
                     update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
@@ -1200,6 +1314,8 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 sCLObject* object_data = CLOBJECT(obj);
 
                 object_data->uValue.mFields[field_index] = value;
+
+//printf("obj %d field_index %d value %d\n", obj, field_index, value.mObjectValue);
 
                 stack_ptr -= 2;
                 *stack_ptr = value;

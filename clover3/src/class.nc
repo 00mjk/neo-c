@@ -118,6 +118,40 @@ bool string_equal(CLVALUE** stack_ptr, sVMInfo* info)
     return true;
 }
 
+bool string_notEqual(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* left = (*stack_ptr-2);
+    CLVALUE* right = (*stack_ptr-1);
+
+    sCLString* object_data = CLSTRING(left->mObjectValue);
+    sCLString* object_data2 = CLSTRING(right->mObjectValue);
+
+    int value = strcmp(object_data->mData, object_data2->mData) != 0;
+    
+    CLObject obj = create_bool_object(value, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
+bool object_type_name(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* left = (*stack_ptr-1);
+
+    sCLObject* object_data = CLOBJECT(left->mObjectValue);
+
+    string type_name = create_type_name(object_data->mType);
+
+    CLObject obj = create_string_object(type_name, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
 void create_native_method_name(char* result, sCLClass* klass, sCLMethod* method)
 {
     snprintf(result, NATIVE_METHOD_NAME_MAX, "%s.%s", klass.mName, method.mName);
@@ -146,13 +180,14 @@ void class_init()
 {
     gClasses = borrow new map<string, sCLClass*%>.initialize();
     
+    append_class("object");
+    append_class("void");
     append_class("int");
     append_class("bool");
     append_class("string");
     append_class("any");
     append_class("command");
     append_class("job");
-    append_class("void");
     append_class("lambda");
     append_class("generics_type0");
     append_class("generics_type1");
@@ -195,6 +230,8 @@ void class_init()
     gNativeMethods.insert(string("bool.toString"), bool_toString);
     gNativeMethods.insert(string("bool.toCommand"), bool_toCommand);
     gNativeMethods.insert(string("string.equal"), string_equal);
+    gNativeMethods.insert(string("string.notEqual"), string_notEqual);
+    gNativeMethods.insert(string("object.type_name"), object_type_name);
 
     gJobs = borrow new vector<CLObject>.initialize();
 }
@@ -217,6 +254,13 @@ void append_class(char* name)
     klass.mClassFields = new map<string, sCLField*%>.initialize();
     
     gClasses.insert(string(name), klass);
+
+    if(strcmp(name, "object") == 0) {
+        klass.mParent = NULL;
+    }
+    else {
+        klass.mParent = gClasses.at("object", null);
+    }
 }
 
 void append_field(sCLClass* klass, char* field_name, sCLType* field_type)
@@ -230,7 +274,7 @@ void append_field(sCLClass* klass, char* field_name, sCLType* field_type)
     klass.mFields.insert(string(field_name), field);
 }
 
-void append_method(sCLClass* klass, char* method_name, sCLType* method_type, int num_params, sCLParam* params, bool native, sCLNodeBlock* node_block, buffer* codes)
+void append_method(sCLClass* klass, char* method_name, sCLType* method_type, int num_params, sCLParam* params, bool native, sCLNodeBlock* node_block, int method_max_var_num, buffer* codes)
 {
     sCLMethod*% method = new sCLMethod;
 
@@ -251,6 +295,8 @@ void append_method(sCLClass* klass, char* method_name, sCLType* method_type, int
         method.mNodeBlock = node_block;
     }
 
+    method.mMaxVarNum = method_max_var_num;
+
     klass.mMethods.insert(string(method_name), method);
 }
 
@@ -263,7 +309,6 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
     info.p = source;
     info.sline = sline;
 
-    info.vtables = borrow new vector<sVarTable*%>.initialize();
     info.generics_type_names = borrow new vector<string>.initialize();
 
     var name = parse_word(&info);
@@ -334,6 +379,8 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
             append_field(klass, field_name, field_type);
         }
         else if(strcmp(word, "def") == 0) {
+            info.vtables = borrow new vector<sVarTable*%>.initialize();
+
             var method_name = parse_word(&info);
 
             sCLParam params[PARAMS_MAX];
@@ -361,10 +408,11 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
                 skip_spaces_and_lf(&info);
 
 
-                append_method(klass, method_name, method_type, num_params, params, true, null, null);
+                append_method(klass, method_name, method_type, num_params, params, true, null, 0, null);
             }
             else {
                 expected_next_character('{', &info);
+
 
                 sCLNodeBlock* node_block = null;
                 int max_var_num = info.max_var_num;
@@ -374,6 +422,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
                     delete info.generics_type_names;
                     return false;
                 }
+                int method_max_var_num = info.max_var_num;
                 info.max_var_num = max_var_num;
 
                 sCompileInfo cinfo2 = *cinfo;
@@ -413,8 +462,10 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
 
                 expected_next_character('}', &info);
 
-                append_method(klass, method_name, method_type, num_params, params, false, node_block, cinfo2.codes);
+                append_method(klass, method_name, method_type, num_params, params, false, node_block, method_max_var_num, cinfo2.codes);
             }
+
+            delete info.vtables;
         }
         else if(*info.p == '}') {
             break;
@@ -429,12 +480,10 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
 
     if(info.err_num > 0) {
         fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
-        delete info.vtables;
         delete info.generics_type_names;
         return false;
     }
 
-    delete info.vtables;
     delete info.generics_type_names;
 
     return true;

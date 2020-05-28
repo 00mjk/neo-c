@@ -19,13 +19,14 @@ void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info)
 
 bool free_object(CLObject self, sVMInfo* info)
 {
+/*
     sCLObject* object_data = CLOBJECT(self);
     sCLType* type = object_data->mType;
+
 
     if(type->mClass == gClasses.at("lambda", null)) {
     }
 
-/*
     if(!call_finalize_method_on_free_object(klass, self)) {
         return FALSE;
     }

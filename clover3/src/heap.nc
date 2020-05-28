@@ -270,6 +270,7 @@ static void free_handle(unsigned int handle_num)
     }
 }
 
+/*
 static void call_finalizer(unsigned int handle_num, sVMInfo* info)
 {
     if(gCLHeap.mHandles[handle_num].mNoneFreeHandle) {
@@ -278,6 +279,7 @@ static void call_finalizer(unsigned int handle_num, sVMInfo* info)
         free_object(obj, info);
     }
 }
+*/
 
 void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info)
 {
@@ -325,12 +327,15 @@ static void free_objects(unsigned char* mark_flg, sVMInfo* info)
     int i;
     unsigned char* mem;
 
+/*
+
     // call all destructor before free object ///
     for(i=0; i<gCLHeap.mSizeHandles; i++) {
         if(!mark_flg[i]) {
             call_finalizer(i, info);
         }
     }
+*/
 
     /// free object ///
     for(i=0; i<gCLHeap.mSizeHandles; i++) {
