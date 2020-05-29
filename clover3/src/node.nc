@@ -894,7 +894,7 @@ static bool compile_not_equal(sCLNode* node, sCompileInfo* info)
     params[num_params] = node.right;
     num_params++;
 
-    if(!invoke_method("notEqual", num_params, params, info)) {
+    if(!invoke_method("not_equal", num_params, params, info)) {
         return false;
     }
     
@@ -993,7 +993,7 @@ static bool compile_lesser_equal(sCLNode* node, sCompileInfo* info)
     params[num_params] = node.right;
     num_params++;
 
-    if(!invoke_method("lesserEqual", num_params, params, info)) {
+    if(!invoke_method("lesser_equal", num_params, params, info)) {
         return false;
     }
     
@@ -1026,7 +1026,7 @@ static bool compile_greater_equal(sCLNode* node, sCompileInfo* info)
     params[num_params] = node.right;
     num_params++;
 
-    if(!invoke_method("greaterEqual", num_params, params, info)) {
+    if(!invoke_method("greater_equal", num_params, params, info)) {
         return false;
     }
     
@@ -2132,10 +2132,29 @@ bool compile_store_field(sCLNode* node, sCompileInfo* info)
 
     sCLClass* klass = obj_type.mClass;
 
-    sCLField* field = klass.mFields.at(name, null);
+    char* klass_name = klass->mName;
+
+    sCLField* field = null; 
+
+    while(klass) {
+        field = klass.mFields.at(name, null);
+
+        if(field) {
+            break;
+        }
+
+        klass = klass->mParent;
+    }
+
+    int sum = 0;
+    sCLClass* it = klass->mParent;
+    while(it) {
+        sum += klass->mFields.length();
+        it = it->mParent;
+    }
 
     if(field == null) {
-        compile_err_msg(info, xsprintf("There is no field named %s in class %s", name, klass.mName));
+        compile_err_msg(info, xsprintf("There is no field named %s in class %s", name, klass_name));
         return true;
     }
 
@@ -2143,7 +2162,7 @@ bool compile_store_field(sCLNode* node, sCompileInfo* info)
 
     field_type = solve_generics(field_type, generics_types, info.pinfo);
 
-    int field_index = field.mIndex;
+    int field_index = sum + field.mIndex;
 
     if(!compile(exp_node, info)) {
         return false;
@@ -2205,10 +2224,28 @@ bool compile_load_field(sCLNode* node, sCompileInfo* info)
 
     sCLClass* klass = obj_type.mClass;
 
-    sCLField* field = klass.mFields.at(name, null);
+    char* klass_name = klass->mName;
+
+    sCLField* field = null; 
+    while(klass) {
+        field = klass.mFields.at(name, null);
+
+        if(field) {
+            break;
+        }
+
+        klass = klass->mParent;
+    }
+
+    int sum = 0;
+    sCLClass* it = klass->mParent;
+    while(it) {
+        sum += klass->mFields.length();
+        it = it->mParent;
+    }
 
     if(field == null) {
-        compile_err_msg(info, xsprintf("There is no field named %s in class %s", name, klass.mName));
+        compile_err_msg(info, xsprintf("There is no field named %s in class %s", name, klass_name));
         return true;
     }
 
@@ -2216,7 +2253,7 @@ bool compile_load_field(sCLNode* node, sCompileInfo* info)
 
     sCLType* solved_field_type = solve_generics(field_type, generics_types, info.pinfo);
 
-    int field_index = field.mIndex;
+    int field_index = sum + field.mIndex;
 
     if(!info.no_output) {
         info.codes.append_int(OP_LOAD_FIELD);
@@ -2378,6 +2415,47 @@ static bool compile_try_expression(sCLNode* node, sCompileInfo* info)
     }
 
     info.type = create_type("void", info.pinfo);
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_logical_denial(sCLNode* exp, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeLogicalDenial;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = exp;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_logical_denial(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* left_node = node.left;
+
+    if(!compile(left_node, info)) {
+        return false;
+    }
+
+    if(!type_identify_with_class_name(info->type, "bool", info.pinfo)) {
+        compile_err_msg(info, "Require bool type for logical denial");
+        return true;
+    }
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_LOGICAL_DENIAL);
+    }
+
+    info->type = create_type("bool", info.pinfo);
+
+    info->stack_num--;
+    info->stack_num++
 
     return true;
 }
@@ -2639,6 +2717,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
     
         case kNodeTypeOrOr:
             if(!compile_or_or(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeLogicalDenial:
+            if(!compile_logical_denial(node, info)) {
                 return false;
             }
             break;

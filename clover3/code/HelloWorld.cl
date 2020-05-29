@@ -17,34 +17,34 @@ class int {
     def lesser(right:int):bool {
         self \< right
     }
-    def lesserEqual(right:int):bool {
+    def lesser_equal(right:int):bool {
         self \<= right
     }
     def greater(right:int):bool {
         self \> right
     }
-    def greaterEqual(right:int):bool {
+    def greater_equal(right:int):bool {
         self \>= right
     }
     def equal(right:int):bool {
         self \== right
     }
-    def notEqual(right:int):bool {
+    def not_equal(right:int):bool {
         self \!= right
     }
-    def toString():string;
-    def toCommand():command;
+    def to_string():string;
+    def to_command():command;
 };
 
 class bool {
-    def toInteger():int;
-    def toString():int;
-    def toCommand():command;
+    def to_int():int;
+    def to_string():int;
+    def to_command():command;
 };
 
 class string {
     def equal(right:string):bool;
-    def notEqual(right:string):bool;
+    def not_equal(right:string):bool;
 };
 
 class object {
@@ -55,6 +55,13 @@ class object {
         }
 
         self \== right
+    }
+    def not_equal(right:object):bool {
+        if(self.type_name() == "void" && right.type_name() == "void") {
+            return false;
+        }
+
+        self \!= right
     }
 }
 
@@ -152,15 +159,35 @@ class EQTest {
 
         self
     }
+
+    def method():int {
+        self.a
+    }
+    def method2():int {
+        self.b
+    }
+}
+
+class EQTest2 extends EQTest {
+
 }
 
 var ax = new EQTest(1, 1);
 var bx = ax;
 
 xassert("eq", ax == bx);
+
+xassert("eq", !(ax == null));
+
+xassert("eq", ax != null);
+
 ax = null;
 
 xassert("eq", ax == null);
+
+var ax2 = new EQTest2(1, 2);
+
+xassert("eq", ax2.method() == 1 && ax2.method2() == 2);
 
 class VarTestData {
     var a:int;
@@ -196,7 +223,7 @@ xassert("TEST", data.a.a == 123);
 
 # test
 
-xassert("test1", (3 <= 2).toInteger() == 0);
+xassert("test1", (3 <= 2).to_int() == 0);
 
 # test 7
 var m = 0;
@@ -204,7 +231,7 @@ while(m < 2) {
     var n = 0;
 
     while(n < 5) {
-        #n.toCommand().less();
+        #n.to_command().less();
         n = n + 1;
 
        if(n >= 3) {
@@ -217,7 +244,7 @@ while(m < 2) {
 
 # test 7
 
-#echo(1.toString()).less();
+#echo(1.to_string()).less();
 xassert("test1.5", (1+3) == 4);
 
 # test 6

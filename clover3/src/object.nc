@@ -38,7 +38,14 @@ bool free_object(CLObject self, sVMInfo* info)
 static cllong object_size(sCLClass* klass)
 {
     cllong size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
-    size += (unsigned int)sizeof(CLVALUE) * klass->mFields.length();
+
+    int sum = 0;
+    sCLClass* it = klass;
+    while(it) {
+        sum += klass->mFields.length();
+        it = it->mParent;
+    }
+    size += (unsigned int)sizeof(CLVALUE) * sum;
 
     unsigned int size2 = size;
 

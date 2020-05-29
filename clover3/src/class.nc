@@ -4,7 +4,7 @@ map<string, sCLClass*%>* gClasses;
 vector<CLObject>* gJobs;
 map<string, fNativeMethod>* gNativeMethods;
 
-bool int_toString(CLVALUE** stack_ptr, sVMInfo* info)
+bool int_to_string_(CLVALUE** stack_ptr, sVMInfo* info)
 {
     CLVALUE* left = (*stack_ptr-1);
 
@@ -22,7 +22,7 @@ bool int_toString(CLVALUE** stack_ptr, sVMInfo* info)
     return true;
 }
 
-bool int_toCommand(CLVALUE** stack_ptr, sVMInfo* info)
+bool int_to_command(CLVALUE** stack_ptr, sVMInfo* info)
 {
     CLVALUE* left = (*stack_ptr-1);
 
@@ -40,7 +40,7 @@ bool int_toCommand(CLVALUE** stack_ptr, sVMInfo* info)
     return true;
 }
 
-bool bool_toInteger(CLVALUE** stack_ptr, sVMInfo* info)
+bool bool_to_int(CLVALUE** stack_ptr, sVMInfo* info)
 {
     CLVALUE* left = (*stack_ptr-1);
 
@@ -54,7 +54,7 @@ bool bool_toInteger(CLVALUE** stack_ptr, sVMInfo* info)
     return true;
 }
 
-bool bool_toString(CLVALUE** stack_ptr, sVMInfo* info)
+bool bool_to_string(CLVALUE** stack_ptr, sVMInfo* info)
 {
     CLVALUE* left = (*stack_ptr-1);
 
@@ -77,7 +77,7 @@ bool bool_toString(CLVALUE** stack_ptr, sVMInfo* info)
     return true;
 }
 
-bool bool_toCommand(CLVALUE** stack_ptr, sVMInfo* info)
+bool bool_to_command(CLVALUE** stack_ptr, sVMInfo* info)
 {
     CLVALUE* left = (*stack_ptr-1);
 
@@ -118,7 +118,7 @@ bool string_equal(CLVALUE** stack_ptr, sVMInfo* info)
     return true;
 }
 
-bool string_notEqual(CLVALUE** stack_ptr, sVMInfo* info)
+bool string_not_equal(CLVALUE** stack_ptr, sVMInfo* info)
 {
     CLVALUE* left = (*stack_ptr-2);
     CLVALUE* right = (*stack_ptr-1);
@@ -224,13 +224,13 @@ void class_init()
 
     gNativeMethods = borrow new map<string, fNativeMethod>.initialize();
 
-    gNativeMethods.insert(string("int.toString"), int_toString);
-    gNativeMethods.insert(string("int.toCommand"), int_toCommand);
-    gNativeMethods.insert(string("bool.toInteger"), bool_toInteger);
-    gNativeMethods.insert(string("bool.toString"), bool_toString);
-    gNativeMethods.insert(string("bool.toCommand"), bool_toCommand);
+    gNativeMethods.insert(string("int.to_string"), int_to_string_);
+    gNativeMethods.insert(string("int.to_command"), int_to_command);
+    gNativeMethods.insert(string("bool.to_int"), bool_to_int);
+    gNativeMethods.insert(string("bool.to_string"), bool_to_string);
+    gNativeMethods.insert(string("bool.to_command"), bool_to_command);
     gNativeMethods.insert(string("string.equal"), string_equal);
-    gNativeMethods.insert(string("string.notEqual"), string_notEqual);
+    gNativeMethods.insert(string("string.not_equal"), string_not_equal);
     gNativeMethods.insert(string("object.type_name"), object_type_name);
 
     gJobs = borrow new vector<CLObject>.initialize();
@@ -360,7 +360,27 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
     while(*info.p) {
         var word = parse_word(&info);
 
-        if(strcmp(word, "var") == 0) {
+        if(strcmp(word, "extends") == 0) {
+            var parent_class_name = parse_word(&info);
+
+            sCLClass* parent_class = gClasses.at(parent_class_name, null);
+            
+            if(parent_class == null) {
+                parser_err_msg(&info, xsprintf("Invalid parent class name. class not found(%s)", parent_class_name));
+            }
+
+            sCLClass* it = klass;
+            while(it) {
+                if(it == parent_class) {
+                    parser_err_msg(&info, xsprintf("Invalid parent class name. recursive parent class(%s)", parent_class_name));
+                    break;
+                }
+                it = it->mParent;
+            }
+
+            klass->mParent = parent_class;
+        }
+        else if(strcmp(word, "var") == 0) {
             var field_name = parse_word(&info);
             expected_next_character(':', &info);
 

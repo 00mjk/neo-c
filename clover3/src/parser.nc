@@ -572,6 +572,22 @@ bool parse_class(sCLNode** node, sParserInfo* info)
         }
     }
 
+    if(*info->p == 'e') {
+        while(true) {
+            if(*info->p == '{') {
+                break;
+            }
+            else if(*info->p == '\0') {
+                fprintf(stderr, "unexpected the source end\n");
+                exit(2);
+            }
+            else {
+                block_text.append_char(*info->p);
+                info->p++;
+            }
+        }
+    }
+
     block_text.append_char('\n');
 
     expected_next_character('{', info);
@@ -1108,6 +1124,20 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
         }
 
         expected_next_character(')', info);
+    }
+    else if(*info->p == '!') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!expression_node(node, info)) {
+            return false;
+        }
+
+        if(*node == null) {
+            parser_err_msg(info, "require value for !");
+        };
+
+        *node = sNodeTree_create_logical_denial(*node, info);
     }
     else {
         parser_err_msg(info, xsprintf("unexpected character %c", *info->p));

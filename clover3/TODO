@@ -1,15 +1,20 @@
-!exp
-vim("src/node.nc de jikkou
-inheritance
-object equal
-object type_name
 generics
 list, buffer, map, tuple
 string.libraries
 
 メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
 
+親クラスのメソッド呼び出し。super
+
 INVOKE_BLOCK_OBJECTの実行時の型チェック
+
+vim("src/node.nc de jikkou
+
+READLINE
 
 --------------
 vm return false message
+!exp
+inheritance
+object equal
+object type_name

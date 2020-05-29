@@ -927,6 +927,21 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                 }
                 
                 break;
+
+            case OP_LOGICAL_DENIAL: {
+                int lvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+
+                int value = !lvalue_data->mValue;
+                CLObject new_obj = create_bool_object(value, info);
+
+                stack_ptr --;
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
+                }
+                
+                break;
                 
             case OP_ILT: {
                 int lvalue = (stack_ptr-2).mObjectValue;
@@ -1099,7 +1114,8 @@ bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, in
                     update_parent_stack(stack, vm_head_params, vm_num_params, vm_var_num, vm_parent_stack_frame_index, vm_enable_parent_stack, info);
                     return false;
                 }
-int var_num = method.mMaxVarNum;
+
+                int var_num = method.mMaxVarNum;
 //print_method(klass, method, num_params, var_num);
 
                 if(!param_check(method->mParams, method->mNumParams, stack_ptr, generics_types, info))
