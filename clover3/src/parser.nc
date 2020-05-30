@@ -851,9 +851,17 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
         if(strcmp(word, "var") == 0) {
             if(isalpha(*info->p) || *info->p == '_') {
                 var var_name = parse_word(info);
+                sCLType* type = null;
+                if(*info->p == ':') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    if(!parse_type(&type, info)) {
+                        return false;
+                    };
+                }
                 
                 check_already_added_variable(info, var_name);
-                add_variable_to_table(info, var_name, null, false);
+                add_variable_to_table(info, var_name, type, false);
                 
                 if(*info->p == '=') {
                     info->p++;

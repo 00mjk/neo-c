@@ -294,6 +294,146 @@ class list<T>
             i++;
         }
     }
+
+    def delete_range(head:int, tail:int):void
+    {
+        if(head < 0) {
+            head += self.len;
+        }
+        if(tail < 0) {
+            tail += self.len + 1;
+        }
+
+        if(head > tail) {
+            var tmp = tail;
+            tail = head;
+            head = tmp;
+        }
+
+        if(head < 0) {
+            head = 0;
+        }
+
+        if(tail > self.len) {
+            tail = self.len;
+        }
+
+        if(head == tail) {
+            return null;
+        }
+
+        if(head == 0 && tail == self.len) 
+        {
+            self.reset();
+        }
+        elif(head == 0) {
+            var it = self.head;
+            var i = 0;
+            while(it != null) {
+                if(i < tail) {
+                    it = it.next;
+                    i++;
+
+                    self.len--;
+                }
+                elif(i == tail) {
+                    self.head = it;
+                    self.head.prev = null;
+                    break;
+                }
+                else {
+                    it = it.next;
+                    i++;
+                }
+            }
+        }
+        elif(tail == self.len) {
+            var it = self.head;
+            var i = 0;
+            while(it != null) {
+                if(i == head) {
+                    self.tail = it.prev;
+                    self.tail.next = null;
+                }
+
+                if(i >= head) {
+                    it = it.next;
+                    i++;
+
+                    self.len--;
+                }
+                else {
+                    it = it.next;
+                    i++;
+                }
+            }
+        }
+        else {
+            var it = self.head;
+
+            var head_prev_it:list_item<T> = null;
+            var tail_it:list_item<T> = null;
+
+            var i = 0;
+            while(it != null) {
+                if(i == head) {
+                    head_prev_it = it.prev;
+                }
+                if(i == tail) {
+                    tail_it = it;
+                }
+
+                if(i >= head && i < tail) 
+                {
+                    var prev_it = it;
+
+                    it = it.next;
+                    i++;
+
+                    self.len--;
+                }
+                else {
+                    it = it.next;
+                    i++;
+                }
+            }
+
+            if(head_prev_it != null) {
+                head_prev_it.next = tail_it;
+            }
+            if(tail_it != null) {
+                tail_it.prev = head_prev_it;
+            }
+        }
+    }
+
+    def length(): int {
+        self.len
+    }
+
+    def equal(right:list<T>):bool {
+        if(self.type_name() != right.type_name()) {
+            return false;
+        }
+
+        if(self.length() != right.length())
+        {
+            return false;
+        }
+
+        var it = self.head;
+        var it2 = right.head;
+
+        while(it != null) {
+            if(it.item != it2.item) {
+                return false;
+            }
+            it = it.next;
+            it2 = it2.next;
+        }
+
+        true
+    }
 }
 
 xassert("string test", "aaa" == "aaa");
@@ -317,6 +457,25 @@ li.each() {
 }
 
 xassert("list test5", li.item(2, -1) == 3);
+
+li.delete_range(1, -1);
+
+var li1 = new list<int>();
+li1.push_back(1);
+li1.push_back(2);
+li1.push_back(3);
+
+var li2 = new list<int>();
+li2.push_back(1);
+li2.push_back(2);
+li2.push_back(3);
+
+xassert("list equal", li1 == li2);
+
+li.each() {
+    echo(it.to_string());
+}
+
 
 class EQTest {
     var a:int;

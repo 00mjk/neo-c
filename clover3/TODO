@@ -1,4 +1,5 @@
-string.set_value オブジェクトを持つオブジェクトにstringを変更
+macro
+normal block
 
 generics
 list, buffer, map, tuple
@@ -20,3 +21,4 @@ inheritance
 object equal
 object type_name
 string.libraries
+string.set_value オブジェクトを持つオブジェクトにstringを変更

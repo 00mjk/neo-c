@@ -100,13 +100,45 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
     if(type_identify_with_class_name(info.type, "any", info.pinfo)
         || is_generics_type(info.type, info.pinfo))
     {
-        for(int i=1; i<num_params; i++) {
-            if(!compile(params[i], info)) {
-                return false;
+        sCLClass* klass = info.type.mClass;
+
+        char* klass_name = klass->mName;
+
+        sCLMethod* method = null;
+        while(klass) {
+            method = klass.mMethods.at(method_name, null);
+
+            if(method) {
+                break;
             }
+
+            klass = klass->mParent;
         }
 
-        info->type = create_type("any", info.pinfo);
+        if(method == null) { 
+            for(int i=1; i<num_params; i++) {
+                if(!compile(params[i], info)) {
+                    return false;
+                }
+            }
+
+            info->type = create_type("any", info.pinfo);
+        }
+        else {
+            /// compile parametors ///
+            if(method->mNumParams != num_params) {
+                compile_err_msg(info, xsprintf("invalid method prametor number.  invalid %d number instead of %d(%s.%s)", num_params, method->mNumParams, klass.mName, method_name));
+                return true;
+            }
+
+            for(int i=1; i<num_params; i++) {
+                if(!compile(params[i], info)) {
+                    return false;
+                }
+            }
+
+            info->type = method->mResultType;
+        }
     }
     else {
         sCLClass* klass = info.type.mClass;
@@ -152,7 +184,6 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
                 return true;
             }
         }
-
         info->type = method->mResultType;
     }
 
@@ -1251,6 +1282,7 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
 
     if(!type_identify_with_class_name(info.type, "bool", info.pinfo)) {
         compile_err_msg(info, "The condition expression of if requires bool type");
+        show_type(info.type);
         return true;
     }
 
