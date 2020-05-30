@@ -717,6 +717,16 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
 
                         *node = sNodeTree_create_store_field(obj_node, name, exp, info);
                     }
+                    else if(*info->p == '-' && *(info->p+1) == '-') {
+                        info->p+=2;
+                        skip_spaces_and_lf(info);
+
+                        sCLNode* right = sNodeTree_create_int_value(1, info);
+
+                        sCLNode* exp = sNodeTree_create_minus(*node, right, info);
+
+                        *node = sNodeTree_create_store_field(obj_node, name, exp, info);
+                    }
                     else if(*info->p == '+' && *(info->p+1) == '=') 
                     {
                         info->p+=2;
@@ -728,6 +738,20 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
                         };
 
                         sCLNode* exp = sNodeTree_create_plus(*node, right, info);
+
+                        *node = sNodeTree_create_store_field(obj_node, name, exp, info);
+                    }
+                    else if(*info->p == '-' && *(info->p+1) == '=') 
+                    {
+                        info->p+=2;
+                        skip_spaces_and_lf(info);
+
+                        sCLNode* right = null;
+                        if(!expression(&right, info)) {
+                            return false;
+                        };
+
+                        sCLNode* exp = sNodeTree_create_minus(*node, right, info);
 
                         *node = sNodeTree_create_store_field(obj_node, name, exp, info);
                     }
@@ -1003,6 +1027,16 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
                     *node = sNodeTree_create_store_variable(word, exp, info);
                 }
+                else if(*info->p == '-' && *(info->p+1) == '-') {
+                    info->p+=2;
+                    skip_spaces_and_lf(info);
+
+                    sCLNode* right = sNodeTree_create_int_value(1, info);
+
+                    sCLNode* exp = sNodeTree_create_minus(*node, right, info);
+
+                    *node = sNodeTree_create_store_variable(word, exp, info);
+                }
                 else if(*info->p == '+' && *(info->p+1) == '=') 
                 {
                     info->p+=2;
@@ -1014,6 +1048,20 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                     };
 
                     sCLNode* exp = sNodeTree_create_plus(*node, right, info);
+
+                    *node = sNodeTree_create_store_variable(word, exp, info);
+                }
+                else if(*info->p == '-' && *(info->p+1) == '=') 
+                {
+                    info->p+=2;
+                    skip_spaces_and_lf(info);
+
+                    sCLNode* right = null;
+                    if(!expression(&right, info)) {
+                        return false;
+                    };
+
+                    sCLNode* exp = sNodeTree_create_minus(*node, right, info);
 
                     *node = sNodeTree_create_store_variable(word, exp, info);
                 }
@@ -1191,6 +1239,36 @@ static bool expression_plus_minus(sCLNode** node, sParserInfo* info)
             };
 
             *node = sNodeTree_create_primitive_plus(*node, right, info);
+        }
+        else if(*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_node(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator -");
+            };
+
+            *node = sNodeTree_create_minus(*node, right, info);
+        }
+        else if(*info->p == '\\' && *(info->p+1) == '-') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_node(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator \\-");
+            };
+
+            *node = sNodeTree_create_primitive_minus(*node, right, info);
         }
         else {
             break;

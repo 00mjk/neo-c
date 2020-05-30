@@ -7,12 +7,16 @@ var xassert = lambda(str:string, exp:bool):void {
     else {
         echo("...false");
         exit(1);
-    }
+    };
 }
 
 class int {
+    def set_value(value:int):void;
     def plus(right:int):int {
         self \+ right
+    }
+    def minus(right:int):int {
+        self \- right
     }
     def lesser(right:int):bool {
         self \< right
@@ -37,18 +41,21 @@ class int {
 };
 
 class bool {
+    def set_value(value:bool):void;
     def to_int():int;
     def to_string():int;
     def to_command():command;
 };
 
 class string {
+    def set_value(value:string):void;
     def equal(right:string):bool;
     def not_equal(right:string):bool;
 };
 
 class object {
     def type_name():string;
+    def num_fields():int;
     def equal(right:object):bool {
         if(self.type_name() == "void" && right.type_name() == "void") {
             return true;
@@ -65,89 +72,251 @@ class object {
     }
 }
 
-#class list_item<T>
-#{
-#    var item:T;
-#    var prev:list_item<T>;
-#    var next:list_item<T>;
-#}
-#
-#class list<T>
-#{
-#    var head: list_item<T>;
-#    var tail: list_item<T>;
-#    var len:int;
-#
-#    def initialize():list<T> {
-#        self.head = null;
-#        self.tail = null;
-#        self.len = 0;
-#
-#        self
-#    }
-#
-#    def push_back(item:T):void {
-#        if(self.len == 0) {
-#            var litem = new list_item<T>;
-#
-#            litem.prev = null;
-#            litem.next = null;
-#            litem.item = item;
-#            
-#            self.tail = litem;
-#            self.head = litem;
-#        }
-#        elif(self.len == 1) {
-#            var litem = new list_item<T>;
-#
-#            litem.prev = self.head;
-#            litem.next = null;
-#            litem.item = item;
-#            
-#            self.tail = litem;
-#            self.head.next = litem;
-#        }
-#        else {
-#            var litem = new list_item<T>;
-#
-#            litem.prev = self.tail;
-#            litem.next = null;
-#            litem.item = item;
-#            
-#            self.tail.next = litem;
-#            self.tail = litem;
-#        }
-#
-#        self.len++;
-#    }
-#
-#    def item(position:int, default_value:T) : T
-#    {
-#        if(position < 0) {
-#            position += self.len;
-#        }
-#
-#        var it = self.head;
-#        var i = 0;
-#        while(it != null) {
-#            if(position == i) {
-#                return it.item;
-#            }
-#            it = it.next;
-#            i++;
-#        };
-#
-#        return default_value;
-#    }
-#}
-#
-#var li = new list<int>();
-#
-#li.push_back(1);
-#li.push_back(2);
-#
-#xassert("list test", li.item(0, -1) == 1);
-#xassert("list test2", li.item(1, -1) == 2);
+class list_item<T>
+{
+    var item:T;
+    var prev:list_item<T>;
+    var next:list_item<T>;
+}
+
+class list<T>
+{
+    var head: list_item<T>;
+    var tail: list_item<T>;
+    var len:int;
+
+    def initialize():list<T> {
+        self.head = null;
+        self.tail = null;
+        self.len = 0;
+
+        self
+    }
+
+    def push_back(item:T):void {
+        if(self.len == 0) {
+            var litem = new list_item<T>;
+
+            litem.prev = null;
+            litem.next = null;
+            litem.item = item;
+            
+            self.tail = litem;
+            self.head = litem;
+        }
+        elif(self.len == 1) {
+            var litem = new list_item<T>;
+
+            litem.prev = self.head;
+            litem.next = null;
+            litem.item = item;
+            
+            self.tail = litem;
+            self.head.next = litem;
+        }
+        else {
+            var litem = new list_item<T>;
+
+            litem.prev = self.tail;
+            litem.next = null;
+            litem.item = item;
+            
+            self.tail.next = litem;
+            self.tail = litem;
+        }
+
+        self.len++;
+    }
+
+    def item(position:int, default_value:T) : T
+    {
+        if(position < 0) {
+            position += self.len;
+        }
+
+        var it = self.head;
+        var i = 0;
+        while(it != null) {
+            if(position == i) {
+                return it.item;
+            }
+            it = it.next;
+            i++;
+        };
+
+        default_value
+    }
+    def reset():T {
+        self.head = null;
+        self.tail = null;
+
+        self.len = 0;
+    }
+
+    def insert(position:int, item:T):void
+    {
+        if(position < 0) {
+            position += self.len + 1;
+        }
+        if(position < 0) {
+            position = 0;
+        }
+        if(self.len == 0 || position >= self.len) 
+        {
+            self.push_back(item);
+            return null;
+        }
+
+        if(position == 0) {
+            var litem = new list_item<T>;
+
+            litem.prev = null;
+            litem.next = self.head;
+            litem.item = item;
+            
+            self.head.prev = litem;
+            self.head = litem;
+
+            self.len++;
+        }
+        elif(self.len == 1) {
+            var litem = new list_item<T>;
+
+            litem.prev = self.head;
+            litem.next = self.tail;
+            litem.item = item;
+            
+            self.tail.prev = litem;
+            self.head.next = litem;
+
+            self.len++;
+        }
+        else {
+            var it = self.head;
+            var i = 0;
+            while(it != null) {
+                if(position == i) {
+                    var litem = new list_item<T>;
+
+                    litem.prev = it.prev;
+                    litem.next = it;
+                    litem.item = item;
+
+                    it.prev.next = litem;
+                    it.prev = litem;
+
+                    self.len++;
+                }
+
+                it = it.next;
+                i++;
+            }
+        }
+    }
+    def delete(position:int): void
+    {
+        if(position < 0) {
+            position += self.len + 1;
+        }
+
+        if(position >= 0 && position < self.len)
+        {
+            if(self.len == 1) {
+                self.head = null;
+                self.tail = null;
+
+                self.len = 0;
+            }
+            elif(self.len == 2) {
+                if(position == 0) {
+                    self.head = self.head.next;
+
+                    self.head.prev = null;
+                    self.head.next = null;
+
+                    self.tail = self.head;
+
+                    self.len--;
+                }
+                else {
+                    self.head.next = null;
+                    self.head.prev = null;
+
+                    self.tail = self.head;
+
+                    self.len--;
+                }
+            }
+            else {
+                var it = self.head;
+                var i = 0;
+                while(it != null) {
+                    if(position == i) {
+                        if(i == 0) {
+                            self.head = it.next;
+                            self.head.prev = null;
+
+                            self.len--;
+                        }
+                        elif(i == self.len-1)
+                        {
+                           self.tail = it.prev;
+                           self.tail.next = null;
+
+                           self.len--;
+                        }
+                        else {
+                            it.prev.next = it.next;
+                            it.next.prev = it.prev;
+
+                            self.len--;
+                        }
+                        break;
+                    }
+
+                    it = it.next;
+                    i++;
+                }
+            }
+        }
+    }
+    def each(block:lambda(it:T,it2:int,it3:bool):void):void {
+        var it = self.head;
+        var i = 0;
+        while(it != null) {
+            var end_flag = false;
+            block(it.item, i, end_flag);
+
+            if(end_flag == true) {
+                break;
+            }
+            it = it.next;
+            i++;
+        }
+    }
+}
+
+xassert("string test", "aaa" == "aaa");
+
+var li = new list<int>();
+
+li.push_back(1);
+li.push_back(2);
+li.push_back(3);
+li.insert(2, 111);
+
+xassert("list test", li.item(0, -1) == 1);
+xassert("list test2", li.item(1, -1) == 2);
+xassert("list test3", li.item(2, -1) == 111);
+xassert("list test4", li.item(-1, -1) == 3);
+
+li.delete(2);
+
+li.each() {
+    echo(it.to_string());
+}
+
+xassert("list test5", li.item(2, -1) == 3);
 
 class EQTest {
     var a:int;
@@ -180,6 +349,8 @@ xassert("eq", ax == bx);
 xassert("eq", !(ax == null));
 
 xassert("eq", ax != null);
+
+xassert("object.num_fields", ax.num_fields() == 2);
 
 ax = null;
 
@@ -317,16 +488,6 @@ var obj = new HelloClass;
 
 xassert("test5.5", obj.method(2, 2) == 7);
 
-# test3
-var b = 1;
-var aaa = lambda(a:int):int {
-    b = 2;
-    2 + a + b
-}
-
-xassert("test6", aaa(3) == 7);
-xassert("test7", b == 2)
-
 # test 5
 
 try {
@@ -337,6 +498,15 @@ catch {
     xassert("try test", it == "Exception");
     xassert("try test2", true);
 }
+
+var b = 1;
+var aaa = lambda(a:int):int {
+    b = 2;
+    2 + a + b
+}
+
+xassert("test6", aaa(3) == 7);
+xassert("test7", b == 2)
 
 var fun = lambda(a:int, b:int): int {
     if(true) {
@@ -396,3 +566,9 @@ xassert("generics test b2", gg2.b == 2);
 
 xassert("string test", "abc" == "abc");
 xassert("string test2", "abc" != "ABC");
+
+var str2 = "ABC";
+
+str2.set_value("DEF");
+
+xassert("string test3", str2 == "DEF");

@@ -268,6 +268,100 @@ static bool compile_primitive_plus(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_minus(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeMinus;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_minus(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* params[PARAMS_MAX];
+    int num_params = 0;
+
+    params[num_params] = node.left;
+    num_params++;
+    params[num_params] = node.right;
+    num_params++;
+
+    if(!invoke_method("minus", num_params, params, info)) {
+        return false;
+    }
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_primitive_minus(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypePrimitiveMinus;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_primitive_minus(sCLNode* node, sCompileInfo* info)
+{
+    if(!compile(node.left, info)) {
+        return false;
+    }
+    
+    sCLType* left_type = info.type;
+
+    if(!compile(node.right, info)) {
+        return false;
+    }
+    
+    sCLType* right_type = info.type;
+    
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "The different type between left type and rigt type at - operator");
+        puts("left type -->");
+        show_type(left_type);
+        puts("right type -->");
+        show_type(right_type);
+        
+        return true;
+    }
+    
+
+    if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
+        if(!info.no_output) {
+            info.codes.append_int(OP_ISUB);
+        }
+        
+        info.type = create_type("int", info.pinfo);
+    }
+    else {
+        compile_err_msg(info, "This type is invalid for operator - ");
+        show_type(left_type);
+        
+        return true;
+    }
+    
+    info.stack_num -= 2;
+    info.stack_num++;
+    
+    return true;
+}
+
 sCLNode* sNodeTree_create_and_and(sCLNode* left, sCLNode* right, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
@@ -2237,6 +2331,11 @@ bool compile_load_field(sCLNode* node, sCompileInfo* info)
         klass = klass->mParent;
     }
 
+    if(klass == null) {
+        compile_err_msg(info, xsprintf("There is no field named %s in class %s", name, klass_name));
+        return true;
+    }
+
     int sum = 0;
     sCLClass* it = klass->mParent;
     while(it) {
@@ -2481,6 +2580,18 @@ bool compile(sCLNode* node, sCompileInfo* info)
             
         case kNodeTypePrimitivePlus:
             if(!compile_primitive_plus(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeMinus:
+            if(!compile_minus(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypePrimitiveMinus:
+            if(!compile_primitive_minus(node, info)) {
                 return false;
             }
             break;

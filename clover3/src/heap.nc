@@ -313,7 +313,8 @@ static void mark(sVMInfo* info, unsigned char* mark_flg, sVMInfo* info)
     info.stack_frames.each {
         CLVALUE* p = it.stack;
 
-        while(p < it.stack + it.var_num) {
+        while(p < *it.stack_ptr) {
+        //while(p < it.stack + it.var_num) {
             mark_object(p.mObjectValue, mark_flg, info);
             p++;
         }
@@ -370,6 +371,7 @@ static void delete_all_object(sVMInfo* info)
 
 void gc(sVMInfo* info)
 {
+//puts("gc");
     if(!info->in_finalize_method) {
         memset(gCLHeap.mMarkFlags, 0, sizeof(unsigned char)*gCLHeap.mSizeHandles);
 

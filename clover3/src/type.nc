@@ -219,13 +219,23 @@ bool type_identify_with_class_name(sCLType* left_type, char* right_class, sParse
     return type_identify(left_type, right_type);
 }
 
+void show_type_core(sCLType* type) 
+{
+    printf("class %s ", type.mClass.mName);
+    if(type.mNumGenericsTypes > 0) {
+        printf("<");
+        for(int i=0; i<type.mNumGenericsTypes; i++) {
+            show_type_core(type.mGenericsTypes[i]);
+        }
+        printf(">");
+    }
+}
+
 
 void show_type(sCLType* type)
 {
-    printf("class %s\n", type.mClass.mName);
-    for(int i=0; i<type.mNumGenericsTypes; i++) {
-        show_type(type.mGenericsTypes[i]);
-    }
+    show_type_core(type);
+    puts("");
 }
 
 bool is_generics_type(sCLType* type, sParserInfo* info)

@@ -186,7 +186,7 @@ bool compile_script(char* fname, buffer* source)
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     
     CLVALUE result;
-    if(!vm(cinfo.codes, 0, 0, var_num, -1, false, &result, &vminfo)) {
+    if(!vm(cinfo.codes, 0, 0, var_num, -1, false, 0, &result, &vminfo)) {
         fprintf(stderr, "VM error.\n");
         CLObject obj = vminfo.thrown_object.mObjectValue;
         if(obj) {
@@ -195,8 +195,8 @@ bool compile_script(char* fname, buffer* source)
             sCLType* type = object_data->mType;
             if(type_identify_with_class_name(type, "string", &info))
             {
-                sCLString* str_data = CLSTRING(obj);
-                fprintf(stderr, "%s", str_data->mData);
+                char* str_data = get_string_mem(obj);
+                fprintf(stderr, "%s", str_data);
             }
         }
         heap_final(&vminfo);

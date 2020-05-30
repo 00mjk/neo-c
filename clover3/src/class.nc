@@ -4,6 +4,47 @@ map<string, sCLClass*%>* gClasses;
 vector<CLObject>* gJobs;
 map<string, fNativeMethod>* gNativeMethods;
 
+bool int_set_value(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* self = (*stack_ptr-2);
+    CLVALUE* value = (*stack_ptr-1);
+
+    sCLInt* object_data = CLINT(self->mObjectValue);
+    sCLInt* object_data2 = CLINT(value->mObjectValue);
+
+    object_data->mValue = object_data2->mValue;
+    
+    return true;
+}
+
+bool string_set_value(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* self = (*stack_ptr-2);
+    CLVALUE* value = (*stack_ptr-1);
+
+    char* str = get_string_mem(value->mObjectValue);
+
+    CLObject obj = create_string_data_object(str, info);
+
+    sCLObject* object_data = CLOBJECT(self->mObjectValue);
+    object_data->uValue.mFields[0].mObjectValue = obj;
+
+    return true;
+}
+
+bool bool_set_value(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* self = (*stack_ptr-2);
+    CLVALUE* value = (*stack_ptr-1);
+
+    sCLInt* object_data = CLINT(self->mObjectValue);
+    sCLInt* object_data2 = CLINT(value->mObjectValue);
+
+    object_data->mValue = object_data2->mValue;
+    
+    return true;
+}
+
 bool int_to_string_(CLVALUE** stack_ptr, sVMInfo* info)
 {
     CLVALUE* left = (*stack_ptr-1);
@@ -105,10 +146,10 @@ bool string_equal(CLVALUE** stack_ptr, sVMInfo* info)
     CLVALUE* left = (*stack_ptr-2);
     CLVALUE* right = (*stack_ptr-1);
 
-    sCLString* object_data = CLSTRING(left->mObjectValue);
-    sCLString* object_data2 = CLSTRING(right->mObjectValue);
+    char* mem1 = get_string_mem(left->mObjectValue);
+    char* mem2 = get_string_mem(right->mObjectValue);
 
-    int value = strcmp(object_data->mData, object_data2->mData) == 0;
+    int value = strcmp(mem1, mem2) == 0;
     
     CLObject obj = create_bool_object(value, info);
 
@@ -123,10 +164,10 @@ bool string_not_equal(CLVALUE** stack_ptr, sVMInfo* info)
     CLVALUE* left = (*stack_ptr-2);
     CLVALUE* right = (*stack_ptr-1);
 
-    sCLString* object_data = CLSTRING(left->mObjectValue);
-    sCLString* object_data2 = CLSTRING(right->mObjectValue);
+    char* mem1 = get_string_mem(left->mObjectValue);
+    char* mem2 = get_string_mem(right->mObjectValue);
 
-    int value = strcmp(object_data->mData, object_data2->mData) != 0;
+    int value = strcmp(mem1, mem2) != 0;
     
     CLObject obj = create_bool_object(value, info);
 
@@ -145,6 +186,22 @@ bool object_type_name(CLVALUE** stack_ptr, sVMInfo* info)
     string type_name = create_type_name(object_data->mType);
 
     CLObject obj = create_string_object(type_name, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
+bool object_num_fields(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* left = (*stack_ptr-1);
+
+    sCLObject* object_data = CLOBJECT(left->mObjectValue);
+
+    int num_fields = object_data->mNumFields;
+
+    CLObject obj = create_int_object(num_fields, info);
 
     (*stack_ptr)->mObjectValue = obj;
     (*stack_ptr)++;
@@ -224,6 +281,9 @@ void class_init()
 
     gNativeMethods = borrow new map<string, fNativeMethod>.initialize();
 
+    gNativeMethods.insert(string("int.set_value"), int_set_value);
+    gNativeMethods.insert(string("string.set_value"), string_set_value);
+    gNativeMethods.insert(string("bool.set_value"), bool_set_value);
     gNativeMethods.insert(string("int.to_string"), int_to_string_);
     gNativeMethods.insert(string("int.to_command"), int_to_command);
     gNativeMethods.insert(string("bool.to_int"), bool_to_int);
@@ -232,6 +292,7 @@ void class_init()
     gNativeMethods.insert(string("string.equal"), string_equal);
     gNativeMethods.insert(string("string.not_equal"), string_not_equal);
     gNativeMethods.insert(string("object.type_name"), object_type_name);
+    gNativeMethods.insert(string("object.num_fields"), object_num_fields);
 
     gJobs = borrow new vector<CLObject>.initialize();
 }

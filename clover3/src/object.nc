@@ -5,9 +5,9 @@ void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info)
 {
     sCLObject* object_data = CLOBJECT(self);
     sCLType* type = object_data->mType;
+    int num_fields = object_data->mNumFields;
     
-    if(type_identify_with_class_name(type, "string", info.cinfo.pinfo))
-    {
+    if(num_fields == -1) {
     }
     else {
         int i;
@@ -121,14 +121,65 @@ CLObject create_bool_object(int value, sVMInfo* info)
 
 CLObject create_string_object(char* str, sVMInfo* info)
 {
-    int len = strlen(str);
-
     sCLType* string_type = create_type("string", info.cinfo.pinfo);
     
+    cllong size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
+    size += (unsigned int)sizeof(CLVALUE);
+
+    unsigned int size2 = size;
+
+    alignment((unsigned int*)&size2);
+
+    size = size2;
+
+    sCLStackFrame null_stack_frame;
+
+    sCLStackFrame stack_frame = info.stack_frames.item(-1, null_stack_frame);
+    CLVALUE** stack_ptr = stack_frame.stack_ptr;
+
+    CLObject obj = alloc_heap_mem(size, string_type, 1, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    int len = strlen(str);
+    int size3 = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
+    size3 += len + 1;
+    alignment(&size3);
+
+    CLObject obj2 = alloc_heap_mem(size3, string_type, -1, info);
+
+    sCLObject* object_data2 = CLOBJECT(obj2);
+
+    strcpy(&object_data2.uValue.mMem, str);
+
+    sCLObject* object_data = CLOBJECT(obj);
+    object_data->uValue.mFields[0].mObjectValue = obj2;
+
+    (*stack_ptr)--;
+
+    return obj;
+}
+
+char* get_string_mem(CLObject obj)
+{
+    sCLObject* object_data = CLOBJECT(obj);
+
+    CLObject obj2 = object_data->uValue.mFields[0].mObjectValue;
+
+    sCLObject* object_data2 = CLOBJECT(obj2);
+
+    return &object_data2->uValue.mMem;
+}
+
+CLObject create_string_data_object(char* str, sVMInfo* info)
+{
+    int len = strlen(str);
     int size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
     size += len + 1;
-
     alignment(&size);
+
+    sCLType* string_type = create_type("string", info.cinfo.pinfo);
 
     CLObject obj = alloc_heap_mem(size, string_type, -1, info);
 
