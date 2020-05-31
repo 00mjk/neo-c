@@ -2591,6 +2591,60 @@ static bool compile_logical_denial(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_normal_block(sCLNodeBlock* node_block, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeNormalBlock;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.uValue.uNormalBlock.mNodeBlock = node_block;
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_normal_block(sCLNode* node, sCompileInfo* info)
+{
+    sCLNodeBlock* node_block = node.uValue.uNormalBlock.mNodeBlock;
+
+    if(!compile_block(node_block, info)) {
+        return false;
+    }
+
+    return true;
+}
+
+sCLNode* sNodeTree_create_macro(char* name, char* block_text, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeMacro;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.mStringValue = string(name);
+    result.mStringValue2 = string(block_text);
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    append_macro(name, block_text);
+
+    return result;
+}
+
+static bool compile_macro(sCLNode* node, sCompileInfo* info)
+{
+    return true;
+}
 
 bool compile(sCLNode* node, sCompileInfo* info) 
 {
@@ -2866,6 +2920,18 @@ bool compile(sCLNode* node, sCompileInfo* info)
 
         case kNodeTypeLogicalDenial:
             if(!compile_logical_denial(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeNormalBlock:
+            if(!compile_normal_block(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeMacro:
+            if(!compile_macro(node, info)) {
                 return false;
             }
             break;

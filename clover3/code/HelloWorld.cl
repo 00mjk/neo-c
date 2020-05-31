@@ -412,9 +412,9 @@ class list<T>
     }
 
     def equal(right:list<T>):bool {
-        if(self.type_name() != right.type_name()) {
-            return false;
-        }
+        #if(self.type_name() != right.type_name()) {
+        #    return false;
+        #}
 
         if(self.length() != right.length())
         {
@@ -731,3 +731,73 @@ var str2 = "ABC";
 str2.set_value("DEF");
 
 xassert("string test3", str2 == "DEF");
+
+var br = { 123 };
+
+xassert("normal block test", br == 123);
+
+macro list {
+ruby <<'EOS'
+    params = [];
+    param = "";
+    dquort = false;
+    squort = false;
+    param_line = ENV['PARAMS'];
+    n = 0;
+    while(n < param_line.length()) do
+        c = param_line[n];
+        n = n + 1;
+
+        if (dquort || squort) && c == "\\"
+            param.concat(c);
+            
+            c = param_line[n];
+            n = n + 1;
+
+            param.concat(c);
+        elsif c == "\""
+            param.concat(c);
+            dquort = !dquort
+        elsif c == "'"
+            param.concat(c);
+            squort = !squort
+        elsif dquort || squort
+            param.concat(c);
+        elsif c == ","
+            if param.length() > 0
+                params.push(param); param = ""
+            end
+        else
+            param.concat(c);
+        end
+    end
+
+    if param.length() != 0
+        params.push(param);
+    end
+
+    if params.length() > 0
+        puts("{");
+        puts("var result = new list<any>();");
+
+        params.each do |param|
+            puts("result.push_back(#{param});");
+        end
+
+        puts("result");
+        puts("}");
+    end
+    
+EOS
+}
+
+var li3 = list!{1,2,3};
+
+li3.each() {
+    echo(it.to_string());
+}
+
+var li4 = list!{1,2,3};
+
+xassert("list macro", li3 == li4);
+

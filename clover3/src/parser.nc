@@ -601,6 +601,21 @@ bool parse_class(sCLNode** node, sParserInfo* info)
     return true;
 }
 
+bool parse_macro(sCLNode** node, sParserInfo* info) 
+{
+    string name = parse_word(info);
+
+    expected_next_character('{', info);
+
+    var block_text = new buffer.initialize();
+    if(!get_block_text(block_text, info)) {
+        return false;
+    };
+
+    *node = sNodeTree_create_macro(name, string(block_text.buf).substring(0,-2), info);
+
+    return true;
+}
 
 bool parse_calling_params(int* num_params, sCLNode** params, sParserInfo* info) 
 {
@@ -926,6 +941,11 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 return false;
             }
         }
+        else if(strcmp(word, "macro") == 0) {
+            if(!parse_macro(node, info)) {
+                return false;
+            }
+        }
         else if(strcmp(word, "jobs") == 0) {
             *node = sNodeTree_create_jobs(info);
         }
@@ -994,6 +1014,22 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 };
 
                 *node = sNodeTree_create_method_call(name, num_params, params, info);
+            }
+        }
+        else if(*info->p == '!' && *(info->p+1) == '{') {
+            info->p+=2;
+
+            var block_text = new buffer.initialize();
+            if(!get_block_text(block_text, info)) {
+                return false;
+            };
+
+            char* name = word;
+            char* params = block_text.to_string().substring(0, -2);
+
+            if(!call_macro(node, name, params, info))
+            {
+                return false;
             }
         }
         else {
@@ -1194,6 +1230,18 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
         };
 
         *node = sNodeTree_create_logical_denial(*node, info);
+    }
+    else if(*info->p == '{') {
+        expected_next_character('{', info);
+
+        sCLNodeBlock* node_block = null;
+        if(!parse_block(&node_block, 0, NULL, info)) {
+            return false;
+        }
+
+        expected_next_character('}', info);
+
+        *node = sNodeTree_create_normal_block(node_block, info);
     }
     else {
         parser_err_msg(info, xsprintf("unexpected character %c", *info->p));

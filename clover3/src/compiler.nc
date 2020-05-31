@@ -21,11 +21,13 @@ static void compiler_init(bool no_load_fudamental_classes)
 static void clover3_init()
 {
     class_init();
+    macro_init();
 }
 
 static void clover3_final()
 {
     class_final();
+    macro_final();
 }
 
 static void compiler_final()

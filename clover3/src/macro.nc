@@ -10,12 +10,12 @@
 
 map<string, string>* gMacros;
 
-void init_macro()
+void macro_init()
 {
     gMacros = borrow new map<string, string>.initialize();
 }
 
-void finalize_macro()
+void macro_final()
 {
     delete gMacros;
 }
@@ -25,7 +25,7 @@ void append_macro(char* name, char* body)
     gMacros.insert(string(name), string(body));
 }
 
-string get_macro(char* name)
+static char* get_macro(char* name)
 {
     return gMacros.at(name, null);
 }
@@ -64,7 +64,7 @@ static bool get_command_result(buffer* command_result, char* macro_name, char* c
     return true;
 }
 
-bool call_macro(sCLNode* node, char* name, char* params, sParserInfo* info)
+bool call_macro(sCLNode** node, char* name, char* params, sParserInfo* info)
 {
     char* cmdline = get_macro(name);
 
@@ -80,22 +80,32 @@ bool call_macro(sCLNode* node, char* name, char* params, sParserInfo* info)
         return false;
     }
 
-    sParserInfo info2;
-    memset(&info2, 0, sizeof(sParserInfo));
+    char* p_before = info.p;
+    info.p = command_result.buf;
 
-    info2.p = command_result.buf;
-    xstrncpy(info2.sname, name, PATH_MAX);
+    char sname_before[PATH_MAX];
+    xstrncpy(sname_before, info.sname, PATH_MAX);
+    xstrncpy(info.sname, name, PATH_MAX);
+
+    int sline_before = info.sline;
+    info.sline = 1;
 
     sCLNodeBlock* node_block = null;
-    if(!parse_block(&node_block, 0, NULL, &info2))
+    if(!parse_block(&node_block, 0, NULL, info))
     {
+        info.p = p_before;
+        xstrncpy(info.sname, sname_before, PATH_MAX);
+        info.sline = sline_before;
+
         return false;
-    }
+    };
 
-    *node = sNodeTree_create_normal_block(node_block, &info2);
+    info.p = p_before;
+    xstrncpy(info.sname, sname_before, PATH_MAX);
+    info.sline = sline_before;
+
+    *node = sNodeTree_create_normal_block(node_block, info);
     
-    info->err_num += info2.err_num;
-
     return true;
 }
 

@@ -33,8 +33,8 @@ COMPILER_OBJS=@COMPILER_OBJS@
 all: clover3
 #	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
-clover3: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o
-	$(CC) -o clover3 src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o $(CFLAGS) $(NCFLAGS) $(LIBS)
+clover3: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
+	$(CC) -o clover3 src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
 
 ##########################################################
 # objects
@@ -68,6 +68,9 @@ src/object.o: config.h src/*.h Makefile configure src/object.nc
 
 src/block.o: config.h src/*.h Makefile configure src/block.nc
 	$(CC) -c src/block.nc $(CFLAGS) $(NCFLAGS)
+
+src/macro.o: config.h src/*.h Makefile configure src/macro.nc
+	$(CC) -c src/macro.nc $(CFLAGS) $(NCFLAGS)
 
 #########################################################
 # install

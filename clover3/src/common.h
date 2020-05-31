@@ -177,10 +177,15 @@ struct sCLNode {
             sCLNodeBlock* mNodeBlock;
             sCLNodeBlock* mNodeBlock2;
         } uTry;
+
+        struct {
+            sCLNodeBlock* mNodeBlock;
+        } uNormalBlock;
     } uValue;
     
     string mClassName;
     string mStringValue;
+    string mStringValue2;
     buffer*% mBufferValue;
     sCLType* mType;
     
@@ -250,7 +255,7 @@ struct sParserInfo {
     int max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeMinus, kNodeTypePrimitiveMinus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeExit, kNodeTypeTry, kNodeTypeReturn, kNodeTypeNull, kNodeTypeLogicalDenial };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeMinus, kNodeTypePrimitiveMinus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeExit, kNodeTypeTry, kNodeTypeReturn, kNodeTypeNull, kNodeTypeLogicalDenial, kNodeTypeNormalBlock, kNodeTypeMacro };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -308,6 +313,7 @@ void codes_append_type(buffer* codes, sCLType* type);
 void codes_read_type(char* p, sCLType** type);
 
 sCLNode* sNodeTree_create_break(sParserInfo* info);
+sCLNode* sNodeTree_create_normal_block(sCLNodeBlock* node_block, sParserInfo* info);
 sCLNode* sNodeTree_create_minus(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_primitive_minus(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_logical_denial(sCLNode* exp, sParserInfo* info);
@@ -353,6 +359,15 @@ sCLNode* NodeTree_create_store_field(sCLNode* obj, char* name, sCLNode* exp, sPa
 sCLNode* sNodeTree_create_load_field(sCLNode* obj, char* name, sParserInfo* info);
 sCLNode* sNodeTree_create_store_field(sCLNode* obj, char* name, sCLNode* exp, sParserInfo* info);
 sCLNode* sNodeTree_create_throw_exception(sCLNode* obj, sParserInfo* info);
+sCLNode* sNodeTree_create_macro(char* name, char* block_text, sParserInfo* info);
+sCLNode* sNodeTree_create_call_macro(char* name, char* params, sParserInfo* info);
+
+/// macro.nc ///
+void macro_init();
+void macro_final();
+
+void append_macro(char* name, char* body);
+bool call_macro(sCLNode** node, char* name, char* params, sParserInfo* info);
 
 //////////////////////////////
 /// runtime side
