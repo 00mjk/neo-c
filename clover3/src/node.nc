@@ -2275,7 +2275,7 @@ bool compile_store_field(sCLNode* node, sCompileInfo* info)
     int sum = 0;
     sCLClass* it = klass->mParent;
     while(it) {
-        sum += klass->mFields.length();
+        sum += it->mFields.length();
         it = it->mParent;
     }
 
@@ -2371,7 +2371,7 @@ bool compile_load_field(sCLNode* node, sCompileInfo* info)
     int sum = 0;
     sCLClass* it = klass->mParent;
     while(it) {
-        sum += klass->mFields.length();
+        sum += it->mFields.length();
         it = it->mParent;
     }
 

@@ -42,7 +42,7 @@ static cllong object_size(sCLClass* klass)
     int sum = 0;
     sCLClass* it = klass;
     while(it) {
-        sum += klass->mFields.length();
+        sum += it->mFields.length();
         it = it->mParent;
     }
     size += (unsigned int)sizeof(CLVALUE) * sum;

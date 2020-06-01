@@ -457,7 +457,11 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
                 skip_spaces_and_lf(&info);
             }
 
+
             append_field(klass, field_name, field_type);
+if(strcmp(klass.mName, "list_item") == 0 && strcmp(field_name, "item") == 0) {
+sleep(10);
+}
         }
         else if(strcmp(word, "def") == 0) {
             info.vtables = borrow new vector<sVarTable*%>.initialize();

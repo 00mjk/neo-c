@@ -371,7 +371,6 @@ static void delete_all_object(sVMInfo* info)
 
 void gc(sVMInfo* info)
 {
-//puts("gc");
     if(!info->in_finalize_method) {
         memset(gCLHeap.mMarkFlags, 0, sizeof(unsigned char)*gCLHeap.mSizeHandles);
 
