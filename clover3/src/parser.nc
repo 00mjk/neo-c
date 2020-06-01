@@ -463,12 +463,18 @@ bool parse_lambda_expression(sCLNode** node, sParserInfo* info)
     expected_next_character('{', info);
 
     sCLNodeBlock* node_block = null;
+    var vtables_before = info->vtables;
+    info.vtables = borrow new vector<sVarTable*%>.initialize();
     int max_var_num = info.max_var_num;
     if(!parse_block(&node_block, num_params, params, info)) {
+        delete info.vtables;
+        info.vtables = vtables_before;
         info.max_var_num = max_var_num;
         return false;
     }
     info.max_var_num = max_var_num;
+    delete info.vtables;
+    info.vtables = vtables_before;
 
     expected_next_character('}', info);
 
@@ -477,7 +483,7 @@ bool parse_lambda_expression(sCLNode** node, sParserInfo* info)
     return true;
 }
 
-static bool get_block_text(buffer* buf, sParserInfo* info)
+static bool get_block_text(buffer* buf, char begin, char end, sParserInfo* info)
 {
     bool dquort = false;
     int nest = 0;
@@ -512,13 +518,13 @@ static bool get_block_text(buffer* buf, sParserInfo* info)
             buf.append_char(*info->p);
             info->p++;
         }
-        else if(*info->p == '{') {
+        else if(*info->p == begin) {
             buf.append_char(*info->p);
             info->p++;
 
             nest++;
         }
-        else if(*info->p == '}') {
+        else if(*info->p == end) {
             buf.append_char(*info->p);
             info->p++;
 
@@ -592,7 +598,7 @@ bool parse_class(sCLNode** node, sParserInfo* info)
 
     expected_next_character('{', info);
 
-    if(!get_block_text(block_text, info)) {
+    if(!get_block_text(block_text, '{', '}', info)) {
         return false;
     };
 
@@ -608,7 +614,7 @@ bool parse_macro(sCLNode** node, sParserInfo* info)
     expected_next_character('{', info);
 
     var block_text = new buffer.initialize();
-    if(!get_block_text(block_text, info)) {
+    if(!get_block_text(block_text, '{', '}', info)) {
         return false;
     };
 
@@ -658,7 +664,7 @@ bool parse_calling_params(int* num_params, sCLNode** params, sParserInfo* info)
         expected_next_character('{', info);
 
         var block_text = new buffer.initialize();
-        if(!get_block_text(block_text, info)) {
+        if(!get_block_text(block_text, '{', '}', info)) {
             return false;
         }
 
@@ -1016,11 +1022,11 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 *node = sNodeTree_create_method_call(name, num_params, params, info);
             }
         }
-        else if(*info->p == '!' && *(info->p+1) == '{') {
+        else if(*info->p == '!' && *(info->p+1) == '(') {
             info->p+=2;
 
             var block_text = new buffer.initialize();
-            if(!get_block_text(block_text, info)) {
+            if(!get_block_text(block_text, '(', ')', info)) {
                 return false;
             };
 
@@ -1234,10 +1240,19 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
     else if(*info->p == '{') {
         expected_next_character('{', info);
 
+        var vtables_before = info->vtables;
+        info.vtables = borrow new vector<sVarTable*%>.initialize();
+        int max_var_num = info.max_var_num;
         sCLNodeBlock* node_block = null;
         if(!parse_block(&node_block, 0, NULL, info)) {
+            info.max_var_num = max_var_num;
+            delete info.vtables;
+            info.vtables = vtables_before;
             return false;
         }
+        info.max_var_num = max_var_num;
+        delete info.vtables;
+        info.vtables = vtables_before;
 
         expected_next_character('}', info);
 

@@ -83,13 +83,6 @@ struct sCLType {
     int mVarNum;
 };
 
-/*
-impl sCLType
-{
-    sCLType*% clone(sCLType* self);
-}
-*/
-
 typedef bool (*fNativeMethod)(CLVALUE** stack_ptr, sVMInfo* info);
 
 struct sCLMethod {
@@ -177,10 +170,6 @@ struct sCLNode {
             sCLNodeBlock* mNodeBlock;
             sCLNodeBlock* mNodeBlock2;
         } uTry;
-
-        struct {
-            sCLNodeBlock* mNodeBlock;
-        } uNormalBlock;
     } uValue;
     
     string mClassName;
@@ -304,7 +293,7 @@ string create_type_name(sCLType* type);
 bool type_identify(sCLType* left_type, sCLType* right_type);
 bool substitution_posibility(sCLType* left_type, sCLType* right_type);
 bool type_identify_with_class_name(sCLType* left_type, char* right_class, sParserInfo* info);
-bool is_generics_type(sCLType* type, sParserInfo* info);
+bool is_generics_type(sCLType* type);
 int get_generics_type_number(sCLType* type, sParserInfo* info);
 sCLType* solve_generics(sCLType* node_type, sCLType* generics_type, sParserInfo* info);
 void show_type(sCLType* type);
@@ -396,7 +385,7 @@ struct sVMInfo {
 };
 
 void vm_err_msg(CLVALUE** stack_ptr, sVMInfo* info, char* msg);
-bool vm(buffer* codes, int vm_head_params, int vm_num_params, int vm_var_num, int vm_parent_stack_frame_index, bool vm_enable_parent_stack, int vm_block_head_params, CLVALUE* result, sVMInfo* info);
+bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, CLVALUE* result, sVMInfo* info);
 CLObject alloc_heap_mem(unsigned int size, sCLType* type, int field_num, sVMInfo* info);
 void heap_init(int heap_size, int size_handles);
 void heap_final(sVMInfo* info);
@@ -430,9 +419,6 @@ struct sCLBlock {
     
     int* codes;
     int codes_len;
-    int head_params;
-    int stack_frame_index;
-    int var_num;
 };
 
 struct sCLCommand {
@@ -485,7 +471,7 @@ CLObject create_string_object(char* str, sVMInfo* info);
 char* get_string_mem(CLObject obj);
 CLObject create_string_data_object(char* str, sVMInfo* info);
 CLObject create_bool_object(int value, sVMInfo* info);
-CLObject create_block_object(char* type_name, int* codes, int codes_len, int head_params , int var_num, int stack_frame_index, sVMInfo* info);
+CLObject create_block_object(char* type_name, int* codes, int codes_len, sVMInfo* info);
 CLObject create_command_object(char* output, int output_len, char* err_output, int err_output_len, int rcode, sVMInfo* info);
 CLObject create_job_object(char* title, termios* tinfo, pid_t pgrp, sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info);

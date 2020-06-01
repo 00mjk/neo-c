@@ -1,40 +1,6 @@
 #include "common.h"
 #include <assert.h>
 
-/*
-impl sCLType
-{
-    sCLType*% clone(sCLType* self)
-    {
-        sCLType*% result = new sCLType;
-
-        result.mName = clone self.mName;
-
-        result.mClass = self.mClass;
-
-        result.mNumGenericsTypes = self.mNumGenericsTypes;
-
-        for(int i=0; i<self.mNumGenericsTypes; i++) {
-            result.mGenericsTypes[i] = self.mGenericsTypes[i];
-        }
-
-        result.mNullable = self.mNullable;
-
-        result.mNumParams = self.mNumParams;
-
-        for(int i=0; i<self.mNumParams; i++) {
-            result.mParams[i] = self.mParams[i];
-        }
-
-        result.mResultType = self.mResultType;
-
-        result.mVarNum = self.mVarNum;
-
-        return result;
-    }
-}
-*/
-
 sCLType* parse_type_runtime(char* type_name, sVMInfo* info)
 {
     char* p_before = info.cinfo.pinfo.p;
@@ -212,6 +178,9 @@ bool substitution_posibility(sCLType* left_type, sCLType* right_type)
     {
         return true;
     }
+    else if(is_generics_type(left_type)) {
+        return true;
+    }
 
     return type_identify(left_type, right_type);
 }
@@ -242,12 +211,14 @@ void show_type(sCLType* type)
     puts("");
 }
 
-bool is_generics_type(sCLType* type, sParserInfo* info)
+bool is_generics_type(sCLType* type)
 {
     for(int i= 0; i<GENERICS_TYPES_MAX; i++) {
         char*% generics_type_name = xsprintf("generics_type%d", i);
 
-        if(type_identify_with_class_name(type, generics_type_name, info)) {
+        sCLClass* generics_class = gClasses.at(generics_type_name, null);
+
+        if(type->mClass == generics_class) {
             return true;
         }
     }

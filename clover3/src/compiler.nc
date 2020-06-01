@@ -188,7 +188,7 @@ bool compile_script(char* fname, buffer* source)
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     
     CLVALUE result;
-    if(!vm(cinfo.codes, 0, 0, var_num, -1, false, 0, &result, &vminfo)) {
+    if(!vm(cinfo.codes, NULL, 0, var_num, &result, &vminfo)) {
         fprintf(stderr, "VM error.\n");
         CLObject obj = vminfo.thrown_object.mObjectValue;
         if(obj) {

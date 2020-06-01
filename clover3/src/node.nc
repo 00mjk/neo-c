@@ -98,7 +98,7 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
     sCLType* generics_types = info.type;
 
     if(type_identify_with_class_name(info.type, "any", info.pinfo)
-        || is_generics_type(info.type, info.pinfo))
+        || is_generics_type(info.type))
     {
         sCLClass* klass = info.type.mClass;
 
@@ -1619,8 +1619,6 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
 
         info.codes.alignment();
 
-        info.codes.append_int(node_block->head_params);
-        info.codes.append_int(node_block->mVarNum);
         info.codes.append_int(node_block->codes.len);
         info.codes.append(node_block->codes.buf, node_block->codes.len);
     }
@@ -1784,7 +1782,7 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
     }
 
     if(type_identify_with_class_name(info.type, "any", info.pinfo)
-        || is_generics_type(info.type, info.pinfo))
+        || is_generics_type(info.type))
     {
         for(int i=1; i<num_params; i++) {
             if(!compile(params[i], info)) {
@@ -1848,14 +1846,20 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
 
                 sCLNodeBlock* node_block = null;
                 int max_var_num = info->pinfo.max_var_num;
+                var vtables_before = info->pinfo->vtables;
+                info.pinfo.vtables = borrow new vector<sVarTable*%>.initialize();
                 if(!parse_block(&node_block, method_param_type->mNumParams, method_param_type->mParams, info->pinfo))
                 {
                     info->pinfo.max_var_num = max_var_num;
                     info->pinfo->p = p_before;
                     info->pinfo->sline = sline_before;
+                    delete info.pinfo.vtables;
+                    info.pinfo.vtables = vtables_before;
                     return false;
                 }
 
+                delete info.pinfo.vtables;
+                info.pinfo.vtables = vtables_before;
                 info->pinfo.max_var_num = max_var_num;
                 info->pinfo->p = p_before;
                 info->pinfo->sline = sline_before;
@@ -2079,22 +2083,19 @@ bool compile_block_object_call(sCLNode* node, sCompileInfo* info)
     }
 
     /// go ///
+    bool result_existance = !type_identify_with_class_name(block_type->mResultType, "void", info.pinfo);
+
     if(!info.no_output) {
         info.codes.append_int(OP_INVOKE_BLOCK_OBJECT);
 
         info.codes.append_int(block_type->mVarNum);
-        info.codes.append_int(num_params);
+        info.codes.append_int(num_params-1);
 
-        bool result_existance = !type_identify_with_class_name(block_type->mResultType, "void", info.pinfo);
         info.codes.append_int(result_existance);
     }
 
     info.stack_num -= num_params;
-
-    if(!type_identify_with_class_name(block_type->mResultType, "void", info.pinfo))
-    {
-        info.stack_num++;
-    }
+    info.stack_num++;
 
     info.type = block_type->mResultType;
 
@@ -2593,6 +2594,9 @@ static bool compile_logical_denial(sCLNode* node, sCompileInfo* info)
 
 sCLNode* sNodeTree_create_normal_block(sCLNodeBlock* node_block, sParserInfo* info)
 {
+    sCLType* block_type = create_type("any", info);
+    sCLNode* left_node = sNodeTree_create_lambda(0, NULL, node_block, block_type, info);
+
     sCLNode* result = alloc_node(info);
     
     result.type = kNodeTypeNormalBlock;
@@ -2600,9 +2604,8 @@ sCLNode* sNodeTree_create_normal_block(sCLNodeBlock* node_block, sParserInfo* in
     xstrncpy(result.sname, info.sname, PATH_MAX);
     result.sline = info.sline;
 
-    result.uValue.uNormalBlock.mNodeBlock = node_block;
+    result.left = left_node;
 
-    result.left = null;
     result.right = null;
     result.middle = null;
 
@@ -2611,11 +2614,32 @@ sCLNode* sNodeTree_create_normal_block(sCLNodeBlock* node_block, sParserInfo* in
 
 static bool compile_normal_block(sCLNode* node, sCompileInfo* info)
 {
-    sCLNodeBlock* node_block = node.uValue.uNormalBlock.mNodeBlock;
+    sCLNode* left_node = node.left;
 
-    if(!compile_block(node_block, info)) {
+    if(!compile(left_node, info)) {
         return false;
     }
+
+    sCLType* block_type = info.type;
+
+    int num_params = 1;
+
+    /// go ///
+    bool result_existance = !type_identify_with_class_name(block_type->mResultType, "void", info.pinfo);
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_INVOKE_BLOCK_OBJECT);
+
+        info.codes.append_int(block_type->mVarNum);
+        info.codes.append_int(num_params-1);
+
+        info.codes.append_int(result_existance);
+    }
+
+    info.stack_num -= num_params;
+    info.stack_num++;
+
+    info.type = block_type->mResultType;
 
     return true;
 }
