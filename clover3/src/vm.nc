@@ -682,8 +682,8 @@ void ready_for_vm_stack(CLVALUE* stack, CLVALUE* parent_stack_ptr, int num_param
 
 bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, CLVALUE* result, sVMInfo* info)
 {
-    sCLStackFrame null_paret_stack_frame;
-    memset(&null_paret_stack_frame, 0, sizeof(sCLStackFrame));
+    sCLStackFrame null_parent_stack_frame;
+    memset(&null_parent_stack_frame, 0, sizeof(sCLStackFrame));
 
     CLVALUE stack[VM_STACK_MAX];
     sCLStackFrame stack_frame;
@@ -713,7 +713,7 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
         p++;
         
         switch(op) {
-print_op(op);
+//print_op(op);
             case OP_POP: {
                 stack_ptr--;
                 }
@@ -783,6 +783,7 @@ print_op(op);
 
                 if(type == null) {
                     vm_err_msg(&stack_ptr, info, xsprintf("class not found(%s)\n", type_name));
+                    info.stack_frames.pop_back(null_parent_stack_frame);
                     return false;
                 }
 
@@ -1112,6 +1113,7 @@ print_op(op);
 
                 if(klass == null) {
                     vm_err_msg(&stack_ptr, info, xsprintf("class not found(%s)\n", klass->mName));
+                    info.stack_frames.pop_back(null_parent_stack_frame);
                     return false;
                 }
                 
@@ -1129,6 +1131,7 @@ print_op(op);
 
                 if(method == null) {
                     vm_err_msg(&stack_ptr, info, xsprintf("method not found(%s.%s)\n", klass_name, method_name));
+                    info.stack_frames.pop_back(null_parent_stack_frame);
                     return false;
                 }
 
@@ -1138,6 +1141,7 @@ print_op(op);
                 if(!param_check(method->mParams, method->mNumParams, stack_ptr, generics_types, info))
                 {
                     vm_err_msg(&stack_ptr, info, xsprintf("method parametor is invalid(%s.%s)\n", klass->mName, method_name));
+                    info.stack_frames.pop_back(null_parent_stack_frame);
                     return false;
                 }
 
@@ -1145,6 +1149,7 @@ print_op(op);
                     if(!invoke_native_method(klass, method, &stack_ptr, info)) 
                     {
                         vm_err_msg(&stack_ptr, info, xsprintf("native method error(%s.%s)\n", klass->mName, method_name));
+                        info.stack_frames.pop_back(null_parent_stack_frame);
                         return false;
                     }
 
@@ -1170,6 +1175,7 @@ print_op(op);
 
                     CLVALUE result;
                     if(!vm(codes, stack_ptr, num_params, var_num, &result, info)) {
+                        info.stack_frames.pop_back(null_parent_stack_frame);
                         return false;
                     }
 
@@ -1215,6 +1221,7 @@ print_op(op);
 
                 CLVALUE result;
                 if(!vm(buffer, stack_ptr, num_params, var_num, &result, info)) {
+                    info.stack_frames.pop_back(null_parent_stack_frame);
                     return false;
                 }
 
@@ -1274,6 +1281,7 @@ print_op(op);
                     if(!substitution_posibility(string_type, object_data->mType))
                     {
                         vm_err_msg(&stack_ptr, info, "type error command parametor");
+                        info.stack_frames.pop_back(null_parent_stack_frame);
                         return false;
                     }
 
@@ -1286,6 +1294,7 @@ print_op(op);
                         if(!invoke_command_with_control_terminal(command_name, argv, num_params, &stack_ptr, info))
                         {
                             vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", command_name));
+                            info.stack_frames.pop_back(null_parent_stack_frame);
                             return false;
                         }
                     }
@@ -1293,6 +1302,7 @@ print_op(op);
                         if(!invoke_command(command_name, argv, &stack_ptr, num_params, info))
                         {
                             vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", command_name));
+                            info.stack_frames.pop_back(null_parent_stack_frame);
                             return false;
                         }
                     }
@@ -1302,6 +1312,8 @@ print_op(op);
                         if(!invoke_command_with_control_terminal_and_pipe(parent_obj, command_name, argv, num_params, &stack_ptr, info))
                         {
                             vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", command_name));
+                            info.stack_frames.pop_back(null_parent_stack_frame);
+                            info.stack_frames.pop_back(null_parent_stack_frame);
                             return false;
                         }
                     }
@@ -1309,6 +1321,7 @@ print_op(op);
                         if(!invoke_command_with_pipe(parent_obj, command_name, argv, &stack_ptr, num_params, info))
                         {
                             vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", command_name));
+                            info.stack_frames.pop_back(null_parent_stack_frame);
                             return false;
                         }
                     }
@@ -1327,6 +1340,7 @@ print_op(op);
 
                 if(!forgroud_job(job_num, info)) {
                     vm_err_msg(&stack_ptr, info, "fg error");
+                    info.stack_frames.pop_back(null_parent_stack_frame);
                     return false;
                 }
                 }
@@ -1419,6 +1433,7 @@ print_op(op);
                     CLVALUE result_obj;
                     if(!vm(catch_codes, stack_ptr, num_params, var_num, &result_obj, info))
                     {
+                        info.stack_frames.pop_back(null_parent_stack_frame);
                         return false;
                     }
                 }
@@ -1432,20 +1447,24 @@ print_op(op);
                 *result = *(stack_ptr-1);
     
                 }
+                info.stack_frames.pop_back(null_parent_stack_frame);
                 return true;
 
             case OP_THROW: 
                 info->thrown_object = *(stack_ptr-1);
                 stack_ptr--;
 
+                info.stack_frames.pop_back(null_parent_stack_frame);
                 return false;
                 break;
         }
-puts("end");
-print_stack(stack, stack_ptr, var_num);
+//puts("end");
+//print_stack(stack, stack_ptr, var_num);
     };
 
     *result = *(stack_ptr-1);
+
+    info.stack_frames.pop_back(null_parent_stack_frame);
 
     return true;
 }

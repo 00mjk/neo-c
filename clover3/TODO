@@ -6,6 +6,8 @@ list, buffer, map, tuple
 
 メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
 
+classの保存
+
 親クラスのメソッド呼び出し。super
 
 INVOKE_BLOCK_OBJECTの実行時の型チェック
