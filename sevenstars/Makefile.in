@@ -7,9 +7,9 @@ bindir=@bindir@
 datadir=@datadir@
 mandir=@mandir@
 sharedstatedir=@sharedstatedir@
-sysconfdir=@sysconfdir@/sevenstar
-includedir=@includedir@/sevenstar
-datarootdir=@datarootdir@/sevenstar
+sysconfdir=@sysconfdir@/sevenstars
+includedir=@includedir@/sevenstars
+datarootdir=@datarootdir@/sevenstars
 docdir=@datadir@/doc
 libdir=@libdir@
 
@@ -30,11 +30,11 @@ COMPILER_OBJS=@COMPILER_OBJS@
 ##########################################################
 # main
 ##########################################################
-all: sevenstar
+all: sevenstars
 #	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
-sevenstar: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
-	$(CC) -o sevenstar src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
+sevenstars: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
+	$(CC) -o sevenstars src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
 
 ##########################################################
 # objects
@@ -76,16 +76,16 @@ src/macro.o: config.h src/*.h Makefile configure src/macro.nc
 # install
 #########################################################
 install:
-	mkdir -p $(DESTDIR)/share/sevenstar
+	mkdir -p $(DESTDIR)/share/sevenstars
 
 	mkdir -p "$(DESTDIR)/bin"
-	$(INSTALL) -m 755 ./sevenstar "$(DESTDIR)/bin"
+	$(INSTALL) -m 755 ./sevenstars "$(DESTDIR)/bin"
 
 #########################################################
 # uninstall
 #########################################################
 uninstall:
-	rm -f "$(DESTDIR)"/bin/sevenstar
+	rm -f "$(DESTDIR)"/bin/sevenstars
 
 #########################################################
 # permission
@@ -101,7 +101,7 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR sevenstar sevenstar.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.out
+	rm -fR sevenstars sevenstar.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.out
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache
@@ -111,7 +111,7 @@ distclean: clean
 ########################################################
 test: 
 	@echo "Compile to test code..."
-	./sevenstar code/HelloWorld.ss
+	./sevenstars code/HelloWorld.ss
 
 
 
