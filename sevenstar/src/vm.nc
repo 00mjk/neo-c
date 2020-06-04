@@ -212,10 +212,6 @@ void print_op(int op)
             puts("OP_INVOKE_BLOCK_OBJECT");
             break;
 
-        case OP_INVOKE_COMMAND:
-            puts("OP_INVOKE_COMMAND");
-            break;
-
         case OP_STORE_FIELD: 
             puts("OP_STORE_FIELD");
             break;
@@ -226,6 +222,10 @@ void print_op(int op)
 
         case OP_NULL_VALUE: 
             puts("OP_NULL_VALUE");
+            break;
+
+        case OP_COMMAND_VALUE: 
+            puts("OP_COMMAND_VALUE");
             break;
 
         case OP_LOGICAL_DENIAL:
@@ -289,9 +289,9 @@ bool invoke_command_with_control_terminal(char* name, char** argv, int num_param
 
         int rcode2 = WEXITSTATUS(status);
 
-        (*stack_ptr) -= num_params + 1;
+        (*stack_ptr) -= num_params;
 
-        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode2, info);
+        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode2, false, info);
         (*stack_ptr)++;
     }
     else {
@@ -300,9 +300,9 @@ bool invoke_command_with_control_terminal(char* name, char** argv, int num_param
 
         int rcode = WEXITSTATUS(status);
 
-        (*stack_ptr) -= num_params + 1;
+        (*stack_ptr) -= num_params;
 
-        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode, info);
+        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode, false, info);
         (*stack_ptr)++;
     }
 
@@ -387,11 +387,11 @@ bool invoke_command(char* name, char** argv, CLVALUE** stack_ptr, int num_params
         return false;
     }
 
-    (*stack_ptr) -= num_params + 1;
+    (*stack_ptr) -= num_params;
 
     int rcode = WEXITSTATUS(status);
 
-    (*stack_ptr)->mObjectValue = create_command_object(child_output.buf, child_output.len, child_output_error.buf, child_output_error.len, rcode, info);
+    (*stack_ptr)->mObjectValue = create_command_object(child_output.buf, child_output.len, child_output_error.buf, child_output_error.len, rcode, false, info);
     (*stack_ptr)++;
 
     return true;
@@ -439,7 +439,7 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
 
     close(parent2child_read_fd);
     
-    CLObject obj = (*stack_ptr-num_params-1)->mObjectValue;
+    CLObject obj = (*stack_ptr-num_params)->mObjectValue;
     sCLCommand* command_data = CLCOMMAND(obj);
 
     if(write(parent2child_write_fd, command_data->mOutput, command_data->mOutputLen) < 0) {
@@ -478,9 +478,9 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
 
         int rcode2 = WEXITSTATUS(status);
 
-        (*stack_ptr) -= num_params + 1;
+        (*stack_ptr) -= num_params;
 
-        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode2, info);
+        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode2, false, info);
         (*stack_ptr)++;
     }
     else {
@@ -489,9 +489,9 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
 
         int rcode = WEXITSTATUS(status);
 
-        (*stack_ptr) -= num_params + 1;
+        (*stack_ptr) -= num_params;
 
-        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode, info);
+        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode, false, info);
         (*stack_ptr)++;
     }
 
@@ -545,7 +545,7 @@ bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVA
     close(child2parent_write_fd);
     close(child2parent_write_fd_err);
 
-    CLObject obj = (*stack_ptr-num_params-1)->mObjectValue;
+    CLObject obj = (*stack_ptr-num_params)->mObjectValue;
     sCLCommand* command_data = CLCOMMAND(obj);
 
     if(write(parent2child_write_fd, command_data->mOutput, command_data->mOutputLen) < 0) {
@@ -583,10 +583,10 @@ bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVA
         return false;
     }
 
-    (*stack_ptr) -= num_params + 1;
+    (*stack_ptr) -= num_params;
 
     int rcode = WEXITSTATUS(status);
-    (*stack_ptr)->mObjectValue = create_command_object(child_output.buf, child_output.len, child_output_error.buf, child_output_error.len, rcode, info);
+    (*stack_ptr)->mObjectValue = create_command_object(child_output.buf, child_output.len, child_output_error.buf, child_output_error.len, rcode, false, info);
     (*stack_ptr)++;
 
     return true;
@@ -676,7 +676,10 @@ bool param_check(sCLParam* method_params, int num_params, CLVALUE* stack_ptr, sC
 void ready_for_vm_stack(CLVALUE* stack, CLVALUE* parent_stack_ptr, int num_params, int var_num, sVMInfo* info)
 {
     if(num_params > 0) {
-        memcpy(stack, parent_stack_ptr - num_params, sizeof(CLVALUE)*num_params);
+        for(int i=0; i<num_params; i++) {
+            stack[i] = parent_stack_ptr[i-num_params];
+        }
+//        memcpy(stack, parent_stack_ptr - num_params, sizeof(CLVALUE)*num_params);
     }
 }
 
@@ -742,6 +745,14 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
 
             case OP_NULL_VALUE: {
                 CLObject obj = create_null_object(info);
+                stack_ptr.mObjectValue = obj;
+                
+                stack_ptr++;
+                }
+                break;
+
+            case OP_COMMAND_VALUE: {
+                CLObject obj = create_command_object("", 1, "", 1, 0, true, info);
                 stack_ptr.mObjectValue = obj;
                 
                 stack_ptr++;
@@ -1102,93 +1113,162 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 int num_params = *p;
                 p++;
 
+                int last_method_chain = *p;
+                p++;
+
                 CLObject obj = (stack_ptr-num_params)->mObjectValue;
 
                 sCLObject* object_data = CLOBJECT(obj);
                 sCLType* generics_types = object_data->mType;
 
                 sCLClass* klass = object_data->mType->mClass;
-
-                char* klass_name = klass->mName;
-
                 if(klass == null) {
                     vm_err_msg(&stack_ptr, info, xsprintf("class not found(%s)\n", klass->mName));
                     info.stack_frames.pop_back(null_parent_stack_frame);
                     return false;
                 }
-                
 
-                sCLMethod* method = null;
-                while(klass) {
-                    method = klass.mMethods.at(method_name, null);
-
-                    if(method) {
-                        break;
-                    }
-
-                    klass = klass->mParent;
-                }
-
-                if(method == null) {
-                    vm_err_msg(&stack_ptr, info, xsprintf("method not found(%s.%s)\n", klass_name, method_name));
-                    info.stack_frames.pop_back(null_parent_stack_frame);
-                    return false;
-                }
-
-                int var_num = method.mMaxVarNum;
-//print_method(klass, method, num_params, var_num);
-
-                if(!param_check(method->mParams, method->mNumParams, stack_ptr, generics_types, info))
+                char* klass_name = klass->mName;
+                if(strcmp(klass_name, "command") == 0)
                 {
-                    vm_err_msg(&stack_ptr, info, xsprintf("method parametor is invalid(%s.%s)\n", klass->mName, method_name));
-                    info.stack_frames.pop_back(null_parent_stack_frame);
-                    return false;
-                }
+                    CLObject parent_obj = obj;
 
-                if(method.mByteCodes == null) {
-                    if(!invoke_native_method(klass, method, &stack_ptr, info)) 
-                    {
-                        vm_err_msg(&stack_ptr, info, xsprintf("native method error(%s.%s)\n", klass->mName, method_name));
-                        info.stack_frames.pop_back(null_parent_stack_frame);
-                        return false;
+                    sCLCommand* command_obj = CLCOMMAND(parent_obj);
+
+                    bool first_method_chain = command_obj->mFirstCommand;
+
+                    char* argv[PARAMS_MAX];
+
+                    argv[0] = method_name;
+
+                    for(int i=1; i<num_params; i++) {
+                        CLObject obj = (stack_ptr-num_params+i)->mObjectValue;
+
+                        sCLObject* object_data = CLOBJECT(obj);
+
+                        sCLType* string_type = create_type("string", info.cinfo.pinfo);
+                        if(!substitution_posibility(string_type, object_data->mType))
+                        {
+                            vm_err_msg(&stack_ptr, info, "type error command parametor");
+                            info.stack_frames.pop_back(null_parent_stack_frame);
+                            return false;
+                        }
+
+                        argv[i] = get_string_mem(obj);
                     }
+                    argv[num_params] = null;
 
-                    CLVALUE result_value = *(stack_ptr-1);
-
-                    stack_ptr -= num_params;
-                    bool result_existance = !type_identify_with_class_name(method->mResultType, "void", info.pinfo);
-
-                    if(result_existance) {
-                        stack_ptr--;
-                        *stack_ptr = result_value;
-                        stack_ptr++;
+                    if(first_method_chain) {
+                        if(last_method_chain) {
+                            if(!invoke_command_with_control_terminal(method_name, argv, num_params, &stack_ptr, info))
+                            {
+                                vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", method_name));
+                                info.stack_frames.pop_back(null_parent_stack_frame);
+                                return false;
+                            }
+                        }
+                        else {
+                            if(!invoke_command(method_name, argv, &stack_ptr, num_params, info))
+                            {
+                                vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", method_name));
+                                info.stack_frames.pop_back(null_parent_stack_frame);
+                                return false;
+                            }
+                        }
                     }
                     else {
-                        (*stack_ptr).mObjectValue = create_null_object(info);
-                        stack_ptr++;
+                        if(last_method_chain) {
+                            if(!invoke_command_with_control_terminal_and_pipe(parent_obj, method_name, argv, num_params, &stack_ptr, info))
+                            {
+                                vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", method_name));
+                                info.stack_frames.pop_back(null_parent_stack_frame);
+                                info.stack_frames.pop_back(null_parent_stack_frame);
+                                return false;
+                            }
+                        }
+                        else {
+                            if(!invoke_command_with_pipe(parent_obj, method_name, argv, &stack_ptr, num_params, info))
+                            {
+                                vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", method_name));
+                                info.stack_frames.pop_back(null_parent_stack_frame);
+                                return false;
+                            }
+                        }
                     }
                 }
                 else {
-                    buffer* codes = method.mByteCodes;
+                    sCLMethod* method = null;
+                    while(klass) {
+                        method = klass.mMethods.at(method_name, null);
 
-                    int var_num = method.mMaxVarNum;
+                        if(method) {
+                            break;
+                        }
 
-                    CLVALUE result;
-                    if(!vm(codes, stack_ptr, num_params, var_num, &result, info)) {
+                        klass = klass->mParent;
+                    }
+
+                    if(method == null) {
+                        vm_err_msg(&stack_ptr, info, xsprintf("method not found(%s.%s)\n", klass_name, method_name));
                         info.stack_frames.pop_back(null_parent_stack_frame);
                         return false;
                     }
 
-                    stack_ptr -= num_params;
-                    bool result_existance = !type_identify_with_class_name(method->mResultType, "void", info.pinfo);
+                    int var_num = method.mMaxVarNum;
+//print_method(klass, method, num_params, var_num);
 
-                    if(result_existance) {
-                        *stack_ptr = result;
-                        stack_ptr++;
+                    if(!param_check(method->mParams, method->mNumParams, stack_ptr, generics_types, info))
+                    {
+                        vm_err_msg(&stack_ptr, info, xsprintf("method parametor is invalid(%s.%s)\n", klass->mName, method_name));
+                        info.stack_frames.pop_back(null_parent_stack_frame);
+                        return false;
+                    }
+
+                    if(method.mByteCodes == null) {
+                        if(!invoke_native_method(klass, method, &stack_ptr, info)) 
+                        {
+                            vm_err_msg(&stack_ptr, info, xsprintf("native method error(%s.%s)\n", klass->mName, method_name));
+                            info.stack_frames.pop_back(null_parent_stack_frame);
+                            return false;
+                        }
+
+                        CLVALUE result_value = *(stack_ptr-1);
+
+                        stack_ptr -= num_params;
+                        bool result_existance = !type_identify_with_class_name(method->mResultType, "void", info.pinfo);
+
+                        if(result_existance) {
+                            stack_ptr--;
+                            *stack_ptr = result_value;
+                            stack_ptr++;
+                        }
+                        else {
+                            (*stack_ptr).mObjectValue = create_null_object(info);
+                            stack_ptr++;
+                        }
                     }
                     else {
-                        (*stack_ptr).mObjectValue = create_null_object(info);
-                        stack_ptr++;
+                        buffer* codes = method.mByteCodes;
+
+                        int var_num = method.mMaxVarNum;
+
+                        CLVALUE result;
+                        if(!vm(codes, stack_ptr, num_params, var_num, &result, info)) {
+                            info.stack_frames.pop_back(null_parent_stack_frame);
+                            return false;
+                        }
+
+                        stack_ptr -= num_params;
+                        bool result_existance = !type_identify_with_class_name(method->mResultType, "void", info.pinfo);
+
+                        if(result_existance) {
+                            *stack_ptr = result;
+                            stack_ptr++;
+                        }
+                        else {
+                            (*stack_ptr).mObjectValue = create_null_object(info);
+                            stack_ptr++;
+                        }
                     }
                 }
 //print_method_end(klass, method, *(stack_ptr-1));
@@ -1240,95 +1320,6 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 }
                 break;
                 
-            case OP_INVOKE_COMMAND: { 
-                char* command_name = (char*)p;
-
-                int len = strlen(command_name) + 1;
-
-                alignment(&len);
-
-                len = len / sizeof(int);
-
-                p += len;
-
-                int num_params = *p;
-                p++;
-
-                int last_method_chain = *p;
-                p++;
-
-                CLObject parent_obj = (stack_ptr-num_params-1)->mObjectValue;
-
-
-                bool first_method_chain;
-                if(parent_obj == 0) {
-                    first_method_chain = true;
-                }
-                else {
-                    first_method_chain = false;
-                }
-
-                char* argv[PARAMS_MAX];
-
-                argv[0] = command_name;
-
-                for(int i=0; i<num_params; i++) {
-                    CLObject obj = (stack_ptr-num_params+i)->mObjectValue;
-
-                    sCLObject* object_data = CLOBJECT(obj);
-
-                    sCLType* string_type = create_type("string", info.cinfo.pinfo);
-                    if(!substitution_posibility(string_type, object_data->mType))
-                    {
-                        vm_err_msg(&stack_ptr, info, "type error command parametor");
-                        info.stack_frames.pop_back(null_parent_stack_frame);
-                        return false;
-                    }
-
-                    argv[i+1] = get_string_mem(obj);
-                }
-                argv[num_params+1] = null;
-
-                if(first_method_chain) {
-                    if(last_method_chain) {
-                        if(!invoke_command_with_control_terminal(command_name, argv, num_params, &stack_ptr, info))
-                        {
-                            vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", command_name));
-                            info.stack_frames.pop_back(null_parent_stack_frame);
-                            return false;
-                        }
-                    }
-                    else {
-                        if(!invoke_command(command_name, argv, &stack_ptr, num_params, info))
-                        {
-                            vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", command_name));
-                            info.stack_frames.pop_back(null_parent_stack_frame);
-                            return false;
-                        }
-                    }
-                }
-                else {
-                    if(last_method_chain) {
-                        if(!invoke_command_with_control_terminal_and_pipe(parent_obj, command_name, argv, num_params, &stack_ptr, info))
-                        {
-                            vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", command_name));
-                            info.stack_frames.pop_back(null_parent_stack_frame);
-                            info.stack_frames.pop_back(null_parent_stack_frame);
-                            return false;
-                        }
-                    }
-                    else {
-                        if(!invoke_command_with_pipe(parent_obj, command_name, argv, &stack_ptr, num_params, info))
-                        {
-                            vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", command_name));
-                            info.stack_frames.pop_back(null_parent_stack_frame);
-                            return false;
-                        }
-                    }
-                }
-                }
-                break;
-
             case OP_JOBS: {
                 jobs(info);
                 }

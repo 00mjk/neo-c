@@ -190,7 +190,7 @@ CLObject create_string_data_object(char* str, sVMInfo* info)
     return obj;
 }
 
-CLObject create_command_object(char* output, int output_len, char* err_output, int err_output_len, int rcode, sVMInfo* info)
+CLObject create_command_object(char* output, int output_len, char* err_output, int err_output_len, int rcode, bool first_command, sVMInfo* info)
 {
     sCLType* command_type = create_type("command", info.cinfo.pinfo);
     
@@ -208,6 +208,7 @@ CLObject create_command_object(char* output, int output_len, char* err_output, i
     object_data.mErrOutputLen = err_output;
     memcpy(object_data.mOutput, output, output_len+1);
     memcpy(object_data.mOutput + output_len + 1, err_output, err_output_len+1);
+    object_data.mFirstCommand = first_command;
 
 
     object_data.mErrData = object_data.mOutput + output_len + 1;

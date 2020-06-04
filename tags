@@ -25,11 +25,11 @@ CLASS_FLAGS_UNION	src/common.h	85;"	d
 CLASS_FLAGS_UNSIGNED_NUMBER	src/common.h	82;"	d
 CLASS_NAME	src/common.h	109;"	d
 CLASS_NUM_MAX	src/common.h	22;"	d
-CLBLOCK	clover3/src/common.h	460;"	d
-CLCOMMAND	clover3/src/common.h	461;"	d
-CLINT	clover3/src/common.h	462;"	d
-CLJOB	clover3/src/common.h	463;"	d
-CLOBJECT	clover3/src/common.h	459;"	d
+CLBLOCK	clover3/src/common.h	461;"	d
+CLCOMMAND	clover3/src/common.h	462;"	d
+CLINT	clover3/src/common.h	463;"	d
+CLJOB	clover3/src/common.h	464;"	d
+CLOBJECT	clover3/src/common.h	460;"	d
 CLObject	clover3/src/common.h	/^typedef unsigned int CLObject;$/;"	t
 CLVALUE	clover3/src/common.h	/^union CLVALUE {$/;"	u
 COMMAND_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
@@ -44,7 +44,7 @@ CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --l
 DBuilder	src/llvm.cpp	/^DIBuilder* DBuilder;$/;"	v
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	clover3/Makefile	/^DESTDIR=\/usr\/local$/;"	m
-DUMMY_ARRAY_SIZE	clover3/src/common.h	400;"	d
+DUMMY_ARRAY_SIZE	clover3/src/common.h	401;"	d
 DblTy	src/llvm.cpp	/^    DIType* DblTy;$/;"	m	struct:DebugInfo	file:
 DebugInfo	src/llvm.cpp	/^struct DebugInfo {$/;"	s	file:
 ELIF_MAX	clover3/src/common.h	42;"	d

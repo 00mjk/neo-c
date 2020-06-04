@@ -1054,15 +1054,22 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 info->p++;
                 skip_spaces_and_lf(info);
 
-                int num_params = 0;
                 sCLNode* params[PARAMS_MAX];
+                if(*node == 0) {
+                    params[0] = sNodeTree_create_command_value(info);
+                }
+                else {
+                    params[0] = *node;
+                }
+
+                int num_params = 1;
 
                 if(!parse_calling_params(&num_params, params, info)) 
                 {
                     return false;
                 };
 
-                *node = sNodeTree_create_command_call(*node, word, num_params, params, info);
+                *node = sNodeTree_create_method_call(word, num_params, params, info);
             }
             else {
                 *node = sNodeTree_create_load_variable(word, info);

@@ -249,7 +249,7 @@ sCLType* solve_generics(sCLType* node_type, sCLType* generics_type, sParserInfo*
 
         return result;
     }
-    else {
+    else{
         sCLType* result = clone_type(node_type, info);
 
         for(int i=0; i<node_type->mNumGenericsTypes; i++) {

@@ -73,7 +73,21 @@ bool int_to_command(CLVALUE** stack_ptr, sVMInfo* info)
 
     snprintf(buf, 128, "%d", object_data->mValue);
 
-    CLObject obj = create_command_object(buf, strlen(buf), "", 0, 0, info);
+    CLObject obj = create_command_object(buf, strlen(buf), "", 0, 0, false, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
+bool string_to_command(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLVALUE* left = (*stack_ptr-1);
+
+    char* buf = get_string_mem(left->mObjectValue);
+    
+    CLObject obj = create_command_object(buf, strlen(buf), "", 0, 0, false, info);
 
     (*stack_ptr)->mObjectValue = obj;
     (*stack_ptr)++;
@@ -133,7 +147,7 @@ bool bool_to_command(CLVALUE** stack_ptr, sVMInfo* info)
         snprintf(buf, 128, "false");
     }
 
-    CLObject obj = create_command_object(buf, strlen(buf), "", 0, 0, info);
+    CLObject obj = create_command_object(buf, strlen(buf), "", 0, 0, false, info);
 
     (*stack_ptr)->mObjectValue = obj;
     (*stack_ptr)++;
@@ -281,18 +295,19 @@ void class_init()
 
     gNativeMethods = borrow new map<string, fNativeMethod>.initialize();
 
+    gNativeMethods.insert(string("object.type_name"), object_type_name);
+    gNativeMethods.insert(string("object.num_fields"), object_num_fields);
     gNativeMethods.insert(string("int.set_value"), int_set_value);
-    gNativeMethods.insert(string("string.set_value"), string_set_value);
-    gNativeMethods.insert(string("bool.set_value"), bool_set_value);
     gNativeMethods.insert(string("int.to_string"), int_to_string_);
     gNativeMethods.insert(string("int.to_command"), int_to_command);
     gNativeMethods.insert(string("bool.to_int"), bool_to_int);
     gNativeMethods.insert(string("bool.to_string"), bool_to_string);
     gNativeMethods.insert(string("bool.to_command"), bool_to_command);
+    gNativeMethods.insert(string("bool.set_value"), bool_set_value);
+    gNativeMethods.insert(string("string.set_value"), string_set_value);
     gNativeMethods.insert(string("string.equal"), string_equal);
     gNativeMethods.insert(string("string.not_equal"), string_not_equal);
-    gNativeMethods.insert(string("object.type_name"), object_type_name);
-    gNativeMethods.insert(string("object.num_fields"), object_num_fields);
+    gNativeMethods.insert(string("string.to_command"), string_to_command);
 
     gJobs = borrow new vector<CLObject>.initialize();
 }

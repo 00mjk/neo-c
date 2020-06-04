@@ -1,20 +1,17 @@
-macro
-normal block
+classの保存
+
+readline
 
 generics
 list, buffer, map, tuple
 
 メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
 
-classの保存
-
 親クラスのメソッド呼び出し。super
 
 INVOKE_BLOCK_OBJECTの実行時の型チェック
 
-vim("src/node.nc de jikkou
-
-READLINE
+vim("src/node.nc で実行
 
 --------------
 vm return false message
@@ -24,3 +21,6 @@ object equal
 object type_name
 string.libraries
 string.set_value オブジェクトを持つオブジェクトにstringを変更
+macro
+normal block
+

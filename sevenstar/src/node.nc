@@ -196,6 +196,9 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
         info.codes.alignment();
 
         info.codes.append_int(num_params);
+
+        bool last_method_chain = true;
+        info.codes.append_int(last_method_chain);
     }
 
     info.stack_num -= num_params;
@@ -1242,6 +1245,34 @@ static bool compile_null_value(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_command_value(sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeCommand;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_command(sCLNode* node, sCompileInfo* info)
+{
+    if(!info.no_output) {
+        info.codes.append_int(OP_COMMAND_VALUE);
+    }
+
+    info.type = create_type("command", info.pinfo);
+    info.stack_num++;
+    
+    return true;
+}
+
 sCLNode* sNodeTree_create_if_expression(sCLNode* if_expression, sCLNodeBlock* if_node_block, int num_elif, sCLNode** elif_expressions, sCLNodeBlock** elif_blocks, sCLNodeBlock* else_block, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
@@ -1602,7 +1633,12 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
     node_block->mResultType = result_type;
 
     info.type = create_type("lambda", info.pinfo);
-    info.type.mResultType = result_type;
+    if(!type_identify_with_class_name(result_type, "any", info.pinfo)) {
+        info.type.mResultType = result_type;
+    }
+    else {
+        info.type.mResultType = cinfo2.type;
+    }
     info.type.mNumParams = node_block->mNumParams;
     for(int i=0; i<node_block->mNumParams; i++) 
     {
@@ -1720,6 +1756,7 @@ sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** para
 bool compile_method_call(sCLNode* node, sCompileInfo* info)
 {
     char* method_name = node.mStringValue;
+    int last_method_chain = node.uValue.uMethodCall.mLastMethodChain;
 
     int num_params = node.uValue.uMethodCall.mNumParams;
     sCLNode* params[PARAMS_MAX];
@@ -1739,78 +1776,47 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
 
     sCLClass* klass = info.type.mClass;
 
-    if(klass == gClasses.at("command", null)) {
-        int last_method_chain = node.uValue.uMethodCall.mLastMethodChain;
+    char* klass_name = klass->mName;
 
-        sCLType* string_type = create_type("string", info.pinfo);
+    sCLMethod* method = null;
+    while(klass) {
+        method = klass.mMethods.at(method_name, null);
 
-        sCLType* param_types[PARAMS_MAX];
-        for(int i=1; i<num_params; i++) {
-            if(!compile(params[i], info)) {
-                return false;
-            }
-
-            param_types[i] = info.type;
-
-            if(!substitution_posibility(string_type, param_types[i])) 
-            {
-                compile_err_msg(info, xsprintf("command param error #%d. It is not string.", i));
-                return true;
-            }
+        if(method) {
+            break;
         }
 
-        /// go ///
-        if(!info.no_output) {
-            info.codes.append_int(OP_INVOKE_COMMAND);
-
-            info.codes.append_nullterminated_str(method_name);
-
-            info.codes.alignment();
-
-            info.codes.append_int(num_params-1);
-
-            info.codes.append_int(last_method_chain);
-        }
-
-        info.stack_num -= num_params;
-
-        info.stack_num++;
-
-        info->type = create_type("command", info.pinfo);
-
-        return true;
+        klass = klass->mParent;
     }
 
-    if(type_identify_with_class_name(info.type, "any", info.pinfo)
-        || is_generics_type(info.type))
-    {
-        for(int i=1; i<num_params; i++) {
-            if(!compile(params[i], info)) {
-                return false;
-            }
-        }
+    if(method == null) { 
+        /// invoke dynamically, type checking on the running time  ///
+        if(type_identify_with_class_name(info.type, "any", info.pinfo)
+            || is_generics_type(info.type) || type_identify_with_class_name(info.type, "command", info.pinfo))
+        {
+            sCLType* obj_type = info.type;
 
-        info->type = create_type("any", info.pinfo);
-    }
-    else {
-        char* klass_name = klass->mName;
-
-        sCLMethod* method = null;
-        while(klass) {
-            method = klass.mMethods.at(method_name, null);
-
-            if(method) {
-                break;
+            for(int i=1; i<num_params; i++) {
+                if(params[i].type == kNodeTypeMethodBlock) {
+                    compile_err_msg(info, xsprintf("can't get method block for any or generics type. because of no determining to invoke method(%s)", method_name));
+                    return true;
+                    
+                }
+                else {
+                    if(!compile(params[i], info)) {
+                        return false;
+                    }
+                }
             }
 
-            klass = klass->mParent;
+            info->type = obj_type;
         }
-
-        if(method == null) { 
+        else {
             compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass_name, method_name));
             return true;
         }
-
+    }
+    else {
         int var_num;
         if(method.mNodeBlock) {
             var_num = get_var_num(method.mNodeBlock.vtables);
@@ -1834,10 +1840,11 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
 
                 node.uValue.uLambda.mNumParams = method_param_type->mNumParams;
                 for(int j=0; j<method_param_type->mNumParams; j++) {
-                    node.uValue.uLambda.mParams[i] = method_param_type->mParams[j];
+                    node.uValue.uLambda.mParams[j] = method_param_type->mParams[j];
+                    node.uValue.uLambda.mParams[j].mType = solve_generics(method_param_type->mParams[j].mType, generics_types, info.pinfo);
                 }
 
-                node.uValue.uLambda.mResultType = method_param_type->mResultType;
+                node.uValue.uLambda.mResultType = solve_generics(method_param_type->mResultType, generics_types, info.pinfo);
 
                 char* p_before = info->pinfo->p;
                 int sline_before = info->pinfo->sline;
@@ -1848,7 +1855,7 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
                 int max_var_num = info->pinfo.max_var_num;
                 var vtables_before = info->pinfo->vtables;
                 info.pinfo.vtables = borrow new vector<sVarTable*%>.initialize();
-                if(!parse_block(&node_block, method_param_type->mNumParams, method_param_type->mParams, info->pinfo))
+                if(!parse_block(&node_block, method_param_type->mNumParams, node.uValue.uLambda.mParams, info->pinfo))
                 {
                     info->pinfo.max_var_num = max_var_num;
                     info->pinfo->p = p_before;
@@ -1911,112 +1918,13 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         info.codes.alignment();
 
         info.codes.append_int(num_params);
+
+        info.codes.append_int(last_method_chain);
     }
 
     info.stack_num -= num_params;
 
     info.stack_num++;
-
-    return true;
-}
-
-sCLNode* sNodeTree_create_command_call(sCLNode* node, char* name, int num_params, sCLNode** params, sParserInfo* info)
-{
-    sCLNode* result = alloc_node(info);
-    
-    result.type = kNodeTypeCommandCall;
-    
-    xstrncpy(result.sname, info.sname, PATH_MAX);
-    result.sline = info.sline;
-
-    result.mStringValue = string(name);
-
-    result.uValue.uMethodCall.mNumParams = num_params;
-    for(int i=0; i<num_params; i++) {
-        result.uValue.uMethodCall.mParams[i] = params[i];
-    }
-    result.uValue.uMethodCall.mLastMethodChain = true;
-
-    if(node && (node.type == kNodeTypeCommandCall || node.type == kNodeTypeMethodCall))
-    {
-        node.uValue.uMethodCall.mLastMethodChain = false;
-    }
-
-    result.left = node;
-    result.right = null;
-    result.middle = null;
-
-    return result;
-}
-
-bool compile_command_call(sCLNode* node, sCompileInfo* info)
-{
-    char* method_name = node.mStringValue;
-
-    int num_params = node.uValue.uMethodCall.mNumParams;
-    sCLNode* params[PARAMS_MAX];
-    for(int i=0; i<num_params; i++) {
-        params[i] = node.uValue.uMethodCall.mParams[i];
-    }
-
-    int last_method_chain = node.uValue.uMethodCall.mLastMethodChain;
-
-    if(node.left) {
-        if(!compile(node.left, info)) {
-            return false;
-        }
-        
-        sCLType* left_type = info.type;
-
-        if(!type_identify_with_class_name(left_type, "command", info.pinfo)) {
-            compile_err_msg(info, "require command type");
-            return true;
-        }
-    }
-    else {
-        if(!info.no_output) {
-            info.codes.append_int(OP_INT_VALUE);
-            info.codes.append_int(0);
-
-            info->stack_num++;
-        }
-    }
-
-    sCLType* string_type = create_type("string", info.pinfo);
-
-    sCLType* param_types[PARAMS_MAX];
-    for(int i=0; i<num_params; i++) {
-        if(!compile(params[i], info)) {
-            return false;
-        }
-
-        param_types[i] = info.type;
-
-        if(!substitution_posibility(string_type, param_types[i])) 
-        {
-            compile_err_msg(info, xsprintf("command param error #%d. It is not string.", i));
-            return true;
-        }
-    }
-
-    /// go ///
-    if(!info.no_output) {
-        info.codes.append_int(OP_INVOKE_COMMAND);
-
-        info.codes.append_nullterminated_str(method_name);
-
-        info.codes.alignment();
-
-        info.codes.append_int(num_params);
-
-        info.codes.append_int(last_method_chain);
-    }
-
-    info.stack_num -= num_params + 1;
-
-    info.stack_num++;
-
-    info.type = create_type("command", info.pinfo);
 
     return true;
 }
@@ -2858,12 +2766,14 @@ bool compile(sCLNode* node, sCompileInfo* info)
             }
             break;
 
+/*
         case kNodeTypeCommandCall: {
             if(!compile_command_call(node, info)) {
                 return false;
             }
             }
             break;
+*/
 
         case kNodeTypeBlockObjectCall: {
             if(!compile_block_object_call(node, info)) {
@@ -2956,6 +2866,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
 
         case kNodeTypeMacro:
             if(!compile_macro(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeCommand:
+            if(!compile_command(node, info)) {
                 return false;
             }
             break;

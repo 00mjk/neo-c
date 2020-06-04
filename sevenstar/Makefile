@@ -1,40 +1,40 @@
 #######################################################
 # installed directories
 #######################################################
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-bindir=@bindir@
-datadir=@datadir@
-mandir=@mandir@
-sharedstatedir=@sharedstatedir@
-sysconfdir=@sysconfdir@/clover3
-includedir=@includedir@/clover3
-datarootdir=@datarootdir@/clover3
-docdir=@datadir@/doc
-libdir=@libdir@
+prefix=/usr/local
+exec_prefix=${prefix}
+bindir=${exec_prefix}/bin
+datadir=${datarootdir}
+mandir=${datarootdir}/man
+sharedstatedir=${prefix}/com
+sysconfdir=${prefix}/etc/sevenstar
+includedir=${prefix}/include/sevenstar
+datarootdir=${prefix}/share/sevenstar
+docdir=${datarootdir}/doc
+libdir=${exec_prefix}/lib
 
 
 ##########################################################
 # environmnet variables
 ##########################################################
-CC=@CC@
-INSTALL=@INSTALL@
-CFLAGS=@CFLAGS@
-NCFLAGS=@NCFLAGS@
-LIBS=@LIBS@
-OS=@OS@
-DESTDIR=@DESTDIR@
-OBJS=@OBJS@
-COMPILER_OBJS=@COMPILER_OBJS@
+CC=neo-c
+INSTALL=/usr/bin/install -c
+CFLAGS=-Isrc/ -I. -L . -fPIC -rdynamic -DPREFIX="\"${DESTDIR}/\"" -I/usr/local/include -L /usr/local/lib -O2 -Qunused-arguments
+NCFLAGS=
+LIBS= -lutil -lncursesw -lreadline -lbsd -ldl -lm -lpthread -lpcre -lrt
+OS=LINUX
+DESTDIR=/usr/local
+OBJS=src/vm.o
+COMPILER_OBJS=src/parser.o src/node.o
 
 ##########################################################
 # main
 ##########################################################
-all: clover3
+all: sevenstar
 #	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
-clover3: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
-	$(CC) -o clover3 src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
+sevenstar: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
+	$(CC) -o sevenstar src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
 
 ##########################################################
 # objects
@@ -76,16 +76,16 @@ src/macro.o: config.h src/*.h Makefile configure src/macro.nc
 # install
 #########################################################
 install:
-	mkdir -p $(DESTDIR)/share/clover3
+	mkdir -p $(DESTDIR)/share/sevenstar
 
 	mkdir -p "$(DESTDIR)/bin"
-	$(INSTALL) -m 755 ./clover3 "$(DESTDIR)/bin"
+	$(INSTALL) -m 755 ./sevenstar "$(DESTDIR)/bin"
 
 #########################################################
 # uninstall
 #########################################################
 uninstall:
-	rm -f "$(DESTDIR)"/bin/clover3
+	rm -f "$(DESTDIR)"/bin/sevenstar
 
 #########################################################
 # permission
@@ -101,7 +101,7 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR clover3 clover3.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.out
+	rm -fR sevenstar sevenstar.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.out
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache
@@ -111,7 +111,7 @@ distclean: clean
 ########################################################
 test: 
 	@echo "Compile to test code..."
-	./clover3 code/HelloWorld.cl
+	./sevenstar code/HelloWorld.ss
 
 
 
