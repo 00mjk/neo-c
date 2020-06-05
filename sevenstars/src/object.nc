@@ -254,7 +254,7 @@ CLObject create_block_object(char* type_name, int* codes, int codes_len, sVMInfo
 
     alignment(&size);
 
-    sCLType* lambda_type = parse_type_runtime(type_name, info);
+    sCLType* lambda_type = parse_type_runtime(type_name, info.cinfo.pinfo);
 
     CLObject obj = alloc_heap_mem(size, lambda_type, -1, info);
 

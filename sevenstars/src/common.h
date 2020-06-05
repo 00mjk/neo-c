@@ -114,7 +114,6 @@ struct sCLClass {
 
     map<string,sCLMethod*%>*% mMethods;
     map<string, sCLField*%>*% mFields;
-    map<string, sCLField*%>*% mClassFields;
 
     sCLClass* mParent;
 };
@@ -289,7 +288,7 @@ void show_vtable(vector<sVarTable*%>* vtables);
 /// type.nc ///
 sCLType* clone_type(sCLType* type, sParserInfo* info);
 sCLType* create_type(char* type_name, sParserInfo* info);
-sCLType* parse_type_runtime(char* type_name, sVMInfo* info);
+sCLType* parse_type_runtime(char* type_name, sParserInfo* info);
 string create_type_name(sCLType* type);
 bool type_identify(sCLType* left_type, sCLType* right_type);
 bool substitution_posibility(sCLType* left_type, sCLType* right_type);
@@ -486,6 +485,9 @@ void alignment(unsigned int* size);
 
 bool parse_block(sCLNodeBlock** node_block, int num_params, sCLParam* params, sParserInfo* info);
 bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info);
+
+bool load_class(char* name, sParserInfo* info);
+bool save_class(sCLClass* klass);
 
 #endif
 

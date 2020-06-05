@@ -993,6 +993,32 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             
             *node = sNodeTree_create_fg(atoi(buf), info);
         }
+        else if(strcmp(word, "save_class") == 0) {
+            string klass_name = parse_word(info);
+
+            sCLClass* klass = gClasses.at(klass_name, null);
+
+            if(klass) {
+                printf("saving %s class...", klass_name);
+                if(!save_class(klass)) {
+                    puts("error");
+                }
+                else {
+                    puts("ok");
+                }
+            }
+        }
+        else if(strcmp(word, "load_class") == 0) {
+            string klass_name = parse_word(info)
+
+            printf("loading %s class...", klass_name);
+            if(!load_class(klass_name, info)) {
+                puts("error");
+            }
+            else {
+                puts("ok");
+            }
+        }
         else if(strcmp(word, "new") == 0) {
             sCLType* type = null;
             if(!parse_type(&type, info)) {

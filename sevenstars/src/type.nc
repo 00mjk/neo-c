@@ -1,19 +1,19 @@
 #include "common.h"
 #include <assert.h>
 
-sCLType* parse_type_runtime(char* type_name, sVMInfo* info)
+sCLType* parse_type_runtime(char* type_name, sParserInfo* info)
 {
-    char* p_before = info.cinfo.pinfo.p;
+    char* p_before = info.p;
 
-    info.cinfo.pinfo.p = type_name;
+    info.p = type_name;
 
     sCLType* result = null;
-    if(!parse_type(&result, info.cinfo.pinfo)) {
+    if(!parse_type(&result, info)) {
         fprintf(stderr, "parse_type_name error.\n");
         exit(1);
     }
 
-    info.cinfo.pinfo.p = p_before;
+    info.p = p_before;
 
     return result;
 }

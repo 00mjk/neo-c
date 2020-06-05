@@ -101,7 +101,7 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR sevenstars sevenstar.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.out
+	rm -fR sevenstars sevenstar.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.out *.ssc
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache
@@ -112,6 +112,7 @@ distclean: clean
 test: 
 	@echo "Compile to test code..."
 	./sevenstars code/HelloWorld.ss
+	./sevenstars code/HelloWorld2.ss
 
 
 

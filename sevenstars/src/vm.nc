@@ -788,7 +788,7 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
 
                 p += len;
 
-                sCLType* type = parse_type_runtime(type_name, info);
+                sCLType* type = parse_type_runtime(type_name, info.cinfo.pinfo);
 
 
 

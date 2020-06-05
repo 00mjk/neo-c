@@ -296,6 +296,7 @@ void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info)
     }
 }
 
+/*
 static void mark_all_class_fields(unsigned char* mark_flg, sVMInfo* info)
 {
     gClasses.each {
@@ -304,6 +305,7 @@ static void mark_all_class_fields(unsigned char* mark_flg, sVMInfo* info)
         }
     }
 }
+*/
 
 static void mark(sVMInfo* info, unsigned char* mark_flg, sVMInfo* info)
 {
@@ -375,7 +377,7 @@ void gc(sVMInfo* info)
         memset(gCLHeap.mMarkFlags, 0, sizeof(unsigned char)*gCLHeap.mSizeHandles);
 
         /// mark class fields ///
-        mark_all_class_fields(gCLHeap.mMarkFlags, info);
+        //mark_all_class_fields(gCLHeap.mMarkFlags, info);
 
         /// mark ///
         mark(info, gCLHeap.mMarkFlags, info);
