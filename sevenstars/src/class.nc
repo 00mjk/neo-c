@@ -608,28 +608,33 @@ static void save_type(buffer* buf, sCLType* type)
 
 static bool save_field(buffer* buf, sCLClass* klass, sCLField* field) 
 {
-/*
     save_nullterminated_str(buf, field->mName);
 
     save_type(buf, field->mResultType);
     buf.append_int(field->mIndex);
-*/
 
     return true;
 }
 
 static bool save_param(buffer* buf, sCLClass* klass, sCLParam* param)
 {
+    save_nullterminated_str(buf, param->mName);
+
+    save_type(buf, param->mType);
+
     return true;
 }
 
 static bool save_buffer(buffer* buf, buffer* codes)
 {
-    return true;
-}
+    if(codes == null) {
+        buf.append_int(0);
+    }
+    else {
+        buf.append_int(codes.len);
+        buf.append(codes.buf, codes.len);
+    }
 
-static bool save_native_method(buffer* buf, fNativeMethod native_method)
-{
     return true;
 }
 
@@ -655,9 +660,7 @@ static bool save_method(buffer* buf, sCLClass* klass, sCLMethod* method)
 
     save_buffer(buf, method->mByteCodes);
 
-    save_native_method(buf, method->mNativeMethod);
-
-    save_node_block(buf, method->mNodeBlock);
+    //save_node_block(buf, method->mNodeBlock);
     buf.append_int(method->mMaxVarNum);
 
     return true;
@@ -752,35 +755,47 @@ static sCLType* load_type(int** p, sParserInfo* info)
     return parse_type_runtime(string(type_name), info);
 }
 
-static bool load_field(int** p, sCLClass* klass, sParserInfo* info)
+static bool load_field(int** p, int* head, sCLClass* klass, sParserInfo* info)
 {
-/*
     sCLField*% field = new sCLField;
 
     field->mName = load_nullterminated_str(p);
     field->mResultType = load_type(p, info);
-    field->mIndex = *p;
-    p++;
+    field->mIndex = **p;
+    (*p)++;
 
     klass->mFields->insert(string(field->mName), field);
-*/
 
     return true;
 }
 
 bool load_param(int** p, sCLClass* klass, sCLParam* param, sParserInfo* info)
 {
+    string name = load_nullterminated_str(p);
+    xstrncpy(param->mName, name, VAR_NAME_MAX);
+
+    param->mType = load_type(p, info);
+
     return true;
 }
 
 buffer*% load_buffer(int** p)
 {
-    return new buffer.initialize();
-}
+    int len = **p;
+    (*p)++;
 
-fNativeMethod load_native_method(int** p)
-{
-    return true;
+    if(len == 0) {
+        return null;
+    }
+    else {
+        var result = new buffer.initialize();
+
+        result.append((char*)*p, len);
+
+        (*p) += len / sizeof(int);
+
+        return result;
+    }
 }
 
 sCLNodeBlock* load_node_block(int** p, sParserInfo* info)
@@ -808,9 +823,7 @@ static bool load_method(int** p, sCLClass* klass, sParserInfo* info)
 
     method->mByteCodes = load_buffer(p);
 
-    method->mNativeMethod = load_native_method(p);
-
-    method->mNodeBlock = load_node_block(p, info);
+    method->mNodeBlock = null;
 
     method->mMaxVarNum = **p;
     (*p)++;
@@ -833,10 +846,10 @@ bool load_class(char* name, sParserInfo* info)
 
     buffer*% buf = new buffer.initialize();
 
-    while(true) {
-        char buf2[BUFSIZ];
+    char buf2[BUFSIZ];
 
-        int n = fread(buf2, 1, 1, f);
+    while(true) {
+        int n = fread(buf2, 1, BUFSIZ, f);
 
         if(n <= 0) {
             break;
@@ -874,7 +887,7 @@ bool load_class(char* name, sParserInfo* info)
     p++;
 
     for(int i=0; i<n; i++) {
-        if(!load_field(&p, klass, info)) {
+        if(!load_field(&p, (int*)buf.buf, klass, info)) {
             return false;
         }
     }

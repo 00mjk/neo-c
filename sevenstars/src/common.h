@@ -94,7 +94,6 @@ struct sCLMethod {
     sCLType* mResultType;
 
     buffer*% mByteCodes;
-    fNativeMethod mNativeMethod;
 
     sCLNodeBlock* mNodeBlock;
 

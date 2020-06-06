@@ -1817,14 +1817,6 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         }
     }
     else {
-        int var_num;
-        if(method.mNodeBlock) {
-            var_num = get_var_num(method.mNodeBlock.vtables);
-        }
-        else { // native method
-            var_num = num_params;
-        }
-
         /// compile parametors ///
         if(method->mNumParams != num_params) {
             compile_err_msg(info, xsprintf("invalid method prametor number.  invalid %d number instead of %d(%s.%s)", num_params, method->mNumParams, klass.mName, method_name));

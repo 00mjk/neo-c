@@ -12,9 +12,9 @@ if [ -e tiny/Makefile ]
 then
     (cd tiny; make distclean)
 fi
-if [ -e clover3/Makefile ]
+if [ -e sevenstars/Makefile ]
 then
-    (cd clover3; make distclean)
+    (cd sevenstars; make distclean)
 fi
 
 if [ ! -e Makefile ]
