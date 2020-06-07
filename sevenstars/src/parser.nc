@@ -488,7 +488,11 @@ static bool get_block_text(buffer* buf, char begin, char end, sParserInfo* info)
     bool dquort = false;
     int nest = 0;
     while(true) {
-        if(dquort && *info->p == '\\') {
+        if(*info->p == '\0') {
+            fprintf(stderr, "unexpected the source end\n");
+            return false;
+        }
+        else if(dquort && *info->p == '\\') {
             buf.append_char(*info->p);
             info->p++;
             if(*info->p == '\n') {

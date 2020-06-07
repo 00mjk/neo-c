@@ -35,8 +35,6 @@ static bool get_command_result(buffer* command_result, char* macro_name, char* c
     FILE* f;
     char buf[BUFSIZ];
 
-    command_result.append_char('{');
-
     setenv("PARAMS", params, 1);
 
     f = popen(cmdline, "r");
@@ -58,8 +56,6 @@ static bool get_command_result(buffer* command_result, char* macro_name, char* c
         fprintf(stderr, "pclose(2) is failed at %s\n", macro_name);
         return false;
     }
-
-    command_result.append((void*)"}", 1);
 
     return true;
 }
@@ -104,7 +100,7 @@ bool call_macro(sCLNode** node, char* name, char* params, sParserInfo* info)
     xstrncpy(info.sname, sname_before, PATH_MAX);
     info.sline = sline_before;
 
-    *node = sNodeTree_create_normal_block(node_block, info);
+    *node = node_block.nodes.item(-1, null);
     
     return true;
 }

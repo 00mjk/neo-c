@@ -1611,6 +1611,7 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
     cinfo2.codes = borrow new buffer.initialize();
     cinfo2.type = null;
     cinfo2.no_output = false;
+    cinfo2.stack_num = 0;
 
     if(!compile_block(node_block, &cinfo2)) {
         delete cinfo2.codes;
@@ -1657,6 +1658,7 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
 
         info.codes.append_int(node_block->codes.len);
         info.codes.append(node_block->codes.buf, node_block->codes.len);
+        info.codes.append_int(node_block->mVarNum);
     }
 
     info.stack_num++;
@@ -1988,7 +1990,6 @@ bool compile_block_object_call(sCLNode* node, sCompileInfo* info)
     if(!info.no_output) {
         info.codes.append_int(OP_INVOKE_BLOCK_OBJECT);
 
-        info.codes.append_int(block_type->mVarNum);
         info.codes.append_int(num_params-1);
 
         info.codes.append_int(result_existance);
@@ -2402,6 +2403,7 @@ static bool compile_try_expression(sCLNode* node, sCompileInfo* info)
     cinfo2.codes = borrow new buffer.initialize();
     cinfo2.type = null;
     cinfo2.no_output = false;
+    cinfo2.stack_num = 0;
 
     if(!compile_block(node_block, &cinfo2)) {
         delete cinfo2.codes;
@@ -2423,6 +2425,7 @@ static bool compile_try_expression(sCLNode* node, sCompileInfo* info)
     cinfo2.codes = borrow new buffer.initialize();
     cinfo2.type = null;
     cinfo2.no_output = false;
+    cinfo2.stack_num = 0;
 
     if(!compile_block(node_block2, &cinfo2)) {
         return false;
@@ -2530,7 +2533,6 @@ static bool compile_normal_block(sCLNode* node, sCompileInfo* info)
     if(!info.no_output) {
         info.codes.append_int(OP_INVOKE_BLOCK_OBJECT);
 
-        info.codes.append_int(block_type->mVarNum);
         info.codes.append_int(num_params-1);
 
         info.codes.append_int(result_existance);

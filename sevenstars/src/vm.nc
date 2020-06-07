@@ -116,6 +116,10 @@ void print_op(int op)
             puts("OP_THROW");
             break;
 
+        case OP_LIST_VALUE:
+            puts("OP_LIST_VALUE");
+            break;
+
         case OP_RETURN:
             puts("OP_RETURN");
             break;
@@ -679,7 +683,6 @@ void ready_for_vm_stack(CLVALUE* stack, CLVALUE* parent_stack_ptr, int num_param
         for(int i=0; i<num_params; i++) {
             stack[i] = parent_stack_ptr[i-num_params];
         }
-//        memcpy(stack, parent_stack_ptr - num_params, sizeof(CLVALUE)*num_params);
     }
 }
 
@@ -823,7 +826,10 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
 
                 p += codes_len / sizeof(int);
 
-                int obj = create_block_object(type_name, codes, codes_len,  info);
+                int var_num = *p;
+                p++;
+
+                int obj = create_block_object(type_name, codes, codes_len,  var_num, info);
 
                 stack_ptr.mObjectValue = obj;
                 stack_ptr++;
@@ -1269,17 +1275,14 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                             (*stack_ptr).mObjectValue = create_null_object(info);
                             stack_ptr++;
                         }
+//print_method_end(klass, method, result);
                     }
                 }
-//print_method_end(klass, method, *(stack_ptr-1));
 
                 }
                 break;
 
             case OP_INVOKE_BLOCK_OBJECT: {
-                int var_num = *p;
-                p++;
-
                 int num_params = *p;
                 p++;
 
@@ -1287,17 +1290,18 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 p++;
 
                 int block_object = (*(stack_ptr-num_params-1)).mObjectValue;
-
                 sCLBlock* block_data = CLBLOCK(block_object);
 
                 int* codes = block_data->codes;
                 int codes_len = block_data->codes_len;
+                int var_num = block_data->var_num;
 
                 buffer*% buffer = new buffer.initialize();
 
                 buffer.append((char*)codes, codes_len);
 
 //print_block(num_params, var_num);
+
 
                 CLVALUE result;
                 if(!vm(buffer, stack_ptr, num_params, var_num, &result, info)) {
@@ -1448,6 +1452,7 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 info.stack_frames.pop_back(null_parent_stack_frame);
                 return false;
                 break;
+
         }
 //puts("end");
 //print_stack(stack, stack_ptr, var_num);
