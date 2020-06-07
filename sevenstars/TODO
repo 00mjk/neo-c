@@ -1,9 +1,7 @@
-classの保存
-
-readline
-
 generics
 list, buffer, map, tuple
+
+readline
 
 メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
 
@@ -24,3 +22,4 @@ string.set_value オブジェクトを持つオブジェクトにstringを変更
 macro
 normal block
 
+classの保存
