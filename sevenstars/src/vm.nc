@@ -871,63 +871,111 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 break;
 
             case OP_IEQ: {
-                int lvalue = (stack_ptr-2).mObjectValue;
-                int rvalue = (stack_ptr-1).mObjectValue;
+                CLObject lvalue = (stack_ptr-2).mObjectValue;
+                CLObject rvalue = (stack_ptr-1).mObjectValue;
 
-                sCLInt* lvalue_data = CLINT(lvalue);
-                sCLInt* rvalue_data = CLINT(rvalue);
+                if(check_type(lvalue, "void", info) || check_type(rvalue, "void", info))
+                {
+                    int value = check_type(lvalue, "void", info) == check_type(rvalue, "void", info);
+                    
+                    CLObject obj = create_bool_object(value, info);
 
-                int value = lvalue_data->mValue == rvalue_data->mValue;
-                CLObject new_obj = create_bool_object(value, info);
+                    stack_ptr -= 2;
+                    stack_ptr->mObjectValue = obj;
+                    stack_ptr++;
+                }
+                else {
+                    sCLInt* lvalue_data = CLINT(lvalue);
+                    sCLInt* rvalue_data = CLINT(rvalue);
 
-                stack_ptr -= 2;
-                stack_ptr.mObjectValue = new_obj;
-                stack_ptr++;
+                    int value = lvalue_data->mValue == rvalue_data->mValue;
+                    CLObject new_obj = create_bool_object(value, info);
+
+                    stack_ptr -= 2;
+                    stack_ptr.mObjectValue = new_obj;
+                    stack_ptr++;
+                }
                 }
                 
                 break;
 
             case OP_EQ: {
-                int lvalue = (stack_ptr-2).mObjectValue;
-                int rvalue = (stack_ptr-1).mObjectValue;
+                CLObject lvalue = (stack_ptr-2).mObjectValue;
+                CLObject rvalue = (stack_ptr-1).mObjectValue;
 
-                int value = lvalue == rvalue;
-                CLObject new_obj = create_bool_object(value, info);
+                if(check_type(lvalue, "void", info) || check_type(rvalue, "void", info))
+                {
+                    int value = check_type(lvalue, "void", info) == check_type(rvalue, "void", info);
+                    
+                    CLObject obj = create_bool_object(value, info);
 
-                stack_ptr -= 2;
-                stack_ptr.mObjectValue = new_obj;
-                stack_ptr++;
+                    stack_ptr -= 2;
+                    stack_ptr->mObjectValue = obj;
+                    stack_ptr++;
+                }
+                else {
+                    int value = lvalue == rvalue;
+                    CLObject new_obj = create_bool_object(value, info);
+
+                    stack_ptr -= 2;
+                    stack_ptr.mObjectValue = new_obj;
+                    stack_ptr++;
+                }
                 }
                 
                 break;
                 
             case OP_INOTEQ: {
-                int lvalue = (stack_ptr-2).mObjectValue;
-                int rvalue = (stack_ptr-1).mObjectValue;
+                CLObject lvalue = (stack_ptr-2).mObjectValue;
+                CLObject rvalue = (stack_ptr-1).mObjectValue;
 
-                sCLInt* lvalue_data = CLINT(lvalue);
-                sCLInt* rvalue_data = CLINT(rvalue);
+                if(check_type(lvalue, "void", info) || check_type(rvalue, "void", info))
+                {
+                    int value = check_type(lvalue, "void", info) != check_type(rvalue, "void", info);
+                    
+                    CLObject obj = create_bool_object(value, info);
 
-                int value = lvalue_data->mValue != rvalue_data->mValue;
-                CLObject new_obj = create_bool_object(value, info);
+                    stack_ptr -= 2;
+                    stack_ptr->mObjectValue = obj;
+                    stack_ptr++;
+                }
+                else {
+                    sCLInt* lvalue_data = CLINT(lvalue);
+                    sCLInt* rvalue_data = CLINT(rvalue);
 
-                stack_ptr -= 2;
-                stack_ptr.mObjectValue = new_obj;
-                stack_ptr++;
+                    int value = lvalue_data->mValue != rvalue_data->mValue;
+                    CLObject new_obj = create_bool_object(value, info);
+
+                    stack_ptr -= 2;
+                    stack_ptr.mObjectValue = new_obj;
+                    stack_ptr++;
+                }
                 }
                 
                 break;
 
             case OP_NOTEQ: {
-                int lvalue = (stack_ptr-2).mObjectValue;
-                int rvalue = (stack_ptr-1).mObjectValue;
+                CLObject lvalue = (stack_ptr-2).mObjectValue;
+                CLObject rvalue = (stack_ptr-1).mObjectValue;
 
-                int value = lvalue != rvalue;
-                CLObject new_obj = create_bool_object(value, info);
+                if(check_type(lvalue, "void", info) || check_type(rvalue, "void", info))
+                {
+                    int value = check_type(lvalue, "void", info) != check_type(rvalue, "void", info);
+                    
+                    CLObject obj = create_bool_object(value, info);
 
-                stack_ptr -= 2;
-                stack_ptr.mObjectValue = new_obj;
-                stack_ptr++;
+                    stack_ptr -= 2;
+                    stack_ptr->mObjectValue = obj;
+                    stack_ptr++;
+                }
+                else {
+                    int value = lvalue != rvalue;
+                    CLObject new_obj = create_bool_object(value, info);
+
+                    stack_ptr -= 2;
+                    stack_ptr.mObjectValue = new_obj;
+                    stack_ptr++;
+                }
                 }
                 
                 break;
@@ -1123,6 +1171,12 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 p++;
 
                 CLObject obj = (stack_ptr-num_params)->mObjectValue;
+
+                if(obj == 0) {
+                    vm_err_msg(&stack_ptr, info, xsprintf("Object Null pointer Exception. Invoking method is (%s)\n", method_name));
+                    info.stack_frames.pop_back(null_parent_stack_frame);
+                    return false;
+                }
 
                 sCLObject* object_data = CLOBJECT(obj);
                 sCLType* generics_types = object_data->mType;

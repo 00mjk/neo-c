@@ -62,6 +62,7 @@ impl buffer
     initialize() {
         self.size = 128;
         self.buf = malloc(self.size);
+        self.buf[0] = '\0'
         self.len = 0;
     }
 

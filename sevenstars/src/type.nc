@@ -58,6 +58,10 @@ string create_type_name(sCLType* type)
         }
     }
 
+    if(type.mNullable) {
+        result.append_str("?");
+    }
+
     return result.to_string();
 }
 
@@ -174,11 +178,14 @@ bool substitution_posibility(sCLType* left_type, sCLType* right_type)
     {
         return true;
     }
-    else if(strcmp(right_class.mName, "void") == 0)
+    else if(left_type->mNullable && strcmp(right_class.mName, "void") == 0)
     {
         return true;
     }
     else if(is_generics_type(left_type)) {
+        return true;
+    }
+    else if(is_generics_type(right_type)) {
         return true;
     }
 
@@ -201,6 +208,9 @@ void show_type_core(sCLType* type)
             show_type_core(type.mGenericsTypes[i]);
         }
         printf(">");
+    }
+    if(type.mNullable) {
+        printf("?");
     }
 }
 

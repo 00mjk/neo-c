@@ -1,0 +1,2 @@
+
+remain the heap memory(0x4f491f0) with type name char% at neo-c.nc.126. calloc num is 4. calloc_size is 1. fun_name is string string

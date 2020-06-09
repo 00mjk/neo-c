@@ -295,6 +295,7 @@ sCLType* parse_type_runtime(char* type_name, sParserInfo* info);
 string create_type_name(sCLType* type);
 bool type_identify(sCLType* left_type, sCLType* right_type);
 bool substitution_posibility(sCLType* left_type, sCLType* right_type);
+bool check_type(CLObject obj, char* type_name, sVMInfo* info);
 bool type_identify_with_class_name(sCLType* left_type, char* right_class, sParserInfo* info);
 bool is_generics_type(sCLType* type);
 int get_generics_type_number(sCLType* type, sParserInfo* info);
@@ -461,21 +462,44 @@ struct sCLInt {
     int mValue;
 };
 
+struct sCLBuffer {
+    sCLType* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    buffer* mBuffer;
+};
 
+struct sCLString {
+    sCLType* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    char* mString;
+};
 
 #define CLOBJECT(obj) ((sCLObject*)(get_object_pointer((obj))))
 #define CLBLOCK(obj) ((sCLBlock*)(get_object_pointer((obj))))
 #define CLCOMMAND(obj) ((sCLCommand*)(get_object_pointer((obj))))
 #define CLINT(obj) ((sCLInt*)(get_object_pointer((obj))))
 #define CLJOB(obj) ((sCLJob*)(get_object_pointer((obj))))
+#define CLBUFFER(obj) ((sCLBuffer*)(get_object_pointer((obj))))
+#define CLSTRING(obj) ((sCLString*)(get_object_pointer((obj))))
 
 sCLHeapMem* get_object_pointer(CLObject obj);
 
 CLObject create_object(sCLType* type, sVMInfo* info);
+CLObject create_buffer_object(sVMInfo* info);
 CLObject create_null_object(sVMInfo* info);
 CLObject create_int_object(int value, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
 char* get_string_mem(CLObject obj);
+int get_int_value(CLObject obj);
+buffer* get_buffer_value(CLObject obj);
+void set_int_value(CLObject obj, int value);
+void set_string_value(CLObject obj, char* value);
 CLObject create_string_data_object(char* str, sVMInfo* info);
 CLObject create_bool_object(int value, sVMInfo* info);
 CLObject create_block_object(char* type_name, int* codes, int codes_len, int var_num, sVMInfo* info);

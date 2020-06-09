@@ -18,14 +18,24 @@ class int {
     def greater_equal(right:int):bool {
         self \>= right
     }
-    def equal(right:int):bool {
+    def equal(right:int?):bool {
         self \== right
     }
-    def not_equal(right:int):bool {
+    def not_equal(right:int?):bool {
         self \!= right
     }
     def to_string():string;
     def to_command():command;
+    def compare(right:int):int {
+        if(self < right) {
+            return -1;
+        }
+        elif(self > right) {
+            return 1;
+        }
+
+        0
+    }
 };
 
 class bool {
@@ -33,45 +43,67 @@ class bool {
     def to_int():int;
     def to_string():int;
     def to_command():command;
+
+    def compare(right:bool):int {
+        if(!self && right) {
+            return -1;
+        }
+        elif(self && !right) {
+            return 1;
+        }
+
+        0
+    }
 };
 
 class string {
     def set_value(value:string):void;
-    def equal(right:string):bool;
-    def not_equal(right:string):bool;
+    def equal(right:string?):bool;
+    def not_equal(right:string?):bool;
     def to_command():command;
+    def compare(right:string):int;
 };
 
 class object {
     def type_name():string;
     def num_fields():int;
-    def equal(right:object):bool {
-        if(self.type_name() == "void" && right.type_name() == "void") {
-            return true;
-        }
-
+    def equal(right:object?):bool {
         self \== right
     }
-    def not_equal(right:object):bool {
-        if(self.type_name() == "void" && right.type_name() == "void") {
-            return false;
-        }
-
+    def not_equal(right:object?):bool {
         self \!= right
     }
 }
 
+class buffer
+{
+    def initialize():buffer;
+
+    def append(mem:string, size:int):void;
+    def append_char(c:int):void;
+    def append_str(str:string):void;
+    def append_nullterminated_str(str:string):void;
+    def append_int(value:int):void;
+    def alignment():int;
+
+    def to_string():string;
+
+    def length():int;
+
+    def compare(right:buffer):int;
+}
+
 class list_item<T>
 {
-    var item:T;
-    var prev:list_item<T>;
-    var next:list_item<T>;
+    var item:T?;
+    var prev:list_item<T>?;
+    var next:list_item<T>?;
 }
 
 class list<T>
 {
-    var head: list_item<T>;
-    var tail: list_item<T>;
+    var head: list_item<T>?;
+    var tail: list_item<T>?;
     var len:int;
 
     def initialize():list<T> {
@@ -286,20 +318,6 @@ class list<T>
             i++;
         };
     }
-    def each(block:lambda(it:T,it2:int,it3:bool):void):void {
-        var it = self.head;
-        var i = 0;
-        while(it != null) {
-            var end_flag = false;
-            block(it.item, i, end_flag);
-
-            if(end_flag == true) {
-                break;
-            }
-            it = it.next;
-            i++;
-        }
-    }
 
     def delete_range(head:int, tail:int):void
     {
@@ -377,8 +395,8 @@ class list<T>
         else {
             var it = self.head;
 
-            var head_prev_it:list_item<T> = null;
-            var tail_it:list_item<T> = null;
+            var head_prev_it:list_item<T>? = null;
+            var tail_it:list_item<T>? = null;
 
             var i = 0;
             while(it != null) {
@@ -449,7 +467,11 @@ class list<T>
         self.len
     }
 
-    def equal(right:list<T>):bool {
+    def equal(right:list<T>?):bool {
+        if(self.type_name() == "void" || right.type_name() == "void") {
+            return self.type_name() == right.type_name();
+        }
+
         #if(self.type_name() != right.type_name()) {
         #    return false;
         #}
@@ -472,6 +494,185 @@ class list<T>
 
         true
     }
+    def not_equal(right:list<T>?):bool {
+        !self.equal(right)
+    }
+
+    def set_value(right:list<T>):void {
+        self.reset();
+        var i = 0;
+        while(i < right.length()) {
+            var it = right.item(i, null);
+
+            self.push_back(it);
+            i++;
+        }
+    }
+
+    def clone():list<T> {
+        var result = new list<T>();
+
+        var i = 0;
+        while(i < self.length()) {
+            var it = self.item(i, null);
+
+            result.push_back(it);
+            i++;
+        }
+
+        result
+    }
+
+    def reverse(): list<T> {
+        var result = new list<T>();
+
+        var it = self.tail;
+        while(it != null) {
+            result.push_back(it.item);
+            it = it.prev;
+        }
+
+        result
+    }
+
+    def join(separator:string):string {
+        var buf = new buffer();
+
+        var it = self.head;
+        var i = 0;
+        while(it != null) {
+            if(i == self.length() - 1) {
+                buf.append_str(it.item.to_string());
+            }
+            else {
+                buf.append_str(it.item.to_string());
+                buf.append_str(separator);
+            }
+
+            it = it.next;
+            i++;
+        }
+
+        buf.to_string()
+    }
+    def map(block:lambda(it:T):any):list<any>
+    {
+        var result = new list<any>();
+
+        var it = self.head;
+        while(it != null) {
+            result.push_back(block(it.item));
+
+            it = it.next;
+        }
+
+        result
+    }
+
+    def filter(block:lambda(it:T):bool):list<T>
+    {
+        var result = new list<T>();
+
+        var it = self.head;
+        while(it != null) {
+            if(block(it.item)) {
+                result.push_back(it.item);
+            }
+
+            it = it.next;
+        }
+
+        result
+    } 
+
+    def merge_list(right:list<T>, compare:lambda(it:T,it2:T):int) : list<T>
+    {
+        var result = new list<T>();
+
+        var it = self.head;
+        var it2 = right.head;
+
+        while(true) {
+            if(it != null && it2 != null) {
+                if(it.item == null) {
+                    it = it.next;
+                }
+                elif(it2.item == null) {
+                    it2 = it2.next;
+                }
+                elif(compare(it.item, it2.item) <= 0) 
+                {
+                    result.push_back(it.item);
+                    it = it.next;
+                }
+                else {
+                    result.push_back(it2.item);
+
+                    it2 = it2.next;
+                }
+            }
+
+            if(it == null) {
+                if(it2 != null) {
+                    while(it2 != null) {
+                        result.push_back(it2.item);
+
+                        it2 = it2.next;
+                    }
+                }
+                break;
+            }
+            elif(it2 == null) {
+                if(it != null) {
+                    while(it != null) {
+                        result.push_back(it.item);
+
+                        it = it.next;
+                    }
+                }
+                break;
+            }
+        }
+
+        result
+    }
+    def merge_sort(compare:lambda(it:T,it2:T):int) : list<T>
+    {
+        if(self.head == null) {
+            return self.clone();
+        }
+        if(self.head.next == null) {
+            return self.clone();
+        }
+
+        var list1 = new list<T>();
+        var list2 = new list<T>();
+
+        var it = self.head;
+
+        while(true) {
+            list1.push_back(it.item);
+
+            list2.push_back(it.next.item);
+
+            if(it.next.next == null) {
+                break;
+            }
+
+            it = it.next.next;
+
+            if(it.next == null) {
+                list1.push_back(it.item);
+                break;
+            }
+        }
+
+        list1.merge_sort(compare).merge_list(list2.merge_sort(compare), compare)
+    }
+    def sort(compare:lambda(it:T,it2:T):int):list<T> 
+    {
+        self.merge_sort(compare)
+    }
 }
 
 save_class object;
@@ -480,3 +681,4 @@ save_class bool;
 save_class string;
 save_class list_item;
 save_class list;
+save_class buffer;

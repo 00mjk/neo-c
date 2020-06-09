@@ -1,6 +1,31 @@
 #include "common.h"
 #include <assert.h>
 
+bool free_object(CLObject self, sVMInfo* info)
+{
+    sCLObject* object_data = CLOBJECT(self);
+    sCLType* type = object_data->mType;
+
+    if(type->mClass == gClasses.at("buffer", null)) {
+        sCLBuffer* buffer_data = CLBUFFER(self);
+
+        delete dummy_heap buffer_data->mBuffer;
+    }
+    else if(type->mClass == gClasses.at("string", null)) {
+        sCLString* string_data = CLSTRING(self);
+
+        delete dummy_heap string_data->mString;
+    }
+
+/*
+    if(!call_finalize_method_on_free_object(klass, self)) {
+        return FALSE;
+    }
+*/
+
+    return true;
+}
+
 void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info)
 {
     sCLObject* object_data = CLOBJECT(self);
@@ -15,24 +40,6 @@ void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info)
             mark_object(object_data->uValue.mFields[i].mObjectValue, mark_flg, info);
         }
     }
-}
-
-bool free_object(CLObject self, sVMInfo* info)
-{
-/*
-    sCLObject* object_data = CLOBJECT(self);
-    sCLType* type = object_data->mType;
-
-
-    if(type->mClass == gClasses.at("lambda", null)) {
-    }
-
-    if(!call_finalize_method_on_free_object(klass, self)) {
-        return FALSE;
-    }
-*/
-
-    return true;
 }
 
 static cllong object_size(sCLClass* klass)
@@ -119,12 +126,9 @@ CLObject create_bool_object(int value, sVMInfo* info)
     return obj;
 }
 
-CLObject create_string_object(char* str, sVMInfo* info)
+static cllong string_object_size()
 {
-    sCLType* string_type = create_type("string", info.cinfo.pinfo);
-    
-    cllong size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
-    size += (unsigned int)sizeof(CLVALUE);
+    cllong size = sizeof(sCLString);
 
     unsigned int size2 = size;
 
@@ -132,44 +136,61 @@ CLObject create_string_object(char* str, sVMInfo* info)
 
     size = size2;
 
-    sCLStackFrame null_stack_frame;
+    return size;
+}
 
-    sCLStackFrame stack_frame = info.stack_frames.item(-1, null_stack_frame);
-    CLVALUE** stack_ptr = stack_frame.stack_ptr;
+CLObject create_string_object(char* str, sVMInfo* info)
+{
+    unsigned int size = (unsigned int)string_object_size();
 
-    CLObject obj = alloc_heap_mem(size, string_type, 1, info);
+    alignment(&size);
 
-    (*stack_ptr)->mObjectValue = obj;
-    (*stack_ptr)++;
+    sCLType* string_type = create_type("string", info.cinfo.pinfo);
 
-    int len = strlen(str);
-    int size3 = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
-    size3 += len + 1;
-    alignment(&size3);
+    CLObject obj = alloc_heap_mem(size, string_type, -1, info);
 
-    CLObject obj2 = alloc_heap_mem(size3, string_type, -1, info);
+    sCLString* string_data = CLSTRING(obj);
 
-    sCLObject* object_data2 = CLOBJECT(obj2);
-
-    strcpy(&object_data2.uValue.mMem, str);
-
-    sCLObject* object_data = CLOBJECT(obj);
-    object_data->uValue.mFields[0].mObjectValue = obj2;
-
-    (*stack_ptr)--;
+    string_data->mString = borrow string(str);
 
     return obj;
 }
 
 char* get_string_mem(CLObject obj)
 {
-    sCLObject* object_data = CLOBJECT(obj);
+    sCLString* object_data = CLSTRING(obj);
 
-    CLObject obj2 = object_data->uValue.mFields[0].mObjectValue;
+    return object_data->mString;
+}
 
-    sCLObject* object_data2 = CLOBJECT(obj2);
+int get_int_value(CLObject obj)
+{
+    sCLInt* object_data = CLINT(obj);
 
-    return &object_data2->uValue.mMem;
+    return object_data->mValue;
+}
+
+void set_int_value(CLObject obj, int value)
+{
+    sCLInt* object_data = CLINT(obj);
+
+    object_data->mValue = value;
+}
+
+void set_string_value(CLObject obj, char* value)
+{
+    char* str = borrow string(value);
+
+    sCLString* object_data = CLSTRING(obj);
+    delete dummy_heap object_data->mString;
+    object_data->mString = str;
+}
+
+buffer* get_buffer_value(CLObject obj)
+{
+    sCLBuffer* buffer_data = CLBUFFER(obj);
+
+    return buffer_data->mBuffer;
 }
 
 CLObject create_string_data_object(char* str, sVMInfo* info)
@@ -263,6 +284,36 @@ CLObject create_block_object(char* type_name, int* codes, int codes_len, int var
     block_data->codes = codes;
     block_data->codes_len = codes_len;
     block_data->var_num = var_num;
+
+    return obj;
+}
+
+static cllong buffer_object_size()
+{
+    cllong size = sizeof(sCLBuffer);
+
+    unsigned int size2 = size;
+
+    alignment((unsigned int*)&size2);
+
+    size = size2;
+
+    return size;
+}
+
+CLObject create_buffer_object(sVMInfo* info)
+{
+    unsigned int size = (unsigned int)buffer_object_size();
+
+    alignment(&size);
+
+    sCLType* buffer_type = create_type("buffer", info.cinfo.pinfo);
+
+    CLObject obj = alloc_heap_mem(size, buffer_type, -1, info);
+
+    sCLBuffer* buffer_data = CLBUFFER(obj);
+
+    buffer_data->mBuffer = borrow new buffer.initialize();
 
     return obj;
 }

@@ -118,13 +118,14 @@ string parse_word(sParserInfo* info)
     parse_comment(info);
 
     buffer*% result = new buffer.initialize();
-    
+
     while(isalnum(*info->p) || *info->p == '_') {
         result.append_char(*info->p);
         info->p++;
     }
 
     skip_spaces_and_lf(info);
+
     
     return result.to_string();
 }
@@ -339,6 +340,13 @@ bool parse_type(sCLType** type, sParserInfo* info)
 
                 *type = create_type(generics_type_name, info);
 
+                if(*info->p == '?') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+
+                    (*type)->mNullable = true;
+                }
+
                 return true;
             }
         }
@@ -349,7 +357,6 @@ bool parse_type(sCLType** type, sParserInfo* info)
     if(strcmp(name, "lambda") == 0) {
         sCLParam params[PARAMS_MAX];
         int num_params = 0;
-
         if(!parse_params(params, &num_params, info)) {
             return false;
         }
@@ -397,6 +404,13 @@ bool parse_type(sCLType** type, sParserInfo* info)
                 break;
             }
         }
+    }
+
+    if(*info->p == '?') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        (*type)->mNullable = true;
     }
 
     return true;

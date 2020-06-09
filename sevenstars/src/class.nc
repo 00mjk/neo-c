@@ -4,56 +4,103 @@ map<string, sCLClass*%>* gClasses;
 vector<CLObject>* gJobs;
 map<string, fNativeMethod>* gNativeMethods;
 
+bool check_type(CLObject obj, char* type_name, sVMInfo* info)
+{
+    sCLType* type = parse_type_runtime(type_name, info.cinfo.pinfo);
+
+    sCLObject* object_data = CLOBJECT(obj);
+
+    return substitution_posibility(type, object_data->mType);
+}
+
 bool int_set_value(CLVALUE** stack_ptr, sVMInfo* info)
 {
-    CLVALUE* self = (*stack_ptr-2);
-    CLVALUE* value = (*stack_ptr-1);
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject value = (*stack_ptr-1)->mObjectValue;
 
-    sCLInt* object_data = CLINT(self->mObjectValue);
-    sCLInt* object_data2 = CLINT(value->mObjectValue);
+    /// check type ///
+    if(!check_type(self, "int", info)) {
+        vm_err_msg(stack_ptr, info, "type error on int.set_value");
+        return false;
+    }
+    if(!check_type(value, "int", info)) {
+        vm_err_msg(stack_ptr, info, "type error on int.set_value");
+        return false;
+    }
 
-    object_data->mValue = object_data2->mValue;
+    /// sevenstars to neo-c ///
+    int value_value = get_int_value(value);
+
+    /// go ///
+    set_int_value(self, value_value);
     
     return true;
 }
 
 bool string_set_value(CLVALUE** stack_ptr, sVMInfo* info)
 {
-    CLVALUE* self = (*stack_ptr-2);
-    CLVALUE* value = (*stack_ptr-1);
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject value = (*stack_ptr-1)->mObjectValue;
 
-    char* str = get_string_mem(value->mObjectValue);
+    /// check type ///
+    if(!check_type(self, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.set_value");
+        return false;
+    }
+    if(!check_type(value, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.set_value");
+        return false;
+    }
 
-    CLObject obj = create_string_data_object(str, info);
+    /// convert sevenstars to neo-c ///
+    char* value_value = get_string_mem(value);
 
-    sCLObject* object_data = CLOBJECT(self->mObjectValue);
-    object_data->uValue.mFields[0].mObjectValue = obj;
+    /// go ///
+    set_string_value(self, value_value);
 
     return true;
 }
 
 bool bool_set_value(CLVALUE** stack_ptr, sVMInfo* info)
 {
-    CLVALUE* self = (*stack_ptr-2);
-    CLVALUE* value = (*stack_ptr-1);
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject value = (*stack_ptr-1)->mObjectValue;
 
-    sCLInt* object_data = CLINT(self->mObjectValue);
-    sCLInt* object_data2 = CLINT(value->mObjectValue);
+    /// check type ///
+    if(!check_type(self, "bool", info)) {
+        vm_err_msg(stack_ptr, info, "type error on bool.set_value");
+        return false;
+    }
+    if(!check_type(value, "bool", info)) {
+        vm_err_msg(stack_ptr, info, "type error on bool.set_value");
+        return false;
+    }
 
-    object_data->mValue = object_data2->mValue;
+    /// convert sevenstars to neo-c ///
+    int value_value = get_int_value(value);
+
+    /// go ///
+    set_int_value(self, value);
     
     return true;
 }
 
 bool int_to_string_(CLVALUE** stack_ptr, sVMInfo* info)
 {
-    CLVALUE* left = (*stack_ptr-1);
+    CLObject self = (*stack_ptr-1)->mObjectValue;
 
-    sCLInt* object_data = CLINT(left->mObjectValue);
-    
+    /// check type ///
+    if(!check_type(self, "int", info)) {
+        vm_err_msg(stack_ptr, info, "type error on int.to_string");
+        return false;
+    }
+
+    /// convert sevenstars to neo-c ///
+    int self_value = get_int_value(self);
+
+    /// go ///
     char buf[128];
-
-    snprintf(buf, 128, "%d", object_data->mValue);
+    snprintf(buf, 128, "%d", self_value);
 
     CLObject obj = create_string_object(buf, info);
 
@@ -65,13 +112,21 @@ bool int_to_string_(CLVALUE** stack_ptr, sVMInfo* info)
 
 bool int_to_command(CLVALUE** stack_ptr, sVMInfo* info)
 {
-    CLVALUE* left = (*stack_ptr-1);
+    CLObject self = (*stack_ptr-1)->mObjectValue;
 
-    sCLInt* object_data = CLINT(left->mObjectValue);
-    
+    /// check type ///
+    if(!check_type(self, "int", info)) {
+        vm_err_msg(stack_ptr, info, "type error on int.to_command");
+        return false;
+    }
+
+    /// convert sevenstars to neo-c ///
+    int self_value = get_int_value(self);
+
+    /// go ///
     char buf[128];
 
-    snprintf(buf, 128, "%d", object_data->mValue);
+    snprintf(buf, 128, "%d", self_value);
 
     CLObject obj = create_command_object(buf, strlen(buf), "", 0, 0, false, info);
 
@@ -83,11 +138,20 @@ bool int_to_command(CLVALUE** stack_ptr, sVMInfo* info)
 
 bool string_to_command(CLVALUE** stack_ptr, sVMInfo* info)
 {
-    CLVALUE* left = (*stack_ptr-1);
+    CLObject self = (*stack_ptr-1)->mObjectValue;
 
-    char* buf = get_string_mem(left->mObjectValue);
+    /// check type ///
+    if(!check_type(self, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.to_command");
+        return false;
+    }
+
+    /// convert sevenstars to neo-c ///
+    char* self_value = get_string_mem(self);
+
+    /// go ///
     
-    CLObject obj = create_command_object(buf, strlen(buf), "", 0, 0, false, info);
+    CLObject obj = create_command_object(self_value, strlen(self_value), "", 0, 0, false, info);
 
     (*stack_ptr)->mObjectValue = obj;
     (*stack_ptr)++;
@@ -97,11 +161,19 @@ bool string_to_command(CLVALUE** stack_ptr, sVMInfo* info)
 
 bool bool_to_int(CLVALUE** stack_ptr, sVMInfo* info)
 {
-    CLVALUE* left = (*stack_ptr-1);
+    CLObject self = (*stack_ptr-1)->mObjectValue;
 
-    sCLInt* object_data = CLINT(left->mObjectValue);
+    /// check type ///
+    if(!check_type(self, "bool", info)) {
+        vm_err_msg(stack_ptr, info, "type error on bool.to_command");
+        return false;
+    }
 
-    CLObject obj = create_int_object(object_data->mValue, info);
+    /// convert sevenstars to neo-c ///
+    int self_value = get_int_value(self);
+
+    /// go ///
+    CLObject obj = create_int_object(self_value, info);
 
     (*stack_ptr)->mObjectValue = obj;
     (*stack_ptr)++;
@@ -111,13 +183,21 @@ bool bool_to_int(CLVALUE** stack_ptr, sVMInfo* info)
 
 bool bool_to_string(CLVALUE** stack_ptr, sVMInfo* info)
 {
-    CLVALUE* left = (*stack_ptr-1);
+    CLObject self = (*stack_ptr-1)->mObjectValue;
 
-    sCLInt* object_data = CLINT(left->mObjectValue);
-    
+    /// check type ///
+    if(!check_type(self, "bool", info)) {
+        vm_err_msg(stack_ptr, info, "type error on bool.to_string");
+        return false;
+    }
+
+    /// convert sevenstars to neo-c ///
+    int self_value = get_int_value(self);
+
+    /// go ///
     char buf[128];
 
-    if(object_data->mValue) {
+    if(self_value) {
         snprintf(buf, 128, "true");
     }
     else {
@@ -134,13 +214,21 @@ bool bool_to_string(CLVALUE** stack_ptr, sVMInfo* info)
 
 bool bool_to_command(CLVALUE** stack_ptr, sVMInfo* info)
 {
-    CLVALUE* left = (*stack_ptr-1);
+    CLObject self = (*stack_ptr-1)->mObjectValue;
 
-    sCLInt* object_data = CLINT(left->mObjectValue);
-    
+    /// check type ///
+    if(!check_type(self, "bool", info)) {
+        vm_err_msg(stack_ptr, info, "type error on bool.to_command");
+        return false;
+    }
+
+    /// convert sevenstars to neo-c ///
+    int self_value = get_int_value(self);
+
+    /// go ///
     char buf[128];
 
-    if(object_data->mValue) {
+    if(self_value) {
         snprintf(buf, 128, "true");
     }
     else {
@@ -157,13 +245,37 @@ bool bool_to_command(CLVALUE** stack_ptr, sVMInfo* info)
 
 bool string_equal(CLVALUE** stack_ptr, sVMInfo* info)
 {
-    CLVALUE* left = (*stack_ptr-2);
-    CLVALUE* right = (*stack_ptr-1);
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject right = (*stack_ptr-1)->mObjectValue;
 
-    char* mem1 = get_string_mem(left->mObjectValue);
-    char* mem2 = get_string_mem(right->mObjectValue);
+    if(check_type(self, "void", info) || check_type(right, "void", info))
+    {
+        int value = check_type(self, "void", info) == check_type(right, "void", info);
+        
+        CLObject obj = create_bool_object(value, info);
 
-    int value = strcmp(mem1, mem2) == 0;
+        (*stack_ptr)->mObjectValue = obj;
+        (*stack_ptr)++;
+
+        return true;
+    }
+
+    /// check type ///
+    if(!check_type(self, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.equal");
+        return false;
+    }
+    if(!check_type(right, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.equal");
+        return false;
+    }
+
+    /// convert sevenstars to neo-c ///
+    char* self_value = get_string_mem(self);
+    char* right_value = get_string_mem(right);
+
+    /// go ///
+    int value = strcmp(self_value, right_value) == 0;
     
     CLObject obj = create_bool_object(value, info);
 
@@ -175,19 +287,311 @@ bool string_equal(CLVALUE** stack_ptr, sVMInfo* info)
 
 bool string_not_equal(CLVALUE** stack_ptr, sVMInfo* info)
 {
-    CLVALUE* left = (*stack_ptr-2);
-    CLVALUE* right = (*stack_ptr-1);
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject right = (*stack_ptr-1)->mObjectValue;
 
-    char* mem1 = get_string_mem(left->mObjectValue);
-    char* mem2 = get_string_mem(right->mObjectValue);
+    if(check_type(self, "void", info) || check_type(right, "void", info))
+    {
+        int value = check_type(self, "void", info) != check_type(right, "void", info);
+        
+        CLObject obj = create_bool_object(value, info);
 
-    int value = strcmp(mem1, mem2) != 0;
+        (*stack_ptr)->mObjectValue = obj;
+        (*stack_ptr)++;
+
+        return true;
+    }
+
+    /// check type ///
+    if(!check_type(self, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.not_equal");
+        return false;
+    }
+    if(!check_type(right, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.not_equal");
+        return false;
+    }
+
+    /// convert sevenstars to neo-c ///
+    char* self_value = get_string_mem(self);
+    char* right_value = get_string_mem(right);
+
+    /// go ///
+    int value = strcmp(self_value, right_value) != 0;
     
     CLObject obj = create_bool_object(value, info);
 
     (*stack_ptr)->mObjectValue = obj;
     (*stack_ptr)++;
 
+    return true;
+}
+
+bool sevenstars_buffer_initialize(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject obj = create_buffer_object(info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
+bool sevenstars_buffer_append(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-3)->mObjectValue;
+    CLObject mem = (*stack_ptr-2)->mObjectValue;
+    CLObject size = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "buffer", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.append");
+        return false;
+    }
+    if(!check_type(mem, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.append");
+        return false;
+    }
+    if(!check_type(size, "int", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.append");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    buffer* self_value = get_buffer_value(self);
+    char* mem_value = get_string_mem(mem);
+    int size_value = get_int_value(size);
+
+    /// go ///
+    self_value.append(mem_value, size_value);
+    
+    return true;
+}
+
+bool sevenstars_buffer_append_char(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject c = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "buffer", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.append_char");
+        return false;
+    }
+    if(!check_type(c, "int", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.append_char");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    buffer* self_value = get_buffer_value(self);
+    int c_value = get_int_value(c);
+
+    /// go ///
+    self_value.append_char(c_value);
+    
+    return true;
+}
+
+bool sevenstars_buffer_append_str(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject str = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "buffer", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.append_str");
+        return false;
+    }
+    if(!check_type(str, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.append_str");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    buffer* self_value = get_buffer_value(self);
+    char* str_value = get_string_mem(str);
+
+    /// go ///
+    self_value.append_str(str_value);
+    
+    return true;
+}
+
+bool sevenstars_buffer_append_nullterminated_str(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject str = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "buffer", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.append_nullterminated_str");
+        return false;
+    }
+    if(!check_type(str, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.append_nullterminated_str");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    buffer* self_value = get_buffer_value(self);
+    char* str_value = get_string_mem(str);
+
+    /// go ///
+    self_value.append_nullterminated_str(str_value);
+    
+    return true;
+}
+
+bool sevenstars_buffer_append_int(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject c = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "buffer", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.append_int");
+        return false;
+    }
+    if(!check_type(c, "int", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.append_int");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    buffer* self_value = get_buffer_value(self);
+    int c_value = get_int_value(c);
+
+    /// go ///
+    self_value.append_int(c_value);
+    
+    return true;
+}
+
+bool sevenstars_buffer_alignment(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "buffer", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.alignment");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    buffer* self_value = get_buffer_value(self);
+
+    /// go ///
+    self_value.alignment();
+    
+    return true;
+}
+
+bool sevenstars_buffer_to_string(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "buffer", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.to_string");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    buffer* self_value = get_buffer_value(self);
+
+    /// go ///
+    string result = self_value.to_string();
+
+    CLObject obj = create_string_object(result, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+    
+    return true;
+}
+
+bool sevenstars_buffer_length(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "buffer", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.length");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    buffer* self_value = get_buffer_value(self);
+
+    /// go ///
+    int result = self_value.length();
+
+    CLObject obj = create_int_object(result, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+    
+    return true;
+}
+
+bool sevenstars_buffer_compare(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject right = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "buffer", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.compare");
+        return false;
+    }
+    if(!check_type(right, "buffer", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.compare");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    buffer* self_value = get_buffer_value(self);
+    buffer* right_value = get_buffer_value(right);
+
+    /// go ///
+    int result = self_value.compare(right_value);
+
+    CLObject obj = create_int_object(result, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+    
+    return true;
+}
+
+bool sevenstars_string_compare(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject right = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.compare");
+        return false;
+    }
+    if(!check_type(right, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.compare");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    char* self_value = get_string_mem(self);
+    char* right_value = get_string_mem(right);
+
+    /// go ///
+    int result = self_value.compare(right_value);
+
+    CLObject obj = create_int_object(result, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+    
     return true;
 }
 
@@ -260,6 +664,7 @@ void class_init()
     append_class("command");
     append_class("job");
     append_class("lambda");
+    append_class("buffer");
     append_class("generics_type0");
     append_class("generics_type1");
     append_class("generics_type2");
@@ -308,6 +713,17 @@ void class_init()
     gNativeMethods.insert(string("string.equal"), string_equal);
     gNativeMethods.insert(string("string.not_equal"), string_not_equal);
     gNativeMethods.insert(string("string.to_command"), string_to_command);
+    gNativeMethods.insert(string("buffer.initialize"), sevenstars_buffer_initialize);
+    gNativeMethods.insert(string("buffer.append"), sevenstars_buffer_append);
+    gNativeMethods.insert(string("buffer.append_char"), sevenstars_buffer_append_char);
+    gNativeMethods.insert(string("buffer.append_str"), sevenstars_buffer_append_str);
+    gNativeMethods.insert(string("buffer.append_nullterminated_str"), sevenstars_buffer_append_nullterminated_str);
+    gNativeMethods.insert(string("buffer.append_int"), sevenstars_buffer_append_int);
+    gNativeMethods.insert(string("buffer.alignment"), sevenstars_buffer_alignment);
+    gNativeMethods.insert(string("buffer.to_string"), sevenstars_buffer_to_string);
+    gNativeMethods.insert(string("buffer.length"), sevenstars_buffer_length);
+    gNativeMethods.insert(string("buffer.compare"), sevenstars_buffer_compare);
+    gNativeMethods.insert(string("string.compare"), sevenstars_string_compare);
 
     gJobs = borrow new vector<CLObject>.initialize();
 }
@@ -356,7 +772,7 @@ void append_field(sCLClass* klass, char* field_name, sCLType* field_type)
     klass.mFields.insert(string(field_name), field);
 }
 
-void append_method(sCLClass* klass, char* method_name, sCLType* method_type, int num_params, sCLParam* params, bool native, sCLNodeBlock* node_block, int method_max_var_num, buffer* codes)
+sCLMethod* append_method(sCLClass* klass, char* method_name, sCLType* method_type, int num_params, sCLParam* params, bool native)
 {
     sCLMethod*% method = new sCLMethod;
 
@@ -368,18 +784,14 @@ void append_method(sCLClass* klass, char* method_name, sCLType* method_type, int
     method.mName = string(method_name);
     method.mResultType = method_type;
 
-    if(native) {
-        method.mByteCodes = null;
-        method.mNodeBlock = null;
-    }
-    else {
-        method.mByteCodes = dummy_heap codes;
-        method.mNodeBlock = node_block;
-    }
+    method.mByteCodes = null;
+    method.mNodeBlock = null;
 
-    method.mMaxVarNum = method_max_var_num;
+    method.mMaxVarNum = 0;
 
     klass.mMethods.insert(string(method_name), method);
+
+    return klass.mMethods.at(method_name, null);
 }
 
 bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
@@ -464,6 +876,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
         }
         else if(strcmp(word, "var") == 0) {
             var field_name = parse_word(&info);
+
             expected_next_character(':', &info);
 
             sCLType* field_type = null;
@@ -511,11 +924,12 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
                 skip_spaces_and_lf(&info);
 
 
-                append_method(klass, method_name, method_type, num_params, params, true, null, 0, null);
+                append_method(klass, method_name, method_type, num_params, params, true);
             }
             else {
                 expected_next_character('{', &info);
 
+                sCLMethod* method = append_method(klass, method_name, method_type, num_params, params, false);
 
                 sCLNodeBlock* node_block = null;
                 int max_var_num = info.max_var_num;
@@ -565,7 +979,11 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
 
                 expected_next_character('}', &info);
 
-                append_method(klass, method_name, method_type, num_params, params, false, node_block, method_max_var_num, cinfo2.codes);
+
+                method.mByteCodes = dummy_heap borrow cinfo2.codes;
+                method.mNodeBlock = node_block;
+
+                method.mMaxVarNum = method_max_var_num;
             }
 
             delete info.vtables;
@@ -574,10 +992,18 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
             break;
         }
         else {
-            compile_err_msg(cinfo, xsprintf("Require var or def keyword in the class. This is %s", word));
-            delete info.vtables;
-            delete info.generics_type_names;
-            return false;
+            if(strcmp(word, "") == 0) {
+                compile_err_msg(cinfo, xsprintf("Require var or def keyword in the class. This is %c", *info.p));
+                delete info.vtables;
+                delete info.generics_type_names;
+                return false;
+            }
+            else {
+                compile_err_msg(cinfo, xsprintf("Require var or def keyword in the class. This is %s", word));
+                delete info.vtables;
+                delete info.generics_type_names;
+                return false;
+            }
         }
     }
 

@@ -10,7 +10,13 @@ BOOL	src/xfunc.h	7;"	d
 BREAK_MAX	sevenstars/src/common.h	45;"	d
 BUFFER_H	src/buffer.h	2;"	d
 CC	Makefile	/^CC=clang$/;"	m
+CC	sevenstars/Makefile	/^CC=neo-c$/;"	m
+CC	tiny/Makefile	/^CC=gcc$/;"	m
+CC	wi/Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -fPIC -I\/usr\/local\/include -L \/usr\/local\/lib -O3$/;"	m
+CFLAGS	sevenstars/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -fPIC -rdynamic -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O2 -Qunused-arguments$/;"	m
+CFLAGS	tiny/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -Qunused-arguments$/;"	m
+CFLAGS	wi/Makefile	/^CFLAGS= -O2$/;"	m
 CLASS_FLAGS_ANONYMOUS	src/common.h	86;"	d
 CLASS_FLAGS_ANONYMOUS_VAR_NAME	src/common.h	88;"	d
 CLASS_FLAGS_ENUM	src/common.h	87;"	d
@@ -23,23 +29,29 @@ CLASS_FLAGS_UNION	src/common.h	85;"	d
 CLASS_FLAGS_UNSIGNED_NUMBER	src/common.h	82;"	d
 CLASS_NAME	src/common.h	109;"	d
 CLASS_NUM_MAX	src/common.h	22;"	d
-CLBLOCK	sevenstars/src/common.h	467;"	d
-CLCOMMAND	sevenstars/src/common.h	468;"	d
-CLINT	sevenstars/src/common.h	469;"	d
-CLJOB	sevenstars/src/common.h	470;"	d
-CLOBJECT	sevenstars/src/common.h	466;"	d
+CLBLOCK	sevenstars/src/common.h	483;"	d
+CLBUFFER	sevenstars/src/common.h	487;"	d
+CLCOMMAND	sevenstars/src/common.h	484;"	d
+CLINT	sevenstars/src/common.h	485;"	d
+CLJOB	sevenstars/src/common.h	486;"	d
+CLOBJECT	sevenstars/src/common.h	482;"	d
 CLObject	sevenstars/src/common.h	/^typedef unsigned int CLObject;$/;"	t
+CLSTRING	sevenstars/src/common.h	488;"	d
 CLVALUE	sevenstars/src/common.h	/^union CLVALUE {$/;"	u
 COMMAND_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
 COMMON_H	sevenstars/src/common.h	2;"	d
 COMMON_H	src/common.h	2;"	d
 COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/xfunc.o src\/alignment.o$/;"	m
+COMPILER_OBJS	sevenstars/Makefile	/^COMPILER_OBJS=src\/parser.o src\/node.o$/;"	m
 COMPILE_ERR_MSG_MAX	src/common.h	24;"	d
 CONS_str	src/common.h	62;"	d
 CXX	Makefile	/^CXX=g++$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all`  -O3 -I . -I src -DPREFIX="\\"${DESTDIR}\/\\""$/;"	m
 DBuilder	src/llvm.cpp	/^DIBuilder* DBuilder;$/;"	v
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
+DESTDIR	sevenstars/Makefile	/^DESTDIR=\/usr\/local$/;"	m
+DESTDIR	tiny/Makefile	/^DESTDIR=\/usr\/local$/;"	m
+DESTDIR	wi/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DUMMY_ARRAY_SIZE	sevenstars/src/common.h	405;"	d
 DblTy	src/llvm.cpp	/^    DIType* DblTy;$/;"	m	struct:DebugInfo	file:
 DebugInfo	src/llvm.cpp	/^struct DebugInfo {$/;"	s	file:
@@ -50,20 +62,46 @@ FALSE	src/xfunc.h	9;"	d
 FUN_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
 GENERICS_TYPES_MAX	sevenstars/src/common.h	36;"	d
 GENERICS_TYPES_MAX	src/common.h	20;"	d
+HAVE_BSD_H	sevenstars/config.h	9;"	d
 HAVE_ICONV_H	config.h	3;"	d
 HAVE_ICONV_H	config.h	5;"	d
+HAVE_ICONV_H	sevenstars/config.h	3;"	d
+HAVE_ICONV_H	sevenstars/config.h	5;"	d
+HAVE_ICONV_H	tiny/config.h	3;"	d
+HAVE_ICONV_H	tiny/config.h	5;"	d
+HAVE_ICONV_H	wi/config.h	3;"	d
+HAVE_ICONV_H	wi/config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
+HAVE_MATH_H	sevenstars/config.h	2;"	d
+HAVE_MATH_H	tiny/config.h	2;"	d
+HAVE_MATH_H	wi/config.h	2;"	d
+HAVE_NCURSESW_H	sevenstars/config.h	8;"	d
+HAVE_NCURSESW_H	tiny/config.h	8;"	d
+HAVE_NCURSESW_H	wi/config.h	8;"	d
 HAVE_PCRE_H	config.h	6;"	d
+HAVE_PCRE_H	sevenstars/config.h	6;"	d
+HAVE_PCRE_H	tiny/config.h	6;"	d
+HAVE_PCRE_H	wi/config.h	6;"	d
 HAVE_PTHREAD_H	config.h	11;"	d
+HAVE_PTHREAD_H	sevenstars/config.h	11;"	d
+HAVE_PTHREAD_H	tiny/config.h	11;"	d
+HAVE_PTHREAD_H	wi/config.h	11;"	d
+HAVE_READLINE_H	sevenstars/config.h	7;"	d
 HEAP_HANDLE_INIT_SIZE	sevenstars/src/common.h	40;"	d
 HEAP_INIT_SIZE	sevenstars/src/common.h	39;"	d
 IMPL_DEF_MAX	src/common.h	34;"	d
 INIT_ARRAY_MAX	src/common.h	36;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
+INSTALL	sevenstars/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
+INSTALL	tiny/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
+INSTALL	wi/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INT_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
 JOB_TITLE_MAX	sevenstars/src/common.h	43;"	d
 KSDbgInfo	src/llvm.cpp	/^DebugInfo KSDbgInfo;$/;"	v
 LIBS	Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lpthread -lrt$/;"	m
+LIBS	sevenstars/Makefile	/^LIBS= -lutil -lncursesw -lreadline -lbsd -ldl -lm -lpthread -lpcre -lrt$/;"	m
+LIBS	tiny/Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lncursesw -lpthread -lrt$/;"	m
+LIBS	wi/Makefile	/^LIBS= -ldl -lm -lpcre -lncursesw -lrt -lpthread$/;"	m
 LLVM_COMMON_H	src/llvm_common.hpp	2;"	d
 LOCAL_VARIABLE_MAX	src/common.h	26;"	d
 LOOP_NEST_MAX	src/common.h	37;"	d
@@ -78,6 +116,10 @@ METHOD_DEFAULT_PARAM_MAX	src/common.h	28;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
 NATIVE_METHOD_NAME_MAX	sevenstars/src/common.h	44;"	d
+NCC	tiny/Makefile	/^NCC=neo-c$/;"	m
+NCC	wi/Makefile	/^NCC=neo-c$/;"	m
+NCFLAGS	sevenstars/Makefile	/^NCFLAGS=$/;"	m
+NCFLAGS	wi/Makefile	/^NCFLAGS=$/;"	m
 NEO_C_STACK_SIZE	src/common.h	25;"	d
 NODETYPE_CALL_EXTERNAL_FUN	tiny/common.h	/^enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS, NODETYPE_MULT, NODETYPE_DIV, NODETYPE_VAR, NODETYPE_LOAD_VAR, NODETYPE_IF, NODETYPE_STRING, NODETYPE_CALL_EXTERNAL_FUN, NODETYPE_FUN, NODETYPE_CALL_FUN };$/;"	e	enum:__anon1
 NODETYPE_CALL_FUN	tiny/common.h	/^enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS, NODETYPE_MULT, NODETYPE_DIV, NODETYPE_VAR, NODETYPE_LOAD_VAR, NODETYPE_IF, NODETYPE_STRING, NODETYPE_CALL_EXTERNAL_FUN, NODETYPE_FUN, NODETYPE_CALL_FUN };$/;"	e	enum:__anon1
@@ -95,6 +137,7 @@ NODETYPE_VAR	tiny/common.h	/^enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, N
 NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
 NULL_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
 OBJS	Makefile	/^OBJS=src\/source_compiler.o src\/parser.o src\/node.o src\/klass.o src\/node_type.o src\/typedef.o src\/constant.o src\/llvm.o src\/vtable.o src\/node_block.o src\/node_alloc.o src\/macro.o$/;"	m
+OBJS	sevenstars/Makefile	/^OBJS=src\/vm.o$/;"	m
 OP_ANDAND	sevenstars/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE };$/;"	e	enum:__anon11
 OP_COMMAND_VALUE	sevenstars/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE };$/;"	e	enum:__anon11
 OP_COND_JUMP	sevenstars/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE };$/;"	e	enum:__anon11
@@ -135,6 +178,9 @@ OP_THROW	sevenstars/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE,
 OP_TRUE_VALUE	sevenstars/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE };$/;"	e	enum:__anon11
 OP_TRY	sevenstars/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE };$/;"	e	enum:__anon11
 OS	Makefile	/^OS=LINUX$/;"	m
+OS	sevenstars/Makefile	/^OS=LINUX$/;"	m
+OS	tiny/Makefile	/^OS=LINUX$/;"	m
+OS	wi/Makefile	/^OS=$/;"	m
 PARAMS_MAX	sevenstars/src/common.h	38;"	d
 PARAMS_MAX	src/common.h	27;"	d
 PARSER_ERR_MSG_MAX	src/common.h	23;"	d
@@ -190,7 +236,12 @@ _USE_MISC	code/neo-c.h	11;"	d
 _USE_MISC	neo-c.h	11;"	d
 _USE_MISC	sevenstars/src/common.h	23;"	d
 __64BIT_CPU__	config.h	18;"	d
+__64BIT_CPU__	sevenstars/config.h	18;"	d
+__64BIT_CPU__	tiny/config.h	18;"	d
+__64BIT_CPU__	wi/config.h	18;"	d
 __LINUX__	config.h	16;"	d
+__LINUX__	sevenstars/config.h	16;"	d
+__LINUX__	tiny/config.h	16;"	d
 __STDC_CONSTANT_MACROS	code/neo-c.h	27;"	d
 __STDC_CONSTANT_MACROS	neo-c.h	27;"	d
 __STDC_LIMIT_MACROS	code/neo-c.h	26;"	d
@@ -201,6 +252,7 @@ __USE_BSD	sevenstars/src/common.h	26;"	d
 __USE_XOPEN	code/neo-c.h	8;"	d
 __USE_XOPEN	neo-c.h	8;"	d
 __USE_XOPEN	sevenstars/src/common.h	20;"	d
+__X86_64__	wi/config.h	21;"	d
 __sbrk	src/sbrk.c	/^void * __sbrk (intptr_t increment)$/;"	f
 a	code/HelloWorld5.h	/^    int a;$/;"	m	struct:StructData1
 ac_fn_c_check_func	configure	/^ac_fn_c_check_func ()$/;"	f
@@ -264,6 +316,7 @@ arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
 as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
+as_fn_append	sevenstars/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	sevenstars/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/configure	/^  as_fn_append ()$/;"	f
@@ -271,6 +324,7 @@ as_fn_append	wi/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	wi/configure	/^  as_fn_append ()$/;"	f
 as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
+as_fn_arith	sevenstars/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	sevenstars/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/configure	/^  as_fn_arith ()$/;"	f
@@ -278,6 +332,7 @@ as_fn_arith	wi/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	wi/configure	/^  as_fn_arith ()$/;"	f
 as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
+as_fn_error	sevenstars/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	sevenstars/configure	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/configure	/^as_fn_error ()$/;"	f
@@ -285,6 +340,7 @@ as_fn_error	wi/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	wi/configure	/^as_fn_error ()$/;"	f
 as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
+as_fn_executable_p	sevenstars/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	sevenstars/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/configure	/^as_fn_executable_p ()$/;"	f
@@ -292,6 +348,7 @@ as_fn_executable_p	wi/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	wi/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
+as_fn_exit	sevenstars/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	sevenstars/configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	tiny/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	tiny/configure	/^as_fn_exit ()$/;"	f
@@ -303,6 +360,7 @@ as_fn_failure	tiny/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	wi/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
+as_fn_mkdir_p	sevenstars/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	sevenstars/configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	tiny/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	tiny/configure	/^as_fn_mkdir_p ()$/;"	f
@@ -318,6 +376,7 @@ as_fn_ret_success	tiny/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	wi/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
+as_fn_set_status	sevenstars/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	sevenstars/configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	tiny/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	tiny/configure	/^as_fn_set_status ()$/;"	f
@@ -329,6 +388,7 @@ as_fn_success	tiny/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	wi/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
+as_fn_unset	sevenstars/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	sevenstars/configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	tiny/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	tiny/configure	/^as_fn_unset ()$/;"	f
@@ -343,6 +403,9 @@ auto_cast_posibility	src/node_type.c	/^BOOL auto_cast_posibility(sNodeType* left
 b	code/HelloWorld6.h	/^    int b;$/;"	m	struct:version
 binded_value	src/llvm_common.hpp	/^    BOOL binded_value;$/;"	m	struct:LVALUEStruct
 bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
+bindir	sevenstars/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
+bindir	tiny/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
+bindir	wi/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 blocks	sevenstars/src/common.h	/^    vector<sCLNodeBlock*%>* blocks;$/;"	m	struct:sParserInfo
 buf	code/neo-c.h	/^    char* buf;$/;"	m	struct:buffer
 buf	neo-c.h	/^    char* buf;$/;"	m	struct:buffer
@@ -524,7 +587,13 @@ cursor	wi/common.h	/^    int cursor;$/;"	m	struct:ViFiler
 cursorX	wi/common.h	/^    int cursorX;$/;"	m	struct:version
 cursorY	wi/common.h	/^    int cursorY;$/;"	m	struct:version
 datadir	Makefile	/^datadir=${datarootdir}$/;"	m
+datadir	sevenstars/Makefile	/^datadir=${datarootdir}$/;"	m
+datadir	tiny/Makefile	/^datadir=${datarootdir}$/;"	m
+datadir	wi/Makefile	/^datadir=${datarootdir}$/;"	m
 datarootdir	Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
+datarootdir	sevenstars/Makefile	/^datarootdir=${prefix}\/share\/sevenstars$/;"	m
+datarootdir	tiny/Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
+datarootdir	wi/Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
 debug_runned_default	tiny/common.h	/^    bool debug_runned_default;$/;"	m	struct:TinyNode
 debug_show_none_freed_heap_memory	src/memalloc-stdc.c	/^void debug_show_none_freed_heap_memory() $/;"	f
 debug_xcalloc	src/memalloc-stdc.c	/^void *debug_xcalloc(long long int num, long long int nsize, char* type_name, char* sname, int sline, char* fun_name, char* real_fun_name)$/;"	f
@@ -534,6 +603,9 @@ delete_comment	src/source_compiler.c	/^BOOL delete_comment(sBuf* source, sBuf* s
 delete_debug_heap_memory	src/memalloc-stdc.c	/^static void delete_debug_heap_memory(void* mem)$/;"	f	file:
 digitInput	wi/common.h	/^    int digitInput;$/;"	m	struct:version
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
+docdir	sevenstars/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
+docdir	tiny/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
+docdir	wi/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 dollar_endonly	code/neo-c.h	/^    bool dollar_endonly;$/;"	m	struct:regex_struct
 dollar_endonly	neo-c.h	/^    bool dollar_endonly;$/;"	m	struct:regex_struct
 dotall	code/neo-c.h	/^    bool dotall;$/;"	m	struct:regex_struct
@@ -574,6 +646,7 @@ err_num	tiny/common.h	/^    int err_num;$/;"	m	struct:TinyParser
 err_output_num	sevenstars/src/common.h	/^    int err_output_num;$/;"	m	struct:sParserInfo
 events	wi/common.h	/^    vector<void (*lambda)(Vi*, int)>*% events;$/;"	m	struct:version
 exec_prefix	Makefile	/^exec_prefix=${prefix}$/;"	m
+exec_prefix	sevenstars/Makefile	/^exec_prefix=${prefix}$/;"	m
 expect_next_character_with_one_forward	src/parser.c	/^void expect_next_character_with_one_forward(char* characters, sParserInfo* info)$/;"	f
 expression	src/parser.c	/^BOOL expression(unsigned int* node, sParserInfo* info) $/;"	f
 expression_add_sub	src/parser.c	/^static BOOL expression_add_sub(unsigned int* node, sParserInfo* info)$/;"	f	file:
@@ -706,6 +779,9 @@ in_finalize_method	sevenstars/src/common.h	/^    bool in_finalize_method;$/;"	m	
 in_inline_function	src/common.h	/^    BOOL in_inline_function;$/;"	m	struct:sCompileInfoStruct
 included_generics_type	src/node_type.c	/^BOOL included_generics_type(sNodeType* node_type, sCLClass* checked_class[], int* num_checked_class)$/;"	f
 includedir	Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
+includedir	sevenstars/Makefile	/^includedir=${prefix}\/include\/sevenstars$/;"	m
+includedir	tiny/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
+includedir	wi/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 index	sevenstars/src/common.h	/^    int index;$/;"	m	struct:sCLStackFrame
 init_block_vtable	src/vtable.c	/^sVarTable* init_block_vtable(sVarTable* lv_table, BOOL no_increment_block_level)$/;"	f
 init_macro	src/macro.c	/^void init_macro()$/;"	f
@@ -926,6 +1002,9 @@ len	neo-c.h	/^    int len;$/;"	m	struct:map
 len	neo-c.h	/^    int len;$/;"	m	struct:vector
 length	neo-c.h	/^    int length(map<T, T2>* self) {$/;"	f	struct:map
 libdir	Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
+libdir	sevenstars/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
+libdir	tiny/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
+libdir	wi/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 list	code/neo-c.h	/^struct list<T>$/;"	s
 list	neo-c.h	/^struct list<T>$/;"	s
 list_item	code/neo-c.h	/^struct list_item<T>$/;"	s
@@ -959,6 +1038,7 @@ mBody	src/macro.c	/^    sBuf mBody;$/;"	m	struct:sMacro	file:
 mBreakGotoPoints	sevenstars/src/common.h	/^            int mBreakGotoPoints[BREAK_MAX];$/;"	m	struct:sCLNode::__anon3::__anon7
 mBuf	src/buffer.h	/^    char* mBuf;$/;"	m	struct:sBufStruct
 mBuf	src/common.h	/^            char* mBuf;$/;"	m	struct:sNodeTreeStruct::__anon15::__anon34
+mBuffer	sevenstars/src/common.h	/^    buffer* mBuffer;$/;"	m	struct:sCLBuffer
 mBufferValue	sevenstars/src/common.h	/^    buffer*% mBufferValue;$/;"	m	struct:sCLNode
 mByteCodes	sevenstars/src/common.h	/^    buffer*% mByteCodes;$/;"	m	struct:sCLMethod
 mCFFIFunction	src/llvm_common.hpp	/^    BOOL mCFFIFunction;$/;"	m	struct:sFunctionStruct
@@ -1116,10 +1196,12 @@ mNullable	src/common.h	/^    BOOL mNullable;$/;"	m	struct:sNodeTypeStruct
 mNumBreakGotoPoints	sevenstars/src/common.h	/^            int mNumBreakGotoPoints;$/;"	m	struct:sCLNode::__anon3::__anon7
 mNumElif	sevenstars/src/common.h	/^            int mNumElif;$/;"	m	struct:sCLNode::__anon3::__anon4
 mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLBlock
+mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLBuffer
 mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLCommand
 mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLInt
 mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLJob
 mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLObject
+mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLString
 mNumFields	src/common.h	/^    int mNumFields;$/;"	m	struct:sCLClassStruct
 mNumFields	src/common.h	/^    int mNumFields;$/;"	m	struct:sNodeTypeStruct
 mNumGenerics	src/common.h	/^            int mNumGenerics;$/;"	m	struct:sNodeTreeStruct::__anon15::__anon24
@@ -1198,11 +1280,13 @@ mSimpleLambdaParam	src/common.h	/^            BOOL mSimpleLambdaParam;$/;"	m	str
 mSimpleName	src/common.h	/^            char mSimpleName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon15::__anon24
 mSimpleName	src/llvm_common.hpp	/^    char mSimpleName[VAR_NAME_MAX];$/;"	m	struct:sFunctionStruct
 mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLBlock
+mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLBuffer
 mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLCommand
 mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLHeapMem
 mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLInt
 mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLJob
 mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLObject
+mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLString
 mSize	src/buffer.h	/^    int mSize;$/;"	m	struct:sBufStruct
 mSize	src/common.h	/^    unsigned int mSize;$/;"	m	struct:sConstStruct
 mSizeNodes	src/common.h	/^    unsigned int mSizeNodes;$/;"	m	struct:sNodeBlockStruct
@@ -1210,6 +1294,7 @@ mSizeNum	src/common.h	/^    int mSizeNum;$/;"	m	struct:sNodeTypeStruct
 mSource	src/common.h	/^    sBuf mSource;$/;"	m	struct:sNodeBlockStruct
 mSource	src/preprocessor.c	/^    sBuf mSource;$/;"	m	struct:sPreprocessorFunctionStruct	file:
 mStatic	src/common.h	/^    BOOL mStatic;$/;"	m	struct:sNodeTypeStruct
+mString	sevenstars/src/common.h	/^    char* mString;$/;"	m	struct:sCLString
 mString	src/common.h	/^            char* mString;$/;"	m	struct:sNodeTreeStruct::__anon15::__anon22
 mStringValue	sevenstars/src/common.h	/^    string mStringValue;$/;"	m	struct:sCLNode
 mStringValue2	sevenstars/src/common.h	/^    string mStringValue2;$/;"	m	struct:sCLNode
@@ -1219,6 +1304,7 @@ mSwitchExpression	src/common.h	/^            unsigned int* mSwitchExpression;$/;
 mTermInfo	sevenstars/src/common.h	/^    termios mTermInfo;$/;"	m	struct:sCLJob
 mTitle	sevenstars/src/common.h	/^    char mTitle[JOB_TITLE_MAX];$/;"	m	struct:sCLJob
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLBlock
+mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLBuffer
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLCommand
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLHeapMem
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLInt
@@ -1226,6 +1312,7 @@ mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLJob
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLNode
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLObject
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLParam
+mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLString
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sVar
 mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct::__anon15::__anon29
 mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct::__anon15::__anon30
@@ -1274,6 +1361,9 @@ main	wi/a.c	/^int main()$/;"	f
 make_clone_for_recursive_field_type	src/llvm.cpp	/^BOOL make_clone_for_recursive_field_type(sNodeType* node_type, sCompileInfo* info) $/;"	f
 make_finalize_for_recursive_field_type	src/llvm.cpp	/^BOOL make_finalize_for_recursive_field_type(sNodeType* node_type, sCompileInfo* info) $/;"	f
 mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
+mandir	sevenstars/Makefile	/^mandir=${datarootdir}\/man$/;"	m
+mandir	tiny/Makefile	/^mandir=${datarootdir}\/man$/;"	m
+mandir	wi/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 map	code/neo-c.h	/^impl map <T, T2>$/;"	s
 map	code/neo-c.h	/^ruby_macro map {$/;"	s
 map	code/neo-c.h	/^struct map<T, T2>$/;"	s
@@ -1409,6 +1499,9 @@ pinfo	sevenstars/src/common.h	/^    sParserInfo* pinfo;$/;"	m	struct:sVMInfo
 pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sParserInfoStruct
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sParserInfo* info)$/;"	f	file:
 prefix	Makefile	/^prefix=\/usr\/local$/;"	m
+prefix	sevenstars/Makefile	/^prefix=\/usr\/local$/;"	m
+prefix	tiny/Makefile	/^prefix=\/usr\/local exec_prefix=${prefix}$/;"	m
+prefix	wi/Makefile	/^prefix=\/usr\/local exec_prefix=${prefix}$/;"	m
 preprocess_source	src/preprocessor.c	/^static BOOL preprocess_source(char* sname, char* output_sname)$/;"	f	file:
 preprocessor	src/preprocessor.c	/^static BOOL preprocessor(sBuf* source, sBuf* source2)$/;"	f	file:
 preprocessor_final	src/preprocessor.c	/^static void preprocessor_final()$/;"	f	file:
@@ -1472,6 +1565,7 @@ sBuf_append_str	src/buffer.c	/^void sBuf_append_str(sBuf* self, char* str)$/;"	f
 sBuf_clone	src/buffer.c	/^void sBuf_clone(sBuf* self, sBuf* buf)$/;"	f
 sBuf_init	src/buffer.c	/^void sBuf_init(sBuf* self)$/;"	f
 sCLBlock	sevenstars/src/common.h	/^struct sCLBlock {$/;"	s
+sCLBuffer	sevenstars/src/common.h	/^struct sCLBuffer {$/;"	s
 sCLClass	sevenstars/src/common.h	/^struct sCLClass {$/;"	s
 sCLClass	src/common.h	/^typedef struct sCLClassStruct sCLClass;$/;"	t	typeref:struct:sCLClassStruct
 sCLClassStruct	src/common.h	/^struct sCLClassStruct {$/;"	s
@@ -1486,6 +1580,7 @@ sCLNodeBlock	sevenstars/src/common.h	/^struct sCLNodeBlock {$/;"	s
 sCLObject	sevenstars/src/common.h	/^struct sCLObject {$/;"	s
 sCLParam	sevenstars/src/common.h	/^struct sCLParam {$/;"	s
 sCLStackFrame	sevenstars/src/common.h	/^struct sCLStackFrame {$/;"	s
+sCLString	sevenstars/src/common.h	/^struct sCLString {$/;"	s
 sCLType	sevenstars/src/common.h	/^struct sCLType {$/;"	s
 sCase	src/common.h	/^        } sCase;$/;"	m	union:sNodeTreeStruct::__anon15	typeref:struct:sNodeTreeStruct::__anon15::__anon44
 sClassTable	src/common.h	/^typedef struct sClassTableStruct sClassTable;$/;"	t	typeref:struct:sClassTableStruct
@@ -1663,6 +1758,9 @@ search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* clas
 setCurrentDebugLocation	src/llvm.cpp	/^void setCurrentDebugLocation(int sline)$/;"	f
 set_max_block_var_num	src/vtable.c	/^void set_max_block_var_num(sVarTable* lv_table, sVarTable* old_table)$/;"	f
 sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
+sharedstatedir	sevenstars/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
+sharedstatedir	tiny/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
+sharedstatedir	wi/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 show_node	src/node.cpp	/^void show_node(unsigned int node)$/;"	f
 show_node_type	src/node_type.c	/^void show_node_type(sNodeType* node_type)$/;"	f
 show_vtable	src/vtable.c	/^void show_vtable(sVarTable* table)$/;"	f
@@ -1735,6 +1833,9 @@ switch_expression	src/common.h	/^    void* switch_expression;$/;"	m	struct:sComp
 switch_expression_type	src/common.h	/^    sNodeType* switch_expression_type;$/;"	m	struct:sCompileInfoStruct
 switch_nest	src/common.h	/^    int switch_nest;$/;"	m	struct:sParserInfoStruct
 sysconfdir	Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
+sysconfdir	sevenstars/Makefile	/^sysconfdir=${prefix}\/etc\/sevenstars$/;"	m
+sysconfdir	tiny/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
+sysconfdir	wi/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
 tail	code/neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
 tail	neo-c.h	/^    list_item<T>*? tail;$/;"	m	struct:list
 tail	src/memalloc.c	/^struct header_t *head = NULL, *tail = NULL;$/;"	v	typeref:struct:
