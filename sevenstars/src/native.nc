@@ -652,8 +652,11 @@ bool sevenstars_map_insert(CLVALUE** stack_ptr, sVMInfo* info)
     char* key_value = get_string_mem(key);
     int item_value = item;
 
+    list<char*>* keys_value = get_map_keys(self);
+
     /// go ///
     self_value.insert(key_value, item_value);
+    keys_value.push_back(key_value);
     
     return true;
 }

@@ -27,6 +27,10 @@ void class_init()
     append_class("lambda");
     append_class("buffer");
     append_class("map");
+    append_class("tuple1");
+    append_class("tuple2");
+    append_class("tuple3");
+    append_class("tuple4");
     append_class("generics_type0");
     append_class("generics_type1");
     append_class("generics_type2");

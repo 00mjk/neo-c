@@ -21,6 +21,7 @@ bool free_object(CLObject self, sVMInfo* info)
             sCLMap* map_data = CLMAP(self);
 
             delete map_data->mMap;
+            delete map_data->mKeys;
         }
     }
 /*
@@ -206,6 +207,13 @@ map<char*,int>* get_map_value(CLObject obj)
     return map_data->mMap;
 }
 
+list<char*>* get_map_keys(CLObject obj)
+{
+    sCLMap* map_data = CLMAP(obj);
+
+    return map_data->mKeys;
+}
+
 CLObject create_string_data_object(char* str, sVMInfo* info)
 {
     int len = strlen(str);
@@ -357,6 +365,7 @@ CLObject create_map_object(sVMInfo* info)
     sCLMap* map_data = CLMAP(obj);
 
     map_data->mMap = borrow new map<char*, int>.initialize();
+    map_data->mKeys = borrow new list<char*>.initialize();
 
     return obj;
 }

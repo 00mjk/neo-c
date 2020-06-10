@@ -2174,6 +2174,11 @@ bool compile_store_field(sCLNode* node, sCompileInfo* info)
         klass = klass->mParent;
     }
 
+    if(klass == null) {
+        compile_err_msg(info, xsprintf("There is no field named %s in class %s", name, klass_name));
+        return true;
+    }
+
     int sum = 0;
     sCLClass* it = klass->mParent;
     while(it) {
@@ -2415,6 +2420,13 @@ static bool compile_try_expression(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
+    if(!substitution_posibility(create_type("void", info.pinfo), cinfo2.type))
+    {
+        compile_err_msg(&cinfo2, "block result error");
+        delete cinfo2.codes;
+        return true;
+    }
+
     node_block.codes = dummy_heap cinfo2.codes;
 
     cinfo2 = *info;
@@ -2428,7 +2440,15 @@ static bool compile_try_expression(sCLNode* node, sCompileInfo* info)
     cinfo2.stack_num = 0;
 
     if(!compile_block(node_block2, &cinfo2)) {
+        delete cinfo2.codes;
         return false;
+    }
+
+    if(!substitution_posibility(create_type("void", info.pinfo), cinfo2.type))
+    {
+        compile_err_msg(&cinfo2, "block result error");
+        delete cinfo2.codes;
+        return true;
     }
 
     node_block2.codes = dummy_heap cinfo2.codes;

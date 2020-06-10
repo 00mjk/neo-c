@@ -683,6 +683,10 @@ void ready_for_vm_stack(CLVALUE* stack, CLVALUE* parent_stack_ptr, int num_param
         for(int i=0; i<num_params; i++) {
             stack[i] = parent_stack_ptr[i-num_params];
         }
+
+        if(info->thrown_object.mObjectValue) {
+            stack[0] = info->thrown_object;
+        }
     }
 }
 
@@ -709,10 +713,6 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
     info.stack_frames.push_back(stack_frame);
 
     ready_for_vm_stack(stack, parent_stack_ptr, num_params, var_num, info);
-
-    if(info->thrown_object.mObjectValue) {
-        *(stack_ptr-1) = info->thrown_object;
-    }
     
     while(p - head_codes < codes.len) {
         int op = *p;
@@ -1400,8 +1400,29 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 p++;
                 
                 CLObject obj =  (stack_ptr-2)->mObjectValue;
+
+                if(obj == 0) {
+                    vm_err_msg(&stack_ptr, info, xsprintf("Object Null pointer Exception. Storing field index is (%d)\n", field_index));
+                    info.stack_frames.pop_back(null_parent_stack_frame);
+                    return false;
+                }
+
                 CLVALUE value =  *(stack_ptr-1);
+
+                if(value.mObjectValue == 0) {
+                    vm_err_msg(&stack_ptr, info, xsprintf("Object Null pointer Exception. Storing field index is (%d)\n", field_index));
+                    info.stack_frames.pop_back(null_parent_stack_frame);
+                    return false;
+                }
+
                 sCLObject* object_data = CLOBJECT(obj);
+
+                if(field_index < 0 || field_index >= object_data->mNumFields)
+                {
+                    vm_err_msg(&stack_ptr, info, xsprintf("Out of range field index number(%d)\n", field_index));
+                    info.stack_frames.pop_back(null_parent_stack_frame);
+                    return false;
+                }
 
                 object_data->uValue.mFields[field_index] = value;
 
@@ -1462,12 +1483,9 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 int num_params = 0;
                 int var_num = try_var_num;
 
-                int parent_stack_frame_index = info.stack_frames.length()-1;
-                bool enable_parent_stack = true;
-
                 CLVALUE result_obj;
                 info->thrown_object.mObjectValue = 0;
-                bool result = vm(try_codes, stack_ptr,  num_params, var_num, &result_obj, info);
+                bool result = vm(try_codes, stack_ptr, num_params, var_num, &result_obj, info);
 
                 if(!result) {
                     buffer*% catch_codes = new buffer.initialize();
@@ -1475,9 +1493,6 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
 
                     int num_params = 1;
                     int var_num = catch_var_num;
-
-                    int parent_stack_frame_index = info.stack_frames.length()-1;
-                    bool enable_parent_stack = true;
 
                     CLVALUE result_obj;
                     if(!vm(catch_codes, stack_ptr, num_params, var_num, &result_obj, info))

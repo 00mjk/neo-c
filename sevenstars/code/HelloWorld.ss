@@ -54,6 +54,18 @@ class bool {
 
         0
     }
+
+    def xassert(str:string):void {
+        echo("-n", str);
+
+        if(self) {
+            echo("...true");
+        }
+        else {
+            echo("...false");
+            exit(1);
+        };
+    }
 };
 
 class string {
@@ -685,6 +697,83 @@ class map<T>
     def equal(right:map<T>):bool;
 }
 
+class tuple1<T>
+{
+    var value1:T?;
+    
+    def initialize():tuple1<T> {
+        self.value1 = null;
+        
+        self
+    }
+    
+    def equal(right:tuple1<T>):bool {
+        self.value1 == right.value1
+    }
+}
+
+class tuple2<T, T2>
+{
+    var value1:T?;
+    var value2:T2?;
+    
+    def initialize():tuple2<T,T2> {
+        self.value1 = null;
+        self.value2 = null;
+        
+        self
+    }
+    
+    def equal(right:tuple2<T,T2>):bool {
+        (self.value1 == right.value1) && (self.value2 == right.value2)
+    }
+}
+
+class tuple3<T, T2, T3>
+{
+    var value1:T?;
+    var value2:T2?;
+    var value3:T3?;
+    
+    def initialize():tuple3<T,T2,T3> {
+        self.value1 = null;
+        self.value2 = null;
+        self.value3 = null;
+        
+        self
+    }
+    
+    def equal(right:tuple3<T,T2,T3>):bool {
+        (self.value1 == right.value1) 
+            && (self.value2 == right.value2)
+            && (self.value3 == right.value3)
+    }
+}
+
+class tuple4<T, T2, T3, T4>
+{
+    var value1:T?;
+    var value2:T2?;
+    var value3:T3?;
+    var value4:T4?;
+    
+    def initialize():tuple4<T,T2,T3,T4> {
+        self.value1 = null;
+        self.value2 = null;
+        self.value3 = null;
+        self.value4 = null;
+        
+        self
+    }
+    
+    def equal(right:tuple4<T,T2,T3,T4>):bool {
+        (self.value1 == right.value1) 
+            && (self.value2 == right.value2)
+            && (self.value3 == right.value3)
+            && (self.value4 == right.value4)
+    }
+}
+
 save_class object;
 save_class int;
 save_class bool;
@@ -693,3 +782,7 @@ save_class list_item;
 save_class list;
 save_class buffer;
 save_class map;
+save_class tuple1;
+save_class tuple2;
+save_class tuple3;
+save_class tuple4;

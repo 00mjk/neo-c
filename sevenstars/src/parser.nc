@@ -280,9 +280,18 @@ bool parse_try(sCLNode** node, sParserInfo* info)
     expected_next_character('{', info);
 
     sCLNodeBlock* node_block = null;
+    var vtables_before = info->vtables;
+    info.vtables = borrow new vector<sVarTable*%>.initialize();
+    int max_var_num = info.max_var_num;
     if(!parse_block(&node_block, 0, NULL, info)) {
+        info.max_var_num = max_var_num;
+        delete info.vtables;
+        info.vtables = vtables_before;
         return false;
     }
+    info.max_var_num = max_var_num;
+    delete info.vtables;
+    info.vtables = vtables_before;
 
     expected_next_character('}', info);
 
@@ -299,9 +308,18 @@ bool parse_try(sCLNode** node, sParserInfo* info)
     num_params++;
 
     sCLNodeBlock* node_block2 = null;
+    vtables_before = info->vtables;
+    info.vtables = borrow new vector<sVarTable*%>.initialize();
+     max_var_num = info.max_var_num;
     if(!parse_block(&node_block2, num_params, params, info)) {
+        info.max_var_num = max_var_num;
+        delete info.vtables;
+        info.vtables = vtables_before;
         return false;
     }
+    info.max_var_num = max_var_num;
+    delete info.vtables;
+    info.vtables = vtables_before;
 
     expected_next_character('}', info);
 
