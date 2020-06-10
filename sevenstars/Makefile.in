@@ -33,8 +33,8 @@ COMPILER_OBJS=@COMPILER_OBJS@
 all: sevenstars
 #	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
-sevenstars: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
-	$(CC) -o sevenstars src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
+sevenstars: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/native.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
+	$(CC) -o sevenstars src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/native.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
 
 ##########################################################
 # objects
@@ -50,6 +50,9 @@ src/type.o: config.h src/*.h Makefile configure src/type.nc
 
 src/class.o: config.h src/*.h Makefile configure src/class.nc
 	$(CC) -c src/class.nc $(CFLAGS) $(NCFLAGS)
+
+src/native.o: config.h src/*.h Makefile configure src/native.nc
+	$(CC) -c src/native.nc $(CFLAGS) $(NCFLAGS)
 
 src/vm.o: config.h src/*.h Makefile configure src/vm.nc
 	$(CC) -c src/vm.nc $(CFLAGS) $(NCFLAGS)

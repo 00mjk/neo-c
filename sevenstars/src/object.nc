@@ -199,6 +199,13 @@ buffer* get_buffer_value(CLObject obj)
     return buffer_data->mBuffer;
 }
 
+map<char*,int>* get_map_value(CLObject obj)
+{
+    sCLMap* map_data = CLMAP(obj);
+
+    return map_data->mMap;
+}
+
 CLObject create_string_data_object(char* str, sVMInfo* info)
 {
     int len = strlen(str);
@@ -349,7 +356,7 @@ CLObject create_map_object(sVMInfo* info)
 
     sCLMap* map_data = CLMAP(obj);
 
-    map_data->mMap = borrow new map<int, int>.initialize();
+    map_data->mMap = borrow new map<char*, int>.initialize();
 
     return obj;
 }

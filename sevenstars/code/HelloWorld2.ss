@@ -89,6 +89,88 @@ ruby <<'EOS'
 EOS
 }
 
+macro map {
+ruby <<'EOS'
+    params = [];
+    param = "";
+    dquort = false;
+    squort = false;
+    param_line = ENV['PARAMS'];
+    n = 0;
+    while(n < param_line.length()) do
+        c = param_line[n];
+        n = n + 1;
+
+        if (dquort || squort) && c == "\\"
+            param.concat(c);
+            
+            c = param_line[n];
+            n = n + 1;
+
+            param.concat(c);
+        elsif c == "\""
+            param.concat(c);
+            dquort = !dquort
+        elsif c == "'"
+            param.concat(c);
+            squort = !squort
+        elsif dquort || squort
+            param.concat(c);
+        elsif c == ","
+            if param.length() > 0
+                params.push(param); param = ""
+            end
+        else
+            param.concat(c);
+        end
+    end
+
+    if param.length() != 0
+        params.push(param);
+    end
+
+    if params.length() > 0
+        print("lambda(");
+        i = 0;
+        while i < params.size()
+            print("param#{i}:any");
+
+            if i != params.size()-1
+                print(",")
+            end
+
+            i = i + 1;
+        end
+
+        puts("):map<any> {");
+
+        puts("var result = new map();");
+
+        i = 0;
+        while i+1 < params.size()
+            puts("result.insert(param#{i}, param#{i+1});");
+
+            i = i + 2;
+        end
+
+        puts("result");
+        print("}(");
+        i = 0;
+        while i < params.size()
+            print("#{params[i]}");
+
+            if i != params.size()-1
+                print(",")
+            end
+
+            i = i + 1;
+        end
+
+        puts(")");
+    end
+EOS
+}
+
 var xassert = lambda(str:string, exp:bool):void {
     echo("-n", str);
 
@@ -431,7 +513,25 @@ var li8 = list!(6, 2, 4, 9, 7, 1);
 
 xassert("list sort", li8.sort() { it.compare(it2) } == list!(1,2,4,6,7,9));
 
-new map<string,int>();
+var ma1 = new map<int?>();
+
+ma1.insert("AAA", 1);
+ma1.insert("BBB", 2);
+ma1.insert("CCC", 3);
+
+xassert("map test", ma1.at("AAA", null) == 1 && ma1.at("BBB", null) == 2 && ma1.at("CCC", null) == 3 && ma1.at("DDD", null) == null);
+
+var ma2 = map!("AAA", 1, "BBB", 2, "CCC", 3);
+
+xassert("map test2", ma2.at("AAA", null) == 1 && ma2.at("BBB", null) == 2 && ma2.at("CCC", null) == 3 && ma2.at("DDD", null) == null);
+
+xassert("map test3", ma2.find("AAA") && !ma2.find("DDD"));
+
+xassert("map test4", ma2.length() == 3);
+
+var ma3 = map!("AAA", 1, "BBB", 2, "CCC", 3);
+
+xassert("map test5", ma2 == ma3);
 
 # test 5
 #

@@ -22,10 +22,12 @@ static void clover3_init()
 {
     class_init();
     macro_init();
+    native_init();
 }
 
 static void clover3_final()
 {
+    native_final();
     class_final();
     macro_final();
 }

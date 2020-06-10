@@ -675,9 +675,14 @@ class list<T>
     }
 }
 
-class map<T, T2>
+class map<T>
 {
-    def initialize():map<T,T2>;
+    def initialize():map<T>;
+    def insert(key:string, item:T):void;
+    def at(key:string, default_value:T?):T?;
+    def find(key:string):bool;
+    def length():int;
+    def equal(right:map<T>):bool;
 }
 
 save_class object;

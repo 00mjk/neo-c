@@ -125,6 +125,10 @@ void class_init();
 void class_final();
 void append_class(char* name);
 bool eval_class(char* source, sCompileInfo* vminfo, char* sname, int sline);
+/// native.nc ///
+void native_init();
+void native_final();
+
 bool invoke_native_method(sCLClass* klass, sCLMethod* method, CLVALUE** stack_ptr, sVMInfo* info);
 
 //////////////////////////////////////////
@@ -486,7 +490,7 @@ struct sCLMap {
     
     int mNumFields;
     
-    map<int,int>* mMap;
+    map<char*,int>* mMap;
 };
 
 
@@ -508,6 +512,7 @@ CLObject create_int_object(int value, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
 CLObject create_map_object(sVMInfo* info);
 char* get_string_mem(CLObject obj);
+map<char*,int>* get_map_value(CLObject obj);
 int get_int_value(CLObject obj);
 buffer* get_buffer_value(CLObject obj);
 void set_int_value(CLObject obj, int value);
