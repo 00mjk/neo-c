@@ -627,6 +627,16 @@ bool object_num_fields(CLVALUE** stack_ptr, sVMInfo* info)
     return true;
 }
 
+bool sevenstars_map_initialize(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject obj = create_map_object(info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
 void create_native_method_name(char* result, sCLClass* klass, sCLMethod* method)
 {
     snprintf(result, NATIVE_METHOD_NAME_MAX, "%s.%s", klass.mName, method.mName);
@@ -665,6 +675,7 @@ void class_init()
     append_class("job");
     append_class("lambda");
     append_class("buffer");
+    append_class("map");
     append_class("generics_type0");
     append_class("generics_type1");
     append_class("generics_type2");
@@ -713,6 +724,7 @@ void class_init()
     gNativeMethods.insert(string("string.equal"), string_equal);
     gNativeMethods.insert(string("string.not_equal"), string_not_equal);
     gNativeMethods.insert(string("string.to_command"), string_to_command);
+    gNativeMethods.insert(string("map.initialize"), sevenstars_map_initialize);
     gNativeMethods.insert(string("buffer.initialize"), sevenstars_buffer_initialize);
     gNativeMethods.insert(string("buffer.append"), sevenstars_buffer_append);
     gNativeMethods.insert(string("buffer.append_char"), sevenstars_buffer_append_char);

@@ -73,8 +73,6 @@ sCLType* create_type(char* type_name, sParserInfo* info)
 
     result.mClass = gClasses.at(type_name, null);
     
-    assert(result.mClass != null);
-    
     return result;
 }
 

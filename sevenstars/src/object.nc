@@ -6,17 +6,23 @@ bool free_object(CLObject self, sVMInfo* info)
     sCLObject* object_data = CLOBJECT(self);
     sCLType* type = object_data->mType;
 
-    if(type->mClass == gClasses.at("buffer", null)) {
-        sCLBuffer* buffer_data = CLBUFFER(self);
+    if(object_data->mNumFields == -1) {
+        if(type->mClass == gClasses.at("buffer", null)) {
+            sCLBuffer* buffer_data = CLBUFFER(self);
 
-        delete dummy_heap buffer_data->mBuffer;
+            delete dummy_heap buffer_data->mBuffer;
+        }
+        else if(type->mClass == gClasses.at("string", null)) {
+            sCLString* string_data = CLSTRING(self);
+
+            delete dummy_heap string_data->mString;
+        }
+        else if(type->mClass == gClasses.at("map", null)) {
+            sCLMap* map_data = CLMAP(self);
+
+            delete map_data->mMap;
+        }
     }
-    else if(type->mClass == gClasses.at("string", null)) {
-        sCLString* string_data = CLSTRING(self);
-
-        delete dummy_heap string_data->mString;
-    }
-
 /*
     if(!call_finalize_method_on_free_object(klass, self)) {
         return FALSE;
@@ -314,6 +320,36 @@ CLObject create_buffer_object(sVMInfo* info)
     sCLBuffer* buffer_data = CLBUFFER(obj);
 
     buffer_data->mBuffer = borrow new buffer.initialize();
+
+    return obj;
+}
+
+static cllong map_object_size()
+{
+    cllong size = sizeof(sCLMap);
+
+    unsigned int size2 = size;
+
+    alignment((unsigned int*)&size2);
+
+    size = size2;
+
+    return size;
+}
+
+CLObject create_map_object(sVMInfo* info)
+{
+    unsigned int size = (unsigned int)map_object_size();
+
+    alignment(&size);
+
+    sCLType* map_type = create_type("map", info.cinfo.pinfo);
+
+    CLObject obj = alloc_heap_mem(size, map_type, -1, info);
+
+    sCLMap* map_data = CLMAP(obj);
+
+    map_data->mMap = borrow new map<int, int>.initialize();
 
     return obj;
 }

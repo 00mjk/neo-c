@@ -480,6 +480,16 @@ struct sCLString {
     char* mString;
 };
 
+struct sCLMap {
+    sCLType* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    map<int,int>* mMap;
+};
+
+
 #define CLOBJECT(obj) ((sCLObject*)(get_object_pointer((obj))))
 #define CLBLOCK(obj) ((sCLBlock*)(get_object_pointer((obj))))
 #define CLCOMMAND(obj) ((sCLCommand*)(get_object_pointer((obj))))
@@ -487,6 +497,7 @@ struct sCLString {
 #define CLJOB(obj) ((sCLJob*)(get_object_pointer((obj))))
 #define CLBUFFER(obj) ((sCLBuffer*)(get_object_pointer((obj))))
 #define CLSTRING(obj) ((sCLString*)(get_object_pointer((obj))))
+#define CLMAP(obj) ((sCLMap*)(get_object_pointer((obj))))
 
 sCLHeapMem* get_object_pointer(CLObject obj);
 
@@ -495,6 +506,7 @@ CLObject create_buffer_object(sVMInfo* info);
 CLObject create_null_object(sVMInfo* info);
 CLObject create_int_object(int value, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
+CLObject create_map_object(sVMInfo* info);
 char* get_string_mem(CLObject obj);
 int get_int_value(CLObject obj);
 buffer* get_buffer_value(CLObject obj);

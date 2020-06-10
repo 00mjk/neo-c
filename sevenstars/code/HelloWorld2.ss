@@ -5,6 +5,7 @@ load_class string;
 load_class list_item;
 load_class list;
 load_class buffer;
+load_class map;
 
 macro list {
 ruby <<'EOS'
@@ -429,6 +430,8 @@ xassert("list filter test", li7.filter() { it > 1 } == list!(2, 3));
 var li8 = list!(6, 2, 4, 9, 7, 1);
 
 xassert("list sort", li8.sort() { it.compare(it2) } == list!(1,2,4,6,7,9));
+
+new map<string,int>();
 
 # test 5
 #

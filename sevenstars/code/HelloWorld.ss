@@ -675,6 +675,11 @@ class list<T>
     }
 }
 
+class map<T, T2>
+{
+    def initialize():map<T,T2>;
+}
+
 save_class object;
 save_class int;
 save_class bool;
@@ -682,3 +687,4 @@ save_class string;
 save_class list_item;
 save_class list;
 save_class buffer;
+save_class map;

@@ -29,14 +29,15 @@ CLASS_FLAGS_UNION	src/common.h	85;"	d
 CLASS_FLAGS_UNSIGNED_NUMBER	src/common.h	82;"	d
 CLASS_NAME	src/common.h	109;"	d
 CLASS_NUM_MAX	src/common.h	22;"	d
-CLBLOCK	sevenstars/src/common.h	483;"	d
-CLBUFFER	sevenstars/src/common.h	487;"	d
-CLCOMMAND	sevenstars/src/common.h	484;"	d
-CLINT	sevenstars/src/common.h	485;"	d
-CLJOB	sevenstars/src/common.h	486;"	d
-CLOBJECT	sevenstars/src/common.h	482;"	d
+CLBLOCK	sevenstars/src/common.h	494;"	d
+CLBUFFER	sevenstars/src/common.h	498;"	d
+CLCOMMAND	sevenstars/src/common.h	495;"	d
+CLINT	sevenstars/src/common.h	496;"	d
+CLJOB	sevenstars/src/common.h	497;"	d
+CLMAP	sevenstars/src/common.h	500;"	d
+CLOBJECT	sevenstars/src/common.h	493;"	d
 CLObject	sevenstars/src/common.h	/^typedef unsigned int CLObject;$/;"	t
-CLSTRING	sevenstars/src/common.h	488;"	d
+CLSTRING	sevenstars/src/common.h	499;"	d
 CLVALUE	sevenstars/src/common.h	/^union CLVALUE {$/;"	u
 COMMAND_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
 COMMON_H	sevenstars/src/common.h	2;"	d
@@ -52,7 +53,7 @@ DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	sevenstars/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	tiny/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	wi/Makefile	/^DESTDIR=\/usr\/local$/;"	m
-DUMMY_ARRAY_SIZE	sevenstars/src/common.h	405;"	d
+DUMMY_ARRAY_SIZE	sevenstars/src/common.h	406;"	d
 DblTy	src/llvm.cpp	/^    DIType* DblTy;$/;"	m	struct:DebugInfo	file:
 DebugInfo	src/llvm.cpp	/^struct DebugInfo {$/;"	s	file:
 ELIF_MAX	sevenstars/src/common.h	42;"	d
@@ -118,7 +119,7 @@ MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
 NATIVE_METHOD_NAME_MAX	sevenstars/src/common.h	44;"	d
 NCC	tiny/Makefile	/^NCC=neo-c$/;"	m
 NCC	wi/Makefile	/^NCC=neo-c$/;"	m
-NCFLAGS	sevenstars/Makefile	/^NCFLAGS=$/;"	m
+NCFLAGS	sevenstars/Makefile	/^NCFLAGS=-gm$/;"	m
 NCFLAGS	wi/Makefile	/^NCFLAGS=$/;"	m
 NEO_C_STACK_SIZE	src/common.h	25;"	d
 NODETYPE_CALL_EXTERNAL_FUN	tiny/common.h	/^enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, NODETYPE_MINUS, NODETYPE_MULT, NODETYPE_DIV, NODETYPE_VAR, NODETYPE_LOAD_VAR, NODETYPE_IF, NODETYPE_STRING, NODETYPE_CALL_EXTERNAL_FUN, NODETYPE_FUN, NODETYPE_CALL_FUN };$/;"	e	enum:__anon1
@@ -314,41 +315,31 @@ append_str_to_constant_pool	src/constant.c	/^unsigned int append_str_to_constant
 append_wstr_to_constant_pool	src/constant.c	/^unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_append	sevenstars/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	sevenstars/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	wi/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	wi/configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_arith	sevenstars/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	sevenstars/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	wi/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	wi/configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_error	sevenstars/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	sevenstars/configure	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/configure	/^as_fn_error ()$/;"	f
 as_fn_error	wi/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	wi/configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_executable_p	sevenstars/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	sevenstars/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	wi/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	wi/configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
-as_fn_exit	sevenstars/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	sevenstars/configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	tiny/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	tiny/configure	/^as_fn_exit ()$/;"	f
@@ -358,9 +349,7 @@ as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	sevenstars/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	tiny/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	wi/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
-as_fn_mkdir_p	sevenstars/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	sevenstars/configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	tiny/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	tiny/configure	/^as_fn_mkdir_p ()$/;"	f
@@ -374,9 +363,7 @@ as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	sevenstars/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	tiny/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	wi/configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
-as_fn_set_status	sevenstars/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	sevenstars/configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	tiny/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	tiny/configure	/^as_fn_set_status ()$/;"	f
@@ -386,9 +373,7 @@ as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	sevenstars/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	tiny/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	wi/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
-as_fn_unset	sevenstars/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	sevenstars/configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	tiny/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	tiny/configure	/^as_fn_unset ()$/;"	f
@@ -1145,6 +1130,7 @@ mLine	src/common.h	/^    int mLine;$/;"	m	struct:sNodeTreeStruct
 mLocalVariables	sevenstars/src/common.h	/^    map<string, sVar*>*% mLocalVariables;$/;"	m	struct:sVarTable
 mLocalVariables	src/common.h	/^    sVar mLocalVariables[LOCAL_VARIABLE_MAX];  \/\/ open address hash$/;"	m	struct:sVarTableStruct
 mLongValue	src/common.h	/^        long long int mLongValue;$/;"	m	union:sNodeTreeStruct::__anon15
+mMap	sevenstars/src/common.h	/^    map<int,int>* mMap;$/;"	m	struct:sCLMap
 mMaxBlockVarNum	sevenstars/src/common.h	/^    int mMaxBlockVarNum;$/;"	m	struct:sVarTable
 mMaxBlockVarNum	src/common.h	/^    int mMaxBlockVarNum;$/;"	m	struct:sVarTableStruct
 mMaxVarNum	sevenstars/src/common.h	/^    int mMaxVarNum;$/;"	m	struct:sCLMethod
@@ -1200,6 +1186,7 @@ mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLBuffer
 mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLCommand
 mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLInt
 mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLJob
+mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLMap
 mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLObject
 mNumFields	sevenstars/src/common.h	/^    int mNumFields;$/;"	m	struct:sCLString
 mNumFields	src/common.h	/^    int mNumFields;$/;"	m	struct:sCLClassStruct
@@ -1285,6 +1272,7 @@ mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLCommand
 mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLHeapMem
 mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLInt
 mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLJob
+mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLMap
 mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLObject
 mSize	sevenstars/src/common.h	/^    int mSize;$/;"	m	struct:sCLString
 mSize	src/buffer.h	/^    int mSize;$/;"	m	struct:sBufStruct
@@ -1309,6 +1297,7 @@ mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLCommand
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLHeapMem
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLInt
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLJob
+mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLMap
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLNode
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLObject
 mType	sevenstars/src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLParam
@@ -1574,6 +1563,7 @@ sCLField	sevenstars/src/common.h	/^struct sCLField {$/;"	s
 sCLHeapMem	sevenstars/src/common.h	/^struct sCLHeapMem {$/;"	s
 sCLInt	sevenstars/src/common.h	/^struct sCLInt {$/;"	s
 sCLJob	sevenstars/src/common.h	/^struct sCLJob {$/;"	s
+sCLMap	sevenstars/src/common.h	/^struct sCLMap {$/;"	s
 sCLMethod	sevenstars/src/common.h	/^struct sCLMethod {$/;"	s
 sCLNode	sevenstars/src/common.h	/^struct sCLNode {$/;"	s
 sCLNodeBlock	sevenstars/src/common.h	/^struct sCLNodeBlock {$/;"	s
