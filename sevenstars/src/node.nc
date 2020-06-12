@@ -1778,6 +1778,11 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
 
     sCLClass* klass = info.type.mClass;
 
+    if(klass == null) {
+        compile_err_msg(info, xsprintf("class not found on invoking method(%s)", method_name));
+        return true;
+    }
+
     char* klass_name = klass->mName;
 
     sCLMethod* method = null;
@@ -1791,31 +1796,138 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         klass = klass->mParent;
     }
 
-    if(method == null) { 
-        /// invoke dynamically, type checking on the running time  ///
-        if(type_identify_with_class_name(info.type, "any", info.pinfo)
-            || is_generics_type(info.type) || type_identify_with_class_name(info.type, "command", info.pinfo))
-        {
-            sCLType* obj_type = info.type;
+    /// case any or generics, invoke dynamically, type checking on the running time  ///
+    if(type_identify_with_class_name(info.type, "any", info.pinfo) || is_generics_type(info.type))
+    {
+        sCLType* obj_type = info.type;
 
+        for(int i=1; i<num_params; i++) {
+            if(params[i].type == kNodeTypeMethodBlock) {
+                compile_err_msg(info, xsprintf("can't get method block for any or generics type. because of no determining to invoke method(%s)", method_name));
+                return true;
+                
+            }
+            else {
+                if(!compile(params[i], info)) {
+                    return false;
+                }
+            }
+        }
+
+        info->type = obj_type;
+    }
+    /// case command ///
+    else if(type_identify_with_class_name(info.type, "command", info.pinfo)) {
+        if(method == null) {
+            /// invoke dynamically, type checking on the running time  ///
+            if(type_identify_with_class_name(info.type, "any", info.pinfo)
+                || is_generics_type(info.type) || type_identify_with_class_name(info.type, "command", info.pinfo))
+            {
+                sCLType* obj_type = info.type;
+
+                for(int i=1; i<num_params; i++) {
+                    if(params[i].type == kNodeTypeMethodBlock) {
+                        compile_err_msg(info, xsprintf("can't get method block for any or generics type. because of no determining to invoke method(%s)", method_name));
+                        return true;
+                        
+                    }
+                    else {
+                        if(!compile(params[i], info)) {
+                            return false;
+                        }
+                    }
+                }
+
+                info->type = obj_type;
+            }
+            else {
+                compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass_name, method_name));
+                return true;
+            }
+        }
+        else {
+            /// compile parametors ///
+            if(method->mNumParams != num_params) {
+                compile_err_msg(info, xsprintf("invalid method prametor number.  invalid %d number instead of %d(%s.%s)", num_params, method->mNumParams, klass.mName, method_name));
+                return true;
+            }
+
+            sCLType* param_types[PARAMS_MAX];
             for(int i=1; i<num_params; i++) {
                 if(params[i].type == kNodeTypeMethodBlock) {
-                    compile_err_msg(info, xsprintf("can't get method block for any or generics type. because of no determining to invoke method(%s)", method_name));
-                    return true;
-                    
+                    sCLNode* node = params[i];
+
+                    sCLType* method_param_type = method->mParams[i].mType;
+
+                    node.uValue.uLambda.mNumParams = method_param_type->mNumParams;
+                    for(int j=0; j<method_param_type->mNumParams; j++) {
+                        node.uValue.uLambda.mParams[j] = method_param_type->mParams[j];
+                        node.uValue.uLambda.mParams[j].mType = solve_generics(method_param_type->mParams[j].mType, generics_types, info.pinfo);
+                    }
+
+                    node.uValue.uLambda.mResultType = solve_generics(method_param_type->mResultType, generics_types, info.pinfo);
+
+                    char* p_before = info->pinfo->p;
+                    int sline_before = info->pinfo->sline;
+                    info->pinfo->p = node.mBufferValue.buf;
+                    info->pinfo->sline = node.sline;
+
+                    sCLNodeBlock* node_block = null;
+                    int max_var_num = info->pinfo.max_var_num;
+                    var vtables_before = info->pinfo->vtables;
+                    info.pinfo.vtables = borrow new vector<sVarTable*%>.initialize();
+                    if(!parse_block(&node_block, method_param_type->mNumParams, node.uValue.uLambda.mParams, info->pinfo))
+                    {
+                        info->pinfo.max_var_num = max_var_num;
+                        info->pinfo->p = p_before;
+                        info->pinfo->sline = sline_before;
+                        delete info.pinfo.vtables;
+                        info.pinfo.vtables = vtables_before;
+                        return false;
+                    }
+
+                    delete info.pinfo.vtables;
+                    info.pinfo.vtables = vtables_before;
+                    info->pinfo.max_var_num = max_var_num;
+                    info->pinfo->p = p_before;
+                    info->pinfo->sline = sline_before;
+
+                    node.uValue.uLambda.mNodeBlock = node_block;
+
+                    if(!compile(params[i], info)) {
+                        return false;
+                    }
+
+                    param_types[i] = info.type;
+
+                    sCLType* type = solve_generics(method->mParams[i].mType, generics_types, info.pinfo);
+
+                    if(!substitution_posibility(type, param_types[i])) {
+                        compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 2", i, klass.mName, method_name));
+                        show_type(type);
+                        show_type(param_types[i]);
+                        return true;
+                    }
                 }
                 else {
                     if(!compile(params[i], info)) {
                         return false;
                     }
+
+                    param_types[i] = info.type;
+
+                    sCLType* type = solve_generics(method->mParams[i].mType, generics_types, info.pinfo);
+
+                    if(!substitution_posibility(type, param_types[i])) {
+                        compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 3", i, klass.mName, method_name));
+                        show_type(type);
+                        show_type(param_types[i]);
+                        return true;
+                    }
                 }
             }
 
-            info->type = obj_type;
-        }
-        else {
-            compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass_name, method_name));
-            return true;
+            info.type = solve_generics(method.mResultType, generics_types, info.pinfo);
         }
     }
     else {

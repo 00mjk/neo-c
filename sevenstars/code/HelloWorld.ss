@@ -74,6 +74,8 @@ class string {
     def not_equal(right:string?):bool;
     def to_command():command;
     def compare(right:string):int;
+    def item(position:int, default_value:string) : string;
+    def length():int;
 };
 
 class object {
@@ -685,6 +687,51 @@ class list<T>
     {
         self.merge_sort(compare)
     }
+    def each(block:lambda(it:T,it2:int,it3:bool):void):list<T> {
+        var it = self.head;
+        var i = 0;
+        while(it != null) {
+           var end_flag = false;
+            block(it.item, i, end_flag);
+
+            if(end_flag == true) {
+                break;
+            }
+            it = it.next;
+            i++;
+        }
+
+        self
+    }
+}
+
+class string 
+{
+    def to_list():list<string> {
+        var result = new list<string>();
+
+        var line = new buffer();
+        var n = 0;
+        while(n < self.length()) {
+            var c = self.item(n, "")
+
+            if(c == "\n") {
+                result.push_back(line.to_string());
+                line = new buffer();
+            }
+            else {
+                line.append_str(c);
+            }
+
+            n++;
+        }
+
+        if(line.length() > 0) {
+            result.push_back(line.to_string());
+        }
+
+        result
+    }
 }
 
 class map<T>
@@ -774,6 +821,15 @@ class tuple4<T, T2, T3, T4>
     }
 }
 
+class command
+{
+    def to_string():string;
+    def to_list():list<string> {
+        self.to_string().to_list()
+    }
+}
+
+
 save_class object;
 save_class int;
 save_class bool;
@@ -782,6 +838,7 @@ save_class list_item;
 save_class list;
 save_class buffer;
 save_class map;
+save_class command;
 save_class tuple1;
 save_class tuple2;
 save_class tuple3;

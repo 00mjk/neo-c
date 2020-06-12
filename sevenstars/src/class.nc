@@ -27,6 +27,8 @@ void class_init()
     append_class("lambda");
     append_class("buffer");
     append_class("map");
+    append_class("list");
+    append_class("list_item");
     append_class("tuple1");
     append_class("tuple2");
     append_class("tuple3");

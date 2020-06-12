@@ -698,11 +698,11 @@ bool sevenstars_map_find(CLVALUE** stack_ptr, sVMInfo* info)
 
     /// check type ///
     if(!check_type(self, "map", info)) {
-        vm_err_msg(stack_ptr, info, "type error on map.at");
+        vm_err_msg(stack_ptr, info, "type error on map.find");
         return false;
     }
     if(!check_type(key, "string", info)) {
-        vm_err_msg(stack_ptr, info, "type error on map.at");
+        vm_err_msg(stack_ptr, info, "type error on map.find");
         return false;
     }
 
@@ -727,7 +727,7 @@ bool sevenstars_map_length(CLVALUE** stack_ptr, sVMInfo* info)
 
     /// check type ///
     if(!check_type(self, "map", info)) {
-        vm_err_msg(stack_ptr, info, "type error on map.at");
+        vm_err_msg(stack_ptr, info, "type error on map.length");
         return false;
     }
 
@@ -752,11 +752,11 @@ bool sevenstars_map_equal(CLVALUE** stack_ptr, sVMInfo* info)
 
     /// check type ///
     if(!check_type(self, "map", info)) {
-        vm_err_msg(stack_ptr, info, "type error on map.at");
+        vm_err_msg(stack_ptr, info, "type error on map.equal");
         return false;
     }
     if(!check_type(right, "map", info)) {
-        vm_err_msg(stack_ptr, info, "type error on map.at");
+        vm_err_msg(stack_ptr, info, "type error on map.equal");
         return false;
     }
 
@@ -788,6 +788,106 @@ bool sevenstars_map_equal(CLVALUE** stack_ptr, sVMInfo* info)
     CLObject result = create_bool_object(value, info);
 
     (*stack_ptr)->mObjectValue = result;
+    (*stack_ptr)++;
+    
+    return true;
+}
+
+bool sevenstars_string_item(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-3)->mObjectValue;
+    CLObject position = (*stack_ptr-2)->mObjectValue;
+    CLObject default_value = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.item");
+        return false;
+    }
+    if(!check_type(position, "int", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.item");
+        return false;
+    }
+    if(!check_type(default_value, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.item");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    char* self_value = get_string_mem(self);
+    int position_value = get_int_value(position);
+    char* default_value_value = get_string_mem(default_value);
+
+    /// go ///
+    int len = strlen(self_value);
+
+    if(position_value < 0) {
+        position_value += len;
+    }
+
+    if(position_value < 0 || position_value >= len) {
+        CLObject result = create_string_object(default_value_value, info);
+
+        (*stack_ptr)->mObjectValue = result;
+        (*stack_ptr)++;
+        
+        return true;
+    }
+
+    char buf[128];
+    snprintf(buf, 128, "%c", self_value[position_value]);
+
+    CLObject result = create_string_object(buf, info);
+
+    (*stack_ptr)->mObjectValue = result;
+    (*stack_ptr)++;
+    
+    return true;
+}
+
+bool sevenstars_string_length(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.length");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    char* self_value = get_string_mem(self);
+
+    /// go ///
+    int len = strlen(self_value);
+
+    CLObject result = create_int_object(len, info);
+
+    (*stack_ptr)->mObjectValue = result;
+    (*stack_ptr)++;
+    
+    return true;
+}
+
+bool command_to_string(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "command", info)) {
+        vm_err_msg(stack_ptr, info, "type error on buffer.to_string");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    sCLCommand* command_data = CLCOMMAND(self);
+
+    char* self_value = command_data.mOutput;
+
+    /// go ///
+    CLObject obj = create_string_object(self_value, info);
+
+    (*stack_ptr)->mObjectValue = obj;
     (*stack_ptr)++;
     
     return true;
@@ -827,6 +927,9 @@ void native_init()
     gNativeMethods.insert(string("map.find"), sevenstars_map_find);
     gNativeMethods.insert(string("map.length"), sevenstars_map_length);
     gNativeMethods.insert(string("map.equal"), sevenstars_map_equal);
+    gNativeMethods.insert(string("string.item"), sevenstars_string_item);
+    gNativeMethods.insert(string("string.length"), sevenstars_string_length);
+    gNativeMethods.insert(string("command.to_string"), command_to_string);
 }
 
 void native_final()

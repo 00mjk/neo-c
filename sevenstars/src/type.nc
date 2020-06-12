@@ -72,7 +72,7 @@ sCLType* create_type(char* type_name, sParserInfo* info)
     info.types.push_back(dummy_heap result);
 
     result.mClass = gClasses.at(type_name, null);
-    
+
     return result;
 }
 

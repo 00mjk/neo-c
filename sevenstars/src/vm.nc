@@ -1189,7 +1189,19 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 }
 
                 char* klass_name = klass->mName;
-                if(strcmp(klass_name, "command") == 0)
+
+                sCLMethod* method = null;
+                while(klass) {
+                    method = klass.mMethods.at(method_name, null);
+
+                    if(method) {
+                        break;
+                    }
+
+                    klass = klass->mParent;
+                }
+
+                if(method == null &&strcmp(klass_name, "command") == 0)
                 {
                     CLObject parent_obj = obj;
 
@@ -1257,17 +1269,6 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                     }
                 }
                 else {
-                    sCLMethod* method = null;
-                    while(klass) {
-                        method = klass.mMethods.at(method_name, null);
-
-                        if(method) {
-                            break;
-                        }
-
-                        klass = klass->mParent;
-                    }
-
                     if(method == null) {
                         vm_err_msg(&stack_ptr, info, xsprintf("method not found(%s.%s)\n", klass_name, method_name));
                         info.stack_frames.pop_back(null_parent_stack_frame);
