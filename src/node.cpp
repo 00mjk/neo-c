@@ -5733,7 +5733,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     Function* fun = TheModule->getFunction("debug_xcalloc");
 
     if(fun == nullptr) {
-        fprintf(stderr, "require xcalloc\n");
+        fprintf(stderr, "require debug_xcalloc\n");
         exit(2);
     }
 
@@ -5773,10 +5773,10 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     Value* address = Builder.CreateCall(fun, params2);
 /*
 #else
-    Function* fun = TheModule->getFunction("xcalloc");
+    Function* fun = TheModule->getFunction("xxxcalloc");
 
     if(fun == nullptr) {
-        fprintf(stderr, "require xcalloc\n");
+        fprintf(stderr, "require xxxcalloc\n");
         exit(2);
     }
 
@@ -9789,10 +9789,10 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
 
             LVALUE rvalue = *get_value_from_stack(-1);
 
-            Function* fun = TheModule->getFunction("xmemcpy");
+            Function* fun = TheModule->getFunction("xxxmemcpy");
 
             if(fun == nullptr) {
-                fprintf(stderr, "require xmemcpy\n");
+                fprintf(stderr, "require xxxmemcpy\n");
                 exit(2);
             }
 

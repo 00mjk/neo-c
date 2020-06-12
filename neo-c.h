@@ -14,6 +14,9 @@
 #define __USE_BSD
 #endif
 
+#undef __GNUC__
+#undef __clang__
+
 #include <wchar.h>
 
 #include <unistd.h>
@@ -28,15 +31,15 @@
 
 #include <stdint.h>
 
-void*% xcalloc(long num, long size);
-void*% xmalloc(long size);
-void*% xmemdup(void* mem);
-void*% xrealloc(void* mem, long size);
-void xfree(void*% mem);
+void*% xxxcalloc(long num, long size);
+void*% xxxmalloc(long size);
+void*% xxxmemdup(void* mem);
+void*% xxxrealloc(void* mem, long size);
+void xxxfree(void*% mem);
 
 char* xstrncpy(char* des, char* src, int size);
 char* xstrncat(char* des, char* str, int size);
-char* xmemcpy(void* mem, void* mem2, long size);
+char* xxxmemcpy(void* mem, void* mem2, long size);
 
 typedef char*% string;
 typedef wchar_t*% wstring;

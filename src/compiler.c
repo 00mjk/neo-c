@@ -109,7 +109,7 @@ static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BO
 
 int gARGC;
 char** gARGV;
-char* gVersion = "0.0.1";
+char* gVersion = "1.2.3";
 
 char gMainModulePath[PATH_MAX];
 

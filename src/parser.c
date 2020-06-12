@@ -1892,9 +1892,27 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     }
 
     if(definition_typedef && func_pointer_name) {
-        if(isalpha(*info->p) || *info->p == '_') {
+        if(isalpha(*info->p) || *info->p == '_' || *info->p == '*' || *info->p == '%') 
+        {
             char* p_before = info->p;
             int sline_before = info->sline;
+
+            while(1) {
+                if(*info->p == '*') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    (*result_type)->mPointerNum++;
+                }
+                else if(*info->p == '%') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    (*result_type)->mHeap = TRUE;
+                }
+                else {
+                    break;
+                }
+            }
+
 
             if(!parse_word(func_pointer_name, VAR_NAME_MAX, info, FALSE, FALSE))
             {
@@ -2025,14 +2043,6 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
     /// pointer ///
 
     int parser_pointer_num = 0;
-
-/*
-    if(definition_typedef && func_pointer_name) {
-        if(type_identify_with_class_name(*result_type, "lambda")) {
-            pointer_num = (*result_type)->mPointerNum;
-        }
-    }
-*/
 
     while(1) {
         char* p_before = info->p;
@@ -5221,11 +5231,6 @@ BOOL parse_typedef(unsigned int* node, sParserInfo* info)
     }
 
     if(buf[0] == '\0') {
-/*
-        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
-            return FALSE;
-        }
-*/
         if(!parse_variable_name(buf, VAR_NAME_MAX, info, node_type, FALSE, FALSE))
         {
             return FALSE;
@@ -6425,7 +6430,6 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
                 info->sline = sline_before2;
             }
         }
-
 
         if(strcmp(buf, "__extension__") == 0 && *info->p == '(') {
             if(!expression(node, info)) {

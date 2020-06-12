@@ -82,7 +82,7 @@ impl buffer
             self.size = new_size;
         }
 
-        xmemcpy(self.buf + self.len, mem, size);
+        xxxmemcpy(self.buf + self.len, mem, size);
         self.len += size;
 
         self.buf[self.len] = '\0';
@@ -274,7 +274,7 @@ impl string
 
         string result = new char[tail-head+1];
 
-        memcpy(result, str + head, tail-head);
+        xxxmemcpy(result, str + head, tail-head);
         result[tail-head] = '\0';
 
         return result;
@@ -401,7 +401,7 @@ impl string
         
         string sub_str = str.substring(position+1, -1);
 
-        memcpy(str + position, sub_str, sub_str.length()+1);
+        xxxmemcpy(str + position, sub_str, sub_str.length()+1);
 
         return str;
     }
@@ -434,7 +434,7 @@ impl string
         
         string sub_str = str.substring(tail, -1);
 
-        memcpy(str + head, sub_str, sub_str.length()+1);
+        xxxmemcpy(str + head, sub_str, sub_str.length()+1);
 
         return str;
     }
@@ -918,7 +918,7 @@ impl wchar_t
 
         wstring result = new wchar_t[tail-head+1];
 
-        memcpy(result, str + head, sizeof(wchar_t)*(tail-head));
+        xxxmemcpy(result, str + head, sizeof(wchar_t)*(tail-head));
         result[tail-head] = '\0';
 
         return result;
@@ -1013,7 +1013,7 @@ impl wstring
 
         wstring result = new wchar_t[tail-head+1];
 
-        memcpy(result, str + head, sizeof(wchar_t)*(tail-head));
+        xxxmemcpy(result, str + head, sizeof(wchar_t)*(tail-head));
         result[tail-head] = '\0';
 
         return result;
@@ -1066,7 +1066,7 @@ impl wstring
 
         wstring sub_str = str.substring(position+1, -1);
 
-        memcpy(str + position, sub_str, sizeof(wchar_t)*(sub_str.length()+1));
+        xxxmemcpy(str + position, sub_str, sizeof(wchar_t)*(sub_str.length()+1));
         
         return str;
     }
@@ -1099,7 +1099,7 @@ impl wstring
         
         wstring sub_str = str.substring(tail, -1);
 
-        memcpy(str + head, sub_str, sizeof(wchar_t)*(sub_str.length()+1));
+        xxxmemcpy(str + head, sub_str, sizeof(wchar_t)*(sub_str.length()+1));
 
         return str;
     }

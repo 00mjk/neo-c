@@ -1,15 +1,9 @@
-generics
-map, tuple
-
 readline
+vim("src/node.nc で実行
 
 メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
 
 親クラスのメソッド呼び出し。super
-
-INVOKE_BLOCK_OBJECTの実行時の型チェック
-
-vim("src/node.nc で実行
 
 --------------
 vm return false message
@@ -23,3 +17,6 @@ macro
 normal block
 
 classの保存
+generics
+map, tuple
+

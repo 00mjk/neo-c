@@ -303,7 +303,7 @@ void create_internal_functions()
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "xfree", TheModule);
+    Function::Create(function_type, Function::ExternalLinkage, "xxxfree", TheModule);
 */
 
     Type* lvtable_type = get_lvtable_type();
@@ -346,10 +346,10 @@ Value* store_lvtable()
 
     Value* lvtable = Builder.CreateAlloca(lvtable_type, 0, "lvtable");
 
-    Function* fun = TheModule->getFunction("xmemcpy");
+    Function* fun = TheModule->getFunction("xxxmemcpy");
 
     if(fun == nullptr) {
-        fprintf(stderr, "require xmemcpy\n");
+        fprintf(stderr, "require xxxmemcpy\n");
         exit(2);
     }
 
@@ -373,10 +373,10 @@ Value* store_lvtable()
 
 void restore_lvtable(Value* lvtable)
 {
-    Function* fun = TheModule->getFunction("xmemcpy");
+    Function* fun = TheModule->getFunction("xxxmemcpy");
 
     if(fun == nullptr) {
-        fprintf(stderr, "require xmemcpy\n");
+        fprintf(stderr, "require xxxmemcpy\n");
         exit(2);
     }
 
@@ -2313,10 +2313,10 @@ static void free_right_value_object(sNodeType* node_type, void* obj, BOOL force_
     /// free ///
     if((force_delete || node_type->mHeap ) && node_type->mPointerNum > 0 && !info->no_output) 
     {
-        Function* fun = TheModule->getFunction("xfree");
+        Function* fun = TheModule->getFunction("xxxfree");
 
         if(fun == nullptr) {
-            fprintf(stderr, "require xfree\n");
+            fprintf(stderr, "require xxxfree\n");
             exit(2);
         }
 
@@ -2687,10 +2687,10 @@ Value* clone_object(sNodeType* node_type, Value* address, sCompileInfo* info)
         }
 
         /// memdup ///
-        Function* fun = TheModule->getFunction("xmemdup");
+        Function* fun = TheModule->getFunction("xxxmemdup");
 
         if(fun == nullptr) {
-            fprintf(stderr, "require xmemdup\n");
+            fprintf(stderr, "require xxxmemdup\n");
             exit(2);
         }
 

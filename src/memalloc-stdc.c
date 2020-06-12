@@ -66,12 +66,12 @@ static void delete_debug_heap_memory(void* mem)
     }
 }
 
-void *xmalloc(size_t size)
+void *xxxmalloc(size_t size)
 {
     void* result = malloc(size);
 
     if(result == NULL) {
-        fprintf(stderr, "can't get heap memory. Heap memory number is %d size %d. xmalloc\n", gNumMemAlloc, size);
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d size %d. xxxmalloc\n", gNumMemAlloc, size);
         exit(2);
     }
 
@@ -95,7 +95,7 @@ void *debug_xcalloc(long long int num, long long int nsize, char* type_name, cha
     }
 
     if(result == NULL) {
-        fprintf(stderr, "can't get heap memory. Heap memory number is %d xcalloc num %d nsize %d type_name %s sname %s sline %d fun_name %s real_fun_name %s\n", gNumMemAlloc, num, nsize, type_name, sname, sline, fun_name, real_fun_name);
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d xxxcalloc num %d nsize %d type_name %s sname %s sline %d fun_name %s real_fun_name %s\n", gNumMemAlloc, num, nsize, type_name, sname, sline, fun_name, real_fun_name);
 
         exit(2);
     }
@@ -113,7 +113,7 @@ void *debug_xcalloc(long long int num, long long int nsize, char* type_name, cha
     return result;
 }
 
-void xfree(void *block)
+void xxxfree(void *block)
 {
     if(gNCDebugHeap) {
         if(block) gNumMemAlloc--;
@@ -154,12 +154,12 @@ void debug_show_none_freed_heap_memory()
     }
 }
 
-void *xcalloc(size_t num, size_t nsize)
+void *xxxcalloc(size_t num, size_t nsize)
 {
     void* result = calloc(num, nsize);
 
     if(result == NULL) {
-        fprintf(stderr, "can't get heap memory. Heap memory number is %d. xcalloc num %d nsize %d\n", gNumMemAlloc, num, nsize);
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d. xxxcalloc num %d nsize %d\n", gNumMemAlloc, num, nsize);
 
         exit(2);
     }
@@ -177,7 +177,7 @@ void *xcalloc(size_t num, size_t nsize)
     return result;
 }
 
-void *xrealloc(void *block, size_t size)
+void *xxxrealloc(void *block, size_t size)
 {
     void* result = realloc(block, size);
 
@@ -231,7 +231,7 @@ void *xsprintf(char* msg, ...)
     va_end(args);
 
     if(len < 0) {
-        fprintf(stderr, "can't get heap memory. Heap memory number is %d. xasprintf len %d\n", gNumMemAlloc, len);
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d. xsprintf len %d\n", gNumMemAlloc, len);
 
         exit(2);
     }
@@ -240,18 +240,18 @@ void *xsprintf(char* msg, ...)
 }
 
 
-void* xmemcpy(void* mem, void* mem2, size_t size)
+void* xxxmemcpy(void* mem, void* mem2, size_t size)
 {
     return memcpy(mem, mem2, size);
 }
 
-void *xmemdup(void *block)
+void *xxxmemdup(void *block)
 {
     size_t size = malloc_usable_size(block);
 
     if (!block) return (void*)0;
 
-    char* ret = xmalloc(size);
+    char* ret = xxxmalloc(size);
 
     if (ret) {
         char* p = ret;

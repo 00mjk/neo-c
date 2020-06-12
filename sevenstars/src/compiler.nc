@@ -1,5 +1,25 @@
 #include "common.h"
 #include <signal.h>
+#include <termios.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+#include <time.h>
+#include <limits.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <libgen.h>
+
+#ifdef HAVE_READLINE_H
+#undef __GNUC__
+#undef __clang__
+#undef __clang__
+//#undef __STDC__
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif
 
 static void set_signal()
 {
@@ -249,10 +269,183 @@ static bool compiler(char* fname)
     return true;
 }
 
-static bool class_compiler(char* fname)
+bool eval_str(char* str, char* fname)
 {
+    sParserInfo info;
+    
+    memset(&info, 0, sizeof(sParserInfo));
+    
+    info.p = str;
+    xstrncpy(info.sname, fname, PATH_MAX);
+    info.sline = 1;
+    
+    info.err_output_num = 0;
+    
+    info.err_num = 0;
+    
+    info.nodes = borrow new vector<sCLNode*%>.initialize();
+    info.vtables = borrow new vector<sVarTable*%>.initialize();
+    info.blocks = borrow new vector<sCLNodeBlock*%>.initialize();
+    info.types = borrow new vector<sCLType*%>.initialize();
+    info.vars = borrow new vector<sVar*%>.initialize();
+    
+    init_var_table(&info);
+
+    sCompileInfo cinfo;
+    
+    memset(&cinfo, 0, sizeof(sCompileInfo));
+    
+    cinfo.pinfo = &info;
+    xstrncpy(cinfo.sname, info.sname, PATH_MAX);
+    
+    cinfo.err_num = 0;
+    
+    cinfo.codes = borrow new buffer.initialize();
+    
+    while(*info->p) {
+        parse_comment(&info);
+
+        int sline = info.sline;
+        
+        sCLNode* node = null;
+        if(!expression(&node, &info)) {
+            delete info.nodes;
+            delete info.vtables;
+            delete info.blocks;
+            delete info.types;
+            delete info.vars;
+            delete cinfo.codes;
+            return false;
+        }
+        
+        while(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(&info);
+        }
+        
+        cinfo.sline = sline;
+        
+        if(!compile(node, &cinfo)) {
+            delete info.nodes;
+            delete info.vtables;
+            delete info.blocks;
+            delete info.types;
+            delete info.vars;
+            delete cinfo.codes;
+            return false;
+        }
+        
+        if(cinfo.err_num > 0) {
+            fprintf(stderr, "Compile error\n");
+            delete info.nodes;
+            delete info.vtables;
+            delete info.blocks;
+            delete info.types;
+            delete info.vars;
+            delete cinfo.codes;
+            return false;
+        }
+        
+        /// POP ///
+        for(int i=0; i<cinfo.stack_num; i++) {
+            if(!cinfo.no_output) {
+                cinfo.codes.append_int(OP_POP);
+            }
+        }
+        
+        cinfo.stack_num = 0;
+
+        cinfo.type = create_type("void", &info);
+    }
+    
+    if(info.err_num > 0) {
+        fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
+        delete info.nodes;
+        delete info.vtables;
+        delete info.blocks;
+        delete info.types;
+        delete info.vars;
+        delete cinfo.codes;
+        return false;
+    }
+
+    int var_num = get_var_num(info.vtables);
+
+    if(var_num > info.max_var_num) {
+        info.max_var_num = var_num;
+    }
+
+    var_num = info.max_var_num;
+    
+    sVMInfo vminfo;
+    
+    memset(&vminfo, 0, sizeof(sVMInfo));
+    
+    vminfo.pinfo = &info;
+    vminfo.cinfo = &cinfo;
+    vminfo.stack_frames = borrow new vector<sCLStackFrame>.initialize();
+
+    heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
+    
+    CLVALUE result;
+    if(!vm(cinfo.codes, NULL, 0, var_num, &result, &vminfo)) {
+        fprintf(stderr, "VM error.\n");
+        CLObject obj = vminfo.thrown_object.mObjectValue;
+        if(obj) {
+            sCLObject* object_data = CLOBJECT(obj);
+
+            sCLType* type = object_data->mType;
+            if(type_identify_with_class_name(type, "string", &info))
+            {
+                char* str_data = get_string_mem(obj);
+                fprintf(stderr, "%s", str_data);
+            }
+        }
+        heap_final(&vminfo);
+
+        delete info.nodes;
+        delete info.vtables;
+        delete info.blocks;
+        delete info.types;
+        delete info.vars;
+        delete cinfo.codes;
+        delete vminfo.stack_frames;
+        return false;
+    }
+
+    heap_final(&vminfo);
+    
+    delete info.nodes;
+    delete info.vtables;
+    delete info.blocks;
+    delete info.types;
+    delete info.vars;
+    delete cinfo.codes;
+    delete vminfo.stack_frames;
 
     return true;
+}
+
+void shell()
+{
+    while(1) {
+        char* line = null; //readline("sevenstars lang > ");
+
+        if(line == null) {
+            break;
+        }
+
+        if(strcmp(line, "exit") == 0) {
+            free(line);
+            break;
+        }
+
+        //(void)eval_str(line, "sevenstars");
+
+        //add_history(line);
+
+        //free(line);
+    };
 }
 
 int main(int argc, char** argv)
@@ -273,7 +466,7 @@ int main(int argc, char** argv)
         }
         else if(strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "-V") == 0)
         {
-            printf("clover3 version %s\n", gVersion);
+            printf("sevenstars lang version %s\n", gVersion);
             exit(0);
         }
         else {
@@ -281,45 +474,46 @@ int main(int argc, char** argv)
         }
     }
 
-    char* p = sname + strlen(sname);
+    if(sname[0] != '\0') {
+        char* p = sname + strlen(sname);
 
-    while(p >= sname) {
-        if(*p == '.') {
-            break;
+        while(p >= sname) {
+            if(*p == '.') {
+                break;
+            }
+            else {
+                p--;
+            }
         }
-        else {
-            p--;
+
+        if(p < sname) {
+            p = NULL;
         }
-    }
 
-    if(p < sname) {
-        p = NULL;
-    }
+        char* ext_sname = p;
 
-    char* ext_sname = p;
+        clover3_init();
+        compiler_init(no_load_fudamental_classes);
 
-    clover3_init();
-    compiler_init(no_load_fudamental_classes);
-
-    if(ext_sname && strcmp(ext_sname, ".clcl") == 0) {
-        if(!class_compiler(sname)) {
-            fprintf(stderr, "cclover3 can't compile %s\n", argv[i]);
+        if(!compiler(sname)) {
+            fprintf(stderr, "sevenstars can't compile %s\n", argv[i]);
             clover3_final();
             compiler_final();
             return 1;
         }
+
+        clover3_final();
+        compiler_final();
     }
     else {
-        if(!compiler(sname)) {
-            fprintf(stderr, "cclover3 can't compile %s\n", argv[i]);
-            clover3_final();
-            compiler_final();
-            return 1;
-        }
-    }
+        clover3_init();
+        compiler_init(no_load_fudamental_classes);
 
-    clover3_final();
-    compiler_final();
+        shell();
+
+        clover3_final();
+        compiler_final();
+    }
 
     return 0;
 }
