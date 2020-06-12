@@ -429,7 +429,7 @@ bool eval_str(char* str, char* fname)
 void shell()
 {
     while(1) {
-        char* line = null; //readline("sevenstars lang > ");
+        char* line = readline("sevenstars lang > ");
 
         if(line == null) {
             break;
@@ -440,11 +440,11 @@ void shell()
             break;
         }
 
-        //(void)eval_str(line, "sevenstars");
+        (void)eval_str(line, "sevenstars");
 
-        //add_history(line);
+        add_history(line);
 
-        //free(line);
+        free(line);
     };
 }
 
