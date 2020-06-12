@@ -632,5 +632,5 @@ catch {
 }
 
 
-"aaa,bbb,ccc".to_command().sed("-e", "s/,/\\n/g").to_list().each() { it.to_command().less(); }
+"aaa,bbb,ccc,ddd".to_command().sed("-e", "s/,/\\n/g").to_list().each() { it.to_command().perl("-pe", "$_ = uc($_)").less(); }
 
