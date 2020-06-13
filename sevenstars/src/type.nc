@@ -119,8 +119,6 @@ sCLType* clone_type(sCLType* type, sParserInfo* info)
     return result;
 }
 
-
-
 bool type_identify(sCLType* left_type, sCLType* right_type)
 {
     sCLClass* left_class = left_type.mClass;
