@@ -48,6 +48,165 @@ static void set_signal_shell()
     sigprocmask(SIG_BLOCK, &signal_set, NULL);
 }
 
+bool shell_eval_str(char* str, char* fname)
+{
+    sParserInfo info;
+    
+    memset(&info, 0, sizeof(sParserInfo));
+    
+    info.p = str;
+    xstrncpy(info.sname, fname, PATH_MAX);
+    info.sline = 1;
+    
+    info.err_output_num = 0;
+    
+    info.err_num = 0;
+    
+    info.nodes = borrow new vector<sCLNode*%>.initialize();
+    info.vtables = borrow new vector<sVarTable*%>.initialize();
+    info.blocks = borrow new vector<sCLNodeBlock*%>.initialize();
+    info.types = borrow new vector<sCLType*%>.initialize();
+    info.vars = borrow new vector<sVar*%>.initialize();
+    
+    init_var_table(&info);
+
+    sCompileInfo cinfo;
+    
+    memset(&cinfo, 0, sizeof(sCompileInfo));
+    
+    cinfo.pinfo = &info;
+    xstrncpy(cinfo.sname, info.sname, PATH_MAX);
+    
+    cinfo.err_num = 0;
+    
+    cinfo.codes = borrow new buffer.initialize();
+
+    cinfo.in_shell = true;
+    
+    while(*info->p) {
+        parse_comment(&info);
+
+        int sline = info.sline;
+        
+        sCLNode* node = null;
+        if(!expression(&node, &info)) {
+            delete info.nodes;
+            delete info.vtables;
+            delete info.blocks;
+            delete info.types;
+            delete info.vars;
+            delete cinfo.codes;
+            return false;
+        }
+        
+        while(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(&info);
+        }
+        
+        cinfo.sline = sline;
+        
+        if(!compile(node, &cinfo)) {
+            delete info.nodes;
+            delete info.vtables;
+            delete info.blocks;
+            delete info.types;
+            delete info.vars;
+            delete cinfo.codes;
+            return false;
+        }
+        
+        if(cinfo.err_num > 0) {
+            fprintf(stderr, "Compile error\n");
+            delete info.nodes;
+            delete info.vtables;
+            delete info.blocks;
+            delete info.types;
+            delete info.vars;
+            delete cinfo.codes;
+            return false;
+        }
+        
+        /// POP ///
+        for(int i=0; i<cinfo.stack_num; i++) {
+            if(!cinfo.no_output) {
+                cinfo.codes.append_int(OP_POP);
+            }
+        }
+        
+        cinfo.stack_num = 0;
+
+        cinfo.type = create_type("void", info.types);
+    }
+    
+    if(info.err_num > 0) {
+        fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
+        delete info.nodes;
+        delete info.vtables;
+        delete info.blocks;
+        delete info.types;
+        delete info.vars;
+        delete cinfo.codes;
+        return false;
+    }
+
+    int var_num = get_var_num(info.vtables);
+
+    if(var_num > info.max_var_num) {
+        info.max_var_num = var_num;
+    }
+
+    var_num = info.max_var_num;
+
+    heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
+    
+    sVMInfo vminfo;
+    
+    memset(&vminfo, 0, sizeof(sVMInfo));
+    
+    vminfo.pinfo = &info;
+    vminfo.cinfo = &cinfo;
+    vminfo.stack_frames = borrow new vector<sCLStackFrame>.initialize();
+    
+    CLVALUE result;
+    if(!vm(cinfo.codes, NULL, 0, var_num, &result, &vminfo)) {
+        fprintf(stderr, "VM error.\n");
+        CLObject obj = vminfo.thrown_object.mObjectValue;
+        if(obj) {
+            sCLObject* object_data = CLOBJECT(obj);
+
+            sCLType* type = object_data->mType;
+            if(type_identify_with_class_name(type, "string", &info))
+            {
+                char* str_data = get_string_mem(obj);
+                fprintf(stderr, "%s", str_data);
+            }
+        }
+        heap_final(&vminfo);
+
+        delete info.nodes;
+        delete info.vtables;
+        delete info.blocks;
+        delete info.types;
+        delete info.vars;
+        delete cinfo.codes;
+        delete vminfo.stack_frames;
+        return false;
+    }
+
+    heap_final(&vminfo);
+    
+    delete info.nodes;
+    delete info.vtables;
+    delete info.blocks;
+    delete info.types;
+    delete info.vars;
+    delete cinfo.codes;
+    delete vminfo.stack_frames;
+
+    return true;
+}
+
 int match_index;
 list<string>*% matches;
 
@@ -55,6 +214,34 @@ static void compiler_init(bool no_load_fudamental_classes)
 {
     match_index = 0;
     matches = borrow new list<string>.initialize();
+
+    if(!no_load_fudamental_classes) {
+        FILE* f = fopen("sevenstars.ss", "r");
+
+        if(f) {
+            buffer*% buf = new buffer.initialize();
+
+            char buf2[BUFSIZ];
+
+            while(true) {
+                int n = fread(buf2, 1, BUFSIZ, f);
+
+                if(n <= 0) {
+                    break;
+                }
+
+                buf.append(buf2, n);
+            }
+
+            fclose(f);
+
+            string source = buf.to_string();
+
+            if(!shell_eval_str(source, "load fundamental class")) {
+                fprintf(stderr, "no load fundamental class\n");
+            }
+        }
+    }
 }
 
 static void clover3_init()
@@ -197,7 +384,7 @@ bool compile_script(char* fname, buffer* source)
         
         cinfo.stack_num = 0;
 
-        cinfo.type = create_type("void", &info);
+        cinfo.type = create_type("void", info.types);
     }
     
     if(info.err_num > 0) {
@@ -289,162 +476,6 @@ static bool compiler(char* fname)
     return true;
 }
 
-bool eval_str(char* str, char* fname)
-{
-    sParserInfo info;
-    
-    memset(&info, 0, sizeof(sParserInfo));
-    
-    info.p = str;
-    xstrncpy(info.sname, fname, PATH_MAX);
-    info.sline = 1;
-    
-    info.err_output_num = 0;
-    
-    info.err_num = 0;
-    
-    info.nodes = borrow new vector<sCLNode*%>.initialize();
-    info.vtables = borrow new vector<sVarTable*%>.initialize();
-    info.blocks = borrow new vector<sCLNodeBlock*%>.initialize();
-    info.types = borrow new vector<sCLType*%>.initialize();
-    info.vars = borrow new vector<sVar*%>.initialize();
-    
-    init_var_table(&info);
-
-    sCompileInfo cinfo;
-    
-    memset(&cinfo, 0, sizeof(sCompileInfo));
-    
-    cinfo.pinfo = &info;
-    xstrncpy(cinfo.sname, info.sname, PATH_MAX);
-    
-    cinfo.err_num = 0;
-    
-    cinfo.codes = borrow new buffer.initialize();
-    
-    while(*info->p) {
-        parse_comment(&info);
-
-        int sline = info.sline;
-        
-        sCLNode* node = null;
-        if(!expression(&node, &info)) {
-            delete info.nodes;
-            delete info.vtables;
-            delete info.blocks;
-            delete info.types;
-            delete info.vars;
-            delete cinfo.codes;
-            return false;
-        }
-        
-        while(*info->p == ';') {
-            info->p++;
-            skip_spaces_and_lf(&info);
-        }
-        
-        cinfo.sline = sline;
-        
-        if(!compile(node, &cinfo)) {
-            delete info.nodes;
-            delete info.vtables;
-            delete info.blocks;
-            delete info.types;
-            delete info.vars;
-            delete cinfo.codes;
-            return false;
-        }
-        
-        if(cinfo.err_num > 0) {
-            fprintf(stderr, "Compile error\n");
-            delete info.nodes;
-            delete info.vtables;
-            delete info.blocks;
-            delete info.types;
-            delete info.vars;
-            delete cinfo.codes;
-            return false;
-        }
-        
-        /// POP ///
-        for(int i=0; i<cinfo.stack_num; i++) {
-            if(!cinfo.no_output) {
-                cinfo.codes.append_int(OP_POP);
-            }
-        }
-        
-        cinfo.stack_num = 0;
-
-        cinfo.type = create_type("void", &info);
-    }
-    
-    if(info.err_num > 0) {
-        fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
-        delete info.nodes;
-        delete info.vtables;
-        delete info.blocks;
-        delete info.types;
-        delete info.vars;
-        delete cinfo.codes;
-        return false;
-    }
-
-    int var_num = get_var_num(info.vtables);
-
-    if(var_num > info.max_var_num) {
-        info.max_var_num = var_num;
-    }
-
-    var_num = info.max_var_num;
-    
-    sVMInfo vminfo;
-    
-    memset(&vminfo, 0, sizeof(sVMInfo));
-    
-    vminfo.pinfo = &info;
-    vminfo.cinfo = &cinfo;
-    vminfo.stack_frames = borrow new vector<sCLStackFrame>.initialize();
-
-    heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
-    
-    CLVALUE result;
-    if(!vm(cinfo.codes, NULL, 0, var_num, &result, &vminfo)) {
-        fprintf(stderr, "VM error.\n");
-        CLObject obj = vminfo.thrown_object.mObjectValue;
-        if(obj) {
-            sCLObject* object_data = CLOBJECT(obj);
-
-            sCLType* type = object_data->mType;
-            if(type_identify_with_class_name(type, "string", &info))
-            {
-                char* str_data = get_string_mem(obj);
-                fprintf(stderr, "%s", str_data);
-            }
-        }
-        heap_final(&vminfo);
-
-        delete info.nodes;
-        delete info.vtables;
-        delete info.blocks;
-        delete info.types;
-        delete info.vars;
-        delete cinfo.codes;
-        delete vminfo.stack_frames;
-        return false;
-    }
-
-    heap_final(&vminfo);
-    
-    delete info.nodes;
-    delete info.vtables;
-    delete info.blocks;
-    delete info.types;
-    delete info.vars;
-    delete cinfo.codes;
-    delete vminfo.stack_frames;
-
-    return true;
-}
 
 static string line_buffer_from_head_to_cursor_point()
 {
@@ -511,9 +542,10 @@ void get_command_completion_cadidates(char* inputing_method_name)
             p = path;
         }
         else {
-            *p++ = env[i];
+            *p = env[i];
+            p++;
 
-            if(p - path >= PATH_MAX) {
+            if(p - (char*)path >= PATH_MAX) {
                 break;
             }
         }
@@ -603,11 +635,12 @@ char* completion_generator(char* text, int state)
         xstrncpy(cinfo.sname, info.sname, PATH_MAX);
         
         cinfo.err_num = 0;
+        cinfo.in_shell = true;
         
         cinfo.codes = borrow new buffer.initialize();
 
         if(all_space_line || strcmp(current_line, "") == 0) {
-            result_type = create_type("command", &info);
+            result_type = create_type("command", info.types);
             inputing_method = true;
         }
         else {
@@ -618,7 +651,7 @@ char* completion_generator(char* text, int state)
                 
                 sCLNode* node = null;
                 if(!expression(&node, &info)) {
-                    result_type = create_type("command", &info);
+                    result_type = create_type("command", info.types);
                     inputing_method = true;
                     break;
                 }
@@ -631,13 +664,13 @@ char* completion_generator(char* text, int state)
                 cinfo.sline = sline;
                 
                 if(!compile(node, &cinfo)) {
-                    result_type = create_type("command", &info);
+                    result_type = create_type("command", info.types);
                     inputing_method = true;
                     break;
                 }
                 
                 if(cinfo.err_num > 0) {
-                    result_type = create_type("command", &info);
+                    result_type = create_type("command", info.types);
                     inputing_method = true;
                     break;
                 }
@@ -656,7 +689,7 @@ char* completion_generator(char* text, int state)
         }
         
         if(info.err_num > 0) {
-            result_type = create_type("command", &info);
+            result_type = create_type("command", info.types);
             inputing_method = true;
         }
 
@@ -761,7 +794,7 @@ void shell()
             break;
         }
 
-        (void)eval_str(line, "sevenstars");
+        (void)shell_eval_str(line, "sevenstars");
 
         add_history(line);
 

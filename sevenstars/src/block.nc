@@ -85,7 +85,7 @@ bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info)
     bool return_false = false;
 
     if(nodes.length() == 0) {
-        info.type = create_type("void", info.pinfo);
+        info.type = create_type("void", info.pinfo.types);
     }
 
     nodes.each {
@@ -111,7 +111,7 @@ bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info)
             
             info.stack_num = 0;
 
-            info.type = create_type("void", info.pinfo);
+            info.type = create_type("void", info.pinfo.types);
         }
     }
 

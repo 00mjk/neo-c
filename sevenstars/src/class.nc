@@ -5,7 +5,7 @@ vector<CLObject>* gJobs;
 
 bool check_type(CLObject obj, char* type_name, sVMInfo* info)
 {
-    sCLType* type = parse_type_runtime(type_name, info.cinfo.pinfo);
+    sCLType* type = parse_type_runtime(type_name, info.cinfo.pinfo, info.cinfo.pinfo.types);
 
     sCLObject* object_data = CLOBJECT(obj);
 
@@ -90,6 +90,8 @@ sCLClass*% alloc_class(char* name)
     else {
         klass.mParent = gClasses.at("object", null);
     }
+
+    klass.types = new vector<sCLType*%>.initialize();
 
     return klass;
 }
@@ -220,7 +222,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
             expected_next_character(':', &info);
 
             sCLType* field_type = null;
-            if(!parse_type(&field_type, &info)) {
+            if(!parse_type(&field_type, &info, info.types)) {
                 delete info.vtables;
                 delete info.generics_type_names;
                 return false;
@@ -242,9 +244,9 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
             sCLParam params[PARAMS_MAX];
             int num_params = 1;
             xstrncpy(params[0].mName, "self", VAR_NAME_MAX);
-            params[0].mType = create_type(name, &info);
+            params[0].mType = create_type(name, info.types);
 
-            if(!parse_params(params, &num_params, &info)) {
+            if(!parse_params(params, &num_params, &info, info.types)) {
                 delete info.vtables;
                 delete info.generics_type_names;
                 return false;
@@ -253,7 +255,7 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
             expected_next_character(':', &info);
 
             sCLType* method_type = null;
-            if(!parse_type(&method_type, &info)) {
+            if(!parse_type(&method_type, &info, info.types)) {
                 delete info.vtables;
                 delete info.generics_type_names;
                 return false;
@@ -515,10 +517,12 @@ static string load_nullterminated_str(int** p)
     return string(str);
 }
 
-static sCLType* load_type(int** p, sParserInfo* info)
+static sCLType* load_type(int** p, sParserInfo* info, vector<sCLType*%>* types)
 {
     string type_name = load_nullterminated_str(p);
-    return parse_type_runtime(string(type_name), info);
+    sCLType* result =  parse_type_runtime(string(type_name), info, types);
+
+    return result;
 }
 
 static bool load_field(int** p, int* head, sCLClass* klass, sParserInfo* info)
@@ -526,7 +530,7 @@ static bool load_field(int** p, int* head, sCLClass* klass, sParserInfo* info)
     sCLField*% field = new sCLField;
 
     field->mName = load_nullterminated_str(p);
-    field->mResultType = load_type(p, info);
+    field->mResultType = load_type(p, info, klass.types);
     field->mIndex = **p;
     (*p)++;
 
@@ -540,7 +544,7 @@ bool load_param(int** p, sCLClass* klass, sCLParam* param, sParserInfo* info)
     string name = load_nullterminated_str(p);
     xstrncpy(param->mName, name, VAR_NAME_MAX);
 
-    param->mType = load_type(p, info);
+    param->mType = load_type(p, info, klass.types);
 
     return true;
 }
@@ -585,7 +589,7 @@ static bool load_method(int** p, sCLClass* klass, sParserInfo* info)
         }
     }
 
-    method->mResultType = load_type(p, info);
+    method->mResultType = load_type(p, info, klass.types);
 
     method->mByteCodes = load_buffer(p);
 

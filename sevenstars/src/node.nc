@@ -7,7 +7,7 @@ void compile_err_msg(sCompileInfo* info, char* msg)
     
     info.err_num++;
 
-    info.type = create_type("int", info.pinfo);
+    info.type = create_type("int", info.pinfo.types);
 }
 
 sCLNode* alloc_node(sParserInfo* info)
@@ -44,7 +44,7 @@ static bool compile_int_value(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(node.uValue.mIntValue);
     }
     
-    info.type = create_type("int", info.pinfo);
+    info.type = create_type("int", info.pinfo.types);
     info.stack_num++;
     
     return true;
@@ -79,7 +79,7 @@ static bool compile_strig_value(sCLNode* node, sCompileInfo* info)
         info.codes.alignment();
     }
     
-    info.type = create_type("string", info.pinfo);
+    info.type = create_type("string", info.pinfo.types);
     info.stack_num++;
     
     return true;
@@ -122,7 +122,7 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
                 }
             }
 
-            info->type = create_type("any", info.pinfo);
+            info->type = create_type("any", info.pinfo.types);
         }
         else {
             /// compile parametors ///
@@ -287,7 +287,7 @@ static bool compile_primitive_plus(sCLNode* node, sCompileInfo* info)
             info.codes.append_int(OP_IADD);
         }
         
-        info.type = create_type("int", info.pinfo);
+        info.type = create_type("int", info.pinfo.types);
     }
     else {
         compile_err_msg(info, "This type is invalid for operator + ");
@@ -381,7 +381,7 @@ static bool compile_primitive_minus(sCLNode* node, sCompileInfo* info)
             info.codes.append_int(OP_ISUB);
         }
         
-        info.type = create_type("int", info.pinfo);
+        info.type = create_type("int", info.pinfo.types);
     }
     else {
         compile_err_msg(info, "This type is invalid for operator - ");
@@ -442,7 +442,7 @@ static bool compile_and_and(sCLNode* node, sCompileInfo* info)
             info.codes.append_int(OP_ANDAND);
         }
         
-        info.type = create_type("bool", info.pinfo);
+        info.type = create_type("bool", info.pinfo.types);
     }
     else {
         compile_err_msg(info, "This type is invalid for operator && ");
@@ -502,7 +502,7 @@ static bool compile_or_or(sCLNode* node, sCompileInfo* info)
             info.codes.append_int(OP_OROR);
         }
         
-        info.type = create_type("bool", info.pinfo);
+        info.type = create_type("bool", info.pinfo.types);
     }
     else {
         compile_err_msg(info, "This type is invalid for operator || ");
@@ -646,20 +646,20 @@ static bool compile_primitive_equal(sCLNode* node, sCompileInfo* info)
             info.codes.append_int(OP_IEQ);
         }
         
-        info.type = create_type("bool", info.pinfo);
+        info.type = create_type("bool", info.pinfo.types);
     }
     else {
         if(!info.no_output) {
             info.codes.append_int(OP_EQ);
         }
         
-        info.type = create_type("bool", info.pinfo);
+        info.type = create_type("bool", info.pinfo.types);
     }
     
     info.stack_num -= 2;
     info.stack_num++;
 
-    info->type = create_type("bool", info.pinfo);
+    info->type = create_type("bool", info.pinfo.types);
     
     return true;
 }
@@ -699,20 +699,20 @@ static bool compile_primitive_not_equal(sCLNode* node, sCompileInfo* info)
             info.codes.append_int(OP_INOTEQ);
         }
         
-        info.type = create_type("bool", info.pinfo);
+        info.type = create_type("bool", info.pinfo.types);
     }
     else {
         if(!info.no_output) {
             info.codes.append_int(OP_NOTEQ);
         }
         
-        info.type = create_type("bool", info.pinfo);
+        info.type = create_type("bool", info.pinfo.types);
     }
     
     info.stack_num -= 2;
     info.stack_num++;
 
-    info->type = create_type("bool", info.pinfo);
+    info->type = create_type("bool", info.pinfo.types);
     
     return true;
 }
@@ -762,7 +762,7 @@ static bool compile_primitive_greater(sCLNode* node, sCompileInfo* info)
             info.codes.append_int(OP_IGT);
         }
         
-        info.type = create_type("bool", info.pinfo);
+        info.type = create_type("bool", info.pinfo.types);
     }
     else {
         compile_err_msg(info, "This type is invalid for operator + ");
@@ -774,7 +774,7 @@ static bool compile_primitive_greater(sCLNode* node, sCompileInfo* info)
     info.stack_num -= 2;
     info.stack_num++;
 
-    info->type = create_type("bool", info.pinfo);
+    info->type = create_type("bool", info.pinfo.types);
     
     return true;
 }
@@ -834,7 +834,7 @@ static bool compile_primitive_lesser(sCLNode* node, sCompileInfo* info)
     info.stack_num -= 2;
     info.stack_num++;
 
-    info->type = create_type("bool", info.pinfo);
+    info->type = create_type("bool", info.pinfo.types);
     
     return true;
 }
@@ -884,7 +884,7 @@ static bool compile_primitive_lesser_equal(sCLNode* node, sCompileInfo* info)
             info.codes.append_int(OP_ILE);
         }
         
-        info.type = create_type("bool", info.pinfo);
+        info.type = create_type("bool", info.pinfo.types);
     }
     else {
         compile_err_msg(info, "This type is invalid for operator + ");
@@ -896,7 +896,7 @@ static bool compile_primitive_lesser_equal(sCLNode* node, sCompileInfo* info)
     info.stack_num -= 2;
     info.stack_num++;
 
-    info->type = create_type("bool", info.pinfo);
+    info->type = create_type("bool", info.pinfo.types);
     
     return true;
 }
@@ -946,7 +946,7 @@ static bool compile_primitive_greater_equal(sCLNode* node, sCompileInfo* info)
             info.codes.append_int(OP_IGE);
         }
         
-        info.type = create_type("bool", info.pinfo);
+        info.type = create_type("bool", info.pinfo.types);
     }
     else {
         compile_err_msg(info, "This type is invalid for operator + ");
@@ -958,7 +958,7 @@ static bool compile_primitive_greater_equal(sCLNode* node, sCompileInfo* info)
     info.stack_num -= 2;
     info.stack_num++;
 
-    info->type = create_type("bool", info.pinfo);
+    info->type = create_type("bool", info.pinfo.types);
     
     return true;
 }
@@ -1183,7 +1183,7 @@ static bool compile_true_value(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(OP_TRUE_VALUE);
     }
 
-    info.type = create_type("bool", info.pinfo);
+    info.type = create_type("bool", info.pinfo.types);
     info.stack_num++;
     
     return true;
@@ -1211,7 +1211,7 @@ static bool compile_false_value(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(OP_FALSE_VALUE);
     }
 
-    info.type = create_type("bool", info.pinfo);
+    info.type = create_type("bool", info.pinfo.types);
     info.stack_num++;
     
     return true;
@@ -1239,7 +1239,7 @@ static bool compile_null_value(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(OP_NULL_VALUE);
     }
 
-    info.type = create_type("void", info.pinfo);
+    info.type = create_type("void", info.pinfo.types);
     info.stack_num++;
     
     return true;
@@ -1267,7 +1267,7 @@ static bool compile_command(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(OP_COMMAND_VALUE);
     }
 
-    info.type = create_type("command", info.pinfo);
+    info.type = create_type("command", info.pinfo.types);
     info.stack_num++;
     
     return true;
@@ -1312,8 +1312,10 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
     }
 
     if(!type_identify_with_class_name(info.type, "bool", info.pinfo)) {
-        compile_err_msg(info, "The condition expression of if requires bool type");
-        show_type(info.type);
+        if(!info.in_shell) {
+            compile_err_msg(info, "The condition expression of if requires bool type");
+            show_type(info.type);
+        }
         return true;
     }
 
@@ -1357,7 +1359,9 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
             }
 
             if(!type_identify_with_class_name(info.type, "bool", info.pinfo)) {
-                compile_err_msg(info, "The condition expression of elif requires bool type");
+                if(!info.in_shell) {
+                    compile_err_msg(info, "The condition expression of elif requires bool type");
+                }
                 return true;
             }
 
@@ -1410,7 +1414,7 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
         int* p = (int*)(info.codes.buf + end_points[i]);
         *p = info.codes.len;
     }
-    info.type = create_type("void", info.pinfo);
+    info.type = create_type("void", info.pinfo.types);
 
     return true;
 }
@@ -1488,7 +1492,7 @@ static bool compile_while_expression(sCLNode* node, sCompileInfo* info)
         }
     }
 
-    info.type = create_type("void", info.pinfo);
+    info.type = create_type("void", info.pinfo.types);
 
     return true;
 }
@@ -1530,7 +1534,7 @@ static bool compile_break(sCLNode* node, sCompileInfo* info)
         exit(2);
     }
 
-    info->type = create_type("void", info.pinfo);
+    info->type = create_type("void", info.pinfo.types);
 
     return true;
 }
@@ -1564,7 +1568,7 @@ static bool compile_class(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
-    info.type = create_type("void", info.pinfo);
+    info.type = create_type("void", info.pinfo.types);
 
     return true;
 }
@@ -1633,7 +1637,7 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
     node_block.codes = dummy_heap cinfo2.codes;
     node_block->mResultType = result_type;
 
-    info.type = create_type("lambda", info.pinfo);
+    info.type = create_type("lambda", info.pinfo.types);
     if(!type_identify_with_class_name(result_type, "any", info.pinfo)) {
         info.type.mResultType = result_type;
     }
@@ -2137,7 +2141,7 @@ bool compile_jobs(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(OP_JOBS);
     }
 
-    info->type = create_type("void", info.pinfo);
+    info->type = create_type("void", info.pinfo.types);
 
     return true;
 }
@@ -2175,7 +2179,7 @@ bool compile_exit(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(OP_EXIT);
     }
 
-    info->type = create_type("void", info.pinfo);
+    info->type = create_type("void", info.pinfo.types);
 
     info->stack_num--;
 
@@ -2210,7 +2214,7 @@ bool compile_fg(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(job_num);
     }
 
-    info->type = create_type("void", info.pinfo);
+    info->type = create_type("void", info.pinfo.types);
 
     return true;
 }
@@ -2233,7 +2237,7 @@ sCLNode* sNodeTree_create_fg(int job_num, sParserInfo* info)
 
 bool compile_fg(sCLNode* node, sCompileInfo* info)
 {
-    info->type = create_type("void", info.pinfo);
+    info->type = create_type("void", info.pinfo.types);
 
     return true;
 }
@@ -2480,7 +2484,7 @@ bool compile_return(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(OP_RETURN);
     }
 
-    info->type = create_type("void", info.pinfo);
+    info->type = create_type("void", info.pinfo.types);
 
     return true;
 }
@@ -2532,7 +2536,7 @@ static bool compile_try_expression(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
-    if(!substitution_posibility(create_type("void", info.pinfo), cinfo2.type))
+    if(!substitution_posibility(create_type("void", info.pinfo.types), cinfo2.type))
     {
         compile_err_msg(&cinfo2, "block result error");
         delete cinfo2.codes;
@@ -2556,7 +2560,7 @@ static bool compile_try_expression(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
-    if(!substitution_posibility(create_type("void", info.pinfo), cinfo2.type))
+    if(!substitution_posibility(create_type("void", info.pinfo.types), cinfo2.type))
     {
         compile_err_msg(&cinfo2, "block result error");
         delete cinfo2.codes;
@@ -2581,7 +2585,7 @@ static bool compile_try_expression(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(node_block2->mVarNum);
     }
 
-    info.type = create_type("void", info.pinfo);
+    info.type = create_type("void", info.pinfo.types);
 
     return true;
 }
@@ -2619,7 +2623,7 @@ static bool compile_logical_denial(sCLNode* node, sCompileInfo* info)
         info.codes.append_int(OP_LOGICAL_DENIAL);
     }
 
-    info->type = create_type("bool", info.pinfo);
+    info->type = create_type("bool", info.pinfo.types);
 
     info->stack_num--;
     info->stack_num++
@@ -2629,7 +2633,7 @@ static bool compile_logical_denial(sCLNode* node, sCompileInfo* info)
 
 sCLNode* sNodeTree_create_normal_block(sCLNodeBlock* node_block, sParserInfo* info)
 {
-    sCLType* block_type = create_type("any", info);
+    sCLType* block_type = create_type("any", info.types);
     sCLNode* left_node = sNodeTree_create_lambda(0, NULL, node_block, block_type, info);
 
     sCLNode* result = alloc_node(info);
@@ -2701,6 +2705,46 @@ sCLNode* sNodeTree_create_macro(char* name, char* block_text, sParserInfo* info)
 
 static bool compile_macro(sCLNode* node, sCompileInfo* info)
 {
+    return true;
+}
+
+sCLNode* sNodeTree_create_eval(sCLNode* exp, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeEval;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = exp;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_eval(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* left_node = node.left;
+
+    if(!compile(left_node, info)) {
+        return false;
+    }
+
+    if(!type_identify_with_class_name(info->type, "string", info.pinfo)) {
+        compile_err_msg(info, "Require string type for eval");
+        return true;
+    }
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_EVAL);
+    }
+
+    info->stack_num--;
+
+    info->type = create_type("void", info.pinfo.types);
+
     return true;
 }
 
@@ -2998,6 +3042,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
 
         case kNodeTypeCommand:
             if(!compile_command(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeEval:
+            if(!compile_eval(node, info)) {
                 return false;
             }
             break;

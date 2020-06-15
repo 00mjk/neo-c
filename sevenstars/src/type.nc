@@ -1,14 +1,14 @@
 #include "common.h"
 #include <assert.h>
 
-sCLType* parse_type_runtime(char* type_name, sParserInfo* info)
+sCLType* parse_type_runtime(char* type_name, sParserInfo* info, vector<sCLType*%>* types)
 {
     char* p_before = info.p;
 
     info.p = type_name;
 
     sCLType* result = null;
-    if(!parse_type(&result, info)) {
+    if(!parse_type(&result, info, types)) {
         fprintf(stderr, "parse_type_name error.\n");
         exit(1);
     }
@@ -65,11 +65,11 @@ string create_type_name(sCLType* type)
     return result.to_string();
 }
 
-sCLType* create_type(char* type_name, sParserInfo* info)
+sCLType* create_type(char* type_name, vector<sCLType*%>* types)
 {
     sCLType* result = borrow new sCLType;
     
-    info.types.push_back(dummy_heap result);
+    types.push_back(dummy_heap result);
 
     result.mClass = gClasses.at(type_name, null);
 
@@ -190,7 +190,7 @@ bool substitution_posibility(sCLType* left_type, sCLType* right_type)
 
 bool type_identify_with_class_name(sCLType* left_type, char* right_class, sParserInfo* info)
 {
-    sCLType* right_type = create_type(right_class, info);
+    sCLType* right_type = create_type(right_class, info.types);
     
     return type_identify(left_type, right_type);
 }

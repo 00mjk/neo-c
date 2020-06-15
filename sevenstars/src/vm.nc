@@ -235,11 +235,169 @@ void print_op(int op)
         case OP_LOGICAL_DENIAL:
             puts("OP_LOGICAL_DENIAL");
             break;
+
+        case OP_EVAL:
+            puts("OP_EVAL");
+            break;
             
         default:
             printf("OP %d\n", op);
             break;
     }
+}
+
+bool eval_str(char* str, char* fname)
+{
+    sParserInfo info;
+    
+    memset(&info, 0, sizeof(sParserInfo));
+    
+    info.p = str;
+    xstrncpy(info.sname, fname, PATH_MAX);
+    info.sline = 1;
+    
+    info.err_output_num = 0;
+    
+    info.err_num = 0;
+    
+    info.nodes = borrow new vector<sCLNode*%>.initialize();
+    info.vtables = borrow new vector<sVarTable*%>.initialize();
+    info.blocks = borrow new vector<sCLNodeBlock*%>.initialize();
+    info.types = borrow new vector<sCLType*%>.initialize();
+    info.vars = borrow new vector<sVar*%>.initialize();
+    
+    init_var_table(&info);
+
+    sCompileInfo cinfo;
+    
+    memset(&cinfo, 0, sizeof(sCompileInfo));
+    
+    cinfo.pinfo = &info;
+    xstrncpy(cinfo.sname, info.sname, PATH_MAX);
+    
+    cinfo.err_num = 0;
+    
+    cinfo.codes = borrow new buffer.initialize();
+
+    cinfo.in_shell = true;
+    
+    while(*info->p) {
+        parse_comment(&info);
+
+        int sline = info.sline;
+        
+        sCLNode* node = null;
+        if(!expression(&node, &info)) {
+            delete info.nodes;
+            delete info.vtables;
+            delete info.blocks;
+            delete info.types;
+            delete info.vars;
+            delete cinfo.codes;
+            return false;
+        }
+        
+        while(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(&info);
+        }
+        
+        cinfo.sline = sline;
+        
+        if(!compile(node, &cinfo)) {
+            delete info.nodes;
+            delete info.vtables;
+            delete info.blocks;
+            delete info.types;
+            delete info.vars;
+            delete cinfo.codes;
+            return false;
+        }
+        
+        if(cinfo.err_num > 0) {
+            fprintf(stderr, "Compile error\n");
+            delete info.nodes;
+            delete info.vtables;
+            delete info.blocks;
+            delete info.types;
+            delete info.vars;
+            delete cinfo.codes;
+            return false;
+        }
+        
+        /// POP ///
+        for(int i=0; i<cinfo.stack_num; i++) {
+            if(!cinfo.no_output) {
+                cinfo.codes.append_int(OP_POP);
+            }
+        }
+        
+        cinfo.stack_num = 0;
+
+        cinfo.type = create_type("void", info.types);
+    }
+    
+    if(info.err_num > 0) {
+        fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
+        delete info.nodes;
+        delete info.vtables;
+        delete info.blocks;
+        delete info.types;
+        delete info.vars;
+        delete cinfo.codes;
+        return false;
+    }
+
+    int var_num = get_var_num(info.vtables);
+
+    if(var_num > info.max_var_num) {
+        info.max_var_num = var_num;
+    }
+
+    var_num = info.max_var_num;
+
+    sVMInfo vminfo;
+    
+    memset(&vminfo, 0, sizeof(sVMInfo));
+    
+    vminfo.pinfo = &info;
+    vminfo.cinfo = &cinfo;
+    vminfo.stack_frames = borrow new vector<sCLStackFrame>.initialize();
+    
+    CLVALUE result;
+    if(!vm(cinfo.codes, NULL, 0, var_num, &result, &vminfo)) {
+        fprintf(stderr, "VM error.\n");
+        CLObject obj = vminfo.thrown_object.mObjectValue;
+        if(obj) {
+            sCLObject* object_data = CLOBJECT(obj);
+
+            sCLType* type = object_data->mType;
+            if(type_identify_with_class_name(type, "string", &info))
+            {
+                char* str_data = get_string_mem(obj);
+                fprintf(stderr, "%s", str_data);
+            }
+        }
+
+        delete info.nodes;
+        delete info.vtables;
+        delete info.blocks;
+        delete info.types;
+        delete info.vars;
+        delete cinfo.codes;
+        delete vminfo.stack_frames;
+        return false;
+    }
+
+    delete info.nodes;
+    delete info.vtables;
+    delete info.blocks;
+    delete info.types;
+    delete info.vars;
+    delete cinfo.codes;
+    delete vminfo.stack_frames;
+
+    return true;
 }
 
 bool invoke_command_with_control_terminal(char* name, char** argv, int num_params, CLVALUE** stack_ptr, sVMInfo* info)
@@ -791,7 +949,7 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
 
                 p += len;
 
-                sCLType* type = parse_type_runtime(type_name, info.cinfo.pinfo);
+                sCLType* type = parse_type_runtime(type_name, info.cinfo.pinfo, info.cinfo.pinfo.types);
 
 
 
@@ -1028,6 +1186,22 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 }
                 
                 break;
+
+            case OP_EVAL: {
+                int obj = (stack_ptr-1).mObjectValue;
+
+                char* source = get_string_mem(obj);
+
+                if(!eval_str(source, "eval")) {
+                    vm_err_msg(&stack_ptr, info, xsprintf("eval str"));
+                    info.stack_frames.pop_back(null_parent_stack_frame);
+                    return false;
+                }
+
+                stack_ptr--;
+                }
+                
+                break;
                 
             case OP_ILT: {
                 int lvalue = (stack_ptr-2).mObjectValue;
@@ -1218,7 +1392,7 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
 
                         sCLObject* object_data = CLOBJECT(obj);
 
-                        sCLType* string_type = create_type("string", info.cinfo.pinfo);
+                        sCLType* string_type = create_type("string", info.cinfo.pinfo.types);
                         if(!substitution_posibility(string_type, object_data->mType))
                         {
                             vm_err_msg(&stack_ptr, info, "type error command parametor");

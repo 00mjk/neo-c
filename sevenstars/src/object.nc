@@ -82,7 +82,7 @@ CLObject create_object(sCLType* type, sVMInfo* info)
 
 CLObject create_null_object(sVMInfo* info)
 {
-    sCLType* int_type = create_type("void", info.cinfo.pinfo);
+    sCLType* int_type = create_type("void", info.cinfo.pinfo.types);
     
     int size = sizeof(sCLInt);
 
@@ -101,7 +101,7 @@ CLObject create_null_object(sVMInfo* info)
 
 CLObject create_int_object(int value, sVMInfo* info)
 {
-    sCLType* int_type = create_type("int", info.cinfo.pinfo);
+    sCLType* int_type = create_type("int", info.cinfo.pinfo.types);
     
     int size = sizeof(sCLInt);
 
@@ -118,7 +118,7 @@ CLObject create_int_object(int value, sVMInfo* info)
 
 CLObject create_bool_object(int value, sVMInfo* info)
 {
-    sCLType* int_type = create_type("bool", info.cinfo.pinfo);
+    sCLType* int_type = create_type("bool", info.cinfo.pinfo.types);
     
     int size = sizeof(sCLInt);
 
@@ -152,7 +152,7 @@ CLObject create_string_object(char* str, sVMInfo* info)
 
     alignment(&size);
 
-    sCLType* string_type = create_type("string", info.cinfo.pinfo);
+    sCLType* string_type = create_type("string", info.cinfo.pinfo.types);
 
     CLObject obj = alloc_heap_mem(size, string_type, -1, info);
 
@@ -221,7 +221,7 @@ CLObject create_string_data_object(char* str, sVMInfo* info)
     size += len + 1;
     alignment(&size);
 
-    sCLType* string_type = create_type("string", info.cinfo.pinfo);
+    sCLType* string_type = create_type("string", info.cinfo.pinfo.types);
 
     CLObject obj = alloc_heap_mem(size, string_type, -1, info);
 
@@ -234,7 +234,7 @@ CLObject create_string_data_object(char* str, sVMInfo* info)
 
 CLObject create_command_object(char* output, int output_len, char* err_output, int err_output_len, int rcode, bool first_command, sVMInfo* info)
 {
-    sCLType* command_type = create_type("command", info.cinfo.pinfo);
+    sCLType* command_type = create_type("command", info.cinfo.pinfo.types);
     
     int size = sizeof(sCLCommand) - sizeof(char) * DUMMY_ARRAY_SIZE;
     size += output_len + 1 + err_output_len + 1;
@@ -260,7 +260,7 @@ CLObject create_command_object(char* output, int output_len, char* err_output, i
 
 CLObject create_job_object(char* title, termios* tinfo, pid_t pgrp, sVMInfo* info)
 {
-    sCLType* job_type = create_type("job", info.cinfo.pinfo);
+    sCLType* job_type = create_type("job", info.cinfo.pinfo.types);
     
     int size = sizeof(sCLJob);
 
@@ -296,7 +296,7 @@ CLObject create_block_object(char* type_name, int* codes, int codes_len, int var
 
     alignment(&size);
 
-    sCLType* lambda_type = parse_type_runtime(type_name, info.cinfo.pinfo);
+    sCLType* lambda_type = parse_type_runtime(type_name, info.cinfo.pinfo, info.cinfo.pinfo.types);
 
     CLObject obj = alloc_heap_mem(size, lambda_type, -1, info);
 
@@ -328,7 +328,7 @@ CLObject create_buffer_object(sVMInfo* info)
 
     alignment(&size);
 
-    sCLType* buffer_type = create_type("buffer", info.cinfo.pinfo);
+    sCLType* buffer_type = create_type("buffer", info.cinfo.pinfo.types);
 
     CLObject obj = alloc_heap_mem(size, buffer_type, -1, info);
 
@@ -358,7 +358,7 @@ CLObject create_map_object(sVMInfo* info)
 
     alignment(&size);
 
-    sCLType* map_type = create_type("map", info.cinfo.pinfo);
+    sCLType* map_type = create_type("map", info.cinfo.pinfo.types);
 
     CLObject obj = alloc_heap_mem(size, map_type, -1, info);
 

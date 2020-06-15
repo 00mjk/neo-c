@@ -1,10 +1,11 @@
+load fundamental classes
 readline
+C-c
 vim("src/node.nc で実行
 C-c, C-z, jobs, fg
 if(true) { l[TAB]
 if(true) { 1.to[TAB]
 if(1.[TAB]
-load fundamental classes
 
 メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
 

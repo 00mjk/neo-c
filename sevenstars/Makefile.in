@@ -114,9 +114,9 @@ distclean: clean
 ########################################################
 test: 
 	@echo "Compile to test code..."
-	./sevenstars code/HelloWorld.ss
-#	./sevenstars code/HelloWorld2.ss
-	./sevenstars
+	./sevenstars -core code/HelloWorld.ss
+	./sevenstars code/HelloWorld2.ss
+#	./sevenstars
 
 
 

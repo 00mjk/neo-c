@@ -133,6 +133,9 @@ string parse_word(sParserInfo* info)
 void expected_next_character(char c, sParserInfo* info) 
 {
     parse_comment(info);
+    if(*info->p == '\0') {
+        return;
+    }
     if(*info->p == c) {
         info->p++;
         skip_spaces_and_lf(info);
@@ -303,7 +306,7 @@ bool parse_try(sCLNode** node, sParserInfo* info)
     int num_params = 0;
 
     xstrncpy(params[0].mName, "it", VAR_NAME_MAX);
-    params[0].mType = create_type("any", info);
+    params[0].mType = create_type("any", info.types);
 
     num_params++;
 
@@ -347,7 +350,7 @@ bool parse_throw(sCLNode** node, sParserInfo* info)
     return true;
 }
 
-bool parse_type(sCLType** type, sParserInfo* info)
+bool parse_type(sCLType** type, sParserInfo* info, vector<sCLType*%>* types)
 {
     string name = parse_word(info);
 
@@ -356,7 +359,7 @@ bool parse_type(sCLType** type, sParserInfo* info)
             if(strcmp(name, info.generics_type_names.item(i, null)) == 0) {
                 char*% generics_type_name = xsprintf("generics_type%d", i);
 
-                *type = create_type(generics_type_name, info);
+                *type = create_type(generics_type_name, types);
 
                 if(*info->p == '?') {
                     info->p++;
@@ -370,12 +373,12 @@ bool parse_type(sCLType** type, sParserInfo* info)
         }
     };
 
-    *type = create_type(name, info);
+    *type = create_type(name, types);
 
     if(strcmp(name, "lambda") == 0) {
         sCLParam params[PARAMS_MAX];
         int num_params = 0;
-        if(!parse_params(params, &num_params, info)) {
+        if(!parse_params(params, &num_params, info, types)) {
             return false;
         }
 
@@ -387,7 +390,7 @@ bool parse_type(sCLType** type, sParserInfo* info)
         expected_next_character(':', info);
 
         sCLType* result_type = NULL;
-        if(!parse_type(&result_type, info)) {
+        if(!parse_type(&result_type, info, types)) {
             return false;
         }
 
@@ -407,7 +410,7 @@ bool parse_type(sCLType** type, sParserInfo* info)
         skip_spaces_and_lf(info);
 
         for(int i=0; i<GENERICS_TYPES_MAX; i++) {
-            if(!parse_type((*type)->mGenericsTypes + i, info)) {
+            if(!parse_type((*type)->mGenericsTypes + i, info, types)) {
                 return false;
             }
             (*type)->mNumGenericsTypes++;
@@ -434,7 +437,7 @@ bool parse_type(sCLType** type, sParserInfo* info)
     return true;
 }
 
-bool parse_params(sCLParam* params, int* num_params, sParserInfo* info)
+bool parse_params(sCLParam* params, int* num_params, sParserInfo* info, vector<sCLType*%>* types)
 {
     expected_next_character('(', info);
 
@@ -449,7 +452,7 @@ bool parse_params(sCLParam* params, int* num_params, sParserInfo* info)
 
         sCLType* type = null;
 
-        if(!parse_type(&type, info)) {
+        if(!parse_type(&type, info, types)) {
             return false;
         }
 
@@ -466,8 +469,7 @@ bool parse_params(sCLParam* params, int* num_params, sParserInfo* info)
             break;
         }
         else if(*info->p == '\0') {
-            parser_err_msg(info, "Unexpected source end in parsing parametors");
-            return false;
+            break;
         }
     }
 
@@ -481,14 +483,14 @@ bool parse_lambda_expression(sCLNode** node, sParserInfo* info)
     sCLParam params[PARAMS_MAX];
     int num_params = 0;
 
-    if(!parse_params(params, &num_params, info)) {
+    if(!parse_params(params, &num_params, info, info.types)) {
         return false;
     }
 
     expected_next_character(':', info);
 
     sCLType* block_type = null;
-    if(!parse_type(&block_type, info)) {
+    if(!parse_type(&block_type, info, info.types)) {
         return false;
     }
 
@@ -662,6 +664,9 @@ bool parse_macro(sCLNode** node, sParserInfo* info)
 bool parse_calling_params(int* num_params, sCLNode** params, sParserInfo* info) 
 {
     while(true) {
+        if(*info->p == '\0') {
+            break;
+        }
         if(*info->p == ')') {
             expected_next_character(')', info);
             break;
@@ -685,7 +690,7 @@ bool parse_calling_params(int* num_params, sCLNode** params, sParserInfo* info)
             break;
         }
         else if(*info->p == '\0') {
-            parser_err_msg(info, "unexpexted source end. require ) or ,");
+            break;
         }
         else if(*info->p == ',') {
             info->p++;
@@ -912,7 +917,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 if(*info->p == ':') {
                     info->p++;
                     skip_spaces_and_lf(info);
-                    if(!parse_type(&type, info)) {
+                    if(!parse_type(&type, info, info.types)) {
                         return false;
                     };
                 }
@@ -1055,9 +1060,20 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 puts("ok");
             }
         }
+        else if(strcmp(word, "eval") == 0) {
+            expected_next_character('(', info);
+
+            sCLNode* exp = null;
+            if(!expression(&exp, info)) {
+                return false;
+            };
+            expected_next_character(')', info);
+            
+            *node = sNodeTree_create_eval(exp, info);
+        }
         else if(strcmp(word, "new") == 0) {
             sCLType* type = null;
-            if(!parse_type(&type, info)) {
+            if(!parse_type(&type, info, info.types)) {
                 return false;
             };
 
@@ -1202,8 +1218,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 break;
             }
             else if(*info->p == '\0') {
-                parser_err_msg(info, xsprintf("close \" character from the line %d\n", sline));
-                return false;
+                break;
             }
             else if(*info->p == '\\') {
                 info->p++;

@@ -2239,6 +2239,13 @@ impl map <T, T2>
             {
                 if(self.keys[it].equals(key)) 
                 {
+                    if(isheap(T)) {
+                        delete dummy_heap self.keys[it];
+                    }
+                    if(isheap(T2)) {
+                        delete dummy_heap self.items[it];
+                    }
+                    self.keys[it] = key;
                     self.items[it] = item;
 
                     break;
