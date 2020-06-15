@@ -1,7 +1,5 @@
-load fundamental classes
 readline
 C-c
-vim("src/node.nc で実行
 C-c, C-z, jobs, fg
 if(true) { l[TAB]
 if(true) { 1.to[TAB]
@@ -26,3 +24,5 @@ classの保存
 generics
 map, tuple
 
+load fundamental classes
+vim("src/node.nc で実行

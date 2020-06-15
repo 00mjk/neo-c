@@ -734,7 +734,7 @@ gTypeDefTable	src/typedef.c	/^static struct sTypeDefTable gTypeDefTable[TYPEDEF_
 gUsedNodeTypes	src/node_type.c	/^static int gUsedNodeTypes = 0;$/;"	v	file:
 gUsedNodes	src/node_alloc.c	/^int gUsedNodes = 0;$/;"	v
 gUsedPageNodeTypes	src/node_type.c	/^static int gUsedPageNodeTypes = 0;$/;"	v	file:
-gVersion	src/compiler.c	/^char* gVersion = "1.2.3";$/;"	v
+gVersion	src/compiler.c	/^char* gVersion = "1.2.4";$/;"	v
 generics_type	src/common.h	/^    sNodeType* generics_type;$/;"	m	struct:sCompileInfoStruct
 generics_type_names	sevenstars/src/common.h	/^    vector<string>* generics_type_names;$/;"	m	struct:sParserInfo
 get_block_text	src/parser.c	/^static BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly_brace, BOOL last_expresssion_is_self)$/;"	f	file:

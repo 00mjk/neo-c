@@ -34,18 +34,35 @@ static void set_signal()
     sigprocmask(SIG_BLOCK, &signal_set, NULL);
 }
 
+void sig_int(int signal)
+{
+    rl_reset_line_state();
+    rl_replace_line("", 0);
+    rl_point = 0;
+    puts("");
+    rl_redisplay();
+}
+
 static void set_signal_shell()
 {
-    struct sigaction sa;
     sigset_t signal_set;
 
     sigemptyset(&signal_set);
     sigaddset(&signal_set, SIGTTOU);
     sigaddset(&signal_set, SIGTTIN);
     sigaddset(&signal_set, SIGPIPE);
-    sigaddset(&signal_set, SIGINT);
 
     sigprocmask(SIG_BLOCK, &signal_set, NULL);
+
+    sigaction sa;
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_flags = SA_SIGINFO;
+    sa.sa_handler = (sig_t)sig_int;
+    if(sigaction(SIGINT, &sa, null) < 0) {
+        perror("sigaction2");
+        exit(1);
+    }
 }
 
 bool shell_eval_str(char* str, char* fname)

@@ -730,6 +730,8 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
 
 BOOL parse_sharp(sParserInfo* info)
 {
+    skip_spaces_and_lf(info);
+
     if(*info->p == '#') {
         info->p++;
         skip_spaces_and_lf(info);
@@ -4127,6 +4129,9 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
         /// call method or access field ///
         if(*info->p == '.' || (*info->p == '-' && *(info->p+1) == '>'))
         {
+            if(!parse_sharp(info)) {
+                return FALSE;
+            }
             if(*info->p == '-') {
                 info->p+=2;
                 skip_spaces_and_lf(info);
@@ -4134,6 +4139,9 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
             else {
                 info->p++;
                 skip_spaces_and_lf(info);
+            }
+            if(!parse_sharp(info)) {
+                return FALSE;
             }
 
             if(isalpha(*info->p) || *info->p == '_') 
@@ -4144,6 +4152,10 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                     return FALSE;
                 }
                 skip_spaces_and_lf(info);
+
+                if(!parse_sharp(info)) {
+                    return FALSE;
+                }
 
                 /// call methods ///
                 if(*info->p == '(' || *info->p == '{') 
@@ -4441,7 +4453,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                 }
             }
             else {
-                parser_err_msg(info, "require method name or field name after .");
+                parser_err_msg(info, "require method name or field name after . (%c)", *info->p);
                 info->err_num++;
                 *node = 0;
                 break;
