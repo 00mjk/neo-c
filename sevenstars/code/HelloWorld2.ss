@@ -358,3 +358,22 @@ var li9 = "aaa,bbb,ccc,ddd".to_command().sed("-e", "s/,/\\n/g").to_list().map() 
 
 xassert("command to_list", li9.item(0, null) == "AAA" && li9.item(1, null) == "BBB" && li9.item(2,null) == "CCC" && li9.item(3, null) == "DDD");
 
+
+class TestObject {
+    var value1:int;
+    var value2:string;
+
+    def initialize():TestObject {
+        self.value1 = 123;
+        self.value2 = "ABC"; 
+
+        self
+    }
+}
+
+var test_object = new TestObject();
+
+xassert("object.field test", test_object.field(0, null) == 123 && test_object.field(1, null) == "ABC");
+
+xassert("string plus", "AAA" + "BBB" == "AAABBB");
+

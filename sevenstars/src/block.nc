@@ -49,6 +49,13 @@ bool parse_block(sCLNodeBlock** node_block, int num_params, sCLParam* params, sP
 
         (*node_block).nodes.push_back(node);
     }
+
+    if(*info->p == '\0') {
+        (*node_block)->closed_block = false;
+    }
+    else {
+        (*node_block)->closed_block = true;
+    }
     
     if(info.err_num > 0) {
         fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
@@ -78,6 +85,7 @@ bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info)
     var nodes = borrow node_block->nodes;
     var vtables = borrow node_block->vtables;
     var has_last_value = node_block.has_last_value;
+    var closed_block = node_block.closed_block;
 
     var vtables_before = info.pinfo.vtables;
     info.pinfo.vtables = vtables;
@@ -111,7 +119,9 @@ bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info)
             
             info.stack_num = 0;
 
-            info.type = create_type("void", info.pinfo.types);
+            if(closed_block) {
+                info.type = create_type("void", info.pinfo.types);
+            }
         }
     }
 

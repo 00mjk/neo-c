@@ -1,9 +1,5 @@
 readline
-C-c
-C-c, C-z, jobs, fg
-if(true) { l[TAB]
-if(true) { 1.to[TAB]
-if(1.[TAB]
+C-z, jobs, fg
 
 メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
 
@@ -26,3 +22,9 @@ map, tuple
 
 load fundamental classes
 vim("src/node.nc で実行
+C-c
+if(true) { 1.to[TAB]
+while(true) { 1.[TAB]
+if(1.[TAB]
+while(1.[TAB]
+if(true) { l[TAB]

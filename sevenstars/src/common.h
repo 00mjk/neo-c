@@ -163,6 +163,7 @@ struct sCLNode {
             int mNumParams;
             sCLNode* mParams[PARAMS_MAX];
             bool mLastMethodChain;
+            bool mParamClosed;
         } uMethodCall;
         struct {
             sCLNode* mExpression;
@@ -229,6 +230,8 @@ struct sCLNodeBlock {
     buffer*% codes;
 
     int head_params;
+
+    bool closed_block;
 };
 
 struct sParserInfo {
@@ -353,7 +356,7 @@ sCLNode* sNodeTree_create_lambda(int num_params, sCLParam* params, sCLNodeBlock*
 sCLNode* sNodeTree_create_method_block(char* sname, int sline, buffer*% block_text, sParserInfo* info);
 sCLNode* sNodeTree_create_class(char* source, char* sname, int sline, sParserInfo* info);
 sCLNode* sNodeTree_create_object(sCLType* type, sParserInfo* info);
-sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, sParserInfo* info);
+sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, bool param_closed, sParserInfo* info);
 sCLNode* sNodeTree_create_command_call(sCLNode* node, char* name, int num_params, sCLNode** params, sParserInfo* info);
 sCLNode* sNodeTree_create_block_object_call(int num_params, sCLNode** params, sParserInfo* info);
 sCLNode* sNodeTree_create_jobs(sParserInfo* info);
@@ -400,6 +403,7 @@ struct sVMInfo {
 };
 
 void vm_err_msg(CLVALUE** stack_ptr, sVMInfo* info, char* msg);
+bool param_check(sCLParam* method_params, int num_params, CLVALUE* stack_ptr, sCLType * generics_types, sVMInfo* info);
 bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, CLVALUE* result, sVMInfo* info);
 CLObject alloc_heap_mem(unsigned int size, sCLType* type, int field_num, sVMInfo* info);
 void heap_init(int heap_size, int size_handles);

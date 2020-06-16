@@ -65,13 +65,21 @@ static void set_signal_shell()
     }
 }
 
-bool shell_eval_str(char* str, char* fname)
+bool shell_eval_str(char* str, char* fname, bool output)
 {
     sParserInfo info;
     
     memset(&info, 0, sizeof(sParserInfo));
+
+    string str2 = string("");
+    if(output) {
+        str2 = xsprintf("{%s}.to_string().print()", str);
+    }
+    else {
+        str2 = xsprintf("%s", str);
+    }
     
-    info.p = str;
+    info.p = str2;
     xstrncpy(info.sname, fname, PATH_MAX);
     info.sline = 1;
     
@@ -254,7 +262,7 @@ static void compiler_init(bool no_load_fudamental_classes)
 
             string source = buf.to_string();
 
-            if(!shell_eval_str(source, "load fundamental class")) {
+            if(!shell_eval_str(source, "load fundamental class", false)) {
                 fprintf(stderr, "no load fundamental class\n");
             }
         }
@@ -711,7 +719,7 @@ char* completion_generator(char* text, int state)
         }
 
         if(result_type != null && inputing_method) {
-            if(type_identify_with_class_name(result_type, "command", &info))
+            if(type_identify_with_class_name(result_type, "command", &info) || type_identify_with_class_name(result_type, "void", &info))
             {
                 get_command_completion_cadidates(inputing_method_name)
             }
@@ -773,6 +781,14 @@ char** completer(char* text, int start, int end)
         else if(*p == '.') {
             break;
         }
+        else if(*p == ' ') {
+            while(*p == ' ') {
+                p--;
+            }
+        }
+        else if(*p == '{') {
+            break;
+        }
         else {
             inputing_method = false;
             break;
@@ -811,7 +827,7 @@ void shell()
             break;
         }
 
-        (void)shell_eval_str(line, "sevenstars");
+        (void)shell_eval_str(line, "sevenstars", true);
 
         add_history(line);
 

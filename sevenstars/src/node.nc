@@ -1331,8 +1331,13 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
 
     info.stack_num--;
 
+    bool closed_block = true;
     if(!compile_block(if_node_block, info)) {
         return false;
+    }
+
+    if(!if_node_block->closed_block) {
+        closed_block = false;
     }
 
     int end_points[ELIF_MAX+1];
@@ -1390,6 +1395,10 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
                 end_points[1+i] = info.codes.len;
                 info.codes.append_int(0);
             }
+
+            if(!node_block->closed_block) {
+                closed_block = false;
+            }
         }
 
         if(!info.no_output) {
@@ -1408,13 +1417,19 @@ static bool compile_if_expression(sCLNode* node, sCompileInfo* info)
         if(!compile_block(else_block, info)) {
             return false;
         }
+
+        if(!else_block->closed_block) {
+            closed_block = false;
+        }
     }
 
     for(int i=0; i<num_elif+1; i++) {
         int* p = (int*)(info.codes.buf + end_points[i]);
         *p = info.codes.len;
     }
-    info.type = create_type("void", info.pinfo.types);
+    if(closed_block) {
+        info.type = create_type("void", info.pinfo.types);
+    }
 
     return true;
 }
@@ -1450,7 +1465,9 @@ static bool compile_while_expression(sCLNode* node, sCompileInfo* info)
     }
 
     if(!type_identify_with_class_name(info.type, "bool", info.pinfo)) {
-        compile_err_msg(info, "The condition expression of while requires bool type");
+        if(!info.in_shell) {
+            compile_err_msg(info, "The condition expression of while requires bool type");
+        }
         return true;
     }
 
@@ -1492,7 +1509,9 @@ static bool compile_while_expression(sCLNode* node, sCompileInfo* info)
         }
     }
 
-    info.type = create_type("void", info.pinfo.types);
+    if(node_block->closed_block) {
+        info.type = create_type("void", info.pinfo.types);
+    }
 
     return true;
 }
@@ -1730,7 +1749,7 @@ static bool compile_create_object(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, sParserInfo* info)
+sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** params, bool param_closed, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
     
@@ -1746,6 +1765,7 @@ sCLNode* sNodeTree_create_method_call(char* name, int num_params, sCLNode** para
         result.uValue.uMethodCall.mParams[i] = params[i];
     }
     result.uValue.uMethodCall.mLastMethodChain = true;
+    result.uValue.uMethodCall.mParamClosed = param_closed;
 
     if(num_params > 0 && (params[0].type == kNodeTypeCommandCall || params[0].type == kNodeTypeMethodCall))
     {
@@ -1763,6 +1783,7 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
 {
     char* method_name = node.mStringValue;
     int last_method_chain = node.uValue.uMethodCall.mLastMethodChain;
+    bool param_closed = node.uValue.uMethodCall.mParamClosed;
 
     int num_params = node.uValue.uMethodCall.mNumParams;
     sCLNode* params[PARAMS_MAX];
@@ -1818,7 +1839,9 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
             }
         }
 
-        info->type = obj_type;
+        if(param_closed) {
+            info->type = obj_type;
+        }
     }
     /// case command ///
     else if(type_identify_with_class_name(info.type, "command", info.pinfo)) {
@@ -1842,7 +1865,9 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
                     }
                 }
 
-                info->type = obj_type;
+                if(param_closed) {
+                    info->type = obj_type;
+                }
             }
             else {
                 compile_err_msg(info, xsprintf("method not found. (%s.%s)", klass_name, method_name));
@@ -1931,7 +1956,9 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
                 }
             }
 
-            info.type = solve_generics(method.mResultType, generics_types, info.pinfo);
+            if(param_closed) {
+                info.type = solve_generics(method.mResultType, generics_types, info.pinfo);
+            }
         }
     }
     else {
@@ -2016,7 +2043,9 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
             }
         }
 
-        info.type = solve_generics(method.mResultType, generics_types, info.pinfo);
+        if(param_closed) {
+            info.type = solve_generics(method.mResultType, generics_types, info.pinfo);
+        }
     }
 
     /// go ///

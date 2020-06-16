@@ -661,14 +661,16 @@ bool parse_macro(sCLNode** node, sParserInfo* info)
     return true;
 }
 
-bool parse_calling_params(int* num_params, sCLNode** params, sParserInfo* info) 
+bool parse_calling_params(int* num_params, sCLNode** params, bool* param_closed, sParserInfo* info) 
 {
     while(true) {
         if(*info->p == '\0') {
+            *param_closed = false;
             break;
         }
         if(*info->p == ')') {
             expected_next_character(')', info);
+            *param_closed = true;
             break;
         }
 
@@ -687,9 +689,11 @@ bool parse_calling_params(int* num_params, sCLNode** params, sParserInfo* info)
 
         if(*info->p == ')') {
             expected_next_character(')', info);
+            *param_closed = true;
             break;
         }
         else if(*info->p == '\0') {
+            *param_closed = false;
             break;
         }
         else if(*info->p == ',') {
@@ -745,12 +749,13 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
                 params[0] = *node;
                 num_params = 1;
 
-                if(!parse_calling_params(&num_params, params, info)) 
+                bool param_closed = false;
+                if(!parse_calling_params(&num_params, params, &param_closed, info)) 
                 {
                     return false;
                 };
 
-                *node = sNodeTree_create_method_call(name, num_params, params, info);
+                *node = sNodeTree_create_method_call(name, num_params, params, param_closed, info);
             }
             //// field ///
             else {
@@ -830,7 +835,8 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
             params[0] = *node;
             num_params = 1;
 
-            if(!parse_calling_params(&num_params, params, info)) 
+            bool param_closed = false;
+            if(!parse_calling_params(&num_params, params, &param_closed, info)) 
             {
                 return false;
             };
@@ -1092,12 +1098,13 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 params[0] = *node;
                 num_params = 1;
 
-                if(!parse_calling_params(&num_params, params, info)) 
+                bool param_closed = false;
+                if(!parse_calling_params(&num_params, params, &param_closed, info)) 
                 {
                     return false;
                 };
 
-                *node = sNodeTree_create_method_call(name, num_params, params, info);
+                *node = sNodeTree_create_method_call(name, num_params, params, param_closed, info);
             }
         }
         else if(*info->p == '!' && *(info->p+1) == '(') {
@@ -1142,12 +1149,13 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
                 int num_params = 1;
 
-                if(!parse_calling_params(&num_params, params, info)) 
+                bool param_closed = false;
+                if(!parse_calling_params(&num_params, params, &param_closed, info)) 
                 {
                     return false;
                 };
 
-                *node = sNodeTree_create_method_call(word, num_params, params, info);
+                *node = sNodeTree_create_method_call(word, num_params, params, param_closed, info);
             }
             else {
                 *node = sNodeTree_create_load_variable(word, info);

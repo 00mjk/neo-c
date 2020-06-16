@@ -30,8 +30,11 @@ COMPILER_OBJS=@COMPILER_OBJS@
 ##########################################################
 # main
 ##########################################################
-all: sevenstars
+all: sevenstars core
 #	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
+
+core: core.ss
+	./sevenstars -core core.ss
 
 sevenstars: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/native.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
 	$(CC) -o sevenstars src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/native.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
@@ -104,7 +107,7 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR sevenstars sevenstar.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.out *.ssc
+	rm -fR sevenstars sevenstar.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core a.out *.out *.ssc
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache
@@ -114,9 +117,7 @@ distclean: clean
 ########################################################
 test: 
 	@echo "Compile to test code..."
-	./sevenstars -core code/HelloWorld.ss
 	./sevenstars code/HelloWorld2.ss
-#	./sevenstars
 
 
 
