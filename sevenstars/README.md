@@ -1,6 +1,6 @@
 # SevenStars computer language
 
-version 1.0.0
+version 0.9.8
 
 * 特徴
 
@@ -951,3 +951,50 @@ class command
 * メソッドブロックとラムダ
 
 メソッドブロックやラムダは親の変数にアクセスすることができません。
+
+* クラスのロード、セーブ
+
+load_class クラス名で行います。
+save_class クラス名で行います。
+
+* クラスの継承
+
+class クラス名 extends 親クラス
+
+で行います。
+
+* オブジェクトの初期化
+
+class EQTest {
+    var a:int;
+    var b:int;
+
+    def initialize(a:int, b:int):EQTest {
+        self.a = a;
+        self.b = b;
+
+        self
+    }
+}
+
+などと行います。ブロックの最後の値が返されます。呼び出し側はvar a = new EQTest(1,2);などです。var a = new EQTest;とするとinitializeは呼び出されません。
+finalizerはありません。
+
+* ループ、条件式、変数の宣言
+
+var i = 0;
+while(i < 10) {
+    echo(i.to_string());
+    i++;
+}
+
+var value = 111;
+if(value == 222) {
+    echo("222");
+}
+elif(value == 111) {
+    echo("111");
+}
+else {
+    echo("else");
+}
