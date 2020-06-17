@@ -6,25 +6,31 @@ version 0.9.8
 
 1. メソッド名とファイル名の補完を持つシェルとして使えます。
 
+```
 sevenstars > ls().le[TAB]
 sevenstars > ls().less(
 
 sevenstars > 1.to_s[TAB]
 sevenstars > 1.to_string(
+```
 
 2. 外部コマンドを簡単に実行できます。
 
+```
 sevenstars > map!("AAA", 1, "BBB", 2).to_string().to_command().less()
+```
 
-3. 静的型と動的型の両方を持ちます。内部的にはコンパイルを行っております。
+3. 静的型と動的型の両方を持ちます。内部的には仮想マシーンが動いており、コンパイルを行っております。
 
 4. オブジェクト指向言語でもあります。クラス、継承、ジェネリクス、コレクションなどを含みます。
 
+```
 sevenstars > list!(1,2,3,4,5).filter() { it > 3 }
 =>list(4,5)
 
 sevenstars > list!(1,2,3,4,5).map() { it * 2 }
 =>list(2,4,6,8,10)
+```
 
 * マニュアル
 
@@ -34,6 +40,7 @@ sevenstars > list!(1,2,3,4,5).map() { it * 2 }
 
 メソッドには以下があります。
 
+```
 class int {
     def set_value(value:int):void;
     def plus(right:int):int {
@@ -73,6 +80,7 @@ class int {
         0
     }
 };
+```
 
 * bool クラス
 
@@ -80,6 +88,7 @@ class int {
 
 メソッドは以下です。
 
+```
 class bool {
     def set_value(value:bool):void;
     def to_int():int;
@@ -109,11 +118,13 @@ class bool {
         };
     }
 };
+```
 
 * string クラス
 
 文字列を表すクラスです。"HELLO"などと表現します。
 
+```
 class string {
     def set_value(value:string):void;
     def equal(right:string?):bool;
@@ -155,11 +166,13 @@ class string {
         result
     }
 };
+```
 
 * objectクラス
 
 全てのオブジェクトの基盤となるクラスです。以下のメソッドがあります。
 
+```
 class object {
     def type_name():string;
     def num_fields():int;
@@ -171,18 +184,22 @@ class object {
         self \!= right
     }
 }
+```
 
 * buffer クラス
 
 可変長の文字列を表します。
 
+```
 var a = new buffer();
 a.append_str("AAA");
 a.append_str("BBB");
 echo(a.to_string());
+```
+
 はAAABBBを出力します。
 
-
+```
 class buffer
 {
     def initialize():buffer;
@@ -200,6 +217,7 @@ class buffer
 
     def compare(right:buffer):int;
 }
+```
 
 * listクラス
 
@@ -207,6 +225,7 @@ list!(1,2,3)などと表現します。list!というのはマクロです。
 
 以下のように定義されています。
 
+```
 class list_item<T>
 {
     var item:T?;
@@ -823,6 +842,7 @@ class list<T>
         buf.to_string()
     }
 }
+```
 
 * map
 
@@ -830,6 +850,7 @@ map!("AAA", 1, "BBB", 2)などと表現します。
 
 keyには文字列しか使えません。
 
+```
 class map<T>
 {
     def initialize():map<T>;
@@ -840,11 +861,13 @@ class map<T>
     def equal(right:map<T>):bool;
     def to_string():string;
 }
+```
 
 * tuple
 
 以下のように定義されます。tuple!(1,2,"AAA")などと表現されます。
 
+```
 class tuple1<T>
 {
     var value1:T?;
@@ -935,11 +958,13 @@ class tuple4<T, T2, T3, T4>
         "tuple(" + self.value1.to_string() + "," + self.value2.to_string() + "," + self.value3.to_string() + "," + self.value4.to_string() + ")"
     }
 }
+```
 
 * コマンドクラス
 
 コマンドの出力の値を表現します。commandクラスのメソッドは外部プログラム名です。C-zした場合はjobオブジェクトが保存されます。jobsで一覧を見ることができます。fgでフォアグランドジョブにできます。
 
+```
 class command
 {
     def to_string():string;
@@ -947,6 +972,7 @@ class command
         self.to_string().to_list()
     }
 }
+```
 
 * メソッドブロックとラムダ
 
@@ -965,6 +991,7 @@ class クラス名 extends 親クラス
 
 * オブジェクトの初期化
 
+```
 class EQTest {
     var a:int;
     var b:int;
@@ -976,12 +1003,14 @@ class EQTest {
         self
     }
 }
+```
 
 などと行います。ブロックの最後の値が返されます。呼び出し側はvar a = new EQTest(1,2);などです。var a = new EQTest;とするとinitializeは呼び出されません。
 finalizerはありません。
 
 * ループ、条件式、変数の宣言
 
+```
 var i = 0;
 while(i < 10) {
     echo(i.to_string());
@@ -998,3 +1027,4 @@ elif(value == 111) {
 else {
     echo("else");
 }
+```
