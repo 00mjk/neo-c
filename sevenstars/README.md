@@ -1,6 +1,6 @@
-# clover3 computer language
+# SevenStars computer language
 
-version 0.0.1
+version 1.0.0
 
 * FEATURE
 

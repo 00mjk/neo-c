@@ -407,7 +407,7 @@ bool param_check(sCLParam* method_params, int num_params, CLVALUE* stack_ptr, sC
 bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, CLVALUE* result, sVMInfo* info);
 CLObject alloc_heap_mem(unsigned int size, sCLType* type, int field_num, sVMInfo* info);
 void heap_init(int heap_size, int size_handles);
-void heap_final(sVMInfo* info);
+void heap_final();
 
 struct sCLHeapMem {
     sCLType* mType;
@@ -535,7 +535,7 @@ CLObject create_command_object(char* output, int output_len, char* err_output, i
 CLObject create_job_object(char* title, termios* tinfo, pid_t pgrp, sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info);
 
-bool free_object(CLObject self, sVMInfo* info);
+bool free_object(CLObject self);
 void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info);
 
 void alignment(unsigned int* size);

@@ -279,7 +279,7 @@ bool eval_str(char* str, char* fname)
     
     cinfo.codes = borrow new buffer.initialize();
 
-    cinfo.in_shell = true;
+    cinfo.in_shell = false;
     
     while(*info->p) {
         parse_comment(&info);
@@ -828,9 +828,6 @@ bool param_check(sCLParam* method_params, int num_params, CLVALUE* stack_ptr, sC
         sCLType* type = solve_generics(param->mType, generics_types, info.cinfo.pinfo);
 
         if(!substitution_posibility(type, stack_param)) {
-puts("XXX");
-show_type(type);
-show_type(stack_param);
             return false;
         }
     }

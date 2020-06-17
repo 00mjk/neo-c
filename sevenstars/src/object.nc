@@ -1,7 +1,7 @@
 #include "common.h"
 #include <assert.h>
 
-bool free_object(CLObject self, sVMInfo* info)
+bool free_object(CLObject self)
 {
     sCLObject* object_data = CLOBJECT(self);
     sCLType* type = object_data->mType;

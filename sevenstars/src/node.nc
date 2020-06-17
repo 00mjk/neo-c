@@ -178,9 +178,11 @@ static bool invoke_method(char* method_name, int num_params, sCLNode** params, s
             sCLType* type = solve_generics(method->mParams[i].mType, generics_types, info.pinfo);
 
             if(!substitution_posibility(type, param_types[i])) {
-                compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 1", i, klass.mName, method_name));
-                show_type(type);
-                show_type(param_types[i]);
+                if(!info.in_shell) {
+                    compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 1", i, klass.mName, method_name));
+                    show_type(type);
+                    show_type(param_types[i]);
+                }
                 return true;
             }
         }
@@ -1641,6 +1643,12 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
+    if(!node_block->closed_block) {
+        info->type = cinfo2.type;
+        delete cinfo2.codes;
+        return true;
+    }
+
     if(cinfo2.err_num > 0) {
         delete cinfo2.codes;
         return false;
@@ -1648,7 +1656,9 @@ static bool compile_lambda(sCLNode* node, sCompileInfo* info)
 
     if(!substitution_posibility(result_type, cinfo2.type))
     {
-        compile_err_msg(&cinfo2, "block result error");
+        if(!info.in_shell) {
+            compile_err_msg(&cinfo2, "block result error");
+        }
         delete cinfo2.codes;
         return true;
     }
@@ -1932,9 +1942,11 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
                     sCLType* type = solve_generics(method->mParams[i].mType, generics_types, info.pinfo);
 
                     if(!substitution_posibility(type, param_types[i])) {
-                        compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 2", i, klass.mName, method_name));
-                        show_type(type);
-                        show_type(param_types[i]);
+                        if(!info.in_shell) {
+                            compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 2", i, klass.mName, method_name));
+                            show_type(type);
+                            show_type(param_types[i]);
+                        }
                         return true;
                     }
                 }
@@ -1948,9 +1960,11 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
                     sCLType* type = solve_generics(method->mParams[i].mType, generics_types, info.pinfo);
 
                     if(!substitution_posibility(type, param_types[i])) {
-                        compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 3", i, klass.mName, method_name));
-                        show_type(type);
-                        show_type(param_types[i]);
+                        if(!info.in_shell) {
+                            compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 3", i, klass.mName, method_name));
+                            show_type(type);
+                            show_type(param_types[i]);
+                        }
                         return true;
                     }
                 }
@@ -2019,9 +2033,11 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
                 sCLType* type = solve_generics(method->mParams[i].mType, generics_types, info.pinfo);
 
                 if(!substitution_posibility(type, param_types[i])) {
-                    compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 2", i, klass.mName, method_name));
-                    show_type(type);
-                    show_type(param_types[i]);
+                    if(!info.in_shell) {
+                        compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 2", i, klass.mName, method_name));
+                        show_type(type);
+                        show_type(param_types[i]);
+                    }
                     return true;
                 }
             }
@@ -2035,9 +2051,11 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
                 sCLType* type = solve_generics(method->mParams[i].mType, generics_types, info.pinfo);
 
                 if(!substitution_posibility(type, param_types[i])) {
-                    compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 3", i, klass.mName, method_name));
-                    show_type(type);
-                    show_type(param_types[i]);
+                    if(!info.in_shell) {
+                        compile_err_msg(info, xsprintf("method param error #%d. (%s.%s) 3", i, klass.mName, method_name));
+                        show_type(type);
+                        show_type(param_types[i]);
+                    }
                     return true;
                 }
             }
@@ -2565,9 +2583,17 @@ static bool compile_try_expression(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
+    if(!node_block->closed_block) {
+        info->type = cinfo2.type;
+        delete cinfo2.codes;
+        return true;
+    }
+
     if(!substitution_posibility(create_type("void", info.pinfo.types), cinfo2.type))
     {
-        compile_err_msg(&cinfo2, "block result error");
+        if(!info.in_shell) {
+            compile_err_msg(&cinfo2, "block result error");
+        }
         delete cinfo2.codes;
         return true;
     }
@@ -2589,9 +2615,17 @@ static bool compile_try_expression(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
+    if(!node_block2->closed_block) {
+        info->type = cinfo2.type;
+        delete cinfo2.codes;
+        return true;
+    }
+
     if(!substitution_posibility(create_type("void", info.pinfo.types), cinfo2.type))
     {
-        compile_err_msg(&cinfo2, "block result error");
+        if(!info.in_shell) {
+            compile_err_msg(&cinfo2, "block result error");
+        }
         delete cinfo2.codes;
         return true;
     }

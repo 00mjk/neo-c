@@ -71,15 +71,15 @@ bool shell_eval_str(char* str, char* fname, bool output)
     
     memset(&info, 0, sizeof(sParserInfo));
 
-    string str2 = string("");
+    string str2 = null;
     if(output) {
-        str2 = xsprintf("{%s}.to_string().print()", str);
+        str2 = xsprintf("(\"=>\" + {%s}.to_string()).print()", str);
     }
     else {
         str2 = xsprintf("%s", str);
     }
     
-    info.p = str2;
+    info.p = str;
     xstrncpy(info.sname, fname, PATH_MAX);
     info.sline = 1;
     
@@ -183,8 +183,6 @@ bool shell_eval_str(char* str, char* fname, bool output)
 
     var_num = info.max_var_num;
 
-    heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
-    
     sVMInfo vminfo;
     
     memset(&vminfo, 0, sizeof(sVMInfo));
@@ -207,7 +205,6 @@ bool shell_eval_str(char* str, char* fname, bool output)
                 fprintf(stderr, "%s", str_data);
             }
         }
-        heap_final(&vminfo);
 
         delete info.nodes;
         delete info.vtables;
@@ -219,8 +216,6 @@ bool shell_eval_str(char* str, char* fname, bool output)
         return false;
     }
 
-    heap_final(&vminfo);
-    
     delete info.nodes;
     delete info.vtables;
     delete info.blocks;
@@ -262,9 +257,11 @@ static void compiler_init(bool no_load_fudamental_classes)
 
             string source = buf.to_string();
 
+            heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
             if(!shell_eval_str(source, "load fundamental class", false)) {
                 fprintf(stderr, "no load fundamental class\n");
             }
+            heap_final();
         }
     }
 }
@@ -455,7 +452,7 @@ bool compile_script(char* fname, buffer* source)
                 fprintf(stderr, "%s", str_data);
             }
         }
-        heap_final(&vminfo);
+        heap_final();
 
         delete info.nodes;
         delete info.vtables;
@@ -467,7 +464,7 @@ bool compile_script(char* fname, buffer* source)
         return false;
     }
 
-    heap_final(&vminfo);
+    heap_final();
     
     delete info.nodes;
     delete info.vtables;
@@ -898,7 +895,9 @@ int main(int argc, char** argv)
         clover3_init();
         compiler_init(no_load_fudamental_classes);
 
+        heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
         shell();
+        heap_final();
 
         clover3_final();
         compiler_final();
