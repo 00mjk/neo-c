@@ -83,6 +83,8 @@ class string {
     def print():void {
         echo(self);
     }
+    def write(file_name:string):void;
+    def append(file_name:string):void;
 };
 
 class object {
@@ -785,7 +787,8 @@ class map<T>
     def at(key:string, default_value:T?):T?;
     def find(key:string):bool;
     def length():int;
-    def equal(right:map<T>):bool;
+    def equal(right:map<T>?):bool;
+    def not_equal(right:map<T>?):bool;
     def to_string():string;
 }
 
@@ -799,8 +802,16 @@ class tuple1<T>
         self
     }
     
-    def equal(right:tuple1<T>):bool {
+    def equal(right:tuple1<T>?):bool {
+        if(self.type_name() == "void" || right.type_name() == "void") {
+            return self.type_name() == right.type_name();
+        }
+
         self.value1 == right.value1
+    }
+    
+    def not_equal(right:tuple1<T>?):bool {
+        !self.equal(right)
     }
 
     def to_string() : string {
@@ -820,8 +831,16 @@ class tuple2<T, T2>
         self
     }
     
-    def equal(right:tuple2<T,T2>):bool {
+    def equal(right:tuple2<T,T2>?):bool {
+        if(self.type_name() == "void" || right.type_name() == "void") {
+            return self.type_name() == right.type_name();
+        };
+
         (self.value1 == right.value1) && (self.value2 == right.value2)
+    }
+    
+    def not_equal(right:tuple2<T,T2>?):bool {
+        !self.equal(right)
     }
 
     def to_string() : string {
@@ -843,10 +862,17 @@ class tuple3<T, T2, T3>
         self
     }
     
-    def equal(right:tuple3<T,T2,T3>):bool {
+    def equal(right:tuple3<T,T2,T3>?):bool {
+        if(self.type_name() == "void" || right.type_name() == "void") {
+            return self.type_name() == right.type_name();
+        };
+
         (self.value1 == right.value1) 
             && (self.value2 == right.value2)
             && (self.value3 == right.value3)
+    }
+    def not_equal(right:tuple3<T,T2,T3>?):bool {
+        !self.equal(right)
     }
     def to_string() : string {
         "tuple(" + self.value1.to_string() + "," + self.value2.to_string() + "," + self.value3.to_string() + ")"
@@ -869,11 +895,18 @@ class tuple4<T, T2, T3, T4>
         self
     }
     
-    def equal(right:tuple4<T,T2,T3,T4>):bool {
+    def equal(right:tuple4<T,T2,T3,T4>?):bool {
+        if(self.type_name() == "void" || right.type_name() == "void") {
+            return self.type_name() == right.type_name();
+        };
+
         (self.value1 == right.value1) 
             && (self.value2 == right.value2)
             && (self.value3 == right.value3)
             && (self.value4 == right.value4)
+    }
+    def not_equal(right:tuple4<T,T2,T3,T4>?):bool {
+        !self.equal(right)
     }
     def to_string() : string {
         "tuple(" + self.value1.to_string() + "," + self.value2.to_string() + "," + self.value3.to_string() + "," + self.value4.to_string() + ")"
@@ -888,6 +921,46 @@ class command
     }
 }
 
+class type
+{
+    def initialize(name:string):type;
+
+    def name():string;
+    def class():class;
+    def equal(right:type?): bool;
+    def not_equal(right:type?): bool;
+}
+
+class class
+{
+    def initialize(name:string):class;
+
+    def name():string;
+    def parent(default_value:class?):class;
+    def method(name:string, default_value:method?):method;
+    def field(name:string, default_value:method?):field;
+    def equal(right:class?): bool;
+    def not_equal(right:class?): bool;
+}
+
+class method
+{
+    def name():string;
+    def param_name(n:int, default_value:string?):string;
+    def param_type(n:int, default_value:type?):type;
+    def num_params():int;
+    def result_type():type;
+    def equal(right:method?): bool;
+    def not_equal(right:method?): bool;
+}
+
+class field
+{
+    def name():string;
+    def result_type():type;
+    def equal(right:field?): bool;
+    def not_equal(right:field?): bool;
+}
 
 save_class object;
 save_class int;
@@ -902,3 +975,7 @@ save_class tuple1;
 save_class tuple2;
 save_class tuple3;
 save_class tuple4;
+save_class class;
+save_class method;
+save_class field;
+save_class type;

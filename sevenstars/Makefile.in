@@ -36,8 +36,8 @@ all: sevenstars core
 core: core.ss
 	./sevenstars -core core.ss
 
-sevenstars: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/native.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
-	$(CC) -o sevenstars src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/native.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
+sevenstars: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/native.o src/native2.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
+	$(CC) -o sevenstars src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/native.o src/native2.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
 
 ##########################################################
 # objects
@@ -56,6 +56,9 @@ src/class.o: config.h src/*.h Makefile configure src/class.nc
 
 src/native.o: config.h src/*.h Makefile configure src/native.nc
 	$(CC) -c src/native.nc $(CFLAGS) $(NCFLAGS)
+
+src/native2.o: config.h src/*.h Makefile configure src/native2.nc
+	$(CC) -c src/native2.nc $(CFLAGS) $(NCFLAGS)
 
 src/vm.o: config.h src/*.h Makefile configure src/vm.nc
 	$(CC) -c src/vm.nc $(CFLAGS) $(NCFLAGS)
@@ -83,6 +86,25 @@ src/macro.o: config.h src/*.h Makefile configure src/macro.nc
 #########################################################
 install:
 	mkdir -p $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 sevenstars.ss $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 int.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 bool.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 buffer.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 class.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 command.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 field.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 int.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 list.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 list_item.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 map.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 method.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 object.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 string.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 tuple1.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 tuple2.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 tuple3.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 tuple4.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 type.ssc $(DESTDIR)/share/sevenstars
 
 	mkdir -p "$(DESTDIR)/bin"
 	$(INSTALL) -m 755 ./sevenstars "$(DESTDIR)/bin"
@@ -117,8 +139,5 @@ distclean: clean
 ########################################################
 test: 
 	@echo "Compile to test code..."
-	./sevenstars code/HelloWorld2.ss
-
-
-
+	./sevenstars code/HelloWorld.ss
 

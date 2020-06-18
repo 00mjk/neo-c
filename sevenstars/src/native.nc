@@ -55,6 +55,80 @@ bool string_set_value(CLVALUE** stack_ptr, sVMInfo* info)
     return true;
 }
 
+bool string_write(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject file_name = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.write");
+        return false;
+    }
+    if(!check_type(file_name, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.write");
+        return false;
+    }
+
+    /// convert sevenstars to neo-c ///
+    char* self_value = get_string_mem(self);
+    char* file_name_value = get_string_mem(file_name);
+
+    /// go ///
+    FILE* f = fopen(file_name_value, "w");
+
+    if(f == null) {
+        vm_err_msg(stack_ptr, info, xsprintf("file open error(%s)", file_name_value));
+        return false;
+    }
+
+    if(fwrite(self_value, strlen(self_value), 1, f) < 0) {
+        vm_err_msg(stack_ptr, info, xsprintf("file write error(%s)", file_name_value));
+        return false;
+    }
+
+    fclose(f);
+
+    return true;
+}
+
+bool string_append(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject file_name = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.append");
+        return false;
+    }
+    if(!check_type(file_name, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on string.append");
+        return false;
+    }
+
+    /// convert sevenstars to neo-c ///
+    char* self_value = get_string_mem(self);
+    char* file_name_value = get_string_mem(file_name);
+
+    /// go ///
+    FILE* f = fopen(file_name_value, "a");
+
+    if(f == null) {
+        vm_err_msg(stack_ptr, info, xsprintf("file open error(%s)", file_name_value));
+        return false;
+    }
+
+    if(fwrite(self_value, strlen(self_value), 1, f) < 0) {
+        vm_err_msg(stack_ptr, info, xsprintf("file write error(%s)", file_name_value));
+        return false;
+    }
+
+    fclose(f);
+
+    return true;
+}
+
 bool bool_set_value(CLVALUE** stack_ptr, sVMInfo* info)
 {
     CLObject self = (*stack_ptr-2)->mObjectValue;
@@ -775,6 +849,18 @@ bool sevenstars_map_equal(CLVALUE** stack_ptr, sVMInfo* info)
     CLObject self = (*stack_ptr-2)->mObjectValue;
     CLObject right = (*stack_ptr-1)->mObjectValue;
 
+    if(check_type(self, "void", info) || check_type(right, "void", info))
+    {
+        int value = check_type(self, "void", info) == check_type(right, "void", info);
+        
+        CLObject obj = create_bool_object(value, info);
+
+        (*stack_ptr)->mObjectValue = obj;
+        (*stack_ptr)++;
+
+        return true;
+    }
+
     /// check type ///
     if(!check_type(self, "map", info)) {
         vm_err_msg(stack_ptr, info, "type error on map.equal");
@@ -811,6 +897,66 @@ bool sevenstars_map_equal(CLVALUE** stack_ptr, sVMInfo* info)
     }
 
     CLObject result = create_bool_object(value, info);
+
+    (*stack_ptr)->mObjectValue = result;
+    (*stack_ptr)++;
+    
+    return true;
+}
+
+bool sevenstars_map_not_equal(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject right = (*stack_ptr-1)->mObjectValue;
+
+    if(check_type(self, "void", info) || check_type(right, "void", info))
+    {
+        int value = check_type(self, "void", info) != check_type(right, "void", info);
+        
+        CLObject obj = create_bool_object(value, info);
+
+        (*stack_ptr)->mObjectValue = obj;
+        (*stack_ptr)++;
+
+        return true;
+    }
+
+    /// check type ///
+    if(!check_type(self, "map", info)) {
+        vm_err_msg(stack_ptr, info, "type error on map.equal");
+        return false;
+    }
+    if(!check_type(right, "map", info)) {
+        vm_err_msg(stack_ptr, info, "type error on map.equal");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    map<char*,int>* self_value = get_map_value(self);
+    map<char*,int>* right_value = get_map_value(right);
+
+    /// go ///
+    bool value = false;
+    
+    if(self_value.len == right_value.len) {
+        self_value.each {
+            value = true;
+            right_value.each {
+                if(right_value.find(it)) {
+                    int default_value = -1;
+                    int item = right_value.at(it, default_value);
+                    if(it2 != item) {
+                        value = false;
+                    }
+                }
+                else {
+                    value = false;
+                }
+            }
+        }
+    }
+
+    CLObject result = create_bool_object(!value, info);
 
     (*stack_ptr)->mObjectValue = result;
     (*stack_ptr)++;
@@ -1097,6 +1243,257 @@ bool command_to_string(CLVALUE** stack_ptr, sVMInfo* info)
     return true;
 }
 
+bool class_initialize(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject name = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(name, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on class.initialize");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    char* name_value = get_string_mem(name);
+
+    /// throw exception ///
+    sCLClass* klass = gClasses.at(name_value, null);
+
+    if(klass == null) {
+        vm_err_msg(stack_ptr, info, xsprintf("invalid class name(%s)", name_value));
+        return false;
+    }
+
+    
+    /// go ///
+    CLObject obj = create_class_object(name_value, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
+bool class_name_(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject klass = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(klass, "class", info)) {
+        vm_err_msg(stack_ptr, info, "type error on class.name");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    sCLClassObject* class_object_data = CLCLASS(klass);
+
+    sCLClass* klass_value = class_object_data->mClass;
+
+    /// go ///
+    CLObject obj = create_string_object(klass_value->mName, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
+bool class_parent(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject klass = (*stack_ptr-2)->mObjectValue;
+    CLObject default_value = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(klass, "class", info)) {
+        vm_err_msg(stack_ptr, info, "type error on class.name");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    sCLClassObject* class_object_data = CLCLASS(klass);
+
+    sCLClass* klass_value = class_object_data->mClass;
+
+    /// go ///
+    sCLClass* parent_class = klass_value->mParent;
+
+    if(parent_class) {
+        CLObject obj = create_class_object(parent_class->mName, info);
+
+        (*stack_ptr)->mObjectValue = obj;
+        (*stack_ptr)++;
+    }
+    else {
+        (*stack_ptr)->mObjectValue = default_value;
+        (*stack_ptr)++;
+    }
+
+    return true;
+}
+
+bool class_method(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject klass = (*stack_ptr-3)->mObjectValue;
+    CLObject name = (*stack_ptr-2)->mObjectValue;
+    CLObject default_value = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(klass, "class", info)) {
+        vm_err_msg(stack_ptr, info, "type error on class.method");
+        return false;
+    }
+    if(!check_type(name, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on class.method");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    sCLClassObject* class_object_data = CLCLASS(klass);
+
+    sCLClass* klass_value = class_object_data->mClass;
+    char* name_value = get_string_mem(name);
+
+    /// go ///
+    sCLMethod* method = klass_value->mMethods.at(name_value, null);
+
+    if(method) {
+        CLObject obj = create_method_object(method, info);
+
+        (*stack_ptr)->mObjectValue = obj;
+        (*stack_ptr)++;
+    }
+    else {
+        (*stack_ptr)->mObjectValue = default_value;
+        (*stack_ptr)++;
+    }
+
+    return true;
+}
+
+bool class_field(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject klass = (*stack_ptr-3)->mObjectValue;
+    CLObject name = (*stack_ptr-2)->mObjectValue;
+    CLObject default_value = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(klass, "class", info)) {
+        vm_err_msg(stack_ptr, info, "type error on class.method");
+        return false;
+    }
+    if(!check_type(name, "string", info)) {
+        vm_err_msg(stack_ptr, info, "type error on class.method");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    sCLClassObject* class_object_data = CLCLASS(klass);
+
+    sCLClass* klass_value = class_object_data->mClass;
+    char* name_value = get_string_mem(name);
+
+    /// go ///
+    sCLField* field = klass_value->mFields.at(name_value, null);
+
+    if(field) {
+        CLObject obj = create_field_object(field, info);
+
+        (*stack_ptr)->mObjectValue = obj;
+        (*stack_ptr)++;
+    }
+    else {
+        (*stack_ptr)->mObjectValue = default_value;
+        (*stack_ptr)++;
+    }
+
+    return true;
+}
+
+bool class_equal(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject right = (*stack_ptr-1)->mObjectValue;
+
+    if(check_type(self, "void", info) || check_type(right, "void", info))
+    {
+        int value = check_type(self, "void", info) == check_type(right, "void", info);
+        
+        CLObject obj = create_bool_object(value, info);
+
+        (*stack_ptr)->mObjectValue = obj;
+        (*stack_ptr)++;
+
+        return true;
+    }
+
+    /// check type ///
+    if(!check_type(self, "class", info)) {
+        vm_err_msg(stack_ptr, info, "type error on class.equal");
+        return false;
+    }
+    if(!check_type(right, "class", info)) {
+        vm_err_msg(stack_ptr, info, "type error on class.equal");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    sCLClassObject* self_class_data = CLCLASS(self);
+    sCLClassObject* right_class_data = CLCLASS(right);
+
+    bool result_value = self_class_data->mClass == right_class_data->mClass;
+
+    /// go ///
+    CLObject obj = create_bool_object(result_value, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
+bool class_not_equal(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-2)->mObjectValue;
+    CLObject right = (*stack_ptr-1)->mObjectValue;
+
+    if(check_type(self, "void", info) || check_type(right, "void", info))
+    {
+        int value = check_type(self, "void", info) != check_type(right, "void", info);
+        
+        CLObject obj = create_bool_object(value, info);
+
+        (*stack_ptr)->mObjectValue = obj;
+        (*stack_ptr)++;
+
+        return true;
+    }
+
+    /// check type ///
+    if(!check_type(self, "class", info)) {
+        vm_err_msg(stack_ptr, info, "type error on class.not_equal");
+        return false;
+    }
+    if(!check_type(right, "class", info)) {
+        vm_err_msg(stack_ptr, info, "type error on class.not_equal");
+        return false;
+    }
+
+    /// sevenstars to neo-c
+    sCLClassObject* self_class_data = CLCLASS(self);
+    sCLClassObject* right_class_data = CLCLASS(right);
+
+    bool result_value = self_class_data->mClass != right_class_data->mClass;
+
+    /// go ///
+    CLObject obj = create_bool_object(result_value, info);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return true;
+}
+
+
 void native_init()
 {
     gNativeMethods = borrow new map<string, fNativeMethod>.initialize();
@@ -1133,10 +1530,20 @@ void native_init()
     gNativeMethods.insert(string("map.find"), sevenstars_map_find);
     gNativeMethods.insert(string("map.length"), sevenstars_map_length);
     gNativeMethods.insert(string("map.equal"), sevenstars_map_equal);
+    gNativeMethods.insert(string("map.not_equal"), sevenstars_map_not_equal);
     gNativeMethods.insert(string("map.to_string"), sevenstars_map_to_string);
     gNativeMethods.insert(string("string.item"), sevenstars_string_item);
     gNativeMethods.insert(string("string.length"), sevenstars_string_length);
     gNativeMethods.insert(string("command.to_string"), command_to_string);
+    gNativeMethods.insert(string("class.initialize"), class_initialize);
+    gNativeMethods.insert(string("class.name"), class_name_);
+    gNativeMethods.insert(string("class.parent"), class_parent);
+    gNativeMethods.insert(string("class.method"), class_method);
+    gNativeMethods.insert(string("class.field"), class_field);
+    gNativeMethods.insert(string("class.equal"), class_equal);
+    gNativeMethods.insert(string("class.not_equal"), class_not_equal);
+    gNativeMethods.insert(string("string.write"), string_write);
+    gNativeMethods.insert(string("string.append"), string_append);
 }
 
 void native_final()

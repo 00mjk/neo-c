@@ -128,7 +128,11 @@ void class_final();
 void append_class(char* name);
 bool eval_class(char* source, sCompileInfo* vminfo, char* sname, int sline);
 /// native.nc ///
+extern map<string, fNativeMethod>* gNativeMethods;
+
 void native_init();
+void native_init2();
+
 void native_final();
 
 bool invoke_native_method(sCLClass* klass, sCLMethod* method, CLVALUE** stack_ptr, sVMInfo* info);
@@ -503,6 +507,46 @@ struct sCLMap {
     list<char*>* mKeys;
 };
 
+struct sCLClassObject
+{
+    sCLType* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    sCLClass* mClass;
+};
+
+struct sCLMethodObject
+{
+    sCLType* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    sCLMethod* mMethod;
+};
+
+struct sCLFieldObject
+{
+    sCLType* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    sCLField* mField;
+};
+
+
+struct sCLTypeObject
+{
+    sCLType* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    sCLType* mType2;
+};
 
 #define CLOBJECT(obj) ((sCLObject*)(get_object_pointer((obj))))
 #define CLBLOCK(obj) ((sCLBlock*)(get_object_pointer((obj))))
@@ -512,10 +556,16 @@ struct sCLMap {
 #define CLBUFFER(obj) ((sCLBuffer*)(get_object_pointer((obj))))
 #define CLSTRING(obj) ((sCLString*)(get_object_pointer((obj))))
 #define CLMAP(obj) ((sCLMap*)(get_object_pointer((obj))))
+#define CLCLASS(obj) ((sCLClassObject*)(get_object_pointer((obj))))
+#define CLMETHOD(obj) ((sCLMethodObject*)(get_object_pointer((obj))))
+#define CLFIELD(obj) ((sCLFieldObject*)(get_object_pointer((obj))))
+#define CLTYPE(obj) ((sCLTypeObject*)(get_object_pointer((obj))))
 
 sCLHeapMem* get_object_pointer(CLObject obj);
 
 CLObject create_object(sCLType* type, sVMInfo* info);
+CLObject create_type_object(sCLType* type, sVMInfo* info);
+CLObject create_class_object(char* name, sVMInfo* info);
 CLObject create_buffer_object(sVMInfo* info);
 CLObject create_null_object(sVMInfo* info);
 CLObject create_int_object(int value, sVMInfo* info);
@@ -533,6 +583,8 @@ CLObject create_bool_object(int value, sVMInfo* info);
 CLObject create_block_object(char* type_name, int* codes, int codes_len, int var_num, sVMInfo* info);
 CLObject create_command_object(char* output, int output_len, char* err_output, int err_output_len, int rcode, bool first_command, sVMInfo* info);
 CLObject create_job_object(char* title, termios* tinfo, pid_t pgrp, sVMInfo* info);
+CLObject create_method_object(sCLMethod* method, sVMInfo* info);
+CLObject create_field_object(sCLField* field, sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg, sVMInfo* info);
 
 bool free_object(CLObject self);

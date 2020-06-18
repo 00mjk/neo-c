@@ -1,10 +1,12 @@
 # SevenStars computer language
 
-version 0.9.8
+version 1.0.0
 
 * 特徴
 
 1. メソッド名とファイル名の補完を持つシェルとして使えます。
+
+1. It can be used as a shell with method name and file name completion.
 
 ```
 sevenstars > ls().le[TAB]
@@ -16,13 +18,19 @@ sevenstars > 1.to_string(
 
 2. 外部コマンドを簡単に実行できます。
 
+2. You can easily execute external commands.
+
 ```
 sevenstars > map!("AAA", 1, "BBB", 2).to_string().to_command().less()
 ```
 
 3. 静的型と動的型の両方を持ちます。内部的には仮想マシーンが動いており、コンパイルを行っております。
 
+3. It has both static and dynamic types. Internally, a virtual machine is running, We are doing compiles. $
+
 4. オブジェクト指向言語でもあります。クラス、継承、ジェネリクス、コレクションなどを含みます。
+
+4. It is also an object-oriented language. Includes classes, inheritance, generics, collections, etc.
 
 ```
 sevenstars > list!(1,2,3,4,5).filter() { it > 3 }
@@ -32,13 +40,42 @@ sevenstars > list!(1,2,3,4,5).map() { it * 2 }
 =>list(2,4,6,8,10)
 ```
 
-* マニュアル
+5. クラスの生成プログラム
 
-* int クラス
+リフレクションとevalとsave_classを使えば動的にクラスファイルを作成することができます。(プログラムを生成するプログラム)
+
+5. Class generator
+
+You can create a class file dynamically using reflection, eval and save_class. (Program that creates the program)
+
+```
+load_class ClassA;
+
+var klass_a = new class("ClassA");
+
+var source2 = new buffer();
+
+if(klass_a.field("field1", null).result_type() == new type("string")) {
+    soruce2.append_str("class ClassA { var field2:string }");
+}
+else {
+    soruce2.append_str("class ClassA { var field2:int; }");
+}
+
+eval(source2.to_string());
+
+save_class ClassA;
+```
+
+* マニュアル(manual)
+
+* int class
 
 数値を表すクラスです。1などと表現します。
 
 メソッドには以下があります。
+
+Class that represents a number. Expressed as 1. The methods include:
 
 ```
 class int {
@@ -82,11 +119,13 @@ class int {
 };
 ```
 
-* bool クラス
+* bool class
 
 真偽を表すクラスです。true, falseなどと表現します。
 
 メソッドは以下です。
+
+This class represents truth. Expressed as true, false, etc. The method is:
 
 ```
 class bool {
@@ -120,9 +159,11 @@ class bool {
 };
 ```
 
-* string クラス
+* string class
 
 文字列を表すクラスです。"HELLO"などと表現します。
+
+Class that represents a character string. It is expressed as "HELLO".
 
 ```
 class string {
@@ -165,12 +206,16 @@ class string {
 
         result
     }
+    def write(file_name:string):void;
+    def append(file_name:string):void;
 };
 ```
 
-* objectクラス
+* object class
 
 全てのオブジェクトの基盤となるクラスです。以下のメソッドがあります。
+
+Class that represents a character string.It is expressed as "HELLO".
 
 ```
 class object {
@@ -186,9 +231,11 @@ class object {
 }
 ```
 
-* buffer クラス
+* buffer buffer
 
 可変長の文字列を表します。
+
+Represents a variable length character string.
 
 ```
 var a = new buffer();
@@ -219,11 +266,13 @@ class buffer
 }
 ```
 
-* listクラス
+* list class
 
 list!(1,2,3)などと表現します。list!というのはマクロです。
 
 以下のように定義されています。
+
+It is expressed as list!(1,2,3). list! is a macro. It is defined as follows.
 
 ```
 class list_item<T>
@@ -844,11 +893,13 @@ class list<T>
 }
 ```
 
-* map
+* map class
 
 map!("AAA", 1, "BBB", 2)などと表現します。
 
 keyには文字列しか使えません。
+
+Express it as map!("AAA", 1, "BBB", 2). Only character strings can be used for key.
 
 ```
 class map<T>
@@ -866,6 +917,8 @@ class map<T>
 * tuple
 
 以下のように定義されます。tuple!(1,2,"AAA")などと表現されます。
+
+It is defined as follows. It is expressed as tuple!(1,2,"AAA").
 
 ```
 class tuple1<T>
@@ -960,9 +1013,11 @@ class tuple4<T, T2, T3, T4>
 }
 ```
 
-* コマンドクラス
+* command class
 
 コマンドの出力の値を表現します。commandクラスのメソッドは外部プログラム名です。C-zした場合はjobオブジェクトが保存されます。jobsで一覧を見ることができます。fgでフォアグランドジョブにできます。
+
+Represents the value of the command output. The method of command class is the external program name. If you do C-z, the job object will be saved. You can see the list by jobs. You can make it a foreground job with fg.
 
 ```
 class command
@@ -974,22 +1029,77 @@ class command
 }
 ```
 
-* メソッドブロックとラムダ
+* Reflection
+
+リフレクションは以下です。
+
+Reflection is below.
+
+```
+class type
+{
+    def initialize(name:string):type;
+
+    def name():string;
+    def class():class;
+    def equal(right:type?): bool;
+    def not_equal(right:type?): bool;
+}
+
+class class
+{
+    def initialize(name:string):class;
+
+    def name():string;
+    def parent(default_value:class?):class;
+    def method(name:string, default_value:method?):method;
+    def field(name:string, default_value:method?):field;
+    def equal(right:class?): bool;
+    def not_equal(right:class?): bool;
+}
+
+class method
+{
+    def name():string;
+    def param_name(n:int, default_value:string?):string;
+    def param_type(n:int, default_value:type?):type;
+    def num_params():int;
+    def result_type():type;
+    def equal(right:method?): bool;
+    def not_equal(right:method?): bool;
+}
+
+class field
+{
+    def name():string;
+    def result_type():type;
+    def equal(right:field?): bool;
+    def not_equal(right:field?): bool;
+}
+```
+
+* method block and lambda
 
 メソッドブロックやラムダは親の変数にアクセスすることができません。
 
-* クラスのロード、セーブ
+Method blocks and lambdas cannot access parent variables.
+
+* loading class and saving class
 
 load_class クラス名で行います。
 save_class クラス名で行います。
 
-* クラスの継承
+load_class Class name is used. save_class Class name is used.
+
+* class inheritance
 
 class クラス名 extends 親クラス
 
+class Class name extends the parent class.
+
 で行います。
 
-* オブジェクトの初期化
+* initialization of an object
 
 ```
 class EQTest {
@@ -1008,7 +1118,9 @@ class EQTest {
 などと行います。ブロックの最後の値が返されます。呼び出し側はvar a = new EQTest(1,2);などです。var a = new EQTest;とするとinitializeは呼び出されません。
 finalizerはありません。
 
-* ループ、条件式、変数の宣言
+And so on. The last value in the block is returned. The caller is var a = new EQTest(1,2); and so on. var a = new EQTest; does not call initialize. There is no finalizer.
+
+* loop, conditional expression, definition of a variable
 
 ```
 var i = 0;
@@ -1028,3 +1140,11 @@ else {
     echo("else");
 }
 ```
+
+* eval
+
+eval("command");
+
+で文字列を実行時に実行できます。これとリフレクションを使えばクラスファイルを生成するプログラムを作ることができます。(コンパイル時リフレクション)
+
+You can run the string at run time with. You can use this and reflection to create a program that creates a class file. (Compile time reflection)

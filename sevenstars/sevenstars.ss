@@ -11,6 +11,10 @@ load_class tuple1;
 load_class tuple2;
 load_class tuple3;
 load_class tuple4;
+load_class class;
+load_class method;
+load_class field;
+load_class type;
 
 macro list {
 ruby <<'EOS'

@@ -951,8 +951,6 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
 
                 sCLType* type = parse_type_runtime(type_name, info.cinfo.pinfo, info.cinfo.pinfo.types);
 
-
-
                 if(type == null) {
                     vm_err_msg(&stack_ptr, info, xsprintf("class not found(%s)\n", type_name));
                     info.stack_frames.pop_back(null_parent_stack_frame);
@@ -1072,6 +1070,17 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                     stack_ptr++;
                 }
                 else {
+                    sCLObject* left_data = CLOBJECT(lvalue);
+                    sCLObject* right_data = CLOBJECT(rvalue);
+
+                    if(!type_identify(left_data->mType
+                                        , right_data->mType))
+                    {
+                        vm_err_msg(&stack_ptr, info, xsprintf("invalid equal type. The difference left object type with right object type."));
+                        info.stack_frames.pop_back(null_parent_stack_frame);
+                        return false;
+                    }
+
                     int value = lvalue == rvalue;
                     CLObject new_obj = create_bool_object(value, info);
 
@@ -1462,7 +1471,6 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                     if(method.mByteCodes == null) {
                         if(!invoke_native_method(klass, method, &stack_ptr, info)) 
                         {
-                            vm_err_msg(&stack_ptr, info, xsprintf("native method error(%s.%s)\n", klass->mName, method_name));
                             info.stack_frames.pop_back(null_parent_stack_frame);
                             return false;
                         }

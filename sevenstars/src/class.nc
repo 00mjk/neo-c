@@ -7,6 +7,10 @@ bool check_type(CLObject obj, char* type_name, sVMInfo* info)
 {
     sCLType* type = parse_type_runtime(type_name, info.cinfo.pinfo, info.cinfo.pinfo.types);
 
+    if(type == null) {
+        return false;
+    }
+
     sCLObject* object_data = CLOBJECT(obj);
 
     return substitution_posibility(type, object_data->mType);
@@ -29,6 +33,10 @@ void class_init()
     append_class("map");
     append_class("list");
     append_class("list_item");
+    append_class("class");
+    append_class("method");
+    append_class("field");
+    append_class("type");
     append_class("tuple1");
     append_class("tuple2");
     append_class("tuple3");
@@ -522,6 +530,11 @@ static sCLType* load_type(int** p, sParserInfo* info, vector<sCLType*%>* types)
     string type_name = load_nullterminated_str(p);
     sCLType* result =  parse_type_runtime(string(type_name), info, types);
 
+    if(result == null) {
+        fprintf(stderr, "unexpected error on parsing type name\n");
+        exit(1);
+    }
+
     return result;
 }
 
@@ -606,8 +619,20 @@ static bool load_method(int** p, sCLClass* klass, sParserInfo* info)
 bool load_class(char* name, sParserInfo* info)
 {
     char path[PATH_MAX];
-    snprintf(path, PATH_MAX, "%s.ssc", name);
     
+    char* system_path = PREFIX;
+    snprintf(path, PATH_MAX, "%s/share/sevenstars/%s.ssc", system_path, name);
+
+    if(access(path, R_OK) != 0) {
+        char* home_path = getenv("HOME");
+
+        snprintf(path, PATH_MAX, "%s/.sevenstars-c/%s.ssc", home_path, name);
+
+        if(access(path, R_OK) != 0) {
+            snprintf(path, PATH_MAX, "%s.ssc", name);
+        }
+    }
+
     FILE* f = fopen(path, "r");
 
     if(f == null) {

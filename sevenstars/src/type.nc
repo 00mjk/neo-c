@@ -9,8 +9,8 @@ sCLType* parse_type_runtime(char* type_name, sParserInfo* info, vector<sCLType*%
 
     sCLType* result = null;
     if(!parse_type(&result, info, types)) {
-        fprintf(stderr, "parse_type_name error.\n");
-        exit(1);
+        info.p = p_before;
+        return null;
     }
 
     info.p = p_before;

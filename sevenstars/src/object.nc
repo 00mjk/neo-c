@@ -298,6 +298,11 @@ CLObject create_block_object(char* type_name, int* codes, int codes_len, int var
 
     sCLType* lambda_type = parse_type_runtime(type_name, info.cinfo.pinfo, info.cinfo.pinfo.types);
 
+    if(lambda_type == null) {
+        fprintf(stderr, "unexpected error on parsing type\n");
+        exit(1);
+    }
+
     CLObject obj = alloc_heap_mem(size, lambda_type, -1, info);
 
     sCLBlock* block_data = CLBLOCK(obj);
@@ -370,3 +375,122 @@ CLObject create_map_object(sVMInfo* info)
     return obj;
 }
 
+static cllong class_object_size()
+{
+    cllong size = sizeof(sCLClassObject);
+
+    unsigned int size2 = size;
+
+    alignment((unsigned int*)&size2);
+
+    size = size2;
+
+    return size;
+}
+
+CLObject create_class_object(char* name, sVMInfo* info)
+{
+    unsigned int size = (unsigned int)class_object_size();
+
+    alignment(&size);
+
+    sCLType* class_type = create_type("class", info.cinfo.pinfo.types);
+
+    CLObject obj = alloc_heap_mem(size, class_type, -1, info);
+
+    sCLClassObject* class_data = CLCLASS(obj);
+
+    class_data->mClass = gClasses.at(name, null);
+
+    return obj;
+}
+
+static cllong method_object_size()
+{
+    cllong size = sizeof(sCLMethodObject);
+
+    unsigned int size2 = size;
+
+    alignment((unsigned int*)&size2);
+
+    size = size2;
+
+    return size;
+}
+
+CLObject create_method_object(sCLMethod* method, sVMInfo* info)
+{
+    unsigned int size = (unsigned int)method_object_size();
+
+    alignment(&size);
+
+    sCLType* method_type = create_type("method", info.cinfo.pinfo.types);
+
+    CLObject obj = alloc_heap_mem(size, method_type, -1, info);
+
+    sCLMethodObject* method_data = CLMETHOD(obj);
+
+    method_data->mMethod = method;
+
+    return obj;
+}
+
+static cllong field_object_size()
+{
+    cllong size = sizeof(sCLFieldObject);
+
+    unsigned int size2 = size;
+
+    alignment((unsigned int*)&size2);
+
+    size = size2;
+
+    return size;
+}
+
+CLObject create_field_object(sCLField* field, sVMInfo* info)
+{
+    unsigned int size = (unsigned int)field_object_size();
+
+    alignment(&size);
+
+    sCLType* field_type = create_type("field", info.cinfo.pinfo.types);
+
+    CLObject obj = alloc_heap_mem(size, field_type, -1, info);
+
+    sCLFieldObject* field_data = CLFIELD(obj);
+
+    field_data->mField = field;
+
+    return obj;
+}
+
+static cllong type_object_size()
+{
+    cllong size = sizeof(sCLTypeObject);
+
+    unsigned int size2 = size;
+
+    alignment((unsigned int*)&size2);
+
+    size = size2;
+
+    return size;
+}
+
+CLObject create_type_object(sCLType* type, sVMInfo* info)
+{
+    unsigned int size = (unsigned int)type_object_size();
+
+    alignment(&size);
+
+    sCLType* type_type = create_type("type", info.cinfo.pinfo.types);
+
+    CLObject obj = alloc_heap_mem(size, type_type, -1, info);
+
+    sCLTypeObject* type_data = CLTYPE(obj);
+
+    type_data->mType2 = type;
+
+    return obj;
+}

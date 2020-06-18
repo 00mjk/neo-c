@@ -4,8 +4,6 @@
 
 ファイルの書き込み。stringクラスにwrite,append
 
-リフレクション。
-
 --------------
 vm return false message
 !exp
@@ -32,3 +30,6 @@ if(true) { l[TAB]
 readline
 C-z, jobs, fg
 
+sevenstars.ssとクラスファイルの検索パス
+
+リフレクション。

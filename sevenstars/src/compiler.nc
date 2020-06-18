@@ -65,7 +65,7 @@ static void set_signal_shell()
     }
 }
 
-bool shell_eval_str(char* str, char* fname, bool output)
+bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* types)
 {
     sParserInfo info;
     
@@ -79,7 +79,7 @@ bool shell_eval_str(char* str, char* fname, bool output)
         str2 = xsprintf("%s", str);
     }
     
-    info.p = str;
+    info.p = str2;
     xstrncpy(info.sname, fname, PATH_MAX);
     info.sline = 1;
     
@@ -90,7 +90,7 @@ bool shell_eval_str(char* str, char* fname, bool output)
     info.nodes = borrow new vector<sCLNode*%>.initialize();
     info.vtables = borrow new vector<sVarTable*%>.initialize();
     info.blocks = borrow new vector<sCLNodeBlock*%>.initialize();
-    info.types = borrow new vector<sCLType*%>.initialize();
+    info.types = types;
     info.vars = borrow new vector<sVar*%>.initialize();
     
     init_var_table(&info);
@@ -118,7 +118,6 @@ bool shell_eval_str(char* str, char* fname, bool output)
             delete info.nodes;
             delete info.vtables;
             delete info.blocks;
-            delete info.types;
             delete info.vars;
             delete cinfo.codes;
             return false;
@@ -135,7 +134,6 @@ bool shell_eval_str(char* str, char* fname, bool output)
             delete info.nodes;
             delete info.vtables;
             delete info.blocks;
-            delete info.types;
             delete info.vars;
             delete cinfo.codes;
             return false;
@@ -146,7 +144,6 @@ bool shell_eval_str(char* str, char* fname, bool output)
             delete info.nodes;
             delete info.vtables;
             delete info.blocks;
-            delete info.types;
             delete info.vars;
             delete cinfo.codes;
             return false;
@@ -169,7 +166,6 @@ bool shell_eval_str(char* str, char* fname, bool output)
         delete info.nodes;
         delete info.vtables;
         delete info.blocks;
-        delete info.types;
         delete info.vars;
         delete cinfo.codes;
         return false;
@@ -209,7 +205,6 @@ bool shell_eval_str(char* str, char* fname, bool output)
         delete info.nodes;
         delete info.vtables;
         delete info.blocks;
-        delete info.types;
         delete info.vars;
         delete cinfo.codes;
         delete vminfo.stack_frames;
@@ -219,7 +214,6 @@ bool shell_eval_str(char* str, char* fname, bool output)
     delete info.nodes;
     delete info.vtables;
     delete info.blocks;
-    delete info.types;
     delete info.vars;
     delete cinfo.codes;
     delete vminfo.stack_frames;
@@ -236,7 +230,22 @@ static void compiler_init(bool no_load_fudamental_classes)
     matches = borrow new list<string>.initialize();
 
     if(!no_load_fudamental_classes) {
-        FILE* f = fopen("sevenstars.ss", "r");
+        char path[PATH_MAX];
+
+        char* system_path = PREFIX;
+        snprintf(path, PATH_MAX, "%s/share/sevenstars/sevenstars.ss", system_path);
+
+        if(access(path, R_OK) != 0) {
+            char* home_path = getenv("HOME");
+
+            snprintf(path, PATH_MAX, "%s/.sevenstars/sevenstars.ss", home_path);
+
+            if(access(path, R_OK) != 0) {
+                snprintf(path, PATH_MAX, "sevenstars.ss");
+            }
+        }
+
+        FILE* f = fopen(path, "r");
 
         if(f) {
             buffer*% buf = new buffer.initialize();
@@ -258,7 +267,8 @@ static void compiler_init(bool no_load_fudamental_classes)
             string source = buf.to_string();
 
             heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
-            if(!shell_eval_str(source, "load fundamental class", false)) {
+            var types = new vector<sCLType*%>.initialize();
+            if(!shell_eval_str(source, "load fundamental class", false, types)) {
                 fprintf(stderr, "no load fundamental class\n");
             }
             heap_final();
@@ -271,6 +281,7 @@ static void clover3_init()
     class_init();
     macro_init();
     native_init();
+    native_init2();
 }
 
 static void clover3_final()
@@ -806,7 +817,7 @@ char** completer(char* text, int start, int end)
     }
 }
 
-void shell()
+void shell(vector<sCLType*%>* types)
 {
     rl_completer_quote_characters = "\"'";
     rl_completer_word_break_characters = " .({";
@@ -824,7 +835,7 @@ void shell()
             break;
         }
 
-        (void)shell_eval_str(line, "sevenstars", true);
+        (void)shell_eval_str(line, "sevenstars", true, types);
 
         add_history(line);
 
@@ -892,11 +903,13 @@ int main(int argc, char** argv)
     else {
         set_signal_shell();
 
+        var types = new vector<sCLType*%>.initialize();
+
         clover3_init();
         compiler_init(no_load_fudamental_classes);
 
         heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
-        shell();
+        shell(types);
         heap_final();
 
         clover3_final();

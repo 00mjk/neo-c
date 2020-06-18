@@ -39,13 +39,20 @@ static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BO
 
     char fname2[PATH_MAX];
 
+    char* cflags = getenv("CFLAGS");
+
     if(neo_c_header) {
         char* base_fname = basename(fname);
         xstrncpy(fname2, base_fname, PATH_MAX);
         xstrncat(fname2, ".out", PATH_MAX);
 
         char cmd[1024];
-        snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
+        if(cflags) {
+            snprintf(cmd, 1024, "cpp %s -C %s > %s", cflags, fname, fname2);
+        }
+        else {
+            snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
+        }
 
         int rc = system(cmd);
 
@@ -59,7 +66,12 @@ static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BO
         xstrncat(fname2, ".out", PATH_MAX);
 
         char cmd[1024];
-        snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
+        if(cflags) {
+            snprintf(cmd, 1024, "cpp %s -C %s > %s", cflags, fname, fname2);
+        }
+        else {
+            snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
+        }
 
         int rc = system(cmd);
         if(rc != 0) {
@@ -68,7 +80,11 @@ static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BO
             xstrncat(fname2, ".out", PATH_MAX);
 
             char cmd[1024];
-            snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
+            if(cflags) {
+                snprintf(cmd, 1024, "cpp %s -C %s > %s", cflags, fname, fname2);
+            } else {
+                snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
+            }
 
             rc = system(cmd);
 
@@ -109,7 +125,7 @@ static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BO
 
 int gARGC;
 char** gARGV;
-char* gVersion = "1.2.5";
+char* gVersion = "1.2.6";
 
 char gMainModulePath[PATH_MAX];
 
@@ -135,6 +151,10 @@ int main(int argc, char** argv)
     char program_name[PATH_MAX];
     program_name[0] = '\0';
 
+    char throw_to_cpp_flags[1024];
+
+    throw_to_cpp_flags[0] = '\0';
+
     int i;
     for(i=1; i<argc; i++) {
         if(strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "-V") == 0)
@@ -153,6 +173,24 @@ int main(int argc, char** argv)
         else if(strcmp(argv[i], "-g") == 0)
         {
             gNCDebug = TRUE;
+        }
+        else if(strstr(argv[i], "-D") == argv[i])
+        {
+            char* p = argv[i];
+            while(*p) {
+                if(*p == '"') {
+                    xstrncat(throw_to_cpp_flags, "\\\"", 1024);
+                    p++;
+                }
+                else {
+                    char str[16];
+                    str[0] = *p;
+                    str[1] = '\0';
+                    xstrncat(throw_to_cpp_flags, str, 1024);
+                    p++;
+                }
+            }
+            xstrncat(throw_to_cpp_flags, " ", 1024);
         }
         else if(strcmp(argv[i], "-gm") == 0)
         {
@@ -189,6 +227,10 @@ int main(int argc, char** argv)
                 exit(2);
             }
         }
+    }
+    
+    if(throw_to_cpp_flags[0] != '\0') {
+        setenv("CFLAGS", throw_to_cpp_flags, 1);
     }
 
     setenv("C_INCLUDE_PATH", c_include_path, 1);
@@ -262,10 +304,10 @@ int main(int argc, char** argv)
         char command[4096*2];
 
         if(gNCDebug) {
-            snprintf(command, 4096*2, "clang -g -o %s %s.o -lpcre ", program_name, main_module_name);
+            snprintf(command, 4096*2, "clang -g -o %s %s.o -lpcre $CFLAGS", program_name, main_module_name);
         }
         else {
-            snprintf(command, 4096*2, "clang -o %s %s.o -lpcre ", program_name, main_module_name);
+            snprintf(command, 4096*2, "clang -o %s %s.o -lpcre $CFLAGS", program_name, main_module_name);
         }
 
         char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s/lib/neo-c.o", PREFIX);
