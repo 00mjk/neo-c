@@ -664,6 +664,7 @@ bool parse_calling_params(int* num_params, sCLNode** params, bool* param_closed,
 {
     while(true) {
         if(*info->p == '\0') {
+            parser_err_msg(info, "require to close calling params");
             *param_closed = false;
             break;
         }
@@ -692,6 +693,7 @@ bool parse_calling_params(int* num_params, sCLNode** params, bool* param_closed,
             break;
         }
         else if(*info->p == '\0') {
+            parser_err_msg(info, "require to close calling params");
             *param_closed = false;
             break;
         }
@@ -855,6 +857,79 @@ bool is_local_variable(char* word, sParserInfo* info)
     sVar* v = get_variable_from_table(info, word);
 
     return v != null;
+}
+
+
+bool parse_string(buffer* buf, sParserInfo* info) 
+{
+    while(true) {
+        if(*info->p == '"') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+        else if(*info->p == '\0') {
+            parser_err_msg(info, "require close string value");
+            break;
+        }
+        else if(*info->p == '\\') {
+            info->p++;
+
+            char c;
+            switch(*info->p) {
+                case 'n':
+                    c = '\n';
+                    info->p++;
+                    break;
+
+                case 't':
+                    c = '\t';
+                    info->p++;
+                    break;
+
+                case 'r':
+                    c = '\r';
+                    info->p++;
+                    break;
+
+                case 'a':
+                    c = '\a';
+                    info->p++;
+                    break;
+
+                case '\\':
+                    c = '\\';
+                    info->p++;
+                    break;
+
+                case '0':
+                    c = '\0';
+                    info->p++;
+                    break;
+
+                default:
+                    c = *info->p;
+                    info->p++;
+                    break;
+            }
+
+            buf.append_char(c);
+        }
+        else if(*info->p == '\n') {
+            info->sline++;
+
+            buf.append_char(*info->p);
+            info->p++;
+        }
+        else {
+            buf.append_char(*info->p);
+            info->p++;
+        }
+    }
+
+    skip_spaces_and_lf(info);
+
+    return true;
 }
 
 static bool expression_node(sCLNode** node, sParserInfo* info)
@@ -1156,7 +1231,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
                 *node = sNodeTree_create_method_call(word, num_params, params, param_closed, info);
             }
-            else {
+            else if(is_local_variable(word, info)) {
                 *node = sNodeTree_create_load_variable(word, info);
 
                 if(*info->p == '+' && *(info->p+1) == '+') {
@@ -1208,81 +1283,45 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                     *node = sNodeTree_create_store_variable(word, exp, info);
                 }
             }
+            else {
+                sCLNode* params[PARAMS_MAX];
+
+                if(*node == 0) {
+                    params[0] = sNodeTree_create_command_value(info);
+                }
+                else {
+                    params[0] = *node;
+                }
+
+                int num_params = 1;
+
+                sCLNode* node2 = null;
+                if(!expression(&node2, info)) {
+                    return false;
+                };
+
+                params[num_params] = node2;
+                num_params++;
+
+                if(num_params >= PARAMS_MAX) {
+                    fprintf(stderr, "overflow pram number\n");
+                    exit(1);
+                }
+
+                bool param_closed = false;
+                *node = sNodeTree_create_method_call(word, num_params, params, param_closed, info);
+            }
         }
     }
     /// string ///
     else if(*info->p == '"') {
         info->p++;
         
-        int sline = info->sline;
-        
         buffer*% buf = new buffer.initialize();
-        
-        while(true) {
-            if(*info->p == '"') {
-                info->p++;
-                skip_spaces_and_lf(info);
-                break;
-            }
-            else if(*info->p == '\0') {
-                break;
-            }
-            else if(*info->p == '\\') {
-                info->p++;
 
-                char c;
-                switch(*info->p) {
-                    case 'n':
-                        c = '\n';
-                        info->p++;
-                        break;
-
-                    case 't':
-                        c = '\t';
-                        info->p++;
-                        break;
-
-                    case 'r':
-                        c = '\r';
-                        info->p++;
-                        break;
-
-                    case 'a':
-                        c = '\a';
-                        info->p++;
-                        break;
-
-                    case '\\':
-                        c = '\\';
-                        info->p++;
-                        break;
-
-                    case '0':
-                        c = '\0';
-                        info->p++;
-                        break;
-
-                    default:
-                        c = *info->p;
-                        info->p++;
-                        break;
-                }
-
-                buf.append_char(c);
-            }
-            else if(*info->p == '\n') {
-                info->sline++;
-
-                buf.append_char(*info->p);
-                info->p++;
-            }
-            else {
-                buf.append_char(*info->p);
-                info->p++;
-            }
+        if(!parse_string(buf, info)) {
+            return false;
         }
-
-        skip_spaces_and_lf(info);
         
         var str = buf.to_string();
         

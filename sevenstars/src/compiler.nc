@@ -73,7 +73,7 @@ bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* type
 
     string str2 = null;
     if(output) {
-        str2 = xsprintf("(\"=>\" + {%s}.to_string()).print()", str);
+        str2 = xsprintf("(\"=>\" + {%s }.to_string()).print()", str);
     }
     else {
         str2 = xsprintf("%s", str);
@@ -764,6 +764,8 @@ char** completer(char* text, int start, int end)
 {
     string current_line = line_buffer_from_head_to_cursor_point();
 
+    current_line = line_buffer_from_head_to_cursor_point();
+
     bool inputing_method = true;
 
     char* p = current_line;
@@ -793,6 +795,7 @@ char** completer(char* text, int start, int end)
             while(*p == ' ') {
                 p--;
             }
+            break;
         }
         else if(*p == '{') {
             break;
