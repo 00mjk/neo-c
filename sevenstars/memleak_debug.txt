@@ -1,6 +1,0 @@
-
-remain the heap memory(0x7da302b530) with type name char% at neo-c.nc.127. calloc num is 3. calloc_size is 1. fun_name is string string
-
-remain the heap memory(0x7da302b548) with type name char% at neo-c.nc.127. calloc num is 2. calloc_size is 1. fun_name is string string
-
-remain the heap memory(0x7da302b568) with type name char% at neo-c.nc.127. calloc num is 4. calloc_size is 1. fun_name is string string

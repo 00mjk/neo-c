@@ -5,11 +5,7 @@ yank save when finishing
 cursor in last chararacter is unvisible
 
 C-w j, k
-C-w,w が閉じたときおかしい
-visual mode zz
-search mode in visual mode
-d`a
-C
+C-w,w
 C-wj
 C-wk
 V,c
@@ -56,21 +52,13 @@ V,:
 [*
 ]*
 ]/
-
-
-
 #if %
 external command
-------
 C-i include
 gd
 g5
 C-F
 :make
-
-
-
-
 C-t, ]]
 ------------------------------------------------------------
 :%s//
@@ -115,5 +103,5 @@ view $ wo gyoumatu ni tukeru fukusuu gyou nara ~
 sp completion /home/ab25cq/repo/neo-c/src/node.cpp ga hirakenai
 delete last line visual mode seg fault
 wide charater insert text
-* _も取れるようにする
-# _も取れるようにする
+* _
+# _

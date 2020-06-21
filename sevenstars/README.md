@@ -1,6 +1,6 @@
 # SevenStars computer language
 
-version 1.0.0
+version 1.0.1
 
 * 特徴
 
@@ -208,6 +208,7 @@ class string {
     }
     def write(file_name:string):void;
     def append(file_name:string):void;
+    def substring(head:int, tail:int):string;
 };
 ```
 
@@ -215,7 +216,7 @@ class string {
 
 全てのオブジェクトの基盤となるクラスです。以下のメソッドがあります。
 
-Class that represents a character string.It is expressed as "HELLO".
+Fundamental class of all classes. Methods are below:
 
 ```
 class object {

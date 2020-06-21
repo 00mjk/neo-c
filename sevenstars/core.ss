@@ -85,6 +85,7 @@ class string {
     }
     def write(file_name:string):void;
     def append(file_name:string):void;
+    def substring(head:int, tail:int):string;
 };
 
 class object {

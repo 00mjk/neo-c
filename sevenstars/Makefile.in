@@ -114,6 +114,7 @@ install:
 #########################################################
 uninstall:
 	rm -f "$(DESTDIR)"/bin/sevenstars
+	rm -f $(DESTDIR)/share/sevenstars
 
 #########################################################
 # permission
@@ -123,13 +124,12 @@ permission:
 	chmod 755 .git man src configure
 	chmod 644 src/*.c
 	chmod 644 src/*.h
-	chmod 755 update_clover.sh
 
 ########################################################
 # clean
 ########################################################
 clean:
-	rm -fR sevenstars sevenstar.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core a.out *.out *.ssc
+	rm -fR sevenstars sevenstar.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core a.out *.out *.ssc memleak_debug.txt
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache
