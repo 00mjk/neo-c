@@ -120,7 +120,7 @@ struct sCLClass {
 };
 
 extern map<string, sCLClass*%>* gClasses;
-extern vector<CLObject>* gJobs;
+extern list<CLObject>* gJobs;
 
 /// class.nc ///
 void class_init();
@@ -597,6 +597,19 @@ bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info);
 
 bool load_class(char* name, sParserInfo* info);
 bool save_class(sCLClass* klass);
+
+void compiler_init(bool no_load_fudamental_classes);
+void compiler_final();
+bool compiler(char* fname);
+void set_signal();
+void set_signal_shell();
+void shell(vector<sCLType*%>* types);
+void clover3_init();
+void clover3_final();
+
+bool forgroud_job(int job_num);
+void shell_run_command(char* line, vector<sCLType*%>* types);
+void shell_commandline(char* line, int cursor_point, vector<sCLType*%>* types);
 
 #endif
 

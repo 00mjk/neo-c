@@ -10,12 +10,12 @@ BOOL	src/xfunc.h	7;"	d
 BREAK_MAX	sevenstars/src/common.h	45;"	d
 BUFFER_H	src/buffer.h	2;"	d
 CC	Makefile	/^CC=clang$/;"	m
-CC	iqos/Makefile	/^CC=neo-c$/;"	m
+CC	luckystrike/Makefile	/^CC=neo-c$/;"	m
 CC	sevenstars/Makefile	/^CC=neo-c$/;"	m
 CC	tiny/Makefile	/^CC=gcc$/;"	m
 CC	wi/Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -fPIC -I\/usr\/local\/include -L \/usr\/local\/lib -O3$/;"	m
-CFLAGS	iqos/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -fPIC -rdynamic -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O2 -Qunused-arguments$/;"	m
+CFLAGS	luckystrike/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -fPIC -rdynamic -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O2 -Qunused-arguments$/;"	m
 CFLAGS	sevenstars/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -fPIC -rdynamic -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O2 -Qunused-arguments$/;"	m
 CFLAGS	tiny/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -Qunused-arguments$/;"	m
 CFLAGS	wi/Makefile	/^CFLAGS= -O2$/;"	m
@@ -49,7 +49,7 @@ COMMAND_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_V
 COMMON_H	sevenstars/src/common.h	2;"	d
 COMMON_H	src/common.h	2;"	d
 COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/xfunc.o src\/alignment.o$/;"	m
-COMPILER_OBJS	iqos/Makefile	/^COMPILER_OBJS=src\/parser.o src\/node.o$/;"	m
+COMPILER_OBJS	luckystrike/Makefile	/^COMPILER_OBJS=src\/parser.o src\/node.o$/;"	m
 COMPILER_OBJS	sevenstars/Makefile	/^COMPILER_OBJS=src\/parser.o src\/node.o$/;"	m
 COMPILE_ERR_MSG_MAX	src/common.h	24;"	d
 CONS_str	src/common.h	62;"	d
@@ -57,7 +57,7 @@ CXX	Makefile	/^CXX=g++$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all`  -O3 -I . -I src -DPREFIX="\\"${DESTDIR}\/\\""$/;"	m
 DBuilder	src/llvm.cpp	/^DIBuilder* DBuilder;$/;"	v
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
-DESTDIR	iqos/Makefile	/^DESTDIR=\/usr\/local$/;"	m
+DESTDIR	luckystrike/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	sevenstars/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	tiny/Makefile	/^DESTDIR=\/usr\/local$/;"	m
 DESTDIR	wi/Makefile	/^DESTDIR=\/usr\/local$/;"	m
@@ -69,14 +69,15 @@ ELIF_NUM_MAX	src/common.h	30;"	d
 EXTERNAL_OBJECT_MAX	src/common.h	35;"	d
 FALSE	src/xfunc.h	9;"	d
 FUN_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
+Filer	luckystrike/src/common.h	/^struct Filer $/;"	s
 GENERICS_TYPES_MAX	sevenstars/src/common.h	36;"	d
 GENERICS_TYPES_MAX	src/common.h	20;"	d
-HAVE_BSD_H	iqos/config.h	9;"	d
+HAVE_BSD_H	luckystrike/config.h	9;"	d
 HAVE_BSD_H	sevenstars/config.h	9;"	d
 HAVE_ICONV_H	config.h	3;"	d
 HAVE_ICONV_H	config.h	5;"	d
-HAVE_ICONV_H	iqos/config.h	3;"	d
-HAVE_ICONV_H	iqos/config.h	5;"	d
+HAVE_ICONV_H	luckystrike/config.h	3;"	d
+HAVE_ICONV_H	luckystrike/config.h	5;"	d
 HAVE_ICONV_H	sevenstars/config.h	3;"	d
 HAVE_ICONV_H	sevenstars/config.h	5;"	d
 HAVE_ICONV_H	tiny/config.h	3;"	d
@@ -84,32 +85,32 @@ HAVE_ICONV_H	tiny/config.h	5;"	d
 HAVE_ICONV_H	wi/config.h	3;"	d
 HAVE_ICONV_H	wi/config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
-HAVE_MATH_H	iqos/config.h	2;"	d
+HAVE_MATH_H	luckystrike/config.h	2;"	d
 HAVE_MATH_H	sevenstars/config.h	2;"	d
 HAVE_MATH_H	tiny/config.h	2;"	d
 HAVE_MATH_H	wi/config.h	2;"	d
-HAVE_NCURSESW_H	iqos/config.h	8;"	d
+HAVE_NCURSESW_H	luckystrike/config.h	8;"	d
 HAVE_NCURSESW_H	sevenstars/config.h	8;"	d
 HAVE_NCURSESW_H	tiny/config.h	8;"	d
 HAVE_NCURSESW_H	wi/config.h	8;"	d
 HAVE_PCRE_H	config.h	6;"	d
-HAVE_PCRE_H	iqos/config.h	6;"	d
+HAVE_PCRE_H	luckystrike/config.h	6;"	d
 HAVE_PCRE_H	sevenstars/config.h	6;"	d
 HAVE_PCRE_H	tiny/config.h	6;"	d
 HAVE_PCRE_H	wi/config.h	6;"	d
 HAVE_PTHREAD_H	config.h	11;"	d
-HAVE_PTHREAD_H	iqos/config.h	11;"	d
+HAVE_PTHREAD_H	luckystrike/config.h	11;"	d
 HAVE_PTHREAD_H	sevenstars/config.h	11;"	d
 HAVE_PTHREAD_H	tiny/config.h	11;"	d
 HAVE_PTHREAD_H	wi/config.h	11;"	d
-HAVE_READLINE_H	iqos/config.h	7;"	d
+HAVE_READLINE_H	luckystrike/config.h	7;"	d
 HAVE_READLINE_H	sevenstars/config.h	7;"	d
 HEAP_HANDLE_INIT_SIZE	sevenstars/src/common.h	40;"	d
 HEAP_INIT_SIZE	sevenstars/src/common.h	39;"	d
 IMPL_DEF_MAX	src/common.h	34;"	d
 INIT_ARRAY_MAX	src/common.h	36;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
-INSTALL	iqos/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
+INSTALL	luckystrike/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INSTALL	sevenstars/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INSTALL	tiny/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INSTALL	wi/Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
@@ -117,7 +118,7 @@ INT_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE
 JOB_TITLE_MAX	sevenstars/src/common.h	43;"	d
 KSDbgInfo	src/llvm.cpp	/^DebugInfo KSDbgInfo;$/;"	v
 LIBS	Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lpthread -lrt$/;"	m
-LIBS	iqos/Makefile	/^LIBS= -lutil -lncursesw -lreadline -lbsd -ldl -lm -lpthread -lpcre -lreadline -lrt$/;"	m
+LIBS	luckystrike/Makefile	/^LIBS= -lutil -lncursesw -lreadline -lbsd -ldl -lm -lpthread -lpcre -lreadline -lrt$/;"	m
 LIBS	sevenstars/Makefile	/^LIBS= -lutil -lncursesw -lreadline -lbsd -ldl -lm -lpthread -lpcre -lreadline -lrt$/;"	m
 LIBS	tiny/Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lncursesw -lpthread -lrt$/;"	m
 LIBS	wi/Makefile	/^LIBS= -ldl -lm -lpcre -lncursesw -lrt -lpthread$/;"	m
@@ -127,6 +128,7 @@ LOOP_NEST_MAX	src/common.h	37;"	d
 LVALUE	src/llvm_common.hpp	/^typedef struct LVALUEStruct LVALUE;$/;"	t	typeref:struct:LVALUEStruct
 LVALUEStruct	src/llvm_common.hpp	/^struct LVALUEStruct {$/;"	s
 LexicalBlock	src/llvm.cpp	/^    std::vector<DIScope*> LexicalBlock;$/;"	m	struct:DebugInfo	file:
+LuckyStrike	luckystrike/src/common.h	/^struct LuckyStrike $/;"	s
 MACRO_MAX	src/common.h	39;"	d
 MANAGED	src/xfunc.h	5;"	d
 MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	1317;"	d
@@ -137,7 +139,7 @@ MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
 NATIVE_METHOD_NAME_MAX	sevenstars/src/common.h	44;"	d
 NCC	tiny/Makefile	/^NCC=neo-c$/;"	m
 NCC	wi/Makefile	/^NCC=neo-c$/;"	m
-NCFLAGS	iqos/Makefile	/^NCFLAGS=$/;"	m
+NCFLAGS	luckystrike/Makefile	/^NCFLAGS=$/;"	m
 NCFLAGS	sevenstars/Makefile	/^NCFLAGS=$/;"	m
 NCFLAGS	wi/Makefile	/^NCFLAGS=$/;"	m
 NEO_C_STACK_SIZE	src/common.h	25;"	d
@@ -157,7 +159,7 @@ NODETYPE_VAR	tiny/common.h	/^enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, N
 NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
 NULL_VALUE	tiny/common.h	/^enum { INT_VALUE, NULL_VALUE, STR_VALUE, COMMAND_VALUE, FUN_VALUE };$/;"	e	enum:__anon2
 OBJS	Makefile	/^OBJS=src\/source_compiler.o src\/parser.o src\/node.o src\/klass.o src\/node_type.o src\/typedef.o src\/constant.o src\/llvm.o src\/vtable.o src\/node_block.o src\/node_alloc.o src\/macro.o$/;"	m
-OBJS	iqos/Makefile	/^OBJS=src\/vm.o$/;"	m
+OBJS	luckystrike/Makefile	/^OBJS=src\/vm.o$/;"	m
 OBJS	sevenstars/Makefile	/^OBJS=src\/vm.o$/;"	m
 OP_ANDAND	sevenstars/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE, OP_EVAL };$/;"	e	enum:__anon11
 OP_COMMAND_VALUE	sevenstars/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE, OP_EVAL };$/;"	e	enum:__anon11
@@ -200,7 +202,7 @@ OP_THROW	sevenstars/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE,
 OP_TRUE_VALUE	sevenstars/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE, OP_EVAL };$/;"	e	enum:__anon11
 OP_TRY	sevenstars/src/common.h	/^enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE, OP_EVAL };$/;"	e	enum:__anon11
 OS	Makefile	/^OS=LINUX$/;"	m
-OS	iqos/Makefile	/^OS=LINUX$/;"	m
+OS	luckystrike/Makefile	/^OS=LINUX$/;"	m
 OS	sevenstars/Makefile	/^OS=LINUX$/;"	m
 OS	tiny/Makefile	/^OS=LINUX$/;"	m
 OS	wi/Makefile	/^OS=$/;"	m
@@ -259,13 +261,13 @@ _USE_MISC	code/neo-c.h	11;"	d
 _USE_MISC	neo-c.h	11;"	d
 _USE_MISC	sevenstars/src/common.h	23;"	d
 __64BIT_CPU__	config.h	18;"	d
-__64BIT_CPU__	iqos/config.h	18;"	d
+__64BIT_CPU__	luckystrike/config.h	18;"	d
 __64BIT_CPU__	sevenstars/config.h	18;"	d
 __64BIT_CPU__	tiny/config.h	18;"	d
 __64BIT_CPU__	wi/config.h	18;"	d
 __GNUC__	neo-c.h	17;"	d
 __LINUX__	config.h	16;"	d
-__LINUX__	iqos/config.h	16;"	d
+__LINUX__	luckystrike/config.h	16;"	d
 __LINUX__	sevenstars/config.h	16;"	d
 __LINUX__	tiny/config.h	16;"	d
 __STDC_CONSTANT_MACROS	code/neo-c.h	27;"	d
@@ -283,37 +285,37 @@ __clang__	neo-c.h	18;"	d
 __sbrk	src/sbrk.c	/^void * __sbrk (intptr_t increment)$/;"	f
 a	code/HelloWorld5.h	/^    int a;$/;"	m	struct:StructData1
 ac_fn_c_check_func	configure	/^ac_fn_c_check_func ()$/;"	f
-ac_fn_c_check_func	iqos/configure	/^ac_fn_c_check_func ()$/;"	f
+ac_fn_c_check_func	luckystrike/configure	/^ac_fn_c_check_func ()$/;"	f
 ac_fn_c_check_func	sevenstars/configure	/^ac_fn_c_check_func ()$/;"	f
 ac_fn_c_check_func	tiny/configure	/^ac_fn_c_check_func ()$/;"	f
 ac_fn_c_check_func	wi/configure	/^ac_fn_c_check_func ()$/;"	f
 ac_fn_c_check_header_compile	configure	/^ac_fn_c_check_header_compile ()$/;"	f
-ac_fn_c_check_header_compile	iqos/configure	/^ac_fn_c_check_header_compile ()$/;"	f
+ac_fn_c_check_header_compile	luckystrike/configure	/^ac_fn_c_check_header_compile ()$/;"	f
 ac_fn_c_check_header_compile	sevenstars/configure	/^ac_fn_c_check_header_compile ()$/;"	f
 ac_fn_c_check_header_compile	tiny/configure	/^ac_fn_c_check_header_compile ()$/;"	f
 ac_fn_c_check_header_compile	wi/configure	/^ac_fn_c_check_header_compile ()$/;"	f
 ac_fn_c_check_header_mongrel	configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
-ac_fn_c_check_header_mongrel	iqos/configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
+ac_fn_c_check_header_mongrel	luckystrike/configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
 ac_fn_c_check_header_mongrel	sevenstars/configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
 ac_fn_c_check_header_mongrel	tiny/configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
 ac_fn_c_check_header_mongrel	wi/configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
 ac_fn_c_try_compile	configure	/^ac_fn_c_try_compile ()$/;"	f
-ac_fn_c_try_compile	iqos/configure	/^ac_fn_c_try_compile ()$/;"	f
+ac_fn_c_try_compile	luckystrike/configure	/^ac_fn_c_try_compile ()$/;"	f
 ac_fn_c_try_compile	sevenstars/configure	/^ac_fn_c_try_compile ()$/;"	f
 ac_fn_c_try_compile	tiny/configure	/^ac_fn_c_try_compile ()$/;"	f
 ac_fn_c_try_compile	wi/configure	/^ac_fn_c_try_compile ()$/;"	f
 ac_fn_c_try_cpp	configure	/^ac_fn_c_try_cpp ()$/;"	f
-ac_fn_c_try_cpp	iqos/configure	/^ac_fn_c_try_cpp ()$/;"	f
+ac_fn_c_try_cpp	luckystrike/configure	/^ac_fn_c_try_cpp ()$/;"	f
 ac_fn_c_try_cpp	sevenstars/configure	/^ac_fn_c_try_cpp ()$/;"	f
 ac_fn_c_try_cpp	tiny/configure	/^ac_fn_c_try_cpp ()$/;"	f
 ac_fn_c_try_cpp	wi/configure	/^ac_fn_c_try_cpp ()$/;"	f
 ac_fn_c_try_link	configure	/^ac_fn_c_try_link ()$/;"	f
-ac_fn_c_try_link	iqos/configure	/^ac_fn_c_try_link ()$/;"	f
+ac_fn_c_try_link	luckystrike/configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_link	sevenstars/configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_link	tiny/configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_link	wi/configure	/^ac_fn_c_try_link ()$/;"	f
 ac_fn_c_try_run	configure	/^ac_fn_c_try_run ()$/;"	f
-ac_fn_c_try_run	iqos/configure	/^ac_fn_c_try_run ()$/;"	f
+ac_fn_c_try_run	luckystrike/configure	/^ac_fn_c_try_run ()$/;"	f
 ac_fn_c_try_run	sevenstars/configure	/^ac_fn_c_try_run ()$/;"	f
 ac_fn_c_try_run	tiny/configure	/^ac_fn_c_try_run ()$/;"	f
 ac_fn_c_try_run	wi/configure	/^ac_fn_c_try_run ()$/;"	f
@@ -337,6 +339,7 @@ alloc_union	src/klass.c	/^sCLClass* alloc_union(char* class_name, BOOL anonymous
 anchored	code/neo-c.h	/^    bool anchored;$/;"	m	struct:regex_struct
 anchored	neo-c.h	/^    bool anchored;$/;"	m	struct:regex_struct
 appEnd	wi/common.h	/^    bool appEnd;$/;"	m	struct:version
+app_end	luckystrike/src/common.h	/^    bool app_end;$/;"	m	struct:LuckyStrike
 append_debug_heap_memory	src/memalloc-stdc.c	/^static void append_debug_heap_memory(void* mem, char* type_name, char* sname, int sline, int calloc_num, size_t calloc_size, char* fun_name, char* real_fun_name)$/;"	f	file:
 append_double_value_to_constant_pool	src/constant.c	/^unsigned int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output)$/;"	f
 append_float_value_to_constant_pool	src/constant.c	/^unsigned int append_float_value_to_constant_pool(sConst* constant, float n, BOOL no_output)$/;"	f
@@ -350,7 +353,9 @@ arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f
 as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_append	iqos/configure	/^  as_fn_append ()$/;"	f
+as_fn_append	luckystrike/config.status	/^  as_fn_append ()$/;"	f
+as_fn_append	luckystrike/configure	/^  as_fn_append ()$/;"	f
+as_fn_append	sevenstars/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	sevenstars/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/configure	/^  as_fn_append ()$/;"	f
@@ -358,7 +363,9 @@ as_fn_append	wi/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	wi/configure	/^  as_fn_append ()$/;"	f
 as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_arith	iqos/configure	/^  as_fn_arith ()$/;"	f
+as_fn_arith	luckystrike/config.status	/^  as_fn_arith ()$/;"	f
+as_fn_arith	luckystrike/configure	/^  as_fn_arith ()$/;"	f
+as_fn_arith	sevenstars/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	sevenstars/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/configure	/^  as_fn_arith ()$/;"	f
@@ -366,7 +373,9 @@ as_fn_arith	wi/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	wi/configure	/^  as_fn_arith ()$/;"	f
 as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_error	iqos/configure	/^as_fn_error ()$/;"	f
+as_fn_error	luckystrike/config.status	/^as_fn_error ()$/;"	f
+as_fn_error	luckystrike/configure	/^as_fn_error ()$/;"	f
+as_fn_error	sevenstars/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	sevenstars/configure	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/configure	/^as_fn_error ()$/;"	f
@@ -374,7 +383,9 @@ as_fn_error	wi/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	wi/configure	/^as_fn_error ()$/;"	f
 as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_executable_p	iqos/configure	/^as_fn_executable_p ()$/;"	f
+as_fn_executable_p	luckystrike/config.status	/^as_fn_executable_p ()$/;"	f
+as_fn_executable_p	luckystrike/configure	/^as_fn_executable_p ()$/;"	f
+as_fn_executable_p	sevenstars/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	sevenstars/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/configure	/^as_fn_executable_p ()$/;"	f
@@ -382,51 +393,59 @@ as_fn_executable_p	wi/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	wi/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
-as_fn_exit	iqos/configure	/^as_fn_exit ()$/;"	f
+as_fn_exit	luckystrike/config.status	/^as_fn_exit ()$/;"	f
+as_fn_exit	luckystrike/configure	/^as_fn_exit ()$/;"	f
+as_fn_exit	sevenstars/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	sevenstars/configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	tiny/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	tiny/configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	wi/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	wi/configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_failure	iqos/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_failure	luckystrike/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	sevenstars/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	tiny/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	wi/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
-as_fn_mkdir_p	iqos/configure	/^as_fn_mkdir_p ()$/;"	f
+as_fn_mkdir_p	luckystrike/config.status	/^as_fn_mkdir_p ()$/;"	f
+as_fn_mkdir_p	luckystrike/configure	/^as_fn_mkdir_p ()$/;"	f
+as_fn_mkdir_p	sevenstars/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	sevenstars/configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	tiny/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	tiny/configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	wi/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	wi/configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
-as_fn_ret_failure	iqos/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
+as_fn_ret_failure	luckystrike/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_failure	sevenstars/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_failure	tiny/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_failure	wi/configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_ret_success	iqos/configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_ret_success	luckystrike/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	sevenstars/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	tiny/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	wi/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
-as_fn_set_status	iqos/configure	/^as_fn_set_status ()$/;"	f
+as_fn_set_status	luckystrike/config.status	/^as_fn_set_status ()$/;"	f
+as_fn_set_status	luckystrike/configure	/^as_fn_set_status ()$/;"	f
+as_fn_set_status	sevenstars/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	sevenstars/configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	tiny/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	tiny/configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	wi/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	wi/configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_success	iqos/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_success	luckystrike/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	sevenstars/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	tiny/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	wi/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
-as_fn_unset	iqos/configure	/^as_fn_unset ()$/;"	f
+as_fn_unset	luckystrike/config.status	/^as_fn_unset ()$/;"	f
+as_fn_unset	luckystrike/configure	/^as_fn_unset ()$/;"	f
+as_fn_unset	sevenstars/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	sevenstars/configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	tiny/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	tiny/configure	/^as_fn_unset ()$/;"	f
@@ -441,7 +460,7 @@ auto_cast_posibility	src/node_type.c	/^BOOL auto_cast_posibility(sNodeType* left
 b	code/HelloWorld6.h	/^    int b;$/;"	m	struct:version
 binded_value	src/llvm_common.hpp	/^    BOOL binded_value;$/;"	m	struct:LVALUEStruct
 bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
-bindir	iqos/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
+bindir	luckystrike/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	sevenstars/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	tiny/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	wi/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
@@ -491,6 +510,7 @@ codes	sevenstars/src/common.h	/^    buffer* codes;$/;"	m	struct:sCompileInfo
 codes	sevenstars/src/common.h	/^    buffer*% codes;$/;"	m	struct:sCLNodeBlock
 codes	sevenstars/src/common.h	/^    int* codes;$/;"	m	struct:sCLBlock
 codes_len	sevenstars/src/common.h	/^    int codes_len;$/;"	m	struct:sCLBlock
+cols	luckystrike/src/common.h	/^    int cols;$/;"	m	struct:Filer
 commandString	wi/common.h	/^    string commandString;$/;"	m	struct:version
 compile	src/node.cpp	/^BOOL compile(unsigned int node, sCompileInfo* info)$/;"	f
 compile_add	src/node.cpp	/^static BOOL compile_add(unsigned int node, sCompileInfo* info)$/;"	f	file:
@@ -622,16 +642,17 @@ create_type_name_from_node_type	src/node_type.c	/^void create_type_name_from_nod
 create_undefined_llvm_struct_type	src/llvm.cpp	/^void create_undefined_llvm_struct_type(sNodeType* node_type)$/;"	f
 current_block	src/common.h	/^    void* current_block;$/;"	m	struct:sCompileInfoStruct
 current_node_block	src/common.h	/^    struct sNodeBlockStruct* current_node_block;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sNodeBlockStruct
+cursor	luckystrike/src/common.h	/^    int cursor;$/;"	m	struct:Filer
 cursor	wi/common.h	/^    int cursor;$/;"	m	struct:ViFiler
 cursorX	wi/common.h	/^    int cursorX;$/;"	m	struct:version
 cursorY	wi/common.h	/^    int cursorY;$/;"	m	struct:version
 datadir	Makefile	/^datadir=${datarootdir}$/;"	m
-datadir	iqos/Makefile	/^datadir=${datarootdir}$/;"	m
+datadir	luckystrike/Makefile	/^datadir=${datarootdir}$/;"	m
 datadir	sevenstars/Makefile	/^datadir=${datarootdir}$/;"	m
 datadir	tiny/Makefile	/^datadir=${datarootdir}$/;"	m
 datadir	wi/Makefile	/^datadir=${datarootdir}$/;"	m
 datarootdir	Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
-datarootdir	iqos/Makefile	/^datarootdir=${prefix}\/share\/sevenstars$/;"	m
+datarootdir	luckystrike/Makefile	/^datarootdir=${prefix}\/share\/sevenstars$/;"	m
 datarootdir	sevenstars/Makefile	/^datarootdir=${prefix}\/share\/sevenstars$/;"	m
 datarootdir	tiny/Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
 datarootdir	wi/Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
@@ -644,7 +665,7 @@ delete_comment	src/source_compiler.c	/^BOOL delete_comment(sBuf* source, sBuf* s
 delete_debug_heap_memory	src/memalloc-stdc.c	/^static void delete_debug_heap_memory(void* mem)$/;"	f	file:
 digitInput	wi/common.h	/^    int digitInput;$/;"	m	struct:version
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
-docdir	iqos/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
+docdir	luckystrike/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 docdir	sevenstars/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 docdir	tiny/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 docdir	wi/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
@@ -688,7 +709,7 @@ err_num	tiny/common.h	/^    int err_num;$/;"	m	struct:TinyParser
 err_output_num	sevenstars/src/common.h	/^    int err_output_num;$/;"	m	struct:sParserInfo
 events	wi/common.h	/^    vector<void (*lambda)(Vi*, int)>*% events;$/;"	m	struct:version
 exec_prefix	Makefile	/^exec_prefix=${prefix}$/;"	m
-exec_prefix	iqos/Makefile	/^exec_prefix=${prefix}$/;"	m
+exec_prefix	luckystrike/Makefile	/^exec_prefix=${prefix}$/;"	m
 exec_prefix	sevenstars/Makefile	/^exec_prefix=${prefix}$/;"	m
 expect_next_character_with_one_forward	src/parser.c	/^void expect_next_character_with_one_forward(char* characters, sParserInfo* info)$/;"	f
 expression	src/parser.c	/^BOOL expression(unsigned int* node, sParserInfo* info) $/;"	f
@@ -712,7 +733,9 @@ extraLine	wi/common.h	/^    string extraLine;$/;"	m	struct:version
 extraWin	wi/common.h	/^    WINDOW* extraWin;$/;"	m	struct:version
 fNativeMethod	sevenstars/src/common.h	/^typedef bool (*fNativeMethod)(CLVALUE** stack_ptr, sVMInfo* info);$/;"	t
 fileName	wi/common.h	/^    string fileName;$/;"	m	struct:version
+filer	luckystrike/src/common.h	/^    Filer*% filer;$/;"	m	struct:LuckyStrike
 filer	wi/common.h	/^    ViFiler*% filer;$/;"	m	struct:version
+files	luckystrike/src/common.h	/^    list<string>*% files;$/;"	m	struct:Filer
 files	wi/common.h	/^    list<string>*% files;$/;"	m	struct:ViFiler
 final_vtable	src/vtable.c	/^void final_vtable()$/;"	f
 finalize	code/neo-c.h	/^    finalize() {$/;"	f	struct:map
@@ -822,7 +845,7 @@ in_inline_function	src/common.h	/^    BOOL in_inline_function;$/;"	m	struct:sCom
 in_shell	sevenstars/src/common.h	/^    bool in_shell;$/;"	m	struct:sCompileInfo
 included_generics_type	src/node_type.c	/^BOOL included_generics_type(sNodeType* node_type, sCLClass* checked_class[], int* num_checked_class)$/;"	f
 includedir	Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
-includedir	iqos/Makefile	/^includedir=${prefix}\/include\/sevenstars$/;"	m
+includedir	luckystrike/Makefile	/^includedir=${prefix}\/include\/sevenstars$/;"	m
 includedir	sevenstars/Makefile	/^includedir=${prefix}\/include\/sevenstars$/;"	m
 includedir	tiny/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 includedir	wi/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
@@ -1047,7 +1070,7 @@ len	neo-c.h	/^    int len;$/;"	m	struct:map
 len	neo-c.h	/^    int len;$/;"	m	struct:vector
 length	neo-c.h	/^    int length(map<T, T2>* self) {$/;"	f	struct:map
 libdir	Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
-libdir	iqos/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
+libdir	luckystrike/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 libdir	sevenstars/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 libdir	tiny/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 libdir	wi/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
@@ -1066,6 +1089,7 @@ load_class_from_class_file	src/klass.c	/^static sCLClass* load_class_from_class_
 load_field	src/llvm_common.hpp	/^    BOOL load_field;$/;"	m	struct:LVALUEStruct
 loop_begin_block	src/common.h	/^    void* loop_begin_block[LOOP_NEST_MAX];$/;"	m	struct:sCompileInfoStruct
 loop_end_block	src/common.h	/^    void* loop_end_block[LOOP_NEST_MAX];$/;"	m	struct:sCompileInfoStruct
+lucky	luckystrike/src/common.h	/^    LuckyStrike* lucky;$/;"	m	struct:Filer
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sParserInfoStruct
 mAlloc	src/common.h	/^            BOOL mAlloc;$/;"	m	struct:sNodeTreeStruct::__anon15::__anon16
 mAnonymous	src/common.h	/^            BOOL mAnonymous;$/;"	m	struct:sNodeTreeStruct::__anon15::__anon29
@@ -1426,7 +1450,7 @@ main	wi/a.c	/^int main()$/;"	f
 make_clone_for_recursive_field_type	src/llvm.cpp	/^BOOL make_clone_for_recursive_field_type(sNodeType* node_type, sCompileInfo* info) $/;"	f
 make_finalize_for_recursive_field_type	src/llvm.cpp	/^BOOL make_finalize_for_recursive_field_type(sNodeType* node_type, sCompileInfo* info) $/;"	f
 mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
-mandir	iqos/Makefile	/^mandir=${datarootdir}\/man$/;"	m
+mandir	luckystrike/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 mandir	sevenstars/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 mandir	tiny/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 mandir	wi/Makefile	/^mandir=${datarootdir}\/man$/;"	m
@@ -1475,6 +1499,7 @@ output_native_code	src/llvm.cpp	/^void output_native_code(char* sname, BOOL opti
 p	sevenstars/src/common.h	/^    char* p;$/;"	m	struct:sParserInfo
 p	src/common.h	/^    char* p;$/;"	m	struct:sParserInfoStruct
 p	tiny/common.h	/^    char* p;$/;"	m	struct:TinyParser
+page	luckystrike/src/common.h	/^    int page;$/;"	m	struct:Filer
 param	code/neo-c.h	/^                params.push(param); param = ""$/;"	m	struct:map
 param	code/neo-c.h	/^                params.push(param); param = ""$/;"	m	struct:tuple
 param	code/neo-c.h	/^    param = "";$/;"	m	struct:map
@@ -1559,13 +1584,14 @@ parser	tiny/common.h	/^    TinyParser*% parser;$/;"	m	struct:TinyVM
 parser_err_msg	src/parser.c	/^void parser_err_msg(sParserInfo* info, const char* msg, ...)$/;"	f
 parser_final	src/parser.c	/^void parser_final()$/;"	f
 parser_init	src/parser.c	/^void parser_init()$/;"	f
+path	luckystrike/src/common.h	/^    string path;$/;"	m	struct:Filer
 path	wi/common.h	/^    string path;$/;"	m	struct:ViFiler
 pinfo	sevenstars/src/common.h	/^    sParserInfo* pinfo;$/;"	m	struct:sCompileInfo
 pinfo	sevenstars/src/common.h	/^    sParserInfo* pinfo;$/;"	m	struct:sVMInfo
 pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sParserInfoStruct
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sParserInfo* info)$/;"	f	file:
 prefix	Makefile	/^prefix=\/usr\/local$/;"	m
-prefix	iqos/Makefile	/^prefix=\/usr\/local$/;"	m
+prefix	luckystrike/Makefile	/^prefix=\/usr\/local$/;"	m
 prefix	sevenstars/Makefile	/^prefix=\/usr\/local$/;"	m
 prefix	tiny/Makefile	/^prefix=\/usr\/local exec_prefix=${prefix}$/;"	m
 prefix	wi/Makefile	/^prefix=\/usr\/local exec_prefix=${prefix}$/;"	m
@@ -1579,7 +1605,7 @@ prev	neo-c.h	/^    struct list_item<T>*? prev;$/;"	m	struct:list_item	typeref:st
 prevent_from_free_right_value_objects	src/common.h	/^    BOOL prevent_from_free_right_value_objects;$/;"	m	struct:sCompileInfoStruct
 prevent_from_right_object_free	src/llvm.cpp	/^void prevent_from_right_object_free(LVALUE* llvm_value, sCompileInfo* info)$/;"	f
 prototypes	configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
-prototypes	iqos/configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
+prototypes	luckystrike/configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
 prototypes	sevenstars/configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
 prototypes	tiny/configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
 prototypes	wi/configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
@@ -1831,7 +1857,7 @@ search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* clas
 setCurrentDebugLocation	src/llvm.cpp	/^void setCurrentDebugLocation(int sline)$/;"	f
 set_max_block_var_num	src/vtable.c	/^void set_max_block_var_num(sVarTable* lv_table, sVarTable* old_table)$/;"	f
 sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
-sharedstatedir	iqos/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
+sharedstatedir	luckystrike/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 sharedstatedir	sevenstars/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 sharedstatedir	tiny/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 sharedstatedir	wi/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
@@ -1907,7 +1933,7 @@ switch_expression	src/common.h	/^    void* switch_expression;$/;"	m	struct:sComp
 switch_expression_type	src/common.h	/^    sNodeType* switch_expression_type;$/;"	m	struct:sCompileInfoStruct
 switch_nest	src/common.h	/^    int switch_nest;$/;"	m	struct:sParserInfoStruct
 sysconfdir	Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
-sysconfdir	iqos/Makefile	/^sysconfdir=${prefix}\/etc\/sevenstars$/;"	m
+sysconfdir	luckystrike/Makefile	/^sysconfdir=${prefix}\/etc\/sevenstars$/;"	m
 sysconfdir	sevenstars/Makefile	/^sysconfdir=${prefix}\/etc\/sevenstars$/;"	m
 sysconfdir	tiny/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
 sysconfdir	wi/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
@@ -1944,6 +1970,7 @@ type	tiny/common.h	/^    int type;$/;"	m	struct:TinyNode
 type_identify	src/node_type.c	/^BOOL type_identify(sNodeType* left, sNodeType* right)$/;"	f
 type_identify_with_class_name	src/node_type.c	/^BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
 type_name	src/memalloc-stdc.c	/^    char type_name[128];$/;"	m	struct:sHeapDebug	file:
+types	luckystrike/src/common.h	/^    vector<sCLType*%>*% types;$/;"	m	struct:LuckyStrike
 types	sevenstars/src/common.h	/^    vector<sCLType*%>* types;$/;"	m	struct:sParserInfo
 types	sevenstars/src/common.h	/^    vector<sCLType*%>*% types;$/;"	m	struct:sCLClass
 uIfExpression	sevenstars/src/common.h	/^        } uIfExpression;$/;"	m	union:sCLNode::__anon3	typeref:struct:sCLNode::__anon3::__anon4

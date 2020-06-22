@@ -11,6 +11,37 @@ source_filename = "Module main"
 %_win_st = type { i16, i16, i16, i16, i16, i16, i16, i32, i32, i1, i1, i1, i1, i1, i1, i1, i1, i1, i32, %ldat*, i16, i16, i32, i32, %_win_st*, %pdat, i16 }
 %ldat = type {}
 %pdat = type { i16, i16, i16, i16, i16, i16 }
+%map__charp_sCLClassp = type { i8**, i1*, %sCLClass**, i32, i32 }
+%sCLClass = type { i8*, %map__charp_sCLMethodp*, %map__charp_sCLFieldp*, %sCLClass*, %vector__sCLTypep* }
+%map__charp_sCLMethodp = type { i8**, i1*, %sCLMethod**, i32, i32 }
+%sCLMethod = type { i8*, [32 x %sCLParam], i32, %sCLType*, %buffer*, %sCLNodeBlock*, i32 }
+%sCLParam = type { [128 x i8], %sCLType* }
+%sCLType = type { i8*, %sCLClass*, i32, [32 x %sCLType*], i1, [32 x %sCLParam], i32, %sCLType*, i32 }
+%buffer = type { i8*, i32, i32 }
+%sCLNodeBlock = type { %vector__sCLNodep*, %vector__sVarTablep*, i1, i32, [32 x %sCLParam], %sCLType*, i32, %buffer*, i32, i1 }
+%vector__sCLNodep = type { %sCLNode**, i32, i32 }
+%sCLNode = type { i32, [4096 x i8], i32, %anon80, i8*, i8*, i8*, %buffer*, %sCLType*, %sCLNode*, %sCLNode*, %sCLNode* }
+%anon80 = type { %anon82 }
+%anon82 = type { %sCLNodeBlock*, [32 x %sCLParam], i32, %sCLType* }
+%vector__sVarTablep = type { %sVarTable**, i32, i32 }
+%sVarTable = type { %map__charp_sVarp*, i32, i32, i32, %sVarTable* }
+%map__charp_sVarp = type { i8**, i1*, %sVar**, i32, i32 }
+%sVar = type { i8*, i32, %sCLType*, i32, i1 }
+%map__charp_sCLFieldp = type { i8**, i1*, %sCLField**, i32, i32 }
+%sCLField = type { i8*, %sCLType*, %CLVALUE, i32 }
+%CLVALUE = type { i32 }
+%vector__sCLTypep = type { %sCLType**, i32, i32 }
+%list__int = type { %list_item__int*, %list_item__int*, i32 }
+%list_item__int = type { i32, %list_item__int*, %list_item__int* }
+%map__charp_lambdap = type { i8**, i1*, i1 (%CLVALUE**, %sVMInfo*)**, i32, i32 }
+%sVMInfo = type { [4096 x i8], i32, %sParserInfo*, %sCompileInfo*, i1, %vector__sCLStackFrame*, %CLVALUE }
+%sParserInfo = type { [4096 x i8], i32, i32, i32, i8*, %vector__charp*, %vector__sCLNodep*, %vector__sVarTablep*, %vector__sCLNodeBlockp*, %vector__sCLTypep*, %vector__sVarp*, i32 }
+%vector__charp = type { i8**, i32, i32 }
+%vector__sCLNodeBlockp = type { %sCLNodeBlock**, i32, i32 }
+%vector__sVarp = type { %sVar**, i32, i32 }
+%sCompileInfo = type { [4096 x i8], i32, i32, i32, %sParserInfo*, %buffer*, %sCLType*, i1, %sCLNode*, i1 }
+%vector__sCLStackFrame = type { %sCLStackFrame*, i32, i32 }
+%sCLStackFrame = type { i32, %CLVALUE*, %CLVALUE**, i32, i32 }
 %__locale_struct = type { [13 x %__locale_data*], i16*, i32*, i32*, [13 x i8*] }
 %__locale_data = type opaque
 %anon0 = type { i32, %anon1 }
@@ -36,12 +67,20 @@ source_filename = "Module main"
 %real_pcre_jit_stack = type {}
 %real_pcre16_jit_stack = type {}
 %real_pcre32_jit_stack = type {}
-%buffer = type { i8*, i32, i32 }
 %regex_struct = type { i8*, %real_pcre*, i1, i1, i1, i1, i1, i1, i1, i1 }
 %list__charp = type { %list_item__charp*, %list_item__charp*, i32 }
 %list_item__charp = type { i8*, %list_item__charp*, %list_item__charp* }
 %screen = type opaque
 %anon51 = type { i16, i32, i32, i32, i32 }
+%__dirstream = type opaque
+%dirent = type { i64, i64, i16, i8, [256 x i8] }
+%stat = type { i64, i64, i64, i32, i32, i32, i32, i64, i64, i64, i64, %timespec, %timespec, %timespec, [3 x i64] }
+%lconv = type { i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8 }
+%termios = type { i32, i32, i32, i32, i8, [32 x i8], i32, i32 }
+%sCLHeapMem = type { %sCLType*, i32, i32, i8* }
+%map__charp_int = type { i8**, i1*, i32*, i32, i32 }
+%LuckyStrike = type { %Filer*, i1, %vector__sCLTypep* }
+%Filer = type { %LuckyStrike*, i8*, %list__charp*, i32, i32, i32 }
 
 @gLVTable = internal global [8192 x i8*] zeroinitializer, align 8
 @gNCDebugHeap = external global i32
@@ -84,6 +123,23 @@ source_filename = "Module main"
 @ESCDELAY = external externally_initialized global i32, align 4
 @LINES = external externally_initialized global i32, align 4
 @TABSIZE = external externally_initialized global i32, align 4
+@gClasses = external externally_initialized global %map__charp_sCLClassp*, align 8
+@gJobs = external externally_initialized global %list__int*, align 8
+@gNativeMethods = external externally_initialized global %map__charp_lambdap*, align 8
+@global_string = private constant [1 x i8] zeroinitializer, align 1
+@global_string.1 = private constant [19 x i8] c"vector%<sCLType*%>\00", align 1
+@global_string.2 = private constant [12 x i8] c"src/main.nc\00", align 1
+@global_string.3 = private constant [5 x i8] c"main\00", align 1
+@global_string.4 = private constant [5 x i8] c"main\00", align 1
+@global_string.5 = private constant [10 x i8] c"sCLType*%\00", align 1
+@global_string.6 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.7 = private constant [30 x i8] c"initialize_sCLTypep0_src/main\00", align 1
+@global_string.8 = private constant [37 x i8] c"vector_initialize_sCLTypep0_src/main\00", align 1
+@global_string.9 = private constant [13 x i8] c"LuckyStrike%\00", align 1
+@global_string.10 = private constant [12 x i8] c"src/main.nc\00", align 1
+@global_string.11 = private constant [5 x i8] c"main\00", align 1
+@global_string.12 = private constant [5 x i8] c"main\00", align 1
+@global_string.13 = private constant [23 x i8] c"app is faield. exited\0A\00", align 1
 
 ; Function Attrs: nounwind
 declare void @llvm.va_start(i8*, ...) #0
@@ -2124,6 +2180,522 @@ declare i8* @unctrl(i32)
 
 declare i8* @unctrl_sp(%screen*, i32)
 
+declare %__dirstream* @opendir(i8*)
+
+declare %__dirstream* @fdopendir(i32)
+
+declare i32 @closedir(%__dirstream*)
+
+declare %dirent* @readdir(%__dirstream*)
+
+declare i32 @readdir_r(%__dirstream*, %dirent*, %dirent**)
+
+declare void @rewinddir(%__dirstream*)
+
+declare void @seekdir(%__dirstream*, i64)
+
+declare i64 @telldir(%__dirstream*)
+
+declare i32 @dirfd(%__dirstream*)
+
+declare i32 @scandir(i8*, %dirent***, i32 (%dirent*)*, i32 (%dirent**, %dirent**)*)
+
+declare i32 @alphasort(%dirent**, %dirent**)
+
+declare i64 @getdirentries(i32, i8*, i64, i64*)
+
+declare i32 @stat(i8*, %stat*)
+
+declare i32 @fstat(i32, %stat*)
+
+declare i32 @fstatat(i32, i8*, %stat*, i32)
+
+declare i32 @lstat(i8*, %stat*)
+
+declare i32 @chmod(i8*, i32)
+
+declare i32 @lchmod(i8*, i32)
+
+declare i32 @fchmod(i32, i32)
+
+declare i32 @fchmodat(i32, i8*, i32, i32)
+
+declare i32 @umask(i32)
+
+declare i32 @mkdir(i8*, i32)
+
+declare i32 @mkdirat(i32, i8*, i32)
+
+declare i32 @mknod(i8*, i32, i64)
+
+declare i32 @mknodat(i32, i8*, i32, i64)
+
+declare i32 @mkfifo(i8*, i32)
+
+declare i32 @mkfifoat(i32, i8*, i32)
+
+declare i32 @utimensat(i32, i8*, %timespec*, i32)
+
+declare i32 @futimens(i32, %timespec*)
+
+declare i32 @__fxstat(i32, i32, %stat*)
+
+declare i32 @__xstat(i32, i8*, %stat*)
+
+declare i32 @__lxstat(i32, i8*, %stat*)
+
+declare i32 @__fxstatat(i32, i32, i8*, %stat*, i32)
+
+declare i32 @__xmknod(i32, i8*, i32, i64*)
+
+declare i32 @__xmknodat(i32, i32, i8*, i32, i64*)
+
+declare i32 @ioctl(i32, i64, ...)
+
+declare i32 @fcntl(i32, i32, ...)
+
+declare i32 @open(i8*, i32, ...)
+
+declare i32 @openat(i32, i8*, i32, ...)
+
+declare i32 @creat(i8*, i32)
+
+declare i32 @posix_fadvise(i32, i64, i64, i32)
+
+declare i32 @posix_fallocate(i32, i64, i64)
+
+declare i16** @__ctype_b_loc()
+
+declare i32** @__ctype_tolower_loc()
+
+declare i32** @__ctype_toupper_loc()
+
+declare i32 @isalnum(i32)
+
+declare i32 @isalpha(i32)
+
+declare i32 @iscntrl(i32)
+
+declare i32 @isdigit(i32)
+
+declare i32 @islower(i32)
+
+declare i32 @isgraph(i32)
+
+declare i32 @isprint(i32)
+
+declare i32 @ispunct(i32)
+
+declare i32 @isspace(i32)
+
+declare i32 @isupper(i32)
+
+declare i32 @isxdigit(i32)
+
+declare i32 @tolower(i32)
+
+declare i32 @toupper(i32)
+
+declare i32 @isblank(i32)
+
+declare i32 @isascii(i32)
+
+declare i32 @toascii(i32)
+
+declare i32 @_toupper(i32)
+
+declare i32 @_tolower(i32)
+
+declare i32 @isalnum_l(i32, %__locale_struct*)
+
+declare i32 @isalpha_l(i32, %__locale_struct*)
+
+declare i32 @iscntrl_l(i32, %__locale_struct*)
+
+declare i32 @isdigit_l(i32, %__locale_struct*)
+
+declare i32 @islower_l(i32, %__locale_struct*)
+
+declare i32 @isgraph_l(i32, %__locale_struct*)
+
+declare i32 @isprint_l(i32, %__locale_struct*)
+
+declare i32 @ispunct_l(i32, %__locale_struct*)
+
+declare i32 @isspace_l(i32, %__locale_struct*)
+
+declare i32 @isupper_l(i32, %__locale_struct*)
+
+declare i32 @isxdigit_l(i32, %__locale_struct*)
+
+declare i32 @isblank_l(i32, %__locale_struct*)
+
+declare i32 @__tolower_l(i32, %__locale_struct*)
+
+declare i32 @tolower_l(i32, %__locale_struct*)
+
+declare i32 @__toupper_l(i32, %__locale_struct*)
+
+declare i32 @toupper_l(i32, %__locale_struct*)
+
+declare i8* @setlocale(i32, i8*)
+
+declare %lconv* @localeconv()
+
+declare %__locale_struct* @newlocale(i32, i8*, %__locale_struct*)
+
+declare %__locale_struct* @duplocale(%__locale_struct*)
+
+declare void @freelocale(%__locale_struct*)
+
+declare %__locale_struct* @uselocale(%__locale_struct*)
+
+declare i8* @dlopen(i8*, i32)
+
+declare i32 @dlclose(i8*)
+
+declare i8* @dlsym(i8*, i8*)
+
+declare i8* @dlerror()
+
+declare i32 @cfgetospeed(%termios*)
+
+declare i32 @cfgetispeed(%termios*)
+
+declare i32 @cfsetospeed(%termios*, i32)
+
+declare i32 @cfsetispeed(%termios*, i32)
+
+declare i32 @cfsetspeed(%termios*, i32)
+
+declare i32 @tcgetattr(i32, %termios*)
+
+declare i32 @tcsetattr(i32, i32, %termios*)
+
+declare void @cfmakeraw(%termios*)
+
+declare i32 @tcsendbreak(i32, i32)
+
+declare i32 @tcdrain(i32)
+
+declare i32 @tcflush(i32, i32)
+
+declare i32 @tcflow(i32, i32)
+
+declare i32 @tcgetsid(i32)
+
+declare void @class_init()
+
+declare void @class_final()
+
+declare void @append_class(i8*)
+
+declare i1 @eval_class(i8*, %sCompileInfo*, i8*, i32)
+
+declare void @native_init()
+
+declare void @native_init2()
+
+declare void @native_final()
+
+declare i1 @invoke_native_method(%sCLClass*, %sCLMethod*, %CLVALUE**, %sVMInfo*)
+
+declare %sVarTable* @sVarTable_initialize(%sVarTable*)
+
+declare void @parser_err_msg(%sParserInfo*, i8*)
+
+declare void @skip_spaces_and_lf(%sParserInfo*)
+
+declare i1 @parse_params(%sCLParam*, i32*, %sParserInfo*, %vector__sCLTypep*)
+
+declare i8* @parse_word(%sParserInfo*)
+
+declare i1 @parse_type(%sCLType**, %sParserInfo*, %vector__sCLTypep*)
+
+declare void @expected_next_character(i8, %sParserInfo*)
+
+declare void @parse_comment(%sParserInfo*)
+
+declare i1 @expression(%sCLNode**, %sParserInfo*)
+
+declare i1 @compile(%sCLNode*, %sCompileInfo*)
+
+declare void @compile_err_msg(%sCompileInfo*, i8*)
+
+declare void @init_var_table(%sParserInfo*)
+
+declare void @final_var_table(%sParserInfo*)
+
+declare void @add_variable_to_table(%sParserInfo*, i8*, %sCLType*, i1)
+
+declare %sVar* @get_variable_from_table(%sParserInfo*, i8*)
+
+declare void @check_already_added_variable(%sParserInfo*, i8*)
+
+declare i32 @get_var_num(%vector__sVarTablep*)
+
+declare void @show_vtable(%vector__sVarTablep*)
+
+declare %sCLType* @clone_type(%sCLType*, %sParserInfo*)
+
+declare %sCLType* @create_type(i8*, %vector__sCLTypep*)
+
+declare %sCLType* @parse_type_runtime(i8*, %sParserInfo*, %vector__sCLTypep*)
+
+declare i8* @create_type_name(%sCLType*)
+
+declare i1 @type_identify(%sCLType*, %sCLType*)
+
+declare i1 @substitution_posibility(%sCLType*, %sCLType*)
+
+declare i1 @check_type(i32, i8*, %sVMInfo*)
+
+declare i1 @type_identify_with_class_name(%sCLType*, i8*, %sParserInfo*)
+
+declare i1 @is_generics_type(%sCLType*)
+
+declare i32 @get_generics_type_number(%sCLType*, %sParserInfo*)
+
+declare %sCLType* @solve_generics(%sCLType*, %sCLType*, %sParserInfo*)
+
+declare void @show_type(%sCLType*)
+
+declare void @codes_append_type(%buffer*, %sCLType*)
+
+declare void @codes_read_type(i8*, %sCLType**)
+
+declare %sCLNode* @sNodeTree_create_break(%sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_eval(%sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_typeof(%sCLNodeBlock*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_normal_block(%sCLNodeBlock*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_minus(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_primitive_minus(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_logical_denial(%sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_return(%sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_try(%sCLNodeBlock*, %sCLNodeBlock*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_exit(%sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_primitive_plus(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_while_expression(%sCLNode*, %sCLNodeBlock*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_plus(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_primitive_equal(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_primitive_not_equal(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_primitive_greater(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_primitive_lesser(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_primitive_lesser_equal(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_primitive_greater_equal(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_int_value(i32, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_store_variable(i8*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_load_variable(i8*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_equal(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_not_equal(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_greater(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_lesser(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_lesser_equal(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_greater_equal(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_and_and(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_or_or(%sCLNode*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_string_value(i8*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_true_value(%sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_false_value(%sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_null_value(%sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_command_value(%sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_if_expression(%sCLNode*, %sCLNodeBlock*, i32, %sCLNode**, %sCLNodeBlock**, %sCLNodeBlock*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_lambda(i32, %sCLParam*, %sCLNodeBlock*, %sCLType*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_method_block(i8*, i32, %buffer*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_class(i8*, i8*, i32, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_object(%sCLType*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_method_call(i8*, i32, %sCLNode**, i1, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_command_call(%sCLNode*, i8*, i32, %sCLNode**, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_block_object_call(i32, %sCLNode**, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_jobs(%sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_fg(i32, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_load_field(%sCLNode*, i8*, %sParserInfo*)
+
+declare %sCLNode* @NodeTree_create_store_field(%sCLNode*, i8*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_store_field(%sCLNode*, i8*, %sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_throw_exception(%sCLNode*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_macro(i8*, i8*, %sParserInfo*)
+
+declare %sCLNode* @sNodeTree_create_call_macro(i8*, i8*, %sParserInfo*)
+
+declare void @macro_init()
+
+declare void @macro_final()
+
+declare void @append_macro(i8*, i8*)
+
+declare i1 @call_macro(%sCLNode**, i8*, i8*, %sParserInfo*)
+
+declare void @vm_err_msg(%CLVALUE**, %sVMInfo*, i8*)
+
+declare i1 @param_check(%sCLParam*, i32, %CLVALUE*, %sCLType*, %sVMInfo*)
+
+declare i1 @vm(%buffer*, %CLVALUE*, i32, i32, %CLVALUE*, %sVMInfo*)
+
+declare i32 @alloc_heap_mem(i32, %sCLType*, i32, %sVMInfo*)
+
+declare void @heap_init(i32, i32)
+
+declare void @heap_final()
+
+declare %sCLHeapMem* @get_object_pointer(i32)
+
+declare i32 @create_object(%sCLType*, %sVMInfo*)
+
+declare i32 @create_type_object(%sCLType*, %sVMInfo*)
+
+declare i32 @create_class_object(i8*, %sVMInfo*)
+
+declare i32 @create_buffer_object(%sVMInfo*)
+
+declare i32 @create_null_object(%sVMInfo*)
+
+declare i32 @create_int_object(i32, %sVMInfo*)
+
+declare i32 @create_string_object(i8*, %sVMInfo*)
+
+declare i32 @create_map_object(%sVMInfo*)
+
+declare i8* @get_string_mem(i32)
+
+declare %map__charp_int* @get_map_value(i32)
+
+declare %list__charp* @get_map_keys(i32)
+
+declare i32 @get_int_value(i32)
+
+declare %buffer* @get_buffer_value(i32)
+
+declare void @set_int_value(i32, i32)
+
+declare void @set_string_value(i32, i8*)
+
+declare i32 @create_string_data_object(i8*, %sVMInfo*)
+
+declare i32 @create_bool_object(i32, %sVMInfo*)
+
+declare i32 @create_block_object(i8*, i32*, i32, i32, %sVMInfo*)
+
+declare i32 @create_command_object(i8*, i32, i8*, i32, i32, i1, %sVMInfo*)
+
+declare i32 @create_job_object(i8*, %termios*, i32, %sVMInfo*)
+
+declare i32 @create_method_object(%sCLMethod*, %sVMInfo*)
+
+declare i32 @create_field_object(%sCLField*, %sVMInfo*)
+
+declare void @mark_object(i32, i8*, %sVMInfo*)
+
+declare i1 @free_object(i32)
+
+declare void @mark_belong_objects(i32, i8*, %sVMInfo*)
+
+declare void @alignment(i32*)
+
+declare i1 @parse_block(%sCLNodeBlock**, i32, %sCLParam*, %sParserInfo*)
+
+declare i1 @compile_block(%sCLNodeBlock*, %sCompileInfo*)
+
+declare i1 @load_class(i8*, %sParserInfo*)
+
+declare i1 @save_class(%sCLClass*)
+
+declare void @compiler_init(i1)
+
+declare void @compiler_final()
+
+declare i1 @compiler(i8*)
+
+declare void @set_signal()
+
+declare void @set_signal_shell()
+
+declare void @shell(%vector__sCLTypep*)
+
+declare void @clover3_init()
+
+declare void @clover3_final()
+
+declare i1 @forgroud_job(i32)
+
+declare void @shell_run_command(i8*, %vector__sCLTypep*)
+
+declare void @shell_commandline(i8*, i32, %vector__sCLTypep*)
+
+declare %LuckyStrike* @LuckyStrike_initialize(%LuckyStrike*)
+
+declare void @LuckyStrike_finalize(%LuckyStrike*)
+
+declare i1 @LuckyStrike_main_loop(%LuckyStrike*)
+
+declare void @LuckyStrike_exit(%LuckyStrike*)
+
+declare %Filer* @Filer_initialize(%Filer*, i8*, %LuckyStrike*)
+
+declare void @Filer_finalize(%Filer*)
+
+declare i1 @Filer_read_dir(%Filer*)
+
+declare void @Filer_view(%Filer*)
+
+declare void @Filer_input(%Filer*)
+
+declare i8* @Filer_cursor_path(%Filer*)
+
+declare i8* @Filer_cursor_file(%Filer*)
+
+declare i1 @Filer_chage_directory(%Filer*, i8*, i8*)
+
+declare void @Filer_fix_cursor(%Filer*)
+
 define i32 @main(i32 %argc, i8** %argv) {
 entry:
   %lvtable = alloca [8192 x i8*]
@@ -2132,16 +2704,432 @@ entry:
   %argc1 = alloca i32
   store i32 %argc, i32* %argc1, align 4
   %2 = bitcast i32* %argc1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 342), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
   %argv2 = alloca i8**
   store i8** %argv, i8*** %argv2, align 8
   %3 = bitcast i8*** %argv2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 343), align 8
-  call void @exit(i32 0)
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  %no_load_fudamental_classes = alloca i1
+  %4 = bitcast i1* %no_load_fudamental_classes to i8*
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i1 false, i1* %no_load_fudamental_classes, align 1
+  %5 = call i8* @setlocale(i32 6, i8* getelementptr inbounds ([1 x i8], [1 x i8]* @global_string, i32 0, i32 0))
+  call void @set_signal_shell()
+  %6 = call i8* @debug_xcalloc(i64 1, i64 16, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.1, i32 0, i32 0), i8* getelementptr inbounds ([12 x i8], [12 x i8]* @global_string.2, i32 0, i32 0), i32 11, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @global_string.3, i32 0, i32 0), i8* getelementptr inbounds ([5 x i8], [5 x i8]* @global_string.4, i32 0, i32 0))
+  %7 = bitcast i8* %6 to %vector__sCLTypep*
+  %8 = call %vector__sCLTypep* @"vector_initialize_sCLTypep0_src/main"(%vector__sCLTypep* %7)
+  %types = alloca %vector__sCLTypep*
+  %9 = bitcast %vector__sCLTypep** %types to i8*
+  store i8* %9, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store %vector__sCLTypep* %8, %vector__sCLTypep** %types, align 8
+  call void @clover3_init()
+  %no_load_fudamental_classes3 = load i1, i1* %no_load_fudamental_classes, align 1
+  call void @compiler_init(i1 %no_load_fudamental_classes3)
+  call void @heap_init(i32 128, i32 128)
+  %10 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @global_string.9, i32 0, i32 0), i8* getelementptr inbounds ([12 x i8], [12 x i8]* @global_string.10, i32 0, i32 0), i32 18, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @global_string.11, i32 0, i32 0), i8* getelementptr inbounds ([5 x i8], [5 x i8]* @global_string.12, i32 0, i32 0))
+  %11 = bitcast i8* %10 to %LuckyStrike*
+  %12 = call %LuckyStrike* @LuckyStrike_initialize(%LuckyStrike* %11)
+  %lucky = alloca %LuckyStrike*
+  %13 = bitcast %LuckyStrike** %lucky to i8*
+  store i8* %13, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store %LuckyStrike* %12, %LuckyStrike** %lucky, align 8
+  %lucky4 = load %LuckyStrike*, %LuckyStrike** %lucky, align 8
+  %14 = call i1 @LuckyStrike_main_loop(%LuckyStrike* %lucky4)
+  %LOGICAL_DIANEAL = icmp eq i1 %14, false
+  br i1 %LOGICAL_DIANEAL, label %cond_jump_then, label %cond_end
+
+cond_jump_then:                                   ; preds = %entry
+  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %16 = bitcast i8* %15 to %LuckyStrike**
+  %lucky5 = load %LuckyStrike*, %LuckyStrike** %16, align 8
+  call void @LuckyStrike_exit(%LuckyStrike* %lucky5)
+  %stderr = load %_IO_FILE*, %_IO_FILE** @stderr, align 8
+  %17 = call i32 (%_IO_FILE*, i8*, ...) @fprintf(%_IO_FILE* %stderr, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @global_string.13, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %cond_end
+
+cond_end:                                         ; preds = %cond_jump_then, %entry
+  call void @heap_final()
+  call void @clover3_final()
+  call void @compiler_final()
+  %18 = bitcast [8192 x i8*]* %lvtable to i8*
+  %19 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %18, i64 65536)
+  %20 = load %LuckyStrike*, %LuckyStrike** %lucky, align 8
+  call void @LuckyStrike_finalize(%LuckyStrike* %20)
+  %21 = ptrtoint %LuckyStrike* %20 to i64
+  %22 = icmp ne i64 %21, 0
+  br i1 %22, label %cond_then_block, label %cond_end6
+
+cond_then_block:                                  ; preds = %cond_end
+  %23 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %20, i32 0, i32 0
+  %24 = load %Filer*, %Filer** %23, align 8
+  call void @Filer_finalize(%Filer* %24)
+  %25 = ptrtoint %Filer* %24 to i64
+  %26 = icmp ne i64 %25, 0
+  br i1 %26, label %cond_then_block7, label %cond_end8
+
+cond_end6:                                        ; preds = %cond_end14, %cond_end
+  %27 = bitcast %LuckyStrike* %20 to i8*
+  call void @xxxfree(i8* %27)
+  %28 = load %vector__sCLTypep*, %vector__sCLTypep** %types, align 8
+  call void @"vector_finalize_sCLTypep4_src/main"(%vector__sCLTypep* %28)
+  %29 = ptrtoint %vector__sCLTypep* %28 to i64
+  %30 = icmp ne i64 %29, 0
+  br i1 %30, label %cond_then_block15, label %cond_end16
+
+cond_then_block7:                                 ; preds = %cond_then_block
+  %31 = getelementptr inbounds %Filer, %Filer* %24, i32 0, i32 1
+  %32 = load i8*, i8** %31, align 8
+  %33 = ptrtoint i8* %32 to i64
+  %34 = icmp ne i64 %33, 0
+  br i1 %34, label %cond_then_block9, label %cond_end10
+
+cond_end8:                                        ; preds = %cond_end12, %cond_then_block
+  %35 = bitcast %Filer* %24 to i8*
+  call void @xxxfree(i8* %35)
+  %36 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %20, i32 0, i32 2
+  %37 = load %vector__sCLTypep*, %vector__sCLTypep** %36, align 8
+  call void @"vector_finalize_sCLTypep3_src/main"(%vector__sCLTypep* %37)
+  %38 = ptrtoint %vector__sCLTypep* %37 to i64
+  %39 = icmp ne i64 %38, 0
+  br i1 %39, label %cond_then_block13, label %cond_end14
+
+cond_then_block9:                                 ; preds = %cond_then_block7
+  br label %cond_end10
+
+cond_end10:                                       ; preds = %cond_then_block9, %cond_then_block7
+  call void @xxxfree(i8* %32)
+  %40 = getelementptr inbounds %Filer, %Filer* %24, i32 0, i32 2
+  %41 = load %list__charp*, %list__charp** %40, align 8
+  call void @"list_finalize_charp1_src/main"(%list__charp* %41)
+  %42 = ptrtoint %list__charp* %41 to i64
+  %43 = icmp ne i64 %42, 0
+  br i1 %43, label %cond_then_block11, label %cond_end12
+
+cond_then_block11:                                ; preds = %cond_end10
+  br label %cond_end12
+
+cond_end12:                                       ; preds = %cond_then_block11, %cond_end10
+  %44 = bitcast %list__charp* %41 to i8*
+  call void @xxxfree(i8* %44)
+  br label %cond_end8
+
+cond_then_block13:                                ; preds = %cond_end8
+  br label %cond_end14
+
+cond_end14:                                       ; preds = %cond_then_block13, %cond_end8
+  %45 = bitcast %vector__sCLTypep* %37 to i8*
+  call void @xxxfree(i8* %45)
+  br label %cond_end6
+
+cond_then_block15:                                ; preds = %cond_end6
+  br label %cond_end16
+
+cond_end16:                                       ; preds = %cond_then_block15, %cond_end6
+  %46 = bitcast %vector__sCLTypep* %28 to i8*
+  call void @xxxfree(i8* %46)
   call void @debug_show_none_freed_heap_memory()
-  %4 = bitcast [8192 x i8*]* %lvtable to i8*
-  %5 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %4, i64 65536)
   ret i32 0
+}
+
+define %vector__sCLTypep* @"vector_initialize_sCLTypep0_src/main"(%vector__sCLTypep* %self) {
+entry:
+  %lvtable = alloca [8192 x i8*]
+  %0 = bitcast [8192 x i8*]* %lvtable to i8*
+  %1 = call i8* @xxxmemcpy(i8* %0, i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i64 65536)
+  %self1 = alloca %vector__sCLTypep*
+  store %vector__sCLTypep* %self, %vector__sCLTypep** %self1, align 8
+  %2 = bitcast %vector__sCLTypep** %self1 to i8*
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %self2 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
+  %3 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self2, i32 0, i32 2
+  store i32 16, i32* %3, align 4
+  %self3 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
+  %4 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self3, i32 0, i32 1
+  store i32 0, i32* %4, align 4
+  %self4 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
+  %self5 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
+  %5 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self5, i32 0, i32 2
+  %6 = load i32, i32* %5, align 4
+  %sext14 = zext i32 %6 to i64
+  %7 = call i8* @debug_xcalloc(i64 %sext14, i64 8, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @global_string.5, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.6, i32 0, i32 0), i32 455, i8* getelementptr inbounds ([30 x i8], [30 x i8]* @global_string.7, i32 0, i32 0), i8* getelementptr inbounds ([37 x i8], [37 x i8]* @global_string.8, i32 0, i32 0))
+  %8 = bitcast i8* %7 to %sCLType**
+  %9 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self4, i32 0, i32 0
+  store %sCLType** %8, %sCLType*** %9, align 8
+  %self6 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
+  %10 = bitcast [8192 x i8*]* %lvtable to i8*
+  %11 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %10, i64 65536)
+  ret %vector__sCLTypep* %self6
+}
+
+define void @"list_finalize_charp1_src/main"(%list__charp* %self) {
+entry:
+  %lvtable = alloca [8192 x i8*]
+  %0 = bitcast [8192 x i8*]* %lvtable to i8*
+  %1 = call i8* @xxxmemcpy(i8* %0, i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i64 65536)
+  %self1 = alloca %list__charp*
+  store %list__charp* %self, %list__charp** %self1, align 8
+  %2 = bitcast %list__charp** %self1 to i8*
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %self2 = load %list__charp*, %list__charp** %self1, align 8
+  %eqtmpX = icmp eq %list__charp* %self2, null
+  br i1 %eqtmpX, label %cond_jump_then, label %cond_end
+
+cond_jump_then:                                   ; preds = %entry
+  %3 = bitcast [8192 x i8*]* %lvtable to i8*
+  %4 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %3, i64 65536)
+  ret void
+
+cond_end:                                         ; preds = %entry
+  %self3 = load %list__charp*, %list__charp** %self1, align 8
+  %5 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 0
+  %6 = load %list_item__charp*, %list_item__charp** %5, align 8
+  %it = alloca %list_item__charp*
+  %7 = bitcast %list_item__charp** %it to i8*
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  store %list_item__charp* %6, %list_item__charp** %it, align 8
+  br label %loop_top_block
+
+loop_top_block:                                   ; preds = %cond_end14, %cond_end
+  %it4 = load %list_item__charp*, %list_item__charp** %it, align 8
+  %noteqtmp = icmp ne %list_item__charp* %it4, null
+  br i1 %noteqtmp, label %cond_then_block, label %cond_end_block
+
+cond_then_block:                                  ; preds = %loop_top_block
+  br i1 true, label %cond_jump_then5, label %cond_end6
+
+cond_end_block:                                   ; preds = %loop_top_block
+  %8 = bitcast [8192 x i8*]* %lvtable to i8*
+  %9 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %8, i64 65536)
+  ret void
+
+cond_jump_then5:                                  ; preds = %cond_then_block
+  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %11 = bitcast i8* %10 to %list_item__charp**
+  %it7 = load %list_item__charp*, %list_item__charp** %11, align 8
+  %12 = getelementptr inbounds %list_item__charp, %list_item__charp* %it7, i32 0, i32 0
+  %13 = load i8*, i8** %12, align 8
+  %14 = load i8*, i8** %12, align 8
+  %15 = ptrtoint i8* %14 to i64
+  %16 = icmp ne i64 %15, 0
+  br i1 %16, label %cond_then_block8, label %cond_end9
+
+cond_end6:                                        ; preds = %cond_end9, %cond_then_block
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %18 = bitcast i8* %17 to %list_item__charp**
+  %it10 = load %list_item__charp*, %list_item__charp** %18, align 8
+  %prev_it = alloca %list_item__charp*
+  %19 = bitcast %list_item__charp** %prev_it to i8*
+  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  store %list_item__charp* %it10, %list_item__charp** %prev_it, align 8
+  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %21 = bitcast i8* %20 to %list_item__charp**
+  %it11 = load %list_item__charp*, %list_item__charp** %21, align 8
+  %22 = getelementptr inbounds %list_item__charp, %list_item__charp* %it11, i32 0, i32 2
+  %23 = load %list_item__charp*, %list_item__charp** %22, align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %25 = bitcast i8* %24 to %list_item__charp**
+  store %list_item__charp* %23, %list_item__charp** %25, align 8
+  %prev_it12 = load %list_item__charp*, %list_item__charp** %prev_it, align 8
+  %26 = load %list_item__charp*, %list_item__charp** %prev_it, align 8
+  %27 = ptrtoint %list_item__charp* %26 to i64
+  %28 = icmp ne i64 %27, 0
+  br i1 %28, label %cond_then_block13, label %cond_end14
+
+cond_then_block8:                                 ; preds = %cond_jump_then5
+  br label %cond_end9
+
+cond_end9:                                        ; preds = %cond_then_block8, %cond_jump_then5
+  call void @xxxfree(i8* %14)
+  br label %cond_end6
+
+cond_then_block13:                                ; preds = %cond_end6
+  br label %cond_end14
+
+cond_end14:                                       ; preds = %cond_then_block13, %cond_end6
+  %29 = bitcast %list_item__charp* %26 to i8*
+  call void @xxxfree(i8* %29)
+  br label %loop_top_block
+}
+
+define void @"vector_finalize_sCLTypep3_src/main"(%vector__sCLTypep* %self) {
+entry:
+  %lvtable = alloca [8192 x i8*]
+  %0 = bitcast [8192 x i8*]* %lvtable to i8*
+  %1 = call i8* @xxxmemcpy(i8* %0, i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i64 65536)
+  %self1 = alloca %vector__sCLTypep*
+  store %vector__sCLTypep* %self, %vector__sCLTypep** %self1, align 8
+  %2 = bitcast %vector__sCLTypep** %self1 to i8*
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %self2 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
+  %eqtmpX = icmp eq %vector__sCLTypep* %self2, null
+  br i1 %eqtmpX, label %cond_jump_then, label %cond_end
+
+cond_jump_then:                                   ; preds = %entry
+  %3 = bitcast [8192 x i8*]* %lvtable to i8*
+  %4 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %3, i64 65536)
+  ret void
+
+cond_end:                                         ; preds = %entry
+  br i1 true, label %cond_jump_then3, label %cond_end4
+
+cond_jump_then3:                                  ; preds = %cond_end
+  %i = alloca i32
+  %5 = bitcast i32* %i to i8*
+  store i8* %5, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  store i32 0, i32* %i, align 4
+  br label %loop_top_block
+
+cond_end4:                                        ; preds = %cond_end_block, %cond_end
+  %self14 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
+  %6 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self14, i32 0, i32 0
+  %7 = load %sCLType**, %sCLType*** %6, align 8
+  %8 = load %sCLType**, %sCLType*** %6, align 8
+  %9 = bitcast %sCLType** %8 to i8*
+  call void @xxxfree(i8* %9)
+  %10 = bitcast [8192 x i8*]* %lvtable to i8*
+  %11 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %10, i64 65536)
+  ret void
+
+loop_top_block:                                   ; preds = %cond_end10, %cond_jump_then3
+  %i5 = load i32, i32* %i, align 4
+  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %13 = bitcast i8* %12 to %vector__sCLTypep**
+  %self6 = load %vector__sCLTypep*, %vector__sCLTypep** %13, align 8
+  %14 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self6, i32 0, i32 1
+  %15 = load i32, i32* %14, align 4
+  %letmp = icmp slt i32 %i5, %15
+  br i1 %letmp, label %cond_then_block, label %cond_end_block
+
+cond_then_block:                                  ; preds = %loop_top_block
+  %16 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %17 = bitcast i8* %16 to %vector__sCLTypep**
+  %self7 = load %vector__sCLTypep*, %vector__sCLTypep** %17, align 8
+  %18 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self7, i32 0, i32 0
+  %19 = load %sCLType**, %sCLType*** %18, align 8
+  %i8 = load i32, i32* %i, align 4
+  %element_address = getelementptr %sCLType*, %sCLType** %19, i32 %i8
+  %element = load %sCLType*, %sCLType** %element_address, align 8
+  %20 = load %sCLType*, %sCLType** %element_address, align 8
+  %21 = ptrtoint %sCLType* %20 to i64
+  %22 = icmp ne i64 %21, 0
+  br i1 %22, label %cond_then_block9, label %cond_end10
+
+cond_end_block:                                   ; preds = %loop_top_block
+  br label %cond_end4
+
+cond_then_block9:                                 ; preds = %cond_then_block
+  %23 = getelementptr inbounds %sCLType, %sCLType* %20, i32 0, i32 0
+  %24 = load i8*, i8** %23, align 8
+  %25 = ptrtoint i8* %24 to i64
+  %26 = icmp ne i64 %25, 0
+  br i1 %26, label %cond_then_block11, label %cond_end12
+
+cond_end10:                                       ; preds = %cond_end12, %cond_then_block
+  %27 = bitcast %sCLType* %20 to i8*
+  call void @xxxfree(i8* %27)
+  %i13 = load i32, i32* %i, align 4
+  %addtmp = add nsw i32 %i13, 1
+  store i32 %addtmp, i32* %i, align 4
+  %subttmp = sub nsw i32 %addtmp, 1
+  br label %loop_top_block
+
+cond_then_block11:                                ; preds = %cond_then_block9
+  br label %cond_end12
+
+cond_end12:                                       ; preds = %cond_then_block11, %cond_then_block9
+  call void @xxxfree(i8* %24)
+  br label %cond_end10
+}
+
+define void @"vector_finalize_sCLTypep4_src/main"(%vector__sCLTypep* %self) {
+entry:
+  %lvtable = alloca [8192 x i8*]
+  %0 = bitcast [8192 x i8*]* %lvtable to i8*
+  %1 = call i8* @xxxmemcpy(i8* %0, i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i64 65536)
+  %self1 = alloca %vector__sCLTypep*
+  store %vector__sCLTypep* %self, %vector__sCLTypep** %self1, align 8
+  %2 = bitcast %vector__sCLTypep** %self1 to i8*
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %self2 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
+  %eqtmpX = icmp eq %vector__sCLTypep* %self2, null
+  br i1 %eqtmpX, label %cond_jump_then, label %cond_end
+
+cond_jump_then:                                   ; preds = %entry
+  %3 = bitcast [8192 x i8*]* %lvtable to i8*
+  %4 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %3, i64 65536)
+  ret void
+
+cond_end:                                         ; preds = %entry
+  br i1 true, label %cond_jump_then3, label %cond_end4
+
+cond_jump_then3:                                  ; preds = %cond_end
+  %i = alloca i32
+  %5 = bitcast i32* %i to i8*
+  store i8* %5, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  store i32 0, i32* %i, align 4
+  br label %loop_top_block
+
+cond_end4:                                        ; preds = %cond_end_block, %cond_end
+  %self14 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
+  %6 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self14, i32 0, i32 0
+  %7 = load %sCLType**, %sCLType*** %6, align 8
+  %8 = load %sCLType**, %sCLType*** %6, align 8
+  %9 = bitcast %sCLType** %8 to i8*
+  call void @xxxfree(i8* %9)
+  %10 = bitcast [8192 x i8*]* %lvtable to i8*
+  %11 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %10, i64 65536)
+  ret void
+
+loop_top_block:                                   ; preds = %cond_end10, %cond_jump_then3
+  %i5 = load i32, i32* %i, align 4
+  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %13 = bitcast i8* %12 to %vector__sCLTypep**
+  %self6 = load %vector__sCLTypep*, %vector__sCLTypep** %13, align 8
+  %14 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self6, i32 0, i32 1
+  %15 = load i32, i32* %14, align 4
+  %letmp = icmp slt i32 %i5, %15
+  br i1 %letmp, label %cond_then_block, label %cond_end_block
+
+cond_then_block:                                  ; preds = %loop_top_block
+  %16 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %17 = bitcast i8* %16 to %vector__sCLTypep**
+  %self7 = load %vector__sCLTypep*, %vector__sCLTypep** %17, align 8
+  %18 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self7, i32 0, i32 0
+  %19 = load %sCLType**, %sCLType*** %18, align 8
+  %i8 = load i32, i32* %i, align 4
+  %element_address = getelementptr %sCLType*, %sCLType** %19, i32 %i8
+  %element = load %sCLType*, %sCLType** %element_address, align 8
+  %20 = load %sCLType*, %sCLType** %element_address, align 8
+  %21 = ptrtoint %sCLType* %20 to i64
+  %22 = icmp ne i64 %21, 0
+  br i1 %22, label %cond_then_block9, label %cond_end10
+
+cond_end_block:                                   ; preds = %loop_top_block
+  br label %cond_end4
+
+cond_then_block9:                                 ; preds = %cond_then_block
+  %23 = getelementptr inbounds %sCLType, %sCLType* %20, i32 0, i32 0
+  %24 = load i8*, i8** %23, align 8
+  %25 = ptrtoint i8* %24 to i64
+  %26 = icmp ne i64 %25, 0
+  br i1 %26, label %cond_then_block11, label %cond_end12
+
+cond_end10:                                       ; preds = %cond_end12, %cond_then_block
+  %27 = bitcast %sCLType* %20 to i8*
+  call void @xxxfree(i8* %27)
+  %i13 = load i32, i32* %i, align 4
+  %addtmp = add nsw i32 %i13, 1
+  store i32 %addtmp, i32* %i, align 4
+  %subttmp = sub nsw i32 %addtmp, 1
+  br label %loop_top_block
+
+cond_then_block11:                                ; preds = %cond_then_block9
+  br label %cond_end12
+
+cond_end12:                                       ; preds = %cond_then_block11, %cond_then_block9
+  call void @xxxfree(i8* %24)
+  br label %cond_end10
 }
 
 attributes #0 = { nounwind }
@@ -2149,5 +3137,5 @@ attributes #0 = { nounwind }
 !llvm.dbg.cu = !{!0}
 
 !0 = distinct !DICompileUnit(language: DW_LANG_C, file: !1, producer: "neo-c", isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug, enums: !2)
-!1 = !DIFile(filename: "src/main.nc", directory: "/home/ab25cq/repo/neo-c/iqos")
+!1 = !DIFile(filename: "src/main.nc", directory: "/home/ab25cq/repo/neo-c/luckystrike")
 !2 = !{}

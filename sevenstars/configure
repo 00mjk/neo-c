@@ -3757,8 +3757,6 @@ $as_echo_n "checking Operating System... " >&6; }
 CFLAGS='-DPREFIX="\"${DESTDIR}/\""'
 CFLAGS="-fPIC -rdynamic $CFLAGS"
 
-export DESTDIR=${DESTDIR}
-
 AR_LIB=
 
 if test `uname -s` = "Darwin"; then

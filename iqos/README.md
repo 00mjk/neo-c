@@ -1,3 +1,0 @@
-# iqos console filer
-
-version 0.0.1

@@ -36,12 +36,15 @@ all: sevenstars core
 core: core.ss
 	./sevenstars -core core.ss
 
-sevenstars: config.h src/*.h Makefile configure src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/native.o src/native2.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
-	$(CC) -o sevenstars src/compiler.nc src/parser.o src/node.o src/type.o src/class.o src/native.o src/native2.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
+sevenstars: config.h src/*.h Makefile configure src/main.nc src/compiler.o src/parser.o src/node.o src/type.o src/class.o src/native.o src/native2.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
+	$(CC) -o sevenstars src/main.nc src/compiler.o src/parser.o src/node.o src/type.o src/class.o src/native.o src/native2.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
 
 ##########################################################
 # objects
 ##########################################################
+src/compiler.o: config.h src/*.h Makefile configure src/compiler.nc
+	$(CC) -c src/compiler.nc $(CFLAGS) $(NCFLAGS)
+
 src/parser.o: config.h src/*.h Makefile configure src/parser.nc
 	$(CC) -c src/parser.nc $(CFLAGS) $(NCFLAGS)
 

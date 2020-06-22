@@ -1,7 +1,7 @@
 #include "common.h"
 
 map<string, sCLClass*%>* gClasses;
-vector<CLObject>* gJobs;
+list<CLObject>* gJobs;
 
 bool check_type(CLObject obj, char* type_name, sVMInfo* info)
 {
@@ -74,7 +74,7 @@ void class_init()
     append_class("generics_type30");
     append_class("generics_type31");
 
-    gJobs = borrow new vector<CLObject>.initialize();
+    gJobs = borrow new list<CLObject>.initialize();
 }
 
 void class_final()

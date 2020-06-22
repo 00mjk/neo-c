@@ -21,7 +21,23 @@
 #include <readline/history.h>
 #endif
 
-static void set_signal()
+void clover3_init()
+{
+    class_init();
+    macro_init();
+    native_init();
+    native_init2();
+}
+
+void clover3_final()
+{
+    native_final();
+    class_final();
+    macro_final();
+}
+
+
+void set_signal()
 {
     struct sigaction sa;
     sigset_t signal_set;
@@ -43,7 +59,7 @@ void sig_int(int signal)
     rl_redisplay();
 }
 
-static void set_signal_shell()
+void set_signal_shell()
 {
     sigset_t signal_set;
 
@@ -224,7 +240,7 @@ bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* type
 int match_index;
 list<string>*% matches;
 
-static void compiler_init(bool no_load_fudamental_classes)
+void compiler_init(bool no_load_fudamental_classes)
 {
     match_index = 0;
     matches = borrow new list<string>.initialize();
@@ -276,25 +292,11 @@ static void compiler_init(bool no_load_fudamental_classes)
     }
 }
 
-static void clover3_init()
-{
-    class_init();
-    macro_init();
-    native_init();
-    native_init2();
-}
-
-static void clover3_final()
-{
-    native_final();
-    class_final();
-    macro_final();
-}
-
-static void compiler_final()
+void compiler_final()
 {
     delete dummy_heap matches;
 }
+
 
 bool read_source(char* fname, buffer* source)
 {
@@ -488,9 +490,7 @@ bool compile_script(char* fname, buffer* source)
     return true;
 }
 
-char* gVersion = "0.0.1";
-
-static bool compiler(char* fname)
+bool compiler(char* fname)
 {
     if(access(fname, F_OK) != 0) {
         fprintf(stderr, "%s doesn't exist\n", fname);
@@ -820,6 +820,25 @@ char** completer(char* text, int start, int end)
     }
 }
 
+void readline_insert_text(char* cmdline, int cursor_point)
+{
+    rl_replace_line(cmdline, 0);
+    int n = cursor_point;
+
+    if(n < 0) { n += strlen(rl_line_buffer) + 1; }
+    if(n < 0) { n = 0; }
+    if(n > strlen(rl_line_buffer)) { n = strlen(rl_line_buffer); }
+    rl_point = n;
+}
+
+char* gCmdlineInitString;
+int gCmdlineInitCursorPoint;
+
+int readline_init_text()
+{
+    readline_insert_text(gCmdlineInitString, gCmdlineInitCursorPoint);
+}
+
 void shell(vector<sCLType*%>* types)
 {
     rl_completer_quote_characters = "\"'";
@@ -827,6 +846,11 @@ void shell(vector<sCLType*%>* types)
     rl_attempted_completion_function = completer;
 
     while(1) {
+        gCmdlineInitString = "";
+        gCmdlineInitCursorPoint = 0;
+
+        rl_startup_hook = readline_init_text;
+
         char* line = readline("sevenstars lang > ");
 
         if(line == null) {
@@ -846,78 +870,38 @@ void shell(vector<sCLType*%>* types)
     };
 }
 
-int main(int argc, char** argv)
+void shell_run_command(char* line, vector<sCLType*%>* types)
 {
-    int i;
+    (void)shell_eval_str(line, "sevenstars", true, types);
 
-    setlocale(LC_ALL, "");
+    add_history(line);
+}
 
-    bool no_load_fudamental_classes = false;
-    char sname[PATH_MAX];
-    xstrncpy(sname, "", PATH_MAX);
+void shell_commandline(char* line, int cursor_point, vector<sCLType*%>* types)
+{
+    rl_completer_quote_characters = "\"'";
+    rl_completer_word_break_characters = " .({";
+    rl_attempted_completion_function = completer;
 
-    for(i=1; i<argc; i++) {
-        if(strcmp(argv[i], "-core") == 0) {
-            no_load_fudamental_classes = true;
-        }
-        else if(strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "-V") == 0)
-        {
-            printf("sevenstars lang version %s\n", gVersion);
-            exit(0);
-        }
-        else {
-            xstrncpy(sname, argv[i], PATH_MAX);
-        }
+    gCmdlineInitString = line;
+    gCmdlineInitCursorPoint = cursor_point;
+
+    rl_startup_hook = readline_init_text;
+
+    char* line2 = readline("sevenstars lang > ");
+
+    if(line2 == null) {
+        return;
     }
 
-    if(sname[0] != '\0') {
-        set_signal();
-
-        char* p = sname + strlen(sname);
-
-        while(p >= sname) {
-            if(*p == '.') {
-                break;
-            }
-            else {
-                p--;
-            }
-        }
-
-        if(p < sname) {
-            p = NULL;
-        }
-
-        char* ext_sname = p;
-
-        clover3_init();
-        compiler_init(no_load_fudamental_classes);
-
-        if(!compiler(sname)) {
-            fprintf(stderr, "sevenstars can't compile %s\n", argv[i]);
-            clover3_final();
-            compiler_final();
-            return 1;
-        }
-
-        clover3_final();
-        compiler_final();
-    }
-    else {
-        set_signal_shell();
-
-        var types = new vector<sCLType*%>.initialize();
-
-        clover3_init();
-        compiler_init(no_load_fudamental_classes);
-
-        heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
-        shell(types);
-        heap_final();
-
-        clover3_final();
-        compiler_final();
+    if(strcmp(line2, "exit") == 0) {
+        free(line2);
+        return;
     }
 
-    return 0;
+    (void)shell_eval_str(line2, "sevenstars", true, types);
+
+    add_history(line2);
+
+    free(line2);
 }

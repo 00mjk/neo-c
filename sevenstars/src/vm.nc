@@ -435,6 +435,11 @@ bool invoke_command_with_control_terminal(char* name, char** argv, int num_param
         char title[JOB_TITLE_MAX];
         xstrncpy(title, name, JOB_TITLE_MAX);
 
+        for(int i=1; i<num_params; i++) {
+            xstrncat(title, " ", JOB_TITLE_MAX);
+            xstrncat(title, argv[i], JOB_TITLE_MAX);
+        }
+
         termios tinfo;
         if(tcgetattr(0, &tinfo) < 0) {
             return false;
@@ -624,6 +629,11 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
         char title[JOB_TITLE_MAX];
         xstrncpy(title, name, JOB_TITLE_MAX);
 
+        for(int i=1; i<num_params; i++) {
+            xstrncat(title, " ", JOB_TITLE_MAX);
+            xstrncat(title, argv[i], JOB_TITLE_MAX);
+        }
+
         termios tinfo;
         if(tcgetattr(0, &tinfo) < 0) {
             return false;
@@ -767,11 +777,11 @@ void jobs(sVMInfo* info)
     }
 }
 
-bool forgroud_job(int job_num, sVMInfo* info)
+bool forgroud_job(int job_num)
 {
-    CLObject job_object = gJobs.item(job_num, 9999);
+    CLObject job_object = gJobs.item(job_num, -1);
 
-    if(job_object != 9999) {
+    if(job_object != -1) {
         sCLJob* job_data = CLJOB(job_object);
 
         char title[JOB_TITLE_MAX];
@@ -805,7 +815,7 @@ bool forgroud_job(int job_num, sVMInfo* info)
             tcsetpgrp(0, getpid());
         }
         else {
-            gJobs.replace(job_num, 9999);
+            gJobs.delete(job_num);
 
             tcsetattr(0, TCSANOW, &tinfo2);
             tcsetpgrp(0, getpid());
@@ -1570,7 +1580,7 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 int job_num = *p;
                 p++;
 
-                if(!forgroud_job(job_num, info)) {
+                if(!forgroud_job(job_num)) {
                     vm_err_msg(&stack_ptr, info, "fg error");
                     info.stack_frames.pop_back(null_parent_stack_frame);
                     return false;
