@@ -1,3 +1,4 @@
+CTRL-Z
 save /tmp tmp texts
 backup 
 yank save when finishing

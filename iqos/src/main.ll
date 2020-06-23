@@ -1,10 +1,8 @@
 ; ModuleID = 'Module main'
 source_filename = "Module main"
 
-%_IO_FILE = type { i32, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, %_IO_marker*, %_IO_FILE*, i32, i32, i64, i16, i8, [1 x i8], i8*, i64, %_IO_codecvt*, %_IO_wide_data*, %_IO_FILE*, i8*, i64, i32, [20 x i8] }
-%_IO_marker = type {}
-%_IO_codecvt = type {}
-%_IO_wide_data = type {}
+%__sFILE = type { i8*, i32, i32, i32, i32, %__sbuf, i32, i8*, i32 (i8*)*, i32 (i8*, i8*, i32)*, i64 (i8*, i64, i32)*, i32 (i8*, i8*, i32)*, %__sbuf, i8*, i32, [3 x i8], [1 x i8], %__sbuf, i32, i64 }
+%__sbuf = type { i8*, i64 }
 %pcre_callout_block = type { i32, i32, i32*, i8*, i32, i32, i32, i32, i32, i8*, i32, i32, i8* }
 %pcre16_callout_block = type { i32, i32, i32*, i16*, i32, i32, i32, i32, i32, i8*, i32, i32, i16* }
 %pcre32_callout_block = type { i32, i32, i32*, i32*, i32, i32, i32, i32, i32, i8*, i32, i32, i32* }
@@ -20,9 +18,9 @@ source_filename = "Module main"
 %buffer = type { i8*, i32, i32 }
 %sCLNodeBlock = type { %vector__sCLNodep*, %vector__sVarTablep*, i1, i32, [32 x %sCLParam], %sCLType*, i32, %buffer*, i32, i1 }
 %vector__sCLNodep = type { %sCLNode**, i32, i32 }
-%sCLNode = type { i32, [4096 x i8], i32, %anon80, i8*, i8*, i8*, %buffer*, %sCLType*, %sCLNode*, %sCLNode*, %sCLNode* }
-%anon80 = type { %anon82 }
-%anon82 = type { %sCLNodeBlock*, [32 x %sCLParam], i32, %sCLType* }
+%sCLNode = type { i32, [4096 x i8], i32, %anon143, i8*, i8*, i8*, %buffer*, %sCLType*, %sCLNode*, %sCLNode*, %sCLNode* }
+%anon143 = type { %anon145 }
+%anon145 = type { %sCLNodeBlock*, [32 x %sCLParam], i32, %sCLType* }
 %vector__sVarTablep = type { %sVarTable**, i32, i32 }
 %sVarTable = type { %map__charp_sVarp*, i32, i32, i32, %sVarTable* }
 %map__charp_sVarp = type { i8**, i1*, %sVar**, i32, i32 }
@@ -42,24 +40,31 @@ source_filename = "Module main"
 %sCompileInfo = type { [4096 x i8], i32, i32, i32, %sParserInfo*, %buffer*, %sCLType*, i1, %sCLNode*, i1 }
 %vector__sCLStackFrame = type { %sCLStackFrame*, i32, i32 }
 %sCLStackFrame = type { i32, %CLVALUE*, %CLVALUE**, i32, i32 }
-%__locale_struct = type { [13 x %__locale_data*], i16*, i32*, i32*, [13 x i8*] }
-%__locale_data = type opaque
-%anon0 = type { i32, %anon1 }
-%anon1 = type { i32 }
+%__locale_t = type {}
 %__builtin_va_list.0 = type { i8* }
-%tm = type {}
-%_G_fpos_t = type { i64, %anon0 }
-%anon7 = type { [16 x i64] }
-%timeval = type { i64, i64 }
+%sigaction = type { i32, %anon36, %anon9, void ()* }
+%anon36 = type { void (i32)* }
+%anon9 = type { [1 x i64] }
+%sigaltstack = type { i8*, i32, i64 }
+%siginfo = type { %anon31 }
+%anon31 = type { [32 x i32] }
+%sigval = type {}
 %timespec = type { i64, i64 }
-%anon6 = type { [16 x i64] }
-%random_data = type { i32*, i32*, i32*, i32, i32, i32, i32* }
-%drand48_data = type { [3 x i16], [3 x i16], i16, i16, i64 }
-%anon3 = type { i32, i32 }
-%anon4 = type { i64, i64 }
-%anon5 = type { i64, i64 }
-%real_pcre = type {}
-%real_pcre16 = type {}
+%anon40 = type { [16 x i64] }
+%timeval = type { i64, i64 }
+%timezone = type { i32, i32 }
+%itimerval = type { %timeval, %timeval }
+%tm = type { i32, i32, i32, i32, i32, i32, i32, i32, i32, i64, i8* }
+%sigevent = type { %anon10, i32, i32, %anon33 }
+%anon10 = type { i8* }
+%anon33 = type { [12 x i32] }
+%itimerspec = type { %timespec, %timespec }
+%anon41 = type { [4 x i8], [4 x i8] }
+%mallinfo = type { i64, i64, i64, i64, i64, i64, i64, i64, i64, i64 }
+%anon42 = type { i32, i32 }
+%anon43 = type { i64, i64 }
+%anon44 = type { i64, i64 }
+%real_pcre8_or_16 = type {}
 %real_pcre32 = type {}
 %pcre_extra = type { i64, i8*, i64, i8*, i8*, i64, i8**, i8* }
 %pcre16_extra = type { i64, i8*, i64, i8*, i8*, i64, i16**, i8* }
@@ -67,33 +72,40 @@ source_filename = "Module main"
 %real_pcre_jit_stack = type {}
 %real_pcre16_jit_stack = type {}
 %real_pcre32_jit_stack = type {}
-%regex_struct = type { i8*, %real_pcre*, i1, i1, i1, i1, i1, i1, i1, i1 }
+%regex_struct = type { i8*, %real_pcre8_or_16*, i1, i1, i1, i1, i1, i1, i1, i1 }
 %list__charp = type { %list_item__charp*, %list_item__charp*, i32 }
 %list_item__charp = type { i8*, %list_item__charp*, %list_item__charp* }
 %screen = type opaque
-%anon51 = type { i16, i32, i32, i32, i32 }
-%__dirstream = type opaque
+%anon99 = type { i16, i32, i32, i32, i32 }
+%DIR = type opaque
 %dirent = type { i64, i64, i16, i8, [256 x i8] }
-%stat = type { i64, i64, i64, i32, i32, i32, i32, i64, i64, i64, i64, %timespec, %timespec, %timespec, [3 x i64] }
+%dirent64 = type { i64, i64, i16, i8, [256 x i8] }
+%stat = type { i64, i64, i32, i32, i32, i32, i64, i64, i64, i32, i32, i64, %timespec, %timespec, %timespec, i32, i32 }
+%stat64 = type { i64, i64, i32, i32, i32, i32, i64, i64, i64, i32, i32, i64, %timespec, %timespec, %timespec, i32, i32 }
+%iovec = type { i8*, i64 }
 %lconv = type { i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8 }
-%termios = type { i32, i32, i32, i32, i8, [32 x i8], i32, i32 }
+%anon135 = type { i8*, i8*, i8*, i8* }
+%termios = type { i32, i32, i32, i32, i8, [19 x i8] }
 %sCLHeapMem = type { %sCLType*, i32, i32, i8* }
 %map__charp_int = type { i8**, i1*, i32*, i32, i32 }
-%LuckyStrike = type { %Filer*, i1, %vector__sCLTypep* }
-%Filer = type { %LuckyStrike*, i8*, %list__charp*, i32, i32, i32 }
+%iQos = type { %Filer*, i1, %vector__sCLTypep* }
+%Filer = type { %iQos*, i8*, %list__charp*, i32, i32, i32 }
 
 @gLVTable = internal global [8192 x i8*] zeroinitializer, align 8
 @gNCDebugHeap = external global i32
-@__environ = external externally_initialized global i8**, align 8
+@stdin = external externally_initialized global %__sFILE*, align 8
+@stdout = external externally_initialized global %__sFILE*, align 8
+@stderr = external externally_initialized global %__sFILE*, align 8
+@sys_siglist = external externally_initialized global [65 x i8*], align 8
+@sys_signame = external externally_initialized global [65 x i8*], align 8
+@tzname = external externally_initialized global i8**, align 8
+@daylight = external externally_initialized global i32, align 4
+@timezone = external externally_initialized global i64
 @optarg = external externally_initialized global i8*, align 8
 @optind = external externally_initialized global i32, align 4
 @opterr = external externally_initialized global i32, align 4
 @optopt = external externally_initialized global i32, align 4
-@stdin = external externally_initialized global %_IO_FILE*, align 8
-@stdout = external externally_initialized global %_IO_FILE*, align 8
-@stderr = external externally_initialized global %_IO_FILE*, align 8
-@sys_nerr = external externally_initialized global i32, align 4
-@sys_errlist = external externally_initialized global i8**, align 8
+@environ = external externally_initialized global i8**, align 8
 @pcre_malloc = external externally_initialized global i8* (i64)*, align 8
 @pcre_free = external externally_initialized global void (i8*)*, align 8
 @pcre_stack_malloc = external externally_initialized global i8* (i64)*, align 8
@@ -123,6 +135,7 @@ source_filename = "Module main"
 @ESCDELAY = external externally_initialized global i32, align 4
 @LINES = external externally_initialized global i32, align 4
 @TABSIZE = external externally_initialized global i32, align 4
+@_ctype_ = external externally_initialized global i8*, align 8
 @gClasses = external externally_initialized global %map__charp_sCLClassp*, align 8
 @gJobs = external externally_initialized global %list__int*, align 8
 @gNativeMethods = external externally_initialized global %map__charp_lambdap*, align 8
@@ -132,10 +145,10 @@ source_filename = "Module main"
 @global_string.3 = private constant [5 x i8] c"main\00", align 1
 @global_string.4 = private constant [5 x i8] c"main\00", align 1
 @global_string.5 = private constant [10 x i8] c"sCLType*%\00", align 1
-@global_string.6 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.6 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.7 = private constant [30 x i8] c"initialize_sCLTypep0_src/main\00", align 1
 @global_string.8 = private constant [37 x i8] c"vector_initialize_sCLTypep0_src/main\00", align 1
-@global_string.9 = private constant [13 x i8] c"LuckyStrike%\00", align 1
+@global_string.9 = private constant [6 x i8] c"iQos%\00", align 1
 @global_string.10 = private constant [12 x i8] c"src/main.nc\00", align 1
 @global_string.11 = private constant [5 x i8] c"main\00", align 1
 @global_string.12 = private constant [5 x i8] c"main\00", align 1
@@ -150,55 +163,575 @@ declare void @llvm.va_end(i8*) #0
 ; Function Attrs: nounwind
 declare void @llvm.va_copy(i8*, i8*) #0
 
-declare i32* @wcscpy(i32*, i32*)
+declare i32 @android_get_application_target_sdk_version()
 
-declare i32* @wcsncpy(i32*, i32*, i64)
+declare i32 @__system_property_get(i8*, i8*)
 
-declare i32* @wcscat(i32*, i32*)
+declare i32 @atoi(i8*)
 
-declare i32* @wcsncat(i32*, i32*, i64)
+declare i32 @strcasecmp(i8*, i8*)
 
-declare i32 @wcscmp(i32*, i32*)
+declare i32 @strcasecmp_l(i8*, i8*, %__locale_t*)
 
-declare i32 @wcsncmp(i32*, i32*, i64)
+declare i32 @strncasecmp(i8*, i8*, i64)
+
+declare i32 @strncasecmp_l(i8*, i8*, i64, %__locale_t*)
+
+declare i32 @ffs(i32)
+
+declare i8* @memccpy(i8*, i8*, i32, i64)
+
+declare i8* @memchr(i8*, i32, i64)
+
+declare i8* @memrchr(i8*, i32, i64)
+
+declare i32 @memcmp(i8*, i8*, i64)
+
+declare i8* @memcpy(i8*, i8*, i64)
+
+declare i8* @memmove(i8*, i8*, i64)
+
+declare i8* @memset(i8*, i32, i64)
+
+declare i8* @memmem(i8*, i64, i8*, i64)
+
+declare i8* @strchr(i8*, i32)
+
+declare i8* @__strchr_chk(i8*, i32, i64)
+
+declare i8* @strrchr(i8*, i32)
+
+declare i8* @__strrchr_chk(i8*, i32, i64)
+
+declare i64 @strlen(i8*)
+
+declare i64 @__strlen_chk(i8*, i64)
+
+declare i32 @strcmp(i8*, i8*)
+
+declare i8* @stpcpy(i8*, i8*)
+
+declare i8* @strcpy(i8*, i8*)
+
+declare i8* @strcat(i8*, i8*)
+
+declare i8* @strdup(i8*)
+
+declare i8* @strstr(i8*, i8*)
+
+declare i8* @strcasestr(i8*, i8*)
+
+declare i8* @strtok(i8*, i8*)
+
+declare i8* @strtok_r(i8*, i8*, i8**)
+
+declare i8* @strerror(i32)
+
+declare i8* @strerror_l(i32, %__locale_t*)
+
+declare i32 @strerror_r(i32, i8*, i64)
+
+declare i64 @strnlen(i8*, i64)
+
+declare i8* @strncat(i8*, i8*, i64)
+
+declare i8* @strndup(i8*, i64)
+
+declare i32 @strncmp(i8*, i8*, i64)
+
+declare i8* @stpncpy(i8*, i8*, i64)
+
+declare i8* @strncpy(i8*, i8*, i64)
+
+declare i64 @strlcat(i8*, i8*, i64)
+
+declare i64 @strlcpy(i8*, i8*, i64)
+
+declare i64 @strcspn(i8*, i8*)
+
+declare i8* @strpbrk(i8*, i8*)
+
+declare i8* @strsep(i8**, i8*)
+
+declare i64 @strspn(i8*, i8*)
+
+declare i8* @strsignal(i32)
+
+declare i32 @strcoll(i8*, i8*)
+
+declare i64 @strxfrm(i8*, i8*, i64)
+
+declare i32 @strcoll_l(i8*, i8*, %__locale_t*)
+
+declare i64 @strxfrm_l(i8*, i8*, i64, %__locale_t*)
+
+declare void @clearerr(%__sFILE*)
+
+declare i32 @fclose(%__sFILE*)
+
+declare i32 @feof(%__sFILE*)
+
+declare i32 @ferror(%__sFILE*)
+
+declare i32 @fflush(%__sFILE*)
+
+declare i32 @fgetc(%__sFILE*)
+
+declare i8* @fgets(i8*, i32, %__sFILE*)
+
+declare i32 @fprintf(%__sFILE*, i8*, ...)
+
+declare i32 @fputc(i32, %__sFILE*)
+
+declare i32 @fputs(i8*, %__sFILE*)
+
+declare i64 @fread(i8*, i64, i64, %__sFILE*)
+
+declare i32 @fscanf(%__sFILE*, i8*, ...)
+
+declare i64 @fwrite(i8*, i64, i64, %__sFILE*)
+
+declare i32 @getc(%__sFILE*)
+
+declare i32 @getchar()
+
+declare i64 @getdelim(i8**, i64*, i32, %__sFILE*)
+
+declare i64 @getline(i8**, i64*, %__sFILE*)
+
+declare void @perror(i8*)
+
+declare i32 @printf(i8*, ...)
+
+declare i32 @putc(i32, %__sFILE*)
+
+declare i32 @putchar(i32)
+
+declare i32 @puts(i8*)
+
+declare i32 @remove(i8*)
+
+declare void @rewind(%__sFILE*)
+
+declare i32 @scanf(i8*, ...)
+
+declare void @setbuf(%__sFILE*, i8*)
+
+declare i32 @setvbuf(%__sFILE*, i8*, i32, i64)
+
+declare i32 @sscanf(i8*, i8*, ...)
+
+declare i32 @ungetc(i32, %__sFILE*)
+
+declare i32 @vfprintf(%__sFILE*, i8*, %__builtin_va_list.0)
+
+declare i32 @vprintf(i8*, %__builtin_va_list.0)
+
+declare i32 @dprintf(i32, i8*, ...)
+
+declare i32 @vdprintf(i32, i8*, %__builtin_va_list.0)
+
+declare i32 @sprintf(i8*, i8*, ...)
+
+declare i32 @vsprintf(i8*, i8*, %__builtin_va_list.0)
+
+declare i8* @tmpnam(i8*)
+
+declare i8* @tempnam(i8*, i8*)
+
+declare i32 @rename(i8*, i8*)
+
+declare i32 @renameat(i32, i8*, i32, i8*)
+
+declare i32 @fseek(%__sFILE*, i64, i32)
+
+declare i64 @ftell(%__sFILE*)
+
+declare i32 @fgetpos(%__sFILE*, i64*)
+
+declare i32 @fsetpos(%__sFILE*, i64*)
+
+declare i32 @fseeko(%__sFILE*, i64, i32)
+
+declare i64 @ftello(%__sFILE*)
+
+declare %__sFILE* @funopen(i8*, i32 (i8*, i8*, i32)*, i32 (i8*, i8*, i32)*, i64 (i8*, i64, i32)*, i32 (i8*)*)
+
+declare i32 @fgetpos64(%__sFILE*, i64*)
+
+declare i32 @fsetpos64(%__sFILE*, i64*)
+
+declare i32 @fseeko64(%__sFILE*, i64, i32)
+
+declare i64 @ftello64(%__sFILE*)
+
+declare %__sFILE* @funopen64(i8*, i32 (i8*, i8*, i32)*, i32 (i8*, i8*, i32)*, i64 (i8*, i64, i32)*, i32 (i8*)*)
+
+declare %__sFILE* @fopen(i8*, i8*)
+
+declare %__sFILE* @fopen64(i8*, i8*)
+
+declare %__sFILE* @freopen(i8*, i8*, %__sFILE*)
+
+declare %__sFILE* @freopen64(i8*, i8*, %__sFILE*)
+
+declare %__sFILE* @tmpfile64()
+
+declare i32 @snprintf(i8*, i64, i8*, ...)
+
+declare i32 @vfscanf(%__sFILE*, i8*, %__builtin_va_list.0)
+
+declare i32 @vscanf(i8*, %__builtin_va_list.0)
+
+declare i32 @vsnprintf(i8*, i64, i8*, %__builtin_va_list.0)
+
+declare i32 @vsscanf(i8*, i8*, %__builtin_va_list.0)
+
+declare %__sFILE* @fdopen(i32, i8*)
+
+declare i32 @fileno(%__sFILE*)
+
+declare i32 @pclose(%__sFILE*)
+
+declare %__sFILE* @popen(i8*, i8*)
+
+declare void @flockfile(%__sFILE*)
+
+declare i32 @ftrylockfile(%__sFILE*)
+
+declare void @funlockfile(%__sFILE*)
+
+declare i32 @getc_unlocked(%__sFILE*)
+
+declare i32 @getchar_unlocked()
+
+declare i32 @putc_unlocked(i32, %__sFILE*)
+
+declare i32 @putchar_unlocked(i32)
+
+declare %__sFILE* @fmemopen(i8*, i64, i8*)
+
+declare %__sFILE* @open_memstream(i8**, i64*)
+
+declare i32 @asprintf(i8**, i8*, ...)
+
+declare i8* @fgetln(%__sFILE*, i64*)
+
+declare i32 @fpurge(%__sFILE*)
+
+declare void @setbuffer(%__sFILE*, i8*, i32)
+
+declare i32 @setlinebuf(%__sFILE*)
+
+declare i32 @vasprintf(i8**, i8*, %__builtin_va_list.0)
+
+declare void @clearerr_unlocked(%__sFILE*)
+
+declare i32 @feof_unlocked(%__sFILE*)
+
+declare i32 @ferror_unlocked(%__sFILE*)
+
+declare i32 @fileno_unlocked(%__sFILE*)
+
+declare i32 @open(i8*, i32, ...)
+
+declare i32 @getpid()
+
+declare i32 @unlink(i8*)
+
+declare void @free(i8*)
+
+declare i32 @arc4random()
+
+declare i32 @__libc_current_sigrtmin()
+
+declare i32 @__libc_current_sigrtmax()
+
+declare i32 @sigaction(i32, %sigaction*, %sigaction*)
+
+declare i32 @siginterrupt(i32, i32)
+
+declare void (i32)* @signal(i32, void (i32)*)
+
+declare i32 @sigaddset(%anon9*, i32)
+
+declare i32 @sigdelset(%anon9*, i32)
+
+declare i32 @sigemptyset(%anon9*)
+
+declare i32 @sigfillset(%anon9*)
+
+declare i32 @sigismember(%anon9*, i32)
+
+declare i32 @sigpending(%anon9*)
+
+declare i32 @sigprocmask(i32, %anon9*, %anon9*)
+
+declare i32 @sigsuspend(%anon9*)
+
+declare i32 @sigwait(%anon9*, i32*)
+
+declare i32 @raise(i32)
+
+declare i32 @kill(i32, i32)
+
+declare i32 @killpg(i32, i32)
+
+declare i32 @tgkill(i32, i32, i32)
+
+declare i32 @sigaltstack(%sigaltstack*, %sigaltstack*)
+
+declare void @psiginfo(%siginfo*, i8*)
+
+declare void @psignal(i32, i8*)
+
+declare i32 @pthread_kill(i64, i32)
+
+declare i32 @pthread_sigmask(i32, %anon9*, %anon9*)
+
+declare i32 @sigqueue(i32, i32, %sigval)
+
+declare i32 @sigtimedwait(%anon9*, %siginfo*, %timespec*)
+
+declare i32 @sigwaitinfo(%anon9*, %siginfo*)
+
+declare void @__FD_CLR_chk(i32, %anon40*, i64)
+
+declare void @__FD_SET_chk(i32, %anon40*, i64)
+
+declare i32 @__FD_ISSET_chk(i32, %anon40*, i64)
+
+declare i32 @select(i32, %anon40*, %anon40*, %anon40*, %timeval*)
+
+declare i32 @pselect(i32, %anon40*, %anon40*, %anon40*, %timespec*, %anon9*)
+
+declare i32 @gettimeofday(%timeval*, %timezone*)
+
+declare i32 @settimeofday(%timeval*, %timezone*)
+
+declare i32 @getitimer(i32, %itimerval*)
+
+declare i32 @setitimer(i32, %itimerval*, %itimerval*)
+
+declare i32 @utimes(i8*, %timeval*)
+
+declare i64 @time(i64*)
+
+declare i32 @nanosleep(%timespec*, %timespec*)
+
+declare i8* @asctime(%tm*)
+
+declare i8* @asctime_r(%tm*, i8*)
+
+declare double @difftime(i64, i64)
+
+declare i64 @mktime(%tm*)
+
+declare %tm* @localtime(i64*)
+
+declare %tm* @localtime_r(i64*, %tm*)
+
+declare %tm* @gmtime(i64*)
+
+declare %tm* @gmtime_r(i64*, %tm*)
+
+declare i8* @strptime(i8*, i8*, %tm*)
+
+declare i64 @strftime(i8*, i64, i8*, %tm*)
+
+declare i64 @strftime_l(i8*, i64, i8*, %tm*, %__locale_t*)
+
+declare i8* @ctime(i64*)
+
+declare i8* @ctime_r(i64*, i8*)
+
+declare void @tzset()
+
+declare i64 @clock()
+
+declare i32 @clock_getcpuclockid(i32, i32*)
+
+declare i32 @clock_getres(i32, %timespec*)
+
+declare i32 @clock_gettime(i32, %timespec*)
+
+declare i32 @clock_nanosleep(i32, i32, %timespec*, %timespec*)
+
+declare i32 @clock_settime(i32, %timespec*)
+
+declare i32 @timer_create(i32, %sigevent*, i8**)
+
+declare i32 @timer_delete(i8*)
+
+declare i32 @timer_settime(i8*, i32, %itimerspec*, %itimerspec*)
+
+declare i32 @timer_gettime(i8*, %itimerspec*)
+
+declare i32 @timer_getoverrun(i8*)
+
+declare i64 @timelocal(%tm*)
+
+declare i64 @timegm(%tm*)
+
+declare i32 @iswalnum(i32)
+
+declare i32 @iswalpha(i32)
+
+declare i32 @iswblank(i32)
+
+declare i32 @iswcntrl(i32)
+
+declare i32 @iswdigit(i32)
+
+declare i32 @iswgraph(i32)
+
+declare i32 @iswlower(i32)
+
+declare i32 @iswprint(i32)
+
+declare i32 @iswpunct(i32)
+
+declare i32 @iswspace(i32)
+
+declare i32 @iswupper(i32)
+
+declare i32 @iswxdigit(i32)
+
+declare i32 @towlower(i32)
+
+declare i32 @towupper(i32)
+
+declare i64 @wctype(i8*)
+
+declare i32 @iswctype(i32, i64)
+
+declare i32 @towctrans(i32, i8*)
+
+declare i8* @wctrans(i8*)
+
+declare i32 @btowc(i32)
+
+declare i32 @fwprintf(%__sFILE*, i32*, ...)
+
+declare i32 @fwscanf(%__sFILE*, i32*, ...)
+
+declare i32 @fgetwc(%__sFILE*)
+
+declare i32* @fgetws(i32*, i32, %__sFILE*)
+
+declare i32 @fputwc(i32, %__sFILE*)
+
+declare i32 @fputws(i32*, %__sFILE*)
+
+declare i32 @fwide(%__sFILE*, i32)
+
+declare i32 @getwc(%__sFILE*)
+
+declare i32 @getwchar()
+
+declare i32 @mbsinit(%anon41*)
+
+declare i64 @mbrlen(i8*, i64, %anon41*)
+
+declare i64 @mbrtowc(i32*, i8*, i64, %anon41*)
+
+declare i64 @mbsrtowcs(i32*, i8**, i64, %anon41*)
+
+declare i64 @mbsnrtowcs(i32*, i8**, i64, i64, %anon41*)
+
+declare i32 @putwc(i32, %__sFILE*)
+
+declare i32 @putwchar(i32)
+
+declare i32 @swprintf(i32*, i64, i32*, ...)
+
+declare i32 @swscanf(i32*, i32*, ...)
+
+declare i32 @ungetwc(i32, %__sFILE*)
+
+declare i32 @vfwprintf(%__sFILE*, i32*, %__builtin_va_list.0)
+
+declare i32 @vfwscanf(%__sFILE*, i32*, %__builtin_va_list.0)
+
+declare i32 @vswprintf(i32*, i64, i32*, %__builtin_va_list.0)
+
+declare i32 @vswscanf(i32*, i32*, %__builtin_va_list.0)
+
+declare i32 @vwprintf(i32*, %__builtin_va_list.0)
+
+declare i32 @vwscanf(i32*, %__builtin_va_list.0)
+
+declare i32* @wcpcpy(i32*, i32*)
+
+declare i32* @wcpncpy(i32*, i32*, i64)
+
+declare i64 @wcrtomb(i8*, i32, %anon41*)
 
 declare i32 @wcscasecmp(i32*, i32*)
 
-declare i32 @wcsncasecmp(i32*, i32*, i64)
+declare i32 @wcscasecmp_l(i32*, i32*, %__locale_t*)
 
-declare i32 @wcscasecmp_l(i32*, i32*, %__locale_struct*)
-
-declare i32 @wcsncasecmp_l(i32*, i32*, i64, %__locale_struct*)
-
-declare i32 @wcscoll(i32*, i32*)
-
-declare i64 @wcsxfrm(i32*, i32*, i64)
-
-declare i32 @wcscoll_l(i32*, i32*, %__locale_struct*)
-
-declare i64 @wcsxfrm_l(i32*, i32*, i64, %__locale_struct*)
-
-declare i32* @wcsdup(i32*)
+declare i32* @wcscat(i32*, i32*)
 
 declare i32* @wcschr(i32*, i32)
 
-declare i32* @wcsrchr(i32*, i32)
+declare i32 @wcscmp(i32*, i32*)
+
+declare i32 @wcscoll(i32*, i32*)
+
+declare i32* @wcscpy(i32*, i32*)
 
 declare i64 @wcscspn(i32*, i32*)
 
-declare i64 @wcsspn(i32*, i32*)
-
-declare i32* @wcspbrk(i32*, i32*)
-
-declare i32* @wcsstr(i32*, i32*)
-
-declare i32* @wcstok(i32*, i32*, i32**)
+declare i64 @wcsftime(i32*, i64, i32*, %tm*)
 
 declare i64 @wcslen(i32*)
 
-declare i32* @wcswcs(i32*, i32*)
+declare i32 @wcsncasecmp(i32*, i32*, i64)
 
-declare i64 @wcsnlen(i32*, i64)
+declare i32 @wcsncasecmp_l(i32*, i32*, i64, %__locale_t*)
+
+declare i32* @wcsncat(i32*, i32*, i64)
+
+declare i32 @wcsncmp(i32*, i32*, i64)
+
+declare i32* @wcsncpy(i32*, i32*, i64)
+
+declare i64 @wcsnrtombs(i8*, i32**, i64, i64, %anon41*)
+
+declare i32* @wcspbrk(i32*, i32*)
+
+declare i32* @wcsrchr(i32*, i32)
+
+declare i64 @wcsrtombs(i8*, i32**, i64, %anon41*)
+
+declare i64 @wcsspn(i32*, i32*)
+
+declare i32* @wcsstr(i32*, i32*)
+
+declare double @wcstod(i32*, i32**)
+
+declare float @wcstof(i32*, i32**)
+
+declare i32* @wcstok(i32*, i32*, i32**)
+
+declare i64 @wcstol(i32*, i32**, i32)
+
+declare i64 @wcstoll(i32*, i32**, i32)
+
+declare fp128 @wcstold(i32*, i32**)
+
+declare i64 @wcstoul(i32*, i32**, i32)
+
+declare i64 @wcstoull(i32*, i32**, i32)
+
+declare i32 @wcswidth(i32*, i64)
+
+declare i64 @wcsxfrm(i32*, i32*, i64)
+
+declare i32 @wctob(i32)
+
+declare i32 @wcwidth(i32)
 
 declare i32* @wmemchr(i32*, i32, i64)
 
@@ -210,189 +743,95 @@ declare i32* @wmemmove(i32*, i32*, i64)
 
 declare i32* @wmemset(i32*, i32, i64)
 
-declare i32 @btowc(i32)
-
-declare i32 @wctob(i32)
-
-declare i32 @mbsinit(%anon0*)
-
-declare i64 @mbrtowc(i32*, i8*, i64, %anon0*)
-
-declare i64 @wcrtomb(i8*, i32, %anon0*)
-
-declare i64 @__mbrlen(i8*, i64, %anon0*)
-
-declare i64 @mbrlen(i8*, i64, %anon0*)
-
-declare i64 @mbsrtowcs(i32*, i8**, i64, %anon0*)
-
-declare i64 @wcsrtombs(i8*, i32**, i64, %anon0*)
-
-declare i64 @mbsnrtowcs(i32*, i8**, i64, i64, %anon0*)
-
-declare i64 @wcsnrtombs(i8*, i32**, i64, i64, %anon0*)
-
-declare i32 @wcwidth(i32)
-
-declare i32 @wcswidth(i32*, i64)
-
-declare double @wcstod(i32*, i32**)
-
-declare float @wcstof(i32*, i32**)
-
-declare fp128 @wcstold(i32*, i32**)
-
-declare i64 @wcstol(i32*, i32**, i32)
-
-declare i64 @wcstoul(i32*, i32**, i32)
-
-declare i64 @wcstoll(i32*, i32**, i32)
-
-declare i64 @wcstoull(i32*, i32**, i32)
-
-declare i32* @wcpcpy(i32*, i32*)
-
-declare i32* @wcpncpy(i32*, i32*, i64)
-
-declare %_IO_FILE* @open_wmemstream(i32**, i64*)
-
-declare i32 @fwide(%_IO_FILE*, i32)
-
-declare i32 @fwprintf(%_IO_FILE*, i32*, ...)
-
 declare i32 @wprintf(i32*, ...)
-
-declare i32 @swprintf(i32*, i64, i32*, ...)
-
-declare i32 @vfwprintf(%_IO_FILE*, i32*, %__builtin_va_list.0)
-
-declare i32 @vwprintf(i32*, %__builtin_va_list.0)
-
-declare i32 @vswprintf(i32*, i64, i32*, %__builtin_va_list.0)
-
-declare i32 @fwscanf(%_IO_FILE*, i32*, ...)
 
 declare i32 @wscanf(i32*, ...)
 
-declare i32 @swscanf(i32*, i32*, ...)
+declare i64 @wcstoll_l(i32*, i32**, i32, %__locale_t*)
 
-declare i32 @vfwscanf(%_IO_FILE*, i32*, %__builtin_va_list.0)
+declare i64 @wcstoull_l(i32*, i32**, i32, %__locale_t*)
 
-declare i32 @vwscanf(i32*, %__builtin_va_list.0)
+declare fp128 @wcstold_l(i32*, i32**, %__locale_t*)
 
-declare i32 @vswscanf(i32*, i32*, %__builtin_va_list.0)
+declare i32 @wcscoll_l(i32*, i32*, %__locale_t*)
 
-declare i32 @fgetwc(%_IO_FILE*)
+declare i64 @wcsxfrm_l(i32*, i32*, i64, %__locale_t*)
 
-declare i32 @getwc(%_IO_FILE*)
+declare i64 @wcslcat(i32*, i32*, i64)
 
-declare i32 @getwchar()
+declare i64 @wcslcpy(i32*, i32*, i64)
 
-declare i32 @fputwc(i32, %_IO_FILE*)
+declare %__sFILE* @open_wmemstream(i32**, i64*)
 
-declare i32 @putwc(i32, %_IO_FILE*)
+declare i32* @wcsdup(i32*)
 
-declare i32 @putwchar(i32)
+declare i64 @wcsnlen(i32*, i64)
 
-declare i32* @fgetws(i32*, i32, %_IO_FILE*)
+declare i32 @fcntl(i32, i32, ...)
 
-declare i32 @fputws(i32*, %_IO_FILE*)
+declare i32 @getopt(i32, i8**, i8*)
 
-declare i32 @ungetwc(i32, %_IO_FILE*)
+declare i32 @ioctl(i32, i32, ...)
 
-declare i64 @wcsftime(i32*, i64, i32*, %tm*)
+declare i32 @lockf(i32, i32, i64)
 
-declare i32 @access(i8*, i32)
-
-declare i32 @faccessat(i32, i8*, i32, i32)
-
-declare i64 @lseek(i32, i64, i32)
-
-declare i32 @close(i32)
-
-declare i64 @read(i32, i8*, i64)
-
-declare i64 @write(i32, i8*, i64)
-
-declare i64 @pread(i32, i8*, i64, i64)
-
-declare i64 @pwrite(i32, i8*, i64, i64)
-
-declare i32 @pipe(i32*)
-
-declare i32 @alarm(i32)
-
-declare i32 @sleep(i32)
-
-declare i32 @ualarm(i32, i32)
-
-declare i32 @usleep(i32)
-
-declare i32 @pause()
-
-declare i32 @chown(i8*, i32, i32)
-
-declare i32 @fchown(i32, i32, i32)
-
-declare i32 @lchown(i8*, i32, i32)
-
-declare i32 @fchownat(i32, i8*, i32, i32, i32)
-
-declare i32 @chdir(i8*)
-
-declare i32 @fchdir(i32)
-
-declare i8* @getcwd(i8*, i64)
-
-declare i8* @getwd(i8*)
-
-declare i32 @dup(i32)
-
-declare i32 @dup2(i32, i32)
-
-declare i32 @execve(i8*, i8**, i8**)
-
-declare i32 @fexecve(i32, i8**, i8**)
-
-declare i32 @execv(i8*, i8**)
-
-declare i32 @execle(i8*, i8*, ...)
-
-declare i32 @execl(i8*, i8*, ...)
-
-declare i32 @execvp(i8*, i8**)
-
-declare i32 @execlp(i8*, i8*, ...)
-
-declare i32 @nice(i32)
-
-declare void @_exit(i32)
-
-declare i64 @pathconf(i8*, i32)
-
-declare i64 @fpathconf(i32, i32)
+declare i32 @lockf64(i32, i32, i64)
 
 declare i64 @sysconf(i32)
 
-declare i64 @confstr(i32, i8*, i64)
+declare void @_exit(i32)
 
-declare i32 @getpid()
+declare i32 @fork()
 
-declare i32 @getppid()
+declare i32 @vfork()
 
-declare i32 @getpgrp()
-
-declare i32 @__getpgid(i32)
+declare i32 @gettid()
 
 declare i32 @getpgid(i32)
 
 declare i32 @setpgid(i32, i32)
 
+declare i32 @getppid()
+
+declare i32 @getpgrp()
+
 declare i32 @setpgrp()
+
+declare i32 @getsid(i32)
 
 declare i32 @setsid()
 
-declare i32 @getsid(i32)
+declare i32 @execv(i8*, i8**)
+
+declare i32 @execvp(i8*, i8**)
+
+declare i32 @execvpe(i8*, i8**, i8**)
+
+declare i32 @execve(i8*, i8**, i8**)
+
+declare i32 @execl(i8*, i8*, ...)
+
+declare i32 @execlp(i8*, i8*, ...)
+
+declare i32 @execle(i8*, i8*, ...)
+
+declare i32 @nice(i32)
+
+declare i32 @setegid(i32)
+
+declare i32 @seteuid(i32)
+
+declare i32 @setgid(i32)
+
+declare i32 @setregid(i32, i32)
+
+declare i32 @setresgid(i32, i32, i32)
+
+declare i32 @setresuid(i32, i32, i32)
+
+declare i32 @setreuid(i32, i32)
+
+declare i32 @setuid(i32)
 
 declare i32 @getuid()
 
@@ -404,381 +843,127 @@ declare i32 @getegid()
 
 declare i32 @getgroups(i32, i32*)
 
-declare i32 @setuid(i32)
+declare i32 @setgroups(i64, i32*)
 
-declare i32 @setreuid(i32, i32)
+declare i32 @getresuid(i32*, i32*, i32*)
 
-declare i32 @seteuid(i32)
+declare i32 @getresgid(i32*, i32*, i32*)
 
-declare i32 @setgid(i32)
+declare i8* @getlogin()
 
-declare i32 @setregid(i32, i32)
+declare i64 @fpathconf(i32, i32)
 
-declare i32 @setegid(i32)
+declare i64 @pathconf(i8*, i32)
 
-declare i32 @fork()
+declare i32 @access(i8*, i32)
 
-declare i32 @vfork()
-
-declare i8* @ttyname(i32)
-
-declare i32 @ttyname_r(i32, i8*, i64)
-
-declare i32 @isatty(i32)
-
-declare i32 @ttyslot()
+declare i32 @faccessat(i32, i8*, i32, i32)
 
 declare i32 @link(i8*, i8*)
 
 declare i32 @linkat(i32, i8*, i32, i8*, i32)
 
-declare i32 @symlink(i8*, i8*)
-
-declare i64 @readlink(i8*, i8*, i64)
-
-declare i32 @symlinkat(i8*, i32, i8*)
-
-declare i64 @readlinkat(i32, i8*, i8*, i64)
-
-declare i32 @unlink(i8*)
-
 declare i32 @unlinkat(i32, i8*, i32)
+
+declare i32 @chdir(i8*)
+
+declare i32 @fchdir(i32)
 
 declare i32 @rmdir(i8*)
 
-declare i32 @tcgetpgrp(i32)
+declare i32 @pipe(i32*)
 
-declare i32 @tcsetpgrp(i32, i32)
+declare i32 @chroot(i8*)
 
-declare i8* @getlogin()
+declare i32 @symlink(i8*, i8*)
 
-declare i32 @getlogin_r(i8*, i64)
+declare i32 @symlinkat(i8*, i32, i8*)
 
-declare i32 @setlogin(i8*)
+declare i64 @readlink(i8*, i8*, i64)
 
-declare i32 @getopt(i32, i8**, i8*)
+declare i64 @readlinkat(i32, i8*, i8*, i64)
+
+declare i32 @chown(i8*, i32, i32)
+
+declare i32 @fchown(i32, i32, i32)
+
+declare i32 @fchownat(i32, i8*, i32, i32, i32)
+
+declare i32 @lchown(i8*, i32, i32)
+
+declare i8* @getcwd(i8*, i64)
+
+declare void @sync()
+
+declare i32 @close(i32)
+
+declare i64 @read(i32, i8*, i64)
+
+declare i64 @write(i32, i8*, i64)
+
+declare i32 @dup(i32)
+
+declare i32 @dup2(i32, i32)
+
+declare i32 @dup3(i32, i32, i32)
+
+declare i32 @fsync(i32)
+
+declare i32 @fdatasync(i32)
+
+declare i32 @truncate(i8*, i64)
+
+declare i64 @lseek(i32, i64, i32)
+
+declare i64 @pread(i32, i8*, i64, i64)
+
+declare i64 @pwrite(i32, i8*, i64, i64)
+
+declare i32 @ftruncate(i32, i64)
+
+declare i32 @truncate64(i8*, i64)
+
+declare i64 @lseek64(i32, i64, i32)
+
+declare i64 @pread64(i32, i8*, i64, i64)
+
+declare i64 @pwrite64(i32, i8*, i64, i64)
+
+declare i32 @ftruncate64(i32, i64)
+
+declare i32 @pause()
+
+declare i32 @alarm(i32)
+
+declare i32 @sleep(i32)
+
+declare i32 @usleep(i32)
 
 declare i32 @gethostname(i8*, i64)
 
 declare i32 @sethostname(i8*, i64)
 
-declare i32 @sethostid(i64)
-
-declare i32 @getdomainname(i8*, i64)
-
-declare i32 @setdomainname(i8*, i64)
-
-declare i32 @vhangup()
-
-declare i32 @revoke(i8*)
-
-declare i32 @profil(i16*, i64, i64, i32)
-
-declare i32 @acct(i8*)
-
-declare i8* @getusershell()
-
-declare void @endusershell()
-
-declare void @setusershell()
-
-declare i32 @daemon(i32, i32)
-
-declare i32 @chroot(i8*)
-
-declare i8* @getpass(i8*)
-
-declare i32 @fsync(i32)
-
-declare i64 @gethostid()
-
-declare void @sync()
-
-declare i32 @getpagesize()
-
-declare i32 @getdtablesize()
-
-declare i32 @truncate(i8*, i64)
-
-declare i32 @ftruncate(i32, i64)
-
 declare i32 @brk(i8*)
 
 declare i8* @sbrk(i64)
 
+declare i32 @isatty(i32)
+
+declare i8* @ttyname(i32)
+
+declare i32 @ttyname_r(i32, i8*, i64)
+
+declare i32 @acct(i8*)
+
+declare i32 @getpagesize()
+
 declare i64 @syscall(i64, ...)
 
-declare i32 @lockf(i32, i32, i64)
+declare i32 @daemon(i32, i32)
 
-declare i32 @fdatasync(i32)
+declare i32 @tcgetpgrp(i32)
 
-declare i8* @crypt(i8*, i8*)
-
-declare void @swab(i8*, i8*, i64)
-
-declare i32 @getentropy(i8*, i64)
-
-declare i32 @remove(i8*)
-
-declare i32 @rename(i8*, i8*)
-
-declare i32 @renameat(i32, i8*, i32, i8*)
-
-declare %_IO_FILE* @tmpfile()
-
-declare i8* @tmpnam(i8*)
-
-declare i8* @tmpnam_r(i8*)
-
-declare i8* @tempnam(i8*, i8*)
-
-declare i32 @fclose(%_IO_FILE*)
-
-declare i32 @fflush(%_IO_FILE*)
-
-declare i32 @fflush_unlocked(%_IO_FILE*)
-
-declare %_IO_FILE* @fopen(i8*, i8*)
-
-declare %_IO_FILE* @freopen(i8*, i8*, %_IO_FILE*)
-
-declare %_IO_FILE* @fdopen(i32, i8*)
-
-declare %_IO_FILE* @fmemopen(i8*, i64, i8*)
-
-declare %_IO_FILE* @open_memstream(i8**, i64*)
-
-declare void @setbuf(%_IO_FILE*, i8*)
-
-declare i32 @setvbuf(%_IO_FILE*, i8*, i32, i64)
-
-declare void @setbuffer(%_IO_FILE*, i8*, i64)
-
-declare void @setlinebuf(%_IO_FILE*)
-
-declare i32 @fprintf(%_IO_FILE*, i8*, ...)
-
-declare i32 @printf(i8*, ...)
-
-declare i32 @sprintf(i8*, i8*, ...)
-
-declare i32 @vfprintf(%_IO_FILE*, i8*, %__builtin_va_list.0)
-
-declare i32 @vprintf(i8*, %__builtin_va_list.0)
-
-declare i32 @vsprintf(i8*, i8*, %__builtin_va_list.0)
-
-declare i32 @snprintf(i8*, i64, i8*, ...)
-
-declare i32 @vsnprintf(i8*, i64, i8*, %__builtin_va_list.0)
-
-declare i32 @vdprintf(i32, i8*, %__builtin_va_list.0)
-
-declare i32 @dprintf(i32, i8*, ...)
-
-declare i32 @fscanf(%_IO_FILE*, i8*, ...)
-
-declare i32 @scanf(i8*, ...)
-
-declare i32 @sscanf(i8*, i8*, ...)
-
-declare i32 @vfscanf(%_IO_FILE*, i8*, %__builtin_va_list.0)
-
-declare i32 @vscanf(i8*, %__builtin_va_list.0)
-
-declare i32 @vsscanf(i8*, i8*, %__builtin_va_list.0)
-
-declare i32 @fgetc(%_IO_FILE*)
-
-declare i32 @getc(%_IO_FILE*)
-
-declare i32 @getchar()
-
-declare i32 @getc_unlocked(%_IO_FILE*)
-
-declare i32 @getchar_unlocked()
-
-declare i32 @fgetc_unlocked(%_IO_FILE*)
-
-declare i32 @fputc(i32, %_IO_FILE*)
-
-declare i32 @putc(i32, %_IO_FILE*)
-
-declare i32 @putchar(i32)
-
-declare i32 @fputc_unlocked(i32, %_IO_FILE*)
-
-declare i32 @putc_unlocked(i32, %_IO_FILE*)
-
-declare i32 @putchar_unlocked(i32)
-
-declare i32 @getw(%_IO_FILE*)
-
-declare i32 @putw(i32, %_IO_FILE*)
-
-declare i8* @fgets(i8*, i32, %_IO_FILE*)
-
-declare i64 @__getdelim(i8**, i64*, i32, %_IO_FILE*)
-
-declare i64 @getdelim(i8**, i64*, i32, %_IO_FILE*)
-
-declare i64 @getline(i8**, i64*, %_IO_FILE*)
-
-declare i32 @fputs(i8*, %_IO_FILE*)
-
-declare i32 @puts(i8*)
-
-declare i32 @ungetc(i32, %_IO_FILE*)
-
-declare i64 @fread(i8*, i64, i64, %_IO_FILE*)
-
-declare i64 @fwrite(i8*, i64, i64, %_IO_FILE*)
-
-declare i64 @fread_unlocked(i8*, i64, i64, %_IO_FILE*)
-
-declare i64 @fwrite_unlocked(i8*, i64, i64, %_IO_FILE*)
-
-declare i32 @fseek(%_IO_FILE*, i64, i32)
-
-declare i64 @ftell(%_IO_FILE*)
-
-declare void @rewind(%_IO_FILE*)
-
-declare i32 @fseeko(%_IO_FILE*, i64, i32)
-
-declare i64 @ftello(%_IO_FILE*)
-
-declare i32 @fgetpos(%_IO_FILE*, %_G_fpos_t*)
-
-declare i32 @fsetpos(%_IO_FILE*, %_G_fpos_t*)
-
-declare void @clearerr(%_IO_FILE*)
-
-declare i32 @feof(%_IO_FILE*)
-
-declare i32 @ferror(%_IO_FILE*)
-
-declare void @clearerr_unlocked(%_IO_FILE*)
-
-declare i32 @feof_unlocked(%_IO_FILE*)
-
-declare i32 @ferror_unlocked(%_IO_FILE*)
-
-declare void @perror(i8*)
-
-declare i32 @fileno(%_IO_FILE*)
-
-declare i32 @fileno_unlocked(%_IO_FILE*)
-
-declare %_IO_FILE* @popen(i8*, i8*)
-
-declare i32 @pclose(%_IO_FILE*)
-
-declare i8* @ctermid(i8*)
-
-declare void @flockfile(%_IO_FILE*)
-
-declare i32 @ftrylockfile(%_IO_FILE*)
-
-declare void @funlockfile(%_IO_FILE*)
-
-declare i32 @__uflow(%_IO_FILE*)
-
-declare i32 @__overflow(%_IO_FILE*, i32)
-
-declare i64 @__ctype_get_mb_cur_max()
-
-declare double @atof(i8*)
-
-declare i32 @atoi(i8*)
-
-declare i64 @atol(i8*)
-
-declare i64 @atoll(i8*)
-
-declare double @strtod(i8*, i8**)
-
-declare float @strtof(i8*, i8**)
-
-declare fp128 @strtold(i8*, i8**)
-
-declare i64 @strtol(i8*, i8**, i32)
-
-declare i64 @strtoul(i8*, i8**, i32)
-
-declare i64 @strtoq(i8*, i8**, i32)
-
-declare i64 @strtouq(i8*, i8**, i32)
-
-declare i64 @strtoll(i8*, i8**, i32)
-
-declare i64 @strtoull(i8*, i8**, i32)
-
-declare i8* @l64a(i64)
-
-declare i64 @a64l(i8*)
-
-declare i32 @select(i32, %anon7*, %anon7*, %anon7*, %timeval*)
-
-declare i32 @pselect(i32, %anon7*, %anon7*, %anon7*, %timespec*, %anon6*)
-
-declare i64 @random()
-
-declare void @srandom(i32)
-
-declare i8* @initstate(i32, i8*, i64)
-
-declare i8* @setstate(i8*)
-
-declare i32 @random_r(%random_data*, i32*)
-
-declare i32 @srandom_r(i32, %random_data*)
-
-declare i32 @initstate_r(i32, i8*, i64, %random_data*)
-
-declare i32 @setstate_r(i8*, %random_data*)
-
-declare i32 @rand()
-
-declare void @srand(i32)
-
-declare i32 @rand_r(i32*)
-
-declare double @drand48()
-
-declare double @erand48(i16*)
-
-declare i64 @lrand48()
-
-declare i64 @nrand48(i16*)
-
-declare i64 @mrand48()
-
-declare i64 @jrand48(i16*)
-
-declare void @srand48(i64)
-
-declare i16* @seed48(i16*)
-
-declare void @lcong48(i16*)
-
-declare i32 @drand48_r(%drand48_data*, double*)
-
-declare i32 @erand48_r(i16*, %drand48_data*, double*)
-
-declare i32 @lrand48_r(%drand48_data*, i64*)
-
-declare i32 @nrand48_r(i16*, %drand48_data*, i64*)
-
-declare i32 @mrand48_r(%drand48_data*, i64*)
-
-declare i32 @jrand48_r(i16*, %drand48_data*, i64*)
-
-declare i32 @srand48_r(i64, %drand48_data*)
-
-declare i32 @seed48_r(i16*, %drand48_data*)
-
-declare i32 @lcong48_r(i16*, %drand48_data*)
+declare i32 @tcsetpgrp(i32, i32)
 
 declare i8* @malloc(i64)
 
@@ -786,29 +971,25 @@ declare i8* @calloc(i64, i64)
 
 declare i8* @realloc(i8*, i64)
 
-declare void @free(i8*)
+declare i8* @memalign(i64, i64)
 
-declare i8* @alloca(i64)
+declare i64 @malloc_usable_size(i8*)
 
-declare i8* @valloc(i64)
+declare %mallinfo @mallinfo()
 
-declare i32 @posix_memalign(i8**, i64, i64)
-
-declare i8* @aligned_alloc(i64, i64)
+declare i32 @malloc_info(i32, %__sFILE*)
 
 declare void @abort()
+
+declare void @exit(i32)
+
+declare void @_Exit(i32)
 
 declare i32 @atexit(void ()*)
 
 declare i32 @at_quick_exit(void ()*)
 
-declare i32 @on_exit(void (i32, i8*)*, i8*)
-
-declare void @exit(i32)
-
 declare void @quick_exit(i32)
-
-declare void @_Exit(i32)
 
 declare i8* @getenv(i8*)
 
@@ -820,21 +1001,109 @@ declare i32 @unsetenv(i8*)
 
 declare i32 @clearenv()
 
+declare i8* @mkdtemp(i8*)
+
 declare i8* @mktemp(i8*)
+
+declare i32 @mkostemp64(i8*, i32)
+
+declare i32 @mkostemp(i8*, i32)
+
+declare i32 @mkostemps64(i8*, i32, i32)
+
+declare i32 @mkostemps(i8*, i32, i32)
+
+declare i32 @mkstemp64(i8*)
 
 declare i32 @mkstemp(i8*)
 
+declare i32 @mkstemps64(i8*, i32)
+
 declare i32 @mkstemps(i8*, i32)
 
-declare i8* @mkdtemp(i8*)
+declare i64 @strtol(i8*, i8**, i32)
 
-declare i32 @system(i8*)
+declare i64 @strtoll(i8*, i8**, i32)
+
+declare i64 @strtoul(i8*, i8**, i32)
+
+declare i64 @strtoull(i8*, i8**, i32)
+
+declare i32 @posix_memalign(i8**, i64, i64)
+
+declare double @strtod(i8*, i8**)
+
+declare fp128 @strtold(i8*, i8**)
+
+declare i64 @atol(i8*)
+
+declare i64 @atoll(i8*)
 
 declare i8* @realpath(i8*, i8*)
+
+declare i32 @system(i8*)
 
 declare i8* @bsearch(i8*, i8*, i64, i64, i32 (i8*, i8*)*)
 
 declare void @qsort(i8*, i64, i64, i32 (i8*, i8*)*)
+
+declare i32 @arc4random_uniform(i32)
+
+declare void @arc4random_buf(i8*, i64)
+
+declare i32 @rand_r(i32*)
+
+declare double @drand48()
+
+declare double @erand48(i16*)
+
+declare i64 @jrand48(i16*)
+
+declare void @lcong48(i16*)
+
+declare i64 @lrand48()
+
+declare i64 @mrand48()
+
+declare i64 @nrand48(i16*)
+
+declare i16* @seed48(i16*)
+
+declare void @srand48(i64)
+
+declare i8* @initstate(i32, i8*, i64)
+
+declare i8* @setstate(i8*)
+
+declare i32 @getpt()
+
+declare i32 @posix_openpt(i32)
+
+declare i8* @ptsname(i32)
+
+declare i32 @ptsname_r(i32, i8*, i64)
+
+declare i32 @unlockpt(i32)
+
+declare %anon42 @div(i32, i32)
+
+declare %anon43 @ldiv(i64, i64)
+
+declare %anon44 @lldiv(i64, i64)
+
+declare i8* @getprogname()
+
+declare void @setprogname(i8*)
+
+declare i32 @mblen(i8*, i64)
+
+declare i64 @mbstowcs(i32*, i8*, i64)
+
+declare i32 @mbtowc(i32*, i8*, i64)
+
+declare i32 @wctomb(i8*, i32)
+
+declare i64 @wcstombs(i8*, i32*, i64)
 
 declare i32 @abs(i32)
 
@@ -842,159 +1111,35 @@ declare i64 @labs(i64)
 
 declare i64 @llabs(i64)
 
-declare %anon3 @div(i32, i32)
+declare float @strtof(i8*, i8**)
 
-declare %anon4 @ldiv(i64, i64)
+declare double @atof(i8*)
 
-declare %anon5 @lldiv(i64, i64)
+declare i32 @rand()
 
-declare i8* @ecvt(double, i32, i32*, i32*)
+declare void @srand(i32)
 
-declare i8* @fcvt(double, i32, i32*, i32*)
+declare i64 @random()
 
-declare i8* @gcvt(double, i32, i8*)
+declare void @srandom(i32)
 
-declare i8* @qecvt(fp128, i32, i32*, i32*)
+declare i32 @grantpt(i32)
 
-declare i8* @qfcvt(fp128, i32, i32*, i32*)
+declare i64 @strtoll_l(i8*, i8**, i32, %__locale_t*)
 
-declare i8* @qgcvt(fp128, i32, i8*)
+declare i64 @strtoull_l(i8*, i8**, i32, %__locale_t*)
 
-declare i32 @ecvt_r(double, i32, i32*, i32*, i8*, i64)
+declare fp128 @strtold_l(i8*, i8**, %__locale_t*)
 
-declare i32 @fcvt_r(double, i32, i32*, i32*, i8*, i64)
+declare %real_pcre8_or_16* @pcre_compile(i8*, i32, i8**, i32*, i8*)
 
-declare i32 @qecvt_r(fp128, i32, i32*, i32*, i8*, i64)
-
-declare i32 @qfcvt_r(fp128, i32, i32*, i32*, i8*, i64)
-
-declare i32 @mblen(i8*, i64)
-
-declare i32 @mbtowc(i32*, i8*, i64)
-
-declare i32 @wctomb(i8*, i32)
-
-declare i64 @mbstowcs(i32*, i8*, i64)
-
-declare i64 @wcstombs(i8*, i32*, i64)
-
-declare i32 @rpmatch(i8*)
-
-declare i32 @getsubopt(i8**, i8**, i8**)
-
-declare i32 @getloadavg(double*, i32)
-
-declare i8* @memcpy(i8*, i8*, i64)
-
-declare i8* @memmove(i8*, i8*, i64)
-
-declare i8* @memccpy(i8*, i8*, i32, i64)
-
-declare i8* @memset(i8*, i32, i64)
-
-declare i32 @memcmp(i8*, i8*, i64)
-
-declare i8* @memchr(i8*, i32, i64)
-
-declare i8* @strcpy(i8*, i8*)
-
-declare i8* @strncpy(i8*, i8*, i64)
-
-declare i8* @strcat(i8*, i8*)
-
-declare i8* @strncat(i8*, i8*, i64)
-
-declare i32 @strcmp(i8*, i8*)
-
-declare i32 @strncmp(i8*, i8*, i64)
-
-declare i32 @strcoll(i8*, i8*)
-
-declare i64 @strxfrm(i8*, i8*, i64)
-
-declare i32 @strcoll_l(i8*, i8*, %__locale_struct*)
-
-declare i64 @strxfrm_l(i8*, i8*, i64, %__locale_struct*)
-
-declare i8* @strdup(i8*)
-
-declare i8* @strndup(i8*, i64)
-
-declare i8* @strchr(i8*, i32)
-
-declare i8* @strrchr(i8*, i32)
-
-declare i64 @strcspn(i8*, i8*)
-
-declare i64 @strspn(i8*, i8*)
-
-declare i8* @strpbrk(i8*, i8*)
-
-declare i8* @strstr(i8*, i8*)
-
-declare i8* @strtok(i8*, i8*)
-
-declare i8* @__strtok_r(i8*, i8*, i8**)
-
-declare i8* @strtok_r(i8*, i8*, i8**)
-
-declare i64 @strlen(i8*)
-
-declare i64 @strnlen(i8*, i64)
-
-declare i8* @strerror(i32)
-
-declare i32 @strerror_r(i32, i8*, i64)
-
-declare i8* @strerror_l(i32, %__locale_struct*)
-
-declare i32 @bcmp(i8*, i8*, i64)
-
-declare void @bcopy(i8*, i8*, i64)
-
-declare void @bzero(i8*, i64)
-
-declare i8* @index(i8*, i32)
-
-declare i8* @rindex(i8*, i32)
-
-declare i32 @ffs(i32)
-
-declare i32 @ffsl(i64)
-
-declare i32 @ffsll(i64)
-
-declare i32 @strcasecmp(i8*, i8*)
-
-declare i32 @strncasecmp(i8*, i8*, i64)
-
-declare i32 @strcasecmp_l(i8*, i8*, %__locale_struct*)
-
-declare i32 @strncasecmp_l(i8*, i8*, i64, %__locale_struct*)
-
-declare void @explicit_bzero(i8*, i64)
-
-declare i8* @strsep(i8**, i8*)
-
-declare i8* @strsignal(i32)
-
-declare i8* @__stpcpy(i8*, i8*)
-
-declare i8* @stpcpy(i8*, i8*)
-
-declare i8* @__stpncpy(i8*, i8*, i64)
-
-declare i8* @stpncpy(i8*, i8*, i64)
-
-declare %real_pcre* @pcre_compile(i8*, i32, i8**, i32*, i8*)
-
-declare %real_pcre16* @pcre16_compile(i16*, i32, i8**, i32*, i8*)
+declare %real_pcre8_or_16* @pcre16_compile(i16*, i32, i8**, i32*, i8*)
 
 declare %real_pcre32* @pcre32_compile(i32*, i32, i8**, i32*, i8*)
 
-declare %real_pcre* @pcre_compile2(i8*, i32, i32*, i8**, i32*, i8*)
+declare %real_pcre8_or_16* @pcre_compile2(i8*, i32, i32*, i8**, i32*, i8*)
 
-declare %real_pcre16* @pcre16_compile2(i16*, i32, i32*, i8**, i32*, i8*)
+declare %real_pcre8_or_16* @pcre16_compile2(i16*, i32, i32*, i8**, i32*, i8*)
 
 declare %real_pcre32* @pcre32_compile2(i32*, i32, i32*, i8**, i32*, i8*)
 
@@ -1004,9 +1149,9 @@ declare i32 @pcre16_config(i32, i8*)
 
 declare i32 @pcre32_config(i32, i8*)
 
-declare i32 @pcre_copy_named_substring(%real_pcre*, i8*, i32*, i32, i8*, i8*, i32)
+declare i32 @pcre_copy_named_substring(%real_pcre8_or_16*, i8*, i32*, i32, i8*, i8*, i32)
 
-declare i32 @pcre16_copy_named_substring(%real_pcre16*, i16*, i32*, i32, i16*, i16*, i32)
+declare i32 @pcre16_copy_named_substring(%real_pcre8_or_16*, i16*, i32*, i32, i16*, i16*, i32)
 
 declare i32 @pcre32_copy_named_substring(%real_pcre32*, i32*, i32*, i32, i32*, i32*, i32)
 
@@ -1016,21 +1161,21 @@ declare i32 @pcre16_copy_substring(i16*, i32*, i32, i32, i16*, i32)
 
 declare i32 @pcre32_copy_substring(i32*, i32*, i32, i32, i32*, i32)
 
-declare i32 @pcre_dfa_exec(%real_pcre*, %pcre_extra*, i8*, i32, i32, i32, i32*, i32, i32*, i32)
+declare i32 @pcre_dfa_exec(%real_pcre8_or_16*, %pcre_extra*, i8*, i32, i32, i32, i32*, i32, i32*, i32)
 
-declare i32 @pcre16_dfa_exec(%real_pcre16*, %pcre16_extra*, i16*, i32, i32, i32, i32*, i32, i32*, i32)
+declare i32 @pcre16_dfa_exec(%real_pcre8_or_16*, %pcre16_extra*, i16*, i32, i32, i32, i32*, i32, i32*, i32)
 
 declare i32 @pcre32_dfa_exec(%real_pcre32*, %pcre32_extra*, i32*, i32, i32, i32, i32*, i32, i32*, i32)
 
-declare i32 @pcre_exec(%real_pcre*, %pcre_extra*, i8*, i32, i32, i32, i32*, i32)
+declare i32 @pcre_exec(%real_pcre8_or_16*, %pcre_extra*, i8*, i32, i32, i32, i32*, i32)
 
-declare i32 @pcre16_exec(%real_pcre16*, %pcre16_extra*, i16*, i32, i32, i32, i32*, i32)
+declare i32 @pcre16_exec(%real_pcre8_or_16*, %pcre16_extra*, i16*, i32, i32, i32, i32*, i32)
 
 declare i32 @pcre32_exec(%real_pcre32*, %pcre32_extra*, i32*, i32, i32, i32, i32*, i32)
 
-declare i32 @pcre_jit_exec(%real_pcre*, %pcre_extra*, i8*, i32, i32, i32, i32*, i32, %real_pcre_jit_stack*)
+declare i32 @pcre_jit_exec(%real_pcre8_or_16*, %pcre_extra*, i8*, i32, i32, i32, i32*, i32, %real_pcre_jit_stack*)
 
-declare i32 @pcre16_jit_exec(%real_pcre16*, %pcre16_extra*, i16*, i32, i32, i32, i32*, i32, %real_pcre16_jit_stack*)
+declare i32 @pcre16_jit_exec(%real_pcre8_or_16*, %pcre16_extra*, i16*, i32, i32, i32, i32*, i32, %real_pcre16_jit_stack*)
 
 declare i32 @pcre32_jit_exec(%real_pcre32*, %pcre32_extra*, i32*, i32, i32, i32, i32*, i32, %real_pcre32_jit_stack*)
 
@@ -1046,27 +1191,27 @@ declare void @pcre16_free_substring_list(i16**)
 
 declare void @pcre32_free_substring_list(i32**)
 
-declare i32 @pcre_fullinfo(%real_pcre*, %pcre_extra*, i32, i8*)
+declare i32 @pcre_fullinfo(%real_pcre8_or_16*, %pcre_extra*, i32, i8*)
 
-declare i32 @pcre16_fullinfo(%real_pcre16*, %pcre16_extra*, i32, i8*)
+declare i32 @pcre16_fullinfo(%real_pcre8_or_16*, %pcre16_extra*, i32, i8*)
 
 declare i32 @pcre32_fullinfo(%real_pcre32*, %pcre32_extra*, i32, i8*)
 
-declare i32 @pcre_get_named_substring(%real_pcre*, i8*, i32*, i32, i8*, i8**)
+declare i32 @pcre_get_named_substring(%real_pcre8_or_16*, i8*, i32*, i32, i8*, i8**)
 
-declare i32 @pcre16_get_named_substring(%real_pcre16*, i16*, i32*, i32, i16*, i16**)
+declare i32 @pcre16_get_named_substring(%real_pcre8_or_16*, i16*, i32*, i32, i16*, i16**)
 
 declare i32 @pcre32_get_named_substring(%real_pcre32*, i32*, i32*, i32, i32*, i32**)
 
-declare i32 @pcre_get_stringnumber(%real_pcre*, i8*)
+declare i32 @pcre_get_stringnumber(%real_pcre8_or_16*, i8*)
 
-declare i32 @pcre16_get_stringnumber(%real_pcre16*, i16*)
+declare i32 @pcre16_get_stringnumber(%real_pcre8_or_16*, i16*)
 
 declare i32 @pcre32_get_stringnumber(%real_pcre32*, i32*)
 
-declare i32 @pcre_get_stringtable_entries(%real_pcre*, i8*, i8**, i8**)
+declare i32 @pcre_get_stringtable_entries(%real_pcre8_or_16*, i8*, i8**, i8**)
 
-declare i32 @pcre16_get_stringtable_entries(%real_pcre16*, i16*, i16**, i16**)
+declare i32 @pcre16_get_stringtable_entries(%real_pcre8_or_16*, i16*, i16**, i16**)
 
 declare i32 @pcre32_get_stringtable_entries(%real_pcre32*, i32*, i32**, i32**)
 
@@ -1088,15 +1233,15 @@ declare i8* @pcre16_maketables()
 
 declare i8* @pcre32_maketables()
 
-declare i32 @pcre_refcount(%real_pcre*, i32)
+declare i32 @pcre_refcount(%real_pcre8_or_16*, i32)
 
-declare i32 @pcre16_refcount(%real_pcre16*, i32)
+declare i32 @pcre16_refcount(%real_pcre8_or_16*, i32)
 
 declare i32 @pcre32_refcount(%real_pcre32*, i32)
 
-declare %pcre_extra* @pcre_study(%real_pcre*, i32, i8**)
+declare %pcre_extra* @pcre_study(%real_pcre8_or_16*, i32, i8**)
 
-declare %pcre16_extra* @pcre16_study(%real_pcre16*, i32, i8**)
+declare %pcre16_extra* @pcre16_study(%real_pcre8_or_16*, i32, i8**)
 
 declare %pcre32_extra* @pcre32_study(%real_pcre32*, i32, i8**)
 
@@ -1112,9 +1257,9 @@ declare i8* @pcre16_version()
 
 declare i8* @pcre32_version()
 
-declare i32 @pcre_pattern_to_host_byte_order(%real_pcre*, %pcre_extra*, i8*)
+declare i32 @pcre_pattern_to_host_byte_order(%real_pcre8_or_16*, %pcre_extra*, i8*)
 
-declare i32 @pcre16_pattern_to_host_byte_order(%real_pcre16*, %pcre16_extra*, i8*)
+declare i32 @pcre16_pattern_to_host_byte_order(%real_pcre8_or_16*, %pcre16_extra*, i8*)
 
 declare i32 @pcre32_pattern_to_host_byte_order(%real_pcre32*, %pcre32_extra*, i8*)
 
@@ -1392,7 +1537,7 @@ declare i32 @getnstr(i8*, i32)
 
 declare i32 @getstr(i8*)
 
-declare %_win_st* @getwin(%_IO_FILE*)
+declare %_win_st* @getwin(%__sFILE*)
 
 declare i32 @halfdelay(i32)
 
@@ -1556,7 +1701,7 @@ declare i32 @napms(i32)
 
 declare %_win_st* @newpad(i32, i32)
 
-declare %screen* @newterm(i8*, %_IO_FILE*, %_IO_FILE*)
+declare %screen* @newterm(i8*, %__sFILE*, %__sFILE*)
 
 declare %_win_st* @newwin(i32, i32, i32, i32)
 
@@ -1592,7 +1737,7 @@ declare i32 @prefresh(%_win_st*, i32, i32, i32, i32, i32, i32)
 
 declare i32 @printw(i8*, ...)
 
-declare i32 @putwin(%_win_st*, %_IO_FILE*)
+declare i32 @putwin(%_win_st*, %__sFILE*)
 
 declare void @qiflush()
 
@@ -1968,7 +2113,7 @@ declare i32 @flash_sp(%screen*)
 
 declare i32 @flushinp_sp(%screen*)
 
-declare %_win_st* @getwin_sp(%screen*, %_IO_FILE*)
+declare %_win_st* @getwin_sp(%screen*, %__sFILE*)
 
 declare i32 @halfdelay_sp(%screen*, i32)
 
@@ -1998,7 +2143,7 @@ declare i32 @napms_sp(%screen*, i32)
 
 declare %_win_st* @newpad_sp(%screen*, i32, i32)
 
-declare %screen* @newterm_sp(%screen*, i8*, %_IO_FILE*, %_IO_FILE*)
+declare %screen* @newterm_sp(%screen*, i8*, %__sFILE*, %__sFILE*)
 
 declare %_win_st* @newwin_sp(%screen*, i32, i32, i32, i32)
 
@@ -2130,9 +2275,9 @@ declare i32 @use_legacy_coding_sp(%screen*, i32)
 
 declare i1 @has_mouse()
 
-declare i32 @getmouse(%anon51*)
+declare i32 @getmouse(%anon99*)
 
-declare i32 @ungetmouse(%anon51*)
+declare i32 @ungetmouse(%anon99*)
 
 declare i32 @mousemask(i32, i32*)
 
@@ -2146,9 +2291,9 @@ declare i1 @mouse_trafo(i32*, i32*, i1)
 
 declare i1 @has_mouse_sp(%screen*)
 
-declare i32 @getmouse_sp(%screen*, %anon51*)
+declare i32 @getmouse_sp(%screen*, %anon99*)
 
-declare i32 @ungetmouse_sp(%screen*, %anon51*)
+declare i32 @ungetmouse_sp(%screen*, %anon99*)
 
 declare i32 @mousemask_sp(%screen*, i32, i32*)
 
@@ -2176,111 +2321,125 @@ declare i8* @_tracechtype2(i32, i32)
 
 declare void @trace(i32)
 
+declare i32 @curses_trace(i32)
+
+declare void @exit_curses(i32)
+
 declare i8* @unctrl(i32)
 
 declare i8* @unctrl_sp(%screen*, i32)
 
-declare %__dirstream* @opendir(i8*)
+declare %DIR* @opendir(i8*)
 
-declare %__dirstream* @fdopendir(i32)
+declare %DIR* @fdopendir(i32)
 
-declare i32 @closedir(%__dirstream*)
+declare %dirent* @readdir(%DIR*)
 
-declare %dirent* @readdir(%__dirstream*)
+declare %dirent64* @readdir64(%DIR*)
 
-declare i32 @readdir_r(%__dirstream*, %dirent*, %dirent**)
+declare i32 @readdir_r(%DIR*, %dirent*, %dirent**)
 
-declare void @rewinddir(%__dirstream*)
+declare i32 @readdir64_r(%DIR*, %dirent64*, %dirent64**)
 
-declare void @seekdir(%__dirstream*, i64)
+declare i32 @closedir(%DIR*)
 
-declare i64 @telldir(%__dirstream*)
+declare void @rewinddir(%DIR*)
 
-declare i32 @dirfd(%__dirstream*)
+declare void @seekdir(%DIR*, i64)
 
-declare i32 @scandir(i8*, %dirent***, i32 (%dirent*)*, i32 (%dirent**, %dirent**)*)
+declare i64 @telldir(%DIR*)
+
+declare i32 @dirfd(%DIR*)
 
 declare i32 @alphasort(%dirent**, %dirent**)
 
-declare i64 @getdirentries(i32, i8*, i64, i64*)
+declare i32 @alphasort64(%dirent64**, %dirent64**)
 
-declare i32 @stat(i8*, %stat*)
+declare i32 @scandir64(i8*, %dirent64***, i32 (%dirent64*)*, i32 (%dirent64**, %dirent64**)*)
 
-declare i32 @fstat(i32, %stat*)
-
-declare i32 @fstatat(i32, i8*, %stat*, i32)
-
-declare i32 @lstat(i8*, %stat*)
+declare i32 @scandir(i8*, %dirent***, i32 (%dirent*)*, i32 (%dirent**, %dirent**)*)
 
 declare i32 @chmod(i8*, i32)
 
-declare i32 @lchmod(i8*, i32)
-
 declare i32 @fchmod(i32, i32)
-
-declare i32 @fchmodat(i32, i8*, i32, i32)
-
-declare i32 @umask(i32)
 
 declare i32 @mkdir(i8*, i32)
 
-declare i32 @mkdirat(i32, i8*, i32)
+declare i32 @fstat(i32, %stat*)
+
+declare i32 @fstat64(i32, %stat64*)
+
+declare i32 @fstatat(i32, i8*, %stat*, i32)
+
+declare i32 @fstatat64(i32, i8*, %stat64*, i32)
+
+declare i32 @lstat(i8*, %stat*)
+
+declare i32 @lstat64(i8*, %stat64*)
+
+declare i32 @stat(i8*, %stat*)
+
+declare i32 @stat64(i8*, %stat64*)
 
 declare i32 @mknod(i8*, i32, i64)
 
-declare i32 @mknodat(i32, i8*, i32, i64)
+declare i32 @umask(i32)
 
 declare i32 @mkfifo(i8*, i32)
 
 declare i32 @mkfifoat(i32, i8*, i32)
 
+declare i32 @fchmodat(i32, i8*, i32, i32)
+
+declare i32 @mkdirat(i32, i8*, i32)
+
+declare i32 @mknodat(i32, i8*, i32, i64)
+
 declare i32 @utimensat(i32, i8*, %timespec*, i32)
 
 declare i32 @futimens(i32, %timespec*)
 
-declare i32 @__fxstat(i32, i32, %stat*)
+declare i32 @creat(i8*, i32)
 
-declare i32 @__xstat(i32, i8*, %stat*)
-
-declare i32 @__lxstat(i32, i8*, %stat*)
-
-declare i32 @__fxstatat(i32, i32, i8*, %stat*, i32)
-
-declare i32 @__xmknod(i32, i8*, i32, i64*)
-
-declare i32 @__xmknodat(i32, i32, i8*, i32, i64*)
-
-declare i32 @ioctl(i32, i64, ...)
-
-declare i32 @fcntl(i32, i32, ...)
-
-declare i32 @open(i8*, i32, ...)
+declare i32 @creat64(i8*, i32)
 
 declare i32 @openat(i32, i8*, i32, ...)
 
-declare i32 @creat(i8*, i32)
+declare i32 @openat64(i32, i8*, i32, ...)
+
+declare i32 @open64(i8*, i32, ...)
+
+declare i64 @splice(i32, i64*, i32, i64*, i64, i32)
+
+declare i64 @tee(i32, i32, i64, i32)
+
+declare i64 @vmsplice(i32, %iovec*, i64, i32)
+
+declare i32 @fallocate(i32, i32, i64, i64)
+
+declare i32 @fallocate64(i32, i32, i64, i64)
 
 declare i32 @posix_fadvise(i32, i64, i64, i32)
 
+declare i32 @posix_fadvise64(i32, i64, i64, i32)
+
 declare i32 @posix_fallocate(i32, i64, i64)
 
-declare i16** @__ctype_b_loc()
-
-declare i32** @__ctype_tolower_loc()
-
-declare i32** @__ctype_toupper_loc()
+declare i32 @posix_fallocate64(i32, i64, i64)
 
 declare i32 @isalnum(i32)
 
 declare i32 @isalpha(i32)
 
+declare i32 @isblank(i32)
+
 declare i32 @iscntrl(i32)
 
 declare i32 @isdigit(i32)
 
-declare i32 @islower(i32)
-
 declare i32 @isgraph(i32)
+
+declare i32 @islower(i32)
 
 declare i32 @isprint(i32)
 
@@ -2294,95 +2453,93 @@ declare i32 @isxdigit(i32)
 
 declare i32 @tolower(i32)
 
+declare i32 @_tolower(i32)
+
 declare i32 @toupper(i32)
 
-declare i32 @isblank(i32)
+declare i32 @_toupper(i32)
+
+declare i32 @isalnum_l(i32, %__locale_t*)
+
+declare i32 @isalpha_l(i32, %__locale_t*)
+
+declare i32 @isblank_l(i32, %__locale_t*)
+
+declare i32 @iscntrl_l(i32, %__locale_t*)
+
+declare i32 @isdigit_l(i32, %__locale_t*)
+
+declare i32 @isgraph_l(i32, %__locale_t*)
+
+declare i32 @islower_l(i32, %__locale_t*)
+
+declare i32 @isprint_l(i32, %__locale_t*)
+
+declare i32 @ispunct_l(i32, %__locale_t*)
+
+declare i32 @isspace_l(i32, %__locale_t*)
+
+declare i32 @isupper_l(i32, %__locale_t*)
+
+declare i32 @isxdigit_l(i32, %__locale_t*)
+
+declare i32 @tolower_l(i32, %__locale_t*)
+
+declare i32 @toupper_l(i32, %__locale_t*)
 
 declare i32 @isascii(i32)
 
 declare i32 @toascii(i32)
 
-declare i32 @_toupper(i32)
+declare %lconv* @localeconv()
 
-declare i32 @_tolower(i32)
+declare %__locale_t* @duplocale(%__locale_t*)
 
-declare i32 @isalnum_l(i32, %__locale_struct*)
+declare void @freelocale(%__locale_t*)
 
-declare i32 @isalpha_l(i32, %__locale_struct*)
-
-declare i32 @iscntrl_l(i32, %__locale_struct*)
-
-declare i32 @isdigit_l(i32, %__locale_struct*)
-
-declare i32 @islower_l(i32, %__locale_struct*)
-
-declare i32 @isgraph_l(i32, %__locale_struct*)
-
-declare i32 @isprint_l(i32, %__locale_struct*)
-
-declare i32 @ispunct_l(i32, %__locale_struct*)
-
-declare i32 @isspace_l(i32, %__locale_struct*)
-
-declare i32 @isupper_l(i32, %__locale_struct*)
-
-declare i32 @isxdigit_l(i32, %__locale_struct*)
-
-declare i32 @isblank_l(i32, %__locale_struct*)
-
-declare i32 @__tolower_l(i32, %__locale_struct*)
-
-declare i32 @tolower_l(i32, %__locale_struct*)
-
-declare i32 @__toupper_l(i32, %__locale_struct*)
-
-declare i32 @toupper_l(i32, %__locale_struct*)
+declare %__locale_t* @newlocale(i32, i8*, %__locale_t*)
 
 declare i8* @setlocale(i32, i8*)
 
-declare %lconv* @localeconv()
-
-declare %__locale_struct* @newlocale(i32, i8*, %__locale_struct*)
-
-declare %__locale_struct* @duplocale(%__locale_struct*)
-
-declare void @freelocale(%__locale_struct*)
-
-declare %__locale_struct* @uselocale(%__locale_struct*)
+declare %__locale_t* @uselocale(%__locale_t*)
 
 declare i8* @dlopen(i8*, i32)
 
 declare i32 @dlclose(i8*)
 
-declare i8* @dlsym(i8*, i8*)
-
 declare i8* @dlerror()
 
-declare i32 @cfgetospeed(%termios*)
+declare i8* @dlsym(i8*, i8*)
+
+declare i8* @dlvsym(i8*, i8*, i8*)
+
+declare i32 @dladdr(i8*, %anon135*)
 
 declare i32 @cfgetispeed(%termios*)
 
-declare i32 @cfsetospeed(%termios*, i32)
-
-declare i32 @cfsetispeed(%termios*, i32)
-
-declare i32 @cfsetspeed(%termios*, i32)
-
-declare i32 @tcgetattr(i32, %termios*)
-
-declare i32 @tcsetattr(i32, i32, %termios*)
+declare i32 @cfgetospeed(%termios*)
 
 declare void @cfmakeraw(%termios*)
 
-declare i32 @tcsendbreak(i32, i32)
+declare i32 @cfsetspeed(%termios*, i32)
+
+declare i32 @cfsetispeed(%termios*, i32)
+
+declare i32 @cfsetospeed(%termios*, i32)
 
 declare i32 @tcdrain(i32)
 
-declare i32 @tcflush(i32, i32)
-
 declare i32 @tcflow(i32, i32)
 
+declare i32 @tcflush(i32, i32)
+
+declare i32 @tcgetattr(i32, %termios*)
+
 declare i32 @tcgetsid(i32)
+
+declare i32 @tcsendbreak(i32, i32)
+
+declare i32 @tcsetattr(i32, i32, %termios*)
 
 declare void @class_init()
 
@@ -2670,15 +2827,15 @@ declare void @shell_run_command(i8*, %vector__sCLTypep*)
 
 declare void @shell_commandline(i8*, i32, %vector__sCLTypep*)
 
-declare %LuckyStrike* @LuckyStrike_initialize(%LuckyStrike*)
+declare %iQos* @iQos_initialize(%iQos*)
 
-declare void @LuckyStrike_finalize(%LuckyStrike*)
+declare void @iQos_finalize(%iQos*)
 
-declare i1 @LuckyStrike_main_loop(%LuckyStrike*)
+declare i1 @iQos_main_loop(%iQos*)
 
-declare void @LuckyStrike_exit(%LuckyStrike*)
+declare void @iQos_exit(%iQos*)
 
-declare %Filer* @Filer_initialize(%Filer*, i8*, %LuckyStrike*)
+declare %Filer* @Filer_initialize(%Filer*, i8*, %iQos*)
 
 declare void @Filer_finalize(%Filer*)
 
@@ -2704,14 +2861,14 @@ entry:
   %argc1 = alloca i32
   store i32 %argc, i32* %argc1, align 4
   %2 = bitcast i32* %argc1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %argv2 = alloca i8**
   store i8** %argv, i8*** %argv2, align 8
   %3 = bitcast i8*** %argv2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
   %no_load_fudamental_classes = alloca i1
   %4 = bitcast i1* %no_load_fudamental_classes to i8*
-  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   store i1 false, i1* %no_load_fudamental_classes, align 1
   %5 = call i8* @setlocale(i32 6, i8* getelementptr inbounds ([1 x i8], [1 x i8]* @global_string, i32 0, i32 0))
   call void @set_signal_shell()
@@ -2720,31 +2877,31 @@ entry:
   %8 = call %vector__sCLTypep* @"vector_initialize_sCLTypep0_src/main"(%vector__sCLTypep* %7)
   %types = alloca %vector__sCLTypep*
   %9 = bitcast %vector__sCLTypep** %types to i8*
-  store i8* %9, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %9, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   store %vector__sCLTypep* %8, %vector__sCLTypep** %types, align 8
   call void @clover3_init()
   %no_load_fudamental_classes3 = load i1, i1* %no_load_fudamental_classes, align 1
   call void @compiler_init(i1 %no_load_fudamental_classes3)
   call void @heap_init(i32 128, i32 128)
-  %10 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @global_string.9, i32 0, i32 0), i8* getelementptr inbounds ([12 x i8], [12 x i8]* @global_string.10, i32 0, i32 0), i32 18, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @global_string.11, i32 0, i32 0), i8* getelementptr inbounds ([5 x i8], [5 x i8]* @global_string.12, i32 0, i32 0))
-  %11 = bitcast i8* %10 to %LuckyStrike*
-  %12 = call %LuckyStrike* @LuckyStrike_initialize(%LuckyStrike* %11)
-  %lucky = alloca %LuckyStrike*
-  %13 = bitcast %LuckyStrike** %lucky to i8*
-  store i8* %13, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
-  store %LuckyStrike* %12, %LuckyStrike** %lucky, align 8
-  %lucky4 = load %LuckyStrike*, %LuckyStrike** %lucky, align 8
-  %14 = call i1 @LuckyStrike_main_loop(%LuckyStrike* %lucky4)
+  %10 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @global_string.9, i32 0, i32 0), i8* getelementptr inbounds ([12 x i8], [12 x i8]* @global_string.10, i32 0, i32 0), i32 18, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @global_string.11, i32 0, i32 0), i8* getelementptr inbounds ([5 x i8], [5 x i8]* @global_string.12, i32 0, i32 0))
+  %11 = bitcast i8* %10 to %iQos*
+  %12 = call %iQos* @iQos_initialize(%iQos* %11)
+  %iqos = alloca %iQos*
+  %13 = bitcast %iQos** %iqos to i8*
+  store i8* %13, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
+  store %iQos* %12, %iQos** %iqos, align 8
+  %iqos4 = load %iQos*, %iQos** %iqos, align 8
+  %14 = call i1 @iQos_main_loop(%iQos* %iqos4)
   %LOGICAL_DIANEAL = icmp eq i1 %14, false
   br i1 %LOGICAL_DIANEAL, label %cond_jump_then, label %cond_end
 
 cond_jump_then:                                   ; preds = %entry
-  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
-  %16 = bitcast i8* %15 to %LuckyStrike**
-  %lucky5 = load %LuckyStrike*, %LuckyStrike** %16, align 8
-  call void @LuckyStrike_exit(%LuckyStrike* %lucky5)
-  %stderr = load %_IO_FILE*, %_IO_FILE** @stderr, align 8
-  %17 = call i32 (%_IO_FILE*, i8*, ...) @fprintf(%_IO_FILE* %stderr, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @global_string.13, i32 0, i32 0))
+  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
+  %16 = bitcast i8* %15 to %iQos**
+  %iqos5 = load %iQos*, %iQos** %16, align 8
+  call void @iQos_exit(%iQos* %iqos5)
+  %stderr = load %__sFILE*, %__sFILE** @stderr, align 8
+  %17 = call i32 (%__sFILE*, i8*, ...) @fprintf(%__sFILE* %stderr, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @global_string.13, i32 0, i32 0))
   call void @exit(i32 1)
   br label %cond_end
 
@@ -2754,14 +2911,14 @@ cond_end:                                         ; preds = %cond_jump_then, %en
   call void @compiler_final()
   %18 = bitcast [8192 x i8*]* %lvtable to i8*
   %19 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %18, i64 65536)
-  %20 = load %LuckyStrike*, %LuckyStrike** %lucky, align 8
-  call void @LuckyStrike_finalize(%LuckyStrike* %20)
-  %21 = ptrtoint %LuckyStrike* %20 to i64
+  %20 = load %iQos*, %iQos** %iqos, align 8
+  call void @iQos_finalize(%iQos* %20)
+  %21 = ptrtoint %iQos* %20 to i64
   %22 = icmp ne i64 %21, 0
   br i1 %22, label %cond_then_block, label %cond_end6
 
 cond_then_block:                                  ; preds = %cond_end
-  %23 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %20, i32 0, i32 0
+  %23 = getelementptr inbounds %iQos, %iQos* %20, i32 0, i32 0
   %24 = load %Filer*, %Filer** %23, align 8
   call void @Filer_finalize(%Filer* %24)
   %25 = ptrtoint %Filer* %24 to i64
@@ -2769,7 +2926,7 @@ cond_then_block:                                  ; preds = %cond_end
   br i1 %26, label %cond_then_block7, label %cond_end8
 
 cond_end6:                                        ; preds = %cond_end14, %cond_end
-  %27 = bitcast %LuckyStrike* %20 to i8*
+  %27 = bitcast %iQos* %20 to i8*
   call void @xxxfree(i8* %27)
   %28 = load %vector__sCLTypep*, %vector__sCLTypep** %types, align 8
   call void @"vector_finalize_sCLTypep4_src/main"(%vector__sCLTypep* %28)
@@ -2787,7 +2944,7 @@ cond_then_block7:                                 ; preds = %cond_then_block
 cond_end8:                                        ; preds = %cond_end12, %cond_then_block
   %35 = bitcast %Filer* %24 to i8*
   call void @xxxfree(i8* %35)
-  %36 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %20, i32 0, i32 2
+  %36 = getelementptr inbounds %iQos, %iQos* %20, i32 0, i32 2
   %37 = load %vector__sCLTypep*, %vector__sCLTypep** %36, align 8
   call void @"vector_finalize_sCLTypep3_src/main"(%vector__sCLTypep* %37)
   %38 = ptrtoint %vector__sCLTypep* %37 to i64
@@ -2840,7 +2997,7 @@ entry:
   %self1 = alloca %vector__sCLTypep*
   store %vector__sCLTypep* %self, %vector__sCLTypep** %self1, align 8
   %2 = bitcast %vector__sCLTypep** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %self2 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
   %3 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self2, i32 0, i32 2
   store i32 16, i32* %3, align 4
@@ -2852,7 +3009,7 @@ entry:
   %5 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self5, i32 0, i32 2
   %6 = load i32, i32* %5, align 4
   %sext14 = zext i32 %6 to i64
-  %7 = call i8* @debug_xcalloc(i64 %sext14, i64 8, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @global_string.5, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.6, i32 0, i32 0), i32 455, i8* getelementptr inbounds ([30 x i8], [30 x i8]* @global_string.7, i32 0, i32 0), i8* getelementptr inbounds ([37 x i8], [37 x i8]* @global_string.8, i32 0, i32 0))
+  %7 = call i8* @debug_xcalloc(i64 %sext14, i64 8, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @global_string.5, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.6, i32 0, i32 0), i32 455, i8* getelementptr inbounds ([30 x i8], [30 x i8]* @global_string.7, i32 0, i32 0), i8* getelementptr inbounds ([37 x i8], [37 x i8]* @global_string.8, i32 0, i32 0))
   %8 = bitcast i8* %7 to %sCLType**
   %9 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self4, i32 0, i32 0
   store %sCLType** %8, %sCLType*** %9, align 8
@@ -2870,7 +3027,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %eqtmpX = icmp eq %list__charp* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -2886,7 +3043,7 @@ cond_end:                                         ; preds = %entry
   %6 = load %list_item__charp*, %list_item__charp** %5, align 8
   %it = alloca %list_item__charp*
   %7 = bitcast %list_item__charp** %it to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   store %list_item__charp* %6, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -2904,7 +3061,7 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret void
 
 cond_jump_then5:                                  ; preds = %cond_then_block
-  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %11 = bitcast i8* %10 to %list_item__charp**
   %it7 = load %list_item__charp*, %list_item__charp** %11, align 8
   %12 = getelementptr inbounds %list_item__charp, %list_item__charp* %it7, i32 0, i32 0
@@ -2915,19 +3072,19 @@ cond_jump_then5:                                  ; preds = %cond_then_block
   br i1 %16, label %cond_then_block8, label %cond_end9
 
 cond_end6:                                        ; preds = %cond_end9, %cond_then_block
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %18 = bitcast i8* %17 to %list_item__charp**
   %it10 = load %list_item__charp*, %list_item__charp** %18, align 8
   %prev_it = alloca %list_item__charp*
   %19 = bitcast %list_item__charp** %prev_it to i8*
-  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   store %list_item__charp* %it10, %list_item__charp** %prev_it, align 8
-  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %21 = bitcast i8* %20 to %list_item__charp**
   %it11 = load %list_item__charp*, %list_item__charp** %21, align 8
   %22 = getelementptr inbounds %list_item__charp, %list_item__charp* %it11, i32 0, i32 2
   %23 = load %list_item__charp*, %list_item__charp** %22, align 8
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %25 = bitcast i8* %24 to %list_item__charp**
   store %list_item__charp* %23, %list_item__charp** %25, align 8
   %prev_it12 = load %list_item__charp*, %list_item__charp** %prev_it, align 8
@@ -2960,7 +3117,7 @@ entry:
   %self1 = alloca %vector__sCLTypep*
   store %vector__sCLTypep* %self, %vector__sCLTypep** %self1, align 8
   %2 = bitcast %vector__sCLTypep** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %self2 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
   %eqtmpX = icmp eq %vector__sCLTypep* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -2976,7 +3133,7 @@ cond_end:                                         ; preds = %entry
 cond_jump_then3:                                  ; preds = %cond_end
   %i = alloca i32
   %5 = bitcast i32* %i to i8*
-  store i8* %5, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  store i8* %5, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   store i32 0, i32* %i, align 4
   br label %loop_top_block
 
@@ -2993,7 +3150,7 @@ cond_end4:                                        ; preds = %cond_end_block, %co
 
 loop_top_block:                                   ; preds = %cond_end10, %cond_jump_then3
   %i5 = load i32, i32* %i, align 4
-  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %13 = bitcast i8* %12 to %vector__sCLTypep**
   %self6 = load %vector__sCLTypep*, %vector__sCLTypep** %13, align 8
   %14 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self6, i32 0, i32 1
@@ -3002,7 +3159,7 @@ loop_top_block:                                   ; preds = %cond_end10, %cond_j
   br i1 %letmp, label %cond_then_block, label %cond_end_block
 
 cond_then_block:                                  ; preds = %loop_top_block
-  %16 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %16 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %17 = bitcast i8* %16 to %vector__sCLTypep**
   %self7 = load %vector__sCLTypep*, %vector__sCLTypep** %17, align 8
   %18 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self7, i32 0, i32 0
@@ -3050,7 +3207,7 @@ entry:
   %self1 = alloca %vector__sCLTypep*
   store %vector__sCLTypep* %self, %vector__sCLTypep** %self1, align 8
   %2 = bitcast %vector__sCLTypep** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %self2 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
   %eqtmpX = icmp eq %vector__sCLTypep* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -3066,7 +3223,7 @@ cond_end:                                         ; preds = %entry
 cond_jump_then3:                                  ; preds = %cond_end
   %i = alloca i32
   %5 = bitcast i32* %i to i8*
-  store i8* %5, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  store i8* %5, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   store i32 0, i32* %i, align 4
   br label %loop_top_block
 
@@ -3083,7 +3240,7 @@ cond_end4:                                        ; preds = %cond_end_block, %co
 
 loop_top_block:                                   ; preds = %cond_end10, %cond_jump_then3
   %i5 = load i32, i32* %i, align 4
-  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %13 = bitcast i8* %12 to %vector__sCLTypep**
   %self6 = load %vector__sCLTypep*, %vector__sCLTypep** %13, align 8
   %14 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self6, i32 0, i32 1
@@ -3092,7 +3249,7 @@ loop_top_block:                                   ; preds = %cond_end10, %cond_j
   br i1 %letmp, label %cond_then_block, label %cond_end_block
 
 cond_then_block:                                  ; preds = %loop_top_block
-  %16 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %16 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %17 = bitcast i8* %16 to %vector__sCLTypep**
   %self7 = load %vector__sCLTypep*, %vector__sCLTypep** %17, align 8
   %18 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self7, i32 0, i32 0
@@ -3137,5 +3294,5 @@ attributes #0 = { nounwind }
 !llvm.dbg.cu = !{!0}
 
 !0 = distinct !DICompileUnit(language: DW_LANG_C, file: !1, producer: "neo-c", isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug, enums: !2)
-!1 = !DIFile(filename: "src/main.nc", directory: "/home/ab25cq/repo/neo-c/luckystrike")
+!1 = !DIFile(filename: "src/main.nc", directory: "/data/data/com.termux/files/home/repo/neo-c/iqos")
 !2 = !{}

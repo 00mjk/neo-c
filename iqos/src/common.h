@@ -7,25 +7,25 @@
 
 struct Filer;
 
-struct LuckyStrike 
+struct iQos 
 {
     Filer*% filer;
     bool app_end;
     vector<sCLType*%>*% types;
 };
 
-impl LuckyStrike 
+impl iQos 
 {
     initialize();
     finalize();
 
-    bool main_loop(LuckyStrike* self);
-    void exit(LuckyStrike* self);
+    bool main_loop(iQos* self);
+    void exit(iQos* self);
 }
 
 struct Filer 
 {
-    LuckyStrike* lucky;
+    iQos* iqos;
     string path;
     list<string>*% files;
     int cursor;
@@ -35,7 +35,7 @@ struct Filer
 
 impl Filer 
 {
-    initialize(char* path, LuckyStrike* lucky);
+    initialize(char* path, iQos* iqos);
     finalize();
     bool read_dir(Filer* self);
     void view(Filer* self);

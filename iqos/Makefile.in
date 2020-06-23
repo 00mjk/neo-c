@@ -30,11 +30,11 @@ COMPILER_OBJS=@COMPILER_OBJS@
 ##########################################################
 # main
 ##########################################################
-all: luckystrike 
+all: iqos 
 #	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
-luckystrike: config.h src/*.h Makefile configure src/main.nc src/filer.o
-	$(CC) -o luckystrike src/main.nc src/filer.o $(CFLAGS) $(NCFLAGS) $(LIBS) ../sevenstars/src/compiler.o ../sevenstars/src/parser.o ../sevenstars/src/node.o ../sevenstars/src/type.o ../sevenstars/src/class.o ../sevenstars/src/native.o ../sevenstars/src/native2.o ../sevenstars/src/vm.o ../sevenstars/src/vtable.o ../sevenstars/src/heap.o ../sevenstars/src/object.o ../sevenstars/src/block.o ../sevenstars/src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
+iqos: config.h src/*.h Makefile configure src/main.nc src/filer.o
+	$(CC) -o iqos src/main.nc src/filer.o $(CFLAGS) $(NCFLAGS) $(LIBS) ../sevenstars/src/compiler.o ../sevenstars/src/parser.o ../sevenstars/src/node.o ../sevenstars/src/type.o ../sevenstars/src/class.o ../sevenstars/src/native.o ../sevenstars/src/native2.o ../sevenstars/src/vm.o ../sevenstars/src/vtable.o ../sevenstars/src/heap.o ../sevenstars/src/object.o ../sevenstars/src/block.o ../sevenstars/src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
 
 ##########################################################
 # objects
@@ -50,13 +50,13 @@ install:
 #	$(INSTALL) -m 644 sevenstars.ss $(DESTDIR)/share/sevenstars
 
 	mkdir -p "$(DESTDIR)/bin"
-	$(INSTALL) -m 755 ./luckystrike "$(DESTDIR)/bin"
+	$(INSTALL) -m 755 ./iqos "$(DESTDIR)/bin"
 
 #########################################################
 # uninstall
 #########################################################
 uninstall:
-	rm -f "$(DESTDIR)"/bin/luckystrike
+	rm -f "$(DESTDIR)"/bin/iqos
 
 #########################################################
 # permission
@@ -71,7 +71,7 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR luckystrike luckystrike.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core a.out *.out *.ssc
+	rm -fR iqos iqos.dSYM src/*.o src/*.out src/*.bc src/*.ll config.log config.status *.stackdump autom4te.cache .DS_Store core a.out *.out *.ssc
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache
@@ -80,5 +80,5 @@ distclean: clean
 # test
 ########################################################
 test: 
-	(cd ../..; luckystrike)
+	(cd ../..; iqos)
 

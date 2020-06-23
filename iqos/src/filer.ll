@@ -1,10 +1,8 @@
 ; ModuleID = 'Module filer'
 source_filename = "Module filer"
 
-%_IO_FILE = type { i32, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, %_IO_marker*, %_IO_FILE*, i32, i32, i64, i16, i8, [1 x i8], i8*, i64, %_IO_codecvt*, %_IO_wide_data*, %_IO_FILE*, i8*, i64, i32, [20 x i8] }
-%_IO_marker = type {}
-%_IO_codecvt = type {}
-%_IO_wide_data = type {}
+%__sFILE = type { i8*, i32, i32, i32, i32, %__sbuf, i32, i8*, i32 (i8*)*, i32 (i8*, i8*, i32)*, i64 (i8*, i64, i32)*, i32 (i8*, i8*, i32)*, %__sbuf, i8*, i32, [3 x i8], [1 x i8], %__sbuf, i32, i64 }
+%__sbuf = type { i8*, i64 }
 %pcre_callout_block = type { i32, i32, i32*, i8*, i32, i32, i32, i32, i32, i8*, i32, i32, i8* }
 %pcre16_callout_block = type { i32, i32, i32*, i16*, i32, i32, i32, i32, i32, i8*, i32, i32, i16* }
 %pcre32_callout_block = type { i32, i32, i32*, i32*, i32, i32, i32, i32, i32, i8*, i32, i32, i32* }
@@ -20,9 +18,9 @@ source_filename = "Module filer"
 %buffer = type { i8*, i32, i32 }
 %sCLNodeBlock = type { %vector__sCLNodep*, %vector__sVarTablep*, i1, i32, [32 x %sCLParam], %sCLType*, i32, %buffer*, i32, i1 }
 %vector__sCLNodep = type { %sCLNode**, i32, i32 }
-%sCLNode = type { i32, [4096 x i8], i32, %anon80, i8*, i8*, i8*, %buffer*, %sCLType*, %sCLNode*, %sCLNode*, %sCLNode* }
-%anon80 = type { %anon82 }
-%anon82 = type { %sCLNodeBlock*, [32 x %sCLParam], i32, %sCLType* }
+%sCLNode = type { i32, [4096 x i8], i32, %anon143, i8*, i8*, i8*, %buffer*, %sCLType*, %sCLNode*, %sCLNode*, %sCLNode* }
+%anon143 = type { %anon145 }
+%anon145 = type { %sCLNodeBlock*, [32 x %sCLParam], i32, %sCLType* }
 %vector__sVarTablep = type { %sVarTable**, i32, i32 }
 %sVarTable = type { %map__charp_sVarp*, i32, i32, i32, %sVarTable* }
 %map__charp_sVarp = type { i8**, i1*, %sVar**, i32, i32 }
@@ -42,24 +40,31 @@ source_filename = "Module filer"
 %sCompileInfo = type { [4096 x i8], i32, i32, i32, %sParserInfo*, %buffer*, %sCLType*, i1, %sCLNode*, i1 }
 %vector__sCLStackFrame = type { %sCLStackFrame*, i32, i32 }
 %sCLStackFrame = type { i32, %CLVALUE*, %CLVALUE**, i32, i32 }
-%__locale_struct = type { [13 x %__locale_data*], i16*, i32*, i32*, [13 x i8*] }
-%__locale_data = type opaque
-%anon0 = type { i32, %anon1 }
-%anon1 = type { i32 }
+%__locale_t = type {}
 %__builtin_va_list.0 = type { i8* }
-%tm = type {}
-%_G_fpos_t = type { i64, %anon0 }
-%anon7 = type { [16 x i64] }
-%timeval = type { i64, i64 }
+%sigaction = type { i32, %anon36, %anon9, void ()* }
+%anon36 = type { void (i32)* }
+%anon9 = type { [1 x i64] }
+%sigaltstack = type { i8*, i32, i64 }
+%siginfo = type { %anon31 }
+%anon31 = type { [32 x i32] }
+%sigval = type {}
 %timespec = type { i64, i64 }
-%anon6 = type { [16 x i64] }
-%random_data = type { i32*, i32*, i32*, i32, i32, i32, i32* }
-%drand48_data = type { [3 x i16], [3 x i16], i16, i16, i64 }
-%anon3 = type { i32, i32 }
-%anon4 = type { i64, i64 }
-%anon5 = type { i64, i64 }
-%real_pcre = type {}
-%real_pcre16 = type {}
+%anon40 = type { [16 x i64] }
+%timeval = type { i64, i64 }
+%timezone = type { i32, i32 }
+%itimerval = type { %timeval, %timeval }
+%tm = type { i32, i32, i32, i32, i32, i32, i32, i32, i32, i64, i8* }
+%sigevent = type { %anon10, i32, i32, %anon33 }
+%anon10 = type { i8* }
+%anon33 = type { [12 x i32] }
+%itimerspec = type { %timespec, %timespec }
+%anon41 = type { [4 x i8], [4 x i8] }
+%mallinfo = type { i64, i64, i64, i64, i64, i64, i64, i64, i64, i64 }
+%anon42 = type { i32, i32 }
+%anon43 = type { i64, i64 }
+%anon44 = type { i64, i64 }
+%real_pcre8_or_16 = type {}
 %real_pcre32 = type {}
 %pcre_extra = type { i64, i8*, i64, i8*, i8*, i64, i8**, i8* }
 %pcre16_extra = type { i64, i8*, i64, i8*, i8*, i64, i16**, i8* }
@@ -67,35 +72,42 @@ source_filename = "Module filer"
 %real_pcre_jit_stack = type {}
 %real_pcre16_jit_stack = type {}
 %real_pcre32_jit_stack = type {}
-%regex_struct = type { i8*, %real_pcre*, i1, i1, i1, i1, i1, i1, i1, i1 }
+%regex_struct = type { i8*, %real_pcre8_or_16*, i1, i1, i1, i1, i1, i1, i1, i1 }
 %list__charp = type { %list_item__charp*, %list_item__charp*, i32 }
 %list_item__charp = type { i8*, %list_item__charp*, %list_item__charp* }
 %screen = type opaque
-%anon51 = type { i16, i32, i32, i32, i32 }
-%__dirstream = type opaque
+%anon99 = type { i16, i32, i32, i32, i32 }
+%DIR = type opaque
 %dirent = type { i64, i64, i16, i8, [256 x i8] }
-%stat = type { i64, i64, i64, i32, i32, i32, i32, i64, i64, i64, i64, %timespec, %timespec, %timespec, [3 x i64] }
+%dirent64 = type { i64, i64, i16, i8, [256 x i8] }
+%stat = type { i64, i64, i32, i32, i32, i32, i64, i64, i64, i32, i32, i64, %timespec, %timespec, %timespec, i32, i32 }
+%stat64 = type { i64, i64, i32, i32, i32, i32, i64, i64, i64, i32, i32, i64, %timespec, %timespec, %timespec, i32, i32 }
+%iovec = type { i8*, i64 }
 %lconv = type { i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8, i8 }
-%termios = type { i32, i32, i32, i32, i8, [32 x i8], i32, i32 }
+%anon135 = type { i8*, i8*, i8*, i8* }
+%termios = type { i32, i32, i32, i32, i8, [19 x i8] }
 %sCLHeapMem = type { %sCLType*, i32, i32, i8* }
 %map__charp_int = type { i8**, i1*, i32*, i32, i32 }
-%LuckyStrike = type { %Filer*, i1, %vector__sCLTypep* }
-%Filer = type { %LuckyStrike*, i8*, %list__charp*, i32, i32, i32 }
+%iQos = type { %Filer*, i1, %vector__sCLTypep* }
+%Filer = type { %iQos*, i8*, %list__charp*, i32, i32, i32 }
 %winsize = type { i16, i16, i16, i16 }
 %sCLJob = type { %sCLType*, i32, i32, [32 x i8], %termios, i32 }
 
 @gLVTable = internal global [8192 x i8*] zeroinitializer, align 8
 @gNCDebugHeap = external global i32
-@__environ = external externally_initialized global i8**, align 8
+@stdin = external externally_initialized global %__sFILE*, align 8
+@stdout = external externally_initialized global %__sFILE*, align 8
+@stderr = external externally_initialized global %__sFILE*, align 8
+@sys_siglist = external externally_initialized global [65 x i8*], align 8
+@sys_signame = external externally_initialized global [65 x i8*], align 8
+@tzname = external externally_initialized global i8**, align 8
+@daylight = external externally_initialized global i32, align 4
+@timezone = external externally_initialized global i64
 @optarg = external externally_initialized global i8*, align 8
 @optind = external externally_initialized global i32, align 4
 @opterr = external externally_initialized global i32, align 4
 @optopt = external externally_initialized global i32, align 4
-@stdin = external externally_initialized global %_IO_FILE*, align 8
-@stdout = external externally_initialized global %_IO_FILE*, align 8
-@stderr = external externally_initialized global %_IO_FILE*, align 8
-@sys_nerr = external externally_initialized global i32, align 4
-@sys_errlist = external externally_initialized global i8**, align 8
+@environ = external externally_initialized global i8**, align 8
 @pcre_malloc = external externally_initialized global i8* (i64)*, align 8
 @pcre_free = external externally_initialized global void (i8*)*, align 8
 @pcre_stack_malloc = external externally_initialized global i8* (i64)*, align 8
@@ -125,6 +137,7 @@ source_filename = "Module filer"
 @ESCDELAY = external externally_initialized global i32, align 4
 @LINES = external externally_initialized global i32, align 4
 @TABSIZE = external externally_initialized global i32, align 4
+@_ctype_ = external externally_initialized global i8*, align 8
 @gClasses = external externally_initialized global %map__charp_sCLClassp*, align 8
 @gJobs = external externally_initialized global %list__int*, align 8
 @gNativeMethods = external externally_initialized global %map__charp_lambdap*, align 8
@@ -133,13 +146,13 @@ source_filename = "Module filer"
 @global_string.2 = private constant [7 x i8] c"Filer%\00", align 1
 @global_string.3 = private constant [13 x i8] c"src/filer.nc\00", align 1
 @global_string.4 = private constant [11 x i8] c"initialize\00", align 1
-@global_string.5 = private constant [23 x i8] c"LuckyStrike_initialize\00", align 1
+@global_string.5 = private constant [16 x i8] c"iQos_initialize\00", align 1
 @global_string.6 = private constant [19 x i8] c"vector%<sCLType*%>\00", align 1
 @global_string.7 = private constant [13 x i8] c"src/filer.nc\00", align 1
 @global_string.8 = private constant [11 x i8] c"initialize\00", align 1
-@global_string.9 = private constant [23 x i8] c"LuckyStrike_initialize\00", align 1
+@global_string.9 = private constant [16 x i8] c"iQos_initialize\00", align 1
 @global_string.10 = private constant [10 x i8] c"sCLType*%\00", align 1
-@global_string.11 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.11 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.12 = private constant [31 x i8] c"initialize_sCLTypep2_src/filer\00", align 1
 @global_string.13 = private constant [38 x i8] c"vector_initialize_sCLTypep2_src/filer\00", align 1
 @global_string.14 = private constant [14 x i8] c"list%<char*%>\00", align 1
@@ -147,279 +160,279 @@ source_filename = "Module filer"
 @global_string.16 = private constant [11 x i8] c"initialize\00", align 1
 @global_string.17 = private constant [17 x i8] c"Filer_initialize\00", align 1
 @global_string.18 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.19 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.19 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.20 = private constant [28 x i8] c"push_back_charp10_src/filer\00", align 1
 @global_string.21 = private constant [33 x i8] c"list_push_back_charp10_src/filer\00", align 1
 @global_string.22 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.23 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.23 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.24 = private constant [28 x i8] c"push_back_charp10_src/filer\00", align 1
 @global_string.25 = private constant [33 x i8] c"list_push_back_charp10_src/filer\00", align 1
 @global_string.26 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.27 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.27 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.28 = private constant [28 x i8] c"push_back_charp10_src/filer\00", align 1
 @global_string.29 = private constant [33 x i8] c"list_push_back_charp10_src/filer\00", align 1
 @global_string.30 = private constant [14 x i8] c"list%<char*%>\00", align 1
-@global_string.31 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.31 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.32 = private constant [24 x i8] c"clone_charp13_src/filer\00", align 1
 @global_string.33 = private constant [29 x i8] c"list_clone_charp13_src/filer\00", align 1
 @global_string.34 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.35 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.35 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.36 = private constant [28 x i8] c"push_back_charp15_src/filer\00", align 1
 @global_string.37 = private constant [33 x i8] c"list_push_back_charp15_src/filer\00", align 1
 @global_string.38 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.39 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.39 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.40 = private constant [28 x i8] c"push_back_charp15_src/filer\00", align 1
 @global_string.41 = private constant [33 x i8] c"list_push_back_charp15_src/filer\00", align 1
 @global_string.42 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.43 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.43 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.44 = private constant [28 x i8] c"push_back_charp15_src/filer\00", align 1
 @global_string.45 = private constant [33 x i8] c"list_push_back_charp15_src/filer\00", align 1
 @global_string.46 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.47 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.47 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.48 = private constant [28 x i8] c"push_back_charp16_src/filer\00", align 1
 @global_string.49 = private constant [33 x i8] c"list_push_back_charp16_src/filer\00", align 1
 @global_string.50 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.51 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.51 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.52 = private constant [28 x i8] c"push_back_charp16_src/filer\00", align 1
 @global_string.53 = private constant [33 x i8] c"list_push_back_charp16_src/filer\00", align 1
 @global_string.54 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.55 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.55 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.56 = private constant [28 x i8] c"push_back_charp16_src/filer\00", align 1
 @global_string.57 = private constant [33 x i8] c"list_push_back_charp16_src/filer\00", align 1
 @global_string.58 = private constant [14 x i8] c"list%<char*%>\00", align 1
-@global_string.59 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.59 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.60 = private constant [24 x i8] c"clone_charp17_src/filer\00", align 1
 @global_string.61 = private constant [29 x i8] c"list_clone_charp17_src/filer\00", align 1
 @global_string.62 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.63 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.63 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.64 = private constant [28 x i8] c"push_back_charp19_src/filer\00", align 1
 @global_string.65 = private constant [33 x i8] c"list_push_back_charp19_src/filer\00", align 1
 @global_string.66 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.67 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.67 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.68 = private constant [28 x i8] c"push_back_charp19_src/filer\00", align 1
 @global_string.69 = private constant [33 x i8] c"list_push_back_charp19_src/filer\00", align 1
 @global_string.70 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.71 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.71 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.72 = private constant [28 x i8] c"push_back_charp19_src/filer\00", align 1
 @global_string.73 = private constant [33 x i8] c"list_push_back_charp19_src/filer\00", align 1
 @global_string.74 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.75 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.75 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.76 = private constant [28 x i8] c"push_back_charp20_src/filer\00", align 1
 @global_string.77 = private constant [33 x i8] c"list_push_back_charp20_src/filer\00", align 1
 @global_string.78 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.79 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.79 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.80 = private constant [28 x i8] c"push_back_charp20_src/filer\00", align 1
 @global_string.81 = private constant [33 x i8] c"list_push_back_charp20_src/filer\00", align 1
 @global_string.82 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.83 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.83 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.84 = private constant [28 x i8] c"push_back_charp20_src/filer\00", align 1
 @global_string.85 = private constant [33 x i8] c"list_push_back_charp20_src/filer\00", align 1
 @global_string.86 = private constant [14 x i8] c"list%<char*%>\00", align 1
-@global_string.87 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.87 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.88 = private constant [29 x i8] c"merge_sort_charp12_src/filer\00", align 1
 @global_string.89 = private constant [34 x i8] c"list_merge_sort_charp12_src/filer\00", align 1
 @global_string.90 = private constant [14 x i8] c"list%<char*%>\00", align 1
-@global_string.91 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.91 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.92 = private constant [29 x i8] c"merge_sort_charp12_src/filer\00", align 1
 @global_string.93 = private constant [34 x i8] c"list_merge_sort_charp12_src/filer\00", align 1
 @global_string.94 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.95 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.95 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.96 = private constant [28 x i8] c"push_back_charp23_src/filer\00", align 1
 @global_string.97 = private constant [33 x i8] c"list_push_back_charp23_src/filer\00", align 1
 @global_string.98 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.99 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.99 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.100 = private constant [28 x i8] c"push_back_charp23_src/filer\00", align 1
 @global_string.101 = private constant [33 x i8] c"list_push_back_charp23_src/filer\00", align 1
 @global_string.102 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.103 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.103 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.104 = private constant [28 x i8] c"push_back_charp23_src/filer\00", align 1
 @global_string.105 = private constant [33 x i8] c"list_push_back_charp23_src/filer\00", align 1
 @global_string.106 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.107 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.107 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.108 = private constant [28 x i8] c"push_back_charp24_src/filer\00", align 1
 @global_string.109 = private constant [33 x i8] c"list_push_back_charp24_src/filer\00", align 1
 @global_string.110 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.111 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.111 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.112 = private constant [28 x i8] c"push_back_charp24_src/filer\00", align 1
 @global_string.113 = private constant [33 x i8] c"list_push_back_charp24_src/filer\00", align 1
 @global_string.114 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.115 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.115 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.116 = private constant [28 x i8] c"push_back_charp24_src/filer\00", align 1
 @global_string.117 = private constant [33 x i8] c"list_push_back_charp24_src/filer\00", align 1
 @global_string.118 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.119 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.119 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.120 = private constant [28 x i8] c"push_back_charp25_src/filer\00", align 1
 @global_string.121 = private constant [33 x i8] c"list_push_back_charp25_src/filer\00", align 1
 @global_string.122 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.123 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.123 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.124 = private constant [28 x i8] c"push_back_charp25_src/filer\00", align 1
 @global_string.125 = private constant [33 x i8] c"list_push_back_charp25_src/filer\00", align 1
 @global_string.126 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.127 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.127 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.128 = private constant [28 x i8] c"push_back_charp25_src/filer\00", align 1
 @global_string.129 = private constant [33 x i8] c"list_push_back_charp25_src/filer\00", align 1
 @global_string.130 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.131 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.131 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.132 = private constant [28 x i8] c"push_back_charp26_src/filer\00", align 1
 @global_string.133 = private constant [33 x i8] c"list_push_back_charp26_src/filer\00", align 1
 @global_string.134 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.135 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.135 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.136 = private constant [28 x i8] c"push_back_charp26_src/filer\00", align 1
 @global_string.137 = private constant [33 x i8] c"list_push_back_charp26_src/filer\00", align 1
 @global_string.138 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.139 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.139 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.140 = private constant [28 x i8] c"push_back_charp26_src/filer\00", align 1
 @global_string.141 = private constant [33 x i8] c"list_push_back_charp26_src/filer\00", align 1
 @global_string.142 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.143 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.143 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.144 = private constant [28 x i8] c"push_back_charp27_src/filer\00", align 1
 @global_string.145 = private constant [33 x i8] c"list_push_back_charp27_src/filer\00", align 1
 @global_string.146 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.147 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.147 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.148 = private constant [28 x i8] c"push_back_charp27_src/filer\00", align 1
 @global_string.149 = private constant [33 x i8] c"list_push_back_charp27_src/filer\00", align 1
 @global_string.150 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.151 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.151 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.152 = private constant [28 x i8] c"push_back_charp27_src/filer\00", align 1
 @global_string.153 = private constant [33 x i8] c"list_push_back_charp27_src/filer\00", align 1
 @global_string.154 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.155 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.155 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.156 = private constant [28 x i8] c"push_back_charp28_src/filer\00", align 1
 @global_string.157 = private constant [33 x i8] c"list_push_back_charp28_src/filer\00", align 1
 @global_string.158 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.159 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.159 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.160 = private constant [28 x i8] c"push_back_charp28_src/filer\00", align 1
 @global_string.161 = private constant [33 x i8] c"list_push_back_charp28_src/filer\00", align 1
 @global_string.162 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.163 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.163 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.164 = private constant [28 x i8] c"push_back_charp28_src/filer\00", align 1
 @global_string.165 = private constant [33 x i8] c"list_push_back_charp28_src/filer\00", align 1
 @global_string.166 = private constant [14 x i8] c"list%<char*%>\00", align 1
-@global_string.167 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.167 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.168 = private constant [29 x i8] c"merge_list_charp33_src/filer\00", align 1
 @global_string.169 = private constant [34 x i8] c"list_merge_list_charp33_src/filer\00", align 1
 @global_string.170 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.171 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.171 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.172 = private constant [28 x i8] c"push_back_charp35_src/filer\00", align 1
 @global_string.173 = private constant [33 x i8] c"list_push_back_charp35_src/filer\00", align 1
 @global_string.174 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.175 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.175 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.176 = private constant [28 x i8] c"push_back_charp35_src/filer\00", align 1
 @global_string.177 = private constant [33 x i8] c"list_push_back_charp35_src/filer\00", align 1
 @global_string.178 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.179 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.179 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.180 = private constant [28 x i8] c"push_back_charp35_src/filer\00", align 1
 @global_string.181 = private constant [33 x i8] c"list_push_back_charp35_src/filer\00", align 1
 @global_string.182 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.183 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.183 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.184 = private constant [28 x i8] c"push_back_charp36_src/filer\00", align 1
 @global_string.185 = private constant [33 x i8] c"list_push_back_charp36_src/filer\00", align 1
 @global_string.186 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.187 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.187 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.188 = private constant [28 x i8] c"push_back_charp36_src/filer\00", align 1
 @global_string.189 = private constant [33 x i8] c"list_push_back_charp36_src/filer\00", align 1
 @global_string.190 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.191 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.191 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.192 = private constant [28 x i8] c"push_back_charp36_src/filer\00", align 1
 @global_string.193 = private constant [33 x i8] c"list_push_back_charp36_src/filer\00", align 1
 @global_string.194 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.195 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.195 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.196 = private constant [28 x i8] c"push_back_charp37_src/filer\00", align 1
 @global_string.197 = private constant [33 x i8] c"list_push_back_charp37_src/filer\00", align 1
 @global_string.198 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.199 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.199 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.200 = private constant [28 x i8] c"push_back_charp37_src/filer\00", align 1
 @global_string.201 = private constant [33 x i8] c"list_push_back_charp37_src/filer\00", align 1
 @global_string.202 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.203 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.203 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.204 = private constant [28 x i8] c"push_back_charp37_src/filer\00", align 1
 @global_string.205 = private constant [33 x i8] c"list_push_back_charp37_src/filer\00", align 1
 @global_string.206 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.207 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.207 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.208 = private constant [28 x i8] c"push_back_charp38_src/filer\00", align 1
 @global_string.209 = private constant [33 x i8] c"list_push_back_charp38_src/filer\00", align 1
 @global_string.210 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.211 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.211 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.212 = private constant [28 x i8] c"push_back_charp38_src/filer\00", align 1
 @global_string.213 = private constant [33 x i8] c"list_push_back_charp38_src/filer\00", align 1
 @global_string.214 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.215 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.215 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.216 = private constant [28 x i8] c"push_back_charp38_src/filer\00", align 1
 @global_string.217 = private constant [33 x i8] c"list_push_back_charp38_src/filer\00", align 1
 @global_string.218 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.219 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.219 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.220 = private constant [28 x i8] c"push_back_charp39_src/filer\00", align 1
 @global_string.221 = private constant [33 x i8] c"list_push_back_charp39_src/filer\00", align 1
 @global_string.222 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.223 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.223 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.224 = private constant [28 x i8] c"push_back_charp39_src/filer\00", align 1
 @global_string.225 = private constant [33 x i8] c"list_push_back_charp39_src/filer\00", align 1
 @global_string.226 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.227 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.227 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.228 = private constant [28 x i8] c"push_back_charp39_src/filer\00", align 1
 @global_string.229 = private constant [33 x i8] c"list_push_back_charp39_src/filer\00", align 1
 @global_string.230 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.231 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.231 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.232 = private constant [28 x i8] c"push_back_charp40_src/filer\00", align 1
 @global_string.233 = private constant [33 x i8] c"list_push_back_charp40_src/filer\00", align 1
 @global_string.234 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.235 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.235 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.236 = private constant [28 x i8] c"push_back_charp40_src/filer\00", align 1
 @global_string.237 = private constant [33 x i8] c"list_push_back_charp40_src/filer\00", align 1
 @global_string.238 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.239 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.239 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.240 = private constant [28 x i8] c"push_back_charp40_src/filer\00", align 1
 @global_string.241 = private constant [33 x i8] c"list_push_back_charp40_src/filer\00", align 1
 @global_string.242 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.243 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.243 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.244 = private constant [28 x i8] c"push_back_charp41_src/filer\00", align 1
 @global_string.245 = private constant [33 x i8] c"list_push_back_charp41_src/filer\00", align 1
 @global_string.246 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.247 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.247 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.248 = private constant [28 x i8] c"push_back_charp41_src/filer\00", align 1
 @global_string.249 = private constant [33 x i8] c"list_push_back_charp41_src/filer\00", align 1
 @global_string.250 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.251 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.251 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.252 = private constant [28 x i8] c"push_back_charp41_src/filer\00", align 1
 @global_string.253 = private constant [33 x i8] c"list_push_back_charp41_src/filer\00", align 1
 @global_string.254 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.255 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.255 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.256 = private constant [28 x i8] c"push_back_charp42_src/filer\00", align 1
 @global_string.257 = private constant [33 x i8] c"list_push_back_charp42_src/filer\00", align 1
 @global_string.258 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.259 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.259 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.260 = private constant [28 x i8] c"push_back_charp42_src/filer\00", align 1
 @global_string.261 = private constant [33 x i8] c"list_push_back_charp42_src/filer\00", align 1
 @global_string.262 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.263 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.263 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.264 = private constant [28 x i8] c"push_back_charp42_src/filer\00", align 1
 @global_string.265 = private constant [33 x i8] c"list_push_back_charp42_src/filer\00", align 1
 @global_string.266 = private constant [14 x i8] c"list%<char*%>\00", align 1
-@global_string.267 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.267 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.268 = private constant [26 x i8] c"sublist_charp53_src/filer\00", align 1
 @global_string.269 = private constant [31 x i8] c"list_sublist_charp53_src/filer\00", align 1
 @global_string.270 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.271 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.271 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.272 = private constant [28 x i8] c"push_back_charp55_src/filer\00", align 1
 @global_string.273 = private constant [33 x i8] c"list_push_back_charp55_src/filer\00", align 1
 @global_string.274 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.275 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.275 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.276 = private constant [28 x i8] c"push_back_charp55_src/filer\00", align 1
 @global_string.277 = private constant [33 x i8] c"list_push_back_charp55_src/filer\00", align 1
 @global_string.278 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.279 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.279 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.280 = private constant [28 x i8] c"push_back_charp55_src/filer\00", align 1
 @global_string.281 = private constant [33 x i8] c"list_push_back_charp55_src/filer\00", align 1
 @global_string.282 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.283 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.283 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.284 = private constant [28 x i8] c"push_back_charp56_src/filer\00", align 1
 @global_string.285 = private constant [33 x i8] c"list_push_back_charp56_src/filer\00", align 1
 @global_string.286 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.287 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.287 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.288 = private constant [28 x i8] c"push_back_charp56_src/filer\00", align 1
 @global_string.289 = private constant [33 x i8] c"list_push_back_charp56_src/filer\00", align 1
 @global_string.290 = private constant [19 x i8] c"list_item%<char*%>\00", align 1
-@global_string.291 = private constant [28 x i8] c"/usr/local//include/neo-c.h\00", align 1
+@global_string.291 = private constant [50 x i8] c"/data/data/com.termux/files/home//include/neo-c.h\00", align 1
 @global_string.292 = private constant [28 x i8] c"push_back_charp56_src/filer\00", align 1
 @global_string.293 = private constant [33 x i8] c"list_push_back_charp56_src/filer\00", align 1
 @global_string.294 = private constant [2 x i8] c"/\00", align 1
@@ -443,7 +456,8 @@ source_filename = "Module filer"
 @global_string.312 = private constant [13 x i8] c"mv(\22%s\22, \22\22)\00", align 1
 @global_string.313 = private constant [10 x i8] c"touch(\22\22)\00", align 1
 @global_string.314 = private constant [9 x i8] c"(\22./%s\22)\00", align 1
-@global_string.315 = private constant [10 x i8] c"vim(\22%s\22)\00", align 1
+@global_string.315 = private constant [9 x i8] c"wi(\22%s\22)\00", align 1
+@global_string.316 = private constant [7 x i8] c"bash()\00", align 1
 
 ; Function Attrs: nounwind
 declare void @llvm.va_start(i8*, ...) #0
@@ -454,55 +468,575 @@ declare void @llvm.va_end(i8*) #0
 ; Function Attrs: nounwind
 declare void @llvm.va_copy(i8*, i8*) #0
 
-declare i32* @wcscpy(i32*, i32*)
+declare i32 @android_get_application_target_sdk_version()
 
-declare i32* @wcsncpy(i32*, i32*, i64)
+declare i32 @__system_property_get(i8*, i8*)
 
-declare i32* @wcscat(i32*, i32*)
+declare i32 @atoi(i8*)
 
-declare i32* @wcsncat(i32*, i32*, i64)
+declare i32 @strcasecmp(i8*, i8*)
 
-declare i32 @wcscmp(i32*, i32*)
+declare i32 @strcasecmp_l(i8*, i8*, %__locale_t*)
 
-declare i32 @wcsncmp(i32*, i32*, i64)
+declare i32 @strncasecmp(i8*, i8*, i64)
+
+declare i32 @strncasecmp_l(i8*, i8*, i64, %__locale_t*)
+
+declare i32 @ffs(i32)
+
+declare i8* @memccpy(i8*, i8*, i32, i64)
+
+declare i8* @memchr(i8*, i32, i64)
+
+declare i8* @memrchr(i8*, i32, i64)
+
+declare i32 @memcmp(i8*, i8*, i64)
+
+declare i8* @memcpy(i8*, i8*, i64)
+
+declare i8* @memmove(i8*, i8*, i64)
+
+declare i8* @memset(i8*, i32, i64)
+
+declare i8* @memmem(i8*, i64, i8*, i64)
+
+declare i8* @strchr(i8*, i32)
+
+declare i8* @__strchr_chk(i8*, i32, i64)
+
+declare i8* @strrchr(i8*, i32)
+
+declare i8* @__strrchr_chk(i8*, i32, i64)
+
+declare i64 @strlen(i8*)
+
+declare i64 @__strlen_chk(i8*, i64)
+
+declare i32 @strcmp(i8*, i8*)
+
+declare i8* @stpcpy(i8*, i8*)
+
+declare i8* @strcpy(i8*, i8*)
+
+declare i8* @strcat(i8*, i8*)
+
+declare i8* @strdup(i8*)
+
+declare i8* @strstr(i8*, i8*)
+
+declare i8* @strcasestr(i8*, i8*)
+
+declare i8* @strtok(i8*, i8*)
+
+declare i8* @strtok_r(i8*, i8*, i8**)
+
+declare i8* @strerror(i32)
+
+declare i8* @strerror_l(i32, %__locale_t*)
+
+declare i32 @strerror_r(i32, i8*, i64)
+
+declare i64 @strnlen(i8*, i64)
+
+declare i8* @strncat(i8*, i8*, i64)
+
+declare i8* @strndup(i8*, i64)
+
+declare i32 @strncmp(i8*, i8*, i64)
+
+declare i8* @stpncpy(i8*, i8*, i64)
+
+declare i8* @strncpy(i8*, i8*, i64)
+
+declare i64 @strlcat(i8*, i8*, i64)
+
+declare i64 @strlcpy(i8*, i8*, i64)
+
+declare i64 @strcspn(i8*, i8*)
+
+declare i8* @strpbrk(i8*, i8*)
+
+declare i8* @strsep(i8**, i8*)
+
+declare i64 @strspn(i8*, i8*)
+
+declare i8* @strsignal(i32)
+
+declare i32 @strcoll(i8*, i8*)
+
+declare i64 @strxfrm(i8*, i8*, i64)
+
+declare i32 @strcoll_l(i8*, i8*, %__locale_t*)
+
+declare i64 @strxfrm_l(i8*, i8*, i64, %__locale_t*)
+
+declare void @clearerr(%__sFILE*)
+
+declare i32 @fclose(%__sFILE*)
+
+declare i32 @feof(%__sFILE*)
+
+declare i32 @ferror(%__sFILE*)
+
+declare i32 @fflush(%__sFILE*)
+
+declare i32 @fgetc(%__sFILE*)
+
+declare i8* @fgets(i8*, i32, %__sFILE*)
+
+declare i32 @fprintf(%__sFILE*, i8*, ...)
+
+declare i32 @fputc(i32, %__sFILE*)
+
+declare i32 @fputs(i8*, %__sFILE*)
+
+declare i64 @fread(i8*, i64, i64, %__sFILE*)
+
+declare i32 @fscanf(%__sFILE*, i8*, ...)
+
+declare i64 @fwrite(i8*, i64, i64, %__sFILE*)
+
+declare i32 @getc(%__sFILE*)
+
+declare i32 @getchar()
+
+declare i64 @getdelim(i8**, i64*, i32, %__sFILE*)
+
+declare i64 @getline(i8**, i64*, %__sFILE*)
+
+declare void @perror(i8*)
+
+declare i32 @printf(i8*, ...)
+
+declare i32 @putc(i32, %__sFILE*)
+
+declare i32 @putchar(i32)
+
+declare i32 @puts(i8*)
+
+declare i32 @remove(i8*)
+
+declare void @rewind(%__sFILE*)
+
+declare i32 @scanf(i8*, ...)
+
+declare void @setbuf(%__sFILE*, i8*)
+
+declare i32 @setvbuf(%__sFILE*, i8*, i32, i64)
+
+declare i32 @sscanf(i8*, i8*, ...)
+
+declare i32 @ungetc(i32, %__sFILE*)
+
+declare i32 @vfprintf(%__sFILE*, i8*, %__builtin_va_list.0)
+
+declare i32 @vprintf(i8*, %__builtin_va_list.0)
+
+declare i32 @dprintf(i32, i8*, ...)
+
+declare i32 @vdprintf(i32, i8*, %__builtin_va_list.0)
+
+declare i32 @sprintf(i8*, i8*, ...)
+
+declare i32 @vsprintf(i8*, i8*, %__builtin_va_list.0)
+
+declare i8* @tmpnam(i8*)
+
+declare i8* @tempnam(i8*, i8*)
+
+declare i32 @rename(i8*, i8*)
+
+declare i32 @renameat(i32, i8*, i32, i8*)
+
+declare i32 @fseek(%__sFILE*, i64, i32)
+
+declare i64 @ftell(%__sFILE*)
+
+declare i32 @fgetpos(%__sFILE*, i64*)
+
+declare i32 @fsetpos(%__sFILE*, i64*)
+
+declare i32 @fseeko(%__sFILE*, i64, i32)
+
+declare i64 @ftello(%__sFILE*)
+
+declare %__sFILE* @funopen(i8*, i32 (i8*, i8*, i32)*, i32 (i8*, i8*, i32)*, i64 (i8*, i64, i32)*, i32 (i8*)*)
+
+declare i32 @fgetpos64(%__sFILE*, i64*)
+
+declare i32 @fsetpos64(%__sFILE*, i64*)
+
+declare i32 @fseeko64(%__sFILE*, i64, i32)
+
+declare i64 @ftello64(%__sFILE*)
+
+declare %__sFILE* @funopen64(i8*, i32 (i8*, i8*, i32)*, i32 (i8*, i8*, i32)*, i64 (i8*, i64, i32)*, i32 (i8*)*)
+
+declare %__sFILE* @fopen(i8*, i8*)
+
+declare %__sFILE* @fopen64(i8*, i8*)
+
+declare %__sFILE* @freopen(i8*, i8*, %__sFILE*)
+
+declare %__sFILE* @freopen64(i8*, i8*, %__sFILE*)
+
+declare %__sFILE* @tmpfile64()
+
+declare i32 @snprintf(i8*, i64, i8*, ...)
+
+declare i32 @vfscanf(%__sFILE*, i8*, %__builtin_va_list.0)
+
+declare i32 @vscanf(i8*, %__builtin_va_list.0)
+
+declare i32 @vsnprintf(i8*, i64, i8*, %__builtin_va_list.0)
+
+declare i32 @vsscanf(i8*, i8*, %__builtin_va_list.0)
+
+declare %__sFILE* @fdopen(i32, i8*)
+
+declare i32 @fileno(%__sFILE*)
+
+declare i32 @pclose(%__sFILE*)
+
+declare %__sFILE* @popen(i8*, i8*)
+
+declare void @flockfile(%__sFILE*)
+
+declare i32 @ftrylockfile(%__sFILE*)
+
+declare void @funlockfile(%__sFILE*)
+
+declare i32 @getc_unlocked(%__sFILE*)
+
+declare i32 @getchar_unlocked()
+
+declare i32 @putc_unlocked(i32, %__sFILE*)
+
+declare i32 @putchar_unlocked(i32)
+
+declare %__sFILE* @fmemopen(i8*, i64, i8*)
+
+declare %__sFILE* @open_memstream(i8**, i64*)
+
+declare i32 @asprintf(i8**, i8*, ...)
+
+declare i8* @fgetln(%__sFILE*, i64*)
+
+declare i32 @fpurge(%__sFILE*)
+
+declare void @setbuffer(%__sFILE*, i8*, i32)
+
+declare i32 @setlinebuf(%__sFILE*)
+
+declare i32 @vasprintf(i8**, i8*, %__builtin_va_list.0)
+
+declare void @clearerr_unlocked(%__sFILE*)
+
+declare i32 @feof_unlocked(%__sFILE*)
+
+declare i32 @ferror_unlocked(%__sFILE*)
+
+declare i32 @fileno_unlocked(%__sFILE*)
+
+declare i32 @open(i8*, i32, ...)
+
+declare i32 @getpid()
+
+declare i32 @unlink(i8*)
+
+declare void @free(i8*)
+
+declare i32 @arc4random()
+
+declare i32 @__libc_current_sigrtmin()
+
+declare i32 @__libc_current_sigrtmax()
+
+declare i32 @sigaction(i32, %sigaction*, %sigaction*)
+
+declare i32 @siginterrupt(i32, i32)
+
+declare void (i32)* @signal(i32, void (i32)*)
+
+declare i32 @sigaddset(%anon9*, i32)
+
+declare i32 @sigdelset(%anon9*, i32)
+
+declare i32 @sigemptyset(%anon9*)
+
+declare i32 @sigfillset(%anon9*)
+
+declare i32 @sigismember(%anon9*, i32)
+
+declare i32 @sigpending(%anon9*)
+
+declare i32 @sigprocmask(i32, %anon9*, %anon9*)
+
+declare i32 @sigsuspend(%anon9*)
+
+declare i32 @sigwait(%anon9*, i32*)
+
+declare i32 @raise(i32)
+
+declare i32 @kill(i32, i32)
+
+declare i32 @killpg(i32, i32)
+
+declare i32 @tgkill(i32, i32, i32)
+
+declare i32 @sigaltstack(%sigaltstack*, %sigaltstack*)
+
+declare void @psiginfo(%siginfo*, i8*)
+
+declare void @psignal(i32, i8*)
+
+declare i32 @pthread_kill(i64, i32)
+
+declare i32 @pthread_sigmask(i32, %anon9*, %anon9*)
+
+declare i32 @sigqueue(i32, i32, %sigval)
+
+declare i32 @sigtimedwait(%anon9*, %siginfo*, %timespec*)
+
+declare i32 @sigwaitinfo(%anon9*, %siginfo*)
+
+declare void @__FD_CLR_chk(i32, %anon40*, i64)
+
+declare void @__FD_SET_chk(i32, %anon40*, i64)
+
+declare i32 @__FD_ISSET_chk(i32, %anon40*, i64)
+
+declare i32 @select(i32, %anon40*, %anon40*, %anon40*, %timeval*)
+
+declare i32 @pselect(i32, %anon40*, %anon40*, %anon40*, %timespec*, %anon9*)
+
+declare i32 @gettimeofday(%timeval*, %timezone*)
+
+declare i32 @settimeofday(%timeval*, %timezone*)
+
+declare i32 @getitimer(i32, %itimerval*)
+
+declare i32 @setitimer(i32, %itimerval*, %itimerval*)
+
+declare i32 @utimes(i8*, %timeval*)
+
+declare i64 @time(i64*)
+
+declare i32 @nanosleep(%timespec*, %timespec*)
+
+declare i8* @asctime(%tm*)
+
+declare i8* @asctime_r(%tm*, i8*)
+
+declare double @difftime(i64, i64)
+
+declare i64 @mktime(%tm*)
+
+declare %tm* @localtime(i64*)
+
+declare %tm* @localtime_r(i64*, %tm*)
+
+declare %tm* @gmtime(i64*)
+
+declare %tm* @gmtime_r(i64*, %tm*)
+
+declare i8* @strptime(i8*, i8*, %tm*)
+
+declare i64 @strftime(i8*, i64, i8*, %tm*)
+
+declare i64 @strftime_l(i8*, i64, i8*, %tm*, %__locale_t*)
+
+declare i8* @ctime(i64*)
+
+declare i8* @ctime_r(i64*, i8*)
+
+declare void @tzset()
+
+declare i64 @clock()
+
+declare i32 @clock_getcpuclockid(i32, i32*)
+
+declare i32 @clock_getres(i32, %timespec*)
+
+declare i32 @clock_gettime(i32, %timespec*)
+
+declare i32 @clock_nanosleep(i32, i32, %timespec*, %timespec*)
+
+declare i32 @clock_settime(i32, %timespec*)
+
+declare i32 @timer_create(i32, %sigevent*, i8**)
+
+declare i32 @timer_delete(i8*)
+
+declare i32 @timer_settime(i8*, i32, %itimerspec*, %itimerspec*)
+
+declare i32 @timer_gettime(i8*, %itimerspec*)
+
+declare i32 @timer_getoverrun(i8*)
+
+declare i64 @timelocal(%tm*)
+
+declare i64 @timegm(%tm*)
+
+declare i32 @iswalnum(i32)
+
+declare i32 @iswalpha(i32)
+
+declare i32 @iswblank(i32)
+
+declare i32 @iswcntrl(i32)
+
+declare i32 @iswdigit(i32)
+
+declare i32 @iswgraph(i32)
+
+declare i32 @iswlower(i32)
+
+declare i32 @iswprint(i32)
+
+declare i32 @iswpunct(i32)
+
+declare i32 @iswspace(i32)
+
+declare i32 @iswupper(i32)
+
+declare i32 @iswxdigit(i32)
+
+declare i32 @towlower(i32)
+
+declare i32 @towupper(i32)
+
+declare i64 @wctype(i8*)
+
+declare i32 @iswctype(i32, i64)
+
+declare i32 @towctrans(i32, i8*)
+
+declare i8* @wctrans(i8*)
+
+declare i32 @btowc(i32)
+
+declare i32 @fwprintf(%__sFILE*, i32*, ...)
+
+declare i32 @fwscanf(%__sFILE*, i32*, ...)
+
+declare i32 @fgetwc(%__sFILE*)
+
+declare i32* @fgetws(i32*, i32, %__sFILE*)
+
+declare i32 @fputwc(i32, %__sFILE*)
+
+declare i32 @fputws(i32*, %__sFILE*)
+
+declare i32 @fwide(%__sFILE*, i32)
+
+declare i32 @getwc(%__sFILE*)
+
+declare i32 @getwchar()
+
+declare i32 @mbsinit(%anon41*)
+
+declare i64 @mbrlen(i8*, i64, %anon41*)
+
+declare i64 @mbrtowc(i32*, i8*, i64, %anon41*)
+
+declare i64 @mbsrtowcs(i32*, i8**, i64, %anon41*)
+
+declare i64 @mbsnrtowcs(i32*, i8**, i64, i64, %anon41*)
+
+declare i32 @putwc(i32, %__sFILE*)
+
+declare i32 @putwchar(i32)
+
+declare i32 @swprintf(i32*, i64, i32*, ...)
+
+declare i32 @swscanf(i32*, i32*, ...)
+
+declare i32 @ungetwc(i32, %__sFILE*)
+
+declare i32 @vfwprintf(%__sFILE*, i32*, %__builtin_va_list.0)
+
+declare i32 @vfwscanf(%__sFILE*, i32*, %__builtin_va_list.0)
+
+declare i32 @vswprintf(i32*, i64, i32*, %__builtin_va_list.0)
+
+declare i32 @vswscanf(i32*, i32*, %__builtin_va_list.0)
+
+declare i32 @vwprintf(i32*, %__builtin_va_list.0)
+
+declare i32 @vwscanf(i32*, %__builtin_va_list.0)
+
+declare i32* @wcpcpy(i32*, i32*)
+
+declare i32* @wcpncpy(i32*, i32*, i64)
+
+declare i64 @wcrtomb(i8*, i32, %anon41*)
 
 declare i32 @wcscasecmp(i32*, i32*)
 
-declare i32 @wcsncasecmp(i32*, i32*, i64)
+declare i32 @wcscasecmp_l(i32*, i32*, %__locale_t*)
 
-declare i32 @wcscasecmp_l(i32*, i32*, %__locale_struct*)
-
-declare i32 @wcsncasecmp_l(i32*, i32*, i64, %__locale_struct*)
-
-declare i32 @wcscoll(i32*, i32*)
-
-declare i64 @wcsxfrm(i32*, i32*, i64)
-
-declare i32 @wcscoll_l(i32*, i32*, %__locale_struct*)
-
-declare i64 @wcsxfrm_l(i32*, i32*, i64, %__locale_struct*)
-
-declare i32* @wcsdup(i32*)
+declare i32* @wcscat(i32*, i32*)
 
 declare i32* @wcschr(i32*, i32)
 
-declare i32* @wcsrchr(i32*, i32)
+declare i32 @wcscmp(i32*, i32*)
+
+declare i32 @wcscoll(i32*, i32*)
+
+declare i32* @wcscpy(i32*, i32*)
 
 declare i64 @wcscspn(i32*, i32*)
 
-declare i64 @wcsspn(i32*, i32*)
-
-declare i32* @wcspbrk(i32*, i32*)
-
-declare i32* @wcsstr(i32*, i32*)
-
-declare i32* @wcstok(i32*, i32*, i32**)
+declare i64 @wcsftime(i32*, i64, i32*, %tm*)
 
 declare i64 @wcslen(i32*)
 
-declare i32* @wcswcs(i32*, i32*)
+declare i32 @wcsncasecmp(i32*, i32*, i64)
 
-declare i64 @wcsnlen(i32*, i64)
+declare i32 @wcsncasecmp_l(i32*, i32*, i64, %__locale_t*)
+
+declare i32* @wcsncat(i32*, i32*, i64)
+
+declare i32 @wcsncmp(i32*, i32*, i64)
+
+declare i32* @wcsncpy(i32*, i32*, i64)
+
+declare i64 @wcsnrtombs(i8*, i32**, i64, i64, %anon41*)
+
+declare i32* @wcspbrk(i32*, i32*)
+
+declare i32* @wcsrchr(i32*, i32)
+
+declare i64 @wcsrtombs(i8*, i32**, i64, %anon41*)
+
+declare i64 @wcsspn(i32*, i32*)
+
+declare i32* @wcsstr(i32*, i32*)
+
+declare double @wcstod(i32*, i32**)
+
+declare float @wcstof(i32*, i32**)
+
+declare i32* @wcstok(i32*, i32*, i32**)
+
+declare i64 @wcstol(i32*, i32**, i32)
+
+declare i64 @wcstoll(i32*, i32**, i32)
+
+declare fp128 @wcstold(i32*, i32**)
+
+declare i64 @wcstoul(i32*, i32**, i32)
+
+declare i64 @wcstoull(i32*, i32**, i32)
+
+declare i32 @wcswidth(i32*, i64)
+
+declare i64 @wcsxfrm(i32*, i32*, i64)
+
+declare i32 @wctob(i32)
+
+declare i32 @wcwidth(i32)
 
 declare i32* @wmemchr(i32*, i32, i64)
 
@@ -514,189 +1048,95 @@ declare i32* @wmemmove(i32*, i32*, i64)
 
 declare i32* @wmemset(i32*, i32, i64)
 
-declare i32 @btowc(i32)
-
-declare i32 @wctob(i32)
-
-declare i32 @mbsinit(%anon0*)
-
-declare i64 @mbrtowc(i32*, i8*, i64, %anon0*)
-
-declare i64 @wcrtomb(i8*, i32, %anon0*)
-
-declare i64 @__mbrlen(i8*, i64, %anon0*)
-
-declare i64 @mbrlen(i8*, i64, %anon0*)
-
-declare i64 @mbsrtowcs(i32*, i8**, i64, %anon0*)
-
-declare i64 @wcsrtombs(i8*, i32**, i64, %anon0*)
-
-declare i64 @mbsnrtowcs(i32*, i8**, i64, i64, %anon0*)
-
-declare i64 @wcsnrtombs(i8*, i32**, i64, i64, %anon0*)
-
-declare i32 @wcwidth(i32)
-
-declare i32 @wcswidth(i32*, i64)
-
-declare double @wcstod(i32*, i32**)
-
-declare float @wcstof(i32*, i32**)
-
-declare fp128 @wcstold(i32*, i32**)
-
-declare i64 @wcstol(i32*, i32**, i32)
-
-declare i64 @wcstoul(i32*, i32**, i32)
-
-declare i64 @wcstoll(i32*, i32**, i32)
-
-declare i64 @wcstoull(i32*, i32**, i32)
-
-declare i32* @wcpcpy(i32*, i32*)
-
-declare i32* @wcpncpy(i32*, i32*, i64)
-
-declare %_IO_FILE* @open_wmemstream(i32**, i64*)
-
-declare i32 @fwide(%_IO_FILE*, i32)
-
-declare i32 @fwprintf(%_IO_FILE*, i32*, ...)
-
 declare i32 @wprintf(i32*, ...)
-
-declare i32 @swprintf(i32*, i64, i32*, ...)
-
-declare i32 @vfwprintf(%_IO_FILE*, i32*, %__builtin_va_list.0)
-
-declare i32 @vwprintf(i32*, %__builtin_va_list.0)
-
-declare i32 @vswprintf(i32*, i64, i32*, %__builtin_va_list.0)
-
-declare i32 @fwscanf(%_IO_FILE*, i32*, ...)
 
 declare i32 @wscanf(i32*, ...)
 
-declare i32 @swscanf(i32*, i32*, ...)
+declare i64 @wcstoll_l(i32*, i32**, i32, %__locale_t*)
 
-declare i32 @vfwscanf(%_IO_FILE*, i32*, %__builtin_va_list.0)
+declare i64 @wcstoull_l(i32*, i32**, i32, %__locale_t*)
 
-declare i32 @vwscanf(i32*, %__builtin_va_list.0)
+declare fp128 @wcstold_l(i32*, i32**, %__locale_t*)
 
-declare i32 @vswscanf(i32*, i32*, %__builtin_va_list.0)
+declare i32 @wcscoll_l(i32*, i32*, %__locale_t*)
 
-declare i32 @fgetwc(%_IO_FILE*)
+declare i64 @wcsxfrm_l(i32*, i32*, i64, %__locale_t*)
 
-declare i32 @getwc(%_IO_FILE*)
+declare i64 @wcslcat(i32*, i32*, i64)
 
-declare i32 @getwchar()
+declare i64 @wcslcpy(i32*, i32*, i64)
 
-declare i32 @fputwc(i32, %_IO_FILE*)
+declare %__sFILE* @open_wmemstream(i32**, i64*)
 
-declare i32 @putwc(i32, %_IO_FILE*)
+declare i32* @wcsdup(i32*)
 
-declare i32 @putwchar(i32)
+declare i64 @wcsnlen(i32*, i64)
 
-declare i32* @fgetws(i32*, i32, %_IO_FILE*)
+declare i32 @fcntl(i32, i32, ...)
 
-declare i32 @fputws(i32*, %_IO_FILE*)
+declare i32 @getopt(i32, i8**, i8*)
 
-declare i32 @ungetwc(i32, %_IO_FILE*)
+declare i32 @ioctl(i32, i32, ...)
 
-declare i64 @wcsftime(i32*, i64, i32*, %tm*)
+declare i32 @lockf(i32, i32, i64)
 
-declare i32 @access(i8*, i32)
-
-declare i32 @faccessat(i32, i8*, i32, i32)
-
-declare i64 @lseek(i32, i64, i32)
-
-declare i32 @close(i32)
-
-declare i64 @read(i32, i8*, i64)
-
-declare i64 @write(i32, i8*, i64)
-
-declare i64 @pread(i32, i8*, i64, i64)
-
-declare i64 @pwrite(i32, i8*, i64, i64)
-
-declare i32 @pipe(i32*)
-
-declare i32 @alarm(i32)
-
-declare i32 @sleep(i32)
-
-declare i32 @ualarm(i32, i32)
-
-declare i32 @usleep(i32)
-
-declare i32 @pause()
-
-declare i32 @chown(i8*, i32, i32)
-
-declare i32 @fchown(i32, i32, i32)
-
-declare i32 @lchown(i8*, i32, i32)
-
-declare i32 @fchownat(i32, i8*, i32, i32, i32)
-
-declare i32 @chdir(i8*)
-
-declare i32 @fchdir(i32)
-
-declare i8* @getcwd(i8*, i64)
-
-declare i8* @getwd(i8*)
-
-declare i32 @dup(i32)
-
-declare i32 @dup2(i32, i32)
-
-declare i32 @execve(i8*, i8**, i8**)
-
-declare i32 @fexecve(i32, i8**, i8**)
-
-declare i32 @execv(i8*, i8**)
-
-declare i32 @execle(i8*, i8*, ...)
-
-declare i32 @execl(i8*, i8*, ...)
-
-declare i32 @execvp(i8*, i8**)
-
-declare i32 @execlp(i8*, i8*, ...)
-
-declare i32 @nice(i32)
-
-declare void @_exit(i32)
-
-declare i64 @pathconf(i8*, i32)
-
-declare i64 @fpathconf(i32, i32)
+declare i32 @lockf64(i32, i32, i64)
 
 declare i64 @sysconf(i32)
 
-declare i64 @confstr(i32, i8*, i64)
+declare void @_exit(i32)
 
-declare i32 @getpid()
+declare i32 @fork()
 
-declare i32 @getppid()
+declare i32 @vfork()
 
-declare i32 @getpgrp()
-
-declare i32 @__getpgid(i32)
+declare i32 @gettid()
 
 declare i32 @getpgid(i32)
 
 declare i32 @setpgid(i32, i32)
 
+declare i32 @getppid()
+
+declare i32 @getpgrp()
+
 declare i32 @setpgrp()
+
+declare i32 @getsid(i32)
 
 declare i32 @setsid()
 
-declare i32 @getsid(i32)
+declare i32 @execv(i8*, i8**)
+
+declare i32 @execvp(i8*, i8**)
+
+declare i32 @execvpe(i8*, i8**, i8**)
+
+declare i32 @execve(i8*, i8**, i8**)
+
+declare i32 @execl(i8*, i8*, ...)
+
+declare i32 @execlp(i8*, i8*, ...)
+
+declare i32 @execle(i8*, i8*, ...)
+
+declare i32 @nice(i32)
+
+declare i32 @setegid(i32)
+
+declare i32 @seteuid(i32)
+
+declare i32 @setgid(i32)
+
+declare i32 @setregid(i32, i32)
+
+declare i32 @setresgid(i32, i32, i32)
+
+declare i32 @setresuid(i32, i32, i32)
+
+declare i32 @setreuid(i32, i32)
+
+declare i32 @setuid(i32)
 
 declare i32 @getuid()
 
@@ -708,381 +1148,127 @@ declare i32 @getegid()
 
 declare i32 @getgroups(i32, i32*)
 
-declare i32 @setuid(i32)
+declare i32 @setgroups(i64, i32*)
 
-declare i32 @setreuid(i32, i32)
+declare i32 @getresuid(i32*, i32*, i32*)
 
-declare i32 @seteuid(i32)
+declare i32 @getresgid(i32*, i32*, i32*)
 
-declare i32 @setgid(i32)
+declare i8* @getlogin()
 
-declare i32 @setregid(i32, i32)
+declare i64 @fpathconf(i32, i32)
 
-declare i32 @setegid(i32)
+declare i64 @pathconf(i8*, i32)
 
-declare i32 @fork()
+declare i32 @access(i8*, i32)
 
-declare i32 @vfork()
-
-declare i8* @ttyname(i32)
-
-declare i32 @ttyname_r(i32, i8*, i64)
-
-declare i32 @isatty(i32)
-
-declare i32 @ttyslot()
+declare i32 @faccessat(i32, i8*, i32, i32)
 
 declare i32 @link(i8*, i8*)
 
 declare i32 @linkat(i32, i8*, i32, i8*, i32)
 
-declare i32 @symlink(i8*, i8*)
-
-declare i64 @readlink(i8*, i8*, i64)
-
-declare i32 @symlinkat(i8*, i32, i8*)
-
-declare i64 @readlinkat(i32, i8*, i8*, i64)
-
-declare i32 @unlink(i8*)
-
 declare i32 @unlinkat(i32, i8*, i32)
+
+declare i32 @chdir(i8*)
+
+declare i32 @fchdir(i32)
 
 declare i32 @rmdir(i8*)
 
-declare i32 @tcgetpgrp(i32)
+declare i32 @pipe(i32*)
 
-declare i32 @tcsetpgrp(i32, i32)
+declare i32 @chroot(i8*)
 
-declare i8* @getlogin()
+declare i32 @symlink(i8*, i8*)
 
-declare i32 @getlogin_r(i8*, i64)
+declare i32 @symlinkat(i8*, i32, i8*)
 
-declare i32 @setlogin(i8*)
+declare i64 @readlink(i8*, i8*, i64)
 
-declare i32 @getopt(i32, i8**, i8*)
+declare i64 @readlinkat(i32, i8*, i8*, i64)
+
+declare i32 @chown(i8*, i32, i32)
+
+declare i32 @fchown(i32, i32, i32)
+
+declare i32 @fchownat(i32, i8*, i32, i32, i32)
+
+declare i32 @lchown(i8*, i32, i32)
+
+declare i8* @getcwd(i8*, i64)
+
+declare void @sync()
+
+declare i32 @close(i32)
+
+declare i64 @read(i32, i8*, i64)
+
+declare i64 @write(i32, i8*, i64)
+
+declare i32 @dup(i32)
+
+declare i32 @dup2(i32, i32)
+
+declare i32 @dup3(i32, i32, i32)
+
+declare i32 @fsync(i32)
+
+declare i32 @fdatasync(i32)
+
+declare i32 @truncate(i8*, i64)
+
+declare i64 @lseek(i32, i64, i32)
+
+declare i64 @pread(i32, i8*, i64, i64)
+
+declare i64 @pwrite(i32, i8*, i64, i64)
+
+declare i32 @ftruncate(i32, i64)
+
+declare i32 @truncate64(i8*, i64)
+
+declare i64 @lseek64(i32, i64, i32)
+
+declare i64 @pread64(i32, i8*, i64, i64)
+
+declare i64 @pwrite64(i32, i8*, i64, i64)
+
+declare i32 @ftruncate64(i32, i64)
+
+declare i32 @pause()
+
+declare i32 @alarm(i32)
+
+declare i32 @sleep(i32)
+
+declare i32 @usleep(i32)
 
 declare i32 @gethostname(i8*, i64)
 
 declare i32 @sethostname(i8*, i64)
 
-declare i32 @sethostid(i64)
-
-declare i32 @getdomainname(i8*, i64)
-
-declare i32 @setdomainname(i8*, i64)
-
-declare i32 @vhangup()
-
-declare i32 @revoke(i8*)
-
-declare i32 @profil(i16*, i64, i64, i32)
-
-declare i32 @acct(i8*)
-
-declare i8* @getusershell()
-
-declare void @endusershell()
-
-declare void @setusershell()
-
-declare i32 @daemon(i32, i32)
-
-declare i32 @chroot(i8*)
-
-declare i8* @getpass(i8*)
-
-declare i32 @fsync(i32)
-
-declare i64 @gethostid()
-
-declare void @sync()
-
-declare i32 @getpagesize()
-
-declare i32 @getdtablesize()
-
-declare i32 @truncate(i8*, i64)
-
-declare i32 @ftruncate(i32, i64)
-
 declare i32 @brk(i8*)
 
 declare i8* @sbrk(i64)
 
+declare i32 @isatty(i32)
+
+declare i8* @ttyname(i32)
+
+declare i32 @ttyname_r(i32, i8*, i64)
+
+declare i32 @acct(i8*)
+
+declare i32 @getpagesize()
+
 declare i64 @syscall(i64, ...)
 
-declare i32 @lockf(i32, i32, i64)
+declare i32 @daemon(i32, i32)
 
-declare i32 @fdatasync(i32)
+declare i32 @tcgetpgrp(i32)
 
-declare i8* @crypt(i8*, i8*)
-
-declare void @swab(i8*, i8*, i64)
-
-declare i32 @getentropy(i8*, i64)
-
-declare i32 @remove(i8*)
-
-declare i32 @rename(i8*, i8*)
-
-declare i32 @renameat(i32, i8*, i32, i8*)
-
-declare %_IO_FILE* @tmpfile()
-
-declare i8* @tmpnam(i8*)
-
-declare i8* @tmpnam_r(i8*)
-
-declare i8* @tempnam(i8*, i8*)
-
-declare i32 @fclose(%_IO_FILE*)
-
-declare i32 @fflush(%_IO_FILE*)
-
-declare i32 @fflush_unlocked(%_IO_FILE*)
-
-declare %_IO_FILE* @fopen(i8*, i8*)
-
-declare %_IO_FILE* @freopen(i8*, i8*, %_IO_FILE*)
-
-declare %_IO_FILE* @fdopen(i32, i8*)
-
-declare %_IO_FILE* @fmemopen(i8*, i64, i8*)
-
-declare %_IO_FILE* @open_memstream(i8**, i64*)
-
-declare void @setbuf(%_IO_FILE*, i8*)
-
-declare i32 @setvbuf(%_IO_FILE*, i8*, i32, i64)
-
-declare void @setbuffer(%_IO_FILE*, i8*, i64)
-
-declare void @setlinebuf(%_IO_FILE*)
-
-declare i32 @fprintf(%_IO_FILE*, i8*, ...)
-
-declare i32 @printf(i8*, ...)
-
-declare i32 @sprintf(i8*, i8*, ...)
-
-declare i32 @vfprintf(%_IO_FILE*, i8*, %__builtin_va_list.0)
-
-declare i32 @vprintf(i8*, %__builtin_va_list.0)
-
-declare i32 @vsprintf(i8*, i8*, %__builtin_va_list.0)
-
-declare i32 @snprintf(i8*, i64, i8*, ...)
-
-declare i32 @vsnprintf(i8*, i64, i8*, %__builtin_va_list.0)
-
-declare i32 @vdprintf(i32, i8*, %__builtin_va_list.0)
-
-declare i32 @dprintf(i32, i8*, ...)
-
-declare i32 @fscanf(%_IO_FILE*, i8*, ...)
-
-declare i32 @scanf(i8*, ...)
-
-declare i32 @sscanf(i8*, i8*, ...)
-
-declare i32 @vfscanf(%_IO_FILE*, i8*, %__builtin_va_list.0)
-
-declare i32 @vscanf(i8*, %__builtin_va_list.0)
-
-declare i32 @vsscanf(i8*, i8*, %__builtin_va_list.0)
-
-declare i32 @fgetc(%_IO_FILE*)
-
-declare i32 @getc(%_IO_FILE*)
-
-declare i32 @getchar()
-
-declare i32 @getc_unlocked(%_IO_FILE*)
-
-declare i32 @getchar_unlocked()
-
-declare i32 @fgetc_unlocked(%_IO_FILE*)
-
-declare i32 @fputc(i32, %_IO_FILE*)
-
-declare i32 @putc(i32, %_IO_FILE*)
-
-declare i32 @putchar(i32)
-
-declare i32 @fputc_unlocked(i32, %_IO_FILE*)
-
-declare i32 @putc_unlocked(i32, %_IO_FILE*)
-
-declare i32 @putchar_unlocked(i32)
-
-declare i32 @getw(%_IO_FILE*)
-
-declare i32 @putw(i32, %_IO_FILE*)
-
-declare i8* @fgets(i8*, i32, %_IO_FILE*)
-
-declare i64 @__getdelim(i8**, i64*, i32, %_IO_FILE*)
-
-declare i64 @getdelim(i8**, i64*, i32, %_IO_FILE*)
-
-declare i64 @getline(i8**, i64*, %_IO_FILE*)
-
-declare i32 @fputs(i8*, %_IO_FILE*)
-
-declare i32 @puts(i8*)
-
-declare i32 @ungetc(i32, %_IO_FILE*)
-
-declare i64 @fread(i8*, i64, i64, %_IO_FILE*)
-
-declare i64 @fwrite(i8*, i64, i64, %_IO_FILE*)
-
-declare i64 @fread_unlocked(i8*, i64, i64, %_IO_FILE*)
-
-declare i64 @fwrite_unlocked(i8*, i64, i64, %_IO_FILE*)
-
-declare i32 @fseek(%_IO_FILE*, i64, i32)
-
-declare i64 @ftell(%_IO_FILE*)
-
-declare void @rewind(%_IO_FILE*)
-
-declare i32 @fseeko(%_IO_FILE*, i64, i32)
-
-declare i64 @ftello(%_IO_FILE*)
-
-declare i32 @fgetpos(%_IO_FILE*, %_G_fpos_t*)
-
-declare i32 @fsetpos(%_IO_FILE*, %_G_fpos_t*)
-
-declare void @clearerr(%_IO_FILE*)
-
-declare i32 @feof(%_IO_FILE*)
-
-declare i32 @ferror(%_IO_FILE*)
-
-declare void @clearerr_unlocked(%_IO_FILE*)
-
-declare i32 @feof_unlocked(%_IO_FILE*)
-
-declare i32 @ferror_unlocked(%_IO_FILE*)
-
-declare void @perror(i8*)
-
-declare i32 @fileno(%_IO_FILE*)
-
-declare i32 @fileno_unlocked(%_IO_FILE*)
-
-declare %_IO_FILE* @popen(i8*, i8*)
-
-declare i32 @pclose(%_IO_FILE*)
-
-declare i8* @ctermid(i8*)
-
-declare void @flockfile(%_IO_FILE*)
-
-declare i32 @ftrylockfile(%_IO_FILE*)
-
-declare void @funlockfile(%_IO_FILE*)
-
-declare i32 @__uflow(%_IO_FILE*)
-
-declare i32 @__overflow(%_IO_FILE*, i32)
-
-declare i64 @__ctype_get_mb_cur_max()
-
-declare double @atof(i8*)
-
-declare i32 @atoi(i8*)
-
-declare i64 @atol(i8*)
-
-declare i64 @atoll(i8*)
-
-declare double @strtod(i8*, i8**)
-
-declare float @strtof(i8*, i8**)
-
-declare fp128 @strtold(i8*, i8**)
-
-declare i64 @strtol(i8*, i8**, i32)
-
-declare i64 @strtoul(i8*, i8**, i32)
-
-declare i64 @strtoq(i8*, i8**, i32)
-
-declare i64 @strtouq(i8*, i8**, i32)
-
-declare i64 @strtoll(i8*, i8**, i32)
-
-declare i64 @strtoull(i8*, i8**, i32)
-
-declare i8* @l64a(i64)
-
-declare i64 @a64l(i8*)
-
-declare i32 @select(i32, %anon7*, %anon7*, %anon7*, %timeval*)
-
-declare i32 @pselect(i32, %anon7*, %anon7*, %anon7*, %timespec*, %anon6*)
-
-declare i64 @random()
-
-declare void @srandom(i32)
-
-declare i8* @initstate(i32, i8*, i64)
-
-declare i8* @setstate(i8*)
-
-declare i32 @random_r(%random_data*, i32*)
-
-declare i32 @srandom_r(i32, %random_data*)
-
-declare i32 @initstate_r(i32, i8*, i64, %random_data*)
-
-declare i32 @setstate_r(i8*, %random_data*)
-
-declare i32 @rand()
-
-declare void @srand(i32)
-
-declare i32 @rand_r(i32*)
-
-declare double @drand48()
-
-declare double @erand48(i16*)
-
-declare i64 @lrand48()
-
-declare i64 @nrand48(i16*)
-
-declare i64 @mrand48()
-
-declare i64 @jrand48(i16*)
-
-declare void @srand48(i64)
-
-declare i16* @seed48(i16*)
-
-declare void @lcong48(i16*)
-
-declare i32 @drand48_r(%drand48_data*, double*)
-
-declare i32 @erand48_r(i16*, %drand48_data*, double*)
-
-declare i32 @lrand48_r(%drand48_data*, i64*)
-
-declare i32 @nrand48_r(i16*, %drand48_data*, i64*)
-
-declare i32 @mrand48_r(%drand48_data*, i64*)
-
-declare i32 @jrand48_r(i16*, %drand48_data*, i64*)
-
-declare i32 @srand48_r(i64, %drand48_data*)
-
-declare i32 @seed48_r(i16*, %drand48_data*)
-
-declare i32 @lcong48_r(i16*, %drand48_data*)
+declare i32 @tcsetpgrp(i32, i32)
 
 declare i8* @malloc(i64)
 
@@ -1090,29 +1276,25 @@ declare i8* @calloc(i64, i64)
 
 declare i8* @realloc(i8*, i64)
 
-declare void @free(i8*)
+declare i8* @memalign(i64, i64)
 
-declare i8* @alloca(i64)
+declare i64 @malloc_usable_size(i8*)
 
-declare i8* @valloc(i64)
+declare %mallinfo @mallinfo()
 
-declare i32 @posix_memalign(i8**, i64, i64)
-
-declare i8* @aligned_alloc(i64, i64)
+declare i32 @malloc_info(i32, %__sFILE*)
 
 declare void @abort()
+
+declare void @exit(i32)
+
+declare void @_Exit(i32)
 
 declare i32 @atexit(void ()*)
 
 declare i32 @at_quick_exit(void ()*)
 
-declare i32 @on_exit(void (i32, i8*)*, i8*)
-
-declare void @exit(i32)
-
 declare void @quick_exit(i32)
-
-declare void @_Exit(i32)
 
 declare i8* @getenv(i8*)
 
@@ -1124,21 +1306,109 @@ declare i32 @unsetenv(i8*)
 
 declare i32 @clearenv()
 
+declare i8* @mkdtemp(i8*)
+
 declare i8* @mktemp(i8*)
+
+declare i32 @mkostemp64(i8*, i32)
+
+declare i32 @mkostemp(i8*, i32)
+
+declare i32 @mkostemps64(i8*, i32, i32)
+
+declare i32 @mkostemps(i8*, i32, i32)
+
+declare i32 @mkstemp64(i8*)
 
 declare i32 @mkstemp(i8*)
 
+declare i32 @mkstemps64(i8*, i32)
+
 declare i32 @mkstemps(i8*, i32)
 
-declare i8* @mkdtemp(i8*)
+declare i64 @strtol(i8*, i8**, i32)
 
-declare i32 @system(i8*)
+declare i64 @strtoll(i8*, i8**, i32)
+
+declare i64 @strtoul(i8*, i8**, i32)
+
+declare i64 @strtoull(i8*, i8**, i32)
+
+declare i32 @posix_memalign(i8**, i64, i64)
+
+declare double @strtod(i8*, i8**)
+
+declare fp128 @strtold(i8*, i8**)
+
+declare i64 @atol(i8*)
+
+declare i64 @atoll(i8*)
 
 declare i8* @realpath(i8*, i8*)
+
+declare i32 @system(i8*)
 
 declare i8* @bsearch(i8*, i8*, i64, i64, i32 (i8*, i8*)*)
 
 declare void @qsort(i8*, i64, i64, i32 (i8*, i8*)*)
+
+declare i32 @arc4random_uniform(i32)
+
+declare void @arc4random_buf(i8*, i64)
+
+declare i32 @rand_r(i32*)
+
+declare double @drand48()
+
+declare double @erand48(i16*)
+
+declare i64 @jrand48(i16*)
+
+declare void @lcong48(i16*)
+
+declare i64 @lrand48()
+
+declare i64 @mrand48()
+
+declare i64 @nrand48(i16*)
+
+declare i16* @seed48(i16*)
+
+declare void @srand48(i64)
+
+declare i8* @initstate(i32, i8*, i64)
+
+declare i8* @setstate(i8*)
+
+declare i32 @getpt()
+
+declare i32 @posix_openpt(i32)
+
+declare i8* @ptsname(i32)
+
+declare i32 @ptsname_r(i32, i8*, i64)
+
+declare i32 @unlockpt(i32)
+
+declare %anon42 @div(i32, i32)
+
+declare %anon43 @ldiv(i64, i64)
+
+declare %anon44 @lldiv(i64, i64)
+
+declare i8* @getprogname()
+
+declare void @setprogname(i8*)
+
+declare i32 @mblen(i8*, i64)
+
+declare i64 @mbstowcs(i32*, i8*, i64)
+
+declare i32 @mbtowc(i32*, i8*, i64)
+
+declare i32 @wctomb(i8*, i32)
+
+declare i64 @wcstombs(i8*, i32*, i64)
 
 declare i32 @abs(i32)
 
@@ -1146,159 +1416,35 @@ declare i64 @labs(i64)
 
 declare i64 @llabs(i64)
 
-declare %anon3 @div(i32, i32)
+declare float @strtof(i8*, i8**)
 
-declare %anon4 @ldiv(i64, i64)
+declare double @atof(i8*)
 
-declare %anon5 @lldiv(i64, i64)
+declare i32 @rand()
 
-declare i8* @ecvt(double, i32, i32*, i32*)
+declare void @srand(i32)
 
-declare i8* @fcvt(double, i32, i32*, i32*)
+declare i64 @random()
 
-declare i8* @gcvt(double, i32, i8*)
+declare void @srandom(i32)
 
-declare i8* @qecvt(fp128, i32, i32*, i32*)
+declare i32 @grantpt(i32)
 
-declare i8* @qfcvt(fp128, i32, i32*, i32*)
+declare i64 @strtoll_l(i8*, i8**, i32, %__locale_t*)
 
-declare i8* @qgcvt(fp128, i32, i8*)
+declare i64 @strtoull_l(i8*, i8**, i32, %__locale_t*)
 
-declare i32 @ecvt_r(double, i32, i32*, i32*, i8*, i64)
+declare fp128 @strtold_l(i8*, i8**, %__locale_t*)
 
-declare i32 @fcvt_r(double, i32, i32*, i32*, i8*, i64)
+declare %real_pcre8_or_16* @pcre_compile(i8*, i32, i8**, i32*, i8*)
 
-declare i32 @qecvt_r(fp128, i32, i32*, i32*, i8*, i64)
-
-declare i32 @qfcvt_r(fp128, i32, i32*, i32*, i8*, i64)
-
-declare i32 @mblen(i8*, i64)
-
-declare i32 @mbtowc(i32*, i8*, i64)
-
-declare i32 @wctomb(i8*, i32)
-
-declare i64 @mbstowcs(i32*, i8*, i64)
-
-declare i64 @wcstombs(i8*, i32*, i64)
-
-declare i32 @rpmatch(i8*)
-
-declare i32 @getsubopt(i8**, i8**, i8**)
-
-declare i32 @getloadavg(double*, i32)
-
-declare i8* @memcpy(i8*, i8*, i64)
-
-declare i8* @memmove(i8*, i8*, i64)
-
-declare i8* @memccpy(i8*, i8*, i32, i64)
-
-declare i8* @memset(i8*, i32, i64)
-
-declare i32 @memcmp(i8*, i8*, i64)
-
-declare i8* @memchr(i8*, i32, i64)
-
-declare i8* @strcpy(i8*, i8*)
-
-declare i8* @strncpy(i8*, i8*, i64)
-
-declare i8* @strcat(i8*, i8*)
-
-declare i8* @strncat(i8*, i8*, i64)
-
-declare i32 @strcmp(i8*, i8*)
-
-declare i32 @strncmp(i8*, i8*, i64)
-
-declare i32 @strcoll(i8*, i8*)
-
-declare i64 @strxfrm(i8*, i8*, i64)
-
-declare i32 @strcoll_l(i8*, i8*, %__locale_struct*)
-
-declare i64 @strxfrm_l(i8*, i8*, i64, %__locale_struct*)
-
-declare i8* @strdup(i8*)
-
-declare i8* @strndup(i8*, i64)
-
-declare i8* @strchr(i8*, i32)
-
-declare i8* @strrchr(i8*, i32)
-
-declare i64 @strcspn(i8*, i8*)
-
-declare i64 @strspn(i8*, i8*)
-
-declare i8* @strpbrk(i8*, i8*)
-
-declare i8* @strstr(i8*, i8*)
-
-declare i8* @strtok(i8*, i8*)
-
-declare i8* @__strtok_r(i8*, i8*, i8**)
-
-declare i8* @strtok_r(i8*, i8*, i8**)
-
-declare i64 @strlen(i8*)
-
-declare i64 @strnlen(i8*, i64)
-
-declare i8* @strerror(i32)
-
-declare i32 @strerror_r(i32, i8*, i64)
-
-declare i8* @strerror_l(i32, %__locale_struct*)
-
-declare i32 @bcmp(i8*, i8*, i64)
-
-declare void @bcopy(i8*, i8*, i64)
-
-declare void @bzero(i8*, i64)
-
-declare i8* @index(i8*, i32)
-
-declare i8* @rindex(i8*, i32)
-
-declare i32 @ffs(i32)
-
-declare i32 @ffsl(i64)
-
-declare i32 @ffsll(i64)
-
-declare i32 @strcasecmp(i8*, i8*)
-
-declare i32 @strncasecmp(i8*, i8*, i64)
-
-declare i32 @strcasecmp_l(i8*, i8*, %__locale_struct*)
-
-declare i32 @strncasecmp_l(i8*, i8*, i64, %__locale_struct*)
-
-declare void @explicit_bzero(i8*, i64)
-
-declare i8* @strsep(i8**, i8*)
-
-declare i8* @strsignal(i32)
-
-declare i8* @__stpcpy(i8*, i8*)
-
-declare i8* @stpcpy(i8*, i8*)
-
-declare i8* @__stpncpy(i8*, i8*, i64)
-
-declare i8* @stpncpy(i8*, i8*, i64)
-
-declare %real_pcre* @pcre_compile(i8*, i32, i8**, i32*, i8*)
-
-declare %real_pcre16* @pcre16_compile(i16*, i32, i8**, i32*, i8*)
+declare %real_pcre8_or_16* @pcre16_compile(i16*, i32, i8**, i32*, i8*)
 
 declare %real_pcre32* @pcre32_compile(i32*, i32, i8**, i32*, i8*)
 
-declare %real_pcre* @pcre_compile2(i8*, i32, i32*, i8**, i32*, i8*)
+declare %real_pcre8_or_16* @pcre_compile2(i8*, i32, i32*, i8**, i32*, i8*)
 
-declare %real_pcre16* @pcre16_compile2(i16*, i32, i32*, i8**, i32*, i8*)
+declare %real_pcre8_or_16* @pcre16_compile2(i16*, i32, i32*, i8**, i32*, i8*)
 
 declare %real_pcre32* @pcre32_compile2(i32*, i32, i32*, i8**, i32*, i8*)
 
@@ -1308,9 +1454,9 @@ declare i32 @pcre16_config(i32, i8*)
 
 declare i32 @pcre32_config(i32, i8*)
 
-declare i32 @pcre_copy_named_substring(%real_pcre*, i8*, i32*, i32, i8*, i8*, i32)
+declare i32 @pcre_copy_named_substring(%real_pcre8_or_16*, i8*, i32*, i32, i8*, i8*, i32)
 
-declare i32 @pcre16_copy_named_substring(%real_pcre16*, i16*, i32*, i32, i16*, i16*, i32)
+declare i32 @pcre16_copy_named_substring(%real_pcre8_or_16*, i16*, i32*, i32, i16*, i16*, i32)
 
 declare i32 @pcre32_copy_named_substring(%real_pcre32*, i32*, i32*, i32, i32*, i32*, i32)
 
@@ -1320,21 +1466,21 @@ declare i32 @pcre16_copy_substring(i16*, i32*, i32, i32, i16*, i32)
 
 declare i32 @pcre32_copy_substring(i32*, i32*, i32, i32, i32*, i32)
 
-declare i32 @pcre_dfa_exec(%real_pcre*, %pcre_extra*, i8*, i32, i32, i32, i32*, i32, i32*, i32)
+declare i32 @pcre_dfa_exec(%real_pcre8_or_16*, %pcre_extra*, i8*, i32, i32, i32, i32*, i32, i32*, i32)
 
-declare i32 @pcre16_dfa_exec(%real_pcre16*, %pcre16_extra*, i16*, i32, i32, i32, i32*, i32, i32*, i32)
+declare i32 @pcre16_dfa_exec(%real_pcre8_or_16*, %pcre16_extra*, i16*, i32, i32, i32, i32*, i32, i32*, i32)
 
 declare i32 @pcre32_dfa_exec(%real_pcre32*, %pcre32_extra*, i32*, i32, i32, i32, i32*, i32, i32*, i32)
 
-declare i32 @pcre_exec(%real_pcre*, %pcre_extra*, i8*, i32, i32, i32, i32*, i32)
+declare i32 @pcre_exec(%real_pcre8_or_16*, %pcre_extra*, i8*, i32, i32, i32, i32*, i32)
 
-declare i32 @pcre16_exec(%real_pcre16*, %pcre16_extra*, i16*, i32, i32, i32, i32*, i32)
+declare i32 @pcre16_exec(%real_pcre8_or_16*, %pcre16_extra*, i16*, i32, i32, i32, i32*, i32)
 
 declare i32 @pcre32_exec(%real_pcre32*, %pcre32_extra*, i32*, i32, i32, i32, i32*, i32)
 
-declare i32 @pcre_jit_exec(%real_pcre*, %pcre_extra*, i8*, i32, i32, i32, i32*, i32, %real_pcre_jit_stack*)
+declare i32 @pcre_jit_exec(%real_pcre8_or_16*, %pcre_extra*, i8*, i32, i32, i32, i32*, i32, %real_pcre_jit_stack*)
 
-declare i32 @pcre16_jit_exec(%real_pcre16*, %pcre16_extra*, i16*, i32, i32, i32, i32*, i32, %real_pcre16_jit_stack*)
+declare i32 @pcre16_jit_exec(%real_pcre8_or_16*, %pcre16_extra*, i16*, i32, i32, i32, i32*, i32, %real_pcre16_jit_stack*)
 
 declare i32 @pcre32_jit_exec(%real_pcre32*, %pcre32_extra*, i32*, i32, i32, i32, i32*, i32, %real_pcre32_jit_stack*)
 
@@ -1350,27 +1496,27 @@ declare void @pcre16_free_substring_list(i16**)
 
 declare void @pcre32_free_substring_list(i32**)
 
-declare i32 @pcre_fullinfo(%real_pcre*, %pcre_extra*, i32, i8*)
+declare i32 @pcre_fullinfo(%real_pcre8_or_16*, %pcre_extra*, i32, i8*)
 
-declare i32 @pcre16_fullinfo(%real_pcre16*, %pcre16_extra*, i32, i8*)
+declare i32 @pcre16_fullinfo(%real_pcre8_or_16*, %pcre16_extra*, i32, i8*)
 
 declare i32 @pcre32_fullinfo(%real_pcre32*, %pcre32_extra*, i32, i8*)
 
-declare i32 @pcre_get_named_substring(%real_pcre*, i8*, i32*, i32, i8*, i8**)
+declare i32 @pcre_get_named_substring(%real_pcre8_or_16*, i8*, i32*, i32, i8*, i8**)
 
-declare i32 @pcre16_get_named_substring(%real_pcre16*, i16*, i32*, i32, i16*, i16**)
+declare i32 @pcre16_get_named_substring(%real_pcre8_or_16*, i16*, i32*, i32, i16*, i16**)
 
 declare i32 @pcre32_get_named_substring(%real_pcre32*, i32*, i32*, i32, i32*, i32**)
 
-declare i32 @pcre_get_stringnumber(%real_pcre*, i8*)
+declare i32 @pcre_get_stringnumber(%real_pcre8_or_16*, i8*)
 
-declare i32 @pcre16_get_stringnumber(%real_pcre16*, i16*)
+declare i32 @pcre16_get_stringnumber(%real_pcre8_or_16*, i16*)
 
 declare i32 @pcre32_get_stringnumber(%real_pcre32*, i32*)
 
-declare i32 @pcre_get_stringtable_entries(%real_pcre*, i8*, i8**, i8**)
+declare i32 @pcre_get_stringtable_entries(%real_pcre8_or_16*, i8*, i8**, i8**)
 
-declare i32 @pcre16_get_stringtable_entries(%real_pcre16*, i16*, i16**, i16**)
+declare i32 @pcre16_get_stringtable_entries(%real_pcre8_or_16*, i16*, i16**, i16**)
 
 declare i32 @pcre32_get_stringtable_entries(%real_pcre32*, i32*, i32**, i32**)
 
@@ -1392,15 +1538,15 @@ declare i8* @pcre16_maketables()
 
 declare i8* @pcre32_maketables()
 
-declare i32 @pcre_refcount(%real_pcre*, i32)
+declare i32 @pcre_refcount(%real_pcre8_or_16*, i32)
 
-declare i32 @pcre16_refcount(%real_pcre16*, i32)
+declare i32 @pcre16_refcount(%real_pcre8_or_16*, i32)
 
 declare i32 @pcre32_refcount(%real_pcre32*, i32)
 
-declare %pcre_extra* @pcre_study(%real_pcre*, i32, i8**)
+declare %pcre_extra* @pcre_study(%real_pcre8_or_16*, i32, i8**)
 
-declare %pcre16_extra* @pcre16_study(%real_pcre16*, i32, i8**)
+declare %pcre16_extra* @pcre16_study(%real_pcre8_or_16*, i32, i8**)
 
 declare %pcre32_extra* @pcre32_study(%real_pcre32*, i32, i8**)
 
@@ -1416,9 +1562,9 @@ declare i8* @pcre16_version()
 
 declare i8* @pcre32_version()
 
-declare i32 @pcre_pattern_to_host_byte_order(%real_pcre*, %pcre_extra*, i8*)
+declare i32 @pcre_pattern_to_host_byte_order(%real_pcre8_or_16*, %pcre_extra*, i8*)
 
-declare i32 @pcre16_pattern_to_host_byte_order(%real_pcre16*, %pcre16_extra*, i8*)
+declare i32 @pcre16_pattern_to_host_byte_order(%real_pcre8_or_16*, %pcre16_extra*, i8*)
 
 declare i32 @pcre32_pattern_to_host_byte_order(%real_pcre32*, %pcre32_extra*, i8*)
 
@@ -1696,7 +1842,7 @@ declare i32 @getnstr(i8*, i32)
 
 declare i32 @getstr(i8*)
 
-declare %_win_st* @getwin(%_IO_FILE*)
+declare %_win_st* @getwin(%__sFILE*)
 
 declare i32 @halfdelay(i32)
 
@@ -1860,7 +2006,7 @@ declare i32 @napms(i32)
 
 declare %_win_st* @newpad(i32, i32)
 
-declare %screen* @newterm(i8*, %_IO_FILE*, %_IO_FILE*)
+declare %screen* @newterm(i8*, %__sFILE*, %__sFILE*)
 
 declare %_win_st* @newwin(i32, i32, i32, i32)
 
@@ -1896,7 +2042,7 @@ declare i32 @prefresh(%_win_st*, i32, i32, i32, i32, i32, i32)
 
 declare i32 @printw(i8*, ...)
 
-declare i32 @putwin(%_win_st*, %_IO_FILE*)
+declare i32 @putwin(%_win_st*, %__sFILE*)
 
 declare void @qiflush()
 
@@ -2272,7 +2418,7 @@ declare i32 @flash_sp(%screen*)
 
 declare i32 @flushinp_sp(%screen*)
 
-declare %_win_st* @getwin_sp(%screen*, %_IO_FILE*)
+declare %_win_st* @getwin_sp(%screen*, %__sFILE*)
 
 declare i32 @halfdelay_sp(%screen*, i32)
 
@@ -2302,7 +2448,7 @@ declare i32 @napms_sp(%screen*, i32)
 
 declare %_win_st* @newpad_sp(%screen*, i32, i32)
 
-declare %screen* @newterm_sp(%screen*, i8*, %_IO_FILE*, %_IO_FILE*)
+declare %screen* @newterm_sp(%screen*, i8*, %__sFILE*, %__sFILE*)
 
 declare %_win_st* @newwin_sp(%screen*, i32, i32, i32, i32)
 
@@ -2434,9 +2580,9 @@ declare i32 @use_legacy_coding_sp(%screen*, i32)
 
 declare i1 @has_mouse()
 
-declare i32 @getmouse(%anon51*)
+declare i32 @getmouse(%anon99*)
 
-declare i32 @ungetmouse(%anon51*)
+declare i32 @ungetmouse(%anon99*)
 
 declare i32 @mousemask(i32, i32*)
 
@@ -2450,9 +2596,9 @@ declare i1 @mouse_trafo(i32*, i32*, i1)
 
 declare i1 @has_mouse_sp(%screen*)
 
-declare i32 @getmouse_sp(%screen*, %anon51*)
+declare i32 @getmouse_sp(%screen*, %anon99*)
 
-declare i32 @ungetmouse_sp(%screen*, %anon51*)
+declare i32 @ungetmouse_sp(%screen*, %anon99*)
 
 declare i32 @mousemask_sp(%screen*, i32, i32*)
 
@@ -2480,111 +2626,125 @@ declare i8* @_tracechtype2(i32, i32)
 
 declare void @trace(i32)
 
+declare i32 @curses_trace(i32)
+
+declare void @exit_curses(i32)
+
 declare i8* @unctrl(i32)
 
 declare i8* @unctrl_sp(%screen*, i32)
 
-declare %__dirstream* @opendir(i8*)
+declare %DIR* @opendir(i8*)
 
-declare %__dirstream* @fdopendir(i32)
+declare %DIR* @fdopendir(i32)
 
-declare i32 @closedir(%__dirstream*)
+declare %dirent* @readdir(%DIR*)
 
-declare %dirent* @readdir(%__dirstream*)
+declare %dirent64* @readdir64(%DIR*)
 
-declare i32 @readdir_r(%__dirstream*, %dirent*, %dirent**)
+declare i32 @readdir_r(%DIR*, %dirent*, %dirent**)
 
-declare void @rewinddir(%__dirstream*)
+declare i32 @readdir64_r(%DIR*, %dirent64*, %dirent64**)
 
-declare void @seekdir(%__dirstream*, i64)
+declare i32 @closedir(%DIR*)
 
-declare i64 @telldir(%__dirstream*)
+declare void @rewinddir(%DIR*)
 
-declare i32 @dirfd(%__dirstream*)
+declare void @seekdir(%DIR*, i64)
 
-declare i32 @scandir(i8*, %dirent***, i32 (%dirent*)*, i32 (%dirent**, %dirent**)*)
+declare i64 @telldir(%DIR*)
+
+declare i32 @dirfd(%DIR*)
 
 declare i32 @alphasort(%dirent**, %dirent**)
 
-declare i64 @getdirentries(i32, i8*, i64, i64*)
+declare i32 @alphasort64(%dirent64**, %dirent64**)
 
-declare i32 @stat(i8*, %stat*)
+declare i32 @scandir64(i8*, %dirent64***, i32 (%dirent64*)*, i32 (%dirent64**, %dirent64**)*)
 
-declare i32 @fstat(i32, %stat*)
-
-declare i32 @fstatat(i32, i8*, %stat*, i32)
-
-declare i32 @lstat(i8*, %stat*)
+declare i32 @scandir(i8*, %dirent***, i32 (%dirent*)*, i32 (%dirent**, %dirent**)*)
 
 declare i32 @chmod(i8*, i32)
 
-declare i32 @lchmod(i8*, i32)
-
 declare i32 @fchmod(i32, i32)
-
-declare i32 @fchmodat(i32, i8*, i32, i32)
-
-declare i32 @umask(i32)
 
 declare i32 @mkdir(i8*, i32)
 
-declare i32 @mkdirat(i32, i8*, i32)
+declare i32 @fstat(i32, %stat*)
+
+declare i32 @fstat64(i32, %stat64*)
+
+declare i32 @fstatat(i32, i8*, %stat*, i32)
+
+declare i32 @fstatat64(i32, i8*, %stat64*, i32)
+
+declare i32 @lstat(i8*, %stat*)
+
+declare i32 @lstat64(i8*, %stat64*)
+
+declare i32 @stat(i8*, %stat*)
+
+declare i32 @stat64(i8*, %stat64*)
 
 declare i32 @mknod(i8*, i32, i64)
 
-declare i32 @mknodat(i32, i8*, i32, i64)
+declare i32 @umask(i32)
 
 declare i32 @mkfifo(i8*, i32)
 
 declare i32 @mkfifoat(i32, i8*, i32)
 
+declare i32 @fchmodat(i32, i8*, i32, i32)
+
+declare i32 @mkdirat(i32, i8*, i32)
+
+declare i32 @mknodat(i32, i8*, i32, i64)
+
 declare i32 @utimensat(i32, i8*, %timespec*, i32)
 
 declare i32 @futimens(i32, %timespec*)
 
-declare i32 @__fxstat(i32, i32, %stat*)
+declare i32 @creat(i8*, i32)
 
-declare i32 @__xstat(i32, i8*, %stat*)
-
-declare i32 @__lxstat(i32, i8*, %stat*)
-
-declare i32 @__fxstatat(i32, i32, i8*, %stat*, i32)
-
-declare i32 @__xmknod(i32, i8*, i32, i64*)
-
-declare i32 @__xmknodat(i32, i32, i8*, i32, i64*)
-
-declare i32 @ioctl(i32, i64, ...)
-
-declare i32 @fcntl(i32, i32, ...)
-
-declare i32 @open(i8*, i32, ...)
+declare i32 @creat64(i8*, i32)
 
 declare i32 @openat(i32, i8*, i32, ...)
 
-declare i32 @creat(i8*, i32)
+declare i32 @openat64(i32, i8*, i32, ...)
+
+declare i32 @open64(i8*, i32, ...)
+
+declare i64 @splice(i32, i64*, i32, i64*, i64, i32)
+
+declare i64 @tee(i32, i32, i64, i32)
+
+declare i64 @vmsplice(i32, %iovec*, i64, i32)
+
+declare i32 @fallocate(i32, i32, i64, i64)
+
+declare i32 @fallocate64(i32, i32, i64, i64)
 
 declare i32 @posix_fadvise(i32, i64, i64, i32)
 
+declare i32 @posix_fadvise64(i32, i64, i64, i32)
+
 declare i32 @posix_fallocate(i32, i64, i64)
 
-declare i16** @__ctype_b_loc()
-
-declare i32** @__ctype_tolower_loc()
-
-declare i32** @__ctype_toupper_loc()
+declare i32 @posix_fallocate64(i32, i64, i64)
 
 declare i32 @isalnum(i32)
 
 declare i32 @isalpha(i32)
 
+declare i32 @isblank(i32)
+
 declare i32 @iscntrl(i32)
 
 declare i32 @isdigit(i32)
 
-declare i32 @islower(i32)
-
 declare i32 @isgraph(i32)
+
+declare i32 @islower(i32)
 
 declare i32 @isprint(i32)
 
@@ -2598,95 +2758,93 @@ declare i32 @isxdigit(i32)
 
 declare i32 @tolower(i32)
 
+declare i32 @_tolower(i32)
+
 declare i32 @toupper(i32)
 
-declare i32 @isblank(i32)
+declare i32 @_toupper(i32)
+
+declare i32 @isalnum_l(i32, %__locale_t*)
+
+declare i32 @isalpha_l(i32, %__locale_t*)
+
+declare i32 @isblank_l(i32, %__locale_t*)
+
+declare i32 @iscntrl_l(i32, %__locale_t*)
+
+declare i32 @isdigit_l(i32, %__locale_t*)
+
+declare i32 @isgraph_l(i32, %__locale_t*)
+
+declare i32 @islower_l(i32, %__locale_t*)
+
+declare i32 @isprint_l(i32, %__locale_t*)
+
+declare i32 @ispunct_l(i32, %__locale_t*)
+
+declare i32 @isspace_l(i32, %__locale_t*)
+
+declare i32 @isupper_l(i32, %__locale_t*)
+
+declare i32 @isxdigit_l(i32, %__locale_t*)
+
+declare i32 @tolower_l(i32, %__locale_t*)
+
+declare i32 @toupper_l(i32, %__locale_t*)
 
 declare i32 @isascii(i32)
 
 declare i32 @toascii(i32)
 
-declare i32 @_toupper(i32)
+declare %lconv* @localeconv()
 
-declare i32 @_tolower(i32)
+declare %__locale_t* @duplocale(%__locale_t*)
 
-declare i32 @isalnum_l(i32, %__locale_struct*)
+declare void @freelocale(%__locale_t*)
 
-declare i32 @isalpha_l(i32, %__locale_struct*)
-
-declare i32 @iscntrl_l(i32, %__locale_struct*)
-
-declare i32 @isdigit_l(i32, %__locale_struct*)
-
-declare i32 @islower_l(i32, %__locale_struct*)
-
-declare i32 @isgraph_l(i32, %__locale_struct*)
-
-declare i32 @isprint_l(i32, %__locale_struct*)
-
-declare i32 @ispunct_l(i32, %__locale_struct*)
-
-declare i32 @isspace_l(i32, %__locale_struct*)
-
-declare i32 @isupper_l(i32, %__locale_struct*)
-
-declare i32 @isxdigit_l(i32, %__locale_struct*)
-
-declare i32 @isblank_l(i32, %__locale_struct*)
-
-declare i32 @__tolower_l(i32, %__locale_struct*)
-
-declare i32 @tolower_l(i32, %__locale_struct*)
-
-declare i32 @__toupper_l(i32, %__locale_struct*)
-
-declare i32 @toupper_l(i32, %__locale_struct*)
+declare %__locale_t* @newlocale(i32, i8*, %__locale_t*)
 
 declare i8* @setlocale(i32, i8*)
 
-declare %lconv* @localeconv()
-
-declare %__locale_struct* @newlocale(i32, i8*, %__locale_struct*)
-
-declare %__locale_struct* @duplocale(%__locale_struct*)
-
-declare void @freelocale(%__locale_struct*)
-
-declare %__locale_struct* @uselocale(%__locale_struct*)
+declare %__locale_t* @uselocale(%__locale_t*)
 
 declare i8* @dlopen(i8*, i32)
 
 declare i32 @dlclose(i8*)
 
-declare i8* @dlsym(i8*, i8*)
-
 declare i8* @dlerror()
 
-declare i32 @cfgetospeed(%termios*)
+declare i8* @dlsym(i8*, i8*)
+
+declare i8* @dlvsym(i8*, i8*, i8*)
+
+declare i32 @dladdr(i8*, %anon135*)
 
 declare i32 @cfgetispeed(%termios*)
 
-declare i32 @cfsetospeed(%termios*, i32)
-
-declare i32 @cfsetispeed(%termios*, i32)
-
-declare i32 @cfsetspeed(%termios*, i32)
-
-declare i32 @tcgetattr(i32, %termios*)
-
-declare i32 @tcsetattr(i32, i32, %termios*)
+declare i32 @cfgetospeed(%termios*)
 
 declare void @cfmakeraw(%termios*)
 
-declare i32 @tcsendbreak(i32, i32)
+declare i32 @cfsetspeed(%termios*, i32)
+
+declare i32 @cfsetispeed(%termios*, i32)
+
+declare i32 @cfsetospeed(%termios*, i32)
 
 declare i32 @tcdrain(i32)
 
-declare i32 @tcflush(i32, i32)
-
 declare i32 @tcflow(i32, i32)
 
+declare i32 @tcflush(i32, i32)
+
+declare i32 @tcgetattr(i32, %termios*)
+
 declare i32 @tcgetsid(i32)
+
+declare i32 @tcsendbreak(i32, i32)
+
+declare i32 @tcsetattr(i32, i32, %termios*)
 
 declare void @class_init()
 
@@ -2974,15 +3132,15 @@ declare void @shell_run_command(i8*, %vector__sCLTypep*)
 
 declare void @shell_commandline(i8*, i32, %vector__sCLTypep*)
 
-define %LuckyStrike* @LuckyStrike_initialize(%LuckyStrike* %self) {
+define %iQos* @iQos_initialize(%iQos* %self) {
 entry:
   %lvtable = alloca [8192 x i8*]
   %0 = bitcast [8192 x i8*]* %lvtable to i8*
   %1 = call i8* @xxxmemcpy(i8* %0, i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i64 65536)
-  %self1 = alloca %LuckyStrike*
-  store %LuckyStrike* %self, %LuckyStrike** %self1, align 8
-  %2 = bitcast %LuckyStrike** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %self1 = alloca %iQos*
+  store %iQos* %self, %iQos** %self1, align 8
+  %2 = bitcast %iQos** %self1 to i8*
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %3 = call %_win_st* @initscr()
   %stdscr = load %_win_st*, %_win_st** @stdscr, align 8
   %4 = call i32 @keypad(%_win_st* %stdscr, i1 true)
@@ -2991,30 +3149,30 @@ entry:
   %7 = call i8* @getenv(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @global_string, i32 0, i32 0))
   %cwd = alloca i8*
   %8 = bitcast i8** %cwd to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
   store i8* %7, i8** %cwd, align 8
   %cwd2 = load i8*, i8** %cwd, align 8
   %eqtmpX = icmp eq i8* %cwd2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
 
 cond_jump_then:                                   ; preds = %entry
-  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
-  %10 = bitcast i8* %9 to %LuckyStrike**
-  %self3 = load %LuckyStrike*, %LuckyStrike** %10, align 8
-  call void @LuckyStrike_exit(%LuckyStrike* %self3)
-  %stderr = load %_IO_FILE*, %_IO_FILE** @stderr, align 8
-  %11 = call i32 (%_IO_FILE*, i8*, ...) @fprintf(%_IO_FILE* %stderr, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @global_string.1, i32 0, i32 0))
+  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
+  %10 = bitcast i8* %9 to %iQos**
+  %self3 = load %iQos*, %iQos** %10, align 8
+  call void @iQos_exit(%iQos* %self3)
+  %stderr = load %__sFILE*, %__sFILE** @stderr, align 8
+  %11 = call i32 (%__sFILE*, i8*, ...) @fprintf(%__sFILE* %stderr, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @global_string.1, i32 0, i32 0))
   call void @exit(i32 2)
   br label %cond_end
 
 cond_end:                                         ; preds = %cond_jump_then, %entry
-  %self4 = load %LuckyStrike*, %LuckyStrike** %self1, align 8
-  %12 = call i8* @debug_xcalloc(i64 1, i64 40, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @global_string.2, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @global_string.3, i32 0, i32 0), i32 35, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @global_string.4, i32 0, i32 0), i8* getelementptr inbounds ([23 x i8], [23 x i8]* @global_string.5, i32 0, i32 0))
+  %self4 = load %iQos*, %iQos** %self1, align 8
+  %12 = call i8* @debug_xcalloc(i64 1, i64 40, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @global_string.2, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @global_string.3, i32 0, i32 0), i32 35, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @global_string.4, i32 0, i32 0), i8* getelementptr inbounds ([16 x i8], [16 x i8]* @global_string.5, i32 0, i32 0))
   %13 = bitcast i8* %12 to %Filer*
   %cwd5 = load i8*, i8** %cwd, align 8
-  %self6 = load %LuckyStrike*, %LuckyStrike** %self1, align 8
-  %14 = call %Filer* @Filer_initialize(%Filer* %13, i8* %cwd5, %LuckyStrike* %self6)
-  %15 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %self4, i32 0, i32 0
+  %self6 = load %iQos*, %iQos** %self1, align 8
+  %14 = call %Filer* @Filer_initialize(%Filer* %13, i8* %cwd5, %iQos* %self6)
+  %15 = getelementptr inbounds %iQos, %iQos* %self4, i32 0, i32 0
   %16 = load %Filer*, %Filer** %15, align 8
   call void @Filer_finalize(%Filer* %16)
   %17 = ptrtoint %Filer* %16 to i64
@@ -3032,15 +3190,15 @@ cond_end7:                                        ; preds = %cond_end11, %cond_e
   %23 = bitcast %Filer* %16 to i8*
   call void @xxxfree(i8* %23)
   store %Filer* %14, %Filer** %15, align 8
-  %self12 = load %LuckyStrike*, %LuckyStrike** %self1, align 8
-  %24 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %self12, i32 0, i32 0
+  %self12 = load %iQos*, %iQos** %self1, align 8
+  %24 = getelementptr inbounds %iQos, %iQos* %self12, i32 0, i32 0
   %25 = load %Filer*, %Filer** %24, align 8
   %26 = call i1 @Filer_read_dir(%Filer* %25)
-  %self13 = load %LuckyStrike*, %LuckyStrike** %self1, align 8
-  %27 = call i8* @debug_xcalloc(i64 1, i64 16, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.6, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @global_string.7, i32 0, i32 0), i32 37, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @global_string.8, i32 0, i32 0), i8* getelementptr inbounds ([23 x i8], [23 x i8]* @global_string.9, i32 0, i32 0))
+  %self13 = load %iQos*, %iQos** %self1, align 8
+  %27 = call i8* @debug_xcalloc(i64 1, i64 16, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.6, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @global_string.7, i32 0, i32 0), i32 37, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @global_string.8, i32 0, i32 0), i8* getelementptr inbounds ([16 x i8], [16 x i8]* @global_string.9, i32 0, i32 0))
   %28 = bitcast i8* %27 to %vector__sCLTypep*
   %29 = call %vector__sCLTypep* @"vector_initialize_sCLTypep2_src/filer"(%vector__sCLTypep* %28)
-  %30 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %self13, i32 0, i32 2
+  %30 = getelementptr inbounds %iQos, %iQos* %self13, i32 0, i32 2
   %31 = load %vector__sCLTypep*, %vector__sCLTypep** %30, align 8
   call void @"vector_finalize_sCLTypep3_src/filer"(%vector__sCLTypep* %31)
   %32 = ptrtoint %vector__sCLTypep* %31 to i64
@@ -3074,23 +3232,23 @@ cond_end15:                                       ; preds = %cond_then_block14, 
   %39 = bitcast %vector__sCLTypep* %31 to i8*
   call void @xxxfree(i8* %39)
   store %vector__sCLTypep* %29, %vector__sCLTypep** %30, align 8
-  %self16 = load %LuckyStrike*, %LuckyStrike** %self1, align 8
+  %self16 = load %iQos*, %iQos** %self1, align 8
   %40 = bitcast [8192 x i8*]* %lvtable to i8*
   %41 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %40, i64 65536)
-  ret %LuckyStrike* %self16
+  ret %iQos* %self16
 }
 
-define void @LuckyStrike_finalize(%LuckyStrike* %self) {
+define void @iQos_finalize(%iQos* %self) {
 entry:
   %lvtable = alloca [8192 x i8*]
   %0 = bitcast [8192 x i8*]* %lvtable to i8*
   %1 = call i8* @xxxmemcpy(i8* %0, i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i64 65536)
-  %self1 = alloca %LuckyStrike*
-  store %LuckyStrike* %self, %LuckyStrike** %self1, align 8
-  %2 = bitcast %LuckyStrike** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
-  %self2 = load %LuckyStrike*, %LuckyStrike** %self1, align 8
-  %eqtmpX = icmp eq %LuckyStrike* %self2, null
+  %self1 = alloca %iQos*
+  store %iQos* %self, %iQos** %self1, align 8
+  %2 = bitcast %iQos** %self1 to i8*
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
+  %self2 = load %iQos*, %iQos** %self1, align 8
+  %eqtmpX = icmp eq %iQos* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
 
 cond_jump_then:                                   ; preds = %entry
@@ -3099,42 +3257,42 @@ cond_jump_then:                                   ; preds = %entry
   ret void
 
 cond_end:                                         ; preds = %entry
-  %self3 = load %LuckyStrike*, %LuckyStrike** %self1, align 8
-  call void @LuckyStrike_exit(%LuckyStrike* %self3)
+  %self3 = load %iQos*, %iQos** %self1, align 8
+  call void @iQos_exit(%iQos* %self3)
   %5 = bitcast [8192 x i8*]* %lvtable to i8*
   %6 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %5, i64 65536)
   ret void
 }
 
-define i1 @LuckyStrike_main_loop(%LuckyStrike* %self) {
+define i1 @iQos_main_loop(%iQos* %self) {
 entry:
   %lvtable = alloca [8192 x i8*]
   %0 = bitcast [8192 x i8*]* %lvtable to i8*
   %1 = call i8* @xxxmemcpy(i8* %0, i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i64 65536)
-  %self1 = alloca %LuckyStrike*
-  store %LuckyStrike* %self, %LuckyStrike** %self1, align 8
-  %2 = bitcast %LuckyStrike** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %self1 = alloca %iQos*
+  store %iQos* %self, %iQos** %self1, align 8
+  %2 = bitcast %iQos** %self1 to i8*
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   br label %loop_top_block
 
 loop_top_block:                                   ; preds = %cond_then_block, %entry
-  %self2 = load %LuckyStrike*, %LuckyStrike** %self1, align 8
-  %3 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %self2, i32 0, i32 1
+  %self2 = load %iQos*, %iQos** %self1, align 8
+  %3 = getelementptr inbounds %iQos, %iQos* %self2, i32 0, i32 1
   %4 = load i1, i1* %3, align 1
   %LOGICAL_DIANEAL = icmp eq i1 %4, false
   br i1 %LOGICAL_DIANEAL, label %cond_then_block, label %cond_end_block
 
 cond_then_block:                                  ; preds = %loop_top_block
-  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
-  %6 = bitcast i8* %5 to %LuckyStrike**
-  %self3 = load %LuckyStrike*, %LuckyStrike** %6, align 8
-  %7 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %self3, i32 0, i32 0
+  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
+  %6 = bitcast i8* %5 to %iQos**
+  %self3 = load %iQos*, %iQos** %6, align 8
+  %7 = getelementptr inbounds %iQos, %iQos* %self3, i32 0, i32 0
   %8 = load %Filer*, %Filer** %7, align 8
   call void @Filer_view(%Filer* %8)
-  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
-  %10 = bitcast i8* %9 to %LuckyStrike**
-  %self4 = load %LuckyStrike*, %LuckyStrike** %10, align 8
-  %11 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %self4, i32 0, i32 0
+  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
+  %10 = bitcast i8* %9 to %iQos**
+  %self4 = load %iQos*, %iQos** %10, align 8
+  %11 = getelementptr inbounds %iQos, %iQos* %self4, i32 0, i32 0
   %12 = load %Filer*, %Filer** %11, align 8
   call void @Filer_input(%Filer* %12)
   br label %loop_top_block
@@ -3145,22 +3303,22 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret i1 true
 }
 
-define void @LuckyStrike_exit(%LuckyStrike* %self) {
+define void @iQos_exit(%iQos* %self) {
 entry:
   %lvtable = alloca [8192 x i8*]
   %0 = bitcast [8192 x i8*]* %lvtable to i8*
   %1 = call i8* @xxxmemcpy(i8* %0, i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i64 65536)
-  %self1 = alloca %LuckyStrike*
-  store %LuckyStrike* %self, %LuckyStrike** %self1, align 8
-  %2 = bitcast %LuckyStrike** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %self1 = alloca %iQos*
+  store %iQos* %self, %iQos** %self1, align 8
+  %2 = bitcast %iQos** %self1 to i8*
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %3 = call i32 @endwin()
   %4 = bitcast [8192 x i8*]* %lvtable to i8*
   %5 = call i8* @xxxmemcpy(i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i8* %4, i64 65536)
   ret void
 }
 
-define %Filer* @Filer_initialize(%Filer* %self, i8* %path, %LuckyStrike* %lucky) {
+define %Filer* @Filer_initialize(%Filer* %self, i8* %path, %iQos* %iqos) {
 entry:
   %lvtable = alloca [8192 x i8*]
   %0 = bitcast [8192 x i8*]* %lvtable to i8*
@@ -3168,15 +3326,15 @@ entry:
   %self1 = alloca %Filer*
   store %Filer* %self, %Filer** %self1, align 8
   %2 = bitcast %Filer** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %path2 = alloca i8*
   store i8* %path, i8** %path2, align 8
   %3 = bitcast i8** %path2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
-  %lucky3 = alloca %LuckyStrike*
-  store %LuckyStrike* %lucky, %LuckyStrike** %lucky3, align 8
-  %4 = bitcast %LuckyStrike** %lucky3 to i8*
-  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
+  %iqos3 = alloca %iQos*
+  store %iQos* %iqos, %iQos** %iqos3, align 8
+  %4 = bitcast %iQos** %iqos3 to i8*
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %self4 = load %Filer*, %Filer** %self1, align 8
   %path5 = load i8*, i8** %path2, align 8
   %5 = call i8* @string(i8* %path5)
@@ -3193,9 +3351,9 @@ cond_end:                                         ; preds = %cond_then_block, %e
   call void @xxxfree(i8* %7)
   store i8* %5, i8** %6, align 8
   %self6 = load %Filer*, %Filer** %self1, align 8
-  %lucky7 = load %LuckyStrike*, %LuckyStrike** %lucky3, align 8
+  %iqos7 = load %iQos*, %iQos** %iqos3, align 8
   %10 = getelementptr inbounds %Filer, %Filer* %self6, i32 0, i32 0
-  store %LuckyStrike* %lucky7, %LuckyStrike** %10, align 8
+  store %iQos* %iqos7, %iQos** %10, align 8
   %self8 = load %Filer*, %Filer** %self1, align 8
   %11 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.14, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @global_string.15, i32 0, i32 0), i32 68, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @global_string.16, i32 0, i32 0), i8* getelementptr inbounds ([17 x i8], [17 x i8]* @global_string.17, i32 0, i32 0))
   %12 = bitcast i8* %11 to %list__charp*
@@ -3237,7 +3395,7 @@ entry:
   %self1 = alloca %Filer*
   store %Filer* %self, %Filer** %self1, align 8
   %2 = bitcast %Filer** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %self2 = load %Filer*, %Filer** %self1, align 8
   %eqtmpX = icmp eq %Filer* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -3261,7 +3419,7 @@ entry:
   %self1 = alloca %Filer*
   store %Filer* %self, %Filer** %self1, align 8
   %2 = bitcast %Filer** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %self2 = load %Filer*, %Filer** %self1, align 8
   %3 = getelementptr inbounds %Filer, %Filer* %self2, i32 0, i32 2
   %4 = load %list__charp*, %list__charp** %3, align 8
@@ -3269,13 +3427,13 @@ entry:
   %self3 = load %Filer*, %Filer** %self1, align 8
   %5 = getelementptr inbounds %Filer, %Filer* %self3, i32 0, i32 1
   %6 = load i8*, i8** %5, align 8
-  %7 = call %__dirstream* @opendir(i8* %6)
-  %dir = alloca %__dirstream*
-  %8 = bitcast %__dirstream** %dir to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
-  store %__dirstream* %7, %__dirstream** %dir, align 8
-  %dir4 = load %__dirstream*, %__dirstream** %dir, align 8
-  %eqtmpX = icmp eq %__dirstream* %dir4, null
+  %7 = call %DIR* @opendir(i8* %6)
+  %dir = alloca %DIR*
+  %8 = bitcast %DIR** %dir to i8*
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
+  store %DIR* %7, %DIR** %dir, align 8
+  %dir4 = load %DIR*, %DIR** %dir, align 8
+  %eqtmpX = icmp eq %DIR* %dir4, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
 
 cond_jump_then:                                   ; preds = %entry
@@ -3286,24 +3444,24 @@ cond_jump_then:                                   ; preds = %entry
 cond_end:                                         ; preds = %entry
   %entry5 = alloca %dirent*
   %11 = bitcast %dirent** %entry5 to i8*
-  store i8* %11, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i8* %11, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   br label %loop_top_block
 
 loop_top_block:                                   ; preds = %cond_then_block, %cond_end
-  %dir6 = load %__dirstream*, %__dirstream** %dir, align 8
-  %12 = call %dirent* @readdir(%__dirstream* %dir6)
+  %dir6 = load %DIR*, %DIR** %dir, align 8
+  %12 = call %dirent* @readdir(%DIR* %dir6)
   store %dirent* %12, %dirent** %entry5, align 8
   %13 = ptrtoint %dirent* %12 to i64
   %14 = icmp ne i64 %13, 0
   br i1 %14, label %cond_then_block, label %cond_end_block
 
 cond_then_block:                                  ; preds = %loop_top_block
-  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %16 = bitcast i8* %15 to %Filer**
   %self7 = load %Filer*, %Filer** %16, align 8
   %17 = getelementptr inbounds %Filer, %Filer* %self7, i32 0, i32 2
   %18 = load %list__charp*, %list__charp** %17, align 8
-  %19 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %19 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %20 = bitcast i8* %19 to %dirent**
   %entry8 = load %dirent*, %dirent** %20, align 8
   %21 = getelementptr inbounds %dirent, %dirent* %entry8, i32 0, i32 4
@@ -3313,8 +3471,8 @@ cond_then_block:                                  ; preds = %loop_top_block
   br label %loop_top_block
 
 cond_end_block:                                   ; preds = %loop_top_block
-  %dir9 = load %__dirstream*, %__dirstream** %dir, align 8
-  %24 = call i32 @closedir(%__dirstream* %dir9)
+  %dir9 = load %DIR*, %DIR** %dir, align 8
+  %24 = call i32 @closedir(%DIR* %dir9)
   %self10 = load %Filer*, %Filer** %self1, align 8
   %self11 = load %Filer*, %Filer** %self1, align 8
   %25 = getelementptr inbounds %Filer, %Filer* %self11, i32 0, i32 2
@@ -3347,17 +3505,17 @@ entry:
   %self1 = alloca %Filer*
   store %Filer* %self, %Filer** %self1, align 8
   %2 = bitcast %Filer** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %3 = call i32 @xgetmaxx()
   %maxx = alloca i32
   %4 = bitcast i32* %maxx to i8*
-  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
   store i32 %3, i32* %maxx, align 4
   %5 = call i32 @xgetmaxy()
   %subttmp = sub nsw i32 %5, 2
   %maxy = alloca i32
   %6 = bitcast i32* %maxy to i8*
-  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   store i32 %subttmp, i32* %maxy, align 4
   %stdscr = load %_win_st*, %_win_st** @stdscr, align 8
   %7 = call i32 @werase(%_win_st* %stdscr)
@@ -3368,7 +3526,7 @@ entry:
   %multtmp = mul nsw i32 %maxy2, %9
   %files_in_one_page = alloca i32
   %10 = bitcast i32* %files_in_one_page to i8*
-  store i8* %10, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %10, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   store i32 %multtmp, i32* %files_in_one_page, align 4
   %self4 = load %Filer*, %Filer** %self1, align 8
   %11 = getelementptr inbounds %Filer, %Filer* %self4, i32 0, i32 4
@@ -3377,7 +3535,7 @@ entry:
   %multtmp6 = mul nsw i32 %12, %files_in_one_page5
   %head = alloca i32
   %13 = bitcast i32* %head to i8*
-  store i8* %13, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %13, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   store i32 %multtmp6, i32* %head, align 4
   %self7 = load %Filer*, %Filer** %self1, align 8
   %14 = getelementptr inbounds %Filer, %Filer* %self7, i32 0, i32 4
@@ -3387,7 +3545,7 @@ entry:
   %multtmp9 = mul nsw i32 %addtmp, %files_in_one_page8
   %tail = alloca i32
   %16 = bitcast i32* %tail to i8*
-  store i8* %16, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %16, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   store i32 %multtmp9, i32* %tail, align 4
   %self10 = load %Filer*, %Filer** %self1, align 8
   %17 = getelementptr inbounds %Filer, %Filer* %self10, i32 0, i32 2
@@ -3413,11 +3571,11 @@ entry:
   %27 = call i32 @wattr_off(%_win_st* %stdscr19, i32 262144, i8* null)
   %title_len = alloca i32
   %28 = bitcast i32* %title_len to i8*
-  store i8* %28, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  store i8* %28, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   store i32 20, i32* %title_len, align 4
   %x = alloca i32
   %29 = bitcast i32* %x to i8*
-  store i8* %29, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  store i8* %29, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   store i32 0, i32* %x, align 4
   %gJobs = load %list__int*, %list__int** @gJobs, align 8
   call void @"list_each_int59_src/filer"(%list__int* %gJobs, void (i32, i32, i1*)* @filer_lambda2)
@@ -3447,23 +3605,23 @@ entry:
   %self1 = alloca %Filer*
   store %Filer* %self, %Filer** %self1, align 8
   %2 = bitcast %Filer** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %3 = call i32 @xgetmaxx()
   %maxx = alloca i32
   %4 = bitcast i32* %maxx to i8*
-  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
   store i32 %3, i32* %maxx, align 4
   %5 = call i32 @xgetmaxy()
   %subttmp = sub nsw i32 %5, 2
   %maxy = alloca i32
   %6 = bitcast i32* %maxy to i8*
-  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   store i32 %subttmp, i32* %maxy, align 4
   %stdscr = load %_win_st*, %_win_st** @stdscr, align 8
   %7 = call i32 @wgetch(%_win_st* %stdscr)
   %key = alloca i32
   %8 = bitcast i32* %key to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   store i32 %7, i32* %key, align 4
   %andand_result_var = alloca i1
   %key2 = load i32, i32* %key, align 4
@@ -3484,7 +3642,7 @@ cond_jump_end:                                    ; preds = %cond_jump_then, %en
 
 cond_jump_then4:                                  ; preds = %cond_jump_end
   %9 = call i32 @endwin()
-  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %11 = bitcast i8* %10 to i32*
   %key5 = load i32, i32* %11, align 4
   %subttmp6 = sub nsw i32 %key5, 48
@@ -3497,7 +3655,7 @@ cond_jump_then4:                                  ; preds = %cond_jump_end
   br label %cond_end
 
 cond_else_block:                                  ; preds = %cond_jump_end
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %18 = bitcast i8* %17 to i32*
   %key8 = load i32, i32* %18, align 4
   %eqtmpY = icmp eq i32 %key8, 113
@@ -3514,12 +3672,12 @@ end_block:                                        ; preds = %cond_else_block182,
   br label %cond_end
 
 cond_then_block:                                  ; preds = %cond_else_block
-  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %22 = bitcast i8* %21 to %Filer**
   %self10 = load %Filer*, %Filer** %22, align 8
   %23 = getelementptr inbounds %Filer, %Filer* %self10, i32 0, i32 0
-  %24 = load %LuckyStrike*, %LuckyStrike** %23, align 8
-  %25 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %24, i32 0, i32 1
+  %24 = load %iQos*, %iQos** %23, align 8
+  %25 = getelementptr inbounds %iQos, %iQos* %24, i32 0, i32 1
   store i1 true, i1* %25, align 1
   br label %end_block
 
@@ -3531,39 +3689,39 @@ after_break:                                      ; No predecessors!
   br label %cond_else_block9
 
 cond_then_block11:                                ; preds = %cond_else_block12, %cond_else_block9
-  %26 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %26 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %27 = bitcast i8* %26 to %Filer**
   %self16 = load %Filer*, %Filer** %27, align 8
   %28 = getelementptr inbounds %Filer, %Filer* %self16, i32 0, i32 1
   %29 = load i8*, i8** %28, align 8
   %30 = call i8* @string(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @global_string.308, i32 0, i32 0))
   %31 = call i8* @op_add_string_string(i8* %29, i8* %30)
-  %32 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %32 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %33 = bitcast i8* %32 to %Filer**
   %self17 = load %Filer*, %Filer** %33, align 8
   %34 = call i8* @Filer_cursor_file(%Filer* %self17)
   %35 = call i8* @op_add_string_string(i8* %31, i8* %34)
   %path = alloca i8*
   %36 = bitcast i8** %path to i8*
-  store i8* %36, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %36, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   store i8* %35, i8** %path, align 8
   %stat_ = alloca %stat
   %37 = bitcast %stat* %stat_ to i8*
-  store i8* %37, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %37, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %path18 = load i8*, i8** %path, align 8
   %stat_19 = load %stat, %stat* %stat_, align 8
   %38 = call i32 @stat(i8* %path18, %stat* %stat_)
   %stat_20 = load %stat, %stat* %stat_, align 8
-  %39 = getelementptr inbounds %stat, %stat* %stat_, i32 0, i32 3
+  %39 = getelementptr inbounds %stat, %stat* %stat_, i32 0, i32 2
   %40 = load i32, i32* %39, align 4
   %andtmp = and i32 %40, 61440
   %eqtmpX = icmp eq i32 %andtmp, 16384
   %is_dir = alloca i1
   %41 = bitcast i1* %is_dir to i8*
-  store i8* %41, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  store i8* %41, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   store i1 %eqtmpX, i1* %is_dir, align 1
   %is_dir21 = load i1, i1* %is_dir, align 1
-  %42 = ptrtoint i8* %30 to i64
+  %42 = ptrtoint i8* %31 to i64
   %43 = icmp ne i64 %42, 0
   br i1 %43, label %cond_then_block24, label %cond_end25
 
@@ -3576,10 +3734,10 @@ cond_else_block14:                                ; preds = %after_break34, %con
   br i1 %eqtmpY37, label %cond_then_block35, label %cond_else_block36
 
 cond_jump_then22:                                 ; preds = %cond_end29
-  %44 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %44 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %45 = bitcast i8* %44 to %Filer**
   %self30 = load %Filer*, %Filer** %45, align 8
-  %46 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %46 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %47 = bitcast i8* %46 to i8**
   %path31 = load i8*, i8** %47, align 8
   %48 = call i1 @Filer_chage_directory(%Filer* %self30, i8* %path31, i8* null)
@@ -3595,8 +3753,8 @@ cond_then_block24:                                ; preds = %cond_then_block11
   br label %cond_end25
 
 cond_end25:                                       ; preds = %cond_then_block24, %cond_then_block11
-  call void @xxxfree(i8* %30)
-  %52 = ptrtoint i8* %31 to i64
+  call void @xxxfree(i8* %31)
+  %52 = ptrtoint i8* %30 to i64
   %53 = icmp ne i64 %52, 0
   br i1 %53, label %cond_then_block26, label %cond_end27
 
@@ -3604,7 +3762,7 @@ cond_then_block26:                                ; preds = %cond_end25
   br label %cond_end27
 
 cond_end27:                                       ; preds = %cond_then_block26, %cond_end25
-  call void @xxxfree(i8* %31)
+  call void @xxxfree(i8* %30)
   %54 = ptrtoint i8* %34 to i64
   %55 = icmp ne i64 %54, 0
   br i1 %55, label %cond_then_block28, label %cond_end29
@@ -3627,7 +3785,7 @@ after_break34:                                    ; No predecessors!
   br label %cond_else_block14
 
 cond_then_block35:                                ; preds = %cond_else_block38, %cond_else_block36, %cond_else_block14
-  %56 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %56 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %57 = bitcast i8* %56 to %Filer**
   %self42 = load %Filer*, %Filer** %57, align 8
   %58 = getelementptr inbounds %Filer, %Filer* %self42, i32 0, i32 1
@@ -3635,9 +3793,9 @@ cond_then_block35:                                ; preds = %cond_else_block38, 
   %60 = call i8* @xbasename(i8* %59)
   %current_directory_name = alloca i8*
   %61 = bitcast i8** %current_directory_name to i8*
-  store i8* %61, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %61, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   store i8* %60, i8** %current_directory_name, align 8
-  %62 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %62 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %63 = bitcast i8* %62 to %Filer**
   %self43 = load %Filer*, %Filer** %63, align 8
   %64 = getelementptr inbounds %Filer, %Filer* %self43, i32 0, i32 1
@@ -3646,9 +3804,9 @@ cond_then_block35:                                ; preds = %cond_else_block38, 
   %67 = call i8* @op_add_string_string(i8* %65, i8* %66)
   %path44 = alloca i8*
   %68 = bitcast i8** %path44 to i8*
-  store i8* %68, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %68, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   store i8* %67, i8** %path44, align 8
-  %69 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %69 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %70 = bitcast i8* %69 to %Filer**
   %self45 = load %Filer*, %Filer** %70, align 8
   %path46 = load i8*, i8** %path44, align 8
@@ -3702,20 +3860,20 @@ after_break54:                                    ; No predecessors!
 
 cond_then_block55:                                ; preds = %cond_else_block40
   %80 = call i32 @endwin()
-  %81 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %81 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %82 = bitcast i8* %81 to %Filer**
   %self58 = load %Filer*, %Filer** %82, align 8
   %83 = call i8* @Filer_cursor_file(%Filer* %self58)
   %84 = call i8* (i8*, ...) @xsprintf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @global_string.310, i32 0, i32 0), i8* %83)
-  %85 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %85 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %86 = bitcast i8* %85 to %Filer**
   %self59 = load %Filer*, %Filer** %86, align 8
   %87 = getelementptr inbounds %Filer, %Filer* %self59, i32 0, i32 0
-  %88 = load %LuckyStrike*, %LuckyStrike** %87, align 8
-  %89 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %88, i32 0, i32 2
+  %88 = load %iQos*, %iQos** %87, align 8
+  %89 = getelementptr inbounds %iQos, %iQos* %88, i32 0, i32 2
   %90 = load %vector__sCLTypep*, %vector__sCLTypep** %89, align 8
   call void @shell_commandline(i8* %84, i32 -3, %vector__sCLTypep* %90)
-  %91 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %91 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %92 = bitcast i8* %91 to %Filer**
   %self60 = load %Filer*, %Filer** %92, align 8
   %93 = call i1 @Filer_read_dir(%Filer* %self60)
@@ -3726,7 +3884,7 @@ cond_then_block55:                                ; preds = %cond_else_block40
   %96 = call i32 @keypad(%_win_st* %stdscr62, i1 true)
   %97 = call i32 @raw()
   %98 = call i32 @noecho()
-  %99 = ptrtoint i8* %83 to i64
+  %99 = ptrtoint i8* %84 to i64
   %100 = icmp ne i64 %99, 0
   br i1 %100, label %cond_then_block63, label %cond_end64
 
@@ -3738,8 +3896,8 @@ cond_then_block63:                                ; preds = %cond_then_block55
   br label %cond_end64
 
 cond_end64:                                       ; preds = %cond_then_block63, %cond_then_block55
-  call void @xxxfree(i8* %83)
-  %101 = ptrtoint i8* %84 to i64
+  call void @xxxfree(i8* %84)
+  %101 = ptrtoint i8* %83 to i64
   %102 = icmp ne i64 %101, 0
   br i1 %102, label %cond_then_block65, label %cond_end66
 
@@ -3747,7 +3905,7 @@ cond_then_block65:                                ; preds = %cond_end64
   br label %cond_end66
 
 cond_end66:                                       ; preds = %cond_then_block65, %cond_end64
-  call void @xxxfree(i8* %84)
+  call void @xxxfree(i8* %83)
   br label %end_block
 
 after_break67:                                    ; No predecessors!
@@ -3755,20 +3913,20 @@ after_break67:                                    ; No predecessors!
 
 cond_then_block68:                                ; preds = %cond_else_block56
   %103 = call i32 @endwin()
-  %104 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %104 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %105 = bitcast i8* %104 to %Filer**
   %self71 = load %Filer*, %Filer** %105, align 8
   %106 = call i8* @Filer_cursor_file(%Filer* %self71)
   %107 = call i8* (i8*, ...) @xsprintf(i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.311, i32 0, i32 0), i8* %106)
-  %108 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %108 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %109 = bitcast i8* %108 to %Filer**
   %self72 = load %Filer*, %Filer** %109, align 8
   %110 = getelementptr inbounds %Filer, %Filer* %self72, i32 0, i32 0
-  %111 = load %LuckyStrike*, %LuckyStrike** %110, align 8
-  %112 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %111, i32 0, i32 2
+  %111 = load %iQos*, %iQos** %110, align 8
+  %112 = getelementptr inbounds %iQos, %iQos* %111, i32 0, i32 2
   %113 = load %vector__sCLTypep*, %vector__sCLTypep** %112, align 8
   call void @shell_commandline(i8* %107, i32 -3, %vector__sCLTypep* %113)
-  %114 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %114 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %115 = bitcast i8* %114 to %Filer**
   %self73 = load %Filer*, %Filer** %115, align 8
   %116 = call i1 @Filer_read_dir(%Filer* %self73)
@@ -3779,7 +3937,7 @@ cond_then_block68:                                ; preds = %cond_else_block56
   %119 = call i32 @keypad(%_win_st* %stdscr75, i1 true)
   %120 = call i32 @raw()
   %121 = call i32 @noecho()
-  %122 = ptrtoint i8* %106 to i64
+  %122 = ptrtoint i8* %107 to i64
   %123 = icmp ne i64 %122, 0
   br i1 %123, label %cond_then_block76, label %cond_end77
 
@@ -3791,8 +3949,8 @@ cond_then_block76:                                ; preds = %cond_then_block68
   br label %cond_end77
 
 cond_end77:                                       ; preds = %cond_then_block76, %cond_then_block68
-  call void @xxxfree(i8* %106)
-  %124 = ptrtoint i8* %107 to i64
+  call void @xxxfree(i8* %107)
+  %124 = ptrtoint i8* %106 to i64
   %125 = icmp ne i64 %124, 0
   br i1 %125, label %cond_then_block78, label %cond_end79
 
@@ -3800,7 +3958,7 @@ cond_then_block78:                                ; preds = %cond_end77
   br label %cond_end79
 
 cond_end79:                                       ; preds = %cond_then_block78, %cond_end77
-  call void @xxxfree(i8* %107)
+  call void @xxxfree(i8* %106)
   br label %end_block
 
 after_break80:                                    ; No predecessors!
@@ -3808,20 +3966,20 @@ after_break80:                                    ; No predecessors!
 
 cond_then_block81:                                ; preds = %cond_else_block69
   %126 = call i32 @endwin()
-  %127 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %127 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %128 = bitcast i8* %127 to %Filer**
   %self84 = load %Filer*, %Filer** %128, align 8
   %129 = call i8* @Filer_cursor_file(%Filer* %self84)
   %130 = call i8* (i8*, ...) @xsprintf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @global_string.312, i32 0, i32 0), i8* %129)
-  %131 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %131 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %132 = bitcast i8* %131 to %Filer**
   %self85 = load %Filer*, %Filer** %132, align 8
   %133 = getelementptr inbounds %Filer, %Filer* %self85, i32 0, i32 0
-  %134 = load %LuckyStrike*, %LuckyStrike** %133, align 8
-  %135 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %134, i32 0, i32 2
+  %134 = load %iQos*, %iQos** %133, align 8
+  %135 = getelementptr inbounds %iQos, %iQos* %134, i32 0, i32 2
   %136 = load %vector__sCLTypep*, %vector__sCLTypep** %135, align 8
   call void @shell_commandline(i8* %130, i32 -3, %vector__sCLTypep* %136)
-  %137 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %137 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %138 = bitcast i8* %137 to %Filer**
   %self86 = load %Filer*, %Filer** %138, align 8
   %139 = call i1 @Filer_read_dir(%Filer* %self86)
@@ -3832,7 +3990,7 @@ cond_then_block81:                                ; preds = %cond_else_block69
   %142 = call i32 @keypad(%_win_st* %stdscr88, i1 true)
   %143 = call i32 @raw()
   %144 = call i32 @noecho()
-  %145 = ptrtoint i8* %129 to i64
+  %145 = ptrtoint i8* %130 to i64
   %146 = icmp ne i64 %145, 0
   br i1 %146, label %cond_then_block89, label %cond_end90
 
@@ -3844,8 +4002,8 @@ cond_then_block89:                                ; preds = %cond_then_block81
   br label %cond_end90
 
 cond_end90:                                       ; preds = %cond_then_block89, %cond_then_block81
-  call void @xxxfree(i8* %129)
-  %147 = ptrtoint i8* %130 to i64
+  call void @xxxfree(i8* %130)
+  %147 = ptrtoint i8* %129 to i64
   %148 = icmp ne i64 %147, 0
   br i1 %148, label %cond_then_block91, label %cond_end92
 
@@ -3853,7 +4011,7 @@ cond_then_block91:                                ; preds = %cond_end90
   br label %cond_end92
 
 cond_end92:                                       ; preds = %cond_then_block91, %cond_end90
-  call void @xxxfree(i8* %130)
+  call void @xxxfree(i8* %129)
   br label %end_block
 
 after_break93:                                    ; No predecessors!
@@ -3862,15 +4020,15 @@ after_break93:                                    ; No predecessors!
 cond_then_block94:                                ; preds = %cond_else_block82
   %149 = call i32 @endwin()
   %150 = call i8* (i8*, ...) @xsprintf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @global_string.313, i32 0, i32 0))
-  %151 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %151 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %152 = bitcast i8* %151 to %Filer**
   %self97 = load %Filer*, %Filer** %152, align 8
   %153 = getelementptr inbounds %Filer, %Filer* %self97, i32 0, i32 0
-  %154 = load %LuckyStrike*, %LuckyStrike** %153, align 8
-  %155 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %154, i32 0, i32 2
+  %154 = load %iQos*, %iQos** %153, align 8
+  %155 = getelementptr inbounds %iQos, %iQos* %154, i32 0, i32 2
   %156 = load %vector__sCLTypep*, %vector__sCLTypep** %155, align 8
   call void @shell_commandline(i8* %150, i32 -3, %vector__sCLTypep* %156)
-  %157 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %157 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %158 = bitcast i8* %157 to %Filer**
   %self98 = load %Filer*, %Filer** %158, align 8
   %159 = call i1 @Filer_read_dir(%Filer* %self98)
@@ -3899,20 +4057,20 @@ after_break102:                                   ; No predecessors!
 
 cond_then_block103:                               ; preds = %cond_else_block95
   %166 = call i32 @endwin()
-  %167 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %167 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %168 = bitcast i8* %167 to %Filer**
   %self106 = load %Filer*, %Filer** %168, align 8
   %169 = call i8* @Filer_cursor_file(%Filer* %self106)
   %170 = call i8* (i8*, ...) @xsprintf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @global_string.314, i32 0, i32 0), i8* %169)
-  %171 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %171 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %172 = bitcast i8* %171 to %Filer**
   %self107 = load %Filer*, %Filer** %172, align 8
   %173 = getelementptr inbounds %Filer, %Filer* %self107, i32 0, i32 0
-  %174 = load %LuckyStrike*, %LuckyStrike** %173, align 8
-  %175 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %174, i32 0, i32 2
+  %174 = load %iQos*, %iQos** %173, align 8
+  %175 = getelementptr inbounds %iQos, %iQos* %174, i32 0, i32 2
   %176 = load %vector__sCLTypep*, %vector__sCLTypep** %175, align 8
   call void @shell_commandline(i8* %170, i32 0, %vector__sCLTypep* %176)
-  %177 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %177 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %178 = bitcast i8* %177 to %Filer**
   %self108 = load %Filer*, %Filer** %178, align 8
   %179 = call i1 @Filer_read_dir(%Filer* %self108)
@@ -3923,7 +4081,7 @@ cond_then_block103:                               ; preds = %cond_else_block95
   %182 = call i32 @keypad(%_win_st* %stdscr110, i1 true)
   %183 = call i32 @raw()
   %184 = call i32 @noecho()
-  %185 = ptrtoint i8* %169 to i64
+  %185 = ptrtoint i8* %170 to i64
   %186 = icmp ne i64 %185, 0
   br i1 %186, label %cond_then_block111, label %cond_end112
 
@@ -3935,8 +4093,8 @@ cond_then_block111:                               ; preds = %cond_then_block103
   br label %cond_end112
 
 cond_end112:                                      ; preds = %cond_then_block111, %cond_then_block103
-  call void @xxxfree(i8* %169)
-  %187 = ptrtoint i8* %170 to i64
+  call void @xxxfree(i8* %170)
+  %187 = ptrtoint i8* %169 to i64
   %188 = icmp ne i64 %187, 0
   br i1 %188, label %cond_then_block113, label %cond_end114
 
@@ -3944,7 +4102,7 @@ cond_then_block113:                               ; preds = %cond_end112
   br label %cond_end114
 
 cond_end114:                                      ; preds = %cond_then_block113, %cond_end112
-  call void @xxxfree(i8* %170)
+  call void @xxxfree(i8* %169)
   br label %end_block
 
 after_break115:                                   ; No predecessors!
@@ -3952,17 +4110,17 @@ after_break115:                                   ; No predecessors!
 
 cond_then_block116:                               ; preds = %cond_else_block104
   %189 = call i32 @endwin()
-  %190 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %190 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %191 = bitcast i8* %190 to %Filer**
   %self119 = load %Filer*, %Filer** %191, align 8
   %192 = call i8* @Filer_cursor_file(%Filer* %self119)
-  %193 = call i8* (i8*, ...) @xsprintf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @global_string.315, i32 0, i32 0), i8* %192)
-  %194 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %193 = call i8* (i8*, ...) @xsprintf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @global_string.315, i32 0, i32 0), i8* %192)
+  %194 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %195 = bitcast i8* %194 to %Filer**
   %self120 = load %Filer*, %Filer** %195, align 8
   %196 = getelementptr inbounds %Filer, %Filer* %self120, i32 0, i32 0
-  %197 = load %LuckyStrike*, %LuckyStrike** %196, align 8
-  %198 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %197, i32 0, i32 2
+  %197 = load %iQos*, %iQos** %196, align 8
+  %198 = getelementptr inbounds %iQos, %iQos* %197, i32 0, i32 2
   %199 = load %vector__sCLTypep*, %vector__sCLTypep** %198, align 8
   call void @shell_run_command(i8* %193, %vector__sCLTypep* %199)
   %200 = call %_win_st* @initscr()
@@ -3970,7 +4128,7 @@ cond_then_block116:                               ; preds = %cond_else_block104
   %201 = call i32 @keypad(%_win_st* %stdscr121, i1 true)
   %202 = call i32 @raw()
   %203 = call i32 @noecho()
-  %204 = ptrtoint i8* %192 to i64
+  %204 = ptrtoint i8* %193 to i64
   %205 = icmp ne i64 %204, 0
   br i1 %205, label %cond_then_block122, label %cond_end123
 
@@ -3982,8 +4140,8 @@ cond_then_block122:                               ; preds = %cond_then_block116
   br label %cond_end123
 
 cond_end123:                                      ; preds = %cond_then_block122, %cond_then_block116
-  call void @xxxfree(i8* %192)
-  %206 = ptrtoint i8* %193 to i64
+  call void @xxxfree(i8* %193)
+  %206 = ptrtoint i8* %192 to i64
   %207 = icmp ne i64 %206, 0
   br i1 %207, label %cond_then_block124, label %cond_end125
 
@@ -3991,19 +4149,19 @@ cond_then_block124:                               ; preds = %cond_end123
   br label %cond_end125
 
 cond_end125:                                      ; preds = %cond_then_block124, %cond_end123
-  call void @xxxfree(i8* %193)
+  call void @xxxfree(i8* %192)
   br label %end_block
 
 after_break126:                                   ; No predecessors!
   br label %cond_else_block117
 
 cond_then_block127:                               ; preds = %cond_else_block128, %cond_else_block117
-  %208 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %208 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %209 = bitcast i8* %208 to %Filer**
   %self132 = load %Filer*, %Filer** %209, align 8
   %210 = getelementptr inbounds %Filer, %Filer* %self132, i32 0, i32 3
   %211 = load i32, i32* %210, align 4
-  %212 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %212 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %213 = bitcast i8* %212 to i32*
   %maxy133 = load i32, i32* %213, align 4
   %getmp134 = icmp sge i32 %211, %maxy133
@@ -4018,21 +4176,21 @@ cond_else_block130:                               ; preds = %after_break142, %co
   br i1 %eqtmpY145, label %cond_then_block143, label %cond_else_block144
 
 cond_jump_then135:                                ; preds = %cond_then_block127
-  %214 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %214 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %215 = bitcast i8* %214 to %Filer**
   %self137 = load %Filer*, %Filer** %215, align 8
-  %216 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %216 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %217 = bitcast i8* %216 to %Filer**
   %self138 = load %Filer*, %Filer** %217, align 8
   %218 = getelementptr inbounds %Filer, %Filer* %self138, i32 0, i32 3
   %219 = load i32, i32* %218, align 4
-  %220 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %220 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %221 = bitcast i8* %220 to i32*
   %maxy139 = load i32, i32* %221, align 4
   %subttmp140 = sub nsw i32 %219, %maxy139
   %222 = getelementptr inbounds %Filer, %Filer* %self137, i32 0, i32 3
   store i32 %subttmp140, i32* %222, align 4
-  %223 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %223 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %224 = bitcast i8* %223 to i32*
   %maxy141 = load i32, i32* %224, align 4
   %addtmp = add nsw i32 %subttmp140, %maxy141
@@ -4045,16 +4203,16 @@ after_break142:                                   ; No predecessors!
   br label %cond_else_block130
 
 cond_then_block143:                               ; preds = %cond_else_block144, %cond_else_block130
-  %225 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %225 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %226 = bitcast i8* %225 to %Filer**
   %self148 = load %Filer*, %Filer** %226, align 8
   %227 = getelementptr inbounds %Filer, %Filer* %self148, i32 0, i32 3
   %228 = load i32, i32* %227, align 4
-  %229 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %229 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %230 = bitcast i8* %229 to i32*
   %maxy149 = load i32, i32* %230, align 4
   %addtmp150 = add nsw i32 %228, %maxy149
-  %231 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %231 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %232 = bitcast i8* %231 to %Filer**
   %self151 = load %Filer*, %Filer** %232, align 8
   %233 = getelementptr inbounds %Filer, %Filer* %self151, i32 0, i32 2
@@ -4072,21 +4230,21 @@ cond_else_block146:                               ; preds = %after_break160, %co
   br i1 %eqtmpY163, label %cond_then_block161, label %cond_else_block162
 
 cond_jump_then152:                                ; preds = %cond_then_block143
-  %236 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %236 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %237 = bitcast i8* %236 to %Filer**
   %self154 = load %Filer*, %Filer** %237, align 8
-  %238 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %238 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %239 = bitcast i8* %238 to %Filer**
   %self155 = load %Filer*, %Filer** %239, align 8
   %240 = getelementptr inbounds %Filer, %Filer* %self155, i32 0, i32 3
   %241 = load i32, i32* %240, align 4
-  %242 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %242 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %243 = bitcast i8* %242 to i32*
   %maxy156 = load i32, i32* %243, align 4
   %addtmp157 = add nsw i32 %241, %maxy156
   %244 = getelementptr inbounds %Filer, %Filer* %self154, i32 0, i32 3
   store i32 %addtmp157, i32* %244, align 4
-  %245 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %245 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %246 = bitcast i8* %245 to i32*
   %maxy158 = load i32, i32* %246, align 4
   %subttmp159 = sub nsw i32 %addtmp157, %maxy158
@@ -4099,10 +4257,10 @@ after_break160:                                   ; No predecessors!
   br label %cond_else_block146
 
 cond_then_block161:                               ; preds = %cond_else_block162, %cond_else_block146
-  %247 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %247 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %248 = bitcast i8* %247 to %Filer**
   %self166 = load %Filer*, %Filer** %248, align 8
-  %249 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %249 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %250 = bitcast i8* %249 to %Filer**
   %self167 = load %Filer*, %Filer** %250, align 8
   %251 = getelementptr inbounds %Filer, %Filer* %self167, i32 0, i32 3
@@ -4125,10 +4283,10 @@ after_break170:                                   ; No predecessors!
   br label %cond_else_block164
 
 cond_then_block171:                               ; preds = %cond_else_block172, %cond_else_block164
-  %254 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %254 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %255 = bitcast i8* %254 to %Filer**
   %self176 = load %Filer*, %Filer** %255, align 8
-  %256 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %256 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %257 = bitcast i8* %256 to %Filer**
   %self177 = load %Filer*, %Filer** %257, align 8
   %258 = getelementptr inbounds %Filer, %Filer* %self177, i32 0, i32 3
@@ -4152,15 +4310,15 @@ after_break180:                                   ; No predecessors!
 
 cond_then_block181:                               ; preds = %cond_else_block174
   %261 = call i32 @endwin()
-  %262 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %262 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %263 = bitcast i8* %262 to %Filer**
   %self184 = load %Filer*, %Filer** %263, align 8
   %264 = getelementptr inbounds %Filer, %Filer* %self184, i32 0, i32 0
-  %265 = load %LuckyStrike*, %LuckyStrike** %264, align 8
-  %266 = getelementptr inbounds %LuckyStrike, %LuckyStrike* %265, i32 0, i32 2
+  %265 = load %iQos*, %iQos** %264, align 8
+  %266 = getelementptr inbounds %iQos, %iQos* %265, i32 0, i32 2
   %267 = load %vector__sCLTypep*, %vector__sCLTypep** %266, align 8
-  call void @shell(%vector__sCLTypep* %267)
-  %268 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  call void @shell_run_command(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @global_string.316, i32 0, i32 0), %vector__sCLTypep* %267)
+  %268 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %269 = bitcast i8* %268 to %Filer**
   %self185 = load %Filer*, %Filer** %269, align 8
   %270 = call i1 @Filer_read_dir(%Filer* %self185)
@@ -4186,7 +4344,7 @@ entry:
   %self1 = alloca %Filer*
   store %Filer* %self, %Filer** %self1, align 8
   %2 = bitcast %Filer** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %self2 = load %Filer*, %Filer** %self1, align 8
   %3 = getelementptr inbounds %Filer, %Filer* %self2, i32 0, i32 2
   %4 = load %list__charp*, %list__charp** %3, align 8
@@ -4196,7 +4354,7 @@ entry:
   %7 = call i8* @"list_item_charp64_src/filer"(%list__charp* %4, i32 %6, i8* null)
   %file_name = alloca i8*
   %8 = bitcast i8** %file_name to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
   store i8* %7, i8** %file_name, align 8
   %self4 = load %Filer*, %Filer** %self1, align 8
   %9 = getelementptr inbounds %Filer, %Filer* %self4, i32 0, i32 1
@@ -4216,7 +4374,7 @@ entry:
   %self1 = alloca %Filer*
   store %Filer* %self, %Filer** %self1, align 8
   %2 = bitcast %Filer** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %self2 = load %Filer*, %Filer** %self1, align 8
   %3 = getelementptr inbounds %Filer, %Filer* %self2, i32 0, i32 2
   %4 = load %list__charp*, %list__charp** %3, align 8
@@ -4238,20 +4396,20 @@ entry:
   %self1 = alloca %Filer*
   store %Filer* %self, %Filer** %self1, align 8
   %2 = bitcast %Filer** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %path2 = alloca i8*
   store i8* %path, i8** %path2, align 8
   %3 = bitcast i8** %path2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
   %cursor_file3 = alloca i8*
   store i8* %cursor_file, i8** %cursor_file3, align 8
   %4 = bitcast i8** %cursor_file3 to i8*
-  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %path4 = load i8*, i8** %path2, align 8
   %5 = call i8* @xrealpath(i8* %path4)
   %absolute_path = alloca i8*
   %6 = bitcast i8** %absolute_path to i8*
-  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   store i8* %5, i8** %absolute_path, align 8
   %self5 = load %Filer*, %Filer** %self1, align 8
   %absolute_path6 = load i8*, i8** %absolute_path, align 8
@@ -4279,7 +4437,7 @@ cond_end:                                         ; preds = %cond_then_block, %e
   br i1 %16, label %cond_jump_then, label %cond_else_block
 
 cond_jump_then:                                   ; preds = %cond_end
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %18 = bitcast i8* %17 to %Filer**
   %self11 = load %Filer*, %Filer** %18, align 8
   %19 = getelementptr inbounds %Filer, %Filer* %self11, i32 0, i32 2
@@ -4288,12 +4446,12 @@ cond_jump_then:                                   ; preds = %cond_end
   br label %cond_end10
 
 cond_else_block:                                  ; preds = %cond_end
-  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %22 = bitcast i8* %21 to %Filer**
   %self12 = load %Filer*, %Filer** %22, align 8
   %23 = getelementptr inbounds %Filer, %Filer* %self12, i32 0, i32 3
   store i32 0, i32* %23, align 4
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %25 = bitcast i8* %24 to %Filer**
   %self13 = load %Filer*, %Filer** %25, align 8
   %26 = getelementptr inbounds %Filer, %Filer* %self13, i32 0, i32 4
@@ -4314,17 +4472,17 @@ entry:
   %self1 = alloca %Filer*
   store %Filer* %self, %Filer** %self1, align 8
   %2 = bitcast %Filer** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %3 = call i32 @xgetmaxx()
   %maxx = alloca i32
   %4 = bitcast i32* %maxx to i8*
-  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
   store i32 %3, i32* %maxx, align 4
   %5 = call i32 @xgetmaxy()
   %subttmp = sub nsw i32 %5, 2
   %maxy = alloca i32
   %6 = bitcast i32* %maxy to i8*
-  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   store i32 %subttmp, i32* %maxy, align 4
   %self2 = load %Filer*, %Filer** %self1, align 8
   %7 = getelementptr inbounds %Filer, %Filer* %self2, i32 0, i32 3
@@ -4337,10 +4495,10 @@ entry:
   br i1 %getmp, label %cond_jump_then, label %cond_end
 
 cond_jump_then:                                   ; preds = %entry
-  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %13 = bitcast i8* %12 to %Filer**
   %self4 = load %Filer*, %Filer** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %15 = bitcast i8* %14 to %Filer**
   %self5 = load %Filer*, %Filer** %15, align 8
   %16 = getelementptr inbounds %Filer, %Filer* %self5, i32 0, i32 2
@@ -4359,7 +4517,7 @@ cond_end:                                         ; preds = %cond_jump_then, %en
   br i1 %letmp, label %cond_jump_then8, label %cond_end9
 
 cond_jump_then8:                                  ; preds = %cond_end
-  %22 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %22 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %23 = bitcast i8* %22 to %Filer**
   %self10 = load %Filer*, %Filer** %23, align 8
   %24 = getelementptr inbounds %Filer, %Filer* %self10, i32 0, i32 3
@@ -4391,9 +4549,9 @@ entry:
   %1 = call i8* @xxxmemcpy(i8* %0, i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i64 65536)
   %ws = alloca %winsize
   %2 = bitcast %winsize* %ws to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %ws1 = load %winsize, %winsize* %ws, align 8
-  %3 = call i32 (i32, i64, ...) @ioctl(i32 1, i64 21523, %winsize* %ws)
+  %3 = call i32 (i32, i32, ...) @ioctl(i32 1, i32 21523, %winsize* %ws)
   %ws2 = load %winsize, %winsize* %ws, align 8
   %4 = getelementptr inbounds %winsize, %winsize* %ws, i32 0, i32 1
   %5 = load i16, i16* %4, align 2
@@ -4410,9 +4568,9 @@ entry:
   %1 = call i8* @xxxmemcpy(i8* %0, i8* bitcast ([8192 x i8*]* @gLVTable to i8*), i64 65536)
   %ws = alloca %winsize
   %2 = bitcast %winsize* %ws to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %ws1 = load %winsize, %winsize* %ws, align 8
-  %3 = call i32 (i32, i64, ...) @ioctl(i32 1, i64 21523, %winsize* %ws)
+  %3 = call i32 (i32, i32, ...) @ioctl(i32 1, i32 21523, %winsize* %ws)
   %ws2 = load %winsize, %winsize* %ws, align 8
   %4 = getelementptr inbounds %winsize, %winsize* %ws, i32 0, i32 0
   %5 = load i16, i16* %4, align 2
@@ -4430,7 +4588,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %eqtmpX = icmp eq %list__charp* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -4446,7 +4604,7 @@ cond_end:                                         ; preds = %entry
   %6 = load %list_item__charp*, %list_item__charp** %5, align 8
   %it = alloca %list_item__charp*
   %7 = bitcast %list_item__charp** %it to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   store %list_item__charp* %6, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -4464,7 +4622,7 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret void
 
 cond_jump_then5:                                  ; preds = %cond_then_block
-  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %11 = bitcast i8* %10 to %list_item__charp**
   %it7 = load %list_item__charp*, %list_item__charp** %11, align 8
   %12 = getelementptr inbounds %list_item__charp, %list_item__charp* %it7, i32 0, i32 0
@@ -4475,19 +4633,19 @@ cond_jump_then5:                                  ; preds = %cond_then_block
   br i1 %16, label %cond_then_block8, label %cond_end9
 
 cond_end6:                                        ; preds = %cond_end9, %cond_then_block
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %18 = bitcast i8* %17 to %list_item__charp**
   %it10 = load %list_item__charp*, %list_item__charp** %18, align 8
   %prev_it = alloca %list_item__charp*
   %19 = bitcast %list_item__charp** %prev_it to i8*
-  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   store %list_item__charp* %it10, %list_item__charp** %prev_it, align 8
-  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %21 = bitcast i8* %20 to %list_item__charp**
   %it11 = load %list_item__charp*, %list_item__charp** %21, align 8
   %22 = getelementptr inbounds %list_item__charp, %list_item__charp* %it11, i32 0, i32 2
   %23 = load %list_item__charp*, %list_item__charp** %22, align 8
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %25 = bitcast i8* %24 to %list_item__charp**
   store %list_item__charp* %23, %list_item__charp** %25, align 8
   %prev_it12 = load %list_item__charp*, %list_item__charp** %prev_it, align 8
@@ -4520,7 +4678,7 @@ entry:
   %self1 = alloca %vector__sCLTypep*
   store %vector__sCLTypep* %self, %vector__sCLTypep** %self1, align 8
   %2 = bitcast %vector__sCLTypep** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %self2 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
   %3 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self2, i32 0, i32 2
   store i32 16, i32* %3, align 4
@@ -4532,7 +4690,7 @@ entry:
   %5 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self5, i32 0, i32 2
   %6 = load i32, i32* %5, align 4
   %sext14 = zext i32 %6 to i64
-  %7 = call i8* @debug_xcalloc(i64 %sext14, i64 8, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @global_string.10, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.11, i32 0, i32 0), i32 455, i8* getelementptr inbounds ([31 x i8], [31 x i8]* @global_string.12, i32 0, i32 0), i8* getelementptr inbounds ([38 x i8], [38 x i8]* @global_string.13, i32 0, i32 0))
+  %7 = call i8* @debug_xcalloc(i64 %sext14, i64 8, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @global_string.10, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.11, i32 0, i32 0), i32 455, i8* getelementptr inbounds ([31 x i8], [31 x i8]* @global_string.12, i32 0, i32 0), i8* getelementptr inbounds ([38 x i8], [38 x i8]* @global_string.13, i32 0, i32 0))
   %8 = bitcast i8* %7 to %sCLType**
   %9 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self4, i32 0, i32 0
   store %sCLType** %8, %sCLType*** %9, align 8
@@ -4550,7 +4708,7 @@ entry:
   %self1 = alloca %vector__sCLTypep*
   store %vector__sCLTypep* %self, %vector__sCLTypep** %self1, align 8
   %2 = bitcast %vector__sCLTypep** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %self2 = load %vector__sCLTypep*, %vector__sCLTypep** %self1, align 8
   %eqtmpX = icmp eq %vector__sCLTypep* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -4566,7 +4724,7 @@ cond_end:                                         ; preds = %entry
 cond_jump_then3:                                  ; preds = %cond_end
   %i = alloca i32
   %5 = bitcast i32* %i to i8*
-  store i8* %5, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %5, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   store i32 0, i32* %i, align 4
   br label %loop_top_block
 
@@ -4583,7 +4741,7 @@ cond_end4:                                        ; preds = %cond_end_block, %co
 
 loop_top_block:                                   ; preds = %cond_end10, %cond_jump_then3
   %i5 = load i32, i32* %i, align 4
-  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %13 = bitcast i8* %12 to %vector__sCLTypep**
   %self6 = load %vector__sCLTypep*, %vector__sCLTypep** %13, align 8
   %14 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self6, i32 0, i32 1
@@ -4592,7 +4750,7 @@ loop_top_block:                                   ; preds = %cond_end10, %cond_j
   br i1 %letmp, label %cond_then_block, label %cond_end_block
 
 cond_then_block:                                  ; preds = %loop_top_block
-  %16 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %16 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %17 = bitcast i8* %16 to %vector__sCLTypep**
   %self7 = load %vector__sCLTypep*, %vector__sCLTypep** %17, align 8
   %18 = getelementptr inbounds %vector__sCLTypep, %vector__sCLTypep* %self7, i32 0, i32 0
@@ -4640,7 +4798,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 0
   store %list_item__charp* null, %list_item__charp** %3, align 8
@@ -4664,7 +4822,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %eqtmpX = icmp eq %list__charp* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -4680,7 +4838,7 @@ cond_end:                                         ; preds = %entry
   %6 = load %list_item__charp*, %list_item__charp** %5, align 8
   %it = alloca %list_item__charp*
   %7 = bitcast %list_item__charp** %it to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   store %list_item__charp* %6, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -4698,7 +4856,7 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret void
 
 cond_jump_then5:                                  ; preds = %cond_then_block
-  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %11 = bitcast i8* %10 to %list_item__charp**
   %it7 = load %list_item__charp*, %list_item__charp** %11, align 8
   %12 = getelementptr inbounds %list_item__charp, %list_item__charp* %it7, i32 0, i32 0
@@ -4709,19 +4867,19 @@ cond_jump_then5:                                  ; preds = %cond_then_block
   br i1 %16, label %cond_then_block8, label %cond_end9
 
 cond_end6:                                        ; preds = %cond_end9, %cond_then_block
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %18 = bitcast i8* %17 to %list_item__charp**
   %it10 = load %list_item__charp*, %list_item__charp** %18, align 8
   %prev_it = alloca %list_item__charp*
   %19 = bitcast %list_item__charp** %prev_it to i8*
-  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   store %list_item__charp* %it10, %list_item__charp** %prev_it, align 8
-  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %21 = bitcast i8* %20 to %list_item__charp**
   %it11 = load %list_item__charp*, %list_item__charp** %21, align 8
   %22 = getelementptr inbounds %list_item__charp, %list_item__charp* %it11, i32 0, i32 2
   %23 = load %list_item__charp*, %list_item__charp** %22, align 8
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %25 = bitcast i8* %24 to %list_item__charp**
   store %list_item__charp* %23, %list_item__charp** %25, align 8
   %prev_it12 = load %list_item__charp*, %list_item__charp** %prev_it, align 8
@@ -4754,17 +4912,17 @@ entry:
   %it1 = alloca i8*
   store i8* %it, i8** %it1, align 8
   %2 = bitcast i8** %it1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %it22 = alloca i32
   store i32 %it2, i32* %it22, align 4
   %3 = bitcast i32* %it22 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %it33 = alloca i1*
   store i1* %it3, i1** %it33, align 8
   %4 = bitcast i1** %it33 to i8*
-  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %it4 = load i8*, i8** %it1, align 8
-  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %6 = bitcast i8* %5 to i8**
   %cursor_file = load i8*, i8** %6, align 8
   %7 = call i32 @strcmp(i8* %it4, i8* %cursor_file)
@@ -4772,19 +4930,19 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
 
 cond_jump_then:                                   ; preds = %entry
-  %8 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %8 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %9 = bitcast i8* %8 to %Filer**
   %self = load %Filer*, %Filer** %9, align 8
-  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %11 = bitcast i8* %10 to i32*
   %it25 = load i32, i32* %11, align 4
   %12 = getelementptr inbounds %Filer, %Filer* %self, i32 0, i32 3
   store i32 %it25, i32* %12, align 4
-  %13 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %13 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %14 = bitcast i8* %13 to %Filer**
   %self6 = load %Filer*, %Filer** %14, align 8
   call void @Filer_fix_cursor(%Filer* %self6)
-  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %16 = bitcast i8* %15 to i1**
   %it37 = load i1*, i1** %16, align 8
   store i1 true, i1* %it37, align 1
@@ -4806,21 +4964,21 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %block_2 = alloca void (i8*, i32, i1*)*
   store void (i8*, i32, i1*)* %block_, void (i8*, i32, i1*)** %block_2, align 8
   %3 = bitcast void (i8*, i32, i1*)** %block_2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 0
   %5 = load %list_item__charp*, %list_item__charp** %4, align 8
   %it_ = alloca %list_item__charp*
   %6 = bitcast %list_item__charp** %it_ to i8*
-  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   store %list_item__charp* %5, %list_item__charp** %it_, align 8
   %i_ = alloca i32
   %7 = bitcast i32* %i_ to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   store i32 0, i32* %i_, align 4
   br label %loop_top_block
 
@@ -4832,17 +4990,17 @@ loop_top_block:                                   ; preds = %cond_end, %entry
 cond_then_block:                                  ; preds = %loop_top_block
   %end_flag_ = alloca i1
   %8 = bitcast i1* %end_flag_ to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   store i1 false, i1* %end_flag_, align 1
-  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %10 = bitcast i8* %9 to void (i8*, i32, i1*)**
   %block_5 = load void (i8*, i32, i1*)*, void (i8*, i32, i1*)** %10, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %12 = bitcast i8* %11 to %list_item__charp**
   %it_6 = load %list_item__charp*, %list_item__charp** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %it_6, i32 0, i32 0
   %14 = load i8*, i8** %13, align 8
-  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %16 = bitcast i8* %15 to i32*
   %i_7 = load i32, i32* %16, align 4
   %end_flag_8 = load i1, i1* %end_flag_, align 1
@@ -4860,19 +5018,19 @@ cond_jump_then:                                   ; preds = %cond_then_block
   br label %cond_end_block
 
 cond_end:                                         ; preds = %after_break, %cond_then_block
-  %19 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %19 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %20 = bitcast i8* %19 to %list_item__charp**
   %it_10 = load %list_item__charp*, %list_item__charp** %20, align 8
   %21 = getelementptr inbounds %list_item__charp, %list_item__charp* %it_10, i32 0, i32 2
   %22 = load %list_item__charp*, %list_item__charp** %21, align 8
-  %23 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %23 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %24 = bitcast i8* %23 to %list_item__charp**
   store %list_item__charp* %22, %list_item__charp** %24, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %26 = bitcast i8* %25 to i32*
   %i_11 = load i32, i32* %26, align 4
   %addtmp = add nsw i32 %i_11, 1
-  %27 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %27 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %28 = bitcast i8* %27 to i32*
   store i32 %addtmp, i32* %28, align 4
   %subttmp = sub nsw i32 %addtmp, 1
@@ -4890,13 +5048,13 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 0
   %4 = load %list_item__charp*, %list_item__charp** %3, align 8
   %it = alloca %list_item__charp*
   %5 = bitcast %list_item__charp** %it to i8*
-  store i8* %5, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %5, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   store %list_item__charp* %4, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -4923,7 +5081,7 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret void
 
 cond_jump_then:                                   ; preds = %cond_then_block
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %12 = bitcast i8* %11 to %list_item__charp**
   %it4 = load %list_item__charp*, %list_item__charp** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %it4, i32 0, i32 0
@@ -4934,19 +5092,19 @@ cond_jump_then:                                   ; preds = %cond_then_block
   br i1 %17, label %cond_then_block5, label %cond_end6
 
 cond_end:                                         ; preds = %cond_end6, %cond_then_block
-  %18 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %18 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %19 = bitcast i8* %18 to %list_item__charp**
   %it7 = load %list_item__charp*, %list_item__charp** %19, align 8
   %prev_it = alloca %list_item__charp*
   %20 = bitcast %list_item__charp** %prev_it to i8*
-  store i8* %20, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %20, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   store %list_item__charp* %it7, %list_item__charp** %prev_it, align 8
-  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %22 = bitcast i8* %21 to %list_item__charp**
   %it8 = load %list_item__charp*, %list_item__charp** %22, align 8
   %23 = getelementptr inbounds %list_item__charp, %list_item__charp* %it8, i32 0, i32 2
   %24 = load %list_item__charp*, %list_item__charp** %23, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %26 = bitcast i8* %25 to %list_item__charp**
   store %list_item__charp* %24, %list_item__charp** %26, align 8
   %prev_it9 = load %list_item__charp*, %list_item__charp** %prev_it, align 8
@@ -4979,11 +5137,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -4991,11 +5149,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.18, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.19, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.20, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.21, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.18, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.19, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.20, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.21, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -5004,18 +5162,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -5031,14 +5189,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.22, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.23, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.24, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.25, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.22, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.23, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.24, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.25, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -5049,18 +5207,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -5071,14 +5229,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.26, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.27, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.28, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.29, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.26, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.27, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.28, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.29, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -5089,12 +5247,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -5102,7 +5260,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -5132,7 +5290,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = call %list__charp* @"list_merge_sort_charp12_src/filer"(%list__charp* %self2)
   %4 = bitcast [8192 x i8*]* %lvtable to i8*
@@ -5148,7 +5306,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 0
   %4 = load %list_item__charp*, %list_item__charp** %3, align 8
@@ -5156,7 +5314,7 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
 
 cond_jump_then:                                   ; preds = %entry
-  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %6 = bitcast i8* %5 to %list__charp**
   %self3 = load %list__charp*, %list__charp** %6, align 8
   %7 = load %list__charp*, %list__charp** %6, align 8
@@ -5183,7 +5341,7 @@ cond_end4:                                        ; preds = %cond_then_block, %c
   ret %list__charp* %14
 
 cond_jump_then7:                                  ; preds = %cond_end
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self9 = load %list__charp*, %list__charp** %18, align 8
   %19 = load %list__charp*, %list__charp** %18, align 8
@@ -5192,26 +5350,26 @@ cond_jump_then7:                                  ; preds = %cond_end
   br i1 %21, label %cond_then_block10, label %cond_end11
 
 cond_end8:                                        ; preds = %cond_end
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.86, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.87, i32 0, i32 0), i32 1466, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @global_string.88, i32 0, i32 0), i8* getelementptr inbounds ([34 x i8], [34 x i8]* @global_string.89, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.86, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.87, i32 0, i32 0), i32 1466, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @global_string.88, i32 0, i32 0), i8* getelementptr inbounds ([34 x i8], [34 x i8]* @global_string.89, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list__charp*
   %24 = call %list__charp* @"list_initialize_charp21_src/filer"(%list__charp* %23)
   %list1 = alloca %list__charp*
   %25 = bitcast %list__charp** %list1 to i8*
-  store i8* %25, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %25, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   store %list__charp* %24, %list__charp** %list1, align 8
-  %26 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.90, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.91, i32 0, i32 0), i32 1467, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @global_string.92, i32 0, i32 0), i8* getelementptr inbounds ([34 x i8], [34 x i8]* @global_string.93, i32 0, i32 0))
+  %26 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.90, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.91, i32 0, i32 0), i32 1467, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @global_string.92, i32 0, i32 0), i8* getelementptr inbounds ([34 x i8], [34 x i8]* @global_string.93, i32 0, i32 0))
   %27 = bitcast i8* %26 to %list__charp*
   %28 = call %list__charp* @"list_initialize_charp22_src/filer"(%list__charp* %27)
   %list2 = alloca %list__charp*
   %29 = bitcast %list__charp** %list2 to i8*
-  store i8* %29, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  store i8* %29, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   store %list__charp* %28, %list__charp** %list2, align 8
   %self12 = load %list__charp*, %list__charp** %self1, align 8
   %30 = getelementptr inbounds %list__charp, %list__charp* %self12, i32 0, i32 0
   %31 = load %list_item__charp*, %list_item__charp** %30, align 8
   %it = alloca %list_item__charp*
   %32 = bitcast %list_item__charp** %it to i8*
-  store i8* %32, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  store i8* %32, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   store %list_item__charp* %31, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -5244,10 +5402,10 @@ cond_end_block:                                   ; preds = %cond_end42, %cond_j
   br i1 %42, label %cond_then_block52, label %cond_end53
 
 cond_jump_then14:                                 ; preds = %cond_then_block13
-  %43 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %43 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %44 = bitcast i8* %43 to %list__charp**
   %list116 = load %list__charp*, %list__charp** %44, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %46 = bitcast i8* %45 to %list_item__charp**
   %it17 = load %list_item__charp*, %list_item__charp** %46, align 8
   %47 = getelementptr inbounds %list_item__charp, %list_item__charp* %it17, i32 0, i32 0
@@ -5259,10 +5417,10 @@ cond_jump_then14:                                 ; preds = %cond_then_block13
   br i1 %52, label %cond_then_block18, label %cond_end19
 
 cond_else_block:                                  ; preds = %cond_then_block13
-  %53 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %53 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %54 = bitcast i8* %53 to %list__charp**
   %list120 = load %list__charp*, %list__charp** %54, align 8
-  %55 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %55 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %56 = bitcast i8* %55 to %list_item__charp**
   %it21 = load %list_item__charp*, %list_item__charp** %56, align 8
   %57 = getelementptr inbounds %list_item__charp, %list_item__charp* %it21, i32 0, i32 0
@@ -5283,10 +5441,10 @@ cond_end19:                                       ; preds = %cond_then_block18, 
   br label %cond_end15
 
 cond_jump_then22:                                 ; preds = %cond_end15
-  %61 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %61 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %62 = bitcast i8* %61 to %list__charp**
   %list225 = load %list__charp*, %list__charp** %62, align 8
-  %63 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %63 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %64 = bitcast i8* %63 to %list_item__charp**
   %it26 = load %list_item__charp*, %list_item__charp** %64, align 8
   %65 = getelementptr inbounds %list_item__charp, %list_item__charp* %it26, i32 0, i32 2
@@ -5300,10 +5458,10 @@ cond_jump_then22:                                 ; preds = %cond_end15
   br i1 %72, label %cond_then_block27, label %cond_end28
 
 cond_else_block23:                                ; preds = %cond_end15
-  %73 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %73 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %74 = bitcast i8* %73 to %list__charp**
   %list229 = load %list__charp*, %list__charp** %74, align 8
-  %75 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %75 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %76 = bitcast i8* %75 to %list_item__charp**
   %it30 = load %list_item__charp*, %list_item__charp** %76, align 8
   %77 = getelementptr inbounds %list_item__charp, %list_item__charp* %it30, i32 0, i32 2
@@ -5314,7 +5472,7 @@ cond_else_block23:                                ; preds = %cond_end15
   br label %cond_end24
 
 cond_end24:                                       ; preds = %cond_else_block23, %cond_end28
-  %81 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %81 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %82 = bitcast i8* %81 to %list_item__charp**
   %it31 = load %list_item__charp*, %list_item__charp** %82, align 8
   %83 = getelementptr inbounds %list_item__charp, %list_item__charp* %it31, i32 0, i32 2
@@ -5337,17 +5495,17 @@ cond_jump_then33:                                 ; preds = %cond_end24
   br label %cond_end_block
 
 cond_end34:                                       ; preds = %after_break, %cond_end24
-  %89 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %89 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %90 = bitcast i8* %89 to %list_item__charp**
   %it35 = load %list_item__charp*, %list_item__charp** %90, align 8
   %91 = getelementptr inbounds %list_item__charp, %list_item__charp* %it35, i32 0, i32 2
   %92 = load %list_item__charp*, %list_item__charp** %91, align 8
   %93 = getelementptr inbounds %list_item__charp, %list_item__charp* %92, i32 0, i32 2
   %94 = load %list_item__charp*, %list_item__charp** %93, align 8
-  %95 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %95 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %96 = bitcast i8* %95 to %list_item__charp**
   store %list_item__charp* %94, %list_item__charp** %96, align 8
-  %97 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %97 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %98 = bitcast i8* %97 to %list_item__charp**
   %it36 = load %list_item__charp*, %list_item__charp** %98, align 8
   %99 = getelementptr inbounds %list_item__charp, %list_item__charp* %it36, i32 0, i32 2
@@ -5365,10 +5523,10 @@ cond_end39:                                       ; preds = %after_break49, %con
   br label %loop_top_block
 
 cond_jump_then40:                                 ; preds = %cond_jump_then38
-  %101 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %101 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %102 = bitcast i8* %101 to %list__charp**
   %list143 = load %list__charp*, %list__charp** %102, align 8
-  %103 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %103 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %104 = bitcast i8* %103 to %list_item__charp**
   %it44 = load %list_item__charp*, %list_item__charp** %104, align 8
   %105 = getelementptr inbounds %list_item__charp, %list_item__charp* %it44, i32 0, i32 0
@@ -5380,10 +5538,10 @@ cond_jump_then40:                                 ; preds = %cond_jump_then38
   br i1 %110, label %cond_then_block45, label %cond_end46
 
 cond_else_block41:                                ; preds = %cond_jump_then38
-  %111 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %111 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %112 = bitcast i8* %111 to %list__charp**
   %list147 = load %list__charp*, %list__charp** %112, align 8
-  %113 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %113 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %114 = bitcast i8* %113 to %list_item__charp**
   %it48 = load %list_item__charp*, %list_item__charp** %114, align 8
   %115 = getelementptr inbounds %list_item__charp, %list_item__charp* %it48, i32 0, i32 0
@@ -5458,20 +5616,20 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
-  %3 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.30, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.31, i32 0, i32 0), i32 739, i8* getelementptr inbounds ([24 x i8], [24 x i8]* @global_string.32, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @global_string.33, i32 0, i32 0))
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
+  %3 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.30, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.31, i32 0, i32 0), i32 739, i8* getelementptr inbounds ([24 x i8], [24 x i8]* @global_string.32, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @global_string.33, i32 0, i32 0))
   %4 = bitcast i8* %3 to %list__charp*
   %5 = call %list__charp* @"list_initialize_charp14_src/filer"(%list__charp* %4)
   %result = alloca %list__charp*
   %6 = bitcast %list__charp** %result to i8*
-  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   store %list__charp* %5, %list__charp** %result, align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %7 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 0
   %8 = load %list_item__charp*, %list_item__charp** %7, align 8
   %it = alloca %list_item__charp*
   %9 = bitcast %list_item__charp** %it to i8*
-  store i8* %9, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %9, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %8, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -5490,10 +5648,10 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret %list__charp* %result11
 
 cond_jump_then:                                   ; preds = %cond_then_block
-  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %13 = bitcast i8* %12 to %list__charp**
   %result4 = load %list__charp*, %list__charp** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %15 = bitcast i8* %14 to %list_item__charp**
   %it5 = load %list_item__charp*, %list_item__charp** %15, align 8
   %16 = getelementptr inbounds %list_item__charp, %list_item__charp* %it5, i32 0, i32 0
@@ -5505,10 +5663,10 @@ cond_jump_then:                                   ; preds = %cond_then_block
   br i1 %21, label %cond_then_block6, label %cond_end7
 
 cond_else_block:                                  ; preds = %cond_then_block
-  %22 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %22 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %23 = bitcast i8* %22 to %list__charp**
   %result8 = load %list__charp*, %list__charp** %23, align 8
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %25 = bitcast i8* %24 to %list_item__charp**
   %it9 = load %list_item__charp*, %list_item__charp** %25, align 8
   %26 = getelementptr inbounds %list_item__charp, %list_item__charp* %it9, i32 0, i32 0
@@ -5517,12 +5675,12 @@ cond_else_block:                                  ; preds = %cond_then_block
   br label %cond_end
 
 cond_end:                                         ; preds = %cond_else_block, %cond_end7
-  %28 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %28 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %29 = bitcast i8* %28 to %list_item__charp**
   %it10 = load %list_item__charp*, %list_item__charp** %29, align 8
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %it10, i32 0, i32 2
   %31 = load %list_item__charp*, %list_item__charp** %30, align 8
-  %32 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %32 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %33 = bitcast i8* %32 to %list_item__charp**
   store %list_item__charp* %31, %list_item__charp** %33, align 8
   br label %loop_top_block
@@ -5545,7 +5703,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 0
   store %list_item__charp* null, %list_item__charp** %3, align 8
@@ -5569,11 +5727,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -5581,11 +5739,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.34, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.35, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.36, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.37, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.34, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.35, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.36, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.37, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -5594,18 +5752,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -5621,14 +5779,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.38, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.39, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.40, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.41, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.38, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.39, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.40, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.41, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -5639,18 +5797,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -5661,14 +5819,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.42, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.43, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.44, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.45, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.42, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.43, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.44, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.45, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -5679,12 +5837,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -5692,7 +5850,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -5722,11 +5880,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -5734,11 +5892,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.46, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.47, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.48, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.49, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.46, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.47, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.48, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.49, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -5747,18 +5905,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -5774,14 +5932,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.50, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.51, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.52, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.53, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.50, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.51, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.52, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.53, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -5792,18 +5950,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -5814,14 +5972,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.54, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.55, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.56, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.57, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.54, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.55, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.56, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.57, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -5832,12 +5990,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -5845,7 +6003,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -5875,20 +6033,20 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
-  %3 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.58, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.59, i32 0, i32 0), i32 739, i8* getelementptr inbounds ([24 x i8], [24 x i8]* @global_string.60, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @global_string.61, i32 0, i32 0))
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
+  %3 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.58, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.59, i32 0, i32 0), i32 739, i8* getelementptr inbounds ([24 x i8], [24 x i8]* @global_string.60, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @global_string.61, i32 0, i32 0))
   %4 = bitcast i8* %3 to %list__charp*
   %5 = call %list__charp* @"list_initialize_charp18_src/filer"(%list__charp* %4)
   %result = alloca %list__charp*
   %6 = bitcast %list__charp** %result to i8*
-  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   store %list__charp* %5, %list__charp** %result, align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %7 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 0
   %8 = load %list_item__charp*, %list_item__charp** %7, align 8
   %it = alloca %list_item__charp*
   %9 = bitcast %list_item__charp** %it to i8*
-  store i8* %9, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %9, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %8, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -5907,10 +6065,10 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret %list__charp* %result11
 
 cond_jump_then:                                   ; preds = %cond_then_block
-  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %12 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %13 = bitcast i8* %12 to %list__charp**
   %result4 = load %list__charp*, %list__charp** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %15 = bitcast i8* %14 to %list_item__charp**
   %it5 = load %list_item__charp*, %list_item__charp** %15, align 8
   %16 = getelementptr inbounds %list_item__charp, %list_item__charp* %it5, i32 0, i32 0
@@ -5922,10 +6080,10 @@ cond_jump_then:                                   ; preds = %cond_then_block
   br i1 %21, label %cond_then_block6, label %cond_end7
 
 cond_else_block:                                  ; preds = %cond_then_block
-  %22 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %22 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %23 = bitcast i8* %22 to %list__charp**
   %result8 = load %list__charp*, %list__charp** %23, align 8
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %25 = bitcast i8* %24 to %list_item__charp**
   %it9 = load %list_item__charp*, %list_item__charp** %25, align 8
   %26 = getelementptr inbounds %list_item__charp, %list_item__charp* %it9, i32 0, i32 0
@@ -5934,12 +6092,12 @@ cond_else_block:                                  ; preds = %cond_then_block
   br label %cond_end
 
 cond_end:                                         ; preds = %cond_else_block, %cond_end7
-  %28 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %28 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %29 = bitcast i8* %28 to %list_item__charp**
   %it10 = load %list_item__charp*, %list_item__charp** %29, align 8
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %it10, i32 0, i32 2
   %31 = load %list_item__charp*, %list_item__charp** %30, align 8
-  %32 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %32 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %33 = bitcast i8* %32 to %list_item__charp**
   store %list_item__charp* %31, %list_item__charp** %33, align 8
   br label %loop_top_block
@@ -5962,7 +6120,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 0
   store %list_item__charp* null, %list_item__charp** %3, align 8
@@ -5986,11 +6144,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -5998,11 +6156,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.62, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.63, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.64, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.65, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.62, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.63, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.64, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.65, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -6011,18 +6169,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -6038,14 +6196,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.66, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.67, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.68, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.69, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.66, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.67, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.68, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.69, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -6056,18 +6214,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -6078,14 +6236,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.70, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.71, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.72, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.73, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.70, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.71, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.72, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.73, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -6096,12 +6254,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -6109,7 +6267,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -6139,11 +6297,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -6151,11 +6309,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.74, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.75, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.76, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.77, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.74, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.75, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.76, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.77, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -6164,18 +6322,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -6191,14 +6349,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.78, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.79, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.80, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.81, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.78, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.79, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.80, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.81, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -6209,18 +6367,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -6231,14 +6389,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.82, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.83, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.84, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.85, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.82, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.83, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.84, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.85, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -6249,12 +6407,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -6262,7 +6420,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -6292,7 +6450,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 0
   store %list_item__charp* null, %list_item__charp** %3, align 8
@@ -6316,7 +6474,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 0
   store %list_item__charp* null, %list_item__charp** %3, align 8
@@ -6340,11 +6498,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -6352,11 +6510,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.94, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.95, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.96, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.97, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.94, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.95, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.96, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.97, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -6365,18 +6523,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -6392,14 +6550,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.98, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.99, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.100, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.101, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.98, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.99, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.100, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.101, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -6410,18 +6568,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -6432,14 +6590,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.102, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.103, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.104, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.105, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.102, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.103, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.104, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.105, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -6450,12 +6608,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -6463,7 +6621,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -6493,11 +6651,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -6505,11 +6663,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.106, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.107, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.108, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.109, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.106, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.107, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.108, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.109, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -6518,18 +6676,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -6545,14 +6703,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.110, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.111, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.112, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.113, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.110, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.111, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.112, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.113, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -6563,18 +6721,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -6585,14 +6743,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.114, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.115, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.116, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.117, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.114, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.115, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.116, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.117, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -6603,12 +6761,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -6616,7 +6774,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -6646,11 +6804,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -6658,11 +6816,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.118, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.119, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.120, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.121, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.118, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.119, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.120, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.121, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -6671,18 +6829,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -6698,14 +6856,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.122, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.123, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.124, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.125, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.122, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.123, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.124, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.125, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -6716,18 +6874,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -6738,14 +6896,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.126, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.127, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.128, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.129, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.126, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.127, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.128, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.129, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -6756,12 +6914,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -6769,7 +6927,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -6799,11 +6957,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -6811,11 +6969,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.130, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.131, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.132, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.133, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.130, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.131, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.132, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.133, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -6824,18 +6982,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -6851,14 +7009,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.134, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.135, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.136, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.137, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.134, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.135, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.136, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.137, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -6869,18 +7027,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -6891,14 +7049,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.138, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.139, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.140, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.141, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.138, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.139, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.140, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.141, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -6909,12 +7067,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -6922,7 +7080,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -6952,11 +7110,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -6964,11 +7122,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.142, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.143, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.144, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.145, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.142, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.143, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.144, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.145, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -6977,18 +7135,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -7004,14 +7162,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.146, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.147, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.148, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.149, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.146, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.147, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.148, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.149, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -7022,18 +7180,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -7044,14 +7202,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.150, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.151, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.152, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.153, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.150, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.151, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.152, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.153, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -7062,12 +7220,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -7075,7 +7233,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -7105,11 +7263,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -7117,11 +7275,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.154, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.155, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.156, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.157, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.154, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.155, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.156, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.157, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -7130,18 +7288,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -7157,14 +7315,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.158, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.159, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.160, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.161, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.158, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.159, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.160, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.161, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -7175,18 +7333,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -7197,14 +7355,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.162, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.163, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.164, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.165, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.162, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.163, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.164, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.165, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -7215,12 +7373,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -7228,7 +7386,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -7261,31 +7419,31 @@ entry:
   %left1 = alloca %list__charp*
   store %list__charp* %left, %list__charp** %left1, align 8
   %2 = bitcast %list__charp** %left1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %right2 = alloca %list__charp*
   store %list__charp* %right, %list__charp** %right2, align 8
   %3 = bitcast %list__charp** %right2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
-  %4 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.166, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.167, i32 0, i32 0), i32 1387, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @global_string.168, i32 0, i32 0), i8* getelementptr inbounds ([34 x i8], [34 x i8]* @global_string.169, i32 0, i32 0))
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
+  %4 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.166, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.167, i32 0, i32 0), i32 1387, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @global_string.168, i32 0, i32 0), i8* getelementptr inbounds ([34 x i8], [34 x i8]* @global_string.169, i32 0, i32 0))
   %5 = bitcast i8* %4 to %list__charp*
   %6 = call %list__charp* @"list_initialize_charp34_src/filer"(%list__charp* %5)
   %result = alloca %list__charp*
   %7 = bitcast %list__charp** %result to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list__charp* %6, %list__charp** %result, align 8
   %left3 = load %list__charp*, %list__charp** %left1, align 8
   %8 = getelementptr inbounds %list__charp, %list__charp* %left3, i32 0, i32 0
   %9 = load %list_item__charp*, %list_item__charp** %8, align 8
   %it = alloca %list_item__charp*
   %10 = bitcast %list_item__charp** %it to i8*
-  store i8* %10, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  store i8* %10, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   store %list_item__charp* %9, %list_item__charp** %it, align 8
   %right4 = load %list__charp*, %list__charp** %right2, align 8
   %11 = getelementptr inbounds %list__charp, %list__charp* %right4, i32 0, i32 0
   %12 = load %list_item__charp*, %list_item__charp** %11, align 8
   %it2 = alloca %list_item__charp*
   %13 = bitcast %list_item__charp** %it2 to i8*
-  store i8* %13, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  store i8* %13, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   store %list_item__charp* %12, %list_item__charp** %it2, align 8
   br label %loop_top_block
 
@@ -7294,7 +7452,7 @@ loop_top_block:                                   ; preds = %cond_end48, %entry
 
 cond_then_block:                                  ; preds = %loop_top_block
   %andand_result_var = alloca i1
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %15 = bitcast i8* %14 to %list_item__charp**
   %it5 = load %list_item__charp*, %list_item__charp** %15, align 8
   %16 = ptrtoint %list_item__charp* %it5 to i64
@@ -7309,7 +7467,7 @@ cond_end_block:                                   ; preds = %cond_end72, %cond_e
   ret %list__charp* %result89
 
 cond_jump_then:                                   ; preds = %cond_then_block
-  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %21 = bitcast i8* %20 to %list_item__charp**
   %it26 = load %list_item__charp*, %list_item__charp** %21, align 8
   %22 = ptrtoint %list_item__charp* %it26 to i64
@@ -7323,7 +7481,7 @@ cond_jump_end:                                    ; preds = %cond_jump_then, %co
   br i1 %andand_result_value, label %cond_jump_then7, label %cond_end
 
 cond_jump_then7:                                  ; preds = %cond_jump_end
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %25 = bitcast i8* %24 to %list_item__charp**
   %it8 = load %list_item__charp*, %list_item__charp** %25, align 8
   %26 = getelementptr inbounds %list_item__charp, %list_item__charp* %it8, i32 0, i32 0
@@ -7332,25 +7490,25 @@ cond_jump_then7:                                  ; preds = %cond_jump_end
   br i1 %eqtmpX, label %cond_jump_then9, label %"cond_jump_elif0\0A"
 
 cond_end:                                         ; preds = %cond_end10, %cond_jump_end
-  %28 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %28 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %29 = bitcast i8* %28 to %list_item__charp**
   %it43 = load %list_item__charp*, %list_item__charp** %29, align 8
   %eqtmpX44 = icmp eq %list_item__charp* %it43, null
   br i1 %eqtmpX44, label %cond_jump_then45, label %"cond_jump_elif0\0A46"
 
 cond_jump_then9:                                  ; preds = %cond_jump_then7
-  %30 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %30 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %31 = bitcast i8* %30 to %list_item__charp**
   %it11 = load %list_item__charp*, %list_item__charp** %31, align 8
   %32 = getelementptr inbounds %list_item__charp, %list_item__charp* %it11, i32 0, i32 2
   %33 = load %list_item__charp*, %list_item__charp** %32, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %35 = bitcast i8* %34 to %list_item__charp**
   store %list_item__charp* %33, %list_item__charp** %35, align 8
   br label %cond_end10
 
 "cond_jump_elif0\0A":                             ; preds = %cond_jump_then7
-  %36 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %36 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %37 = bitcast i8* %36 to %list_item__charp**
   %it212 = load %list_item__charp*, %list_item__charp** %37, align 8
   %38 = getelementptr inbounds %list_item__charp, %list_item__charp* %it212, i32 0, i32 0
@@ -7359,23 +7517,23 @@ cond_jump_then9:                                  ; preds = %cond_jump_then7
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %"cond_jump_elif1\0A"
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %40 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %40 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %41 = bitcast i8* %40 to %list_item__charp**
   %it214 = load %list_item__charp*, %list_item__charp** %41, align 8
   %42 = getelementptr inbounds %list_item__charp, %list_item__charp* %it214, i32 0, i32 2
   %43 = load %list_item__charp*, %list_item__charp** %42, align 8
-  %44 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %44 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %45 = bitcast i8* %44 to %list_item__charp**
   store %list_item__charp* %43, %list_item__charp** %45, align 8
   br label %cond_end10
 
 "cond_jump_elif1\0A":                             ; preds = %"cond_jump_elif0\0A"
-  %46 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %46 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %47 = bitcast i8* %46 to %list_item__charp**
   %it15 = load %list_item__charp*, %list_item__charp** %47, align 8
   %48 = getelementptr inbounds %list_item__charp, %list_item__charp* %it15, i32 0, i32 0
   %49 = load i8*, i8** %48, align 8
-  %50 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %50 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %51 = bitcast i8* %50 to %list_item__charp**
   %it216 = load %list_item__charp*, %list_item__charp** %51, align 8
   %52 = getelementptr inbounds %list_item__charp, %list_item__charp* %it216, i32 0, i32 0
@@ -7395,9 +7553,9 @@ cond_end10:                                       ; preds = %cond_end35, %cond_e
 
 compare:                                          ; preds = %"cond_jump_elif1\0A"
   %54 = bitcast i8** %left17 to i8*
-  store i8* %54, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %54, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %55 = bitcast i8** %right18 to i8*
-  store i8* %55, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %55, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %left19 = load i8*, i8** %left17, align 8
   %right20 = load i8*, i8** %right18, align 8
   %56 = call i32 @strcmp(i8* %left19, i8* %right20)
@@ -7410,10 +7568,10 @@ inline_func_end:                                  ; preds = %compare
   br i1 %leeqtmp, label %"cond_jump_elif_then1\0A", label %cond_else_block
 
 cond_jump_then22:                                 ; preds = %"cond_jump_elif_then1\0A"
-  %57 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %57 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %58 = bitcast i8* %57 to %list__charp**
   %result25 = load %list__charp*, %list__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %60 = bitcast i8* %59 to %list_item__charp**
   %it27 = load %list_item__charp*, %list_item__charp** %60, align 8
   %61 = getelementptr inbounds %list_item__charp, %list_item__charp* %it27, i32 0, i32 0
@@ -7425,10 +7583,10 @@ cond_jump_then22:                                 ; preds = %"cond_jump_elif_the
   br i1 %66, label %cond_then_block28, label %cond_end29
 
 cond_else_block23:                                ; preds = %"cond_jump_elif_then1\0A"
-  %67 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %67 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %68 = bitcast i8* %67 to %list__charp**
   %result30 = load %list__charp*, %list__charp** %68, align 8
-  %69 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %69 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %70 = bitcast i8* %69 to %list_item__charp**
   %it31 = load %list_item__charp*, %list_item__charp** %70, align 8
   %71 = getelementptr inbounds %list_item__charp, %list_item__charp* %it31, i32 0, i32 0
@@ -7437,12 +7595,12 @@ cond_else_block23:                                ; preds = %"cond_jump_elif_the
   br label %cond_end24
 
 cond_end24:                                       ; preds = %cond_else_block23, %cond_end29
-  %73 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %73 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %74 = bitcast i8* %73 to %list_item__charp**
   %it32 = load %list_item__charp*, %list_item__charp** %74, align 8
   %75 = getelementptr inbounds %list_item__charp, %list_item__charp* %it32, i32 0, i32 2
   %76 = load %list_item__charp*, %list_item__charp** %75, align 8
-  %77 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %77 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %78 = bitcast i8* %77 to %list_item__charp**
   store %list_item__charp* %76, %list_item__charp** %78, align 8
   br label %cond_end10
@@ -7457,10 +7615,10 @@ cond_end29:                                       ; preds = %cond_then_block28, 
   br label %cond_end24
 
 cond_jump_then33:                                 ; preds = %cond_else_block
-  %81 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %81 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %82 = bitcast i8* %81 to %list__charp**
   %result36 = load %list__charp*, %list__charp** %82, align 8
-  %83 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %83 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %84 = bitcast i8* %83 to %list_item__charp**
   %it237 = load %list_item__charp*, %list_item__charp** %84, align 8
   %85 = getelementptr inbounds %list_item__charp, %list_item__charp* %it237, i32 0, i32 0
@@ -7472,10 +7630,10 @@ cond_jump_then33:                                 ; preds = %cond_else_block
   br i1 %90, label %cond_then_block38, label %cond_end39
 
 cond_else_block34:                                ; preds = %cond_else_block
-  %91 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %91 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %92 = bitcast i8* %91 to %list__charp**
   %result40 = load %list__charp*, %list__charp** %92, align 8
-  %93 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %93 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %94 = bitcast i8* %93 to %list_item__charp**
   %it241 = load %list_item__charp*, %list_item__charp** %94, align 8
   %95 = getelementptr inbounds %list_item__charp, %list_item__charp* %it241, i32 0, i32 0
@@ -7484,12 +7642,12 @@ cond_else_block34:                                ; preds = %cond_else_block
   br label %cond_end35
 
 cond_end35:                                       ; preds = %cond_else_block34, %cond_end39
-  %97 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %97 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %98 = bitcast i8* %97 to %list_item__charp**
   %it242 = load %list_item__charp*, %list_item__charp** %98, align 8
   %99 = getelementptr inbounds %list_item__charp, %list_item__charp* %it242, i32 0, i32 2
   %100 = load %list_item__charp*, %list_item__charp** %99, align 8
-  %101 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %101 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %102 = bitcast i8* %101 to %list_item__charp**
   store %list_item__charp* %100, %list_item__charp** %102, align 8
   br label %cond_end10
@@ -7504,21 +7662,21 @@ cond_end39:                                       ; preds = %cond_then_block38, 
   br label %cond_end35
 
 cond_jump_then45:                                 ; preds = %cond_end
-  %105 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %105 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %106 = bitcast i8* %105 to %list_item__charp**
   %it249 = load %list_item__charp*, %list_item__charp** %106, align 8
   %noteqtmp = icmp ne %list_item__charp* %it249, null
   br i1 %noteqtmp, label %cond_jump_then50, label %cond_end51
 
 "cond_jump_elif0\0A46":                           ; preds = %cond_end
-  %107 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %107 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %108 = bitcast i8* %107 to %list_item__charp**
   %it267 = load %list_item__charp*, %list_item__charp** %108, align 8
   %eqtmpX68 = icmp eq %list_item__charp* %it267, null
   br i1 %eqtmpX68, label %"cond_jump_elif_then0\0A47", label %cond_end48
 
 "cond_jump_elif_then0\0A47":                      ; preds = %"cond_jump_elif0\0A46"
-  %109 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %109 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %110 = bitcast i8* %109 to %list_item__charp**
   %it69 = load %list_item__charp*, %list_item__charp** %110, align 8
   %noteqtmp70 = icmp ne %list_item__charp* %it69, null
@@ -7534,7 +7692,7 @@ cond_end51:                                       ; preds = %cond_end_block56, %
   br label %cond_end_block
 
 loop_top_block52:                                 ; preds = %cond_end59, %cond_jump_then50
-  %111 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %111 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %112 = bitcast i8* %111 to %list_item__charp**
   %it253 = load %list_item__charp*, %list_item__charp** %112, align 8
   %noteqtmp54 = icmp ne %list_item__charp* %it253, null
@@ -7547,10 +7705,10 @@ cond_end_block56:                                 ; preds = %loop_top_block52
   br label %cond_end51
 
 cond_jump_then57:                                 ; preds = %cond_then_block55
-  %113 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %113 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %114 = bitcast i8* %113 to %list__charp**
   %result60 = load %list__charp*, %list__charp** %114, align 8
-  %115 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %115 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %116 = bitcast i8* %115 to %list_item__charp**
   %it261 = load %list_item__charp*, %list_item__charp** %116, align 8
   %117 = getelementptr inbounds %list_item__charp, %list_item__charp* %it261, i32 0, i32 0
@@ -7562,10 +7720,10 @@ cond_jump_then57:                                 ; preds = %cond_then_block55
   br i1 %122, label %cond_then_block62, label %cond_end63
 
 cond_else_block58:                                ; preds = %cond_then_block55
-  %123 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %123 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %124 = bitcast i8* %123 to %list__charp**
   %result64 = load %list__charp*, %list__charp** %124, align 8
-  %125 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %125 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %126 = bitcast i8* %125 to %list_item__charp**
   %it265 = load %list_item__charp*, %list_item__charp** %126, align 8
   %127 = getelementptr inbounds %list_item__charp, %list_item__charp* %it265, i32 0, i32 0
@@ -7574,12 +7732,12 @@ cond_else_block58:                                ; preds = %cond_then_block55
   br label %cond_end59
 
 cond_end59:                                       ; preds = %cond_else_block58, %cond_end63
-  %129 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %129 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %130 = bitcast i8* %129 to %list_item__charp**
   %it266 = load %list_item__charp*, %list_item__charp** %130, align 8
   %131 = getelementptr inbounds %list_item__charp, %list_item__charp* %it266, i32 0, i32 2
   %132 = load %list_item__charp*, %list_item__charp** %131, align 8
-  %133 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %133 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %134 = bitcast i8* %133 to %list_item__charp**
   store %list_item__charp* %132, %list_item__charp** %134, align 8
   br label %loop_top_block52
@@ -7603,7 +7761,7 @@ cond_end72:                                       ; preds = %cond_end_block77, %
   br label %cond_end_block
 
 loop_top_block73:                                 ; preds = %cond_end80, %cond_jump_then71
-  %137 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %137 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %138 = bitcast i8* %137 to %list_item__charp**
   %it74 = load %list_item__charp*, %list_item__charp** %138, align 8
   %noteqtmp75 = icmp ne %list_item__charp* %it74, null
@@ -7616,10 +7774,10 @@ cond_end_block77:                                 ; preds = %loop_top_block73
   br label %cond_end72
 
 cond_jump_then78:                                 ; preds = %cond_then_block76
-  %139 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %139 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %140 = bitcast i8* %139 to %list__charp**
   %result81 = load %list__charp*, %list__charp** %140, align 8
-  %141 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %141 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %142 = bitcast i8* %141 to %list_item__charp**
   %it82 = load %list_item__charp*, %list_item__charp** %142, align 8
   %143 = getelementptr inbounds %list_item__charp, %list_item__charp* %it82, i32 0, i32 0
@@ -7631,10 +7789,10 @@ cond_jump_then78:                                 ; preds = %cond_then_block76
   br i1 %148, label %cond_then_block83, label %cond_end84
 
 cond_else_block79:                                ; preds = %cond_then_block76
-  %149 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %149 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %150 = bitcast i8* %149 to %list__charp**
   %result85 = load %list__charp*, %list__charp** %150, align 8
-  %151 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %151 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %152 = bitcast i8* %151 to %list_item__charp**
   %it86 = load %list_item__charp*, %list_item__charp** %152, align 8
   %153 = getelementptr inbounds %list_item__charp, %list_item__charp* %it86, i32 0, i32 0
@@ -7643,12 +7801,12 @@ cond_else_block79:                                ; preds = %cond_then_block76
   br label %cond_end80
 
 cond_end80:                                       ; preds = %cond_else_block79, %cond_end84
-  %155 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %155 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %156 = bitcast i8* %155 to %list_item__charp**
   %it87 = load %list_item__charp*, %list_item__charp** %156, align 8
   %157 = getelementptr inbounds %list_item__charp, %list_item__charp* %it87, i32 0, i32 2
   %158 = load %list_item__charp*, %list_item__charp** %157, align 8
-  %159 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %159 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %160 = bitcast i8* %159 to %list_item__charp**
   store %list_item__charp* %158, %list_item__charp** %160, align 8
   br label %loop_top_block73
@@ -7674,7 +7832,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 0
   store %list_item__charp* null, %list_item__charp** %3, align 8
@@ -7698,11 +7856,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -7710,11 +7868,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.170, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.171, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.172, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.173, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.170, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.171, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.172, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.173, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -7723,18 +7881,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -7750,14 +7908,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.174, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.175, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.176, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.177, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.174, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.175, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.176, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.177, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -7768,18 +7926,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -7790,14 +7948,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.178, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.179, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.180, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.181, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.178, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.179, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.180, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.181, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -7808,12 +7966,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -7821,7 +7979,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -7851,11 +8009,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -7863,11 +8021,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.182, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.183, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.184, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.185, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.182, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.183, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.184, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.185, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -7876,18 +8034,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -7903,14 +8061,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.186, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.187, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.188, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.189, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.186, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.187, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.188, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.189, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -7921,18 +8079,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -7943,14 +8101,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.190, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.191, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.192, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.193, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.190, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.191, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.192, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.193, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -7961,12 +8119,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -7974,7 +8132,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -8004,11 +8162,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -8016,11 +8174,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.194, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.195, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.196, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.197, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.194, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.195, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.196, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.197, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -8029,18 +8187,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -8056,14 +8214,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.198, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.199, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.200, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.201, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.198, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.199, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.200, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.201, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -8074,18 +8232,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -8096,14 +8254,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.202, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.203, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.204, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.205, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.202, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.203, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.204, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.205, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -8114,12 +8272,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -8127,7 +8285,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -8157,11 +8315,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -8169,11 +8327,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.206, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.207, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.208, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.209, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.206, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.207, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.208, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.209, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -8182,18 +8340,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -8209,14 +8367,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.210, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.211, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.212, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.213, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.210, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.211, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.212, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.213, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -8227,18 +8385,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -8249,14 +8407,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.214, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.215, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.216, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.217, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.214, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.215, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.216, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.217, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -8267,12 +8425,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -8280,7 +8438,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -8310,11 +8468,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -8322,11 +8480,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.218, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.219, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.220, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.221, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.218, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.219, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.220, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.221, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -8335,18 +8493,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -8362,14 +8520,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.222, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.223, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.224, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.225, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.222, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.223, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.224, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.225, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -8380,18 +8538,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -8402,14 +8560,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.226, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.227, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.228, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.229, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.226, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.227, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.228, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.229, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -8420,12 +8578,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -8433,7 +8591,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -8463,11 +8621,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -8475,11 +8633,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.230, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.231, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.232, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.233, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.230, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.231, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.232, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.233, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -8488,18 +8646,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -8515,14 +8673,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.234, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.235, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.236, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.237, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.234, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.235, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.236, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.237, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -8533,18 +8691,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -8555,14 +8713,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.238, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.239, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.240, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.241, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.238, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.239, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.240, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.241, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -8573,12 +8731,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -8586,7 +8744,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -8616,11 +8774,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -8628,11 +8786,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.242, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.243, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.244, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.245, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.242, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.243, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.244, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.245, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -8641,18 +8799,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -8668,14 +8826,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.246, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.247, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.248, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.249, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.246, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.247, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.248, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.249, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -8686,18 +8844,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -8708,14 +8866,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.250, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.251, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.252, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.253, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.250, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.251, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.252, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.253, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -8726,12 +8884,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -8739,7 +8897,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -8769,11 +8927,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -8781,11 +8939,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.254, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.255, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.256, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.257, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.254, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.255, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.256, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.257, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -8794,18 +8952,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -8821,14 +8979,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.258, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.259, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.260, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.261, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.258, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.259, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.260, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.261, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -8839,18 +8997,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -8861,14 +9019,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.262, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.263, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.264, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.265, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.262, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.263, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.264, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.265, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -8879,12 +9037,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -8892,7 +9050,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -8922,7 +9080,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %eqtmpX = icmp eq %list__charp* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -8938,7 +9096,7 @@ cond_end:                                         ; preds = %entry
   %6 = load %list_item__charp*, %list_item__charp** %5, align 8
   %it = alloca %list_item__charp*
   %7 = bitcast %list_item__charp** %it to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   store %list_item__charp* %6, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -8956,7 +9114,7 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret void
 
 cond_jump_then5:                                  ; preds = %cond_then_block
-  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %11 = bitcast i8* %10 to %list_item__charp**
   %it7 = load %list_item__charp*, %list_item__charp** %11, align 8
   %12 = getelementptr inbounds %list_item__charp, %list_item__charp* %it7, i32 0, i32 0
@@ -8967,19 +9125,19 @@ cond_jump_then5:                                  ; preds = %cond_then_block
   br i1 %16, label %cond_then_block8, label %cond_end9
 
 cond_end6:                                        ; preds = %cond_end9, %cond_then_block
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %18 = bitcast i8* %17 to %list_item__charp**
   %it10 = load %list_item__charp*, %list_item__charp** %18, align 8
   %prev_it = alloca %list_item__charp*
   %19 = bitcast %list_item__charp** %prev_it to i8*
-  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %it10, %list_item__charp** %prev_it, align 8
-  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %21 = bitcast i8* %20 to %list_item__charp**
   %it11 = load %list_item__charp*, %list_item__charp** %21, align 8
   %22 = getelementptr inbounds %list_item__charp, %list_item__charp* %it11, i32 0, i32 2
   %23 = load %list_item__charp*, %list_item__charp** %22, align 8
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %25 = bitcast i8* %24 to %list_item__charp**
   store %list_item__charp* %23, %list_item__charp** %25, align 8
   %prev_it12 = load %list_item__charp*, %list_item__charp** %prev_it, align 8
@@ -9012,7 +9170,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %eqtmpX = icmp eq %list__charp* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -9028,7 +9186,7 @@ cond_end:                                         ; preds = %entry
   %6 = load %list_item__charp*, %list_item__charp** %5, align 8
   %it = alloca %list_item__charp*
   %7 = bitcast %list_item__charp** %it to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   store %list_item__charp* %6, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -9046,7 +9204,7 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret void
 
 cond_jump_then5:                                  ; preds = %cond_then_block
-  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %11 = bitcast i8* %10 to %list_item__charp**
   %it7 = load %list_item__charp*, %list_item__charp** %11, align 8
   %12 = getelementptr inbounds %list_item__charp, %list_item__charp* %it7, i32 0, i32 0
@@ -9057,19 +9215,19 @@ cond_jump_then5:                                  ; preds = %cond_then_block
   br i1 %16, label %cond_then_block8, label %cond_end9
 
 cond_end6:                                        ; preds = %cond_end9, %cond_then_block
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %18 = bitcast i8* %17 to %list_item__charp**
   %it10 = load %list_item__charp*, %list_item__charp** %18, align 8
   %prev_it = alloca %list_item__charp*
   %19 = bitcast %list_item__charp** %prev_it to i8*
-  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %it10, %list_item__charp** %prev_it, align 8
-  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %21 = bitcast i8* %20 to %list_item__charp**
   %it11 = load %list_item__charp*, %list_item__charp** %21, align 8
   %22 = getelementptr inbounds %list_item__charp, %list_item__charp* %it11, i32 0, i32 2
   %23 = load %list_item__charp*, %list_item__charp** %22, align 8
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %25 = bitcast i8* %24 to %list_item__charp**
   store %list_item__charp* %23, %list_item__charp** %25, align 8
   %prev_it12 = load %list_item__charp*, %list_item__charp** %prev_it, align 8
@@ -9102,7 +9260,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %eqtmpX = icmp eq %list__charp* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -9118,7 +9276,7 @@ cond_end:                                         ; preds = %entry
   %6 = load %list_item__charp*, %list_item__charp** %5, align 8
   %it = alloca %list_item__charp*
   %7 = bitcast %list_item__charp** %it to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   store %list_item__charp* %6, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -9136,7 +9294,7 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret void
 
 cond_jump_then5:                                  ; preds = %cond_then_block
-  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %11 = bitcast i8* %10 to %list_item__charp**
   %it7 = load %list_item__charp*, %list_item__charp** %11, align 8
   %12 = getelementptr inbounds %list_item__charp, %list_item__charp* %it7, i32 0, i32 0
@@ -9147,19 +9305,19 @@ cond_jump_then5:                                  ; preds = %cond_then_block
   br i1 %16, label %cond_then_block8, label %cond_end9
 
 cond_end6:                                        ; preds = %cond_end9, %cond_then_block
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %18 = bitcast i8* %17 to %list_item__charp**
   %it10 = load %list_item__charp*, %list_item__charp** %18, align 8
   %prev_it = alloca %list_item__charp*
   %19 = bitcast %list_item__charp** %prev_it to i8*
-  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %it10, %list_item__charp** %prev_it, align 8
-  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %21 = bitcast i8* %20 to %list_item__charp**
   %it11 = load %list_item__charp*, %list_item__charp** %21, align 8
   %22 = getelementptr inbounds %list_item__charp, %list_item__charp* %it11, i32 0, i32 2
   %23 = load %list_item__charp*, %list_item__charp** %22, align 8
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %25 = bitcast i8* %24 to %list_item__charp**
   store %list_item__charp* %23, %list_item__charp** %25, align 8
   %prev_it12 = load %list_item__charp*, %list_item__charp** %prev_it, align 8
@@ -9192,7 +9350,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %eqtmpX = icmp eq %list__charp* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -9208,7 +9366,7 @@ cond_end:                                         ; preds = %entry
   %6 = load %list_item__charp*, %list_item__charp** %5, align 8
   %it = alloca %list_item__charp*
   %7 = bitcast %list_item__charp** %it to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   store %list_item__charp* %6, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -9226,7 +9384,7 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret void
 
 cond_jump_then5:                                  ; preds = %cond_then_block
-  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %11 = bitcast i8* %10 to %list_item__charp**
   %it7 = load %list_item__charp*, %list_item__charp** %11, align 8
   %12 = getelementptr inbounds %list_item__charp, %list_item__charp* %it7, i32 0, i32 0
@@ -9237,19 +9395,19 @@ cond_jump_then5:                                  ; preds = %cond_then_block
   br i1 %16, label %cond_then_block8, label %cond_end9
 
 cond_end6:                                        ; preds = %cond_end9, %cond_then_block
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %18 = bitcast i8* %17 to %list_item__charp**
   %it10 = load %list_item__charp*, %list_item__charp** %18, align 8
   %prev_it = alloca %list_item__charp*
   %19 = bitcast %list_item__charp** %prev_it to i8*
-  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %it10, %list_item__charp** %prev_it, align 8
-  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %21 = bitcast i8* %20 to %list_item__charp**
   %it11 = load %list_item__charp*, %list_item__charp** %21, align 8
   %22 = getelementptr inbounds %list_item__charp, %list_item__charp* %it11, i32 0, i32 2
   %23 = load %list_item__charp*, %list_item__charp** %22, align 8
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %25 = bitcast i8* %24 to %list_item__charp**
   store %list_item__charp* %23, %list_item__charp** %25, align 8
   %prev_it12 = load %list_item__charp*, %list_item__charp** %prev_it, align 8
@@ -9282,7 +9440,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %eqtmpX = icmp eq %list__charp* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -9298,7 +9456,7 @@ cond_end:                                         ; preds = %entry
   %6 = load %list_item__charp*, %list_item__charp** %5, align 8
   %it = alloca %list_item__charp*
   %7 = bitcast %list_item__charp** %it to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   store %list_item__charp* %6, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -9316,7 +9474,7 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret void
 
 cond_jump_then5:                                  ; preds = %cond_then_block
-  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %11 = bitcast i8* %10 to %list_item__charp**
   %it7 = load %list_item__charp*, %list_item__charp** %11, align 8
   %12 = getelementptr inbounds %list_item__charp, %list_item__charp* %it7, i32 0, i32 0
@@ -9327,19 +9485,19 @@ cond_jump_then5:                                  ; preds = %cond_then_block
   br i1 %16, label %cond_then_block8, label %cond_end9
 
 cond_end6:                                        ; preds = %cond_end9, %cond_then_block
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %18 = bitcast i8* %17 to %list_item__charp**
   %it10 = load %list_item__charp*, %list_item__charp** %18, align 8
   %prev_it = alloca %list_item__charp*
   %19 = bitcast %list_item__charp** %prev_it to i8*
-  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   store %list_item__charp* %it10, %list_item__charp** %prev_it, align 8
-  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %21 = bitcast i8* %20 to %list_item__charp**
   %it11 = load %list_item__charp*, %list_item__charp** %21, align 8
   %22 = getelementptr inbounds %list_item__charp, %list_item__charp* %it11, i32 0, i32 2
   %23 = load %list_item__charp*, %list_item__charp** %22, align 8
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %25 = bitcast i8* %24 to %list_item__charp**
   store %list_item__charp* %23, %list_item__charp** %25, align 8
   %prev_it12 = load %list_item__charp*, %list_item__charp** %prev_it, align 8
@@ -9372,40 +9530,40 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %begin2 = alloca i32
   store i32 %begin, i32* %begin2, align 4
   %3 = bitcast i32* %begin2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %tail3 = alloca i32
   store i32 %tail, i32* %tail3, align 4
   %4 = bitcast i32* %tail3 to i8*
-  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
-  %5 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.266, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.267, i32 0, i32 0), i32 1313, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @global_string.268, i32 0, i32 0), i8* getelementptr inbounds ([31 x i8], [31 x i8]* @global_string.269, i32 0, i32 0))
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
+  %5 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @global_string.266, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.267, i32 0, i32 0), i32 1313, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @global_string.268, i32 0, i32 0), i8* getelementptr inbounds ([31 x i8], [31 x i8]* @global_string.269, i32 0, i32 0))
   %6 = bitcast i8* %5 to %list__charp*
   %7 = call %list__charp* @"list_initialize_charp54_src/filer"(%list__charp* %6)
   %result = alloca %list__charp*
   %8 = bitcast %list__charp** %result to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   store %list__charp* %7, %list__charp** %result, align 8
   %begin4 = load i32, i32* %begin2, align 4
   %letmp = icmp slt i32 %begin4, 0
   br i1 %letmp, label %cond_jump_then, label %cond_end
 
 cond_jump_then:                                   ; preds = %entry
-  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %10 = bitcast i8* %9 to i32*
   %begin5 = load i32, i32* %10, align 4
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %12 = bitcast i8* %11 to %list__charp**
   %self6 = load %list__charp*, %list__charp** %12, align 8
   %13 = getelementptr inbounds %list__charp, %list__charp* %self6, i32 0, i32 2
   %14 = load i32, i32* %13, align 4
   %addtmp = add nsw i32 %begin5, %14
-  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %16 = bitcast i8* %15 to i32*
   store i32 %addtmp, i32* %16, align 4
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self7 = load %list__charp*, %list__charp** %18, align 8
   %19 = getelementptr inbounds %list__charp, %list__charp* %self7, i32 0, i32 2
@@ -9419,20 +9577,20 @@ cond_end:                                         ; preds = %cond_jump_then, %en
   br i1 %letmp9, label %cond_jump_then10, label %cond_end11
 
 cond_jump_then10:                                 ; preds = %cond_end
-  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %22 = bitcast i8* %21 to i32*
   %tail12 = load i32, i32* %22, align 4
-  %23 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %23 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %24 = bitcast i8* %23 to %list__charp**
   %self13 = load %list__charp*, %list__charp** %24, align 8
   %25 = getelementptr inbounds %list__charp, %list__charp* %self13, i32 0, i32 2
   %26 = load i32, i32* %25, align 4
   %addtmp14 = add nsw i32 %26, 1
   %addtmp15 = add nsw i32 %tail12, %addtmp14
-  %27 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %27 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %28 = bitcast i8* %27 to i32*
   store i32 %addtmp15, i32* %28, align 4
-  %29 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %29 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %30 = bitcast i8* %29 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %30, align 8
   %31 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 2
@@ -9447,7 +9605,7 @@ cond_end11:                                       ; preds = %cond_jump_then10, %
   br i1 %letmp20, label %cond_jump_then21, label %cond_end22
 
 cond_jump_then21:                                 ; preds = %cond_end11
-  %33 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %33 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %34 = bitcast i8* %33 to i32*
   store i32 0, i32* %34, align 4
   br label %cond_end22
@@ -9461,12 +9619,12 @@ cond_end22:                                       ; preds = %cond_jump_then21, %
   br i1 %getmp, label %cond_jump_then25, label %cond_end26
 
 cond_jump_then25:                                 ; preds = %cond_end22
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self27 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self27, i32 0, i32 2
   %40 = load i32, i32* %39, align 4
-  %41 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %41 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %42 = bitcast i8* %41 to i32*
   store i32 %40, i32* %42, align 4
   br label %cond_end26
@@ -9477,11 +9635,11 @@ cond_end26:                                       ; preds = %cond_jump_then25, %
   %44 = load %list_item__charp*, %list_item__charp** %43, align 8
   %it = alloca %list_item__charp*
   %45 = bitcast %list_item__charp** %it to i8*
-  store i8* %45, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  store i8* %45, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   store %list_item__charp* %44, %list_item__charp** %it, align 8
   %i = alloca i32
   %46 = bitcast i32* %i to i8*
-  store i8* %46, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %46, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store i32 0, i32* %i, align 4
   br label %loop_top_block
 
@@ -9492,10 +9650,10 @@ loop_top_block:                                   ; preds = %cond_end38, %cond_e
 
 cond_then_block:                                  ; preds = %loop_top_block
   %andand_result_var = alloca i1
-  %47 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %47 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %48 = bitcast i8* %47 to i32*
   %i30 = load i32, i32* %48, align 4
-  %49 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %49 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %50 = bitcast i8* %49 to i32*
   %begin31 = load i32, i32* %50, align 4
   %getmp32 = icmp sge i32 %i30, %begin31
@@ -9509,10 +9667,10 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret %list__charp* %result51
 
 cond_jump_then33:                                 ; preds = %cond_then_block
-  %53 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %53 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %54 = bitcast i8* %53 to i32*
   %i34 = load i32, i32* %54, align 4
-  %55 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %55 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %56 = bitcast i8* %55 to i32*
   %tail35 = load i32, i32* %56, align 4
   %letmp36 = icmp slt i32 %i34, %tail35
@@ -9528,29 +9686,29 @@ cond_jump_then37:                                 ; preds = %cond_jump_end
   br i1 true, label %cond_jump_then39, label %cond_else_block
 
 cond_end38:                                       ; preds = %cond_end40, %cond_jump_end
-  %57 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %57 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %58 = bitcast i8* %57 to %list_item__charp**
   %it47 = load %list_item__charp*, %list_item__charp** %58, align 8
   %59 = getelementptr inbounds %list_item__charp, %list_item__charp* %it47, i32 0, i32 2
   %60 = load %list_item__charp*, %list_item__charp** %59, align 8
-  %61 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %61 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %62 = bitcast i8* %61 to %list_item__charp**
   store %list_item__charp* %60, %list_item__charp** %62, align 8
-  %63 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %63 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %64 = bitcast i8* %63 to i32*
   %i48 = load i32, i32* %64, align 4
   %addtmp49 = add nsw i32 %i48, 1
-  %65 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %65 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %66 = bitcast i8* %65 to i32*
   store i32 %addtmp49, i32* %66, align 4
   %subttmp50 = sub nsw i32 %addtmp49, 1
   br label %loop_top_block
 
 cond_jump_then39:                                 ; preds = %cond_jump_then37
-  %67 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %67 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %68 = bitcast i8* %67 to %list__charp**
   %result41 = load %list__charp*, %list__charp** %68, align 8
-  %69 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %69 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %70 = bitcast i8* %69 to %list_item__charp**
   %it42 = load %list_item__charp*, %list_item__charp** %70, align 8
   %71 = getelementptr inbounds %list_item__charp, %list_item__charp* %it42, i32 0, i32 0
@@ -9562,10 +9720,10 @@ cond_jump_then39:                                 ; preds = %cond_jump_then37
   br i1 %76, label %cond_then_block43, label %cond_end44
 
 cond_else_block:                                  ; preds = %cond_jump_then37
-  %77 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %77 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %78 = bitcast i8* %77 to %list__charp**
   %result45 = load %list__charp*, %list__charp** %78, align 8
-  %79 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  %79 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %80 = bitcast i8* %79 to %list_item__charp**
   %it46 = load %list_item__charp*, %list_item__charp** %80, align 8
   %81 = getelementptr inbounds %list_item__charp, %list_item__charp* %it46, i32 0, i32 0
@@ -9594,7 +9752,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 0
   store %list_item__charp* null, %list_item__charp** %3, align 8
@@ -9618,11 +9776,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -9630,11 +9788,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.270, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.271, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.272, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.273, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.270, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.271, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.272, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.273, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 471), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 151), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -9643,18 +9801,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -9670,14 +9828,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.274, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.275, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.276, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.277, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.274, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.275, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.276, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.277, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 471), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 151), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -9688,18 +9846,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -9710,14 +9868,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.278, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.279, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.280, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.281, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.278, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.279, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.280, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.281, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 471), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 151), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -9728,12 +9886,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -9741,7 +9899,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -9771,11 +9929,11 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %item2 = alloca i8*
   store i8* %item, i8** %item2, align 8
   %3 = bitcast i8** %item2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 2
   %5 = load i32, i32* %4, align 4
@@ -9783,11 +9941,11 @@ entry:
   br i1 %eqtmpX, label %cond_jump_then, label %"cond_jump_elif0\0A"
 
 cond_jump_then:                                   ; preds = %entry
-  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.282, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.283, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.284, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.285, i32 0, i32 0))
+  %6 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.282, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.283, i32 0, i32 0), i32 778, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.284, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.285, i32 0, i32 0))
   %7 = bitcast i8* %6 to %list_item__charp*
   %litem = alloca %list_item__charp*
   %8 = bitcast %list_item__charp** %litem to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 471), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 151), align 8
   store %list_item__charp* %7, %list_item__charp** %litem, align 8
   %litem4 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %9 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem4, i32 0, i32 1
@@ -9796,18 +9954,18 @@ cond_jump_then:                                   ; preds = %entry
   %10 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem5, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %10, align 8
   %litem6 = load %list_item__charp*, %list_item__charp** %litem, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   %12 = bitcast i8* %11 to i8**
   %item7 = load i8*, i8** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem6, i32 0, i32 0
   store i8* %item7, i8** %13, align 8
-  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %14 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %15 = bitcast i8* %14 to %list__charp**
   %self8 = load %list__charp*, %list__charp** %15, align 8
   %litem9 = load %list_item__charp*, %list_item__charp** %litem, align 8
   %16 = getelementptr inbounds %list__charp, %list__charp* %self8, i32 0, i32 1
   store %list_item__charp* %litem9, %list_item__charp** %16, align 8
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %18 = bitcast i8* %17 to %list__charp**
   %self10 = load %list__charp*, %list__charp** %18, align 8
   %litem11 = load %list_item__charp*, %list_item__charp** %litem, align 8
@@ -9823,14 +9981,14 @@ cond_jump_then:                                   ; preds = %entry
   br i1 %eqtmpX13, label %"cond_jump_elif_then0\0A", label %cond_else_block
 
 "cond_jump_elif_then0\0A":                        ; preds = %"cond_jump_elif0\0A"
-  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.286, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.287, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.288, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.289, i32 0, i32 0))
+  %22 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.286, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.287, i32 0, i32 0), i32 787, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.288, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.289, i32 0, i32 0))
   %23 = bitcast i8* %22 to %list_item__charp*
   %litem14 = alloca %list_item__charp*
   %24 = bitcast %list_item__charp** %litem14 to i8*
-  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 471), align 8
+  store i8* %24, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 151), align 8
   store %list_item__charp* %23, %list_item__charp** %litem14, align 8
   %litem15 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %26 = bitcast i8* %25 to %list__charp**
   %self16 = load %list__charp*, %list__charp** %26, align 8
   %27 = getelementptr inbounds %list__charp, %list__charp* %self16, i32 0, i32 0
@@ -9841,18 +9999,18 @@ cond_jump_then:                                   ; preds = %entry
   %30 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem17, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %30, align 8
   %litem18 = load %list_item__charp*, %list_item__charp** %litem14, align 8
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   %32 = bitcast i8* %31 to i8**
   %item19 = load i8*, i8** %32, align 8
   %33 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem18, i32 0, i32 0
   store i8* %item19, i8** %33, align 8
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %35 = bitcast i8* %34 to %list__charp**
   %self20 = load %list__charp*, %list__charp** %35, align 8
   %litem21 = load %list_item__charp*, %list_item__charp** %litem14, align 8
   %36 = getelementptr inbounds %list__charp, %list__charp* %self20, i32 0, i32 1
   store %list_item__charp* %litem21, %list_item__charp** %36, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %38 = bitcast i8* %37 to %list__charp**
   %self22 = load %list__charp*, %list__charp** %38, align 8
   %39 = getelementptr inbounds %list__charp, %list__charp* %self22, i32 0, i32 0
@@ -9863,14 +10021,14 @@ cond_jump_then:                                   ; preds = %entry
   br label %cond_end
 
 cond_else_block:                                  ; preds = %"cond_jump_elif0\0A"
-  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.290, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.291, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.292, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.293, i32 0, i32 0))
+  %42 = call i8* @debug_xcalloc(i64 1, i64 24, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @global_string.290, i32 0, i32 0), i8* getelementptr inbounds ([50 x i8], [50 x i8]* @global_string.291, i32 0, i32 0), i32 797, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @global_string.292, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @global_string.293, i32 0, i32 0))
   %43 = bitcast i8* %42 to %list_item__charp*
   %litem24 = alloca %list_item__charp*
   %44 = bitcast %list_item__charp** %litem24 to i8*
-  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 471), align 8
+  store i8* %44, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 151), align 8
   store %list_item__charp* %43, %list_item__charp** %litem24, align 8
   %litem25 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %45 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %46 = bitcast i8* %45 to %list__charp**
   %self26 = load %list__charp*, %list__charp** %46, align 8
   %47 = getelementptr inbounds %list__charp, %list__charp* %self26, i32 0, i32 1
@@ -9881,12 +10039,12 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %50 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem27, i32 0, i32 2
   store %list_item__charp* null, %list_item__charp** %50, align 8
   %litem28 = load %list_item__charp*, %list_item__charp** %litem24, align 8
-  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  %51 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   %52 = bitcast i8* %51 to i8**
   %item29 = load i8*, i8** %52, align 8
   %53 = getelementptr inbounds %list_item__charp, %list_item__charp* %litem28, i32 0, i32 0
   store i8* %item29, i8** %53, align 8
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %55 = bitcast i8* %54 to %list__charp**
   %self30 = load %list__charp*, %list__charp** %55, align 8
   %56 = getelementptr inbounds %list__charp, %list__charp* %self30, i32 0, i32 1
@@ -9894,7 +10052,7 @@ cond_else_block:                                  ; preds = %"cond_jump_elif0\0A
   %litem31 = load %list_item__charp*, %list_item__charp** %litem24, align 8
   %58 = getelementptr inbounds %list_item__charp, %list_item__charp* %57, i32 0, i32 2
   store %list_item__charp* %litem31, %list_item__charp** %58, align 8
-  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  %59 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   %60 = bitcast i8* %59 to %list__charp**
   %self32 = load %list__charp*, %list__charp** %60, align 8
   %litem33 = load %list_item__charp*, %list_item__charp** %litem24, align 8
@@ -9924,16 +10082,16 @@ entry:
   %it1 = alloca i8*
   store i8* %it, i8** %it1, align 8
   %2 = bitcast i8** %it1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %it22 = alloca i32
   store i32 %it2, i32* %it22, align 4
   %3 = bitcast i32* %it22 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %it33 = alloca i1*
   store i1* %it3, i1** %it33, align 8
   %4 = bitcast i1** %it33 to i8*
-  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
-  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
+  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %6 = bitcast i8* %5 to %Filer**
   %self = load %Filer*, %Filer** %6, align 8
   %7 = getelementptr inbounds %Filer, %Filer* %self, i32 0, i32 1
@@ -9944,32 +10102,32 @@ entry:
   %11 = call i8* @op_add_string_string(i8* %10, i8* %it4)
   %path = alloca i8*
   %12 = bitcast i8** %path to i8*
-  store i8* %12, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  store i8* %12, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   store i8* %11, i8** %path, align 8
   %stat_ = alloca %stat
   %13 = bitcast %stat* %stat_ to i8*
-  store i8* %13, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  store i8* %13, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   %path5 = load i8*, i8** %path, align 8
   %stat_6 = load %stat, %stat* %stat_, align 8
   %14 = call i32 @stat(i8* %path5, %stat* %stat_)
   %stat_7 = load %stat, %stat* %stat_, align 8
-  %15 = getelementptr inbounds %stat, %stat* %stat_, i32 0, i32 3
+  %15 = getelementptr inbounds %stat, %stat* %stat_, i32 0, i32 2
   %16 = load i32, i32* %15, align 4
   %andtmp = and i32 %16, 61440
   %eqtmpX = icmp eq i32 %andtmp, 16384
   %is_dir = alloca i1
   %17 = bitcast i1* %is_dir to i8*
-  store i8* %17, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  store i8* %17, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   store i1 %eqtmpX, i1* %is_dir, align 1
   %it28 = load i32, i32* %it22, align 4
   %index = alloca i32
   %18 = bitcast i32* %index to i8*
-  store i8* %18, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 469), align 8
+  store i8* %18, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 149), align 8
   store i32 %it28, i32* %index, align 4
-  %19 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  %19 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
   %20 = bitcast i8* %19 to i32*
   %maxx = load i32, i32* %20, align 4
-  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %22 = bitcast i8* %21 to %Filer**
   %self9 = load %Filer*, %Filer** %22, align 8
   %23 = getelementptr inbounds %Filer, %Filer* %self9, i32 0, i32 5
@@ -9977,10 +10135,10 @@ entry:
   %divtmp = sdiv i32 %maxx, %24
   %cols = alloca i32
   %25 = bitcast i32* %cols to i8*
-  store i8* %25, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  store i8* %25, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   store i32 %divtmp, i32* %cols, align 4
   %index10 = load i32, i32* %index, align 4
-  %26 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %26 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %27 = bitcast i8* %26 to i32*
   %maxy = load i32, i32* %27, align 4
   %divtmp11 = sdiv i32 %index10, %maxy
@@ -9988,23 +10146,23 @@ entry:
   %multtmp = mul nsw i32 %divtmp11, %cols12
   %x = alloca i32
   %28 = bitcast i32* %x to i8*
-  store i8* %28, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 471), align 8
+  store i8* %28, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 151), align 8
   store i32 %multtmp, i32* %x, align 4
   %index13 = load i32, i32* %index, align 4
-  %29 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %29 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %30 = bitcast i8* %29 to i32*
   %maxy14 = load i32, i32* %30, align 4
   %remtmp = srem i32 %index13, %maxy14
   %y = alloca i32
   %31 = bitcast i32* %y to i8*
-  store i8* %31, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 472), align 8
+  store i8* %31, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 152), align 8
   store i32 %remtmp, i32* %y, align 4
   %it215 = load i32, i32* %it22, align 4
-  %32 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %32 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %33 = bitcast i8* %32 to i32*
   %head = load i32, i32* %33, align 4
   %addtmp = add nsw i32 %it215, %head
-  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 455), align 8
+  %34 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 135), align 8
   %35 = bitcast i8* %34 to %Filer**
   %self16 = load %Filer*, %Filer** %35, align 8
   %36 = getelementptr inbounds %Filer, %Filer* %self16, i32 0, i32 3
@@ -10017,13 +10175,13 @@ entry:
 cond_jump_then:                                   ; preds = %cond_end20
   %stdscr = load %_win_st*, %_win_st** @stdscr, align 8
   %40 = call i32 @wattr_on(%_win_st* %stdscr, i32 262144, i8* null)
-  %41 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %41 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %42 = bitcast i8* %41 to i1*
   %is_dir21 = load i1, i1* %42, align 1
   br i1 %is_dir21, label %cond_jump_then22, label %cond_else_block23
 
 cond_else_block:                                  ; preds = %cond_end20
-  %43 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 468), align 8
+  %43 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 148), align 8
   %44 = bitcast i8* %43 to i1*
   %is_dir39 = load i1, i1* %44, align 1
   br i1 %is_dir39, label %cond_jump_then40, label %cond_else_block41
@@ -10051,16 +10209,16 @@ cond_end20:                                       ; preds = %cond_then_block19, 
   br i1 %eqtmpX17, label %cond_jump_then, label %cond_else_block
 
 cond_jump_then22:                                 ; preds = %cond_jump_then
-  %50 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 472), align 8
+  %50 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 152), align 8
   %51 = bitcast i8* %50 to i32*
   %y25 = load i32, i32* %51, align 4
-  %52 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 471), align 8
+  %52 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 151), align 8
   %53 = bitcast i8* %52 to i32*
   %x26 = load i32, i32* %53, align 4
-  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %54 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %55 = bitcast i8* %54 to i8**
   %it27 = load i8*, i8** %55, align 8
-  %56 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  %56 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   %57 = bitcast i8* %56 to i32*
   %cols28 = load i32, i32* %57, align 4
   %subttmp = sub nsw i32 %cols28, 1
@@ -10071,16 +10229,16 @@ cond_jump_then22:                                 ; preds = %cond_jump_then
   br i1 %61, label %cond_then_block29, label %cond_end30
 
 cond_else_block23:                                ; preds = %cond_jump_then
-  %62 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 472), align 8
+  %62 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 152), align 8
   %63 = bitcast i8* %62 to i32*
   %y31 = load i32, i32* %63, align 4
-  %64 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 471), align 8
+  %64 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 151), align 8
   %65 = bitcast i8* %64 to i32*
   %x32 = load i32, i32* %65, align 4
-  %66 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %66 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %67 = bitcast i8* %66 to i8**
   %it34 = load i8*, i8** %67, align 8
-  %68 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  %68 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   %69 = bitcast i8* %68 to i32*
   %cols35 = load i32, i32* %69, align 4
   %70 = call i8* @string_substring(i8* %it34, i32 0, i32 %cols35)
@@ -10109,16 +10267,16 @@ cond_end37:                                       ; preds = %cond_then_block36, 
   br label %cond_end24
 
 cond_jump_then40:                                 ; preds = %cond_else_block
-  %75 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 472), align 8
+  %75 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 152), align 8
   %76 = bitcast i8* %75 to i32*
   %y43 = load i32, i32* %76, align 4
-  %77 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 471), align 8
+  %77 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 151), align 8
   %78 = bitcast i8* %77 to i32*
   %x44 = load i32, i32* %78, align 4
-  %79 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %79 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %80 = bitcast i8* %79 to i8**
   %it45 = load i8*, i8** %80, align 8
-  %81 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  %81 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   %82 = bitcast i8* %81 to i32*
   %cols46 = load i32, i32* %82, align 4
   %subttmp47 = sub nsw i32 %cols46, 1
@@ -10129,16 +10287,16 @@ cond_jump_then40:                                 ; preds = %cond_else_block
   br i1 %86, label %cond_then_block48, label %cond_end49
 
 cond_else_block41:                                ; preds = %cond_else_block
-  %87 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 472), align 8
+  %87 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 152), align 8
   %88 = bitcast i8* %87 to i32*
   %y50 = load i32, i32* %88, align 4
-  %89 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 471), align 8
+  %89 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 151), align 8
   %90 = bitcast i8* %89 to i32*
   %x51 = load i32, i32* %90, align 4
-  %91 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %91 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %92 = bitcast i8* %91 to i8**
   %it52 = load i8*, i8** %92, align 8
-  %93 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 470), align 8
+  %93 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 150), align 8
   %94 = bitcast i8* %93 to i32*
   %cols53 = load i32, i32* %94, align 4
   %95 = call i8* @string_substring(i8* %it52, i32 0, i32 %cols53)
@@ -10182,21 +10340,21 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %block_2 = alloca void (i8*, i32, i1*)*
   store void (i8*, i32, i1*)* %block_, void (i8*, i32, i1*)** %block_2, align 8
   %3 = bitcast void (i8*, i32, i1*)** %block_2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %self3 = load %list__charp*, %list__charp** %self1, align 8
   %4 = getelementptr inbounds %list__charp, %list__charp* %self3, i32 0, i32 0
   %5 = load %list_item__charp*, %list_item__charp** %4, align 8
   %it_ = alloca %list_item__charp*
   %6 = bitcast %list_item__charp** %it_ to i8*
-  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %5, %list_item__charp** %it_, align 8
   %i_ = alloca i32
   %7 = bitcast i32* %i_ to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   store i32 0, i32* %i_, align 4
   br label %loop_top_block
 
@@ -10208,17 +10366,17 @@ loop_top_block:                                   ; preds = %cond_end, %entry
 cond_then_block:                                  ; preds = %loop_top_block
   %end_flag_ = alloca i1
   %8 = bitcast i1* %end_flag_ to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   store i1 false, i1* %end_flag_, align 1
-  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %10 = bitcast i8* %9 to void (i8*, i32, i1*)**
   %block_5 = load void (i8*, i32, i1*)*, void (i8*, i32, i1*)** %10, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %12 = bitcast i8* %11 to %list_item__charp**
   %it_6 = load %list_item__charp*, %list_item__charp** %12, align 8
   %13 = getelementptr inbounds %list_item__charp, %list_item__charp* %it_6, i32 0, i32 0
   %14 = load i8*, i8** %13, align 8
-  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %16 = bitcast i8* %15 to i32*
   %i_7 = load i32, i32* %16, align 4
   %end_flag_8 = load i1, i1* %end_flag_, align 1
@@ -10236,19 +10394,19 @@ cond_jump_then:                                   ; preds = %cond_then_block
   br label %cond_end_block
 
 cond_end:                                         ; preds = %after_break, %cond_then_block
-  %19 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %19 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %20 = bitcast i8* %19 to %list_item__charp**
   %it_10 = load %list_item__charp*, %list_item__charp** %20, align 8
   %21 = getelementptr inbounds %list_item__charp, %list_item__charp* %it_10, i32 0, i32 2
   %22 = load %list_item__charp*, %list_item__charp** %21, align 8
-  %23 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %23 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %24 = bitcast i8* %23 to %list_item__charp**
   store %list_item__charp* %22, %list_item__charp** %24, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %26 = bitcast i8* %25 to i32*
   %i_11 = load i32, i32* %26, align 4
   %addtmp = add nsw i32 %i_11, 1
-  %27 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %27 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %28 = bitcast i8* %27 to i32*
   store i32 %addtmp, i32* %28, align 4
   %subttmp = sub nsw i32 %addtmp, 1
@@ -10266,7 +10424,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 2
   %4 = load i32, i32* %3, align 4
@@ -10283,69 +10441,69 @@ entry:
   %it1 = alloca i32
   store i32 %it, i32* %it1, align 4
   %2 = bitcast i32* %it1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %it22 = alloca i32
   store i32 %it2, i32* %it22, align 4
   %3 = bitcast i32* %it22 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %it33 = alloca i1*
   store i1* %it3, i1** %it33, align 8
   %4 = bitcast i1** %it33 to i8*
-  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
-  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
+  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %6 = bitcast i8* %5 to i32*
   %x = load i32, i32* %6, align 4
-  %7 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %7 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %8 = bitcast i8* %7 to i32*
   %title_len = load i32, i32* %8, align 4
   %addtmp = add nsw i32 %x, %title_len
-  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
   %10 = bitcast i8* %9 to i32*
   %maxx = load i32, i32* %10, align 4
   %letmp = icmp slt i32 %addtmp, %maxx
   br i1 %letmp, label %cond_jump_then, label %cond_end
 
 cond_jump_then:                                   ; preds = %entry
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %12 = bitcast i8* %11 to i32*
   %it4 = load i32, i32* %12, align 4
   %13 = call %sCLHeapMem* @get_object_pointer(i32 %it4)
   %14 = bitcast %sCLHeapMem* %13 to %sCLJob*
   %job = alloca %sCLJob*
   %15 = bitcast %sCLJob** %job to i8*
-  store i8* %15, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  store i8* %15, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   store %sCLJob* %14, %sCLJob** %job, align 8
-  %16 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %16 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %17 = bitcast i8* %16 to i32*
   %maxy = load i32, i32* %17, align 4
   %addtmp5 = add nsw i32 %maxy, 1
-  %18 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %18 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %19 = bitcast i8* %18 to i32*
   %x6 = load i32, i32* %19, align 4
-  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %21 = bitcast i8* %20 to i32*
   %it27 = load i32, i32* %21, align 4
   %job8 = load %sCLJob*, %sCLJob** %job, align 8
   %22 = getelementptr inbounds %sCLJob, %sCLJob* %job8, i32 0, i32 3
   %23 = bitcast [32 x i8]* %22 to i8*
   %24 = call i8* @string(i8* %23)
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %26 = bitcast i8* %25 to i32*
   %title_len9 = load i32, i32* %26, align 4
   %subttmp = sub nsw i32 %title_len9, 3
   %27 = call i8* @string_substring(i8* %24, i32 0, i32 %subttmp)
   %28 = call i32 (i32, i32, i8*, ...) @mvprintw(i32 %addtmp5, i32 %x6, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @global_string.306, i32 0, i32 0), i32 %it27, i8* %27)
-  %29 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %29 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %30 = bitcast i8* %29 to i32*
   %x10 = load i32, i32* %30, align 4
-  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %31 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %32 = bitcast i8* %31 to i32*
   %title_len11 = load i32, i32* %32, align 4
   %addtmp12 = add nsw i32 %x10, %title_len11
-  %33 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 462), align 8
+  %33 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 142), align 8
   %34 = bitcast i8* %33 to i32*
   store i32 %addtmp12, i32* %34, align 4
-  %35 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %35 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %36 = bitcast i8* %35 to i32*
   %title_len13 = load i32, i32* %36, align 4
   %subttmp14 = sub nsw i32 %addtmp12, %title_len13
@@ -10383,21 +10541,21 @@ entry:
   %self1 = alloca %list__int*
   store %list__int* %self, %list__int** %self1, align 8
   %2 = bitcast %list__int** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %block_2 = alloca void (i32, i32, i1*)*
   store void (i32, i32, i1*)* %block_, void (i32, i32, i1*)** %block_2, align 8
   %3 = bitcast void (i32, i32, i1*)** %block_2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %self3 = load %list__int*, %list__int** %self1, align 8
   %4 = getelementptr inbounds %list__int, %list__int* %self3, i32 0, i32 0
   %5 = load %list_item__int*, %list_item__int** %4, align 8
   %it_ = alloca %list_item__int*
   %6 = bitcast %list_item__int** %it_ to i8*
-  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %6, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__int* %5, %list_item__int** %it_, align 8
   %i_ = alloca i32
   %7 = bitcast i32* %i_ to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   store i32 0, i32* %i_, align 4
   br label %loop_top_block
 
@@ -10409,17 +10567,17 @@ loop_top_block:                                   ; preds = %cond_end, %entry
 cond_then_block:                                  ; preds = %loop_top_block
   %end_flag_ = alloca i1
   %8 = bitcast i1* %end_flag_ to i8*
-  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 467), align 8
+  store i8* %8, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 147), align 8
   store i1 false, i1* %end_flag_, align 1
-  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %9 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %10 = bitcast i8* %9 to void (i32, i32, i1*)**
   %block_5 = load void (i32, i32, i1*)*, void (i32, i32, i1*)** %10, align 8
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %12 = bitcast i8* %11 to %list_item__int**
   %it_6 = load %list_item__int*, %list_item__int** %12, align 8
   %13 = getelementptr inbounds %list_item__int, %list_item__int* %it_6, i32 0, i32 0
   %14 = load i32, i32* %13, align 4
-  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %15 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %16 = bitcast i8* %15 to i32*
   %i_7 = load i32, i32* %16, align 4
   %end_flag_8 = load i1, i1* %end_flag_, align 1
@@ -10437,19 +10595,19 @@ cond_jump_then:                                   ; preds = %cond_then_block
   br label %cond_end_block
 
 cond_end:                                         ; preds = %after_break, %cond_then_block
-  %19 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %19 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %20 = bitcast i8* %19 to %list_item__int**
   %it_10 = load %list_item__int*, %list_item__int** %20, align 8
   %21 = getelementptr inbounds %list_item__int, %list_item__int* %it_10, i32 0, i32 2
   %22 = load %list_item__int*, %list_item__int** %21, align 8
-  %23 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  %23 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   %24 = bitcast i8* %23 to %list_item__int**
   store %list_item__int* %22, %list_item__int** %24, align 8
-  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %25 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %26 = bitcast i8* %25 to i32*
   %i_11 = load i32, i32* %26, align 4
   %addtmp = add nsw i32 %i_11, 1
-  %27 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 466), align 8
+  %27 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 146), align 8
   %28 = bitcast i8* %27 to i32*
   store i32 %addtmp, i32* %28, align 4
   %subttmp = sub nsw i32 %addtmp, 1
@@ -10467,7 +10625,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 463), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 143), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %eqtmpX = icmp eq %list__charp* %self2, null
   br i1 %eqtmpX, label %cond_jump_then, label %cond_end
@@ -10483,7 +10641,7 @@ cond_end:                                         ; preds = %entry
   %6 = load %list_item__charp*, %list_item__charp** %5, align 8
   %it = alloca %list_item__charp*
   %7 = bitcast %list_item__charp** %it to i8*
-  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  store i8* %7, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   store %list_item__charp* %6, %list_item__charp** %it, align 8
   br label %loop_top_block
 
@@ -10501,7 +10659,7 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret void
 
 cond_jump_then5:                                  ; preds = %cond_then_block
-  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %10 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %11 = bitcast i8* %10 to %list_item__charp**
   %it7 = load %list_item__charp*, %list_item__charp** %11, align 8
   %12 = getelementptr inbounds %list_item__charp, %list_item__charp* %it7, i32 0, i32 0
@@ -10512,19 +10670,19 @@ cond_jump_then5:                                  ; preds = %cond_then_block
   br i1 %16, label %cond_then_block8, label %cond_end9
 
 cond_end6:                                        ; preds = %cond_end9, %cond_then_block
-  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %17 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %18 = bitcast i8* %17 to %list_item__charp**
   %it10 = load %list_item__charp*, %list_item__charp** %18, align 8
   %prev_it = alloca %list_item__charp*
   %19 = bitcast %list_item__charp** %prev_it to i8*
-  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 465), align 8
+  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 145), align 8
   store %list_item__charp* %it10, %list_item__charp** %prev_it, align 8
-  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %20 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %21 = bitcast i8* %20 to %list_item__charp**
   %it11 = load %list_item__charp*, %list_item__charp** %21, align 8
   %22 = getelementptr inbounds %list_item__charp, %list_item__charp* %it11, i32 0, i32 2
   %23 = load %list_item__charp*, %list_item__charp** %22, align 8
-  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 464), align 8
+  %24 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 144), align 8
   %25 = bitcast i8* %24 to %list_item__charp**
   store %list_item__charp* %23, %list_item__charp** %25, align 8
   %prev_it12 = load %list_item__charp*, %list_item__charp** %prev_it, align 8
@@ -10557,7 +10715,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 2
   %4 = load i32, i32* %3, align 4
@@ -10574,7 +10732,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 2
   %4 = load i32, i32* %3, align 4
@@ -10591,33 +10749,33 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %position2 = alloca i32
   store i32 %position, i32* %position2, align 4
   %3 = bitcast i32* %position2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %default_value3 = alloca i8*
   store i8* %default_value, i8** %default_value3, align 8
   %4 = bitcast i8** %default_value3 to i8*
-  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %position4 = load i32, i32* %position2, align 4
   %letmp = icmp slt i32 %position4, 0
   br i1 %letmp, label %cond_jump_then, label %cond_end
 
 cond_jump_then:                                   ; preds = %entry
-  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %6 = bitcast i8* %5 to i32*
   %position5 = load i32, i32* %6, align 4
-  %7 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %7 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %8 = bitcast i8* %7 to %list__charp**
   %self6 = load %list__charp*, %list__charp** %8, align 8
   %9 = getelementptr inbounds %list__charp, %list__charp* %self6, i32 0, i32 2
   %10 = load i32, i32* %9, align 4
   %addtmp = add nsw i32 %position5, %10
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %12 = bitcast i8* %11 to i32*
   store i32 %addtmp, i32* %12, align 4
-  %13 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %13 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %14 = bitcast i8* %13 to %list__charp**
   %self7 = load %list__charp*, %list__charp** %14, align 8
   %15 = getelementptr inbounds %list__charp, %list__charp* %self7, i32 0, i32 2
@@ -10631,11 +10789,11 @@ cond_end:                                         ; preds = %cond_jump_then, %en
   %18 = load %list_item__charp*, %list_item__charp** %17, align 8
   %it = alloca %list_item__charp*
   %19 = bitcast %list_item__charp** %it to i8*
-  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   store %list_item__charp* %18, %list_item__charp** %it, align 8
   %i = alloca i32
   %20 = bitcast i32* %i to i8*
-  store i8* %20, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  store i8* %20, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   store i32 0, i32* %i, align 4
   br label %loop_top_block
 
@@ -10645,10 +10803,10 @@ loop_top_block:                                   ; preds = %cond_end13, %cond_e
   br i1 %noteqtmp, label %cond_then_block, label %cond_end_block
 
 cond_then_block:                                  ; preds = %loop_top_block
-  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %22 = bitcast i8* %21 to i32*
   %position10 = load i32, i32* %22, align 4
-  %23 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %23 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %24 = bitcast i8* %23 to i32*
   %i11 = load i32, i32* %24, align 4
   %eqtmpX = icmp eq i32 %position10, %i11
@@ -10661,7 +10819,7 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret i8* %default_value19
 
 cond_jump_then12:                                 ; preds = %cond_then_block
-  %27 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %27 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %28 = bitcast i8* %27 to %list_item__charp**
   %it14 = load %list_item__charp*, %list_item__charp** %28, align 8
   %29 = getelementptr inbounds %list_item__charp, %list_item__charp* %it14, i32 0, i32 0
@@ -10671,19 +10829,19 @@ cond_jump_then12:                                 ; preds = %cond_then_block
   ret i8* %30
 
 cond_end13:                                       ; preds = %cond_then_block
-  %33 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %33 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %34 = bitcast i8* %33 to %list_item__charp**
   %it15 = load %list_item__charp*, %list_item__charp** %34, align 8
   %35 = getelementptr inbounds %list_item__charp, %list_item__charp* %it15, i32 0, i32 2
   %36 = load %list_item__charp*, %list_item__charp** %35, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %38 = bitcast i8* %37 to %list_item__charp**
   store %list_item__charp* %36, %list_item__charp** %38, align 8
-  %39 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %39 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %40 = bitcast i8* %39 to i32*
   %i16 = load i32, i32* %40, align 4
   %addtmp17 = add nsw i32 %i16, 1
-  %41 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 461), align 8
+  %41 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 141), align 8
   %42 = bitcast i8* %41 to i32*
   store i32 %addtmp17, i32* %42, align 4
   %subttmp18 = sub nsw i32 %addtmp17, 1
@@ -10698,33 +10856,33 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
   %position2 = alloca i32
   store i32 %position, i32* %position2, align 4
   %3 = bitcast i32* %position2 to i8*
-  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  store i8* %3, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %default_value3 = alloca i8*
   store i8* %default_value, i8** %default_value3, align 8
   %4 = bitcast i8** %default_value3 to i8*
-  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 458), align 8
+  store i8* %4, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 138), align 8
   %position4 = load i32, i32* %position2, align 4
   %letmp = icmp slt i32 %position4, 0
   br i1 %letmp, label %cond_jump_then, label %cond_end
 
 cond_jump_then:                                   ; preds = %entry
-  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %5 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %6 = bitcast i8* %5 to i32*
   %position5 = load i32, i32* %6, align 4
-  %7 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  %7 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
   %8 = bitcast i8* %7 to %list__charp**
   %self6 = load %list__charp*, %list__charp** %8, align 8
   %9 = getelementptr inbounds %list__charp, %list__charp* %self6, i32 0, i32 2
   %10 = load i32, i32* %9, align 4
   %addtmp = add nsw i32 %position5, %10
-  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %11 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %12 = bitcast i8* %11 to i32*
   store i32 %addtmp, i32* %12, align 4
-  %13 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 456), align 8
+  %13 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 136), align 8
   %14 = bitcast i8* %13 to %list__charp**
   %self7 = load %list__charp*, %list__charp** %14, align 8
   %15 = getelementptr inbounds %list__charp, %list__charp* %self7, i32 0, i32 2
@@ -10738,11 +10896,11 @@ cond_end:                                         ; preds = %cond_jump_then, %en
   %18 = load %list_item__charp*, %list_item__charp** %17, align 8
   %it = alloca %list_item__charp*
   %19 = bitcast %list_item__charp** %it to i8*
-  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %19, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   store %list_item__charp* %18, %list_item__charp** %it, align 8
   %i = alloca i32
   %20 = bitcast i32* %i to i8*
-  store i8* %20, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  store i8* %20, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   store i32 0, i32* %i, align 4
   br label %loop_top_block
 
@@ -10752,10 +10910,10 @@ loop_top_block:                                   ; preds = %cond_end13, %cond_e
   br i1 %noteqtmp, label %cond_then_block, label %cond_end_block
 
 cond_then_block:                                  ; preds = %loop_top_block
-  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 457), align 8
+  %21 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 137), align 8
   %22 = bitcast i8* %21 to i32*
   %position10 = load i32, i32* %22, align 4
-  %23 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %23 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %24 = bitcast i8* %23 to i32*
   %i11 = load i32, i32* %24, align 4
   %eqtmpX = icmp eq i32 %position10, %i11
@@ -10768,7 +10926,7 @@ cond_end_block:                                   ; preds = %loop_top_block
   ret i8* %default_value19
 
 cond_jump_then12:                                 ; preds = %cond_then_block
-  %27 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %27 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %28 = bitcast i8* %27 to %list_item__charp**
   %it14 = load %list_item__charp*, %list_item__charp** %28, align 8
   %29 = getelementptr inbounds %list_item__charp, %list_item__charp* %it14, i32 0, i32 0
@@ -10778,19 +10936,19 @@ cond_jump_then12:                                 ; preds = %cond_then_block
   ret i8* %30
 
 cond_end13:                                       ; preds = %cond_then_block
-  %33 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %33 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %34 = bitcast i8* %33 to %list_item__charp**
   %it15 = load %list_item__charp*, %list_item__charp** %34, align 8
   %35 = getelementptr inbounds %list_item__charp, %list_item__charp* %it15, i32 0, i32 2
   %36 = load %list_item__charp*, %list_item__charp** %35, align 8
-  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  %37 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %38 = bitcast i8* %37 to %list_item__charp**
   store %list_item__charp* %36, %list_item__charp** %38, align 8
-  %39 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %39 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %40 = bitcast i8* %39 to i32*
   %i16 = load i32, i32* %40, align 4
   %addtmp17 = add nsw i32 %i16, 1
-  %41 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 460), align 8
+  %41 = load i8*, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 140), align 8
   %42 = bitcast i8* %41 to i32*
   store i32 %addtmp17, i32* %42, align 4
   %subttmp18 = sub nsw i32 %addtmp17, 1
@@ -10805,7 +10963,7 @@ entry:
   %self1 = alloca %list__charp*
   store %list__charp* %self, %list__charp** %self1, align 8
   %2 = bitcast %list__charp** %self1 to i8*
-  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 459), align 8
+  store i8* %2, i8** getelementptr inbounds ([8192 x i8*], [8192 x i8*]* @gLVTable, i32 0, i32 139), align 8
   %self2 = load %list__charp*, %list__charp** %self1, align 8
   %3 = getelementptr inbounds %list__charp, %list__charp* %self2, i32 0, i32 2
   %4 = load i32, i32* %3, align 4
@@ -10819,5 +10977,5 @@ attributes #0 = { nounwind }
 !llvm.dbg.cu = !{!0}
 
 !0 = distinct !DICompileUnit(language: DW_LANG_C, file: !1, producer: "neo-c", isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug, enums: !2)
-!1 = !DIFile(filename: "src/filer.nc", directory: "/home/ab25cq/repo/neo-c/luckystrike")
+!1 = !DIFile(filename: "src/filer.nc", directory: "/data/data/com.termux/files/home/repo/neo-c/iqos")
 !2 = !{}
