@@ -16,6 +16,10 @@ if [ -e sevenstars/Makefile ]
 then
     (cd sevenstars; make distclean)
 fi
+if [ -e iqos/Makefile ]
+then
+    (cd iqos; make distclean)
+fi
 
 if [ ! -e Makefile ]
 then
