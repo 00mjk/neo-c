@@ -9,7 +9,6 @@ int main()
     setlocale(LC_ALL, "");
     initscr();
 
-    clear();
     printw("%ls", "いいいいいいいいいい");
     refresh();
 

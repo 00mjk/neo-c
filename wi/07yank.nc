@@ -9,7 +9,62 @@
 
 impl ViWin version 7
 {
+bool saveYankToFile(ViWin* self, Vi* nvi)
+{
+    char* home = getenv("HOME");
+    if(home == null) {
+        return false;
+    }
+
+    string path = xsprintf("%s/.wi/yank.txt", home);
+    FILE* f = fopen(path, "w");
+
+    if(f == null) {
+        return false;
+    }
+
+    nvi.yank.each {
+        fputs(it.to_string(""), f);
+        fputs("\n", f);
+    }
+
+    fclose(f);
+
+    return true;
+}
+
+bool loadYankFromFile(ViWin* self, Vi* nvi)
+{
+    char* home = getenv("HOME");
+    if(home == null) {
+        return false;
+    }
+
+    string path = xsprintf("%s/.wi/yank.txt", home);
+    FILE* f = fopen(path, "r");
+
+    if(f == null) {
+        return false;
+    }
+
+    char line[4096];
+
+    nvi.yank.reset();
+
+    while(fgets(line, 4096, f) != NULL)
+    {
+        char c = line[strlen(line)-1];
+        line[strlen(line)-1] = '\0';
+        nvi.yank.push_back(wstring(line))
+    }
+
+    fclose(f);
+
+    return true;
+}
+
 void pasteAfterCursor(ViWin* self, Vi* nvi) {
+    self.loadYankFromFile(nvi);
     if(nvi.yankKind == kYankKindLine) {
         self.pushUndo();
 
@@ -77,6 +132,7 @@ void pasteAfterCursor(ViWin* self, Vi* nvi) {
 }
 
 void pasteBeforeCursor(ViWin* self, Vi* nvi) {
+    self.loadYankFromFile(nvi);
     if(nvi.yankKind == kYankKindLine) {
         self.pushUndo();
         nvi.yank.each {

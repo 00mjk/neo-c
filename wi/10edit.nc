@@ -34,6 +34,7 @@ void deleteOneLine(ViWin* self, Vi* nvi) {
             }
         }
         
+        self.saveYankToFile(nvi);
         self.digitInput = 0;
     }
     else {
@@ -43,6 +44,7 @@ void deleteOneLine(ViWin* self, Vi* nvi) {
             nvi.yank.reset();
             nvi.yank.push_back(clone line);
             nvi.yankKind = kYankKindLine;
+            self.saveYankToFile(nvi);
             self.texts.delete(self.scroll+self.cursorY);
     
             self.modifyCursorOnDeleting();
@@ -70,6 +72,7 @@ void deleteOneLine2(ViWin* self, Vi* nvi) {
         }
         
         self.digitInput = 0;
+        self.saveYankToFile(nvi);
     }
     else {
         var line = self.texts.item(self.scroll+self.cursorY, null);
@@ -164,6 +167,7 @@ void deleteWord(ViWin* self, Vi* nvi) {
             nvi.yank.reset();
             nvi.yank.push_back(line.substring(self.cursorX, x));
             nvi.yankKind = kYankKindNoLine;
+            self.saveYankToFile(nvi);
             line.delete_range(self.cursorX, x);
     
             self.modifyCursorOnDeleting();
@@ -245,6 +249,7 @@ void deleteWord(ViWin* self, Vi* nvi) {
             nvi.yank.reset();
             nvi.yank.push_back(line.substring(self.cursorX, x));
             nvi.yankKind = kYankKindNoLine;
+            self.saveYankToFile(nvi);
             line.delete_range(self.cursorX, x);
     
             self.modifyCursorOnDeleting();
@@ -494,6 +499,7 @@ void yankOneLine(ViWin* self, Vi* nvi) {
         }
         
         self.digitInput = 0;
+        self.saveYankToFile(nvi);
     }
     else {
         var line = self.texts.item(self.scroll+self.cursorY, null);
@@ -502,6 +508,7 @@ void yankOneLine(ViWin* self, Vi* nvi) {
             nvi.yank.reset();
             nvi.yank.push_back(clone line);
             nvi.yankKind = kYankKindLine;
+            self.saveYankToFile(nvi);
         }
     }
 }

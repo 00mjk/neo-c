@@ -85,6 +85,7 @@ void yankOnVisualMode(ViWin* self, Vi* nvi) {
     }
     
     nvi.yankKind = kYankKindLine;
+    self.saveYankToFile(nvi);
 }
 
 void indentVisualMode(ViWin* self, Vi* nvi) {

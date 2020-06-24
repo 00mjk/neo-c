@@ -222,6 +222,7 @@ void yankOnHorizonVisualMode(ViWin* self, Vi* nvi) {
         nvi.yank.push_back(clone last_line);
         
         nvi.yankKind = kYankKindNoLine;
+        self.saveYankToFile(nvi);
     }
     else if(y == hv_y) {
         nvi.yank.reset();
@@ -241,6 +242,7 @@ void yankOnHorizonVisualMode(ViWin* self, Vi* nvi) {
         }
         
         nvi.yankKind = kYankKindNoLine;
+        self.saveYankToFile(nvi);
     }
     else {
         nvi.yank.reset();
@@ -255,6 +257,7 @@ void yankOnHorizonVisualMode(ViWin* self, Vi* nvi) {
         
         nvi.yank.push_back(clone last_line);
         nvi.yankKind = kYankKindNoLine;
+        self.saveYankToFile(nvi);
     }
 }
 

@@ -231,6 +231,8 @@ impl ViWin version 7
 {
     void deleteLines(ViWin* self, int head, int tail, Vi* nvi);
     void deleteOneLine(ViWin* self, Vi* nvi);
+    bool saveYankToFile(ViWin* self, Vi* nvi);
+    bool loadYankFromFile(ViWin* self, Vi* nvi);
 }
 
 enum { kYankKindLine, kYankKindNoLine };
