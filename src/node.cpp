@@ -3770,18 +3770,16 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "function parametor type error (%s)\n", real_fun_name);
         info->err_num++;
 
-        fprintf(stderr, "\nfunction parametor\n\n");
+        fprintf(stderr, "defined function parametors\n");
 
         int i;
         for(i=0; i<check_param_num; i++) {
-            printf("param #%d\n", i);
             show_node_type(fun_params[i]);
         }
 
-        fprintf(stderr, "\nparams parametor\n\n");
+        fprintf(stderr, "calling prametors\n");
 
         for(i=0; i<num_params; i++) {
-            printf("param #%d\n", i);
             show_node_type(param_types[i]);
         }
 

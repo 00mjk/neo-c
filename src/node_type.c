@@ -110,29 +110,45 @@ sNodeType* clone_node_type(sNodeType* node_type)
     return node_type2;
 }
 
-void show_node_type(sNodeType* node_type)
+void show_type_core(sNodeType* type) 
 {
-    printf("-+- [%s] array num %d nullable %d pointer num %d heap %d unsigned %d no heap  %d constant %d dynamic array num %d size num %d -+- array_initialize_num %d\n", CLASS_NAME(node_type->mClass), node_type->mArrayNum, node_type->mNullable, node_type->mPointerNum, node_type->mHeap, node_type->mUnsigned, node_type->mNoHeap, node_type->mConstant, node_type->mDynamicArrayNum, node_type->mSizeNum, node_type->mArrayInitializeNum); 
-
-    printf(">>generics type num %d\n>>generics types\n", node_type->mNumGenericsTypes);
+    printf("class %s", CLASS_NAME(type->mClass));
     int i;
-    for(i=0; i<node_type->mNumGenericsTypes; i++)
-    {
-        printf(">>generics type #%d\n", i);
-        show_node_type(node_type->mGenericsTypes[i]);
+    for(i=0; i<type->mPointerNum; i++) {
+        printf("*");
     }
+    if(type->mHeap) {
+        printf("%");
+    }
+    if(type->mNumGenericsTypes > 0) {
+        printf("<");
+        int i;
+        for(i=0; i<type->mNumGenericsTypes; i++) {
+            show_type_core(type->mGenericsTypes[i]);
+        }
+        printf(">");
+    }
+    if(type->mNullable) {
+        printf("?");
+    }
+    
+    printf("(");
+    for(i=0; i<type->mNumParams; i++)
+    {
+        show_node_type(type->mParamTypes[i]);
+        puts(" ");
+    }
+    printf(")");
+    if(type->mResultType) {
+        show_node_type(type->mResultType);
+    }
+}
 
-    printf(">>lambda type num %d\n", node_type->mNumParams);
-    printf(">>lambda result type\n");
-    if(node_type->mResultType) {
-        show_node_type(node_type->mResultType);
-    }
-    printf(">>lambda param types\n");
-    for(i=0; i<node_type->mNumParams; i++)
-    {
-        printf(">>lambda param type #%d\n", i);
-        show_node_type(node_type->mParamTypes[i]);
-    }
+
+void show_node_type(sNodeType* type)
+{
+    show_type_core(type);
+    puts("");
 }
 
 static void skip_spaces_for_parse_class_name(char** p) 

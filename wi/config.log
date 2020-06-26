@@ -27,6 +27,9 @@ uname -v = #1 SMP Debian 4.19.98-1 (2020-01-26)
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
 
+PATH: /home/ab25cq/.gem/bin
+PATH: /home/ab25cq/.rvm/bin/
+PATH: /home/ab25cq/bin
 PATH: /home/ab25cq/bin
 PATH: /home/ab25cq/.gem/bin
 PATH: /home/ab25cq/.rvm/bin/
@@ -450,6 +453,7 @@ on clover-lang.org
 
 config.status:810: creating Makefile
 config.status:810: creating config.h
+config.status:985: config.h is unchanged
 
 ## ---------------- ##
 ## Cache variables. ##
