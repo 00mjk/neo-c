@@ -1,4 +1,4 @@
-CTRL-Z
+when deleting all texts, occurs segmentation falt
 save /tmp tmp texts
 backup 
 yank save when finishing
@@ -106,3 +106,5 @@ delete last line visual mode seg fault
 wide charater insert text
 * _
 # _
+--------
+CTRL-Z

@@ -31,11 +31,11 @@ void textsView(ViWin* self, Vi* nvi)
     int maxy = getmaxy(self.win);
     int maxx = getmaxx(self.win);
 
-    var cursor_line = self.texts.item(self.scroll + self.cursorY, null).printable();
-        
-    int cursor_height = (wcswidth(cursor_line, cursor_line.length()) / (maxx-1));
-
     if(self.texts.length() > 0) {
+        var cursor_line = self.texts.item(self.scroll + self.cursorY, null).printable();
+            
+        int cursor_height = (wcswidth(cursor_line, cursor_line.length()) / (maxx-1));
+
         self.texts
             .sublist(self.scroll, self.scroll+maxy-1)
             .each 
