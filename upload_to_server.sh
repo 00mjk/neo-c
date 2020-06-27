@@ -12,6 +12,14 @@ if [ -e tinyvm/Makefile ]
 then
     (cd tinyvm; make distclean)
 fi
+if [ -e wi/Makefile ]
+then
+    (cd wi; make distclean)
+fi
+if [ -e ploomtech/Makefile ]
+then
+    (cd ploomtech; make distclean)
+fi
 
 if [ ! -e Makefile ]
 then
