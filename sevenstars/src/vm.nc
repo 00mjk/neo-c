@@ -1433,6 +1433,9 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                         if(last_method_chain) {
                             if(!invoke_command_with_control_terminal(method_name, argv, num_params, &stack_ptr, info))
                             {
+                                setpgid(getpid(), getpid());
+                                tcsetpgrp(0, getpid());
+
                                 vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", method_name));
                                 info.stack_frames.pop_back(null_parent_stack_frame);
                                 return false;
@@ -1441,6 +1444,9 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                         else {
                             if(!invoke_command(method_name, argv, &stack_ptr, num_params, info))
                             {
+                                setpgid(getpid(), getpid());
+                                tcsetpgrp(0, getpid());
+
                                 vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", method_name));
                                 info.stack_frames.pop_back(null_parent_stack_frame);
                                 return false;
@@ -1451,6 +1457,9 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                         if(last_method_chain) {
                             if(!invoke_command_with_control_terminal_and_pipe(parent_obj, method_name, argv, num_params, &stack_ptr, info))
                             {
+                                setpgid(getpid(), getpid());
+                                tcsetpgrp(0, getpid());
+
                                 vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", method_name));
                                 info.stack_frames.pop_back(null_parent_stack_frame);
                                 info.stack_frames.pop_back(null_parent_stack_frame);
@@ -1460,6 +1469,9 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                         else {
                             if(!invoke_command_with_pipe(parent_obj, method_name, argv, &stack_ptr, num_params, info))
                             {
+                                setpgid(getpid(), getpid());
+                                tcsetpgrp(0, getpid());
+
                                 vm_err_msg(&stack_ptr, info, xsprintf("invoke command error(%s)", method_name));
                                 info.stack_frames.pop_back(null_parent_stack_frame);
                                 return false;
