@@ -425,6 +425,9 @@ bool invoke_command_with_control_terminal(char* name, char** argv, int num_param
     pid_t pid2 = waitpid(pid, &status, WUNTRACED);
 
     if(WEXITSTATUS(status) == 64) {
+        setpgid(getpid(), getpid());
+        tcsetpgrp(0, getpid());
+
         vm_err_msg(stack_ptr, info, xsprintf("command not found(%s)\n", name));
         return false;
     }
@@ -619,6 +622,9 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
     pid_t pid2 = waitpid(pid, &status, WUNTRACED);
 
     if(WEXITSTATUS(status) == 64) {
+        setpgid(getpid(), getpid());
+        tcsetpgrp(0, getpid());
+
         vm_err_msg(stack_ptr, info, xsprintf("command not found(%s)\n", name));
         return false;
     }
