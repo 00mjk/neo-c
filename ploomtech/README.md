@@ -1,7 +1,6 @@
-# luckystrike console filer
+# ploom tech console filer
 
 This requires sevenstars computer language and wi text editor
-
 
 version 1.0.0
 

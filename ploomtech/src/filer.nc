@@ -16,7 +16,7 @@ int xgetmaxy()
     return ws.ws_row;
 }
 
-impl iQos 
+impl PloomTech 
 {
 initialize()
 {
@@ -42,12 +42,12 @@ finalize()
     self.exit();
 }
 
-void exit(iQos* self)
+void exit(PloomTech* self)
 {
     endwin();
 }
 
-bool main_loop(iQos* self)
+bool main_loop(PloomTech* self)
 {
     while(!self.app_end) {
         self.filer.view();
@@ -61,10 +61,10 @@ bool main_loop(iQos* self)
 
 impl Filer 
 {
-initialize(char* path, iQos* iqos)
+initialize(char* path, PloomTech* ploomtech)
 {
     self.path = string(path);
-    self.iqos = iqos;
+    self.ploomtech = ploomtech;
     self.files = new list<string>.initialize();
     self.cursor = 0;
     self.page = 0;
@@ -226,7 +226,7 @@ void input(Filer* self)
     else {
         switch(key) {
             case 'q':
-                self.iqos.app_end = true;
+                self.ploomtech.app_end = true;
                 break;
 
             case KEY_ENTER:
@@ -255,7 +255,7 @@ void input(Filer* self)
 
             case 'd': {
                 endwin();
-                shell_commandline(xsprintf("rm(\"-rf\", \"%s\")", self.cursor_file()), -3, self.iqos.types);
+                shell_commandline(xsprintf("rm(\"-rf\", \"%s\")", self.cursor_file()), -3, self.ploomtech.types);
                 self.read_dir();
                 initscr();
                 getch();
@@ -267,7 +267,7 @@ void input(Filer* self)
 
             case 'c': {
                 endwin();
-                shell_commandline(xsprintf("cp(\"-r\", \"%s\", \"\")", self.cursor_file()), -3, self.iqos.types);
+                shell_commandline(xsprintf("cp(\"-r\", \"%s\", \"\")", self.cursor_file()), -3, self.ploomtech.types);
                 self.read_dir();
                 initscr();
                 getch();
@@ -279,7 +279,7 @@ void input(Filer* self)
 
             case 'm': {
                 endwin();
-                shell_commandline(xsprintf("mv(\"%s\", \"\")", self.cursor_file()), -3, self.iqos.types);
+                shell_commandline(xsprintf("mv(\"%s\", \"\")", self.cursor_file()), -3, self.ploomtech.types);
                 self.read_dir();
                 initscr();
                 getch();
@@ -291,7 +291,7 @@ void input(Filer* self)
 
             case 'n': {
                 endwin();
-                shell_commandline(xsprintf("touch(\"\")"), -3, self.iqos.types);
+                shell_commandline(xsprintf("touch(\"\")"), -3, self.ploomtech.types);
                 self.read_dir();
                 initscr();
                 keypad(stdscr, true);
@@ -302,7 +302,7 @@ void input(Filer* self)
 
             case 'x': {
                 endwin();
-                shell_commandline(xsprintf("(\"./%s\")", self.cursor_file()), 0, self.iqos.types);
+                shell_commandline(xsprintf("(\"./%s\")", self.cursor_file()), 0, self.ploomtech.types);
                 self.read_dir();
                 initscr();
                 getch();
@@ -314,7 +314,7 @@ void input(Filer* self)
 
             case 'e': {
                 endwin();
-                shell_run_command(xsprintf("wi(\"%s\")", self.cursor_file()), self.iqos.types);
+                shell_run_command(xsprintf("wi(\"%s\")", self.cursor_file()), self.ploomtech.types);
                 initscr();
                 keypad(stdscr, true);
                 raw();
@@ -349,7 +349,7 @@ void input(Filer* self)
 
             case ':': {
                 endwin();
-                shell_run_command("bash()", self.iqos.types);
+                shell_run_command("bash()", self.ploomtech.types);
                 self.read_dir();
                 initscr();
                 keypad(stdscr, true);
