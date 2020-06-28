@@ -242,6 +242,16 @@ void input(Filer* self)
                 if(is_dir) {
                     self.chage_directory(path, null);
                 }
+                else {
+                    endwin();
+                    shell_commandline(xsprintf(" %s", self.cursor_file()), 0, self.ploomtech.types);
+                    self.read_dir();
+                    initscr();
+                    getch();
+                    keypad(stdscr, true);
+                    raw();
+                    noecho();
+                }
                 }
                 break;
 

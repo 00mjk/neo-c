@@ -336,7 +336,7 @@ configure:4032: $? = 0
 configure:4041: result: yes
 configure:4070: checking for lchmod
 configure:4070: gcc -o conftest  -O2   conftest.c  -ldl -lm -lpcre -lncursesw -lrt -lpthread >&5
-/data/data/com.termux/files/usr/bin/aarch64-linux-android-ld: /data/data/com.termux/files/usr/tmp/conftest-7b860d.o: in function `main':
+/data/data/com.termux/files/usr/bin/aarch64-linux-android-ld: /data/data/com.termux/files/usr/tmp/conftest-32ffb4.o: in function `main':
 conftest.c:(.text+0x8): undefined reference to `lchmod'
 clang-9: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:4070: $? = 1

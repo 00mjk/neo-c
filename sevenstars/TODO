@@ -1,12 +1,8 @@
-cd
-
-コマンド名間違っていたとき
 
 メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
 
 親クラスのメソッド呼び出し。super
 
-ファイルの書き込み。stringクラスにwrite,append
 
 --------------
 vm return false message
@@ -37,3 +33,6 @@ C-z, jobs, fg
 sevenstars.ssとクラスファイルの検索パス
 
 リフレクション。
+cd
+コマンド名間違っていたとき
+ファイルの書き込み。stringクラスにwrite,append
