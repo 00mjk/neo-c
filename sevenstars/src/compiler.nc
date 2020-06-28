@@ -766,8 +766,6 @@ char** completer(char* text, int start, int end)
 
     current_line = line_buffer_from_head_to_cursor_point();
 
-    bool inputing_method = true;
-
     char* p = current_line;
 
     bool in_dquort = false;
@@ -780,10 +778,21 @@ char** completer(char* text, int start, int end)
             p++;
         }
     }
-    
+
+    p = current_line;
+
+    bool in_shell = false;
+    while(isalnum(*p) || *p == '-' || *p == '_') {
+        p++;
+    }
+
+    if(*p == ' ') {
+        in_shell = true;
+    }
 
     p = current_line + strlen(current_line) - 1;
 
+    bool inputing_method = true;
     while(p >= current_line) {
         if(isalnum(*p) || *p == '_') {
             p--;
@@ -795,6 +804,7 @@ char** completer(char* text, int start, int end)
             while(*p == ' ') {
                 p--;
             }
+            inputing_method = false;
             break;
         }
         else if(*p == '{') {
@@ -807,14 +817,16 @@ char** completer(char* text, int start, int end)
     }
 
     /// is method completion ? ///
-    if(!inputing_method || in_dquort) {
+    if(!inputing_method || in_dquort || in_shell) {
         rl_attempted_completion_over = 0;
         rl_completion_append_character = '\0';
+        rl_completer_word_break_characters = " ({";
 
         return null;
     }
     else {
         rl_attempted_completion_over = 1;
+        rl_completer_word_break_characters = " .({";
 
         return rl_completion_matches(text, completion_generator);
     }

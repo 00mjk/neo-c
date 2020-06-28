@@ -83,6 +83,7 @@ bool chage_directory(Filer* self, char* path, char* cursor_file)
     (void)self.read_dir();
 
     chdir(self.path);
+    setenv("PWD", self.path, 1);
 
     if(cursor_file) {
         self.files.each {

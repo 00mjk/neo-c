@@ -130,6 +130,23 @@ string parse_word(sParserInfo* info)
     return result.to_string();
 }
 
+string parse_word_for_shell(sParserInfo* info)
+{
+    parse_comment(info);
+
+    buffer*% result = new buffer.initialize();
+
+    while(isalnum(*info->p) || *info->p == '_' || *info->p == '-' || *info->p == '/' || *info->p == '.') {
+        result.append_char(*info->p);
+        info->p++;
+    }
+
+    skip_spaces_and_lf(info);
+
+    
+    return result.to_string();
+}
+
 void expected_next_character(char c, sParserInfo* info) 
 {
     parse_comment(info);
@@ -726,6 +743,58 @@ bool parse_calling_params(int* num_params, sCLNode** params, bool* param_closed,
     return true;
 }
 
+bool parse_shell_params(int* num_params, sCLNode** params, sParserInfo* info) 
+{
+    while(true) {
+        if(*info->p == '\0') {
+            break;
+        }
+        if(*info->p == ';') {
+            expected_next_character(';', info);
+            break;
+        }
+        if(*info->p == '}') {
+            break;
+        }
+        
+        buffer*% buf = new buffer.initialize();
+
+        while(*info->p != '\0' && *info->p != ' ' && *info->p != '}') {
+            buf.append_char(*info->p);
+            info->p++;
+        }
+
+        while(*info->p == ' ') {
+            info->p++;
+        }
+        
+        var str = buf.to_string();
+
+        sCLNode* node = sNodeTree_create_string_value(str, info);
+
+        params[*num_params] = node;
+        (*num_params)++;
+
+        if(*num_params >= PARAMS_MAX) {
+            fprintf(stderr, "overflow pram number\n");
+            exit(1);
+        }
+
+        if(*info->p == ';') {
+            expected_next_character(';', info);
+            break;
+        }
+        else if(*info->p == '\0') {
+            break;
+        }
+        else if(*info->p == '}') {
+            break;
+        }
+    }
+
+    return true;
+}
+
 static bool postposition_operator(sCLNode** node, sParserInfo* info)
 {
     if(*node == null) {
@@ -988,6 +1057,9 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
     }
     /// alnum ///
     else if(isalpha(*info->p) || *info->p == '_') {
+        char* p = info->p;
+        int sline = info->sline;
+
         var word = parse_word(info);
 
         if(strcmp(word, "var") == 0) {
@@ -1140,6 +1212,11 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 puts("ok");
             }
         }
+        else if(strcmp(word, "cd") == 0) {
+            string word2 = parse_word_for_shell(info);
+
+            *node = sNodeTree_create_cd(word2, info);
+        }
         else if(strcmp(word, "eval") == 0) {
             expected_next_character('(', info);
 
@@ -1284,8 +1361,12 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 }
             }
             else {
-                sCLNode* params[PARAMS_MAX];
+                info->p = p;
+                info->sline = sline;
 
+                var word = parse_word_for_shell(info);
+
+                sCLNode* params[PARAMS_MAX];
                 if(*node == 0) {
                     params[0] = sNodeTree_create_command_value(info);
                 }
@@ -1295,20 +1376,12 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
                 int num_params = 1;
 
-                sCLNode* node2 = null;
-                if(!expression(&node2, info)) {
+                if(!parse_shell_params(&num_params, params, info)) 
+                {
                     return false;
                 };
 
-                params[num_params] = node2;
-                num_params++;
-
-                if(num_params >= PARAMS_MAX) {
-                    fprintf(stderr, "overflow pram number\n");
-                    exit(1);
-                }
-
-                bool param_closed = false;
+                bool param_closed = true;
                 *node = sNodeTree_create_method_call(word, num_params, params, param_closed, info);
             }
         }

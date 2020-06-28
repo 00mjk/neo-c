@@ -2811,6 +2811,38 @@ static bool compile_eval(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_cd(char* path, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeCd;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    xstrncpy(result.uValue.uCd.mPath, path, PATH_MAX);
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_cd(sCLNode* node, sCompileInfo* info)
+{
+    char* path = node.uValue.uCd.mPath;
+
+    info.codes.append_int(OP_CD);
+    info.codes.append_nullterminated_str(path);
+
+    info.codes.alignment();
+
+    info->type = create_type("void", info.pinfo.types);
+
+    return true;
+}
+
 bool compile(sCLNode* node, sCompileInfo* info) 
 {
     if(node == null) {
@@ -3111,6 +3143,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
 
         case kNodeTypeEval:
             if(!compile_eval(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeCd:
+            if(!compile_cd(node, info)) {
                 return false;
             }
             break;

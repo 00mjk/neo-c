@@ -1352,6 +1352,50 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 }
                 break;
 
+            case OP_CD: {
+                char* str = (char*)p;
+                int len = strlen(str) + 1;
+
+                alignment(&len);
+
+                len = len / sizeof(int);
+
+                p += len;
+
+                if(str[0] == '/') {
+                    string path = string(str);
+
+                    if(chdir(path) < 0) {
+                        vm_err_msg(&stack_ptr, info, "chdir is failed");
+                        info.stack_frames.pop_back(null_parent_stack_frame);
+                        return false;
+                    }
+                    setenv("PWD", path, 1);
+                }
+                else if(strcmp(str, "") == 0) {
+                    string path = xrealpath(string(getenv("HOME")));
+
+                    if(chdir(path) < 0) {
+                        vm_err_msg(&stack_ptr, info, "chdir is failed");
+                        info.stack_frames.pop_back(null_parent_stack_frame);
+                        return false;
+                    }
+                    setenv("PWD", path, 1);
+                }
+                else {
+                    string path = xrealpath(string(getenv("PWD")) + string("/") + string(str));
+
+                    if(chdir(path) < 0) {
+                        vm_err_msg(&stack_ptr, info, "chdir is failed");
+                        info.stack_frames.pop_back(null_parent_stack_frame);
+                        return false;
+                    }
+                    setenv("PWD", path, 1);
+                }
+
+                }
+                break;
+
             case OP_INVOKE_METHOD: { 
                 char* method_name = (char*)p;
 
