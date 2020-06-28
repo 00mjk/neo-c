@@ -303,7 +303,7 @@ void input(Filer* self)
 
             case 'x': {
                 endwin();
-                shell_commandline(xsprintf("(\"./%s\")", self.cursor_file()), 0, self.ploomtech.types);
+                shell_commandline(xsprintf(" ./%s", self.cursor_file()), 0, self.ploomtech.types);
                 self.read_dir();
                 initscr();
                 getch();
