@@ -256,7 +256,7 @@ void input(Filer* self)
 
             case 'd': {
                 endwin();
-                shell_commandline(xsprintf("rm(\"-rf\", \"%s\")", self.cursor_file()), -3, self.ploomtech.types);
+                shell_commandline(xsprintf("rm -rf %s", self.cursor_file()), -1, self.ploomtech.types);
                 self.read_dir();
                 initscr();
                 getch();
@@ -268,7 +268,7 @@ void input(Filer* self)
 
             case 'c': {
                 endwin();
-                shell_commandline(xsprintf("cp(\"-r\", \"%s\", \"\")", self.cursor_file()), -3, self.ploomtech.types);
+                shell_commandline(xsprintf("cp -r %s ", self.cursor_file()), -1, self.ploomtech.types);
                 self.read_dir();
                 initscr();
                 getch();
@@ -280,7 +280,7 @@ void input(Filer* self)
 
             case 'm': {
                 endwin();
-                shell_commandline(xsprintf("mv(\"%s\", \"\")", self.cursor_file()), -3, self.ploomtech.types);
+                shell_commandline(xsprintf("mv %s ", self.cursor_file()), -1, self.ploomtech.types);
                 self.read_dir();
                 initscr();
                 getch();
@@ -292,7 +292,7 @@ void input(Filer* self)
 
             case 'n': {
                 endwin();
-                shell_commandline(xsprintf("touch(\"\")"), -3, self.ploomtech.types);
+                shell_commandline(xsprintf("touch "), -1, self.ploomtech.types);
                 self.read_dir();
                 initscr();
                 keypad(stdscr, true);
