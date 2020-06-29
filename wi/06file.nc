@@ -170,6 +170,7 @@ void writeFile(ViWin* self) {
 
         self.writed = false;
         self.saveCursorPosition(self.fileName);
+        self.saveDotToFile(self.vi);
     }
 }
 void writedFlagOn(ViWin* self) {

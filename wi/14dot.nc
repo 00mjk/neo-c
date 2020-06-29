@@ -67,6 +67,64 @@ initialize(int y, int x, int width, int height, Vi* vi) {
     self.recordingMacro = null;
     
     self.runningMacro = null;
+    
+    (void)self.loadDotFromFile(vi);
+}
+
+bool saveDotToFile(ViWin* self, Vi* nvi)
+{
+    char* home = getenv("HOME");
+    if(home == null) {
+        return false;
+    }
+
+    string path = xsprintf("%s/.wi/dot.txt", home);
+    FILE* f = fopen(path, "w");
+
+    if(f == null) {
+        return false;
+    }
+    
+    self.savedInputedKeys.each {
+        if(fputc(it, f) < 0) {
+            *it3 = true;
+            return;
+        }
+    }
+
+    fclose(f);
+
+    return true;
+}
+
+bool loadDotFromFile(ViWin* self, Vi* nvi)
+{
+    char* home = getenv("HOME");
+    if(home == null) {
+        return false;
+    }
+
+    string path = xsprintf("%s/.wi/dot.txt", home);
+    FILE* f = fopen(path, "r");
+
+    if(f == null) {
+        return false;
+    }
+
+    self.savedInputedKeys = new vector<int>.initialize();
+    
+    while(true) {
+        char c;
+        if(fread(&c, sizeof(char), 1, f) == 0) {
+            break;
+        }
+
+        self.savedInputedKeys.push_back(c);
+    }
+
+    fclose(f);
+
+    return true;
 }
 
 int getKey(ViWin* self, bool head) {
@@ -256,10 +314,9 @@ void runMacro(ViWin* self) {
 
 impl Vi version 14
 {
-    
 initialize() {
     inherit(self);
-
+    
     self.events.replace('.', lambda(Vi* self, int key) 
     {
         self.activeWin.autoInput = true;

@@ -156,8 +156,6 @@ void searchWordOnCursor(ViWin* self, Vi* nvi)
                 p++;
                 self.cursorX++;
             }
-
-            self.cursorX++;
         }
 
         var search_word = line.substring(word_head, self.cursorX);
@@ -203,8 +201,6 @@ void searchWordOnCursorReverse(ViWin* self, Vi* nvi)
                 p++;
                 self.cursorX++;
             }
-
-            self.cursorX++;
         }
 
         var search_word = line.substring(word_head, self.cursorX);

@@ -390,6 +390,10 @@ struct ViWin version 14
 impl ViWin version 14
 {
     initialize(int y, int x, int width, int height, Vi* vi);
+    
+    bool saveDotToFile(ViWin* self, Vi* nvi);
+    bool loadDotFromFile(ViWin* self, Vi* nvi);
+
     int getKey(ViWin* self, bool head);
     void clearInputedKey(ViWin* self);
     void saveInputedKey(ViWin* self);
