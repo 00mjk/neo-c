@@ -16,9 +16,9 @@ if [ -e sevenstars/Makefile ]
 then
     (cd sevenstars; make distclean)
 fi
-if [ -e ploomtech/Makefile ]
+if [ -e iqos/Makefile ]
 then
-    (cd ploomtech; make distclean)
+    (cd iqos; make distclean)
 fi
 
 if [ ! -e Makefile ]
