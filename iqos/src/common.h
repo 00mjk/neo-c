@@ -7,25 +7,25 @@
 
 struct Filer;
 
-struct PloomTech 
+struct iQos 
 {
     Filer*% filer;
     bool app_end;
     vector<sCLType*%>*% types;
 };
 
-impl PloomTech 
+impl iQos 
 {
     initialize();
     finalize();
 
-    bool main_loop(PloomTech* self);
-    void exit(PloomTech* self);
+    bool main_loop(iQos* self);
+    void exit(iQos* self);
 }
 
 struct Filer 
 {
-    PloomTech* ploomtech;
+    iQos* iqos;
     string path;
     list<string>*% files;
     int cursor;
@@ -35,7 +35,7 @@ struct Filer
 
 impl Filer 
 {
-    initialize(char* path, PloomTech* ploomtech);
+    initialize(char* path, iQos* iqos);
     finalize();
     bool read_dir(Filer* self);
     void view(Filer* self);
