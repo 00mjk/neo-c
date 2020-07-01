@@ -16,9 +16,9 @@ if [ -e wi/Makefile ]
 then
     (cd wi; make distclean)
 fi
-if [ -e iqos/Makefile ]
+if [ -e ploomtech/Makefile ]
 then
-    (cd iqos; make distclean)
+    (cd ploomtech; make distclean)
 fi
 
 if [ ! -e Makefile ]

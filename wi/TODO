@@ -1,8 +1,5 @@
-when deleting all texts, occurs segmentation falt
 save /tmp tmp texts
 backup 
-yank save when finishing
-
 cursor in last chararacter is unvisible
 
 C-w j, k
@@ -108,3 +105,5 @@ wide charater insert text
 # _
 --------
 CTRL-Z
+when deleting all texts, occurs segmentation falt
+yank save when finishing
