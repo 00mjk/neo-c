@@ -16,9 +16,9 @@ if [ -e wi/Makefile ]
 then
     (cd wi; make distclean)
 fi
-if [ -e ploomtech/Makefile ]
+if [ -e ayataka/Makefile ]
 then
-    (cd ploomtech; make distclean)
+    (cd ayataka; make distclean)
 fi
 
 if [ ! -e Makefile ]

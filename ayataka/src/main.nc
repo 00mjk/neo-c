@@ -15,10 +15,10 @@ int main(int argc, char* argv[])
 
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
 
-    var ploomtech = new PloomTech.initialize();
+    var ayataka = new Ayataka.initialize();
 
-    if(!ploomtech.main_loop()) {
-        ploomtech.exit();
+    if(!ayataka.main_loop()) {
+        ayataka.exit();
         fprintf(stderr, "app is faield. exited\n");
         exit(1);
     }

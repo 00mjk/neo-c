@@ -16,7 +16,7 @@ int xgetmaxy()
     return ws.ws_row;
 }
 
-impl PloomTech 
+impl Ayataka 
 {
 initialize()
 {
@@ -42,12 +42,12 @@ finalize()
     self.exit();
 }
 
-void exit(PloomTech* self)
+void exit(Ayataka* self)
 {
     endwin();
 }
 
-bool main_loop(PloomTech* self)
+bool main_loop(Ayataka* self)
 {
     while(!self.app_end) {
         self.filer.view();
@@ -61,10 +61,10 @@ bool main_loop(PloomTech* self)
 
 impl Filer 
 {
-initialize(char* path, PloomTech* ploomtech)
+initialize(char* path, Ayataka* ayataka)
 {
     self.path = string(path);
-    self.ploomtech = ploomtech;
+    self.ayataka = ayataka;
     self.files = new list<string>.initialize();
     self.cursor = 0;
     self.page = 0;
@@ -227,7 +227,7 @@ void input(Filer* self)
     else {
         switch(key) {
             case 'q':
-                self.ploomtech.app_end = true;
+                self.ayataka.app_end = true;
                 break;
 
             case KEY_ENTER:
@@ -244,7 +244,7 @@ void input(Filer* self)
                 }
                 else {
                     endwin();
-                    shell_commandline(xsprintf(" %s", self.cursor_file()), 0, self.ploomtech.types);
+                    shell_commandline(xsprintf(" %s", self.cursor_file()), 0, self.ayataka.types);
                     self.read_dir();
                     initscr();
                     getch();
@@ -266,7 +266,7 @@ void input(Filer* self)
 
             case 'd': {
                 endwin();
-                shell_commandline(xsprintf("rm -rf %s", self.cursor_file()), -1, self.ploomtech.types);
+                shell_commandline(xsprintf("rm -rf %s", self.cursor_file()), -1, self.ayataka.types);
                 self.read_dir();
                 initscr();
                 getch();
@@ -278,7 +278,7 @@ void input(Filer* self)
 
             case 'c': {
                 endwin();
-                shell_commandline(xsprintf("cp -r %s ", self.cursor_file()), -1, self.ploomtech.types);
+                shell_commandline(xsprintf("cp -r %s ", self.cursor_file()), -1, self.ayataka.types);
                 self.read_dir();
                 initscr();
                 getch();
@@ -290,7 +290,7 @@ void input(Filer* self)
 
             case 'm': {
                 endwin();
-                shell_commandline(xsprintf("mv %s ", self.cursor_file()), -1, self.ploomtech.types);
+                shell_commandline(xsprintf("mv %s ", self.cursor_file()), -1, self.ayataka.types);
                 self.read_dir();
                 initscr();
                 getch();
@@ -302,7 +302,7 @@ void input(Filer* self)
 
             case 'n': {
                 endwin();
-                shell_commandline(xsprintf("touch "), -1, self.ploomtech.types);
+                shell_commandline(xsprintf("touch "), -1, self.ayataka.types);
                 self.read_dir();
                 initscr();
                 keypad(stdscr, true);
@@ -313,7 +313,7 @@ void input(Filer* self)
 
             case 'x': {
                 endwin();
-                shell_commandline(xsprintf(" ./%s", self.cursor_file()), 0, self.ploomtech.types);
+                shell_commandline(xsprintf(" ./%s", self.cursor_file()), 0, self.ayataka.types);
                 self.read_dir();
                 initscr();
                 getch();
@@ -325,7 +325,7 @@ void input(Filer* self)
 
             case 'e': {
                 endwin();
-                shell_run_command(xsprintf("wi(\"%s\")", self.cursor_file()), self.ploomtech.types);
+                shell_run_command(xsprintf("wi(\"%s\")", self.cursor_file()), self.ayataka.types);
                 initscr();
                 keypad(stdscr, true);
                 raw();
@@ -360,7 +360,7 @@ void input(Filer* self)
 
             case ':': {
                 endwin();
-                shell_run_command("bash()", self.ploomtech.types);
+                shell_run_command("sevenstars()", self.ayataka.types);
                 self.read_dir();
                 initscr();
                 keypad(stdscr, true);

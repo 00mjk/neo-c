@@ -7,25 +7,25 @@
 
 struct Filer;
 
-struct PloomTech 
+struct Ayataka 
 {
     Filer*% filer;
     bool app_end;
     vector<sCLType*%>*% types;
 };
 
-impl PloomTech 
+impl Ayataka 
 {
     initialize();
     finalize();
 
-    bool main_loop(PloomTech* self);
-    void exit(PloomTech* self);
+    bool main_loop(Ayataka* self);
+    void exit(Ayataka* self);
 }
 
 struct Filer 
 {
-    PloomTech* ploomtech;
+    Ayataka* ayataka;
     string path;
     list<string>*% files;
     int cursor;
@@ -35,7 +35,7 @@ struct Filer
 
 impl Filer 
 {
-    initialize(char* path, PloomTech* ploomtech);
+    initialize(char* path, Ayataka* ayataka);
     finalize();
     bool read_dir(Filer* self);
     void view(Filer* self);
