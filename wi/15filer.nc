@@ -53,7 +53,8 @@ void textsView(ViWin* self, Vi* nvi)
                     mvwprintw(self.win, it2, 0, "$");
                     wattroff(self.win, A_REVERSE);
                 }
-                else if(printable_line.length() > maxx-1) {
+                else if(wcswidth(printable_line, wcslen(printable_line)) > maxx-2)
+                {
                     int x = 0;
                     int cursor_y = it2;
                     int cursor_x = 0;
@@ -75,8 +76,8 @@ void textsView(ViWin* self, Vi* nvi)
                         x++;
                         cursor_x += wcswidth(c, c.length());
                         terminal_width += wcswidth(c, c.length());
-
-                        if(terminal_width >= maxx-1) {
+                        
+                        if(terminal_width >= maxx-2) {
                             cursor_x = 0;
                             terminal_width = 0;
                             cursor_y++;
@@ -119,8 +120,22 @@ void textsView(ViWin* self, Vi* nvi)
                 }
             }
             else {
-                mvwprintw(self.win, it2, 0, "%ls", printable_line.substring(0, maxx-1));
-                wprintw(self.win, "$");
+                if(wcswidth(printable_line, wcslen(printable_line)) > maxx-2)
+                {
+                    int x = 0;
+                    int visible_x = 0;
+                    while(visible_x < maxx-2 && x < printable_line.length()) {
+                        wstring c = printable_line.substring(x, x+1);
+                        mvwprintw(self.win, it2, visible_x, "%ls", c);
+                        
+                        visible_x += wcswidth(c, wcslen(c));
+                        x++;
+                    }
+                    wprintw(self.win, "~");
+                }
+                else {
+                    mvwprintw(self.win, it2, 0, "%ls$", printable_line);
+                }
             }
         }
     }
