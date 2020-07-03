@@ -131,6 +131,10 @@ void print_op(int op)
         case OP_STRING_VALUE:
             puts("OP_STRING_VALUE");
             break;
+
+        case OP_REGEX_VALUE:
+            puts("OP_REGEX_VALUE");
+            break;
             
         case OP_IADD:
             puts("OP_IADD");
@@ -948,6 +952,31 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 p += len;
 
                 int obj = create_string_object(str, info);
+                
+                stack_ptr.mObjectValue = obj;
+                stack_ptr++;
+                }
+                break;
+
+            case OP_REGEX_VALUE: {
+                char* str = (char*)p;
+                int len = strlen(str) + 1;
+
+                alignment(&len);
+
+                len = len / sizeof(int);
+
+                p += len;
+
+                int ignore_case = *p;
+                p++;
+
+                int global = *p;
+                p++;
+
+                nregex reg = regex(str, ignore_case, false, global, false, false, false, false, false);
+
+                int obj = create_regex_object(reg, info);
                 
                 stack_ptr.mObjectValue = obj;
                 stack_ptr++;

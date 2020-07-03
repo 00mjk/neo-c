@@ -963,6 +963,36 @@ class field
     def not_equal(right:field?): bool;
 }
 
+class string 
+{
+    def index(search_str:string, default_value:int):int;
+    def rindex(search_str:string, default_value:int):int;
+    def index_regex(search_str:regex, default_value:int):int;
+    def rindex_regex(search_str:regex, default_value:int):int;
+    def sub(reg:regex, replace:string):string;
+    def match(reg:regex):bool;
+
+    def reverse():string;
+    def replace(index:int, c:string):void;
+
+#scan, split
+
+}
+
+class regex 
+{
+    def set_value(value:regex):void;
+    def to_string(): string;
+    def to_command():command {
+        self.to_string().to_command()
+    }
+
+    def compare(right:regex):int {
+        self.to_string().compare(right.to_string())
+    }
+}
+
+
 save_class object;
 save_class int;
 save_class bool;
@@ -980,3 +1010,4 @@ save_class class;
 save_class method;
 save_class field;
 save_class type;
+save_class regex;

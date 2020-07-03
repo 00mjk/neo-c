@@ -23,6 +23,7 @@ void class_init()
     append_class("object");
     append_class("void");
     append_class("int");
+    append_class("regex");
     append_class("bool");
     append_class("string");
     append_class("any");

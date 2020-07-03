@@ -17,6 +17,11 @@ bool free_object(CLObject self)
 
             delete dummy_heap string_data->mString;
         }
+        else if(type->mClass == gClasses.at("regex", null)) {
+            sCLRegexObject* reg_data = CLREGEX(self);
+
+            delete dummy_heap reg_data->mRegex;
+        }
         else if(type->mClass == gClasses.at("map", null)) {
             sCLMap* map_data = CLMAP(self);
 
@@ -170,6 +175,13 @@ char* get_string_mem(CLObject obj)
     return object_data->mString;
 }
 
+nregex& get_regex_value(CLObject obj)
+{
+    sCLRegexObject* object_data = CLREGEX(obj);
+
+    return object_data->mRegex;
+}
+
 int get_int_value(CLObject obj)
 {
     sCLInt* object_data = CLINT(obj);
@@ -191,6 +203,15 @@ void set_string_value(CLObject obj, char* value)
     sCLString* object_data = CLSTRING(obj);
     delete dummy_heap object_data->mString;
     object_data->mString = str;
+}
+
+void set_regex_value(CLObject obj, nregex& value)
+{
+    nregex& regex = borrow clone value;
+
+    sCLRegexObject* object_data = CLREGEX(obj);
+    delete dummy_heap object_data->mRegex;
+    object_data->mRegex = regex;
 }
 
 buffer* get_buffer_value(CLObject obj)
@@ -491,6 +512,36 @@ CLObject create_type_object(sCLType* type, sVMInfo* info)
     sCLTypeObject* type_data = CLTYPE(obj);
 
     type_data->mType2 = type;
+
+    return obj;
+}
+
+static cllong regex_object_size()
+{
+    cllong size = sizeof(sCLRegexObject);
+
+    unsigned int size2 = size;
+
+    alignment((unsigned int*)&size2);
+
+    size = size2;
+
+    return size;
+}
+
+CLObject create_regex_object(nregex reg, sVMInfo* info)
+{
+    unsigned int size = (unsigned int)regex_object_size();
+
+    alignment(&size);
+
+    sCLType* regex_type = create_type("regex", info.cinfo.pinfo.types);
+
+    CLObject obj = alloc_heap_mem(size, regex_type, -1, info);
+
+    sCLRegexObject* reg_data = CLREGEX(obj);
+
+    reg_data->mRegex = borrow clone reg;
 
     return obj;
 }

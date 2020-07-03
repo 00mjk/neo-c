@@ -2102,7 +2102,7 @@ impl map <T, T2>
                         n = 0;
                     }
                     else if(n == hash) {
-                        fprintf(stderr, "unexpected error in map.rehash\n");
+                        fprintf(stderr, "unexpected error in map.rehash(1)\n");
                         exit(2);
                     }
                 }
@@ -2112,6 +2112,7 @@ impl map <T, T2>
                     items[n] = it2;
 
                     len++;
+                    break;
                 }
             }
         }

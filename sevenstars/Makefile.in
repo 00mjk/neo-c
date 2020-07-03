@@ -96,13 +96,13 @@ install:
 	$(INSTALL) -m 644 class.ssc $(DESTDIR)/share/sevenstars
 	$(INSTALL) -m 644 command.ssc $(DESTDIR)/share/sevenstars
 	$(INSTALL) -m 644 field.ssc $(DESTDIR)/share/sevenstars
-	$(INSTALL) -m 644 int.ssc $(DESTDIR)/share/sevenstars
 	$(INSTALL) -m 644 list.ssc $(DESTDIR)/share/sevenstars
 	$(INSTALL) -m 644 list_item.ssc $(DESTDIR)/share/sevenstars
 	$(INSTALL) -m 644 map.ssc $(DESTDIR)/share/sevenstars
 	$(INSTALL) -m 644 method.ssc $(DESTDIR)/share/sevenstars
 	$(INSTALL) -m 644 object.ssc $(DESTDIR)/share/sevenstars
 	$(INSTALL) -m 644 string.ssc $(DESTDIR)/share/sevenstars
+	$(INSTALL) -m 644 regex.ssc $(DESTDIR)/share/sevenstars
 	$(INSTALL) -m 644 tuple1.ssc $(DESTDIR)/share/sevenstars
 	$(INSTALL) -m 644 tuple2.ssc $(DESTDIR)/share/sevenstars
 	$(INSTALL) -m 644 tuple3.ssc $(DESTDIR)/share/sevenstars

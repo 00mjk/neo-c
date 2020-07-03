@@ -1013,6 +1013,7 @@ bool command_to_string(CLVALUE** stack_ptr, sVMInfo* info)
 
 
 
+
 void native_init()
 {
     gNativeMethods = borrow new map<string, fNativeMethod>.initialize();

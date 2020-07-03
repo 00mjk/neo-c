@@ -85,6 +85,48 @@ static bool compile_strig_value(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_regex_value(char* value, bool ignore_case, bool global, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeRegex;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    result.mStringValue = string(value);
+
+    result.uValue.uRegex.mIgnoreCase = ignore_case;
+    result.uValue.uRegex.mGlobal = global;
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_regex_value(sCLNode* node, sCompileInfo* info)
+{
+    char* str_value = borrow node.mStringValue;
+    bool ignore_case = node.uValue.uRegex.mIgnoreCase;
+    bool global = node.uValue.uRegex.mGlobal;
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_REGEX_VALUE);
+        info.codes.append_nullterminated_str(str_value);
+
+        info.codes.alignment();
+        info.codes.append_int(ignore_case);
+        info.codes.append_int(global);
+    }
+    
+    info.type = create_type("regex", info.pinfo.types);
+    info.stack_num++;
+    
+    return true;
+}
+
 static bool invoke_method(char* method_name, int num_params, sCLNode** params, sCompileInfo* info)
 {
     assert(num_params > 0);
@@ -3149,6 +3191,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
 
         case kNodeTypeCd:
             if(!compile_cd(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeRegex:
+            if(!compile_regex_value(node, info)) {
                 return false;
             }
             break;

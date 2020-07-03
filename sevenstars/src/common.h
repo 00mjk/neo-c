@@ -186,6 +186,10 @@ struct sCLNode {
         struct {
             char mPath[PATH_MAX];
         } uCd;
+        struct {
+            bool mGlobal;
+            bool mIgnoreCase;
+        } uRegex;
     } uValue;
     
     string mClassName;
@@ -262,7 +266,7 @@ struct sParserInfo {
     int max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeMinus, kNodeTypePrimitiveMinus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeExit, kNodeTypeTry, kNodeTypeReturn, kNodeTypeNull, kNodeTypeLogicalDenial, kNodeTypeNormalBlock, kNodeTypeMacro, kNodeTypeCommand, kNodeTypeListValue, kNodeTypeEval, kNodeTypeCd };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeMinus, kNodeTypePrimitiveMinus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeFg, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeExit, kNodeTypeTry, kNodeTypeReturn, kNodeTypeNull, kNodeTypeLogicalDenial, kNodeTypeNormalBlock, kNodeTypeMacro, kNodeTypeCommand, kNodeTypeListValue, kNodeTypeEval, kNodeTypeCd, kNodeTypeRegex };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -284,7 +288,7 @@ struct sCompileInfo {
     bool in_shell;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE, OP_EVAL, OP_CD };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_JOBS, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE, OP_EVAL, OP_CD, OP_REGEX_VALUE };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -324,6 +328,7 @@ void codes_append_type(buffer* codes, sCLType* type);
 void codes_read_type(char* p, sCLType** type);
 
 sCLNode* sNodeTree_create_break(sParserInfo* info);
+sCLNode* sNodeTree_create_regex_value(char* value, bool ignore_case, bool global, sParserInfo* info);
 sCLNode* sNodeTree_create_cd(char* path, sParserInfo* info);
 sCLNode* sNodeTree_create_eval(sCLNode* exp, sParserInfo* info);
 sCLNode* sNodeTree_create_typeof(sCLNodeBlock* node_block, sParserInfo* info);
@@ -552,6 +557,16 @@ struct sCLTypeObject
     sCLType* mType2;
 };
 
+struct sCLRegexObject
+{
+    sCLType* mType;
+    int mSize;
+    
+    int mNumFields;
+    
+    nregex& mRegex;
+};
+
 #define CLOBJECT(obj) ((sCLObject*)(get_object_pointer((obj))))
 #define CLBLOCK(obj) ((sCLBlock*)(get_object_pointer((obj))))
 #define CLCOMMAND(obj) ((sCLCommand*)(get_object_pointer((obj))))
@@ -564,11 +579,13 @@ struct sCLTypeObject
 #define CLMETHOD(obj) ((sCLMethodObject*)(get_object_pointer((obj))))
 #define CLFIELD(obj) ((sCLFieldObject*)(get_object_pointer((obj))))
 #define CLTYPE(obj) ((sCLTypeObject*)(get_object_pointer((obj))))
+#define CLREGEX(obj) ((sCLRegexObject*)(get_object_pointer((obj))))
 
 sCLHeapMem* get_object_pointer(CLObject obj);
 
 CLObject create_object(sCLType* type, sVMInfo* info);
 CLObject create_type_object(sCLType* type, sVMInfo* info);
+CLObject create_regex_object(nregex reg, sVMInfo* info);
 CLObject create_class_object(char* name, sVMInfo* info);
 CLObject create_buffer_object(sVMInfo* info);
 CLObject create_null_object(sVMInfo* info);
@@ -576,12 +593,14 @@ CLObject create_int_object(int value, sVMInfo* info);
 CLObject create_string_object(char* str, sVMInfo* info);
 CLObject create_map_object(sVMInfo* info);
 char* get_string_mem(CLObject obj);
+nregex& get_regex_value(CLObject obj);
 map<char*,int>* get_map_value(CLObject obj);
 list<char*>* get_map_keys(CLObject obj);
 int get_int_value(CLObject obj);
 buffer* get_buffer_value(CLObject obj);
 void set_int_value(CLObject obj, int value);
 void set_string_value(CLObject obj, char* value);
+void set_regex_value(CLObject obj, nregex& value);
 CLObject create_string_data_object(char* str, sVMInfo* info);
 CLObject create_bool_object(int value, sVMInfo* info);
 CLObject create_block_object(char* type_name, int* codes, int codes_len, int var_num, sVMInfo* info);

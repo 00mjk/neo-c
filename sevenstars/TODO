@@ -1,4 +1,6 @@
 
+string.scan, string.split
+
 メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
 
 親クラスのメソッド呼び出し。super

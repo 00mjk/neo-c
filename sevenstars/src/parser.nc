@@ -1001,6 +1001,92 @@ bool parse_string(buffer* buf, sParserInfo* info)
     return true;
 }
 
+bool parse_regex(buffer* buf, bool* ignore_case, bool* global, sParserInfo* info) 
+{
+    while(true) {
+        if(*info->p == '/') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+        else if(*info->p == '\0') {
+            parser_err_msg(info, "require close string value");
+            break;
+        }
+        else if(*info->p == '\\') {
+            info->p++;
+
+            char c;
+            switch(*info->p) {
+                case 'n':
+                    c = '\n';
+                    info->p++;
+                    break;
+
+                case 't':
+                    c = '\t';
+                    info->p++;
+                    break;
+
+                case 'r':
+                    c = '\r';
+                    info->p++;
+                    break;
+
+                case 'a':
+                    c = '\a';
+                    info->p++;
+                    break;
+
+                case '\\':
+                    c = '\\';
+                    info->p++;
+                    break;
+
+                case '0':
+                    c = '\0';
+                    info->p++;
+                    break;
+
+                default:
+                    c = *info->p;
+                    info->p++;
+                    break;
+            }
+
+            buf.append_char(c);
+        }
+        else if(*info->p == '\n') {
+            info->sline++;
+
+            buf.append_char(*info->p);
+            info->p++;
+        }
+        else {
+            buf.append_char(*info->p);
+            info->p++;
+        }
+    }
+
+    while(true) {
+        if(*info->p == 'g') {
+            info->p++;
+            *global = true;
+        }
+        else if(*info->p == 'i') {
+            info->p++;
+            *ignore_case = true;
+        }
+        else {
+            break;
+        }
+    }
+
+    skip_spaces_and_lf(info);
+
+    return true;
+}
+
 static bool expression_node(sCLNode** node, sParserInfo* info)
 {
     int num_method_chains = 0;
@@ -1399,6 +1485,22 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
         var str = buf.to_string();
         
         *node = sNodeTree_create_string_value(str, info);
+    }
+    /// regex ///
+    else if(*info->p == '/') {
+        info->p++;
+        
+        buffer*% buf = new buffer.initialize();
+
+        bool ignore_case = false;
+        bool global = false;
+        if(!parse_regex(buf, &ignore_case, &global, info)) {
+            return false;
+        }
+        
+        var str = buf.to_string();
+        
+        *node = sNodeTree_create_regex_value(str, ignore_case, global, info);
     }
     /// comment ///
     else if(*info->p == '#') {
