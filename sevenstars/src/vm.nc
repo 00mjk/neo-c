@@ -135,6 +135,10 @@ void print_op(int op)
         case OP_REGEX_VALUE:
             puts("OP_REGEX_VALUE");
             break;
+
+        case OP_LIST_VALUE:
+            puts("OP_LIST_VALUE");
+            break;
             
         case OP_IADD:
             puts("OP_IADD");
@@ -868,6 +872,37 @@ void ready_for_vm_stack(CLVALUE* stack, CLVALUE* parent_stack_ptr, int num_param
     }
 }
 
+bool invoke_block(int block_object, int result_existance, int num_params, CLVALUE** stack_ptr, sVMInfo* info)
+{
+    sCLBlock* block_data = CLBLOCK(block_object);
+
+    int* codes = block_data->codes;
+    int codes_len = block_data->codes_len;
+    int var_num = block_data->var_num;
+
+    buffer*% buffer = new buffer.initialize();
+
+    buffer.append((char*)codes, codes_len);
+
+    CLVALUE result;
+    if(!vm(buffer, *stack_ptr, num_params, var_num, &result, info)) {
+        return false;
+    }
+
+    (*stack_ptr) -= num_params + 1;
+
+    if(result_existance) {
+        (*stack_ptr)->mObjectValue = result.mObjectValue;
+        (*stack_ptr)++;
+    }
+    else {
+        (*stack_ptr)->mObjectValue = create_null_object(info);
+        (*stack_ptr)++;
+    }
+
+    return true;
+}
+
 bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, CLVALUE* result, sVMInfo* info)
 {
     sCLStackFrame null_parent_stack_frame;
@@ -976,7 +1011,28 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
 
                 nregex reg = regex(str, ignore_case, false, global, false, false, false, false, false);
 
-                int obj = create_regex_object(reg, info);
+                CLObject obj = create_regex_object(reg, info);
+                
+                stack_ptr.mObjectValue = obj;
+                stack_ptr++;
+                }
+                break;
+
+            case OP_LIST_VALUE: {
+                int num_elements = *p;
+                p++;
+
+                list<int>*% list = new list<int>.initialize();
+
+                for(int i=0; i<num_elements; i++) {
+                    CLObject element = (stack_ptr-num_elements+i).mObjectValue;
+
+                    list.push_back(element);
+                }
+
+                CLObject obj = create_list_object(list, info);
+
+                stack_ptr -= num_elements;
                 
                 stack_ptr.mObjectValue = obj;
                 stack_ptr++;
@@ -1628,36 +1684,12 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 p++;
 
                 int block_object = (*(stack_ptr-num_params-1)).mObjectValue;
-                sCLBlock* block_data = CLBLOCK(block_object);
 
-                int* codes = block_data->codes;
-                int codes_len = block_data->codes_len;
-                int var_num = block_data->var_num;
-
-                buffer*% buffer = new buffer.initialize();
-
-                buffer.append((char*)codes, codes_len);
-
-//print_block(num_params, var_num);
-
-
-                CLVALUE result;
-                if(!vm(buffer, stack_ptr, num_params, var_num, &result, info)) {
+                if(!invoke_block(block_object, result_existance, num_params, &stack_ptr, info))
+                {
                     info.stack_frames.pop_back(null_parent_stack_frame);
                     return false;
                 }
-
-                stack_ptr -= num_params + 1;
-
-                if(result_existance) {
-                    *stack_ptr = result;
-                    stack_ptr++;
-                }
-                else {
-                    stack_ptr->mObjectValue = create_null_object(info);
-                    stack_ptr++;
-                }
-//print_block_end(*(stack_ptr-1));
 
                 }
                 break;

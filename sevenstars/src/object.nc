@@ -28,6 +28,11 @@ bool free_object(CLObject self)
             delete map_data->mMap;
             delete map_data->mKeys;
         }
+        else if(type->mClass == gClasses.at("list", null)) {
+            sCLListObject* list_data = CLLIST(self);
+
+            delete dummy_heap list_data->mList;
+        }
     }
 /*
     if(!call_finalize_method_on_free_object(klass, self)) {
@@ -45,6 +50,25 @@ void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info)
     int num_fields = object_data->mNumFields;
     
     if(num_fields == -1) {
+    }
+    else if(type->mClass == gClasses.at("map", null)) {
+        sCLMap* map_data = CLMAP(self);
+
+        map<char*, int>* map = map_data->mMap;
+        map.each {
+            CLObject obj = it2;
+            mark_object(obj, mark_flg, info);
+        }
+    }
+    else if(type->mClass == gClasses.at("list", null)) {
+        sCLListObject* list_data = CLLIST(self);
+
+        list<int>* list = list_data->mList;
+
+        list.each {
+            CLObject obj = it;
+            mark_object(obj, mark_flg, info);
+        }
     }
     else {
         int i;
@@ -182,6 +206,14 @@ nregex& get_regex_value(CLObject obj)
     return object_data->mRegex;
 }
 
+list<int>* get_list_value(CLObject obj)
+{
+    sCLListObject* object_data = CLLIST(obj);
+
+    return object_data->mList;
+}
+
+
 int get_int_value(CLObject obj)
 {
     sCLInt* object_data = CLINT(obj);
@@ -212,6 +244,15 @@ void set_regex_value(CLObject obj, nregex& value)
     sCLRegexObject* object_data = CLREGEX(obj);
     delete dummy_heap object_data->mRegex;
     object_data->mRegex = regex;
+}
+
+void set_list_value(CLObject obj, list<int>* value)
+{
+    list<int>* list = borrow clone value;
+
+    sCLListObject* object_data = CLLIST(obj);
+    delete dummy_heap object_data->mList;
+    object_data->mList = list;
 }
 
 buffer* get_buffer_value(CLObject obj)
@@ -542,6 +583,36 @@ CLObject create_regex_object(nregex reg, sVMInfo* info)
     sCLRegexObject* reg_data = CLREGEX(obj);
 
     reg_data->mRegex = borrow clone reg;
+
+    return obj;
+}
+
+static cllong list_object_size()
+{
+    cllong size = sizeof(sCLListObject);
+
+    unsigned int size2 = size;
+
+    alignment((unsigned int*)&size2);
+
+    size = size2;
+
+    return size;
+}
+
+CLObject create_list_object(list<int>* list, sVMInfo* info)
+{
+    unsigned int size = (unsigned int)list_object_size();
+
+    alignment(&size);
+
+    sCLType* list_type = create_type("list", info.cinfo.pinfo.types);
+
+    CLObject obj = alloc_heap_mem(size, list_type, -1, info);
+
+    sCLListObject* list_data = CLLIST(obj);
+
+    list_data->mList = borrow clone list;
 
     return obj;
 }

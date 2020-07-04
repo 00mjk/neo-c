@@ -1066,6 +1066,7 @@ bool invoke_native_method(sCLClass* klass, sCLMethod* method, CLVALUE** stack_pt
     fNativeMethod native_method = gNativeMethods.at(buf, null);
 
     if(native_method == null) {
+        vm_err_msg(stack_ptr, info, xsprintf("not found native method(%s)\n", buf));
         return false;
     }
 

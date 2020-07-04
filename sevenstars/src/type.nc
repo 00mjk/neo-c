@@ -252,6 +252,7 @@ sCLType* solve_generics(sCLType* node_type, sCLType* generics_type, sParserInfo*
     if(generics_num !=-1 && generics_num<generics_type->mNumGenericsTypes)
     {
         sCLType* result = clone_type(generics_type->mGenericsTypes[generics_num], info);
+        result.mNullable = node_type.mNullable;
 
         return result;
     }

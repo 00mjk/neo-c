@@ -27,6 +27,7 @@ void clover3_init()
     macro_init();
     native_init();
     native_init2();
+    native_init3();
 }
 
 void clover3_final()

@@ -127,6 +127,60 @@ static bool compile_regex_value(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_list_value(int num_elements, sCLNode** elements, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeList;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+    
+    for(int i=0; i<num_elements; i++) {
+        result.uValue.uList.mElements[i] = elements[i];
+    }
+    result.uValue.uList.mNumElements = num_elements;
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_list_value(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* elements[LIST_ELEMENT_MAX];
+    int num_elements = node.uValue.uList.mNumElements;
+    for(int i=0; i<num_elements; i++) {
+        elements[i] = node.uValue.uList.mElements[i];
+    }
+
+    sCLType* element_type = create_type("void", info.pinfo.types);
+    for(int i=0; i<num_elements; i++) {
+        if(!compile(elements[i], info)) {
+            return false;
+        }
+
+        element_type = info.type;
+    }
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_LIST_VALUE);
+        info.codes.append_int(num_elements);
+    }
+    
+    info.type = create_type("list", info.pinfo.types);
+
+    info.type.mNumGenericsTypes = 1;
+    info.type.mGenericsTypes[0] = element_type;
+
+    info.stack_num-=num_elements;
+    info.stack_num++;
+    
+    return true;
+}
+
 static bool invoke_method(char* method_name, int num_params, sCLNode** params, sCompileInfo* info)
 {
     assert(num_params > 0);
@@ -2018,6 +2072,15 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
         }
     }
     else {
+        if(klass == null) {
+            compile_err_msg(info, "class not found\n");
+            return true;
+        }
+        if(method == null) {
+            compile_err_msg(info, xsprintf("method not found(%s.%s)\n", klass.mName, method_name));
+            return true;
+        }
+
         /// compile parametors ///
         if(method->mNumParams != num_params) {
             compile_err_msg(info, xsprintf("invalid method prametor number.  invalid %d number instead of %d(%s.%s)", num_params, method->mNumParams, klass.mName, method_name));
@@ -2719,7 +2782,10 @@ static bool compile_logical_denial(sCLNode* node, sCompileInfo* info)
         return false;
     }
 
-    if(!type_identify_with_class_name(info->type, "bool", info.pinfo)) {
+    if(!type_identify_with_class_name(info->type, "bool", info.pinfo)
+        && !is_generics_type(info->type)
+        && !type_identify_with_class_name(info->type, "any", info.pinfo))
+    {
         compile_err_msg(info, "Require bool type for logical denial");
         return true;
     }
@@ -3197,6 +3263,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
 
         case kNodeTypeRegex:
             if(!compile_regex_value(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeList:
+            if(!compile_list_value(node, info)) {
                 return false;
             }
             break;

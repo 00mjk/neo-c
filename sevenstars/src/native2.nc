@@ -1,5 +1,5 @@
 #include "common.h"
-#
+
 bool sevenstars_string_index(CLVALUE** stack_ptr, sVMInfo* info)
 {
     CLObject self = (*stack_ptr-3)->mObjectValue;
@@ -1329,6 +1329,16 @@ bool regex_to_string(CLVALUE** stack_ptr, sVMInfo* info)
 
     return true;
 }
+
+
+
+
+
+
+
+
+
+
 
 void native_init2()
 {

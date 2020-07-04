@@ -1087,6 +1087,43 @@ bool parse_regex(buffer* buf, bool* ignore_case, bool* global, sParserInfo* info
     return true;
 }
 
+static bool parse_list(sCLNode** elements, int* num_elements, sParserInfo* info)
+{
+    while(true) {
+        if(*info->p == ']') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+        else if(*info->p == '\0') {
+            parser_err_msg(info, "require close list value");
+            break;
+        }
+        else {
+            sCLNode* exp = null;
+            if(!expression(&exp, info)) {
+                return false;
+            };
+
+            elements[*num_elements] = exp;
+
+            (*num_elements)++;
+
+            if(*num_elements >= LIST_ELEMENT_MAX) {
+                fprintf(stderr, "overflow list element number\n");
+                exit(2);
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+        }
+    }
+
+    return true;
+}
+
 static bool expression_node(sCLNode** node, sParserInfo* info)
 {
     int num_method_chains = 0;
@@ -1501,6 +1538,19 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
         var str = buf.to_string();
         
         *node = sNodeTree_create_regex_value(str, ignore_case, global, info);
+    }
+    /// list ///
+    else if(*info->p == '[') {
+        info->p++;
+
+        sCLNode* elements[LIST_ELEMENT_MAX];
+        int num_elements = 0;
+        
+        if(!parse_list(elements, &num_elements, info)) {
+            return false;
+        };
+        
+        *node = sNodeTree_create_list_value(num_elements, elements, info);
     }
     /// comment ///
     else if(*info->p == '#') {

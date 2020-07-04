@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.2.6
+version 1.2.7
 
 ```
 #include <stdio.h>
@@ -62,6 +62,8 @@ This program is tested in LLVM-3.8 and LLVM-7, and x86_64 on Debian, Raspberry P
 x86_64のDebianとRaspberry PI 3B+でテストしています。
 
 # CHANGELOG
+
+1.2.7 map.rehash bug was fixed.
 
 1.2.6 throw -D option to cpp which neo-c gets
 
