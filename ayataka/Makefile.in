@@ -34,7 +34,7 @@ all: ayataka
 #	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
 ayataka: config.h src/*.h Makefile configure src/main.nc src/filer.o
-	$(CC) -o ayataka src/main.nc src/filer.o $(CFLAGS) $(NCFLAGS) $(LIBS) ../sevenstars/src/compiler.o ../sevenstars/src/parser.o ../sevenstars/src/node.o ../sevenstars/src/type.o ../sevenstars/src/class.o ../sevenstars/src/native.o ../sevenstars/src/native2.o ../sevenstars/src/vm.o ../sevenstars/src/vtable.o ../sevenstars/src/heap.o ../sevenstars/src/object.o ../sevenstars/src/block.o ../sevenstars/src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
+	$(CC) -o ayataka src/main.nc src/filer.o $(CFLAGS) $(NCFLAGS) $(LIBS) ../sevenstars/src/compiler.o ../sevenstars/src/parser.o ../sevenstars/src/node.o ../sevenstars/src/type.o ../sevenstars/src/class.o ../sevenstars/src/native.o ../sevenstars/src/native2.o ../sevenstars/src/native3.o ../sevenstars/src/vm.o ../sevenstars/src/vtable.o ../sevenstars/src/heap.o ../sevenstars/src/object.o ../sevenstars/src/block.o ../sevenstars/src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
 
 ##########################################################
 # objects
