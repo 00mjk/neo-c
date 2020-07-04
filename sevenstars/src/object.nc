@@ -50,24 +50,24 @@ void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info)
     int num_fields = object_data->mNumFields;
     
     if(num_fields == -1) {
-    }
-    else if(type->mClass == gClasses.at("map", null)) {
-        sCLMap* map_data = CLMAP(self);
+        if(type->mClass == gClasses.at("map", null)) {
+            sCLMap* map_data = CLMAP(self);
 
-        map<char*, int>* map = map_data->mMap;
-        map.each {
-            CLObject obj = it2;
-            mark_object(obj, mark_flg, info);
+            map<char*, int>* map = map_data->mMap;
+            map.each {
+                CLObject obj = it2;
+                mark_object(obj, mark_flg, info);
+            }
         }
-    }
-    else if(type->mClass == gClasses.at("list", null)) {
-        sCLListObject* list_data = CLLIST(self);
+        else if(type->mClass == gClasses.at("list", null)) {
+            sCLListObject* list_data = CLLIST(self);
 
-        list<int>* list = list_data->mList;
+            list<int>* list = list_data->mList;
 
-        list.each {
-            CLObject obj = it;
-            mark_object(obj, mark_flg, info);
+            list.each {
+                CLObject obj = it;
+                mark_object(obj, mark_flg, info);
+            }
         }
     }
     else {

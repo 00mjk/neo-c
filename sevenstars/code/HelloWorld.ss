@@ -304,15 +304,15 @@ xassert("list join test", li5.join(",") == "1,2,3");
 
 var li6 = list!(1, 2, 3);
 
-xassert("list map test", li6.map() { it.to_string() } == list!("1", "2","3"));
+xassert("list map test", li6.map() { it.to_string() } == ["1", "2","3"]);
 
-var li7 = list!(1, 2, 3);
+var li7 = [1,2,3];
 
-xassert("list filter test", li7.filter() { it > 1 } == list!(2, 3));
+xassert("list filter test", li7.filter() { it > 1 } == [ 2, 3 ]);
 
-var li8 = list!(6, 2, 4, 9, 7, 1);
+var li8 = [6, 2, 4, 9, 7, 1];
 
-xassert("list sort", li8.sort() { it.compare(it2) } == list!(1,2,4,6,7,9));
+xassert("list sort", li8.sort() { it.compare(it2) } == [ 1,2,4,6,7,9 ]);
 
 var ma1 = new map<int?>();
 
