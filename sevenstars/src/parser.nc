@@ -681,7 +681,6 @@ bool parse_calling_params(int* num_params, sCLNode** params, bool* param_closed,
 {
     while(true) {
         if(*info->p == '\0') {
-            parser_err_msg(info, "require to close calling params");
             *param_closed = false;
             break;
         }
@@ -710,7 +709,6 @@ bool parse_calling_params(int* num_params, sCLNode** params, bool* param_closed,
             break;
         }
         else if(*info->p == '\0') {
-            parser_err_msg(info, "require to close calling params");
             *param_closed = false;
             break;
         }
@@ -1010,7 +1008,7 @@ bool parse_regex(buffer* buf, bool* ignore_case, bool* global, sParserInfo* info
             break;
         }
         else if(*info->p == '\0') {
-            parser_err_msg(info, "require close string value");
+            parser_err_msg(info, "require close regex value");
             break;
         }
         else if(*info->p == '\\') {

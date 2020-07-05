@@ -30,8 +30,12 @@ uname -v = #6 SMP PREEMPT Fri May 24 10:03:08 CST 2019
 PATH: /data/data/com.termux/files/home/.gem/bin
 PATH: /data/data/com.termux/files/home/.rvm/bin/
 PATH: /data/data/com.termux/files/home/bin
+PATH: /data/data/com.termux/files/home/.gem/bin
+PATH: /data/data/com.termux/files/home/.rvm/bin/
+PATH: /data/data/com.termux/files/home/bin
 PATH: /data/data/com.termux/files/usr/bin
 PATH: /data/data/com.termux/files/usr/bin/applets
+PATH: /data/data/com.termux/files/usr/bin/texlive
 
 
 ## ----------- ##
@@ -336,7 +340,7 @@ configure:4032: $? = 0
 configure:4041: result: yes
 configure:4070: checking for lchmod
 configure:4070: gcc -o conftest  -O2   conftest.c  -ldl -lm -lpcre -lncursesw -lrt -lpthread >&5
-/data/data/com.termux/files/usr/bin/aarch64-linux-android-ld: /data/data/com.termux/files/usr/tmp/conftest-cd0c8d.o: in function `main':
+/data/data/com.termux/files/usr/bin/aarch64-linux-android-ld: /data/data/com.termux/files/usr/tmp/conftest-a6ed20.o: in function `main':
 conftest.c:(.text+0x8): undefined reference to `lchmod'
 clang-9: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:4070: $? = 1
@@ -427,7 +431,6 @@ on localhost
 
 config.status:813: creating Makefile
 config.status:813: creating config.h
-config.status:988: config.h is unchanged
 
 ## ---------------- ##
 ## Cache variables. ##

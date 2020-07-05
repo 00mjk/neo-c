@@ -736,6 +736,7 @@ char* completion_generator(char* text, int state)
                 result_type.mClass.mMethods.each {
                     sCLMethod* method = it2;
                     char* method_name = method->mName;
+                    
                     if(strstr(method_name, inputing_method_name) == method_name)
                     {
                         matches.push_back(string(method_name));
@@ -770,10 +771,18 @@ char** completer(char* text, int start, int end)
     char* p = current_line;
 
     bool in_dquort = false;
+    bool in_regex = false;
     while(*p) {
-        if(*p == '"') {
+        if(!in_regex && *p == '"') {
             p++;
             in_dquort = !in_dquort;
+        }
+        else if(!in_dquort && *p == '/') {
+            p++;
+            in_regex = !in_regex;
+        }
+        else if(in_regex || in_dquort) {
+            p++;
         }
         else {
             p++;
@@ -818,7 +827,7 @@ char** completer(char* text, int start, int end)
     }
 
     /// is method completion ? ///
-    if(!inputing_method || in_dquort || in_shell) {
+    if(!inputing_method || in_dquort || in_shell || in_regex) {
         rl_attempted_completion_over = 0;
         rl_completion_append_character = '\0';
         rl_completer_word_break_characters = " ({";

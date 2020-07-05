@@ -11,13 +11,11 @@ $(OBJS)	Makefile	/^$(OBJS): src\/*.h Makefile configure$/;"	t
 $(OBJS)	Makefile.in	/^$(OBJS): src\/*.h Makefile configure$/;"	t
 $(RUNTIME_OBJS)	Makefile	/^$(RUNTIME_OBJS): src\/*.h Makefile configure$/;"	t
 $(RUNTIME_OBJS)	Makefile.in	/^$(RUNTIME_OBJS): src\/*.h Makefile configure$/;"	t
--g	ayataka/config.status	/^  alias -g '${1+"$@"}'='"$@"'$/;"	a
 -g	ayataka/configure	/^  alias -g '${1+"$@"}'='"$@"'$/;"	a
 -g	ayataka/configure	/^  alias -g '\\${1+\\"\\$@\\"}'='\\"\\$@\\"'$/;"	a
 -g	config.status	/^  alias -g '${1+"$@"}'='"$@"'$/;"	a
 -g	configure	/^  alias -g '${1+"$@"}'='"$@"'$/;"	a
 -g	configure	/^  alias -g '\\${1+\\"\\$@\\"}'='\\"\\$@\\"'$/;"	a
--g	sevenstars/config.status	/^  alias -g '${1+"$@"}'='"$@"'$/;"	a
 -g	sevenstars/configure	/^  alias -g '${1+"$@"}'='"$@"'$/;"	a
 -g	sevenstars/configure	/^  alias -g '\\${1+\\"\\$@\\"}'='\\"\\$@\\"'$/;"	a
 -g	tiny/config.status	/^  alias -g '${1+"$@"}'='"$@"'$/;"	a
@@ -26,49 +24,27 @@ $(RUNTIME_OBJS)	Makefile.in	/^$(RUNTIME_OBJS): src\/*.h Makefile configure$/;"	t
 -g	wi/config.status	/^  alias -g '${1+"$@"}'='"$@"'$/;"	a
 -g	wi/configure	/^  alias -g '${1+"$@"}'='"$@"'$/;"	a
 -g	wi/configure	/^  alias -g '\\${1+\\"\\$@\\"}'='\\"\\$@\\"'$/;"	a
-01init.o	tiny/Makefile	/^01init.o: configure Makefile config.h 01init.nc common.h$/;"	t
 01init.o	tiny/Makefile.in	/^01init.o: configure Makefile config.h 01init.nc common.h$/;"	t
-01init.o	wi/Makefile	/^01init.o: configure Makefile config.h 01init.nc common.h$/;"	t
 01init.o	wi/Makefile.in	/^01init.o: configure Makefile config.h 01init.nc common.h$/;"	t
-02base.o	tiny/Makefile	/^02base.o: configure Makefile config.h 01init.nc 02base.nc common.h$/;"	t
 02base.o	tiny/Makefile.in	/^02base.o: configure Makefile config.h 01init.nc 02base.nc common.h$/;"	t
-02base.o	wi/Makefile	/^02base.o: configure Makefile config.h 01init.nc 02base.nc common.h$/;"	t
 02base.o	wi/Makefile.in	/^02base.o: configure Makefile config.h 01init.nc 02base.nc common.h$/;"	t
-03insert_mode.o	wi/Makefile	/^03insert_mode.o: configure Makefile config.h 01init.nc 02base.nc 03insert_mode.nc common.h$/;"	t
 03insert_mode.o	wi/Makefile.in	/^03insert_mode.o: configure Makefile config.h 01init.nc 02base.nc 03insert_mode.nc common.h$/;"	t
-03mult.o	tiny/Makefile	/^03mult.o: configure Makefile config.h 01init.nc 02base.nc 03mult.nc common.h$/;"	t
 03mult.o	tiny/Makefile.in	/^03mult.o: configure Makefile config.h 01init.nc 02base.nc 03mult.nc common.h$/;"	t
-04var.o	tiny/Makefile	/^04var.o: configure Makefile config.h 01init.nc 02base.nc 03mult.nc 04var.nc common.h$/;"	t
 04var.o	tiny/Makefile.in	/^04var.o: configure Makefile config.h 01init.nc 02base.nc 03mult.nc 04var.nc common.h$/;"	t
-04word.o	wi/Makefile	/^04word.o: configure Makefile config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc common.h$/;"	t
 04word.o	wi/Makefile.in	/^04word.o: configure Makefile config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc common.h$/;"	t
-05undo.o	wi/Makefile	/^05undo.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc common.h$/;"	t
 05undo.o	wi/Makefile.in	/^05undo.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc common.h$/;"	t
-06file.o	wi/Makefile	/^06file.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc$/;"	t
 06file.o	wi/Makefile.in	/^06file.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc$/;"	t
-07yank.o	wi/Makefile	/^07yank.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc /;"	t
 07yank.o	wi/Makefile.in	/^07yank.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc /;"	t
-08visual.o	wi/Makefile	/^08visual.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.n/;"	t
 08visual.o	wi/Makefile.in	/^08visual.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.n/;"	t
-09search.o	wi/Makefile	/^09search.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.n/;"	t
 09search.o	wi/Makefile.in	/^09search.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.n/;"	t
-10edit.o	wi/Makefile	/^10edit.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc /;"	t
 10edit.o	wi/Makefile.in	/^10edit.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc /;"	t
-11move.o	wi/Makefile	/^11move.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc /;"	t
 11move.o	wi/Makefile.in	/^11move.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc /;"	t
-12command.o	wi/Makefile	/^12command.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file./;"	t
 12command.o	wi/Makefile.in	/^12command.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file./;"	t
-13completion.o	wi/Makefile	/^13completion.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06fi/;"	t
 13completion.o	wi/Makefile.in	/^13completion.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06fi/;"	t
-14dot.o	wi/Makefile	/^14dot.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 0/;"	t
 14dot.o	wi/Makefile.in	/^14dot.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 0/;"	t
-15filer.o	wi/Makefile	/^15filer.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc/;"	t
 15filer.o	wi/Makefile.in	/^15filer.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc/;"	t
-16mark.o	wi/Makefile	/^16mark.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc /;"	t
 16mark.o	wi/Makefile.in	/^16mark.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc /;"	t
-17hvisual.o	wi/Makefile	/^17hvisual.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file./;"	t
 17hvisual.o	wi/Makefile.in	/^17hvisual.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file./;"	t
-18vvisual.o	wi/Makefile	/^18vvisual.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file./;"	t
 18vvisual.o	wi/Makefile.in	/^18vvisual.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file./;"	t
 ALIGNMENT_H	src/alignment.h	/^#define ALIGNMENT_H$/;"	d
 ALLOC	src/xfunc.h	/^#define ALLOC$/;"	d
@@ -78,33 +54,25 @@ BREAK_MAX	sevenstars/src/common.h	/^#define BREAK_MAX /;"	d
 BUFFER_H	src/buffer.h	/^#define BUFFER_H /;"	d
 CC	Makefile	/^CC=clang$/;"	m
 CC	Makefile.in	/^CC=@CC@$/;"	m
-CC	ayataka/Makefile	/^CC=neo-c$/;"	m
 CC	ayataka/Makefile.in	/^CC=@CC@$/;"	m
 CC	ayataka/configure.in	/^AC_SUBST(CC)$/;"	s
 CC	configure.in	/^AC_SUBST(CC)$/;"	s
-CC	sevenstars/Makefile	/^CC=neo-c$/;"	m
 CC	sevenstars/Makefile.in	/^CC=@CC@$/;"	m
 CC	sevenstars/configure.in	/^AC_SUBST(CC)$/;"	s
-CC	tiny/Makefile	/^CC=gcc$/;"	m
 CC	tiny/Makefile.in	/^CC=@CC@$/;"	m
 CC	tiny/configure.in	/^AC_SUBST(CC)$/;"	s
-CC	wi/Makefile	/^CC=gcc$/;"	m
 CC	wi/Makefile.in	/^CC=@CC@$/;"	m
 CC	wi/configure.in	/^AC_SUBST(CC)$/;"	s
 CFFI	configure.in	/^AC_SUBST(CFFI)$/;"	s
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/data\/data\/com.termux\/files\/home\/include -L\/data\/data\/com.ter/;"	m
 CFLAGS	Makefile.in	/^CFLAGS=@CFLAGS@$/;"	m
-CFLAGS	ayataka/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/data\/data\/com.termux\/files\/home\/include -L\/data\/data\/com.ter/;"	m
 CFLAGS	ayataka/Makefile.in	/^CFLAGS=@CFLAGS@$/;"	m
 CFLAGS	ayataka/configure.in	/^AC_SUBST(CFLAGS)$/;"	s
 CFLAGS	configure.in	/^AC_SUBST(CFLAGS)$/;"	s
-CFLAGS	sevenstars/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/data\/data\/com.termux\/files\/home\/include -L\/data\/data\/com.ter/;"	m
 CFLAGS	sevenstars/Makefile.in	/^CFLAGS=@CFLAGS@$/;"	m
 CFLAGS	sevenstars/configure.in	/^AC_SUBST(CFLAGS)$/;"	s
-CFLAGS	tiny/Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/data\/data\/com.termux\/files\/home\/include -L\/data\/data\/com.ter/;"	m
 CFLAGS	tiny/Makefile.in	/^CFLAGS=@CFLAGS@$/;"	m
 CFLAGS	tiny/configure.in	/^AC_SUBST(CFLAGS)$/;"	s
-CFLAGS	wi/Makefile	/^CFLAGS= -O2$/;"	m
 CFLAGS	wi/Makefile.in	/^CFLAGS=@CFLAGS@$/;"	m
 CFLAGS	wi/configure.in	/^AC_SUBST(CFLAGS)$/;"	s
 CHANGELOG	README.md	/^# CHANGELOG$/;"	c
@@ -127,10 +95,8 @@ COMMON_H	src/common.h	/^#define COMMON_H /;"	d
 COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/xfunc.o src\/alignment.o$/;"	m
 COMMON_OBJS	Makefile.in	/^COMMON_OBJS=@COMMON_OBJS@$/;"	m
 COMMON_OBJS	configure.in	/^AC_SUBST(COMMON_OBJS)$/;"	s
-COMPILER_OBJS	ayataka/Makefile	/^COMPILER_OBJS=src\/parser.o src\/node.o$/;"	m
 COMPILER_OBJS	ayataka/Makefile.in	/^COMPILER_OBJS=@COMPILER_OBJS@$/;"	m
 COMPILER_OBJS	ayataka/configure.in	/^AC_SUBST(COMPILER_OBJS)$/;"	s
-COMPILER_OBJS	sevenstars/Makefile	/^COMPILER_OBJS=src\/parser.o src\/node.o$/;"	m
 COMPILER_OBJS	sevenstars/Makefile.in	/^COMPILER_OBJS=@COMPILER_OBJS@$/;"	m
 COMPILER_OBJS	sevenstars/configure.in	/^AC_SUBST(COMPILER_OBJS)$/;"	s
 COMPILE_ERR_MSG_MAX	src/common.h	/^#define COMPILE_ERR_MSG_MAX /;"	d
@@ -144,17 +110,13 @@ CXXFLAGS	configure.in	/^AC_SUBST(CXXFLAGS)$/;"	s
 DBuilder	src/llvm.cpp	/^DIBuilder* DBuilder;$/;"	v	typeref:typename:DIBuilder *
 DESTDIR	Makefile	/^DESTDIR=\/data\/data\/com.termux\/files\/home$/;"	m
 DESTDIR	Makefile.in	/^DESTDIR=@DESTDIR@$/;"	m
-DESTDIR	ayataka/Makefile	/^DESTDIR=\/data\/data\/com.termux\/files\/home$/;"	m
 DESTDIR	ayataka/Makefile.in	/^DESTDIR=@DESTDIR@$/;"	m
 DESTDIR	ayataka/configure.in	/^AC_SUBST(DESTDIR)$/;"	s
 DESTDIR	configure.in	/^AC_SUBST(DESTDIR)$/;"	s
-DESTDIR	sevenstars/Makefile	/^DESTDIR=\/data\/data\/com.termux\/files\/home$/;"	m
 DESTDIR	sevenstars/Makefile.in	/^DESTDIR=@DESTDIR@$/;"	m
 DESTDIR	sevenstars/configure.in	/^AC_SUBST(DESTDIR)$/;"	s
-DESTDIR	tiny/Makefile	/^DESTDIR=\/data\/data\/com.termux\/files\/home$/;"	m
 DESTDIR	tiny/Makefile.in	/^DESTDIR=@DESTDIR@$/;"	m
 DESTDIR	tiny/configure.in	/^AC_SUBST(DESTDIR)$/;"	s
-DESTDIR	wi/Makefile	/^DESTDIR=\/data\/data\/com.termux\/files\/home$/;"	m
 DESTDIR	wi/Makefile.in	/^DESTDIR=@DESTDIR@$/;"	m
 DESTDIR	wi/configure.in	/^AC_SUBST(DESTDIR)$/;"	s
 DblTy	src/llvm.cpp	/^    DIType* DblTy;$/;"	m	struct:DebugInfo	typeref:typename:DIType *	file:
@@ -167,64 +129,32 @@ EXTERNAL_OBJECT_MAX	src/common.h	/^#define EXTERNAL_OBJECT_MAX /;"	d
 FALSE	src/xfunc.h	/^#define FALSE /;"	d
 GENERICS_TYPES_MAX	sevenstars/src/common.h	/^#define GENERICS_TYPES_MAX /;"	d
 GENERICS_TYPES_MAX	src/common.h	/^#define GENERICS_TYPES_MAX /;"	d
-HAVE_BSD_H	ayataka/config.h	/^#define HAVE_BSD_H /;"	d
-HAVE_BSD_H	sevenstars/config.h	/^#define HAVE_BSD_H /;"	d
-HAVE_ICONV_H	ayataka/config.h	/^#define HAVE_ICONV_H /;"	d
 HAVE_ICONV_H	config.h	/^#define HAVE_ICONV_H /;"	d
-HAVE_ICONV_H	sevenstars/config.h	/^#define HAVE_ICONV_H /;"	d
-HAVE_ICONV_H	tiny/config.h	/^#define HAVE_ICONV_H /;"	d
-HAVE_ICONV_H	wi/config.h	/^#define HAVE_ICONV_H /;"	d
-HAVE_MATH_H	ayataka/config.h	/^#define HAVE_MATH_H /;"	d
 HAVE_MATH_H	config.h	/^#define HAVE_MATH_H /;"	d
-HAVE_MATH_H	sevenstars/config.h	/^#define HAVE_MATH_H /;"	d
-HAVE_MATH_H	tiny/config.h	/^#define HAVE_MATH_H /;"	d
-HAVE_MATH_H	wi/config.h	/^#define HAVE_MATH_H /;"	d
-HAVE_NCURSESW_H	ayataka/config.h	/^#define HAVE_NCURSESW_H /;"	d
-HAVE_NCURSESW_H	sevenstars/config.h	/^#define HAVE_NCURSESW_H /;"	d
-HAVE_NCURSESW_H	tiny/config.h	/^#define HAVE_NCURSESW_H /;"	d
-HAVE_NCURSESW_H	wi/config.h	/^#define HAVE_NCURSESW_H /;"	d
-HAVE_PCRE_H	ayataka/config.h	/^#define HAVE_PCRE_H /;"	d
 HAVE_PCRE_H	config.h	/^#define HAVE_PCRE_H /;"	d
-HAVE_PCRE_H	sevenstars/config.h	/^#define HAVE_PCRE_H /;"	d
-HAVE_PCRE_H	tiny/config.h	/^#define HAVE_PCRE_H /;"	d
-HAVE_PCRE_H	wi/config.h	/^#define HAVE_PCRE_H /;"	d
-HAVE_PTHREAD_H	ayataka/config.h	/^#define HAVE_PTHREAD_H /;"	d
 HAVE_PTHREAD_H	config.h	/^#define HAVE_PTHREAD_H /;"	d
-HAVE_PTHREAD_H	sevenstars/config.h	/^#define HAVE_PTHREAD_H /;"	d
-HAVE_PTHREAD_H	tiny/config.h	/^#define HAVE_PTHREAD_H /;"	d
-HAVE_PTHREAD_H	wi/config.h	/^#define HAVE_PTHREAD_H /;"	d
-HAVE_READLINE_H	ayataka/config.h	/^#define HAVE_READLINE_H /;"	d
-HAVE_READLINE_H	sevenstars/config.h	/^#define HAVE_READLINE_H /;"	d
 HEAP_HANDLE_INIT_SIZE	sevenstars/src/common.h	/^#define HEAP_HANDLE_INIT_SIZE /;"	d
 HEAP_INIT_SIZE	sevenstars/src/common.h	/^#define HEAP_INIT_SIZE /;"	d
 IMPL_DEF_MAX	src/common.h	/^#define IMPL_DEF_MAX /;"	d
 INIT_ARRAY_MAX	src/common.h	/^#define INIT_ARRAY_MAX /;"	d
 INSTALL	Makefile.in	/^INSTALL=@INSTALL@$/;"	m
 INSTALL	README.md	/^# INSTALL$/;"	c
-INSTALL	ayataka/Makefile	/^INSTALL=\/data\/data\/com.termux\/files\/usr\/bin\/install -c$/;"	m
 INSTALL	ayataka/Makefile.in	/^INSTALL=@INSTALL@$/;"	m
-INSTALL	sevenstars/Makefile	/^INSTALL=\/data\/data\/com.termux\/files\/usr\/bin\/install -c$/;"	m
 INSTALL	sevenstars/Makefile.in	/^INSTALL=@INSTALL@$/;"	m
-INSTALL	tiny/Makefile	/^INSTALL=\/data\/data\/com.termux\/files\/usr\/bin\/install -c$/;"	m
 INSTALL	tiny/Makefile.in	/^INSTALL=@INSTALL@$/;"	m
-INSTALL	wi/Makefile	/^INSTALL=\/data\/data\/com.termux\/files\/usr\/bin\/install -c$/;"	m
 INSTALL	wi/Makefile.in	/^INSTALL=@INSTALL@$/;"	m
 INTRODUCTION	README.md	/^# INTRODUCTION$/;"	c
 JOB_TITLE_MAX	sevenstars/src/common.h	/^#define JOB_TITLE_MAX /;"	d
 KSDbgInfo	src/llvm.cpp	/^DebugInfo KSDbgInfo;$/;"	v	typeref:typename:DebugInfo
 LIBS	Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lpthread -lrt$/;"	m
 LIBS	Makefile.in	/^LIBS=@LIBS@$/;"	m
-LIBS	ayataka/Makefile	/^LIBS= -lutil -lncursesw -lreadline -lbsd -ldl -lm -lpthread -lpcre -lreadline -lrt$/;"	m
 LIBS	ayataka/Makefile.in	/^LIBS=@LIBS@$/;"	m
 LIBS	ayataka/configure.in	/^AC_SUBST(LIBS)$/;"	s
 LIBS	configure.in	/^AC_SUBST(LIBS)$/;"	s
-LIBS	sevenstars/Makefile	/^LIBS= -lutil -lncursesw -lreadline -lbsd -ldl -lm -lpthread -lpcre -lreadline -lrt$/;"	m
 LIBS	sevenstars/Makefile.in	/^LIBS=@LIBS@$/;"	m
 LIBS	sevenstars/configure.in	/^AC_SUBST(LIBS)$/;"	s
-LIBS	tiny/Makefile	/^LIBS= -lutil -ldl -lm -lpcre -lncursesw -lpthread -lrt$/;"	m
 LIBS	tiny/Makefile.in	/^LIBS=@LIBS@$/;"	m
 LIBS	tiny/configure.in	/^AC_SUBST(LIBS)$/;"	s
-LIBS	wi/Makefile	/^LIBS= -ldl -lm -lpcre -lncursesw -lrt -lpthread$/;"	m
 LIBS	wi/Makefile.in	/^LIBS=@LIBS@$/;"	m
 LIBS	wi/configure.in	/^AC_SUBST(LIBS)$/;"	s
 LIST_ELEMENT_MAX	sevenstars/src/common.h	/^#define LIST_ELEMENT_MAX /;"	d
@@ -242,19 +172,14 @@ METHOD_DEFAULT_PARAM_MAX	src/common.h	/^#define METHOD_DEFAULT_PARAM_MAX /;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass	file:
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
 NATIVE_METHOD_NAME_MAX	sevenstars/src/common.h	/^#define NATIVE_METHOD_NAME_MAX /;"	d
-NCC	tiny/Makefile	/^NCC=neo-c$/;"	m
 NCC	tiny/Makefile.in	/^NCC=@NCC@$/;"	m
 NCC	tiny/configure.in	/^AC_SUBST(NCC)$/;"	s
-NCC	wi/Makefile	/^NCC=neo-c$/;"	m
 NCC	wi/Makefile.in	/^NCC=@NCC@$/;"	m
 NCC	wi/configure.in	/^AC_SUBST(NCC)$/;"	s
-NCFLAGS	ayataka/Makefile	/^NCFLAGS=$/;"	m
 NCFLAGS	ayataka/Makefile.in	/^NCFLAGS=@NCFLAGS@$/;"	m
 NCFLAGS	ayataka/configure.in	/^AC_SUBST(NCFLAGS)$/;"	s
-NCFLAGS	sevenstars/Makefile	/^NCFLAGS=$/;"	m
 NCFLAGS	sevenstars/Makefile.in	/^NCFLAGS=@NCFLAGS@$/;"	m
 NCFLAGS	sevenstars/configure.in	/^AC_SUBST(NCFLAGS)$/;"	s
-NCFLAGS	wi/Makefile	/^NCFLAGS=$/;"	m
 NCFLAGS	wi/Makefile.in	/^NCFLAGS=@NCFLAGS@$/;"	m
 NCFLAGS	wi/configure.in	/^AC_SUBST(NCFLAGS)$/;"	s
 NEO_C_STACK_SIZE	src/common.h	/^#define NEO_C_STACK_SIZE /;"	d
@@ -274,26 +199,20 @@ NODETYPE_VAR	tiny/common.h	/^enum { NODETYPE_POP, NODETYPE_INT, NODETYPE_PLUS, N
 NODE_TYPE_PAGE_SIZE	src/node_type.c	/^#define NODE_TYPE_PAGE_SIZE /;"	d	file:
 OBJS	Makefile	/^OBJS=src\/source_compiler.o src\/parser.o src\/node.o src\/klass.o src\/node_type.o src\/typedef/;"	m
 OBJS	Makefile.in	/^OBJS=@OBJS@$/;"	m
-OBJS	ayataka/Makefile	/^OBJS=src\/vm.o$/;"	m
 OBJS	ayataka/Makefile.in	/^OBJS=@OBJS@$/;"	m
 OBJS	ayataka/configure.in	/^AC_SUBST(OBJS)$/;"	s
 OBJS	configure.in	/^AC_SUBST(OBJS)$/;"	s
-OBJS	sevenstars/Makefile	/^OBJS=src\/vm.o$/;"	m
 OBJS	sevenstars/Makefile.in	/^OBJS=@OBJS@$/;"	m
 OBJS	sevenstars/configure.in	/^AC_SUBST(OBJS)$/;"	s
 OS	Makefile	/^OS=LINUX$/;"	m
 OS	Makefile.in	/^OS=@OS@$/;"	m
-OS	ayataka/Makefile	/^OS=LINUX$/;"	m
 OS	ayataka/Makefile.in	/^OS=@OS@$/;"	m
 OS	ayataka/configure.in	/^AC_SUBST(OS)$/;"	s
 OS	configure.in	/^AC_SUBST(OS)$/;"	s
-OS	sevenstars/Makefile	/^OS=LINUX$/;"	m
 OS	sevenstars/Makefile.in	/^OS=@OS@$/;"	m
 OS	sevenstars/configure.in	/^AC_SUBST(OS)$/;"	s
-OS	tiny/Makefile	/^OS=LINUX$/;"	m
 OS	tiny/Makefile.in	/^OS=@OS@$/;"	m
 OS	tiny/configure.in	/^AC_SUBST(OS)$/;"	s
-OS	wi/Makefile	/^OS=$/;"	m
 OS	wi/Makefile.in	/^OS=@OS@$/;"	m
 OS	wi/configure.in	/^AC_SUBST(OS)$/;"	s
 PARAMS_MAX	sevenstars/src/common.h	/^#define PARAMS_MAX /;"	d
@@ -333,9 +252,7 @@ XFUNC_H	src/xfunc.h	/^#define XFUNC_H /;"	d
 [^	sevenstars/configure	/^s\/^ \\('"$ac_word_re"'\\)\\(([^()]*)\\)[	 ]*\\(.*\\)\/P["\\1"]="\\2"\\$/;"	f
 [^	tiny/configure	/^s\/^ \\('"$ac_word_re"'\\)\\(([^()]*)\\)[	 ]*\\(.*\\)\/P["\\1"]="\\2"\\$/;"	f
 [^	wi/configure	/^s\/^ \\('"$ac_word_re"'\\)\\(([^()]*)\\)[	 ]*\\(.*\\)\/P["\\1"]="\\2"\\$/;"	f
-_ACAWK	ayataka/config.status	/^cat >>"$ac_tmp\/subs1.awk" <<_ACAWK &&$/;"	h
 _ACAWK	config.status	/^cat >>"$ac_tmp\/subs1.awk" <<_ACAWK &&$/;"	h
-_ACAWK	sevenstars/config.status	/^cat >>"$ac_tmp\/subs1.awk" <<_ACAWK &&$/;"	h
 _ACAWK	tiny/config.status	/^cat >>"$ac_tmp\/subs1.awk" <<_ACAWK &&$/;"	h
 _ACAWK	wi/config.status	/^cat >>"$ac_tmp\/subs1.awk" <<_ACAWK &&$/;"	h
 _ACEOF	ayataka/configure	/^	 cat confdefs.h - <<_ACEOF >conftest.$ac_ext$/;"	h
@@ -398,11 +315,9 @@ _ACEOF	wi/configure	/^cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1$/;"	h
 _ACEOF	wi/configure	/^cat >>confdefs.h <<_ACEOF$/;"	h
 _ACEOF	wi/configure	/^cat >config.log <<_ACEOF$/;"	h
 _ACEOF	wi/configure	/^cat confdefs.h - <<_ACEOF >conftest.$ac_ext$/;"	h
-_ASBOX	ayataka/config.status	/^  sed 'h;s\/.\/-\/g;s\/^...\/## \/;s\/...$\/ ##\/;p;x;p;x' <<_ASBOX$/;"	h
 _ASBOX	ayataka/configure	/^  sed 'h;s\/.\/-\/g;s\/^...\/## \/;s\/...$\/ ##\/;p;x;p;x' <<_ASBOX$/;"	h
 _ASBOX	config.status	/^  sed 'h;s\/.\/-\/g;s\/^...\/## \/;s\/...$\/ ##\/;p;x;p;x' <<_ASBOX$/;"	h
 _ASBOX	configure	/^  sed 'h;s\/.\/-\/g;s\/^...\/## \/;s\/...$\/ ##\/;p;x;p;x' <<_ASBOX$/;"	h
-_ASBOX	sevenstars/config.status	/^  sed 'h;s\/.\/-\/g;s\/^...\/## \/;s\/...$\/ ##\/;p;x;p;x' <<_ASBOX$/;"	h
 _ASBOX	sevenstars/configure	/^  sed 'h;s\/.\/-\/g;s\/^...\/## \/;s\/...$\/ ##\/;p;x;p;x' <<_ASBOX$/;"	h
 _ASBOX	tiny/config.status	/^  sed 'h;s\/.\/-\/g;s\/^...\/## \/;s\/...$\/ ##\/;p;x;p;x' <<_ASBOX$/;"	h
 _ASBOX	tiny/configure	/^  sed 'h;s\/.\/-\/g;s\/^...\/## \/;s\/...$\/ ##\/;p;x;p;x' <<_ASBOX$/;"	h
@@ -423,15 +338,11 @@ _GNU_SOURCE	neo-c.h	/^#define _GNU_SOURCE$/;"	d
 _USE_MISC	code/neo-c.h	/^#define _USE_MISC$/;"	d
 _USE_MISC	neo-c.h	/^#define _USE_MISC$/;"	d
 _USE_MISC	sevenstars/src/common.h	/^#define _USE_MISC$/;"	d
-__32BIT_CPU__	ayataka/config.h	/^#define __32BIT_CPU__ /;"	d
 __32BIT_CPU__	ayataka/configure.in	/^    AC_DEFINE(__32BIT_CPU__, 1)$/;"	d
 __32BIT_CPU__	config.h	/^#define __32BIT_CPU__ /;"	d
 __32BIT_CPU__	configure.in	/^    AC_DEFINE(__32BIT_CPU__, 1)$/;"	d
-__32BIT_CPU__	sevenstars/config.h	/^#define __32BIT_CPU__ /;"	d
 __32BIT_CPU__	sevenstars/configure.in	/^    AC_DEFINE(__32BIT_CPU__, 1)$/;"	d
-__32BIT_CPU__	tiny/config.h	/^#define __32BIT_CPU__ /;"	d
 __32BIT_CPU__	tiny/configure.in	/^    AC_DEFINE(__32BIT_CPU__, 1)$/;"	d
-__32BIT_CPU__	wi/config.h	/^#define __32BIT_CPU__ /;"	d
 __32BIT_CPU__	wi/configure.in	/^    AC_DEFINE(__32BIT_CPU__, 1)$/;"	d
 __64BIT_CPU__	ayataka/configure.in	/^    AC_DEFINE(__64BIT_CPU__, 1)$/;"	d
 __64BIT_CPU__	configure.in	/^    AC_DEFINE(__64BIT_CPU__, 1)$/;"	d
@@ -453,13 +364,10 @@ __FREEBSD__	ayataka/configure.in	/^    AC_DEFINE(__FREEBSD__, 1)$/;"	d
 __FREEBSD__	configure.in	/^    AC_DEFINE(__FREEBSD__, 1)$/;"	d
 __FREEBSD__	sevenstars/configure.in	/^    AC_DEFINE(__FREEBSD__, 1)$/;"	d
 __FREEBSD__	tiny/configure.in	/^    AC_DEFINE(__FREEBSD__, 1)$/;"	d
-__LINUX__	ayataka/config.h	/^#define __LINUX__ /;"	d
 __LINUX__	ayataka/configure.in	/^    AC_DEFINE(__LINUX__, 1)$/;"	d
 __LINUX__	config.h	/^#define __LINUX__ /;"	d
 __LINUX__	configure.in	/^    AC_DEFINE(__LINUX__, 1)$/;"	d
-__LINUX__	sevenstars/config.h	/^#define __LINUX__ /;"	d
 __LINUX__	sevenstars/configure.in	/^    AC_DEFINE(__LINUX__, 1)$/;"	d
-__LINUX__	tiny/config.h	/^#define __LINUX__ /;"	d
 __LINUX__	tiny/configure.in	/^    AC_DEFINE(__LINUX__, 1)$/;"	d
 __STDC_CONSTANT_MACROS	code/neo-c.h	/^#define __STDC_CONSTANT_MACROS /;"	d
 __STDC_CONSTANT_MACROS	neo-c.h	/^#define __STDC_CONSTANT_MACROS /;"	d
@@ -554,13 +462,9 @@ alignment	src/alignment.c	/^void alignment(unsigned int* size)$/;"	f	typeref:typ
 alignment_pointer	src/alignment.c	/^void alignment_pointer(char** p, char* head)$/;"	f	typeref:typename:void
 all	Makefile	/^all: neo-c neo-c.o$/;"	t
 all	Makefile.in	/^all: neo-c neo-c.o$/;"	t
-all	ayataka/Makefile	/^all: ayataka $/;"	t
 all	ayataka/Makefile.in	/^all: ayataka $/;"	t
-all	sevenstars/Makefile	/^all: sevenstars core$/;"	t
 all	sevenstars/Makefile.in	/^all: sevenstars core$/;"	t
-all	tiny/Makefile	/^all: tiny$/;"	t
 all	tiny/Makefile.in	/^all: tiny$/;"	t
-all	wi/Makefile	/^all: wi$/;"	t
 all	wi/Makefile.in	/^all: wi$/;"	t
 alloc_class	src/klass.c	/^static sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_, BOOL number_type, /;"	f	typeref:typename:sCLClass *	file:
 alloc_enum	src/klass.c	/^sCLClass* alloc_enum(char* class_name)$/;"	f	typeref:typename:sCLClass *
@@ -582,51 +486,41 @@ append_str_to_constant_pool	src/constant.c	/^unsigned int append_str_to_constant
 append_wstr_to_constant_pool	src/constant.c	/^unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f	typeref:typename:unsigned int
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	typeref:typename:void	file:
 arrange_stack	src/llvm.cpp	/^void arrange_stack(sCompileInfo* info, int top)$/;"	f	typeref:typename:void
-as_fn_append	ayataka/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	ayataka/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_append	sevenstars/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	sevenstars/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	tiny/configure	/^  as_fn_append ()$/;"	f
 as_fn_append	wi/config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	wi/configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	ayataka/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	ayataka/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_arith	sevenstars/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	sevenstars/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	tiny/configure	/^  as_fn_arith ()$/;"	f
 as_fn_arith	wi/config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	wi/configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	ayataka/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	ayataka/configure	/^as_fn_error ()$/;"	f
 as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_error	sevenstars/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	sevenstars/configure	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	tiny/configure	/^as_fn_error ()$/;"	f
 as_fn_error	wi/config.status	/^as_fn_error ()$/;"	f
 as_fn_error	wi/configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	ayataka/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	ayataka/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_executable_p	sevenstars/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	sevenstars/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	tiny/configure	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	wi/config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	wi/configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	ayataka/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	ayataka/configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
-as_fn_exit	sevenstars/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	sevenstars/configure	/^as_fn_exit ()$/;"	f
 as_fn_exit	tiny/config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	tiny/configure	/^as_fn_exit ()$/;"	f
@@ -637,11 +531,9 @@ as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	sevenstars/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	tiny/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
 as_fn_failure	wi/configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	ayataka/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	ayataka/configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
-as_fn_mkdir_p	sevenstars/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	sevenstars/configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	tiny/config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	tiny/configure	/^as_fn_mkdir_p ()$/;"	f
@@ -657,11 +549,9 @@ as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	sevenstars/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	tiny/configure	/^as_fn_ret_success () { return 0; }$/;"	f
 as_fn_ret_success	wi/configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	ayataka/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	ayataka/configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
-as_fn_set_status	sevenstars/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	sevenstars/configure	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	tiny/config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	tiny/configure	/^as_fn_set_status ()$/;"	f
@@ -672,11 +562,9 @@ as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	sevenstars/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	tiny/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_success	wi/configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	ayataka/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	ayataka/configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
-as_fn_unset	sevenstars/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	sevenstars/configure	/^as_fn_unset ()$/;"	f
 as_fn_unset	tiny/config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	tiny/configure	/^as_fn_unset ()$/;"	f
@@ -686,19 +574,14 @@ at	code/neo-c.h	/^    T2& at(map<T, T2>* self, T& key, T2& default_value) $/;"	f
 at	neo-c.h	/^    T2& at(map<T, T2>* self, T& key, T2& default_value) $/;"	f	typeref:typename:T2 &
 at_clone	neo-c.h	/^    T2 at_clone(map<T, T2>* self, T& key, T2& default_value) $/;"	f	typeref:typename:T2
 auto_cast_posibility	src/node_type.c	/^BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)$/;"	f	typeref:typename:BOOL
-ayataka	ayataka/Makefile	/^ayataka: config.h src\/*.h Makefile configure src\/main.nc src\/filer.o$/;"	t
 ayataka	ayataka/Makefile.in	/^ayataka: config.h src\/*.h Makefile configure src\/main.nc src\/filer.o$/;"	t
 b	code/HelloWorld6.h	/^    int b;$/;"	m	struct:version	typeref:typename:int
 binded_value	src/llvm_common.hpp	/^    BOOL binded_value;$/;"	m	struct:LVALUEStruct	typeref:typename:BOOL
 bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	Makefile.in	/^bindir=@bindir@$/;"	m
-bindir	ayataka/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	ayataka/Makefile.in	/^bindir=@bindir@$/;"	m
-bindir	sevenstars/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	sevenstars/Makefile.in	/^bindir=@bindir@$/;"	m
-bindir	tiny/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	tiny/Makefile.in	/^bindir=@bindir@$/;"	m
-bindir	wi/Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 bindir	wi/Makefile.in	/^bindir=@bindir@$/;"	m
 buf	code/neo-c.h	/^    char* buf;$/;"	m	struct:buffer	typeref:typename:char *
 buf	neo-c.h	/^    char* buf;$/;"	m	struct:buffer	typeref:typename:char *
@@ -725,13 +608,9 @@ class_final	src/klass.c	/^void class_final()$/;"	f	typeref:typename:void
 class_init	src/klass.c	/^void class_init()$/;"	f	typeref:typename:void
 clean	Makefile	/^clean:$/;"	t
 clean	Makefile.in	/^clean:$/;"	t
-clean	ayataka/Makefile	/^clean:$/;"	t
 clean	ayataka/Makefile.in	/^clean:$/;"	t
-clean	sevenstars/Makefile	/^clean:$/;"	t
 clean	sevenstars/Makefile.in	/^clean:$/;"	t
-clean	tiny/Makefile	/^clean:$/;"	t
 clean	tiny/Makefile.in	/^clean:$/;"	t
-clean	wi/Makefile	/^clean:$/;"	t
 clean	wi/Makefile.in	/^clean:$/;"	t
 clint64	src/common.h	/^#define clint64 /;"	d
 cllong	sevenstars/src/common.h	/^#define cllong /;"	d
@@ -853,7 +732,6 @@ compiler_final	src/compiler.c	/^static void compiler_final()$/;"	f	typeref:typen
 compiler_init	src/compiler.c	/^static void compiler_init()$/;"	f	typeref:typename:void	file:
 compiling_fun_name	src/common.h	/^    char compiling_fun_name[VAR_NAME_MAX];$/;"	m	struct:sCompileInfoStruct	typeref:typename:char[]
 compiling_struct_name	src/common.h	/^    char compiling_struct_name[VAR_NAME_MAX];$/;"	m	struct:sCompileInfoStruct	typeref:typename:char[]
-core	sevenstars/Makefile	/^core: core.ss$/;"	t
 core	sevenstars/Makefile.in	/^core: core.ss$/;"	t
 createDebugFunctionInfo	src/llvm.cpp	/^void createDebugFunctionInfo(int sline, char* fname, sFunction* function, Function* llvm_functio/;"	f	typeref:typename:void
 createDebugFunctionType	src/llvm.cpp	/^static DISubroutineType* createDebugFunctionType(sFunction* function, DIFile* unit)$/;"	f	typeref:typename:DISubroutineType *	file:
@@ -880,23 +758,15 @@ current_block	src/common.h	/^    void* current_block;$/;"	m	struct:sCompileInfoS
 current_node_block	src/common.h	/^    struct sNodeBlockStruct* current_node_block;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sNodeBlockStruct *
 datadir	Makefile	/^datadir=${datarootdir}$/;"	m
 datadir	Makefile.in	/^datadir=@datadir@$/;"	m
-datadir	ayataka/Makefile	/^datadir=${datarootdir}$/;"	m
 datadir	ayataka/Makefile.in	/^datadir=@datadir@$/;"	m
-datadir	sevenstars/Makefile	/^datadir=${datarootdir}$/;"	m
 datadir	sevenstars/Makefile.in	/^datadir=@datadir@$/;"	m
-datadir	tiny/Makefile	/^datadir=${datarootdir}$/;"	m
 datadir	tiny/Makefile.in	/^datadir=@datadir@$/;"	m
-datadir	wi/Makefile	/^datadir=${datarootdir}$/;"	m
 datadir	wi/Makefile.in	/^datadir=@datadir@$/;"	m
 datarootdir	Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
 datarootdir	Makefile.in	/^datarootdir=@datarootdir@\/neo-c$/;"	m
-datarootdir	ayataka/Makefile	/^datarootdir=${prefix}\/share\/sevenstars$/;"	m
 datarootdir	ayataka/Makefile.in	/^datarootdir=@datarootdir@\/sevenstars$/;"	m
-datarootdir	sevenstars/Makefile	/^datarootdir=${prefix}\/share\/sevenstars$/;"	m
 datarootdir	sevenstars/Makefile.in	/^datarootdir=@datarootdir@\/sevenstars$/;"	m
-datarootdir	tiny/Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
 datarootdir	tiny/Makefile.in	/^datarootdir=@datarootdir@\/neo-c$/;"	m
-datarootdir	wi/Makefile	/^datarootdir=${prefix}\/share\/neo-c$/;"	m
 datarootdir	wi/Makefile.in	/^datarootdir=@datarootdir@\/neo-c$/;"	m
 debug	ayataka/configure.in	/^AC_ARG_WITH(debug,              [  --with-debug              include debug info ], [ DEBUGGING=1/;"	w
 debug	configure.in	/^AC_ARG_WITH(debug,              [  --with-debug              include debug info ], [ DEBUGGING=1/;"	w
@@ -914,23 +784,15 @@ delete_range	code/neo-c.h	/^    void delete_range(list<T>* self, int head, int t
 delete_range	neo-c.h	/^    void delete_range(list<T>* self, int head, int tail)$/;"	f	typeref:typename:void
 distclean	Makefile	/^distclean: clean$/;"	t
 distclean	Makefile.in	/^distclean: clean$/;"	t
-distclean	ayataka/Makefile	/^distclean: clean$/;"	t
 distclean	ayataka/Makefile.in	/^distclean: clean$/;"	t
-distclean	sevenstars/Makefile	/^distclean: clean$/;"	t
 distclean	sevenstars/Makefile.in	/^distclean: clean$/;"	t
-distclean	tiny/Makefile	/^distclean: clean$/;"	t
 distclean	tiny/Makefile.in	/^distclean: clean$/;"	t
-distclean	wi/Makefile	/^distclean: clean$/;"	t
 distclean	wi/Makefile.in	/^distclean: clean$/;"	t
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 docdir	Makefile.in	/^docdir=@datadir@\/doc$/;"	m
-docdir	ayataka/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 docdir	ayataka/Makefile.in	/^docdir=@datadir@\/doc$/;"	m
-docdir	sevenstars/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 docdir	sevenstars/Makefile.in	/^docdir=@datadir@\/doc$/;"	m
-docdir	tiny/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 docdir	tiny/Makefile.in	/^docdir=@datadir@\/doc$/;"	m
-docdir	wi/Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 docdir	wi/Makefile.in	/^docdir=@datadir@\/doc$/;"	m
 dollar_endonly	code/neo-c.h	/^    bool dollar_endonly;$/;"	m	struct:regex_struct	typeref:typename:bool
 dollar_endonly	neo-c.h	/^    bool dollar_endonly;$/;"	m	struct:regex_struct	typeref:typename:bool
@@ -971,9 +833,7 @@ err_num	src/common.h	/^    int err_num;$/;"	m	struct:sParserInfoStruct	typeref:t
 err_num	tiny/common.h	/^    int err_num;$/;"	m	struct:TinyParser	typeref:typename:int
 exec_prefix	Makefile	/^exec_prefix=${prefix}$/;"	m
 exec_prefix	Makefile.in	/^exec_prefix=@exec_prefix@$/;"	m
-exec_prefix	ayataka/Makefile	/^exec_prefix=${prefix}$/;"	m
 exec_prefix	ayataka/Makefile.in	/^exec_prefix=@exec_prefix@$/;"	m
-exec_prefix	sevenstars/Makefile	/^exec_prefix=${prefix}$/;"	m
 exec_prefix	sevenstars/Makefile.in	/^exec_prefix=@exec_prefix@$/;"	m
 expect_next_character_with_one_forward	src/parser.c	/^void expect_next_character_with_one_forward(char* characters, sParserInfo* info)$/;"	f	typeref:typename:void
 expression	src/parser.c	/^BOOL expression(unsigned int* node, sParserInfo* info) $/;"	f	typeref:typename:BOOL
@@ -1114,13 +974,9 @@ in_inline_function	src/common.h	/^    BOOL in_inline_function;$/;"	m	struct:sCom
 included_generics_type	src/node_type.c	/^BOOL included_generics_type(sNodeType* node_type, sCLClass* checked_class[], int* num_checked_cl/;"	f	typeref:typename:BOOL
 includedir	Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 includedir	Makefile.in	/^includedir=@includedir@\/neo-c$/;"	m
-includedir	ayataka/Makefile	/^includedir=${prefix}\/include\/sevenstars$/;"	m
 includedir	ayataka/Makefile.in	/^includedir=@includedir@\/sevenstars$/;"	m
-includedir	sevenstars/Makefile	/^includedir=${prefix}\/include\/sevenstars$/;"	m
 includedir	sevenstars/Makefile.in	/^includedir=@includedir@\/sevenstars$/;"	m
-includedir	tiny/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 includedir	tiny/Makefile.in	/^includedir=@includedir@\/neo-c$/;"	m
-includedir	wi/Makefile	/^includedir=${prefix}\/include\/neo-c$/;"	m
 includedir	wi/Makefile.in	/^includedir=@includedir@\/neo-c$/;"	m
 init_block_vtable	src/vtable.c	/^sVarTable* init_block_vtable(sVarTable* lv_table, BOOL no_increment_block_level)$/;"	f	typeref:typename:sVarTable *
 init_macro	src/macro.c	/^void init_macro()$/;"	f	typeref:typename:void
@@ -1140,13 +996,9 @@ insert	neo-c.h	/^    void insert(list<T>* self, int position, T item)$/;"	f	type
 insert	neo-c.h	/^    void insert(map<T,T2>* self, T key, T2 item) $/;"	f	typeref:typename:void
 install	Makefile	/^install:$/;"	t
 install	Makefile.in	/^install:$/;"	t
-install	ayataka/Makefile	/^install:$/;"	t
 install	ayataka/Makefile.in	/^install:$/;"	t
-install	sevenstars/Makefile	/^install:$/;"	t
 install	sevenstars/Makefile.in	/^install:$/;"	t
-install	tiny/Makefile	/^install:$/;"	t
 install	tiny/Makefile.in	/^install:$/;"	t
-install	wi/Makefile	/^install:$/;"	t
 install	wi/Makefile.in	/^install:$/;"	t
 intValue	tiny/common.h	/^    int intValue;$/;"	m	struct:TinyNode	typeref:typename:int
 is_free	src/memalloc.c	/^    unsigned is_free;$/;"	m	struct:header_t	typeref:typename:unsigned	file:
@@ -1296,13 +1148,9 @@ length	neo-c.h	/^    int length(map<T, T2>* self) {$/;"	f	typeref:typename:int
 length	neo-c.h	/^    int length(vector<T>* self)$/;"	f	typeref:typename:int
 libdir	Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 libdir	Makefile.in	/^libdir=@libdir@$/;"	m
-libdir	ayataka/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 libdir	ayataka/Makefile.in	/^libdir=@libdir@$/;"	m
-libdir	sevenstars/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 libdir	sevenstars/Makefile.in	/^libdir=@libdir@$/;"	m
-libdir	tiny/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 libdir	tiny/Makefile.in	/^libdir=@libdir@$/;"	m
-libdir	wi/Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
 libdir	wi/Makefile.in	/^libdir=@libdir@$/;"	m
 list	wi/index.html	/^    <ul id="list">$/;"	I
 list1	neo-c.h	/^        var list1 = new list<T>.initialize();$/;"	v	typeref:typename:var
@@ -1576,13 +1424,9 @@ make_clone_for_recursive_field_type	src/llvm.cpp	/^BOOL make_clone_for_recursive
 make_finalize_for_recursive_field_type	src/llvm.cpp	/^BOOL make_finalize_for_recursive_field_type(sNodeType* node_type, sCompileInfo* info) $/;"	f	typeref:typename:BOOL
 mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
 mandir	Makefile.in	/^mandir=@mandir@$/;"	m
-mandir	ayataka/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 mandir	ayataka/Makefile.in	/^mandir=@mandir@$/;"	m
-mandir	sevenstars/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 mandir	sevenstars/Makefile.in	/^mandir=@mandir@$/;"	m
-mandir	tiny/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 mandir	tiny/Makefile.in	/^mandir=@mandir@$/;"	m
-mandir	wi/Makefile	/^mandir=${datarootdir}\/man$/;"	m
 mandir	wi/Makefile.in	/^mandir=@mandir@$/;"	m
 map	code/neo-c.h	/^struct map<T, T2>$/;"	s
 map	neo-c.h	/^struct map<T, T2>$/;"	s
@@ -1698,13 +1542,9 @@ parser_final	src/parser.c	/^void parser_final()$/;"	f	typeref:typename:void
 parser_init	src/parser.c	/^void parser_init()$/;"	f	typeref:typename:void
 permission	Makefile	/^permission:$/;"	t
 permission	Makefile.in	/^permission:$/;"	t
-permission	ayataka/Makefile	/^permission:$/;"	t
 permission	ayataka/Makefile.in	/^permission:$/;"	t
-permission	sevenstars/Makefile	/^permission:$/;"	t
 permission	sevenstars/Makefile.in	/^permission:$/;"	t
-permission	tiny/Makefile	/^permission:$/;"	t
 permission	tiny/Makefile.in	/^permission:$/;"	t
-permission	wi/Makefile	/^permission:$/;"	t
 permission	wi/Makefile.in	/^permission:$/;"	t
 pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sParserInfoStruct *
 ploom tech console filer	ayataka/README.md	/^# ploom tech console filer$/;"	c
@@ -1716,13 +1556,9 @@ pop_front	neo-c.h	/^    T pop_front(list<T>* self, T& default_value)$/;"	f	typer
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sParserInfo* info)$/;"	f	typeref:typename:BOOL	file:
 prefix	Makefile	/^prefix=\/data\/data\/com.termux\/files\/home$/;"	m
 prefix	Makefile.in	/^prefix=@prefix@$/;"	m
-prefix	ayataka/Makefile	/^prefix=\/data\/data\/com.termux\/files\/home$/;"	m
 prefix	ayataka/Makefile.in	/^prefix=@prefix@$/;"	m
-prefix	sevenstars/Makefile	/^prefix=\/data\/data\/com.termux\/files\/home$/;"	m
 prefix	sevenstars/Makefile.in	/^prefix=@prefix@$/;"	m
-prefix	tiny/Makefile	/^prefix=\/data\/data\/com.termux\/files\/home exec_prefix=${prefix}$/;"	m
 prefix	tiny/Makefile.in	/^prefix=@prefix@ exec_prefix=@exec_prefix@$/;"	m
-prefix	wi/Makefile	/^prefix=\/data\/data\/com.termux\/files\/home exec_prefix=${prefix}$/;"	m
 prefix	wi/Makefile.in	/^prefix=@prefix@ exec_prefix=@exec_prefix@$/;"	m
 preprocess_source	src/preprocessor.c	/^static BOOL preprocess_source(char* sname, char* output_sname)$/;"	f	typeref:typename:BOOL	file:
 preprocessor	src/preprocessor.c	/^static BOOL preprocessor(sBuf* source, sBuf* source2)$/;"	f	typeref:typename:BOOL	file:
@@ -1961,17 +1797,12 @@ same_struct_type	src/llvm.cpp	/^static BOOL same_struct_type(sNodeType* left_typ
 search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_nam/;"	f	typeref:typename:BOOL	file:
 setCurrentDebugLocation	src/llvm.cpp	/^void setCurrentDebugLocation(int sline)$/;"	f	typeref:typename:void
 set_max_block_var_num	src/vtable.c	/^void set_max_block_var_num(sVarTable* lv_table, sVarTable* old_table)$/;"	f	typeref:typename:void
-sevenstars	sevenstars/Makefile	/^sevenstars: config.h src\/*.h Makefile configure src\/main.nc src\/compiler.o src\/parser.o src\//;"	t
 sevenstars	sevenstars/Makefile.in	/^sevenstars: config.h src\/*.h Makefile configure src\/main.nc src\/compiler.o src\/parser.o src\//;"	t
 sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 sharedstatedir	Makefile.in	/^sharedstatedir=@sharedstatedir@$/;"	m
-sharedstatedir	ayataka/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 sharedstatedir	ayataka/Makefile.in	/^sharedstatedir=@sharedstatedir@$/;"	m
-sharedstatedir	sevenstars/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 sharedstatedir	sevenstars/Makefile.in	/^sharedstatedir=@sharedstatedir@$/;"	m
-sharedstatedir	tiny/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 sharedstatedir	tiny/Makefile.in	/^sharedstatedir=@sharedstatedir@$/;"	m
-sharedstatedir	wi/Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 sharedstatedir	wi/Makefile.in	/^sharedstatedir=@sharedstatedir@$/;"	m
 show_node	src/node.cpp	/^void show_node(unsigned int node)$/;"	f	typeref:typename:void
 show_node_type	src/node_type.c	/^void show_node_type(sNodeType* type)$/;"	f	typeref:typename:void
@@ -2007,40 +1838,24 @@ solve_typeof	src/node_type.c	/^BOOL solve_typeof(sNodeType** node_type, sCompile
 solve_undefined_strcut_type	src/llvm.cpp	/^static BOOL solve_undefined_strcut_type(sNodeType* node_type, sNodeType* generics_type, char* re/;"	f	typeref:typename:BOOL	file:
 solve_undefined_strcut_type_when_definision	src/llvm.cpp	/^BOOL solve_undefined_strcut_type_when_definision(sNodeType* node_type, sCompileInfo* info)$/;"	f	typeref:typename:BOOL
 source	src/common.h	/^    char* source;$/;"	m	struct:sParserInfoStruct	typeref:typename:char *
-src/block.o	sevenstars/Makefile	/^src\/block.o: config.h src\/*.h Makefile configure src\/block.nc$/;"	t
 src/block.o	sevenstars/Makefile.in	/^src\/block.o: config.h src\/*.h Makefile configure src\/block.nc$/;"	t
-src/class.o	sevenstars/Makefile	/^src\/class.o: config.h src\/*.h Makefile configure src\/class.nc$/;"	t
 src/class.o	sevenstars/Makefile.in	/^src\/class.o: config.h src\/*.h Makefile configure src\/class.nc$/;"	t
 src/compiler.c	configure.in	/^AC_INIT(src\/compiler.c)$/;"	p
 src/compiler.nc	sevenstars/configure.in	/^AC_INIT(src\/compiler.nc)$/;"	p
-src/compiler.o	sevenstars/Makefile	/^src\/compiler.o: config.h src\/*.h Makefile configure src\/compiler.nc$/;"	t
 src/compiler.o	sevenstars/Makefile.in	/^src\/compiler.o: config.h src\/*.h Makefile configure src\/compiler.nc$/;"	t
-src/filer.o	ayataka/Makefile	/^src\/filer.o: config.h src\/*.h Makefile configure src\/filer.nc$/;"	t
 src/filer.o	ayataka/Makefile.in	/^src\/filer.o: config.h src\/*.h Makefile configure src\/filer.nc$/;"	t
-src/heap.o	sevenstars/Makefile	/^src\/heap.o: config.h src\/*.h Makefile configure src\/heap.nc$/;"	t
 src/heap.o	sevenstars/Makefile.in	/^src\/heap.o: config.h src\/*.h Makefile configure src\/heap.nc$/;"	t
-src/macro.o	sevenstars/Makefile	/^src\/macro.o: config.h src\/*.h Makefile configure src\/macro.nc$/;"	t
 src/macro.o	sevenstars/Makefile.in	/^src\/macro.o: config.h src\/*.h Makefile configure src\/macro.nc$/;"	t
 src/main.nc	ayataka/configure.in	/^AC_INIT(src\/main.nc)$/;"	p
-src/native.o	sevenstars/Makefile	/^src\/native.o: config.h src\/*.h Makefile configure src\/native.nc$/;"	t
 src/native.o	sevenstars/Makefile.in	/^src\/native.o: config.h src\/*.h Makefile configure src\/native.nc$/;"	t
-src/native2.o	sevenstars/Makefile	/^src\/native2.o: config.h src\/*.h Makefile configure src\/native2.nc$/;"	t
 src/native2.o	sevenstars/Makefile.in	/^src\/native2.o: config.h src\/*.h Makefile configure src\/native2.nc$/;"	t
-src/native3.o	sevenstars/Makefile	/^src\/native3.o: config.h src\/*.h Makefile configure src\/native3.nc$/;"	t
 src/native3.o	sevenstars/Makefile.in	/^src\/native3.o: config.h src\/*.h Makefile configure src\/native3.nc$/;"	t
-src/node.o	sevenstars/Makefile	/^src\/node.o: config.h src\/*.h Makefile configure src\/node.nc$/;"	t
 src/node.o	sevenstars/Makefile.in	/^src\/node.o: config.h src\/*.h Makefile configure src\/node.nc$/;"	t
-src/object.o	sevenstars/Makefile	/^src\/object.o: config.h src\/*.h Makefile configure src\/object.nc$/;"	t
 src/object.o	sevenstars/Makefile.in	/^src\/object.o: config.h src\/*.h Makefile configure src\/object.nc$/;"	t
-src/objet.o	sevenstars/Makefile	/^src\/objet.o: config.h src\/*.h Makefile configure src\/object.nc$/;"	t
 src/objet.o	sevenstars/Makefile.in	/^src\/objet.o: config.h src\/*.h Makefile configure src\/object.nc$/;"	t
-src/parser.o	sevenstars/Makefile	/^src\/parser.o: config.h src\/*.h Makefile configure src\/parser.nc$/;"	t
 src/parser.o	sevenstars/Makefile.in	/^src\/parser.o: config.h src\/*.h Makefile configure src\/parser.nc$/;"	t
-src/type.o	sevenstars/Makefile	/^src\/type.o: config.h src\/*.h Makefile configure src\/type.nc$/;"	t
 src/type.o	sevenstars/Makefile.in	/^src\/type.o: config.h src\/*.h Makefile configure src\/type.nc$/;"	t
-src/vm.o	sevenstars/Makefile	/^src\/vm.o: config.h src\/*.h Makefile configure src\/vm.nc$/;"	t
 src/vm.o	sevenstars/Makefile.in	/^src\/vm.o: config.h src\/*.h Makefile configure src\/vm.nc$/;"	t
-src/vtable.o	sevenstars/Makefile	/^src\/vtable.o: config.h src\/*.h Makefile configure src\/vtable.nc$/;"	t
 src/vtable.o	sevenstars/Makefile.in	/^src\/vtable.o: config.h src\/*.h Makefile configure src\/vtable.nc$/;"	t
 stackValue	tiny/common.h	/^    int stackValue;$/;"	m	struct:TinyNode	typeref:typename:int
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct	typeref:typename:int
@@ -2058,25 +1873,16 @@ switch_expression_type	src/common.h	/^    sNodeType* switch_expression_type;$/;"
 switch_nest	src/common.h	/^    int switch_nest;$/;"	m	struct:sParserInfoStruct	typeref:typename:int
 sysconfdir	Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
 sysconfdir	Makefile.in	/^sysconfdir=@sysconfdir@\/neo-c$/;"	m
-sysconfdir	ayataka/Makefile	/^sysconfdir=${prefix}\/etc\/sevenstars$/;"	m
 sysconfdir	ayataka/Makefile.in	/^sysconfdir=@sysconfdir@\/sevenstars$/;"	m
-sysconfdir	sevenstars/Makefile	/^sysconfdir=${prefix}\/etc\/sevenstars$/;"	m
 sysconfdir	sevenstars/Makefile.in	/^sysconfdir=@sysconfdir@\/sevenstars$/;"	m
-sysconfdir	tiny/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
 sysconfdir	tiny/Makefile.in	/^sysconfdir=@sysconfdir@\/neo-c$/;"	m
-sysconfdir	wi/Makefile	/^sysconfdir=${prefix}\/etc\/neo-c$/;"	m
 sysconfdir	wi/Makefile.in	/^sysconfdir=@sysconfdir@\/neo-c$/;"	m
 test	Makefile	/^test: $/;"	t
 test	Makefile.in	/^test: $/;"	t
-test	ayataka/Makefile	/^test: $/;"	t
 test	ayataka/Makefile.in	/^test: $/;"	t
-test	sevenstars/Makefile	/^test: $/;"	t
 test	sevenstars/Makefile.in	/^test: $/;"	t
-test	tiny/Makefile	/^test:$/;"	t
 test	tiny/Makefile.in	/^test:$/;"	t
-test	wi/Makefile	/^test:$/;"	t
 test	wi/Makefile.in	/^test:$/;"	t
-tiny	tiny/Makefile	/^tiny: configure Makefile config.h main.nc 01init.o 02base.o 03mult.o 04var.o common.h$/;"	t
 tiny	tiny/Makefile.in	/^tiny: configure Makefile config.h main.nc 01init.o 02base.o 03mult.o 04var.o common.h$/;"	t
 tiny	tiny/README.md	/^# tiny$/;"	c
 to_string	neo-c.h	/^    inline string to_string(char value) {$/;"	f	typeref:typename:string
@@ -2106,13 +1912,9 @@ ungreedy	code/neo-c.h	/^    bool ungreedy;$/;"	m	struct:regex_struct	typeref:typ
 ungreedy	neo-c.h	/^    bool ungreedy;$/;"	m	struct:regex_struct	typeref:typename:bool
 uninstall	Makefile	/^uninstall:$/;"	t
 uninstall	Makefile.in	/^uninstall:$/;"	t
-uninstall	ayataka/Makefile	/^uninstall:$/;"	t
 uninstall	ayataka/Makefile.in	/^uninstall:$/;"	t
-uninstall	sevenstars/Makefile	/^uninstall:$/;"	t
 uninstall	sevenstars/Makefile.in	/^uninstall:$/;"	t
-uninstall	tiny/Makefile	/^uninstall:$/;"	t
 uninstall	tiny/Makefile.in	/^uninstall:$/;"	t
-uninstall	wi/Makefile	/^uninstall:$/;"	t
 uninstall	wi/Makefile.in	/^uninstall:$/;"	t
 v1	code/neo-c.h	/^    T v1;$/;"	m	struct:tuple1	typeref:typename:T
 v1	code/neo-c.h	/^    T v1;$/;"	m	struct:tuple2	typeref:typename:T
@@ -2140,7 +1942,6 @@ vector	code/neo-c.h	/^struct vector<T> $/;"	s
 vector	neo-c.h	/^struct vector<T> $/;"	s
 version	code/HelloWorld6.h	/^struct StructData1 version 2$/;"	s
 vi	wi/common.h	/^    void* vi;$/;"	m	struct:ViWin	typeref:typename:void *
-wi	wi/Makefile	/^wi: configure Makefile config.h main.nc 01init.o 02base.o 03insert_mode.o 04word.o 05undo.o 06fi/;"	t
 wi	wi/Makefile.in	/^wi: configure Makefile config.h main.nc 01init.o 02base.o 03insert_mode.o 04word.o 05undo.o 06fi/;"	t
 wi	wi/README.md	/^# wi $/;"	c
 width	wi/common.h	/^    int width;$/;"	m	struct:ViWin	typeref:typename:int
