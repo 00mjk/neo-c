@@ -1,5 +1,4 @@
-
-string.scan, string.split
+command error output
 
 メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
 
@@ -38,3 +37,4 @@ sevenstars.ssとクラスファイルの検索パス
 cd
 コマンド名間違っていたとき
 ファイルの書き込み。stringクラスにwrite,append
+string.scan, string.split
