@@ -84,7 +84,14 @@ void textsView(ViWin* self, Vi* nvi)
                             wprintw(self.win, "~");
                         }
                     }
-                    wprintw(self.win, "$");
+                    if(self.cursorX == it.length()) {
+                        wattron(self.win, A_REVERSE);
+                        wprintw(self.win, "$");
+                        wattroff(self.win, A_REVERSE);
+                    }
+                    else {
+                        wprintw(self.win, "$");
+                    }
                 }
                 else {
                     int cursor_x = self.cursorX;
@@ -116,7 +123,15 @@ void textsView(ViWin* self, Vi* nvi)
                     wstring printable_tail_string = tail_string.printable();
 
                     mvwprintw(self.win, it2, x, "%ls", printable_tail_string);
-                    wprintw(self.win, "$");
+                    
+                    if(self.cursorX == it.length()) {
+                        wattron(self.win, A_REVERSE);
+                        wprintw(self.win, "$");
+                        wattroff(self.win, A_REVERSE);
+                    }
+                    else {
+                        wprintw(self.win, "$");
+                    }
                 }
             }
             else {
