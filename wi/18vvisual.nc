@@ -105,6 +105,30 @@ void deleteOnVerticalVisualMode(ViWin* self, Vi* nvi) {
     self.cursorX = self.visualModeVerticalStartX;
 }
 
+void deleteLinesOnVerticalVisualMode(ViWin* self, Vi* nvi) {
+    self.pushUndo();
+    
+    int head = self.visualModeVerticalHeadY;
+    int tail = self.cursorY + self.scroll;
+    
+    if(head > tail) {
+        int tmp = head;
+        head = tail;
+        tail = tmp;
+    }
+    
+    for(int i=head; i<=tail; i++) {
+        var it = self.texts.item(i, null);
+        
+        it.delete_range(0, -1);
+    }
+    
+    self.cursorY = self.visualModeVerticalStartY;
+    self.scroll = self.visualModeVerticalStartScroll;
+    
+    self.cursorX = self.visualModeVerticalStartX;
+}
+
 void inertOnVerticalVisualMode(ViWin* self, Vi* nvi) {
     var key = self.getKey(false);
     
@@ -232,6 +256,17 @@ void inputVerticalVisualMode(ViWin* self, Vi* nvi){
     
             case 'c':
                 self.deleteOnVerticalVisualMode(nvi);
+                nvi.exitFromVisualMode();
+                nvi.enterInsertMode();
+                break;
+    
+            case 'D':
+                self.deleteLinesOnVerticalVisualMode(nvi);
+                nvi.exitFromVisualMode();
+                break;
+    
+            case 'C':
+                self.deleteLinesOnVerticalVisualMode(nvi);
                 nvi.exitFromVisualMode();
                 nvi.enterInsertMode();
                 break;

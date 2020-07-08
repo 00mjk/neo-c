@@ -376,6 +376,16 @@ void inputHorizonVisualMode(ViWin* self, Vi* nvi){
             nvi.enterInsertMode();
             break;
             
+        case 'C':
+            self.deleteUntilTail();
+            self.deleteOnHorizonVisualMode(nvi);
+            nvi.exitFromVisualMode();
+            if(self.texts.length() != 0) {
+                self.cursorX++;
+            }
+            nvi.enterInsertMode();
+            break;
+            
         case 'w':
         case 'e':
             self.forwardWord();

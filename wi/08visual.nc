@@ -228,10 +228,15 @@ void inputVisualMode(ViWin* self, Vi* nvi){
             nvi.exitFromVisualMode();
             break;
 
-        case 'c':
+        case 'c': 
+        case 'C': {
             self.deleteOnVisualMode(nvi);
             nvi.exitFromVisualMode();
+            self.cursorX = self.visualModeHeadX;
+            self.modifyOverCursorXValue();
+            self.modifyUnderCursorXValue();
             nvi.enterInsertMode();
+            }
             break;
 
         case '>':
@@ -287,6 +292,7 @@ impl Vi version 8
 void enterVisualMode(Vi* self) {
     self.mode = kVisualMode;
     self.activeWin.visualModeHead = self.activeWin.cursorY + self.activeWin.scroll;
+    self.activeWin.visualModeHeadX = self.activeWin.cursorX;
 }
 
 void exitFromVisualMode(Vi* self) {

@@ -255,6 +255,7 @@ enum eMode { kVisualMode = kInsertMode + 1 };
 struct ViWin version 8
 {
     int visualModeHead;
+    int visualModeHeadX;
     
     int visualModeHeadHorizonScroll;
     int visualModeHeadHorizonX;
@@ -323,6 +324,7 @@ impl ViWin version 10
     void deleteLines(ViWin* self, int head, int tail, Vi* nvi);
     void deleteOneLine(ViWin* self, Vi* nvi);
     void joinLines2(ViWin* self);
+    void deleteUntilTail(ViWin* self);
 }
 
 impl Vi version 10
