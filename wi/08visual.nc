@@ -228,6 +228,12 @@ void inputVisualMode(ViWin* self, Vi* nvi){
             nvi.exitFromVisualMode();
             break;
 
+        case 'c':
+            self.deleteOnVisualMode(nvi);
+            nvi.exitFromVisualMode();
+            nvi.enterInsertMode();
+            break;
+
         case '>':
             self.indentVisualMode(nvi);
             nvi.exitFromVisualMode();

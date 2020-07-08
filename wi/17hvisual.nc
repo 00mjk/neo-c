@@ -369,6 +369,12 @@ void inputHorizonVisualMode(ViWin* self, Vi* nvi){
             self.deleteOnHorizonVisualMode(nvi);
             nvi.exitFromVisualMode();
             break;
+
+        case 'c':
+            self.deleteOnHorizonVisualMode(nvi);
+            nvi.exitFromVisualMode();
+            nvi.enterInsertMode();
+            break;
             
         case 'w':
         case 'e':

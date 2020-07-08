@@ -229,6 +229,12 @@ void inputVerticalVisualMode(ViWin* self, Vi* nvi){
                 self.deleteOnVerticalVisualMode(nvi);
                 nvi.exitFromVisualMode();
                 break;
+    
+            case 'c':
+                self.deleteOnVerticalVisualMode(nvi);
+                nvi.exitFromVisualMode();
+                nvi.enterInsertMode();
+                break;
                 
             case 'I':
                 self.pushUndo();

@@ -1,5 +1,6 @@
-V,c
 V,C
+C-V,C
+v,C
 V,J
 V,=
 V,A
@@ -107,3 +108,4 @@ C-w j, k
 C-w,w
 C-wj
 C-wk
+V,c

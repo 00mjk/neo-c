@@ -325,7 +325,7 @@ void input(Filer* self)
 
             case 'e': {
                 endwin();
-                shell_run_command(xsprintf("wi(\"%s\")", self.cursor_file()), self.ayataka.types);
+                shell_run_command(xsprintf("wi %s", self.cursor_file()), self.ayataka.types);
                 initscr();
                 keypad(stdscr, true);
                 raw();
@@ -360,9 +360,10 @@ void input(Filer* self)
 
             case ':': {
                 endwin();
-                shell_run_command("sevenstars()", self.ayataka.types);
+                shell_commandline("", -1, self.ayataka.types);
                 self.read_dir();
                 initscr();
+                getch();
                 keypad(stdscr, true);
                 raw();
                 noecho();

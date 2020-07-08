@@ -1,16 +1,11 @@
--gオプション
+-g option
 
-int a = true;
-がa == -1
+int a = true; => a == -1
 
 
-if(true) {
-}
-*v = が}のあとに;をつけないとだめ。パーサーのバグ
+error number bug in if, impl
 
-ifがらみで、エラー行番号がおかしい
-
-staticローカル変数がない
+static local variable
 
 alloc initialize
 alloc destructor
@@ -26,49 +21,10 @@ LLVM7.0 -g
 , 演算子
 __extention__ (exp)
 
-
 sizeof(exp)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 if() ; else ;
+
+if(true) {
+}
+*v = が}のあとに;をつけないとだめ。パーサーのバグ

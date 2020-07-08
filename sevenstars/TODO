@@ -1,10 +1,9 @@
 command error output
 shell mode $variavle 
 
-メソッドの上書き、メソッドの構造体にparent methodへのポインタを入れる。inheritで呼び出す
+inherit
 
-親クラスのメソッド呼び出し。super
-
+super
 
 --------------
 vm return false message
