@@ -136,6 +136,105 @@ void backIndentVisualMode(ViWin* self, Vi* nvi) {
     self.modifyOverCursorXValue();
 }
 
+void joinVisualMode(ViWin* self, Vi* nvi) {
+    self.pushUndo();
+
+    int head = self.visualModeHead;
+    int tail = self.scroll+self.cursorY;
+
+    if(head >= tail) {
+        int tmp = tail;
+        tail = head;
+        head = tmp;
+    }
+    
+    wstring new_line = self.texts.sublist(head, tail+1).map { it.to_string("") }.join(" ").to_wstring();
+    
+    self.texts.delete_range(head, tail+1);
+    
+    self.texts.insert(head, new_line);
+
+    if(self.scroll+self.cursorY >= self.visualModeHead) {
+        self.cursorY -= tail - head;
+
+        self.modifyUnderCursorYValue();
+    }
+    
+    self.modifyOverCursorYValue();
+    self.modifyOverCursorXValue();
+
+}
+void equalVisualMode(ViWin* self, Vi* nvi) {
+    self.pushUndo();
+
+    int head = self.visualModeHead;
+    int tail = self.scroll+self.cursorY;
+
+    if(head >= tail) {
+        int tmp = tail;
+        tail = head;
+        head = tmp;
+    }
+    
+    int indent = 0;
+    
+    self.texts.sublist(0, head).each {
+        for(int i = 0; i<it.length(); i++) {
+            wchar_t c = it.item(i, -1);
+            
+            if(c == '{') {
+                indent++;
+            }
+            else if(c == '}') {
+                indent--;
+            }
+        }
+    }
+    
+    self.texts.sublist(head, tail+1).each {
+        bool brace_begin = false;
+        for(int i = 0; i<it.length(); i++) {
+            wchar_t c = it.item(i, -1);
+            
+            if(c == '{') {
+                brace_begin = true;
+                indent++;
+            }
+            else if(c == '}') {
+                brace_begin = false;
+                indent--;
+            }
+        }
+        
+        wstring new_line = it.to_string("").scan(regex!("^ *(.*)")).item(1, null).to_wstring();
+
+        var head_str = new buffer.initialize();
+        int indent2 = indent;
+        if(brace_begin) {
+            indent2--;
+        }
+        for(int i = 0; i<indent2; i++) {
+            head_str.append_str("    ");
+        }
+        
+        wstring new_line2 = head_str.to_string().to_wstring() + new_line;
+        
+        self.texts.replace(it2+head, new_line2);
+    }
+
+    self.modifyOverCursorXValue();
+
+    if(self.scroll+self.cursorY >= self.visualModeHead) {
+        self.cursorY -= tail - head;
+
+        self.modifyUnderCursorYValue();
+    }
+    
+    self.modifyOverCursorYValue();
+    self.modifyOverCursorXValue();
+
+}
+
 void deleteOnVisualMode(ViWin* self, Vi* nvi) {
     self.pushUndo();
 
@@ -250,6 +349,16 @@ void inputVisualMode(ViWin* self, Vi* nvi){
             self.backIndentVisualMode(nvi);
             nvi.exitFromVisualMode();
             self.makeInputedKeyGVDeIndent(nvi);
+            break;
+            
+        case 'J':
+            self.joinVisualMode(nvi);
+            nvi.exitFromVisualMode();
+            break;
+            
+        case '=':
+            self.equalVisualMode(nvi);
+            nvi.exitFromVisualMode();
             break;
             
         case '%':
