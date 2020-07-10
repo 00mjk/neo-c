@@ -1,5 +1,6 @@
 command error output
 shell mode $variavle 
+getenv
 
 inherit
 
