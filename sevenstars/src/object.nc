@@ -58,6 +58,12 @@ void mark_belong_objects(CLObject self, unsigned char* mark_flg, sVMInfo* info)
                 CLObject obj = it2;
                 mark_object(obj, mark_flg, info);
             }
+            list<int>* keys = map_data->mKeys;
+            
+            keys.each {
+                CLObject obj = it;
+                mark_object(obj, mark_flg, info);
+            }
         }
         else if(type->mClass == gClasses.at("list", null)) {
             sCLListObject* list_data = CLLIST(self);
@@ -269,7 +275,7 @@ map<char*,int>* get_map_value(CLObject obj)
     return map_data->mMap;
 }
 
-list<char*>* get_map_keys(CLObject obj)
+list<int>* get_map_keys(CLObject obj)
 {
     sCLMap* map_data = CLMAP(obj);
 
@@ -432,7 +438,7 @@ CLObject create_map_object(sVMInfo* info)
     sCLMap* map_data = CLMAP(obj);
 
     map_data->mMap = borrow new map<char*, int>.initialize();
-    map_data->mKeys = borrow new list<char*>.initialize();
+    map_data->mKeys = borrow new list<int>.initialize();
 
     return obj;
 }

@@ -522,7 +522,7 @@ struct sCLMap {
     int mNumFields;
     
     map<char*,int>* mMap;
-    list<char*>* mKeys;
+    list<int>* mKeys;
 };
 
 struct sCLClassObject
@@ -617,7 +617,7 @@ char* get_string_mem(CLObject obj);
 nregex& get_regex_value(CLObject obj);
 list<int>* get_list_value(CLObject obj);
 map<char*,int>* get_map_value(CLObject obj);
-list<char*>* get_map_keys(CLObject obj);
+list<int>* get_map_keys(CLObject obj);
 int get_int_value(CLObject obj);
 buffer* get_buffer_value(CLObject obj);
 void set_int_value(CLObject obj, int value);

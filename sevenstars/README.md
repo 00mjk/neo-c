@@ -438,6 +438,7 @@ class map<T>
     def length():int;
     def equal(right:map<T>):bool;
     def to_string():string;
+    def keys():list<string>;
 }
 ```
 

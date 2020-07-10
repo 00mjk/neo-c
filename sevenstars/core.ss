@@ -304,6 +304,7 @@ class map<T>
     def equal(right:map<T>?):bool;
     def not_equal(right:map<T>?):bool;
     def to_string():string;
+    def keys():list<string>;
 }
 
 class tuple1<T>
