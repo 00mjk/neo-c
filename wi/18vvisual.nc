@@ -129,6 +129,39 @@ void deleteLinesOnVerticalVisualMode(ViWin* self, Vi* nvi) {
     self.cursorX = self.visualModeVerticalStartX;
 }
 
+void rewriteOnVerticalVisualMode(ViWin* self, Vi* nvi) 
+{
+    self.pushUndo();
+    
+    int head = self.visualModeVerticalHeadY;
+    int tail = self.cursorY + self.scroll;
+    
+    if(head > tail) {
+        int tmp = head;
+        head = tail;
+        tail = tmp;
+    }
+    
+    wchar_t key = self.getKey(false);
+    
+    for(int i=head; i<=tail; i++) {
+        var it = self.texts.item(i, null);
+        
+        var head_new_line = it.substring(0, self.visualModeVerticalHeadX);
+        var middle_new_line = (xsprintf("%lc", key) * self.visualModeVerticalLen).to_wstring();
+        var tail_new_line = it.substring(self.visualModeVerticalHeadX+self.visualModeVerticalLen, -1);
+        
+        var new_line = head_new_line + middle_new_line + tail_new_line;
+        
+        self.texts.replace(i, new_line);
+    }
+    
+    self.cursorY = self.visualModeVerticalStartY;
+    self.scroll = self.visualModeVerticalStartScroll;
+    
+    self.cursorX = self.visualModeVerticalStartX;
+}
+
 void inertOnVerticalVisualMode(ViWin* self, Vi* nvi) {
     var key = self.getKey(false);
     
@@ -269,6 +302,11 @@ void inputVerticalVisualMode(ViWin* self, Vi* nvi){
                 self.deleteLinesOnVerticalVisualMode(nvi);
                 nvi.exitFromVisualMode();
                 nvi.enterInsertMode();
+                break;
+    
+            case 'r':
+                self.rewriteOnVerticalVisualMode(nvi);
+                nvi.exitFromVisualMode();
                 break;
                 
             case 'I':
