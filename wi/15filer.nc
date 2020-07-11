@@ -161,12 +161,20 @@ void statusBarView(ViWin* self, Vi* nvi)
     int maxx = getmaxx(self.win);
 
     wattron(self.win, A_REVERSE);
+    string search_mode = string("");
+    if(nvi.searchReverse) {
+        search_mode = string("?");
+    }
+    else {
+        search_mode = string("/");
+    }
     mvwprintw(self.win, maxy-1, 0
-        , "%s x %d line %d (y %d scroll %d) changed %d search %ls"
+        , "%s x %d line %d (y %d scroll %d) changed %d search %s%ls"
         , xbasename(self.fileName)
         , self.cursorX, self.cursorY + self.scroll + 1
         , self.cursorY, self.scroll
         , self.writed
+        , search_mode
         , nvi.searchString);
     wattroff(self.win, A_REVERSE);
 

@@ -1,6 +1,8 @@
-C-V,r
-?
 e
+inseart mode C-w
+search mode C-w
+visual mode arrow key
+command mode ---> run sevenstar shell
 f,;
 f,(,)
 -
@@ -112,3 +114,5 @@ V,=
 V,A
 V,r
 v,r
+C-V,r
+?

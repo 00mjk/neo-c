@@ -281,9 +281,12 @@ void keyG(ViWin* self, Vi* nvi) {
             break;
             
         case '/':
-            nvi.enterSearchMode(true);
+            nvi.enterSearchMode(true, false);
             break;
             
+        case '?':
+            nvi.enterSearchMode(true, true);
+            break;
             
         case 'J':
             self.joinLines2();
@@ -521,7 +524,7 @@ void repositionFiler(Vi* self)
 {
     /// implemented by the after layer
 }
-void enterSearchMode(Vi* self, bool regex_search)
+void enterSearchMode(Vi* self, bool regex_search, bool search_reverse)
 {
     /// implemented by the after layer
 }
