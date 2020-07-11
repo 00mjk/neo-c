@@ -261,7 +261,8 @@ void yankOnHorizonVisualMode(ViWin* self, Vi* nvi) {
     }
 }
 
-void deleteOnHorizonVisualMode(ViWin* self, Vi* nvi) {
+void deleteOnHorizonVisualMode(ViWin* self, Vi* nvi) 
+{
     self.pushUndo();
 
     int y = self.scroll+self.cursorY;
@@ -307,6 +308,69 @@ void deleteOnHorizonVisualMode(ViWin* self, Vi* nvi) {
         self.cursorX = self.visualModeHorizonHeadX;
         self.cursorY = self.visualModeHorizonHeadY;
         self.scroll = self.visualModeHorizonHeadScroll;
+    }
+}
+
+void rewriteOnHorizonVisualMode(ViWin* self, Vi* nvi) 
+{
+    self.pushUndo();
+
+    int y = self.scroll+self.cursorY;
+    int hv_y = self.visualModeHorizonHeadScroll 
+              + self.visualModeHorizonHeadY;
+    int x = self.cursorX;
+    int hv_x = self.visualModeHorizonHeadX;
+
+    if(y > hv_y) {
+        y = self.visualModeHorizonHeadScroll + self.visualModeHorizonHeadY;
+        x = self.visualModeHorizonHeadX;
+        hv_y = self.scroll+self.cursorY;
+        hv_x = self.cursorX;
+    }
+              
+    wchar_t key = self.getKey(false);
+    
+    if(y < hv_y) {
+        var first_line = self.texts.item(y, null);
+        var head_of_first_line = first_line.substring(0, x);
+        var tail_of_first_line = (xsprintf("%lc", key) * (first_line.length() - x)).to_wstring();
+        
+        var new_line = head_of_first_line + tail_of_first_line;
+        
+        self.texts.replace(y, new_line);
+        
+        self.texts.sublist(y+1, hv_y).each {
+            var new_line = (xsprintf("%lc", key) * it.length()).to_wstring();
+            
+            self.texts.replace(y+1+it2, new_line);
+        }
+        var last_line = self.texts.item(hv_y, null);
+        
+        var head_of_last_line = (xsprintf("%lc", key) * (hv_x+1)).to_wstring();
+        var tail_of_last_line = last_line.substring(hv_x+1, -1);
+        
+        var new_last_line = head_of_last_line + tail_of_last_line;
+        
+        self.texts.replace(hv_y, new_last_line);
+    }
+    else if(y == hv_y) {
+        int head = self.visualModeHorizonHeadX;
+        int tail = self.cursorX;
+        
+        if(head > tail) {
+            head = self.cursorX;
+            tail = self.visualModeHorizonHeadX;
+        }
+        
+        tail++;
+        
+        var line = self.texts.item(y, null);
+        var head_of_line = line.substring(0, head);
+        var middle_of_cline = (xsprintf("%lc", key) * (tail-head)).to_wstring();
+        var tail_of_line = line.substring(tail, -1);
+        var new_line = head_of_line + middle_of_cline + tail_of_line;
+        
+        self.texts.replace(y, new_line);
     }
 }
 
@@ -374,6 +438,11 @@ void inputHorizonVisualMode(ViWin* self, Vi* nvi){
             self.deleteOnHorizonVisualMode(nvi);
             nvi.exitFromVisualMode();
             nvi.enterInsertMode();
+            break;
+            
+        case 'r':
+            self.rewriteOnHorizonVisualMode(nvi);
+            nvi.exitFromVisualMode();
             break;
             
         case 'C':

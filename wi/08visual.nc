@@ -164,7 +164,8 @@ void joinVisualMode(ViWin* self, Vi* nvi) {
     self.modifyOverCursorXValue();
 
 }
-void equalVisualMode(ViWin* self, Vi* nvi) {
+void equalVisualMode(ViWin* self, Vi* nvi) 
+{
     self.pushUndo();
 
     int head = self.visualModeHead;
@@ -220,6 +221,44 @@ void equalVisualMode(ViWin* self, Vi* nvi) {
         wstring new_line2 = head_str.to_string().to_wstring() + new_line;
         
         self.texts.replace(it2+head, new_line2);
+    }
+
+    self.modifyOverCursorXValue();
+
+    if(self.scroll+self.cursorY >= self.visualModeHead) {
+        self.cursorY -= tail - head;
+
+        self.modifyUnderCursorYValue();
+    }
+    
+    self.modifyOverCursorYValue();
+    self.modifyOverCursorXValue();
+
+}
+
+void rewriteVisualMode(ViWin* self, Vi* nvi) {
+    self.pushUndo();
+    
+    var key = self.getKey(false);
+
+    int head = self.visualModeHead;
+    int tail = self.scroll+self.cursorY;
+
+    if(head >= tail) {
+        int tmp = tail;
+        tail = head;
+        head = tmp;
+    }
+    
+    int indent = 0;
+    
+    self.texts.sublist(head, tail+1).each {
+        int len = it.length();
+        
+        wchar_t c = key;
+        wstring new_line = (xsprintf("%lc", c) * len).to_wstring()
+
+        self.texts.replace(it2+head, new_line);
     }
 
     self.modifyOverCursorXValue();
@@ -363,6 +402,10 @@ void inputVisualMode(ViWin* self, Vi* nvi){
             
         case '%':
             self.gotoBraceEnd(nvi);
+            break;
+            
+        case 'r':
+            self.rewriteVisualMode(nvi);
             break;
 
         case 27:
