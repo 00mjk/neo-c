@@ -1,11 +1,3 @@
-f,;
-f,(,)
--
-+
-_
-
-H
-L
 C-y
 C-b
 C-e
@@ -116,3 +108,10 @@ e
 inseart mode C-w
 search mode C-w
 visual mode arrow key
+f,;
+f,(,)
+-
++
+_
+H
+L

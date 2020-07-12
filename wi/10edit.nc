@@ -886,5 +886,36 @@ initialize() {
 
         self.activeWin.saveInputedKeyOnTheMovingCursor();
     });
+    self.events.replace('-', lambda(Vi* self, int key) {
+        self.activeWin.moveToHead();
+
+        self.activeWin.saveInputedKeyOnTheMovingCursor();
+    });
+    self.events.replace('_', lambda(Vi* self, int key) {
+        self.activeWin.moveToHead();
+
+        self.activeWin.saveInputedKeyOnTheMovingCursor();
+    });
+    self.events.replace('H', lambda(Vi* self, int key) {
+        self.activeWin.cursorX = 0;
+        self.activeWin.cursorY = 0;
+
+        self.activeWin.saveInputedKeyOnTheMovingCursor();
+    });
+    self.events.replace('L', lambda(Vi* self, int key) {
+        self.activeWin.cursorY = self.activeWin.height-2;
+        self.activeWin.modifyOverCursorYValue();
+        
+        self.activeWin.moveToHead();
+
+        self.activeWin.saveInputedKeyOnTheMovingCursor();
+    });
+    self.events.replace('+', lambda(Vi* self, int key) {
+        self.activeWin.cursorY++;
+        self.activeWin.modifyOverCursorYValue();
+        self.activeWin.moveToHead();
+
+        self.activeWin.saveInputedKeyOnTheMovingCursor();
+    });
 }
 }
