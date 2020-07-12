@@ -1,8 +1,3 @@
-e
-inseart mode C-w
-search mode C-w
-visual mode arrow key
-command mode ---> run sevenstar shell
 f,;
 f,(,)
 -
@@ -51,6 +46,7 @@ commnad mode
 :make
 save /tmp tmp texts
 backup 
+command mode ---> run sevenstar shell
 ------------------------------------------------------------
 :%s//
 ta, fa,dta, cta
@@ -116,3 +112,7 @@ V,r
 v,r
 C-V,r
 ?
+e
+inseart mode C-w
+search mode C-w
+visual mode arrow key

@@ -232,6 +232,24 @@ void inputSearchlMode(ViWin* self, Vi* nvi)
             nvi.exitFromSearchMode();
             break;
 
+        case 'W'-'A'+1: {
+            while(true) {
+                wchar_t c = nvi.searchString.item(-1, null)
+                
+                if(c == null) {
+                    break;
+                }
+                else if(iswalnum(c)) {
+                    nvi.searchString.delete(-1);
+                }
+                else {
+                    break;
+                }
+            }
+            
+            }
+            break;
+
         case 10:
             if(nvi.searchReverse) {
                 self.searchReverse(nvi);

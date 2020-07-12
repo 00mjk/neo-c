@@ -310,10 +310,12 @@ void inputVisualMode(ViWin* self, Vi* nvi){
     var key = self.getKey(false);
 
     switch(key) {
+        case KEY_RIGHT:
         case 'l':
             self.forward();
             break;
         
+        case KEY_LEFT:
         case 'h':
             self.backward();
             break;

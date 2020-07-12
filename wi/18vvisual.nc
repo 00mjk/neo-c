@@ -239,10 +239,12 @@ void inputVerticalVisualMode(ViWin* self, Vi* nvi){
     
         switch(key) {
             case 'l':
+            case KEY_RIGHT:
                 self.forward();
                 self.visualModeVerticalLen++;
                 break;
             
+            case KEY_LEFT:
             case 'h':
                 self.backward();
                 self.visualModeVerticalLen--;

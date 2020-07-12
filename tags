@@ -1755,6 +1755,7 @@ same_struct_type	src/llvm.cpp	/^static BOOL same_struct_type(sNodeType* left_typ
 savedInputedKeys	wi/common.h	/^    vector<int>*% savedInputedKeys;$/;"	m	struct:version
 scroll	wi/common.h	/^    int scroll;$/;"	m	struct:ViFiler
 scroll	wi/common.h	/^    int scroll;$/;"	m	struct:version
+searchReverse	wi/common.h	/^    bool searchReverse;$/;"	m	struct:version
 searchString	wi/common.h	/^    string searchString;$/;"	m	struct:ViFiler
 searchString	wi/common.h	/^    wstring searchString;$/;"	m	struct:version
 search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size, int version)$/;"	f	file:

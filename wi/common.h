@@ -319,9 +319,20 @@ impl Vi version 9
     finalize();
 }
 
+enum eRepeatForwardNextCharacter {
+    kRFNCNone, kRFNC1, kRFNC2
+};
+
+struct ViWin version 10
+{
+    int mRepeatFowardNextCharacterKind;
+    wchar_t mRepeatFowardNextCharacter;
+};
+
 /// 10edit.h ///
 impl ViWin version 10
 {
+    initialize(int y, int x, int width, int height, Vi* vi);
     void deleteLines(ViWin* self, int head, int tail, Vi* nvi);
     void deleteOneLine(ViWin* self, Vi* nvi);
     void joinLines2(ViWin* self);

@@ -10,6 +10,14 @@
 
 impl ViWin version 10
 {
+initialize(int y, int x, int width, int height, Vi* vi)
+{
+    inherit(self, y, x, width, height, vi);
+    
+    self.mRepeatFowardNextCharacterKind = kRFNCNone;
+    self.mRepeatFowardNextCharacter = 0;
+}
+
 void modifyCursorOnDeleting(ViWin* self) {
     self.modifyOverCursorYValue();
     self.modifyOverCursorXValue();
@@ -527,8 +535,9 @@ void joinLines2(ViWin* self) {
     self.modifyOverCursorXValue();
 }
 
-void forwardToNextCharacter1(ViWin* self) {
-    var key = self.getKey(false);
+void forwardToNextCharacter1(ViWin* self, int key) {
+    self.mRepeatFowardNextCharacterKind = kRFNC1;
+    self.mRepeatFowardNextCharacter = key;
     
     var line = self.texts.item(self.scroll+self.cursorY, null);
     
@@ -555,8 +564,9 @@ void forwardToNextCharacter1(ViWin* self) {
     }
 }
 
-void forwardToNextCharacter2(ViWin* self) {
-    var key = self.getKey(false);
+void forwardToNextCharacter2(ViWin* self, int key) {
+    self.mRepeatFowardNextCharacterKind = kRFNC2;
+    self.mRepeatFowardNextCharacter = key;
     
     var line = self.texts.item(self.scroll+self.cursorY, null);
     
@@ -580,6 +590,19 @@ void forwardToNextCharacter2(ViWin* self) {
         if(cursor_x != -1) {
             self.cursorX += cursor_x;
         }
+    }
+}
+
+void repeatForwardNextCharacter(ViWin* self) {
+    switch(self.mRepeatFowardNextCharacterKind) {
+        case kRFNC1:
+            self.forwardToNextCharacter1(self.mRepeatFowardNextCharacter);
+            break;
+            
+        case kRFNC2:
+            self.cursorX++;
+            self.forwardToNextCharacter2(self.mRepeatFowardNextCharacter);
+            break;
     }
 }
 
@@ -830,12 +853,21 @@ initialize() {
         self.activeWin.saveInputedKey();
     });
     self.events.replace('f', lambda(Vi* self, int key) {
-        self.activeWin.forwardToNextCharacter1();
+        var key2 = self.activeWin.getKey(false);
+        
+        self.activeWin.forwardToNextCharacter1(key2);
 
         self.activeWin.saveInputedKeyOnTheMovingCursor();
     });
     self.events.replace('t', lambda(Vi* self, int key) {
-        self.activeWin.forwardToNextCharacter2();
+        var key2 = self.activeWin.getKey(false);
+
+        self.activeWin.forwardToNextCharacter2(key2);
+
+        self.activeWin.saveInputedKeyOnTheMovingCursor();
+    });
+    self.events.replace(';', lambda(Vi* self, int key) {
+        self.activeWin.repeatForwardNextCharacter();
 
         self.activeWin.saveInputedKeyOnTheMovingCursor();
     });

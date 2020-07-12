@@ -379,10 +379,12 @@ void inputHorizonVisualMode(ViWin* self, Vi* nvi){
 
     switch(key) {
         case 'l':
+        case KEY_RIGHT:
             self.forward();
             break;
         
         case 'h':
+        case KEY_LEFT:
             self.backward();
             break;
 
