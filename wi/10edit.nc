@@ -841,6 +841,20 @@ initialize() {
 
         self.activeWin.saveInputedKey();
     });
+    self.events.replace('s', lambda(Vi* self, int key) {
+        self.activeWin.replaceCursorCharactor();
+        self.activeWin.writed = true;
+        self.enterInsertMode();
+    });
+    self.events.replace('S', lambda(Vi* self, int key) {
+        self.activeWin.moveToHead();
+        self.activeWin.deleteUntilTail();
+        self.activeWin.writed = true;
+        self.enterInsertMode();
+        if(self.activeWin.cursorX != 0) {
+            self.activeWin.cursorX++;
+        }
+    });
     self.events.replace('J', lambda(Vi* self, int key) {
         self.activeWin.joinLines();
         self.activeWin.writed = true;
@@ -914,6 +928,24 @@ initialize() {
         self.activeWin.cursorY++;
         self.activeWin.modifyOverCursorYValue();
         self.activeWin.moveToHead();
+
+        self.activeWin.saveInputedKeyOnTheMovingCursor();
+    });
+    self.events.replace('Y'-'A'+1, lambda(Vi* self, int key) {
+        self.activeWin.scroll--;
+        if(self.activeWin.scroll < 0) {
+            self.activeWin.scroll = 0;
+        }
+
+        self.activeWin.saveInputedKeyOnTheMovingCursor();
+    });
+    self.events.replace('E'-'A'+1, lambda(Vi* self, int key) {
+        self.activeWin.scroll++;
+        if(self.activeWin.scroll >= self.activeWin.texts.length()) {
+            self.activeWin.scroll = self.activeWin.texts.length()-1;
+        }
+        self.activeWin.modifyOverCursorYValue();
+        self.activeWin.modifyUnderCursorYValue();
 
         self.activeWin.saveInputedKeyOnTheMovingCursor();
     });

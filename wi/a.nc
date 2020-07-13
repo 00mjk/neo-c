@@ -12,7 +12,7 @@
 int main()
 {
     var li = list!("AAA", "ABC", "DEF"); v
-    
+
     var li2 = li.filter { it[0] == 'A' };
     
     li2.each {

@@ -451,11 +451,13 @@ initialize() {
 
         switch(key2) {
             case 'z':
+            case '.':
                 self.activeWin.centeringCursor();
                 self.activeWin.saveInputedKeyOnTheMovingCursor();
                 break;
                 
             case '\n':
+            case 't':
                 self.activeWin.topCursor();
                 self.activeWin.saveInputedKeyOnTheMovingCursor();
                 break;

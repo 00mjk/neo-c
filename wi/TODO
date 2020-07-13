@@ -1,15 +1,4 @@
-C-y
-C-b
-C-e
-C-f
-z(enter)
-zt
-zb
-z-
-zz
-z.
-s
-S
+R
 X
 I
 C-a,digit incremrnt
@@ -115,3 +104,15 @@ f,(,)
 _
 H
 L
+C-y
+C-e
+z(enter)
+zt
+zz
+z.
+C-b
+C-f
+zb
+z-
+s
+S
