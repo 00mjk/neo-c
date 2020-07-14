@@ -129,6 +129,10 @@ impl ViWin version 3
     void enterNewLine(ViWin* self);
     void enterNewLine2(ViWin* self);
     void input(ViWin* self, Vi* nvi);
+    void backSpace(ViWin* self);
+    void backIndent(ViWin* self);
+    void blinkBraceFoward(ViWin* self, wchar_t head, wchar_t tail, Vi* nvi);
+    void blinkBraceEnd(ViWin* self, wchar_t head, wchar_t tail, Vi* nvi);
 
     void pushUndo(ViWin* self);
     void writedFlagOn(ViWin* self);
@@ -440,6 +444,7 @@ impl ViFiler
 {
 initialize();
 finalize();
+void input(ViFiler* self, Vi* nvi);
 }
 
 struct Vi version 15
@@ -537,3 +542,16 @@ impl Vi version 18
 initialize();
 }
 
+enum eMode { kRewriteMode = kVerticalVisualMode + 1 };
+
+impl ViWin version 19 
+{
+void view(ViWin* self, Vi* nvi);
+void input(ViWin* self, Vi* nvi);
+}
+
+impl Vi version 19
+{
+initialize() ;
+int main_loop(Vi* self);
+}
