@@ -1,6 +1,3 @@
-X
-I
-C-a,digit incremrnt
 C-x
 R
 V,$
@@ -119,3 +116,6 @@ z-
 s
 S
 R
+X
+I
+C-a,digit incremrnt

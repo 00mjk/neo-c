@@ -589,6 +589,7 @@ dquort	neo-c.h	/^    dquort = false;$/;"	m	struct:tuple
 eMode	wi/common.h	/^enum eMode { kCommandMode = kSearchMode + 1 };$/;"	g
 eMode	wi/common.h	/^enum eMode { kEditMode, kInsertMode };$/;"	g
 eMode	wi/common.h	/^enum eMode { kHorizonVisualMode = kCommandMode + 1 };$/;"	g
+eMode	wi/common.h	/^enum eMode { kRewriteMode = kVerticalVisualMode + 1 };$/;"	g
 eMode	wi/common.h	/^enum eMode { kSearchMode = kVisualMode + 1 };$/;"	g
 eMode	wi/common.h	/^enum eMode { kVerticalVisualMode = kHorizonVisualMode +1 };$/;"	g
 eMode	wi/common.h	/^enum eMode { kVisualMode = kInsertMode + 1 };$/;"	g
@@ -948,6 +949,7 @@ kNodeTypeXor	src/common.h	/^enum eNodeType { kNodeTypeIntValue, kNodeTypeUIntVal
 kRFNC1	wi/common.h	/^    kRFNCNone, kRFNC1, kRFNC2$/;"	e	enum:eRepeatForwardNextCharacter
 kRFNC2	wi/common.h	/^    kRFNCNone, kRFNC1, kRFNC2$/;"	e	enum:eRepeatForwardNextCharacter
 kRFNCNone	wi/common.h	/^    kRFNCNone, kRFNC1, kRFNC2$/;"	e	enum:eRepeatForwardNextCharacter
+kRewriteMode	wi/common.h	/^enum eMode { kRewriteMode = kVerticalVisualMode + 1 };$/;"	e	enum:eMode
 kSearchMode	wi/common.h	/^enum eMode { kSearchMode = kVisualMode + 1 };$/;"	e	enum:eMode
 kVerticalVisualMode	wi/common.h	/^enum eMode { kVerticalVisualMode = kHorizonVisualMode +1 };$/;"	e	enum:eMode
 kVisualMode	wi/common.h	/^enum eMode { kVisualMode = kInsertMode + 1 };$/;"	e	enum:eMode
