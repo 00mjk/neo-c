@@ -311,6 +311,116 @@ void deleteOnHorizonVisualMode(ViWin* self, Vi* nvi)
     }
 }
 
+void changeCaseHorizonVisualMode(ViWin* self, Vi* nvi) 
+{
+    self.pushUndo();
+
+    int y = self.scroll+self.cursorY;
+    int hv_y = self.visualModeHorizonHeadScroll 
+              + self.visualModeHorizonHeadY;
+    int x = self.cursorX;
+    int hv_x = self.visualModeHorizonHeadX;
+
+    if(y > hv_y) {
+        y = self.visualModeHorizonHeadScroll + self.visualModeHorizonHeadY;
+        x = self.visualModeHorizonHeadX;
+        hv_y = self.scroll+self.cursorY;
+        hv_x = self.cursorX;
+    }
+              
+    if(y < hv_y) {
+        var first_line = self.texts.item(y, null);
+        var head_first_line = first_line.substring(0, x);
+        var tail_first_line = first_line.substring(x, -1);
+        for(int i=0; i<tail_first_line.length(); i++) {
+            wchar_t c = tail_first_line.item(i, null);
+            
+            if(c >= 'a' && c <= 'z') {
+                wchar_t c2 = c - 'a' + 'A';
+                tail_first_line.replace(i, c2);
+            }
+            else if(c >= 'A' && c <= 'Z') {
+                wchar_t c2 = c - 'A' + 'a';
+                tail_first_line.replace(i, c2);
+            }
+        }
+        
+        var new_line = head_first_line + tail_first_line;
+        
+        self.texts.replace(y, new_line);
+        
+        self.texts.sublist(y+1, hv_y).each {
+            var new_line = clone it;
+            
+            for(int i=0; i<new_line.length(); i++) {
+                wchar_t c = new_line.item(i, null);
+                
+                if(c >= 'a' && c <= 'z') {
+                    wchar_t c2 = c - 'a' + 'A';
+                    new_line.replace(i, c2);
+                }
+                else if(c >= 'A' && c <= 'Z') {
+                    wchar_t c2 = c - 'A' + 'a';
+                    new_line.replace(i, c2);
+                }
+            }
+            
+            self.texts.replace(y+1+it2, new_line);
+        }
+        var last_line = self.texts.item(hv_y, null);
+        
+        var head_last_line = last_line.substring(0,hv_x+1);
+        for(int i=0; i<head_last_line.length(); i++) {
+            wchar_t c = head_last_line.item(i, null);
+            
+            if(c >= 'a' && c <= 'z') {
+                wchar_t c2 = c - 'a' + 'A';
+                head_last_line.replace(i, c2);
+            }
+            else if(c >= 'A' && c <= 'Z') {
+                wchar_t c2 = c - 'A' + 'a';
+                head_last_line.replace(i, c2);
+            }
+        }
+        var tail_last_line = last_line.substring(hv_x+1, -1);
+        
+        var new_last_line = head_last_line + tail_last_line;
+        
+        self.texts.replace(hv_y, new_last_line);
+    }
+    else if(y == hv_y) {
+        int head = self.visualModeHorizonHeadX;
+        int tail = self.cursorX;
+        
+        if(head > tail) {
+            head = self.cursorX;
+            tail = self.visualModeHorizonHeadX;
+        }
+        
+        tail++;
+        
+        var line = self.texts.item(y, null);
+        var head_line = line.substring(0, head);
+        var middle_line = line.substring(head, tail);
+        for(int i=0; i<middle_line.length(); i++) {
+            wchar_t c = middle_line.item(i, null);
+            
+            if(c >= 'a' && c <= 'z') {
+                wchar_t c2 = c - 'a' + 'A';
+                middle_line.replace(i, c2);
+            }
+            else if(c >= 'A' && c <= 'Z') {
+                wchar_t c2 = c - 'A' + 'a';
+                middle_line.replace(i, c2);
+            }
+        }
+        var tail_line = line.substring(tail, -1);
+        var new_line = head_line + middle_line + tail_line;
+        
+        self.texts.replace(y, new_line);
+    }
+}
+
 void rewriteOnHorizonVisualMode(ViWin* self, Vi* nvi) 
 {
     self.pushUndo();
@@ -332,10 +442,10 @@ void rewriteOnHorizonVisualMode(ViWin* self, Vi* nvi)
     
     if(y < hv_y) {
         var first_line = self.texts.item(y, null);
-        var head_of_first_line = first_line.substring(0, x);
-        var tail_of_first_line = (xsprintf("%lc", key) * (first_line.length() - x)).to_wstring();
+        var head_first_line = first_line.substring(0, x);
+        var tail_first_line = (xsprintf("%lc", key) * (first_line.length() - x)).to_wstring();
         
-        var new_line = head_of_first_line + tail_of_first_line;
+        var new_line = head_first_line + tail_first_line;
         
         self.texts.replace(y, new_line);
         
@@ -346,10 +456,10 @@ void rewriteOnHorizonVisualMode(ViWin* self, Vi* nvi)
         }
         var last_line = self.texts.item(hv_y, null);
         
-        var head_of_last_line = (xsprintf("%lc", key) * (hv_x+1)).to_wstring();
-        var tail_of_last_line = last_line.substring(hv_x+1, -1);
+        var head_last_line = (xsprintf("%lc", key) * (hv_x+1)).to_wstring();
+        var tail_last_line = last_line.substring(hv_x+1, -1);
         
-        var new_last_line = head_of_last_line + tail_of_last_line;
+        var new_last_line = head_last_line+ tail_last_line;
         
         self.texts.replace(hv_y, new_last_line);
     }
@@ -365,10 +475,10 @@ void rewriteOnHorizonVisualMode(ViWin* self, Vi* nvi)
         tail++;
         
         var line = self.texts.item(y, null);
-        var head_of_line = line.substring(0, head);
-        var middle_of_cline = (xsprintf("%lc", key) * (tail-head)).to_wstring();
-        var tail_of_line = line.substring(tail, -1);
-        var new_line = head_of_line + middle_of_cline + tail_of_line;
+        var head_line = line.substring(0, head);
+        var middle_line = (xsprintf("%lc", key) * (tail-head)).to_wstring();
+        var tail_line = line.substring(tail, -1);
+        var new_line = head_line+ middle_line+ tail_line
         
         self.texts.replace(y, new_line);
     }
@@ -436,6 +546,11 @@ void inputHorizonVisualMode(ViWin* self, Vi* nvi){
             nvi.exitFromVisualMode();
             break;
 
+        case '~':
+            self.changeCaseHorizonVisualMode(nvi);
+            nvi.exitFromVisualMode();
+            break;
+
         case 'c':
             self.deleteOnHorizonVisualMode(nvi);
             nvi.exitFromVisualMode();
@@ -465,6 +580,7 @@ void inputHorizonVisualMode(ViWin* self, Vi* nvi){
         case 'b':
             self.backwardWord();
             break;
+                
 
         case 27:
             nvi.exitFromVisualMode();

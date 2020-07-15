@@ -1,9 +1,5 @@
-C-x
-R
-V,$
-gv
-V~
 V,:
+C-x
 [{
 [M
 ]m
@@ -119,3 +115,9 @@ R
 X
 I
 C-a,digit incremrnt
+R
+C-V,$
+V~
+C-V~
+v~
+gv

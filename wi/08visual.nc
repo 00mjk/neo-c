@@ -136,6 +136,40 @@ void backIndentVisualMode(ViWin* self, Vi* nvi) {
     self.modifyOverCursorXValue();
 }
 
+void changeCaseVisualMode(ViWin* self, Vi* nvi) {
+    self.pushUndo();
+
+    int head = self.visualModeHead;
+    int tail = self.scroll+self.cursorY;
+
+    if(head >= tail) {
+        int tmp = tail;
+        tail = head;
+        head = tmp;
+    }
+
+    self.texts.sublist(head, tail+1).each {
+        wstring new_line = wstring("") + it;
+        
+        for(int i=0; i<new_line.length(); i++) {
+            wchar_t c = new_line.item(i, null);
+            
+            if(c >= 'a' && c <= 'z') {
+                wchar_t c2 = c - 'a' + 'A';
+                new_line.replace(i, c2);
+            }
+            else if(c >= 'A' && c <= 'Z') {
+                wchar_t c2 = c - 'A' + 'a';
+                new_line.replace(i, c2);
+            }
+        }
+        
+        self.texts.replace(it2+head, new_line);
+    }
+
+    self.modifyOverCursorXValue();
+}
+
 void joinVisualMode(ViWin* self, Vi* nvi) {
     self.pushUndo();
 
@@ -390,6 +424,13 @@ void inputVisualMode(ViWin* self, Vi* nvi){
             self.backIndentVisualMode(nvi);
             nvi.exitFromVisualMode();
             self.makeInputedKeyGVDeIndent(nvi);
+            break;
+
+        case '~':
+            self.changeCaseVisualMode(nvi);
+            nvi.exitFromVisualMode();
+    
+            self.makeInputedKeyGVIndent(nvi);
             break;
             
         case 'J':
