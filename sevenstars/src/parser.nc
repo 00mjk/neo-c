@@ -1362,6 +1362,17 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             
             *node = sNodeTree_create_eval(exp, info);
         }
+        else if(strcmp(word, "getenv") == 0) {
+            expected_next_character('(', info);
+
+            sCLNode* exp = null;
+            if(!expression(&exp, info)) {
+                return false;
+            };
+            expected_next_character(')', info);
+            
+            *node = sNodeTree_create_getenv(exp, info);
+        }
         else if(strcmp(word, "new") == 0) {
             sCLType* type = null;
             if(!parse_type(&type, info, info.types)) {

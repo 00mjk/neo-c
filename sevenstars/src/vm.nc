@@ -247,6 +247,10 @@ void print_op(int op)
         case OP_EVAL:
             puts("OP_EVAL");
             break;
+
+        case OP_GETENV:
+            puts("OP_GETENV");
+            break;
             
         default:
             printf("OP %d\n", op);
@@ -1326,6 +1330,26 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 }
 
                 stack_ptr--;
+                }
+                
+                break;
+                
+            case OP_GETENV: {
+                int obj = (stack_ptr-1).mObjectValue;
+
+                char* name = get_string_mem(obj);
+                
+                char* str = getenv(name);
+                
+                if(str == null) {
+                    str = "";
+                }
+
+                stack_ptr--;
+                CLObject new_obj = create_string_object(str, info);
+
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
                 }
                 
                 break;

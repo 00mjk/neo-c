@@ -706,6 +706,12 @@ eval("command");
 
 You can run the string at run time with. You can use this and reflection to create a program that creates a class file. (Compile time reflection)
 
+* getenv 
+
+getenv("HOME");
+
+Gettingenvironment variables.
+
 * shell mode
 
 You can write script like shell script

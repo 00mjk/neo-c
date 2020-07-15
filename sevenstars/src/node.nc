@@ -2927,6 +2927,46 @@ static bool compile_eval(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_getenv(sCLNode* exp, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeGetEnv;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = exp;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_getenv(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* left_node = node.left;
+
+    if(!compile(left_node, info)) {
+        return false;
+    }
+
+    if(!type_identify_with_class_name(info->type, "string", info.pinfo)) {
+        compile_err_msg(info, "Require string type for eval");
+        return true;
+    }
+
+    if(!info.no_output) {
+        info.codes.append_int(OP_GETENV);
+    }
+
+    info->stack_num--;
+
+    info->type = create_type("string", info.pinfo.types);
+
+    return true;
+}
+
 sCLNode* sNodeTree_create_cd(char* path, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
@@ -3259,6 +3299,12 @@ bool compile(sCLNode* node, sCompileInfo* info)
 
         case kNodeTypeEval:
             if(!compile_eval(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeGetEnv:
+            if(!compile_getenv(node, info)) {
                 return false;
             }
             break;
