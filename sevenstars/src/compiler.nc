@@ -510,6 +510,16 @@ bool compiler(char* fname)
     return true;
 }
 
+bool compiler2(buffer* source)
+{
+    char* fname = "opt-c";
+
+    if(!compile_script(fname, source)) {
+        return false;
+    }
+
+    return true;
+}
 
 static string line_buffer_from_head_to_cursor_point()
 {

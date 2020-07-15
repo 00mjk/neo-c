@@ -67,6 +67,15 @@ eval(source2.to_string());
 save_class ClassA;
 ```
 
+6. コマンドラインで標準入力が簡単に得られます。
+
+6. You can easily get standard input on command line.
+
+```
+$ ls -al | sevenstars -c '.wc("-l")'
+$ ls -al | sevenstars -c '.to_string().scan(/./).join("+").print()'
+```
+
 * マニュアル(manual)
 
 * int class
@@ -222,6 +231,7 @@ class string {
 
     def scan(reg:regex):list<string>;
     def split(reg:regex):list<string>;
+    def print():void;
 };
 ```
 

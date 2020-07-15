@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.2.7
+version 1.2.8
 
 ```
 #include <stdio.h>
@@ -62,6 +62,8 @@ This program is tested in LLVM-3.8 and LLVM-7, and x86_64 on Debian, Raspberry P
 x86_64のDebianとRaspberry PI 3B+でテストしています。
 
 # CHANGELOG
+
+1.2.8 appended string.to_buffer().
 
 1.2.7 map.rehash bug was fixed.
 
@@ -189,6 +191,7 @@ impl string
     extern char item(string& self, int index, char default_value);
     
     extern nregex to_regex(string& self);
+    buffer*% to_buffer(string& self);
 }
 ```
 
@@ -270,6 +273,7 @@ impl string
     extern char item(string& self, int index, char default_value);
     
     extern nregex to_regex(string& self);
+    buffer*% to_buffer(string& self);
 }
 ```
 

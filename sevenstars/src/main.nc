@@ -20,6 +20,8 @@ int main(int argc, char** argv)
 
     setlocale(LC_ALL, "");
 
+    bool opt_c = false;
+    char source[BUFSIZ];
     bool no_load_fudamental_classes = false;
     char sname[PATH_MAX];
     xstrncpy(sname, "", PATH_MAX);
@@ -27,6 +29,17 @@ int main(int argc, char** argv)
     for(i=1; i<argc; i++) {
         if(strcmp(argv[i], "-core") == 0) {
             no_load_fudamental_classes = true;
+        }
+        else if(strcmp(argv[i], "-c") == 0) {
+            opt_c = true;
+
+            if(i+1 < argc) {
+                xstrncpy(source, argv[i+1], BUFSIZ);
+                i++;
+            }
+            else {
+                opt_c = false;
+            }
         }
         else if(strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "-V") == 0)
         {
@@ -62,6 +75,39 @@ int main(int argc, char** argv)
         compiler_init(no_load_fudamental_classes);
 
         if(!compiler(sname)) {
+            fprintf(stderr, "sevenstars can't compile %s\n", argv[i]);
+            clover3_final();
+            compiler_final();
+            return 1;
+        }
+
+        clover3_final();
+        compiler_final();
+    }
+    else if(opt_c) {
+        set_signal();
+
+        char* p = sname + strlen(sname);
+
+        while(p >= sname) {
+            if(*p == '.') {
+                break;
+            }
+            else {
+                p--;
+            }
+        }
+
+        if(p < sname) {
+            p = NULL;
+        }
+
+        char* ext_sname = p;
+
+        clover3_init();
+        compiler_init(no_load_fudamental_classes);
+
+        if(!compiler2(string(source).to_buffer())) {
             fprintf(stderr, "sevenstars can't compile %s\n", argv[i]);
             clover3_final();
             compiler_final();

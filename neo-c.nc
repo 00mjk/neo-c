@@ -793,6 +793,13 @@ impl string
     nregex to_regex(string& self) {
         return regex(self, false, false, false, false, false, false, false, false);
     }
+    buffer*% to_buffer(string& self) {
+        var result = new buffer.initialize();
+
+        result.append_str(self);
+
+        return result;
+    }
 }
 
 /// wstring ///

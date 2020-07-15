@@ -409,6 +409,7 @@ impl string
     extern string reverse(string& self);
     
     extern nregex to_regex(string& self);
+    buffer*% to_buffer(string& self);
 }
 
 /// wstring ///

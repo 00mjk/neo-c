@@ -1122,6 +1122,19 @@ static bool parse_list(sCLNode** elements, int* num_elements, sParserInfo* info)
     return true;
 }
 
+bool read_stdin(buffer* buf)
+{
+    while(!feof(stdin)) {
+        char buf2[BUFSIZ];
+
+        fgets(buf2, BUFSIZ, stdin);
+
+        buf.append_str(buf2);
+    }
+
+    return true;
+}
+
 static bool expression_node(sCLNode** node, sParserInfo* info)
 {
     int num_method_chains = 0;
@@ -1413,7 +1426,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
                 sCLNode* params[PARAMS_MAX];
                 if(*node == 0) {
-                    params[0] = sNodeTree_create_command_value(info);
+                    params[0] = sNodeTree_create_command_value("", info);
                 }
                 else {
                     params[0] = *node;
@@ -1489,7 +1502,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
                 sCLNode* params[PARAMS_MAX];
                 if(*node == 0) {
-                    params[0] = sNodeTree_create_command_value(info);
+                    params[0] = sNodeTree_create_command_value("", info);
                 }
                 else {
                     params[0] = *node;
@@ -1610,6 +1623,44 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
         expected_next_character('}', info);
 
         *node = sNodeTree_create_normal_block(node_block, info);
+    }
+    /// stdin ///
+    else if(isatty(0) == 0 && *info->p == '.') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        var word = parse_word(info);
+
+        if(*info->p == '(') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            sCLNode* params[PARAMS_MAX];
+
+            buffer*% buf = new buffer.initialize();
+
+            if(!read_stdin(buf))  {
+                return false;
+            }
+
+            string str = buf.to_string();
+
+            params[0] = sNodeTree_create_command_value(str, info);
+
+            int num_params = 1;
+
+            bool param_closed = false;
+            if(!parse_calling_params(&num_params, params, &param_closed, info)) 
+            {
+                return false;
+            };
+
+            *node = sNodeTree_create_method_call(word, num_params, params, param_closed, info);
+        }
+        else {
+            parser_err_msg(info, "require method call after . (reading stdin)");
+            return false;
+        }
     }
     else {
         parser_err_msg(info, xsprintf("unexpected character %c", *info->p));

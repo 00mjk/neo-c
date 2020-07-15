@@ -1343,7 +1343,7 @@ static bool compile_null_value(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-sCLNode* sNodeTree_create_command_value(sParserInfo* info)
+sCLNode* sNodeTree_create_command_value(char* data, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
     
@@ -1351,6 +1351,8 @@ sCLNode* sNodeTree_create_command_value(sParserInfo* info)
     
     xstrncpy(result.sname, info.sname, PATH_MAX);
     result.sline = info.sline;
+
+    result.mStringValue = string(data);
     
     result.left = null;
     result.right = null;
@@ -1361,8 +1363,14 @@ sCLNode* sNodeTree_create_command_value(sParserInfo* info)
 
 static bool compile_command(sCLNode* node, sCompileInfo* info)
 {
+    char* str = node.mStringValue;
+
     if(!info.no_output) {
         info.codes.append_int(OP_COMMAND_VALUE);
+
+        info.codes.append_nullterminated_str(str);
+
+        info.codes.alignment();
     }
 
     info.type = create_type("command", info.pinfo.types);

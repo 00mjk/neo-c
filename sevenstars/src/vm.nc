@@ -968,10 +968,27 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 break;
 
             case OP_COMMAND_VALUE: {
-                CLObject obj = create_command_object("", 1, "", 1, 0, true, info);
-                stack_ptr.mObjectValue = obj;
-                
-                stack_ptr++;
+                char* str = (char*)p;
+                int len = strlen(str) + 1;
+
+                alignment(&len);
+
+                len = len / sizeof(int);
+
+                p += len;
+
+                if(strlen(str) == 0) {
+                    CLObject obj = create_command_object("", 1, "", 1, 0, true, info);
+                    stack_ptr.mObjectValue = obj;
+                    
+                    stack_ptr++;
+                }
+                else {
+                    CLObject obj = create_command_object(str, strlen(str)+1, "", 1, 0, false, info);
+                    stack_ptr.mObjectValue = obj;
+                    
+                    stack_ptr++;
+                }
                 }
                 break;
                 
