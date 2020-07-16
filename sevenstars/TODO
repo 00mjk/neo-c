@@ -1,6 +1,4 @@
 command error output
-shell mode $variavle 
-getenv
 
 inherit
 
@@ -39,3 +37,5 @@ cd
 コマンド名間違っていたとき
 ファイルの書き込み。stringクラスにwrite,append
 string.scan, string.split
+shell mode $variavle 
+getenv

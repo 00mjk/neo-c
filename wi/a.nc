@@ -12,6 +12,7 @@
 int main()
 {
     aaaaaaaaaaaaaaaaaar { it[0] == 'A' };
+    aaaa
     
     li2.each {
         printf("%s\n", it);

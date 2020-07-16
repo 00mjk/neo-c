@@ -159,6 +159,30 @@ void openFile(ViWin* self, char* file_name, int line_num)
 }
 
 void writeFile(ViWin* self) {
+    /// back up /// 
+    char* home = getenv("HOME");
+    
+    if(home == null) {
+        return;
+    }
+    
+    char path[PATH_MAX];
+    
+    snprintf(path, PATH_MAX, "%s/.wi", home);
+    
+    (void)mkdir(path, 0755);
+    
+    snprintf(path, PATH_MAX, "%s/.wi/backup", home);
+    
+    (void)mkdir(path, 0755);
+    
+    char cmd[BUFSIZ];
+    
+    snprintf(cmd, BUFSIZ, "cp %s %s/.wi/backup", self.fileName, home);
+    
+    (void)system(cmd);
+    
+    /// write ///
     FILE* f = fopen(self.fileName, "w");
 
     if(f != null) {
@@ -236,11 +260,11 @@ void saveLastOpenFile(Vi* self, char* file_name) {
     
     char file_name2[PATH_MAX];
     
-    snprintf(file_name2, PATH_MAX, "%s/.nvi", home);
+    snprintf(file_name2, PATH_MAX, "%s/.wi", home);
     
     (void)mkdir(file_name2, 0755);
     
-    snprintf(file_name2, PATH_MAX, "%s/.nvi/last_open_file", home, file_name);
+    snprintf(file_name2, PATH_MAX, "%s/.wi/last_open_file", home, file_name);
     
     FILE* f = fopen(file_name2, "w");
 
@@ -262,7 +286,7 @@ string readLastOpenFile(Vi* self) {
     
     char file_name2[PATH_MAX];
     
-    snprintf(file_name2, PATH_MAX, "%s/.nvi/last_open_file", home);
+    snprintf(file_name2, PATH_MAX, "%s/.wi/last_open_file", home);
     
     FILE* f = fopen(file_name2, "r");
 
