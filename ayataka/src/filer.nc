@@ -244,7 +244,8 @@ void input(Filer* self)
                 }
                 else {
                     endwin();
-                    shell_commandline(xsprintf(" %s", self.cursor_file()), 0, self.ayataka.types);
+                    CLVALUE result;
+                    shell_commandline(xsprintf(" %s", self.cursor_file()), 0, self.ayataka.types, &result);
                     self.read_dir();
                     puts("HIT ANY KEY");
                     getchar();
@@ -267,7 +268,8 @@ void input(Filer* self)
 
             case 'd': {
                 endwin();
-                shell_commandline(xsprintf("rm -rf %s", self.cursor_file()), -1, self.ayataka.types);
+                CLVALUE result;
+                shell_commandline(xsprintf("rm -rf %s", self.cursor_file()), -1, self.ayataka.types, &result);
                 self.read_dir();
                 puts("HIT ANY KEY");
                 getchar();
@@ -280,7 +282,8 @@ void input(Filer* self)
 
             case 'c': {
                 endwin();
-                shell_commandline(xsprintf("cp -r %s ", self.cursor_file()), -1, self.ayataka.types);
+                CLVALUE result;
+                shell_commandline(xsprintf("cp -r %s ", self.cursor_file()), -1, self.ayataka.types, &result);
                 self.read_dir();
                 puts("HIT ANY KEY");
                 getchar();
@@ -293,7 +296,8 @@ void input(Filer* self)
 
             case 'm': {
                 endwin();
-                shell_commandline(xsprintf("mv %s ", self.cursor_file()), -1, self.ayataka.types);
+                CLVALUE result;
+                shell_commandline(xsprintf("mv %s ", self.cursor_file()), -1, self.ayataka.types, &result);
                 self.read_dir();
                 puts("HIT ANY KEY");
                 getchar();
@@ -306,7 +310,8 @@ void input(Filer* self)
 
             case 'n': {
                 endwin();
-                shell_commandline(xsprintf("touch "), -1, self.ayataka.types);
+                CLVALUE result;
+                shell_commandline(xsprintf("touch "), -1, self.ayataka.types, &result);
                 self.read_dir();
                 initscr();
                 keypad(stdscr, true);
@@ -317,7 +322,8 @@ void input(Filer* self)
 
             case 'x': {
                 endwin();
-                shell_commandline(xsprintf(" ./%s", self.cursor_file()), 0, self.ayataka.types);
+                CLVALUE result;
+                shell_commandline(xsprintf(" ./%s", self.cursor_file()), 0, self.ayataka.types, &result);
                 self.read_dir();
                 puts("HIT ANY KEY");
                 getchar();
@@ -330,7 +336,8 @@ void input(Filer* self)
 
             case 'e': {
                 endwin();
-                shell_run_command(xsprintf("wi %s", self.cursor_file()), self.ayataka.types);
+                CLVALUE result;
+                shell_run_command(xsprintf("wi %s", self.cursor_file()), self.ayataka.types, &result);
                 initscr();
                 keypad(stdscr, true);
                 raw();
@@ -365,7 +372,8 @@ void input(Filer* self)
 
             case ':': {
                 endwin();
-                shell_commandline("", -1, self.ayataka.types);
+                CLVALUE result;
+                shell_commandline("", -1, self.ayataka.types, &result);
                 self.read_dir();
                 puts("HIT ANY KEY");
                 getchar();

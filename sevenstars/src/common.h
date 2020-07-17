@@ -654,8 +654,8 @@ void clover3_init();
 void clover3_final();
 
 bool forground_job(int job_num);
-void shell_run_command(char* line, vector<sCLType*%>* types);
-void shell_commandline(char* line, int cursor_point, vector<sCLType*%>* types);
+void shell_run_command(char* line, vector<sCLType*%>* types, CLVALUE* result);
+void shell_commandline(char* line, int cursor_point, vector<sCLType*%>* types, CLVALUE* result);
 
 #endif
 

@@ -1,3 +1,7 @@
+/,*,%,**
+
+ls().to_st[TAB]
+
 command error output
 
 inherit

@@ -83,15 +83,17 @@ void set_signal_shell()
     }
 }
 
-bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* types)
+bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* types, CLVALUE* result)
 {
+    result->mObjectValue = 0;
+
     sParserInfo info;
     
     memset(&info, 0, sizeof(sParserInfo));
 
     string str2 = null;
     if(output) {
-        str2 = xsprintf("(\"=>\" + {%s }.to_string()).print()", str);
+        str2 = xsprintf("{ %s }.to_string()", str);
     }
     else {
         str2 = xsprintf("%s", str);
@@ -168,15 +170,17 @@ bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* type
         }
         
         /// POP ///
-        for(int i=0; i<cinfo.stack_num; i++) {
-            if(!cinfo.no_output) {
-                cinfo.codes.append_int(OP_POP);
+        if(*info->p) {
+            for(int i=0; i<cinfo.stack_num; i++) {
+                if(!cinfo.no_output) {
+                    cinfo.codes.append_int(OP_POP);
+                }
             }
-        }
-        
-        cinfo.stack_num = 0;
+            
+            cinfo.stack_num = 0;
 
-        cinfo.type = create_type("void", info.types);
+            cinfo.type = create_type("void", info.types);
+        }
     }
     
     if(info.err_num > 0) {
@@ -205,8 +209,7 @@ bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* type
     vminfo.cinfo = &cinfo;
     vminfo.stack_frames = borrow new vector<sCLStackFrame>.initialize();
     
-    CLVALUE result;
-    if(!vm(cinfo.codes, NULL, 0, var_num, &result, &vminfo)) {
+    if(!vm(cinfo.codes, NULL, 0, var_num, result, &vminfo)) {
         fprintf(stderr, "VM error.\n");
         CLObject obj = vminfo.thrown_object.mObjectValue;
         if(obj) {
@@ -227,6 +230,22 @@ bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* type
         delete cinfo.codes;
         delete vminfo.stack_frames;
         return false;
+    }
+    
+    if(output) {
+        CLObject result_obj = result->mObjectValue;
+
+        if(result_obj) {
+            sCLObject* object_data = CLOBJECT(result_obj);
+            
+            if(type_identify_with_class_name(object_data->mType, "string", &info)) {
+                char* result_str = get_string_mem(result_obj);
+
+                if(strcmp(result_str, "") != 0) {
+                    printf("=> %s\n", result_str);
+                }
+            }
+        }
     }
 
     delete info.nodes;
@@ -286,7 +305,8 @@ void compiler_init(bool no_load_fudamental_classes)
 
             heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
             var types = new vector<sCLType*%>.initialize();
-            if(!shell_eval_str(source, "load fundamental class", false, types)) {
+            CLVALUE result;
+            if(!shell_eval_str(source, "load fundamental class", false, types, &result)) {
                 fprintf(stderr, "no load fundamental class\n");
             }
             heap_final();
@@ -600,7 +620,19 @@ void get_command_completion_cadidates(char* inputing_method_name)
 
     if(system_class) {
         system_class.mMethods.each {
-            matches.push_back(string(it));
+            if(strstr(it, inputing_method_name) == it) {
+                matches.push_back(string(it));
+            }
+        }
+    }
+
+    sCLClass* command_class = gClasses.at("command", null);
+
+    if(command_class) {
+        command_class.mMethods.each {
+            if(strstr(it, inputing_method_name) == it) {
+                matches.push_back(string(it));
+            }
         }
     }
 }
@@ -903,7 +935,8 @@ void shell(vector<sCLType*%>* types)
             break;
         }
 
-        (void)shell_eval_str(line, "sevenstars", true, types);
+        CLVALUE result;
+        (void)shell_eval_str(line, "sevenstars", true, types, &result);
 
         add_history(line);
 
@@ -911,14 +944,14 @@ void shell(vector<sCLType*%>* types)
     };
 }
 
-void shell_run_command(char* line, vector<sCLType*%>* types)
+void shell_run_command(char* line, vector<sCLType*%>* types, CLVALUE* result)
 {
-    (void)shell_eval_str(line, "sevenstars", true, types);
+    (void)shell_eval_str(line, "sevenstars", true, types, result);
 
     add_history(line);
 }
 
-void shell_commandline(char* line, int cursor_point, vector<sCLType*%>* types)
+void shell_commandline(char* line, int cursor_point, vector<sCLType*%>* types, CLVALUE* result)
 {
     rl_completer_quote_characters = "\"'";
     rl_completer_word_break_characters = " .({";
@@ -932,6 +965,7 @@ void shell_commandline(char* line, int cursor_point, vector<sCLType*%>* types)
     char* line2 = readline("sevenstars lang > ");
 
     if(line2 == null) {
+        result->mObjectValue = 0;
         return;
     }
 
@@ -940,7 +974,7 @@ void shell_commandline(char* line, int cursor_point, vector<sCLType*%>* types)
         return;
     }
 
-    (void)shell_eval_str(line2, "sevenstars", true, types);
+    (void)shell_eval_str(line2, "sevenstars", true, types, result);
 
     add_history(line2);
 

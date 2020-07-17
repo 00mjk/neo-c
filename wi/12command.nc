@@ -46,14 +46,33 @@ void enterComandMode(Vi* self) {
 
     clover3_init_for_wi(types);
     
-    shell_commandline("", -1, types);
+    CLVALUE result;
+    shell_commandline("", -1, types, &result);
+    
+    if(result.mObjectValue != 0) {
+        char* str = get_string_mem(result->mObjectValue);
+        
+        if(strcmp(str, "") != 0) {
+            var li = string(str).split(regex!("\n"));
+            
+            li.each {
+                var wstr = it.to_wstring();
+                
+                ViWin* win = self.activeWin;
+                
+                win.texts.insert(win.scroll+win.cursorY+it2, wstr);
+            }
+        }
+        else {
+            puts("HIT ANY KEY");
+            getchar();
+        }
+    }
 
     heap_final();
 
     clover3_final();
     compiler_final();
-    puts("HIT ANY KEY");
-    getchar();
     
     self.init_curses();
 }
@@ -125,7 +144,7 @@ bool system_sp(CLVALUE** stack_ptr, sVMInfo* info)
         vm_err_msg(stack_ptr, info, "type error on system.sp");
         return false;
     }
-    if(!check_type(self, "string", info)) {
+    if(!check_type(path, "string", info)) {
         vm_err_msg(stack_ptr, info, "type error on system.sp");
         return false;
     }

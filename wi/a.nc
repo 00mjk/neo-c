@@ -13,6 +13,7 @@ int main()
 {
     aaaaaaaaaaaaaaaaaar { it[0] == 'A' };
     aaaa
+    cccc
     
     li2.each {
         printf("%s\n", it);

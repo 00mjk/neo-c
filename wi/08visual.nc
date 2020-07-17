@@ -327,14 +327,13 @@ void runShell(ViWin* self, Vi* nvi) {
 
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     
-    shell_commandline("texts().", -1, types);
+    CLVALUE result;
+    shell_commandline("texts().", -1, types, &result);
 
     heap_final();
 
     clover3_final();
     compiler_final();
-    getchar();
-    puts("HIT ANY KEY");
     
     nvi.init_curses();
 }
