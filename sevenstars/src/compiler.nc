@@ -595,6 +595,14 @@ void get_command_completion_cadidates(char* inputing_method_name)
             }
         }
     }
+
+    sCLClass* system_class = gClasses.at("system", null);
+
+    if(system_class) {
+        system_class.mMethods.each {
+            matches.push_back(string(it));
+        }
+    }
 }
 
 char* completion_generator(char* text, int state)

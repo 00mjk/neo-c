@@ -218,7 +218,7 @@ void input(Filer* self)
 
     if(key >= '0' && key <= '9') {
         endwin();
-        forgroud_job(key-'0');
+        forground_job(key-'0');
         initscr();
         keypad(stdscr, true);
         raw();
