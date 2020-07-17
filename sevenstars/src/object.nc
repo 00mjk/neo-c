@@ -326,6 +326,17 @@ CLObject create_command_object(char* output, int output_len, char* err_output, i
     return obj;
 }
 
+CLObject create_system_object(sVMInfo* info)
+{
+    sCLType* system_type = create_type("system", info.cinfo.pinfo.types);
+
+    int size = object_size(system_type->mClass);
+    
+    CLObject obj = alloc_heap_mem(size, system_type, -1, info);
+
+    return obj;
+}
+
 CLObject create_job_object(char* title, termios* tinfo, pid_t pgrp, sVMInfo* info)
 {
     sCLType* job_type = create_type("job", info.cinfo.pinfo.types);

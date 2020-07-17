@@ -308,6 +308,35 @@ void rewriteVisualMode(ViWin* self, Vi* nvi) {
 
 }
 
+void runShell(ViWin* self, Vi* nvi) {
+    self.pushUndo();
+    
+    endwin();
+    
+    bool no_load_fudamental_classes = false;
+
+    setlocale(LC_ALL, "");
+
+    set_signal_shell();
+
+    var types = new vector<sCLType*%>.initialize();
+
+    clover3_init();
+    compiler_init(no_load_fudamental_classes);
+
+    heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
+    
+    shell_commandline("vi.texts().", -1, types);
+
+    heap_final();
+
+    clover3_final();
+    compiler_final();
+    getchar();
+    
+    nvi.init_curses();
+}
+
 void deleteOnVisualMode(ViWin* self, Vi* nvi) {
     self.pushUndo();
 
@@ -449,6 +478,10 @@ void inputVisualMode(ViWin* self, Vi* nvi){
             
         case 'r':
             self.rewriteVisualMode(nvi);
+            break;
+            
+        case ':':
+            self.runShell(nvi);
             break;
 
         case 27:

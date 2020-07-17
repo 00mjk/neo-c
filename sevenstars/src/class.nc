@@ -24,6 +24,7 @@ void class_init()
     append_class("void");
     append_class("int");
     append_class("regex");
+    append_class("system");
     append_class("bool");
     append_class("string");
     append_class("any");

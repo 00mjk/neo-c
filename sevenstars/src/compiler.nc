@@ -28,6 +28,7 @@ void clover3_init()
     native_init();
     native_init2();
     native_init3();
+    native_init4();
 }
 
 void clover3_final()

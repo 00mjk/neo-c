@@ -39,3 +39,4 @@ cd
 string.scan, string.split
 shell mode $variavle 
 getenv
+system class object omitted object name for run method.

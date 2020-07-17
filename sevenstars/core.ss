@@ -506,6 +506,16 @@ class regex
     }
 }
 
+class system
+{
+    def getenv(name:string):string;
+    def setenv(name:string, value:string):void;
+    def cd(path:string):void;
+    def eval(cmd:string):any;
+    def jobs():void;
+    def fg(job_num:string):void;
+    def exit(exit_code:string):void;
+}
 
 save_class object;
 save_class int;
@@ -525,3 +535,4 @@ save_class method;
 save_class field;
 save_class type;
 save_class regex;
+save_class system;

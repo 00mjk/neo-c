@@ -88,7 +88,7 @@ AC_MSG_CHECKING(Operating System)
 #########################################
 # CFLAGS settings
 #########################################
-CFLAGS=""
+CFLAGS="-I."
 NCFLAGS=""
 if test $DEBUGGING = 1
 then
@@ -134,6 +134,8 @@ AC_CHECK_HEADER(pcre.h, [AC_DEFINE(HAVE_PCRE_H,1)], [])
 AC_HAVE_LIBRARY(pcre, [ LIBS="$LIBS -lpcre"; ], [ eixt ])
 AC_CHECK_HEADER(ncurses.h, [AC_DEFINE(HAVE_NCURSESW_H, 1)], [])
 AC_HAVE_LIBRARY(ncursesw, [ LIBS="$LIBS -lncursesw"; ], [])
+AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [])
+AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [])
 
 AC_HAVE_LIBRARY(rt, [ LIBS="$LIBS -lrt"; ], [])
 

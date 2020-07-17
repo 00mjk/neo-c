@@ -1,4 +1,7 @@
-backup 
+command mode shell. 
+
+visual mode drawing will use 15filer.nc's.
+
 V,:
 C-x
 [{
@@ -121,3 +124,4 @@ V~
 C-V~
 v~
 gv
+backup 

@@ -1,6 +1,6 @@
 # SevenStars computer language
 
-version 1.0.2
+version 1.0.3
 
 * 特徴
 
@@ -698,19 +698,28 @@ else {
 }
 ```
 
-* eval
+* system
 
-eval("command");
+```
+class system
+{
+    def getenv(name:string):string;
+    def setenv(name:string, value:string):void;
+    def cd(path:string):void;
+    def eval(cmd:string):any;
+    def jobs():void;
+    def fg(job_num:string):void;
+    def exit(exit_code:string):void;
+}
+```
 
-で文字列を実行時に実行できます。これとリフレクションを使えばクラスファイルを生成するプログラムを作ることができます。(コンパイル時リフレクション)
+systemクラスはメソッド名だけで呼び出せます。一行の場合シェルと同じ構文で呼び出せます。cd src/など。
 
-You can run the string at run time with. You can use this and reflection to create a program that creates a class file. (Compile time reflection)
+evalで文字列を実行時に実行できます。これとリフレクションを使えばクラスファイルを生成するプログラムを作ることができます。(コンパイル時リフレクション)
 
-* getenv 
+The system class can be called only by the method name. If it is one line, it can be called with the same syntax as the shell. cd src/ etc.
 
-getenv("HOME");
-
-Gettingenvironment variables.
+You can run a string at runtime with eval. You can use this and reflection to create a program that creates a class file. (Compile-time reflection)
 
 * shell mode
 

@@ -1379,6 +1379,34 @@ static bool compile_command(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_system_value(sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeSystem;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = null;
+    result.right = null;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_system(sCLNode* node, sCompileInfo* info)
+{
+    if(!info.no_output) {
+        info.codes.append_int(OP_SYSTEM_VALUE);
+    }
+
+    info.type = create_type("system", info.pinfo.types);
+    info.stack_num++;
+    
+    return true;
+}
+
 sCLNode* sNodeTree_create_if_expression(sCLNode* if_expression, sCLNodeBlock* if_node_block, int num_elif, sCLNode** elif_expressions, sCLNodeBlock** elif_blocks, sCLNodeBlock* else_block, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
@@ -2279,129 +2307,6 @@ bool compile_block_object_call(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-sCLNode* sNodeTree_create_jobs(sParserInfo* info)
-{
-    sCLNode* result = alloc_node(info);
-    
-    result.type = kNodeTypeJobs;
-    
-    xstrncpy(result.sname, info.sname, PATH_MAX);
-    result.sline = info.sline;
-
-    result.left = null;
-    result.right = null;
-    result.middle = null;
-
-    return result;
-}
-
-bool compile_jobs(sCLNode* node, sCompileInfo* info)
-{
-    if(!info.no_output) {
-        info.codes.append_int(OP_JOBS);
-    }
-
-    info->type = create_type("void", info.pinfo.types);
-
-    return true;
-}
-
-sCLNode* sNodeTree_create_exit(sCLNode* node, sParserInfo* info)
-{
-    sCLNode* result = alloc_node(info);
-    
-    result.type = kNodeTypeExit;
-    
-    xstrncpy(result.sname, info.sname, PATH_MAX);
-    result.sline = info.sline;
-
-    result.left = node;
-    result.right = null;
-    result.middle = null;
-
-    return result;
-}
-
-bool compile_exit(sCLNode* node, sCompileInfo* info)
-{
-    sCLNode* left_node = node.left;
-
-    if(!compile(left_node, info)) {
-        return false;
-    }
-
-    if(!type_identify_with_class_name(info->type, "int", info.pinfo)) {
-        compile_err_msg(info, "Invalid exit parametor type");
-        return true;
-    }
-
-    if(!info.no_output) {
-        info.codes.append_int(OP_EXIT);
-    }
-
-    info->type = create_type("void", info.pinfo.types);
-
-    info->stack_num--;
-
-    return true;
-}
-
-sCLNode* sNodeTree_create_fg(int job_num, sParserInfo* info)
-{
-    sCLNode* result = alloc_node(info);
-    
-    result.type = kNodeTypeFg;
-    
-    xstrncpy(result.sname, info.sname, PATH_MAX);
-    result.sline = info.sline;
-
-    result.uValue.mIntValue = job_num;
-
-    result.left = null;
-    result.right = null;
-    result.middle = null;
-
-    return result;
-}
-
-bool compile_fg(sCLNode* node, sCompileInfo* info)
-{
-    int job_num = node.uValue.mIntValue;
-    
-    if(!info.no_output) {
-        info.codes.append_int(OP_FG);
-
-        info.codes.append_int(job_num);
-    }
-
-    info->type = create_type("void", info.pinfo.types);
-
-    return true;
-}
-
-sCLNode* sNodeTree_create_fg(int job_num, sParserInfo* info)
-{
-    sCLNode* result = alloc_node(info);
-    
-    result.type = kNodeTypeFg;
-    
-    xstrncpy(result.sname, info.sname, PATH_MAX);
-    result.sline = info.sline;
-
-    result.left = null;
-    result.right = null;
-    result.middle = null;
-
-    return result;
-}
-
-bool compile_fg(sCLNode* node, sCompileInfo* info)
-{
-    info->type = create_type("void", info.pinfo.types);
-
-    return true;
-}
-
 sCLNode* sNodeTree_create_store_field(sCLNode* obj, char* name, sCLNode* exp, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
@@ -2887,118 +2792,6 @@ static bool compile_macro(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
-sCLNode* sNodeTree_create_eval(sCLNode* exp, sParserInfo* info)
-{
-    sCLNode* result = alloc_node(info);
-    
-    result.type = kNodeTypeEval;
-    
-    xstrncpy(result.sname, info.sname, PATH_MAX);
-    result.sline = info.sline;
-
-    result.left = exp;
-    result.right = null;
-    result.middle = null;
-
-    return result;
-}
-
-static bool compile_eval(sCLNode* node, sCompileInfo* info)
-{
-    sCLNode* left_node = node.left;
-
-    if(!compile(left_node, info)) {
-        return false;
-    }
-
-    if(!type_identify_with_class_name(info->type, "string", info.pinfo)) {
-        compile_err_msg(info, "Require string type for eval");
-        return true;
-    }
-
-    if(!info.no_output) {
-        info.codes.append_int(OP_EVAL);
-    }
-
-    info->stack_num--;
-
-    info->type = create_type("void", info.pinfo.types);
-
-    return true;
-}
-
-sCLNode* sNodeTree_create_getenv(sCLNode* exp, sParserInfo* info)
-{
-    sCLNode* result = alloc_node(info);
-    
-    result.type = kNodeTypeGetEnv;
-    
-    xstrncpy(result.sname, info.sname, PATH_MAX);
-    result.sline = info.sline;
-
-    result.left = exp;
-    result.right = null;
-    result.middle = null;
-
-    return result;
-}
-
-static bool compile_getenv(sCLNode* node, sCompileInfo* info)
-{
-    sCLNode* left_node = node.left;
-
-    if(!compile(left_node, info)) {
-        return false;
-    }
-
-    if(!type_identify_with_class_name(info->type, "string", info.pinfo)) {
-        compile_err_msg(info, "Require string type for eval");
-        return true;
-    }
-
-    if(!info.no_output) {
-        info.codes.append_int(OP_GETENV);
-    }
-
-    info->stack_num--;
-
-    info->type = create_type("string", info.pinfo.types);
-
-    return true;
-}
-
-sCLNode* sNodeTree_create_cd(char* path, sParserInfo* info)
-{
-    sCLNode* result = alloc_node(info);
-    
-    result.type = kNodeTypeCd;
-    
-    xstrncpy(result.sname, info.sname, PATH_MAX);
-    result.sline = info.sline;
-
-    xstrncpy(result.uValue.uCd.mPath, path, PATH_MAX);
-
-    result.left = null;
-    result.right = null;
-    result.middle = null;
-
-    return result;
-}
-
-static bool compile_cd(sCLNode* node, sCompileInfo* info)
-{
-    char* path = node.uValue.uCd.mPath;
-
-    info.codes.append_int(OP_CD);
-    info.codes.append_nullterminated_str(path);
-
-    info.codes.alignment();
-
-    info->type = create_type("void", info.pinfo.types);
-
-    return true;
-}
-
 bool compile(sCLNode* node, sCompileInfo* info) 
 {
     if(node == null) {
@@ -3203,19 +2996,6 @@ bool compile(sCLNode* node, sCompileInfo* info)
             }
             break;
 
-        case kNodeTypeJobs: {
-            if(!compile_jobs(node, info)) {
-                return false;
-            }
-            }
-            break;
-
-        case kNodeTypeFg:
-            if(!compile_fg(node, info)) {
-                return false;
-            }
-            break;
-
         case kNodeTypeLoadField:
             if(!compile_load_field(node, info)) {
                 return false;
@@ -3237,13 +3017,6 @@ bool compile(sCLNode* node, sCompileInfo* info)
 
         case kNodeTypeBreak: {
             if(!compile_break(node, info)) {
-                return false;
-            }
-            }
-            break;
-    
-        case kNodeTypeExit: {
-            if(!compile_exit(node, info)) {
                 return false;
             }
             }
@@ -3297,20 +3070,8 @@ bool compile(sCLNode* node, sCompileInfo* info)
             }
             break;
 
-        case kNodeTypeEval:
-            if(!compile_eval(node, info)) {
-                return false;
-            }
-            break;
-
-        case kNodeTypeGetEnv:
-            if(!compile_getenv(node, info)) {
-                return false;
-            }
-            break;
-
-        case kNodeTypeCd:
-            if(!compile_cd(node, info)) {
+        case kNodeTypeSystem:
+            if(!compile_system(node, info)) {
                 return false;
             }
             break;

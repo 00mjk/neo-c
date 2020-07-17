@@ -4,6 +4,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include "config.h"
+#include "../sevenstars/src/common.h"
 
 #define SAVE_INPUT_KEY_MAX 256
 

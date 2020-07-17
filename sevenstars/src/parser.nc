@@ -757,7 +757,7 @@ bool parse_shell_params(int* num_params, sCLNode** params, sParserInfo* info)
         
         buffer*% buf = new buffer.initialize();
 
-        while(*info->p != '\0' && *info->p != ' ' && *info->p != '}') {
+        while(*info->p != '\0' && *info->p != ' ' && *info->p != '}' && *info->p != ';') {
             buf.append_char(*info->p);
             info->p++;
         }
@@ -1135,6 +1135,18 @@ bool read_stdin(buffer* buf)
     return true;
 }
 
+bool is_system_method(char* method_name)
+{
+    sCLClass* system_class = gClasses.at("system", null);
+
+    if(system_class == null) {
+        return false;
+    }
+
+    return system_class->mMethods.at(method_name, null) != null;
+
+}
+
 static bool expression_node(sCLNode** node, sParserInfo* info)
 {
     int num_method_chains = 0;
@@ -1279,99 +1291,12 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 return false;
             }
         }
-        else if(strcmp(word, "jobs") == 0) {
-            *node = sNodeTree_create_jobs(info);
-        }
-        else if(strcmp(word, "exit") == 0) {
-            if(!expression(node, info)) {
-                return false;
-            };
-            
-            *node = sNodeTree_create_exit(*node, info);
-        }
         else if(strcmp(word, "return") == 0) {
             if(!expression(node, info)) {
                 return false;
             };
             
             *node = sNodeTree_create_return(*node, info);
-        }
-        else if(strcmp(word, "fg") == 0) {
-            const int buf_size = 128;
-            char buf[128+1];
-            char* p2 = buf;
-
-            while(isdigit(*info->p) || *info->p == '_') {
-                if(*info->p ==  '_') {
-                    info->p++;
-                }
-                else {
-                    *p2++ = *info->p;
-                    info->p++;
-                }
-
-                if(p2 - (char*)buf >= buf_size) {
-                    parser_err_msg(info, "overflow node of number");
-                    return false;
-                }
-            };
-            *p2 = 0;
-            skip_spaces_and_lf(info);
-            
-            *node = sNodeTree_create_fg(atoi(buf), info);
-        }
-        else if(strcmp(word, "save_class") == 0) {
-            string klass_name = parse_word(info);
-
-            sCLClass* klass = gClasses.at(klass_name, null);
-
-            if(klass) {
-                printf("saving %s class...", klass_name);
-                if(!save_class(klass)) {
-                    puts("error");
-                }
-                else {
-                    puts("ok");
-                }
-            }
-        }
-        else if(strcmp(word, "load_class") == 0) {
-            string klass_name = parse_word(info)
-
-            printf("loading %s class...", klass_name);
-            if(!load_class(klass_name, info)) {
-                puts("error");
-            }
-            else {
-                puts("ok");
-            }
-        }
-        else if(strcmp(word, "cd") == 0) {
-            string word2 = parse_word_for_shell(info);
-
-            *node = sNodeTree_create_cd(word2, info);
-        }
-        else if(strcmp(word, "eval") == 0) {
-            expected_next_character('(', info);
-
-            sCLNode* exp = null;
-            if(!expression(&exp, info)) {
-                return false;
-            };
-            expected_next_character(')', info);
-            
-            *node = sNodeTree_create_eval(exp, info);
-        }
-        else if(strcmp(word, "getenv") == 0) {
-            expected_next_character('(', info);
-
-            sCLNode* exp = null;
-            if(!expression(&exp, info)) {
-                return false;
-            };
-            expected_next_character(')', info);
-            
-            *node = sNodeTree_create_getenv(exp, info);
         }
         else if(strcmp(word, "new") == 0) {
             sCLType* type = null;
@@ -1401,6 +1326,32 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 };
 
                 *node = sNodeTree_create_method_call(name, num_params, params, param_closed, info);
+            }
+        }
+        else if(strcmp(word, "save_class") == 0) {
+            string klass_name = parse_word(info);
+
+            sCLClass* klass = gClasses.at(klass_name, null);
+
+            if(klass) {
+                printf("saving %s class...", klass_name);
+                if(!save_class(klass)) {
+                    puts("error");
+                }
+                else {
+                    puts("ok");
+                }
+            }
+        }
+        else if(strcmp(word, "load_class") == 0) {
+            string klass_name = parse_word(info)
+
+            printf("loading %s class...", klass_name);
+            if(!load_class(klass_name, info)) {
+                puts("error");
+            }
+            else {
+                puts("ok");
             }
         }
         else if(*info->p == '!' && *(info->p+1) == '(') {
@@ -1437,7 +1388,12 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
                 sCLNode* params[PARAMS_MAX];
                 if(*node == 0) {
-                    params[0] = sNodeTree_create_command_value("", info);
+                    if(is_system_method(word)) {
+                        params[0] = sNodeTree_create_system_value(info);
+                    }
+                    else {
+                        params[0] = sNodeTree_create_command_value("", info);
+                    }
                 }
                 else {
                     params[0] = *node;
@@ -1513,7 +1469,12 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
                 sCLNode* params[PARAMS_MAX];
                 if(*node == 0) {
-                    params[0] = sNodeTree_create_command_value("", info);
+                    if(is_system_method(word)) {
+                        params[0] = sNodeTree_create_system_value(info);
+                    }
+                    else {
+                        params[0] = sNodeTree_create_command_value("", info);
+                    }
                 }
                 else {
                     params[0] = *node;
@@ -1526,6 +1487,17 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                     return false;
                 };
 
+                /// put "" to params for method parametor number checking
+                if(is_system_method(word)) {
+                    int num_method_params = gClasses.at("system",null)->mMethods.at(word, null).mNumParams;
+
+                    for(int i=num_params; i<num_method_params; i++) {
+                        params[i] = sNodeTree_create_string_value("", info);
+                        num_params++;
+                    }
+                }
+
+                /// go ///
                 bool param_closed = true;
                 *node = sNodeTree_create_method_call(word, num_params, params, param_closed, info);
             }
