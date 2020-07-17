@@ -363,24 +363,13 @@ impl Vi version 11
 /// 12command.h ///
 enum eMode { kCommandMode = kSearchMode + 1 };
 
-struct Vi version 12
-{
-    string commandString;
-};
-
-impl ViWin version 12
-{
-    void view(ViWin* self, Vi* nvi);
-    void input(ViWin* self, Vi* nvi);
-}
-
 impl Vi version 12
 {
     void enterComandMode(Vi* nvi);
-    void exitFromComandMode(Vi* self);
     initialize();
-    void activateFiler(Vi* self);
 }
+
+void clover3_init_for_wi(vector<sCLType*%>* types);
 
 impl ViWin version 13 
 {
@@ -469,6 +458,7 @@ impl Vi version 15
     void clearView(Vi* self);
     string commandBox(Vi* self, string command, string default_value);
     string inputBox(Vi* self, string default_value);
+    string selector(ViWin* self, list<string>* lines);
     void extraView(Vi* self);
 }
 
@@ -556,3 +546,6 @@ impl Vi version 19
 initialize() ;
 int main_loop(Vi* self);
 }
+
+extern Vi* gApp;
+

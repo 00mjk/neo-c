@@ -1717,7 +1717,7 @@ static bool compile_class(sCLNode* node, sCompileInfo* info)
 
     char* source = node.mStringValue;
 
-    if(!eval_class(source, info, sname, sline)) {
+    if(!eval_class(source, info.pinfo.types, sname, sline)) {
         return false;
     }
 

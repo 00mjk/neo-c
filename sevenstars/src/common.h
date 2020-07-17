@@ -127,7 +127,7 @@ extern list<CLObject>* gJobs;
 void class_init();
 void class_final();
 void append_class(char* name);
-bool eval_class(char* source, sCompileInfo* vminfo, char* sname, int sline);
+bool eval_class(char* source, vector<sCLType*%>* types, char* sname, int sline);
 /// native.nc ///
 extern map<string, fNativeMethod>* gNativeMethods;
 

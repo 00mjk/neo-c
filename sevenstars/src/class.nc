@@ -146,20 +146,53 @@ sCLMethod* append_method(sCLClass* klass, char* method_name, sCLType* method_typ
     return klass.mMethods.at(method_name, null);
 }
 
-bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
+bool eval_class(char* source, vector<sCLType*%>* types, char* sname, int sline)
 {
     sParserInfo info;
+    
+    memset(&info, 0, sizeof(sParserInfo));
 
-    info = *cinfo.pinfo;
+    xstrncpy(info.sname, sname, PATH_MAX);
+    info.sline = sline;
+
+    info.err_output_num = 0;
+
+    info.err_num = 0;
 
     info.p = source;
-    info.sline = sline;
 
     info.generics_type_names = borrow new vector<string>.initialize();
 
-    var name = parse_word(&info);
+    info.nodes = borrow new vector<sCLNode*%>.initialize();
+    info.vtables = null;
+    info.blocks = borrow new vector<sCLNodeBlock*%>.initialize();
+    info.types = types;
+    info.vars = borrow new vector<sVar*%>.initialize();
+    
+    sCompileInfo cinfo;
 
-    xstrncpy(info.sname, sname, PATH_MAX);
+    memset(&cinfo, 0, sizeof(sCompileInfo));
+
+    xstrncpy(cinfo.sname, info.sname, PATH_MAX);
+    cinfo.sline = info.sline;
+    
+    cinfo.err_num = 0;
+
+    cinfo.stack_num = 0;
+
+    cinfo.pinfo = &info;
+    
+    cinfo.codes = borrow new buffer.initialize();
+
+    cinfo.in_shell = true;
+
+    var tmp = parse_word(&info);
+
+    if(strcmp(tmp, "class") != 0) {
+        return false;
+    }
+
+    var name = parse_word(&info);
 
     if(gClasses.at(name, null) == null) {
         append_class(name);
@@ -194,47 +227,63 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
 
     if(info.err_num > 0) {
         fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
-        delete info.vtables;
         delete info.generics_type_names;
+        delete info.nodes;
+        delete info.blocks;
+        delete info.vars;
+        delete cinfo.codes;
         return false;
     }
 
     sCLClass* klass = gClasses.at(name, null);
 
-    //expected_next_character('{', &info);
+    char* p_before = info.p;
+    int sline_before = info.sline;
+
+    var word = parse_word(&info);
+
+    if(strcmp(word, "extends") == 0) {
+        var parent_class_name = parse_word(&info);
+
+        sCLClass* parent_class = gClasses.at(parent_class_name, null);
+        
+        if(parent_class == null) {
+            parser_err_msg(&info, xsprintf("Invalid parent class name. class not found(%s)", parent_class_name));
+        }
+
+        sCLClass* it = klass;
+        while(it) {
+            if(it == parent_class) {
+                parser_err_msg(&info, xsprintf("Invalid parent class name. recursive parent class(%s)", parent_class_name));
+                break;
+            }
+            it = it->mParent;
+        }
+
+        klass->mParent = parent_class;
+    }
+    else {
+        info.p = p_before = info.p;
+        info.sline = info.sline;
+    }
+
+    expected_next_character('{', &info);
 
     while(*info.p) {
         var word = parse_word(&info);
 
-        if(strcmp(word, "extends") == 0) {
-            var parent_class_name = parse_word(&info);
-
-            sCLClass* parent_class = gClasses.at(parent_class_name, null);
-            
-            if(parent_class == null) {
-                parser_err_msg(&info, xsprintf("Invalid parent class name. class not found(%s)", parent_class_name));
-            }
-
-            sCLClass* it = klass;
-            while(it) {
-                if(it == parent_class) {
-                    parser_err_msg(&info, xsprintf("Invalid parent class name. recursive parent class(%s)", parent_class_name));
-                    break;
-                }
-                it = it->mParent;
-            }
-
-            klass->mParent = parent_class;
-        }
-        else if(strcmp(word, "var") == 0) {
+        if(strcmp(word, "var") == 0) {
             var field_name = parse_word(&info);
 
             expected_next_character(':', &info);
 
             sCLType* field_type = null;
             if(!parse_type(&field_type, &info, info.types)) {
-                delete info.vtables;
                 delete info.generics_type_names;
+                delete info.nodes;
+                delete info.blocks;
+                delete info.vars;
+                delete cinfo.codes;
                 return false;
             }
 
@@ -259,6 +308,10 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
             if(!parse_params(params, &num_params, &info, info.types)) {
                 delete info.vtables;
                 delete info.generics_type_names;
+                delete info.nodes;
+                delete info.blocks;
+                delete info.vars;
+                delete cinfo.codes;
                 return false;
             }
 
@@ -268,6 +321,10 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
             if(!parse_type(&method_type, &info, info.types)) {
                 delete info.vtables;
                 delete info.generics_type_names;
+                delete info.nodes;
+                delete info.blocks;
+                delete info.vars;
+                delete cinfo.codes;
                 return false;
             }
 
@@ -289,12 +346,16 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
                     info.max_var_num = max_var_num;
                     delete info.vtables;
                     delete info.generics_type_names;
+                    delete info.nodes;
+                    delete info.blocks;
+                    delete info.vars;
+                    delete cinfo.codes;
                     return false;
                 }
                 int method_max_var_num = info.max_var_num;
                 info.max_var_num = max_var_num;
 
-                sCompileInfo cinfo2 = *cinfo;
+                sCompileInfo cinfo2 = cinfo;
 
                 xstrncpy(cinfo2.sname, sname, PATH_MAX);
                 cinfo2.sline = info.sline;
@@ -310,9 +371,13 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
                 cinfo2.no_output = false;
 
                 if(!compile_block(node_block, &cinfo2)) {
-                    delete info.vtables;
                     delete cinfo2.codes;
+                    delete info.vtables;
                     delete info.generics_type_names;
+                    delete info.nodes;
+                    delete info.blocks;
+                    delete info.vars;
+                    delete cinfo.codes;
                     return false;
                 }
 
@@ -323,9 +388,13 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
 
                 if(cinfo2.err_num > 0) {
                     fprintf(stderr, "Compile error\n");
-                    delete info.vtables;
                     delete cinfo2.codes;
+                    delete info.vtables;
                     delete info.generics_type_names;
+                    delete info.nodes;
+                    delete info.blocks;
+                    delete info.vars;
+                    delete cinfo.codes;
                     return false;
                 }
 
@@ -345,15 +414,21 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
         }
         else {
             if(strcmp(word, "") == 0) {
-                compile_err_msg(cinfo, xsprintf("Require var or def keyword in the class. This is %c", *info.p));
-                delete info.vtables;
+                compile_err_msg(&cinfo, xsprintf("Require var or def keyword in the class. This is %c", *info.p));
                 delete info.generics_type_names;
+                delete info.nodes;
+                delete info.blocks;
+                delete info.vars;
+                delete cinfo.codes;
                 return false;
             }
             else {
-                compile_err_msg(cinfo, xsprintf("Require var or def keyword in the class. This is %s", word));
-                delete info.vtables;
+                compile_err_msg(&cinfo, xsprintf("Require var or def keyword in the class. This is %s", word));
                 delete info.generics_type_names;
+                delete info.nodes;
+                delete info.blocks;
+                delete info.vars;
+                delete cinfo.codes;
                 return false;
             }
         }
@@ -362,10 +437,18 @@ bool eval_class(char* source, sCompileInfo* cinfo, char* sname, int sline)
     if(info.err_num > 0) {
         fprintf(stderr, "Parser error. The error number is %d\n", info.err_num);
         delete info.generics_type_names;
+        delete info.nodes;
+        delete info.blocks;
+        delete info.vars;
+        delete cinfo.codes;
         return false;
     }
 
     delete info.generics_type_names;
+    delete info.nodes;
+    delete info.blocks;
+    delete info.vars;
+    delete cinfo.codes;
 
     return true;
 }

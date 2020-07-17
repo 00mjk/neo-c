@@ -246,8 +246,9 @@ void input(Filer* self)
                     endwin();
                     shell_commandline(xsprintf(" %s", self.cursor_file()), 0, self.ayataka.types);
                     self.read_dir();
+                    puts("HIT ANY KEY");
+                    getchar();
                     initscr();
-                    getch();
                     keypad(stdscr, true);
                     raw();
                     noecho();
@@ -268,8 +269,9 @@ void input(Filer* self)
                 endwin();
                 shell_commandline(xsprintf("rm -rf %s", self.cursor_file()), -1, self.ayataka.types);
                 self.read_dir();
+                puts("HIT ANY KEY");
+                getchar();
                 initscr();
-                getch();
                 keypad(stdscr, true);
                 raw();
                 noecho();
@@ -280,8 +282,9 @@ void input(Filer* self)
                 endwin();
                 shell_commandline(xsprintf("cp -r %s ", self.cursor_file()), -1, self.ayataka.types);
                 self.read_dir();
+                puts("HIT ANY KEY");
+                getchar();
                 initscr();
-                getch();
                 keypad(stdscr, true);
                 raw();
                 noecho();
@@ -292,8 +295,9 @@ void input(Filer* self)
                 endwin();
                 shell_commandline(xsprintf("mv %s ", self.cursor_file()), -1, self.ayataka.types);
                 self.read_dir();
+                puts("HIT ANY KEY");
+                getchar();
                 initscr();
-                getch();
                 keypad(stdscr, true);
                 raw();
                 noecho();
@@ -315,8 +319,9 @@ void input(Filer* self)
                 endwin();
                 shell_commandline(xsprintf(" ./%s", self.cursor_file()), 0, self.ayataka.types);
                 self.read_dir();
+                puts("HIT ANY KEY");
+                getchar();
                 initscr();
-                getch();
                 keypad(stdscr, true);
                 raw();
                 noecho();
@@ -362,8 +367,9 @@ void input(Filer* self)
                 endwin();
                 shell_commandline("", -1, self.ayataka.types);
                 self.read_dir();
+                puts("HIT ANY KEY");
+                getchar();
                 initscr();
-                getch();
                 keypad(stdscr, true);
                 raw();
                 noecho();

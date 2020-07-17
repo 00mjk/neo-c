@@ -603,10 +603,12 @@ static bool get_block_text(buffer* buf, char begin, char end, sParserInfo* info)
 
 bool parse_class(sCLNode** node, sParserInfo* info) 
 {
+    buffer*% block_text = new buffer.initialize();
+
+    block_text.append_str("class ");
+
     int sline = info->sline;
     string name = parse_word(info);
-
-    buffer*% block_text = new buffer.initialize();
 
     block_text.append_str(name);
     block_text.append_char(' ');
@@ -651,6 +653,7 @@ bool parse_class(sCLNode** node, sParserInfo* info)
     block_text.append_char('\n');
 
     expected_next_character('{', info);
+    block_text.append_char('{');
 
     if(!get_block_text(block_text, '{', '}', info)) {
         return false;
