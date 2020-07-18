@@ -2639,7 +2639,7 @@ bool compile_store_field(sCLNode* node, sCompileInfo* info)
 
     if(klass == null) {
         compile_err_msg(info, xsprintf("There is no field named %s in class %s", name, klass_name));
-        return true;
+        return false;
     }
 
     int sum = 0;
@@ -2651,7 +2651,7 @@ bool compile_store_field(sCLNode* node, sCompileInfo* info)
 
     if(field == null) {
         compile_err_msg(info, xsprintf("There is no field named %s in class %s", name, klass_name));
-        return true;
+        return false;
     }
 
     sCLType* field_type = field.mResultType;
@@ -2735,7 +2735,7 @@ bool compile_load_field(sCLNode* node, sCompileInfo* info)
 
     if(klass == null) {
         compile_err_msg(info, xsprintf("There is no field named %s in class %s", name, klass_name));
-        return true;
+        return false;
     }
 
     int sum = 0;
@@ -2747,7 +2747,7 @@ bool compile_load_field(sCLNode* node, sCompileInfo* info)
 
     if(field == null) {
         compile_err_msg(info, xsprintf("There is no field named %s in class %s", name, klass_name));
-        return true;
+        return false;
     }
 
     sCLType* field_type = field.mResultType;

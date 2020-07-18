@@ -53,12 +53,12 @@ void enterComandMode(Vi* self) {
         char* str = get_string_mem(result->mObjectValue);
         
         if(strcmp(str, "") != 0) {
-            var li = string(str).split(regex!("\n"));
+            ViWin* win = self.activeWin;
+            
+            var li = string(str).split_char('\n');
             
             li.each {
                 var wstr = it.to_wstring();
-                
-                ViWin* win = self.activeWin;
                 
                 win.texts.insert(win.scroll+win.cursorY+it2, wstr);
             }
@@ -172,20 +172,50 @@ bool system_texts(CLVALUE** stack_ptr, sVMInfo* info)
     list<int>*% li = new list<int>.initialize();
     
     ViWin* win = gApp.activeWin;
-    win.texts.each {
-        CLObject obj = create_string_object(it.to_string(""), info);
+    
+    if(gApp.mode == kVisualMode) {
+        int head = win.visualModeHead;
+        int tail = win.scroll+win.cursorY;
+    
+        if(head >= tail) {
+            int tmp = tail;
+            tail = head;
+            head = tmp;
+        }
+    
+        win.texts.sublist(head, tail+1).each {
+            CLObject obj = create_string_object(it.to_string(""), info);
+            
+            (*stack_ptr)->mObjectValue = obj;
+            (*stack_ptr)++;
+            
+            li.push_back(obj);
+        }
+
+        CLObject obj = create_list_object(li, info);
+        
+        (*stack_ptr) -= tail+1-head;
         
         (*stack_ptr)->mObjectValue = obj;
         (*stack_ptr)++;
-        
-        li.push_back(obj);
     }
-    CLObject obj = create_list_object(li, info);
-    
-    (*stack_ptr) -= win.texts.length();
-    
-    (*stack_ptr)->mObjectValue = obj;
-    (*stack_ptr)++;
+    else {
+        win.texts.each {
+            CLObject obj = create_string_object(it.to_string(""), info);
+            
+            (*stack_ptr)->mObjectValue = obj;
+            (*stack_ptr)++;
+            
+            li.push_back(obj);
+        }
+
+        CLObject obj = create_list_object(li, info);
+        
+        (*stack_ptr) -= win.texts.length();
+        
+        (*stack_ptr)->mObjectValue = obj;
+        (*stack_ptr)++;
+    }
     
     return true;
 }

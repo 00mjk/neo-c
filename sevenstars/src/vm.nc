@@ -89,171 +89,171 @@ void print_block_end(CLVALUE result)
     printf("invoked block result %d\n", result.mObjectValue);
 }
 
-void print_op(int op)
+void print_op(int op, FILE* f)
 {
     switch(op) {
         case OP_ANDAND:
-            puts("OP_ANDAND");
+            fprintf(f, "OP_ANDAND\n");
             break;
 
         case OP_OROR: 
-            puts("OP_OROR");
+            fprintf(f, "OP_OROR\n");
             break;
 
         case OP_NOTEQ: 
-            puts("OP_NOTEQ");
+            fprintf(f, "OP_NOTEQ\n");
             break;
 
         case OP_EQ: 
-            puts("OP_EQ");
+            fprintf(f, "OP_EQ\n");
             break;
             
         case OP_POP:
-            puts("OP_POP");
+            fprintf(f, "OP_POP\n");
             break;
 
         case OP_THROW:
-            puts("OP_THROW");
+            fprintf(f, "OP_THROW\n");
             break;
 
         case OP_LIST_VALUE:
-            puts("OP_LIST_VALUE");
+            fprintf(f, "OP_LIST_VALUE\n");
             break;
 
         case OP_RETURN:
-            puts("OP_RETURN");
+            fprintf(f, "OP_RETURN\n");
             break;
             
         case OP_INT_VALUE:
-            puts("OP_INT_VALUE");
+            fprintf(f, "OP_INT_VALUE\n");
             break;
             
         case OP_STRING_VALUE:
-            puts("OP_STRING_VALUE");
+            fprintf(f, "OP_STRING_VALUE\n");
             break;
 
         case OP_REGEX_VALUE:
-            puts("OP_REGEX_VALUE");
+            fprintf(f, "OP_REGEX_VALUE\n");
             break;
 
         case OP_LIST_VALUE:
-            puts("OP_LIST_VALUE");
+            fprintf(f, "OP_LIST_VALUE\n");
             break;
             
         case OP_IADD:
-            puts("OP_IADD");
+            fprintf(f, "OP_IADD\n");
             break;
 
         case OP_ISUB:
-            puts("OP_ISUB");
+            fprintf(f, "OP_ISUB\n");
             break;
             
         case OP_IMULT:
-            puts("OP_IMULT");
+            fprintf(f, "OP_IMULT\n");
             break;
 
         case OP_IDIV:
-            puts("OP_IDIV");
+            fprintf(f, "OP_IDIV\n");
             break;
 
         case OP_STORE_VARIABLE:
-            puts("OP_STORE_VARIABLE");
+            fprintf(f, "OP_STORE_VARIABLE\n");
             break;
             
         case OP_LOAD_VARIABLE:
-            puts("OP_LOAD_VARIABLE");
+            fprintf(f, "OP_LOAD_VARIABLE\n");
             break;
 
         case OP_TRY: 
-            puts("OP_TRY");
+            fprintf(f, "OP_TRY\n");
             break;
 
         case OP_IEQ:
-            puts("OP_IEQ");
+            fprintf(f, "OP_IEQ\n");
             break;
             
         case OP_INOTEQ:
-            puts("OP_INOTEQ");
+            fprintf(f, "OP_INOTEQ\n");
             break;
 
         case OP_ILT:
-            puts("OP_ILT");
+            fprintf(f, "OP_ILT\n");
             break;
             
         case OP_IGT:
-            puts("OP_IGT");
+            fprintf(f, "OP_IGT\n");
             break;
 
         case OP_ILE:
-            puts("OP_ILE");
+            fprintf(f, "OP_ILE\n");
             break;
             
         case OP_IGE:
-            puts("OP_IGE");
+            fprintf(f, "OP_IGE\n");
             break;
                 
         case OP_COND_JUMP: 
-            puts("OP_COND_JUMP");
+            fprintf(f, "OP_COND_JUMP\n");
             break;
 
         case OP_COND_NOT_JUMP: 
-            puts("OP_COND_NOT_JUMP");
+            fprintf(f, "OP_COND_NOT_JUMP\n");
             break;
 
         case OP_GOTO: 
-            puts("OP_GOTO");
+            fprintf(f, "OP_GOTO\n");
             break;
 
         case OP_CREATE_OBJECT: 
-            puts("OP_CREATE_OBJECT");
+            fprintf(f, "OP_CREATE_OBJECT\n");
             break;
 
         case OP_INVOKE_METHOD: 
-            puts("OP_INVOKE_METHOD");
+            fprintf(f, "OP_INVOKE_METHOD\n");
             break;
 
         case OP_TRUE_VALUE: 
-            puts("OP_TRUE_VALUE");
+            fprintf(f, "OP_TRUE_VALUE\n");
             break;
 
         case OP_FALSE_VALUE: 
-            puts("OP_FALSE_VALUE");
+            fprintf(f, "OP_FALSE_VALUE\n");
             break;
 
         case OP_CREATE_BLOCK_OBJECT:
-            puts("OP_CREATE_BLOCK_OBJECT");
+            fprintf(f, "OP_CREATE_BLOCK_OBJECT\n");
             break;
 
         case OP_INVOKE_BLOCK_OBJECT:
-            puts("OP_INVOKE_BLOCK_OBJECT");
+            fprintf(f, "OP_INVOKE_BLOCK_OBJECT\n");
             break;
 
         case OP_STORE_FIELD: 
-            puts("OP_STORE_FIELD");
+            fprintf(f, "OP_STORE_FIELD\n");
             break;
 
         case OP_LOAD_FIELD: 
-            puts("OP_LOAD_FIELD");
+            fprintf(f, "OP_LOAD_FIELD\n");
             break;
 
         case OP_NULL_VALUE: 
-            puts("OP_NULL_VALUE");
+            fprintf(f, "OP_NULL_VALUE\n");
             break;
 
         case OP_COMMAND_VALUE: 
-            puts("OP_COMMAND_VALUE");
+            fprintf(f, "OP_COMMAND_VALUE\n");
             break;
 
         case OP_SYSTEM_VALUE: 
-            puts("OP_SYSTEM_VALUE");
+            fprintf(f, "OP_SYSTEM_VALUE\n");
             break;
 
         case OP_LOGICAL_DENIAL:
-            puts("OP_LOGICAL_DENIAL");
+            fprintf(f, "OP_LOGICAL_DENIAL\n");
             break;
 
         default:
-            printf("OP %d\n", op);
+            fprintf(f,"OP %d\n", op);
             break;
     }
 }
@@ -763,8 +763,8 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
             return false;
         }
         
+//print_op(op, stdout);
         switch(op) {
-//print_op(op);
             case OP_POP: {
                 stack_ptr--;
                 }

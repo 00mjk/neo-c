@@ -308,6 +308,38 @@ void rewriteVisualMode(ViWin* self, Vi* nvi) {
 
 }
 
+void deleteOnVisualMode(ViWin* self, Vi* nvi) {
+    self.pushUndo();
+
+    self.yankOnVisualMode(nvi);
+
+    int head = self.visualModeHead;
+    int tail = self.scroll+self.cursorY;
+
+    if(head >= tail) {
+        int tmp = tail;
+        tail = head;
+        head = tmp;
+    }
+
+    if(tail+1 >= self.texts.length()) {
+        self.texts.delete_range(head, -1);
+        self.texts.push_back(wstring(""));
+    }
+    else {
+        self.texts.delete_range(head, tail+1);
+    }
+
+    if(self.scroll+self.cursorY >= self.visualModeHead) {
+        self.cursorY -= tail - head;
+
+        self.modifyUnderCursorYValue();
+    }
+    
+    self.modifyOverCursorYValue();
+    
+}
+
 void runShell(ViWin* self, Vi* nvi) {
     self.pushUndo();
     
@@ -329,6 +361,23 @@ void runShell(ViWin* self, Vi* nvi) {
     
     CLVALUE result;
     shell_commandline("texts().", -1, types, &result);
+    
+    if(result.mObjectValue != 0) {
+        char* str = get_string_mem(result->mObjectValue);
+        
+        if(strcmp(str, "") != 0) {
+            self.deleteOnVisualMode(nvi);
+            
+            var li = string(str).split_char('\n');
+            
+            li.each {
+                var wstr = it.to_wstring();
+                self.texts.insert(self.scroll+self.cursorY+it2, wstr);
+            }
+            
+            nvi.exitFromVisualMode();
+        }
+    }
 
     heap_final();
 
@@ -336,32 +385,6 @@ void runShell(ViWin* self, Vi* nvi) {
     compiler_final();
     
     nvi.init_curses();
-}
-
-void deleteOnVisualMode(ViWin* self, Vi* nvi) {
-    self.pushUndo();
-
-    self.yankOnVisualMode(nvi);
-
-    int head = self.visualModeHead;
-    int tail = self.scroll+self.cursorY;
-
-    if(head >= tail) {
-        int tmp = tail;
-        tail = head;
-        head = tmp;
-    }
-
-    self.texts.delete_range(head, tail+1);
-
-    if(self.scroll+self.cursorY >= self.visualModeHead) {
-        self.cursorY -= tail - head;
-
-        self.modifyUnderCursorYValue();
-    }
-    
-    self.modifyOverCursorYValue();
-    
 }
 
 void makeInputedKeyGVIndent(ViWin* self, Vi* nvi) {

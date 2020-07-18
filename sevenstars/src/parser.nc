@@ -682,42 +682,47 @@ bool parse_macro(sCLNode** node, sParserInfo* info)
 
 bool parse_calling_params(int* num_params, sCLNode** params, bool* param_closed, sParserInfo* info) 
 {
-    while(true) {
-        if(*info->p == '\0') {
-            *param_closed = false;
-            break;
-        }
-        if(*info->p == ')') {
-            expected_next_character(')', info);
-            *param_closed = true;
-            break;
-        }
+    if(*info->p == '(') {
+        info->p++;
+        skip_spaces_and_lf(info);
 
-        sCLNode* node = null;
-        if(!expression(&node, info)) {
-            return false;
-        };
+        while(true) {
+            if(*info->p == '\0') {
+                *param_closed = false;
+                break;
+            }
+            if(*info->p == ')') {
+                expected_next_character(')', info);
+                *param_closed = true;
+                break;
+            }
 
-        params[*num_params] = node;
-        (*num_params)++;
+            sCLNode* node = null;
+            if(!expression(&node, info)) {
+                return false;
+            };
 
-        if(*num_params >= PARAMS_MAX) {
-            fprintf(stderr, "overflow pram number\n");
-            exit(1);
-        }
+            params[*num_params] = node;
+            (*num_params)++;
 
-        if(*info->p == ')') {
-            expected_next_character(')', info);
-            *param_closed = true;
-            break;
-        }
-        else if(*info->p == '\0') {
-            *param_closed = false;
-            break;
-        }
-        else if(*info->p == ',') {
-            info->p++;
-            skip_spaces_and_lf(info);
+            if(*num_params >= PARAMS_MAX) {
+                fprintf(stderr, "overflow pram number\n");
+                exit(1);
+            }
+
+            if(*info->p == ')') {
+                expected_next_character(')', info);
+                *param_closed = true;
+                break;
+            }
+            else if(*info->p == '\0') {
+                *param_closed = false;
+                break;
+            }
+            else if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
         }
     }
 
@@ -810,10 +815,7 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
             var name = parse_word(info);
 
             /// method ///
-            if(*info->p == '(') {
-                info->p++;
-                skip_spaces_and_lf(info);
-
+            if(*info->p == '(' || *info->p == '{') {
                 int num_params = 0;
                 sCLNode* params[PARAMS_MAX];
 
@@ -897,9 +899,6 @@ static bool postposition_operator(sCLNode** node, sParserInfo* info)
             }
         }
         else if(*info->p == '(') {
-            info->p++;
-            skip_spaces_and_lf(info);
-
             int num_params = 0;
             sCLNode* params[PARAMS_MAX];
 
@@ -1310,11 +1309,8 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             *node = sNodeTree_create_object(type, info);
 
             /// method ///
-            if(*info->p == '(') {
+            if(*info->p == '(' || *info->p == '{') {
                 char* name = "initialize";
-
-                info->p++;
-                skip_spaces_and_lf(info);
 
                 int num_params = 0;
                 sCLNode* params[PARAMS_MAX];
@@ -1385,10 +1381,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 
                 *node = sNodeTree_create_store_variable(word, exp, info);
             }
-            else if(!is_local_variable(word, info) && *info->p == '(') {
-                info->p++;
-                skip_spaces_and_lf(info);
-
+            else if(!is_local_variable(word, info) && (*info->p == '(' || *info->p == '{')) {
                 sCLNode* params[PARAMS_MAX];
                 if(*node == 0) {
                     if(is_system_method(word)) {
@@ -1617,10 +1610,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
         var word = parse_word(info);
 
-        if(*info->p == '(') {
-            info->p++;
-            skip_spaces_and_lf(info);
-
+        if(*info->p == '(' || *info->p == '{') {
             sCLNode* params[PARAMS_MAX];
 
             buffer*% buf = new buffer.initialize();

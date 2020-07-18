@@ -16,6 +16,6 @@ int main()
     li2.each {
         printf("%s\n", it);
     }
-
+    
     return 0;
 }
