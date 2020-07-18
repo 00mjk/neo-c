@@ -24,7 +24,8 @@ initialize() {
     gApp = self;
 }
 
-void enterComandMode(Vi* self) {
+void enterComandMode(Vi* self) 
+{
     ViWin* win = self.activeWin;
 
     win.pushUndo();
@@ -47,25 +48,46 @@ void enterComandMode(Vi* self) {
     clover3_init_for_wi(types);
     
     CLVALUE result;
-    shell_commandline("", -1, types, &result);
+    shell_commandline_without_to_string("", -1, types, &result);
     
     if(result.mObjectValue != 0) {
-        char* str = get_string_mem(result->mObjectValue);
+        CLObject obj = result.mObjectValue;
+        sCLObject* object_data = CLOBJECT(obj);
+        sCLType* type = object_data->mType;
         
-        if(strcmp(str, "") != 0) {
-            ViWin* win = self.activeWin;
+        if(strcmp(type->mClass->mName, "string") == 0) {
+            char* str = get_string_mem(obj);
             
-            var li = string(str).split_char('\n');
-            
-            li.each {
-                var wstr = it.to_wstring();
+            if(strcmp(str, "") != 0) {
+                var li = string(str).split_char('\n');
                 
-                win.texts.insert(win.scroll+win.cursorY+it2, wstr);
+                li.each {
+                    var wstr = it.to_wstring();
+                    win.texts.insert(win.scroll+win.cursorY+it2, wstr);
+                }
+                
+                self.exitFromVisualMode();
             }
         }
-        else {
-            printf("HIT ANY KEY");
-            getchar();
+        else if(strcmp(type->mClass->mName, "list") == 0) {
+            var li = get_list_value(obj);
+            
+            li.each {
+                CLObject obj = it;
+                
+                sCLObject* object_data = CLOBJECT(obj);
+                
+                sCLType* type = object_data->mType;
+                
+                if(strcmp(type->mClass->mName, "string") == 0) {
+                    char* str = get_string_mem(obj);
+                    
+                    var wstr = str.to_wstring();
+                    win.texts.insert(win.scroll+win.cursorY+it2, wstr);
+                }
+            }
+            
+            self.exitFromVisualMode();
         }
     }
 

@@ -360,25 +360,52 @@ void runShell(ViWin* self, Vi* nvi) {
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     
     CLVALUE result;
-    shell_commandline("texts().", -1, types, &result);
+    shell_commandline_without_to_string("texts().", -1, types, &result);
     
     if(result.mObjectValue != 0) {
-        char* str = get_string_mem(result->mObjectValue);
+        CLObject obj = result.mObjectValue;
+        sCLObject* object_data = CLOBJECT(obj);
+        sCLType* type = object_data->mType;
         
-        if(strcmp(str, "") != 0) {
-            self.deleteOnVisualMode(nvi);
+        if(strcmp(type->mClass->mName, "string") == 0) {
+            char* str = get_string_mem(obj);
             
-            var li = string(str).split_char('\n');
+            if(strcmp(str, "") != 0) {
+                self.deleteOnVisualMode(nvi);
+                
+                var li = string(str).split_char('\n');
+                
+                li.each {
+                    var wstr = it.to_wstring();
+                    self.texts.insert(self.scroll+self.cursorY+it2, wstr);
+                }
+                
+                nvi.exitFromVisualMode();
+            }
+        }
+        else if(strcmp(type->mClass->mName, "list") == 0) {
+            self.deleteOnVisualMode(nvi);
+            var li = get_list_value(obj);
             
             li.each {
-                var wstr = it.to_wstring();
-                self.texts.insert(self.scroll+self.cursorY+it2, wstr);
+                CLObject obj = it;
+                
+                sCLObject* object_data = CLOBJECT(obj);
+                
+                sCLType* type = object_data->mType;
+                
+                if(strcmp(type->mClass->mName, "string") == 0) {
+                    char* str = get_string_mem(obj);
+                    
+                    var wstr = str.to_wstring();
+                    self.texts.insert(self.scroll+self.cursorY+it2, wstr);
+                }
             }
             
             nvi.exitFromVisualMode();
         }
     }
-
+    
     heap_final();
 
     clover3_final();

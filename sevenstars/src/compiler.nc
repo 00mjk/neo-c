@@ -183,6 +183,8 @@ bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* type
             return false;
         }
         
+        skip_spaces_and_lf(&info);
+        
         /// POP ///
         if(*info->p) {
             for(int i=0; i<cinfo.stack_num; i++) {
@@ -989,6 +991,36 @@ void shell_commandline(char* line, int cursor_point, vector<sCLType*%>* types, C
     }
 
     (void)shell_eval_str(line2, "sevenstars", true, types, result);
+
+    add_history(line2);
+
+    free(line2);
+}
+
+void shell_commandline_without_to_string(char* line, int cursor_point, vector<sCLType*%>* types, CLVALUE* result)
+{
+    rl_completer_quote_characters = "\"'";
+    rl_completer_word_break_characters = " .({";
+    rl_attempted_completion_function = completer;
+
+    gCmdlineInitString = line;
+    gCmdlineInitCursorPoint = cursor_point;
+
+    rl_startup_hook = readline_init_text;
+
+    char* line2 = readline("sevenstars lang > ");
+
+    if(line2 == null) {
+        result->mObjectValue = 0;
+        return;
+    }
+
+    if(strcmp(line2, "exit") == 0) {
+        free(line2);
+        return;
+    }
+
+    (void)shell_eval_str(line2, "sevenstars", false, types, result);
 
     add_history(line2);
 
