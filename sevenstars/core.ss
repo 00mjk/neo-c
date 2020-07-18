@@ -6,6 +6,12 @@ class int {
     def minus(right:int):int {
         self \- right
     }
+    def mult(right:int):int {
+        self \* right
+    }
+    def div(right:int):int {
+        self \/ right
+    }
     def lesser(right:int):bool {
         self \< right
     }

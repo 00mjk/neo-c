@@ -108,7 +108,7 @@ void openFile(ViWin* self, char* file_name, int line_num)
     if(f == null) {
         char cmd[PATH_MAX+128];
         
-        snprintf(cmd, PATH_MAX+128, "techo \"\" > %s", file_name);
+        snprintf(cmd, PATH_MAX+128, "echo \"\" > %s", file_name);
 
         self.texts.push_back(wstring(""))
         

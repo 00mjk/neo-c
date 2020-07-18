@@ -29,6 +29,7 @@ void clover3_init()
     native_init2();
     native_init3();
     native_init4();
+    gSigInt = false;
 }
 
 void clover3_final()
@@ -38,6 +39,10 @@ void clover3_final()
     macro_final();
 }
 
+void sig_int(int signal)
+{
+    gSigInt = true;
+}
 
 void set_signal()
 {
@@ -50,10 +55,19 @@ void set_signal()
     sigaddset(&signal_set, SIGPIPE);
 
     sigprocmask(SIG_BLOCK, &signal_set, NULL);
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_flags = SA_SIGINFO;
+    sa.sa_handler = (sig_t)sig_int;
+    if(sigaction(SIGINT, &sa, null) < 0) {
+        perror("sigaction2");
+        exit(1);
+    }
 }
 
-void sig_int(int signal)
+void sig_int_for_shell(int signal)
 {
+    gSigInt = true;
     rl_reset_line_state();
     rl_replace_line("", 0);
     rl_point = 0;
@@ -76,7 +90,7 @@ void set_signal_shell()
 
     memset(&sa, 0, sizeof(sa));
     sa.sa_flags = SA_SIGINFO;
-    sa.sa_handler = (sig_t)sig_int;
+    sa.sa_handler = (sig_t)sig_int_for_shell;
     if(sigaction(SIGINT, &sa, null) < 0) {
         perror("sigaction2");
         exit(1);

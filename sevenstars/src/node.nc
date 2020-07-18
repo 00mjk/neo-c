@@ -494,6 +494,288 @@ static bool compile_primitive_minus(sCLNode* node, sCompileInfo* info)
     return true;
 }
 
+sCLNode* sNodeTree_create_mult(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeMult;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_mult(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* params[PARAMS_MAX];
+    int num_params = 0;
+
+    params[num_params] = node.left;
+    num_params++;
+    params[num_params] = node.right;
+    num_params++;
+
+    if(!invoke_method("mult", num_params, params, info)) {
+        return false;
+    }
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_primitive_mult(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypePrimitiveMult;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_primitive_mult(sCLNode* node, sCompileInfo* info)
+{
+    if(!compile(node.left, info)) {
+        return false;
+    }
+    
+    sCLType* left_type = info.type;
+
+    if(!compile(node.right, info)) {
+        return false;
+    }
+    
+    sCLType* right_type = info.type;
+    
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "The different type between left type and rigt type at * operator");
+        puts("left type -->");
+        show_type(left_type);
+        puts("right type -->");
+        show_type(right_type);
+        
+        return true;
+    }
+    
+
+    if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
+        if(!info.no_output) {
+            info.codes.append_int(OP_IMULT);
+        }
+        
+        info.type = create_type("int", info.pinfo.types);
+    }
+    else {
+        compile_err_msg(info, "This type is invalid for operator * ");
+        show_type(left_type);
+        
+        return true;
+    }
+    
+    info.stack_num -= 2;
+    info.stack_num++;
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_div(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeDiv;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_div(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* params[PARAMS_MAX];
+    int num_params = 0;
+
+    params[num_params] = node.left;
+    num_params++;
+    params[num_params] = node.right;
+    num_params++;
+
+    if(!invoke_method("div", num_params, params, info)) {
+        return false;
+    }
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_primitive_div(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypePrimitiveDiv;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_primitive_div(sCLNode* node, sCompileInfo* info)
+{
+    if(!compile(node.left, info)) {
+        return false;
+    }
+    
+    sCLType* left_type = info.type;
+
+    if(!compile(node.right, info)) {
+        return false;
+    }
+    
+    sCLType* right_type = info.type;
+    
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "The different type between left type and rigt type at / operator");
+        puts("left type -->");
+        show_type(left_type);
+        puts("right type -->");
+        show_type(right_type);
+        
+        return true;
+    }
+    
+
+    if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
+        if(!info.no_output) {
+            info.codes.append_int(OP_IDIV);
+        }
+        
+        info.type = create_type("int", info.pinfo.types);
+    }
+    else {
+        compile_err_msg(info, "This type is invalid for operator / ");
+        show_type(left_type);
+        
+        return true;
+    }
+    
+    info.stack_num -= 2;
+    info.stack_num++;
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_mod(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypeMod;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_mod(sCLNode* node, sCompileInfo* info)
+{
+    sCLNode* params[PARAMS_MAX];
+    int num_params = 0;
+
+    params[num_params] = node.left;
+    num_params++;
+    params[num_params] = node.right;
+    num_params++;
+
+    if(!invoke_method("mod", num_params, params, info)) {
+        return false;
+    }
+    
+    return true;
+}
+
+sCLNode* sNodeTree_create_primitive_mod(sCLNode* left, sCLNode* right, sParserInfo* info)
+{
+    sCLNode* result = alloc_node(info);
+    
+    result.type = kNodeTypePrimitiveMod;
+    
+    xstrncpy(result.sname, info.sname, PATH_MAX);
+    result.sline = info.sline;
+
+    result.left = left;
+    result.right = right;
+    result.middle = null;
+
+    return result;
+}
+
+static bool compile_primitive_mod(sCLNode* node, sCompileInfo* info)
+{
+    if(!compile(node.left, info)) {
+        return false;
+    }
+    
+    sCLType* left_type = info.type;
+
+    if(!compile(node.right, info)) {
+        return false;
+    }
+    
+    sCLType* right_type = info.type;
+    
+    if(!type_identify(left_type, right_type)) {
+        compile_err_msg(info, "The different type between left type and rigt type at % operator");
+        puts("left type -->");
+        show_type(left_type);
+        puts("right type -->");
+        show_type(right_type);
+        
+        return true;
+    }
+    
+
+    if(type_identify_with_class_name(left_type, "int", info.pinfo)) {
+        if(!info.no_output) {
+            info.codes.append_int(OP_IMOD);
+        }
+        
+        info.type = create_type("int", info.pinfo.types);
+    }
+    else {
+        compile_err_msg(info, "This type is invalid for operator % ");
+        show_type(left_type);
+        
+        return true;
+    }
+    
+    info.stack_num -= 2;
+    info.stack_num++;
+    
+    return true;
+}
+
 sCLNode* sNodeTree_create_and_and(sCLNode* left, sCLNode* right, sParserInfo* info)
 {
     sCLNode* result = alloc_node(info);
@@ -2824,6 +3106,42 @@ bool compile(sCLNode* node, sCompileInfo* info)
             
         case kNodeTypePrimitiveMinus:
             if(!compile_primitive_minus(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypeMult:
+            if(!compile_mult(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypePrimitiveMult:
+            if(!compile_primitive_mult(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeDiv:
+            if(!compile_div(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypePrimitiveDiv:
+            if(!compile_primitive_div(node, info)) {
+                return false;
+            }
+            break;
+
+        case kNodeTypeMod:
+            if(!compile_mod(node, info)) {
+                return false;
+            }
+            break;
+            
+        case kNodeTypePrimitiveMod:
+            if(!compile_primitive_mod(node, info)) {
                 return false;
             }
             break;

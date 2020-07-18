@@ -1,6 +1,4 @@
-/,*,%,**
-
-ls().to_st[TAB]
+**
 
 command error output
 
@@ -44,3 +42,5 @@ string.scan, string.split
 shell mode $variavle 
 getenv
 system class object omitted object name for run method.
+
+ls().to_st[TAB]

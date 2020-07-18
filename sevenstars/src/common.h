@@ -274,7 +274,7 @@ struct sParserInfo {
     int max_var_num;
 };
 
-enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeMinus, kNodeTypePrimitiveMinus, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTry, kNodeTypeReturn, kNodeTypeNull, kNodeTypeLogicalDenial, kNodeTypeNormalBlock, kNodeTypeMacro, kNodeTypeCommand, kNodeTypeListValue, kNodeTypeRegex, kNodeTypeList, kNodeTypeSystem };
+enum { kNodeTypeInt, kNodeTypeString, kNodeTypePlus, kNodeTypePrimitivePlus, kNodeTypeMinus, kNodeTypePrimitiveMinus, kNodeTypeMult, kNodeTypePrimitiveMult, kNodeTypeDiv, kNodeTypePrimitiveDiv, kNodeTypeStoreVariable, kNodeTypeLoadVariable, kNodeTypeEqual, kNodeTypePrimitiveEqual, kNodeTypeNotEqual, kNodeTypePrimitiveNotEqual, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeIf, kNodeTypeLambda, kNodeTypeClass, kNodeTypeCreateObject, kNodeTypeMethodCall, kNodeTypeCommandCall, kNodeTypeBlockObjectCall, kNodeTypeMethodBlock, kNodeTypeJobs, kNodeTypeStoreField, kNodeTypeLoadField, kNodeTypeThrow, kNodeTypeGreater, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypePrimitiveGreater, kNodeTypeLesser, kNodeTypePrimitiveLesser, kNodeTypeGreaterEqual, kNodeTypePrimitiveGreaterEqual, kNodeTypeLesserEqual, kNodeTypePrimitiveLesserEqual, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTry, kNodeTypeReturn, kNodeTypeNull, kNodeTypeLogicalDenial, kNodeTypeNormalBlock, kNodeTypeMacro, kNodeTypeCommand, kNodeTypeListValue, kNodeTypeRegex, kNodeTypeList, kNodeTypeSystem, kNodeTypeMod, kNodeTypePrimitiveMod };
 
 struct sCompileInfo {
     char sname[PATH_MAX];
@@ -296,7 +296,7 @@ struct sCompileInfo {
     bool in_shell;
 };
 
-enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE, OP_REGEX_VALUE, OP_LIST_VALUE, OP_SYSTEM_VALUE };
+enum { OP_POP, OP_INT_VALUE, OP_STRING_VALUE, OP_IADD, OP_ISUB, OP_IMULT, OP_IDIV, OP_IMOD, OP_STORE_VARIABLE, OP_LOAD_VARIABLE, OP_IEQ, OP_INOTEQ, OP_ILT, OP_ILE, OP_IGT, OP_IGE, OP_COND_JUMP, OP_COND_NOT_JUMP, OP_GOTO, OP_CREATE_OBJECT, OP_INVOKE_METHOD, OP_CREATE_BLOCK_OBJECT, OP_INVOKE_BLOCK_OBJECT, OP_INVOKE_COMMAND, OP_FG, OP_LOAD_FIELD, OP_STORE_FIELD, OP_THROW, OP_RETURN, OP_TRUE_VALUE, OP_FALSE_VALUE, OP_EXIT, OP_TRY, OP_NULL_VALUE, OP_EQ, OP_NOTEQ, OP_ANDAND, OP_OROR, OP_LOGICAL_DENIAL, OP_COMMAND_VALUE, OP_LIST_VALUE, OP_REGEX_VALUE, OP_LIST_VALUE, OP_SYSTEM_VALUE };
 
 void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -335,7 +335,13 @@ void show_type(sCLType* type);
 void codes_append_type(buffer* codes, sCLType* type);
 void codes_read_type(char* p, sCLType** type);
 
+sCLNode* sNodeTree_create_mod(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_primitive_mod(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_break(sParserInfo* info);
+sCLNode* sNodeTree_create_mult(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_primitive_mult(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_div(sCLNode* left, sCLNode* right, sParserInfo* info);
+sCLNode* sNodeTree_create_primitive_div(sCLNode* left, sCLNode* right, sParserInfo* info);
 sCLNode* sNodeTree_create_list_value(int num_elements, sCLNode** elements, sParserInfo* info);
 sCLNode* sNodeTree_create_regex_value(char* value, bool ignore_case, bool global, sParserInfo* info);
 sCLNode* sNodeTree_create_cd(char* path, sParserInfo* info);
@@ -656,6 +662,8 @@ void clover3_final();
 bool forground_job(int job_num);
 void shell_run_command(char* line, vector<sCLType*%>* types, CLVALUE* result);
 void shell_commandline(char* line, int cursor_point, vector<sCLType*%>* types, CLVALUE* result);
+
+extern bool gSigInt;
 
 #endif
 

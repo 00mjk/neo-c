@@ -147,6 +147,14 @@ void print_op(int op)
         case OP_ISUB:
             puts("OP_ISUB");
             break;
+            
+        case OP_IMULT:
+            puts("OP_IMULT");
+            break;
+
+        case OP_IDIV:
+            puts("OP_IDIV");
+            break;
 
         case OP_STORE_VARIABLE:
             puts("OP_STORE_VARIABLE");
@@ -314,6 +322,19 @@ bool invoke_command_with_control_terminal(char* name, char** argv, int num_param
         (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode2, false, info);
         (*stack_ptr)++;
     }
+    else if(WIFSIGNALED(status)) {
+        gSigInt = true;
+
+        setpgid(getpid(), getpid());
+        tcsetpgrp(0, getpid());
+
+        int rcode = WEXITSTATUS(status);
+
+        (*stack_ptr) -= num_params;
+
+        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode, false, info);
+        (*stack_ptr)++;
+    }
     else {
         setpgid(getpid(), getpid());
         tcsetpgrp(0, getpid());
@@ -414,6 +435,10 @@ bool invoke_command(char* name, char** argv, CLVALUE** stack_ptr, int num_params
     (*stack_ptr)->mObjectValue = create_command_object(child_output.buf, child_output.len, child_output_error.buf, child_output_error.len, rcode, false, info);
     (*stack_ptr)++;
 
+    if(WIFSIGNALED(status)) {
+        gSigInt = true;
+    }
+
     return true;
 }
 
@@ -509,6 +534,19 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
         (*stack_ptr) -= num_params;
 
         (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode2, false, info);
+        (*stack_ptr)++;
+    }
+    else if(WIFSIGNALED(status)) {
+        gSigInt = true;
+
+        setpgid(getpid(), getpid());
+        tcsetpgrp(0, getpid());
+
+        int rcode = WEXITSTATUS(status);
+
+        (*stack_ptr) -= num_params;
+
+        (*stack_ptr)->mObjectValue = create_command_object("", 1, "", 1, rcode, false, info);
         (*stack_ptr)++;
     }
     else {
@@ -617,6 +655,10 @@ bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVA
     (*stack_ptr)->mObjectValue = create_command_object(child_output.buf, child_output.len, child_output_error.buf, child_output_error.len, rcode, false, info);
     (*stack_ptr)++;
 
+    if(WIFSIGNALED(status)) {
+        gSigInt = true;
+    }
+
     return true;
 }
 
@@ -684,6 +726,8 @@ bool invoke_block(int block_object, int result_existance, int num_params, CLVALU
     return true;
 }
 
+bool gSigInt;
+
 bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, CLVALUE* result, sVMInfo* info)
 {
     sCLStackFrame null_parent_stack_frame;
@@ -711,6 +755,13 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
     while(p - head_codes < codes.len) {
         int op = *p;
         p++;
+        
+        if(gSigInt) {
+            gSigInt = false;
+            vm_err_msg(&stack_ptr, info, "signal interrupt\n");
+            info.stack_frames.pop_back(null_parent_stack_frame);
+            return false;
+        }
         
         switch(op) {
 //print_op(op);
@@ -924,6 +975,69 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 sCLInt* rvalue_data = CLINT(rvalue);
 
                 int value = lvalue_data->mValue - rvalue_data->mValue;
+                CLObject new_obj = create_int_object(value, info);
+
+                stack_ptr -= 2;
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
+                }
+                
+                break;
+                
+            case OP_IMULT: {
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+                sCLInt* rvalue_data = CLINT(rvalue);
+
+                int value = lvalue_data->mValue * rvalue_data->mValue;
+                CLObject new_obj = create_int_object(value, info);
+
+                stack_ptr -= 2;
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
+                }
+                
+                break;
+                
+            case OP_IDIV: {
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+                sCLInt* rvalue_data = CLINT(rvalue);
+
+                if(rvalue_data->mValue == 0) {
+                    vm_err_msg(&stack_ptr, info, xsprintf("0 div"));
+                    info.stack_frames.pop_back(null_parent_stack_frame);
+                    return false;
+                }
+
+                int value = lvalue_data->mValue / rvalue_data->mValue;
+                CLObject new_obj = create_int_object(value, info);
+
+                stack_ptr -= 2;
+                stack_ptr.mObjectValue = new_obj;
+                stack_ptr++;
+                }
+                
+                break;
+
+            case OP_IMOD: {
+                int lvalue = (stack_ptr-2).mObjectValue;
+                int rvalue = (stack_ptr-1).mObjectValue;
+
+                sCLInt* lvalue_data = CLINT(lvalue);
+                sCLInt* rvalue_data = CLINT(rvalue);
+
+                if(rvalue_data->mValue == 0) {
+                    vm_err_msg(&stack_ptr, info, xsprintf("0 mod"));
+                    info.stack_frames.pop_back(null_parent_stack_frame);
+                    return false;
+                }
+
+                int value = lvalue_data->mValue % rvalue_data->mValue;
                 CLObject new_obj = create_int_object(value, info);
 
                 stack_ptr -= 2;

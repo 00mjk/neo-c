@@ -1349,12 +1349,12 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
         else if(strcmp(word, "load_class") == 0) {
             string klass_name = parse_word(info)
 
-            printf("loading %s class...", klass_name);
+            //printf("loading %s class...", klass_name);
             if(!load_class(klass_name, info)) {
-                puts("error");
+                //puts("error");
             }
             else {
-                puts("ok");
+                //puts("ok");
             }
         }
         else if(*info->p == '!' && *(info->p+1) == '(') {
@@ -1661,9 +1661,118 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 }
 
 // from left to right order
-static bool expression_plus_minus(sCLNode** node, sParserInfo* info)
+static bool expression_mult_div(sCLNode** node, sParserInfo* info)
 {
     if(!expression_node(node, info)) {
+        return false;
+    }
+    if(*node == 0) {
+        return true;
+    }
+
+    while(*info->p) {
+        if(*info->p == '*') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_node(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator *");
+            };
+
+            *node = sNodeTree_create_mult(*node, right, info);
+        }
+        else if(*info->p == '\\' && *(info->p+1) == '*') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_node(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator \\*");
+            };
+
+            *node = sNodeTree_create_primitive_mult(*node, right, info);
+        }
+        else if(*info->p == '/') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_node(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator /");
+            };
+
+            *node = sNodeTree_create_div(*node, right, info);
+        }
+        else if(*info->p == '\\' && *(info->p+1) == '/') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_node(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator \\/");
+            };
+
+            *node = sNodeTree_create_primitive_div(*node, right, info);
+        }
+        else if(*info->p == '%') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_node(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator %");
+            };
+
+            *node = sNodeTree_create_mod(*node, right, info);
+        }
+        else if(*info->p == '\\' && *(info->p+1) == '%') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            sCLNode* right = null;
+            if(!expression_node(&right, info)) {
+                return false;
+            }
+
+            if(right == null) {
+                parser_err_msg(info, "require right value for operator \\%");
+            };
+
+            *node = sNodeTree_create_primitive_mod(*node, right, info);
+        }
+        else {
+            break;
+        }
+    }
+
+    return true;
+}
+
+// from left to right order
+static bool expression_plus_minus(sCLNode** node, sParserInfo* info)
+{
+    if(!expression_mult_div(node, info)) {
         return false;
     }
     if(*node == 0) {
@@ -1676,7 +1785,7 @@ static bool expression_plus_minus(sCLNode** node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             sCLNode* right = null;
-            if(!expression_node(&right, info)) {
+            if(!expression_mult_div(&right, info)) {
                 return false;
             }
 
@@ -1687,11 +1796,11 @@ static bool expression_plus_minus(sCLNode** node, sParserInfo* info)
             *node = sNodeTree_create_plus(*node, right, info);
         }
         else if(*info->p == '\\' && *(info->p+1) == '+') {
-            info->p++;
+            info->p+=2;
             skip_spaces_and_lf(info);
 
             sCLNode* right = null;
-            if(!expression_node(&right, info)) {
+            if(!expression_mult_div(&right, info)) {
                 return false;
             }
 
@@ -1706,7 +1815,7 @@ static bool expression_plus_minus(sCLNode** node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             sCLNode* right = null;
-            if(!expression_node(&right, info)) {
+            if(!expression_mult_div(&right, info)) {
                 return false;
             }
 
@@ -1717,11 +1826,11 @@ static bool expression_plus_minus(sCLNode** node, sParserInfo* info)
             *node = sNodeTree_create_minus(*node, right, info);
         }
         else if(*info->p == '\\' && *(info->p+1) == '-') {
-            info->p++;
+            info->p+=2;
             skip_spaces_and_lf(info);
 
             sCLNode* right = null;
-            if(!expression_node(&right, info)) {
+            if(!expression_mult_div(&right, info)) {
                 return false;
             }
 

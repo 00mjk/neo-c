@@ -11,7 +11,7 @@
 
 int main()
 {
-    var li2 = list!("AAA", "BBB", "CCC");
+    var li2 = ["AAA", "BBB", "CCC"];
     
     li2.each {
         printf("%s\n", it);

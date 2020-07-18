@@ -64,7 +64,7 @@ void enterComandMode(Vi* self) {
             }
         }
         else {
-            puts("HIT ANY KEY");
+            printf("HIT ANY KEY");
             getchar();
         }
     }
@@ -158,13 +158,46 @@ bool system_sp(CLVALUE** stack_ptr, sVMInfo* info)
     return true;
 }
 
+bool system_texts(CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject self = (*stack_ptr-1)->mObjectValue;
+
+    /// check type ///
+    if(!check_type(self, "system", info)) {
+        vm_err_msg(stack_ptr, info, "type error on system.sp");
+        return false;
+    }
+
+    /// sevenstars to neo-c ///
+    list<int>*% li = new list<int>.initialize();
+    
+    ViWin* win = gApp.activeWin;
+    win.texts.each {
+        CLObject obj = create_string_object(it.to_string(""), info);
+        
+        (*stack_ptr)->mObjectValue = obj;
+        (*stack_ptr)++;
+        
+        li.push_back(obj);
+    }
+    CLObject obj = create_list_object(li, info);
+    
+    (*stack_ptr) -= win.texts.length();
+    
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+    
+    return true;
+}
+
 void clover3_init_for_wi(vector<sCLType*%>* types)
 {
-    (void)eval_class("class system { def wq():void; def qw():void; def sp(path:string):void; def q():void; }", types, "wi", 0);
+    (void)eval_class("class system { def wq():void; def qw():void; def sp(path:string):void; def q():void; def texts():list<string>; }", types, "wi", 0);
 
     gNativeMethods.insert(string("system.wq"), system_wq);
     gNativeMethods.insert(string("system.q"), system_q);
     gNativeMethods.insert(string("system.qw"), system_qw);
     gNativeMethods.insert(string("system.sp"), system_sp);
+    gNativeMethods.insert(string("system.texts"), system_texts);
 }
 
