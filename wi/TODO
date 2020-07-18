@@ -1,9 +1,4 @@
-command mode for shell. 
-V,:
-
 visual mode drawing will use 15filer.nc's.
-
-V,:
 C-x
 [{
 [M
@@ -14,19 +9,14 @@ C-x
 ]*
 ]/
 #if %
-gd
-g5
 C-F
 C-t, ]]
 blink paren
 color
 line number
-external command
 C-i include
-commnad mode
 :make
 save /tmp tmp texts
-command mode ---> run sevenstar shell
 ------------------------------------------------------------
 :%s//
 ta, fa,dta, cta
@@ -126,3 +116,11 @@ C-V~
 v~
 gv
 backup 
+command mode for shell. 
+V,:
+V,:
+gd
+g5
+external command
+commnad mode
+command mode ---> run sevenstar shell

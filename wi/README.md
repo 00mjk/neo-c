@@ -4,7 +4,7 @@ vi clone implemented by neo-c
 
 some compatibility for vim
 
-version 0.9.1
+version 1.0.0
 
 / → plain text search
 
@@ -35,3 +35,16 @@ n → next the searching files
 N → preve the searching files
 
 C-c, C-f → return the editor
+
+* Command mode
+
+run sevenstar shell.
+
+wq,qw ---> write file and close win or exit application.
+q --> close win or exit application.
+texts() --> return list<string> of editor texts. In the vidual mode, return list<string> of seleted texts
+sp [path]--> open texts in the new window
+
+If there is a result of shell, pasted texts to the editor. Only the case is string type or list<string> type.
+
+
