@@ -132,6 +132,7 @@ struct sFunctionStruct {
 
     BOOL mInCLang;
     BOOL mExternal;
+    BOOL mStatic;
     int mVersion;
 
     sNodeType* mGenericsType;

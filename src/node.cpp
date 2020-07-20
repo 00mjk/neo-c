@@ -322,7 +322,13 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
             }
 
             FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
-            *llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name2, TheModule);
+            BOOL static_ = result_type->mStatic;
+            if(static_) {
+                *llvm_fun = Function::Create(function_type, Function::InternalLinkage, real_fun_name2, TheModule);
+            }
+            else {
+                *llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name2, TheModule);
+            }
 
             fun->mLLVMFunction = *llvm_fun;
             funcs.push_back(fun);
@@ -432,7 +438,13 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
                 }
 
                 FunctionType* function_type = FunctionType::get(llvm_result_type, llvm_param_types, var_arg);
-                *llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name2, TheModule);
+                BOOL static_ = result_type->mStatic;
+                if(static_) {
+                    *llvm_fun = Function::Create(function_type, Function::InternalLinkage, real_fun_name2, TheModule);
+                }
+                else {
+                    *llvm_fun = Function::Create(function_type, Function::ExternalLinkage, real_fun_name2, TheModule);
+                }
 
                 fun->mLLVMFunction = *llvm_fun;
                 funcs.push_back(fun);

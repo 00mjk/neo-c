@@ -1819,7 +1819,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                 unsigned_ = (*result_type)->mUnsigned;
                 register_ = (*result_type)->mRegister;
                 volatile_ = (*result_type)->mVolatile;
-                static_ = (*result_type)->mStatic;
+                //static_ = (*result_type)->mStatic;
                 no_heap = (*result_type)->mNoHeap;
                 pointer_num = (*result_type)->mPointerNum;
 

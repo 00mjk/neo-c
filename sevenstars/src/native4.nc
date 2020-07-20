@@ -1,7 +1,6 @@
 #include "common.h"
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <signal.h>
 
 bool system_getenv(CLVALUE** stack_ptr, sVMInfo* info)
 {
