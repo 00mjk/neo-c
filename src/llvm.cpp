@@ -639,7 +639,7 @@ void start_to_make_native_code(char* sname)
         dwarf::DW_LANG_C, sname, cwd, "neo-c", false, "", 0);
 #endif
 
-    TheFPM = llvm::make_unique<FunctionPassManager>(TheModule);
+    TheFPM = std::make_unique<FunctionPassManager>(TheModule);
 
     create_internal_functions();
     TheLabels.clear();
