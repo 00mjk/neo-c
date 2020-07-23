@@ -480,7 +480,7 @@ bool compile_script(char* fname, buffer* source)
     var_num = info.max_var_num;
     
     sVMInfo vminfo;
-    
+
     memset(&vminfo, 0, sizeof(sVMInfo));
     
     vminfo.pinfo = &info;
@@ -488,7 +488,7 @@ bool compile_script(char* fname, buffer* source)
     vminfo.stack_frames = borrow new vector<sCLStackFrame>.initialize();
 
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
-    
+
     CLVALUE result;
     if(!vm(cinfo.codes, NULL, 0, var_num, &result, &vminfo)) {
         fprintf(stderr, "VM error.\n");

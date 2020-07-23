@@ -1082,6 +1082,8 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
         }
     }
 
+    info->mNumGenerics = 0;
+
     return TRUE;
 }
 

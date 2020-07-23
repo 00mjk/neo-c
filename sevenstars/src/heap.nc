@@ -170,6 +170,7 @@ void compaction()
 void heap_init(int heap_size, int size_handles)
 {
     gCLHeap.mHandles = borrow xxxcalloc(1, sizeof(sHandle)*size_handles);
+
     gCLHeap.mSizeHandles = size_handles;
 
     gCLHeap.mMarkFlags = borrow xxxcalloc(1, sizeof(unsigned char)*gCLHeap.mSizeHandles);

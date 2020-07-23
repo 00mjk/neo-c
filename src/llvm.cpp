@@ -591,6 +591,100 @@ void declare_builtin_functions()
         sFunction* neo_c_fun = NULL;
         add_function("llvm.va_copy", "llvm.va_copy", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_copy", &neo_c_fun);
     }
+
+    /// llvm.memset ///
+#ifdef __32BIT_CPU__
+    params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    params.push_back(param1_type);
+    param2_type = IntegerType::get(TheContext,8);
+    params.push_back(param2_type);
+    param3_type = IntegerType::get(TheContext,32);
+    params.push_back(param3_type);
+    param4_type = IntegerType::get(TheContext,1);
+    params.push_back(param4_type);
+
+    {
+        std::vector<Type *> llvm_param_types;
+        sNodeType* param_types[PARAMS_MAX];
+        char param_names[PARAMS_MAX][VAR_NAME_MAX];
+
+        sNodeType* result_type = create_node_type_with_class_name("void");
+
+        int num_params = 4;
+        xstrncpy(param_names[0], "dest", VAR_NAME_MAX);
+        xstrncpy(param_names[1], "val", VAR_NAME_MAX);
+        xstrncpy(param_names[2], "len", VAR_NAME_MAX);
+        xstrncpy(param_names[3], "isvolatile", VAR_NAME_MAX);
+        param_types[0] = create_node_type_with_class_name("void*");
+        param_types[1] = create_node_type_with_class_name("char");
+        param_types[2] = create_node_type_with_class_name("int");
+        param_types[3] = create_node_type_with_class_name("bool");
+
+        BOOL var_arg = FALSE;
+
+        char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+
+        memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+
+        char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+
+        memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+
+        Function* llvm_fun;
+        sFunction* neo_c_fun = NULL;
+        add_function("llvm.memset.p0i8.i32", "llvm.memset.p0i8.i32", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_copy", &neo_c_fun);
+    }
+#else
+    params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    params.push_back(param1_type);
+    param2_type = IntegerType::get(TheContext,8);
+    params.push_back(param2_type);
+    param3_type = IntegerType::get(TheContext,64);
+    params.push_back(param3_type);
+    param4_type = IntegerType::get(TheContext,1);
+    params.push_back(param4_type);
+
+    {
+        std::vector<Type *> llvm_param_types;
+        sNodeType* param_types[PARAMS_MAX];
+        char param_names[PARAMS_MAX][VAR_NAME_MAX];
+
+        sNodeType* result_type = create_node_type_with_class_name("void");
+
+        int num_params = 4;
+        xstrncpy(param_names[0], "dest", VAR_NAME_MAX);
+        xstrncpy(param_names[1], "val", VAR_NAME_MAX);
+        xstrncpy(param_names[2], "len", VAR_NAME_MAX);
+        xstrncpy(param_names[3], "isvolatile", VAR_NAME_MAX);
+        param_types[0] = create_node_type_with_class_name("void*");
+        param_types[1] = create_node_type_with_class_name("char");
+        param_types[2] = create_node_type_with_class_name("long");
+        param_types[3] = create_node_type_with_class_name("bool");
+
+        BOOL var_arg = FALSE;
+
+        char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+
+        memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+
+        char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+
+        memset(generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
+
+        Function* llvm_fun;
+        sFunction* neo_c_fun = NULL;
+        add_function("llvm.memset.p0i8.i64", "llvm.memset.p0i8.i64", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_copy", &neo_c_fun);
+    }
+
+#endif
 }
 
 void start_to_make_native_code(char* sname)
@@ -1519,8 +1613,75 @@ Value* get_dummy_value(sNodeType* node_type, sCompileInfo* info)
     return Builder.CreateAlignedLoad(address, alignment, "dummy_value");
 }
 
+BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info);
+
+uint64_t get_struct_size(sCLClass* klass, sNodeType* generics_type, sCompileInfo* info)
+{
+    uint64_t result = 0;
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        sNodeType* field_type = clone_node_type(klass->mFields[i]);
+
+        if(generics_type) {
+            BOOL success_solve;
+            if(!solve_generics(&field_type, generics_type, &success_solve))
+            {
+                fprintf(stderr, "%s %d: The error at solve_generics\n", info->sname, info->sline);
+                return result;
+            }
+        }
+
+        uint64_t size;
+        if(!get_size_from_node_type(&size, field_type, generics_type, info)) {
+            fprintf(stderr, "%s %d: The error at solve_generics\n", info->sname, info->sline);
+            return result;
+        }
+
+        if(size == 4 || size == 8) {
+            result = (result + 3) & ~3;
+            result += size;
+        }
+        else {
+            result = (result + 1) & ~1;
+            result += size;
+        }
+    }
+
+    return result;
+}
+
+uint64_t get_union_size(sCLClass* klass, sNodeType* generics_type, sCompileInfo* info)
+{
+    uint64_t result = 0;
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        sNodeType* field_type = clone_node_type(klass->mFields[i]);
+
+        if(generics_type) {
+            BOOL success_solve;
+            if(!solve_generics(&field_type, generics_type, &success_solve))
+            {
+                fprintf(stderr, "%s %d: The error at solve_generics\n", info->sname, info->sline);
+                return result;
+            }
+        }
+
+        uint64_t size;
+        if(!get_size_from_node_type(&size, field_type, generics_type, info)) {
+            return result;
+        }
+
+        if(result < size) {
+            result = size;
+        }
+    }
+
+    return result;
+}
+
 BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info)
 {
+#ifndef __32BIT_CPU__
     sNodeType* node_type2 = clone_node_type(node_type);
 
     if(node_type2->mArrayInitializeNum > 0){
@@ -1563,6 +1724,75 @@ BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sNodeType* 
     }
 
     return TRUE;
+#else // this is bad knowhow. Raspiberr PI OS uses 32bit OS, but it calculates pointer type as 8bytesc 
+    sNodeType* node_type2 = clone_node_type(node_type);
+
+    if(node_type2->mArrayInitializeNum > 0){
+        node_type2->mPointerNum--;
+        node_type2->mArrayNum = node_type2->mArrayInitializeNum;
+    }
+
+    sCLClass* klass = node_type->mClass;
+
+    char* class_name = CLASS_NAME(klass);
+
+    char real_struct_name[REAL_STRUCT_NAME_MAX];
+    int size_real_struct_name = REAL_STRUCT_NAME_MAX;
+    xstrncpy(real_struct_name, class_name, size_real_struct_name);
+
+    create_real_struct_name(real_struct_name, size_real_struct_name, node_type->mNumGenericsTypes, node_type->mGenericsTypes);
+
+    if(node_type2->mSizeNum > 0) {
+        *result = node_type2->mSizeNum;
+
+        if(node_type2->mArrayNum > 0) {
+            *result *= node_type2->mArrayNum;
+        }
+    }
+    else if(node_type2->mPointerNum > 0) {
+        *result = 4;
+
+        if(node_type2->mArrayNum > 0) {
+            *result *= node_type2->mArrayNum;
+        }
+    }
+    else {
+        if(!solve_undefined_strcut_type(node_type2, generics_type, real_struct_name, info))
+        {
+            return FALSE;
+        }
+        if(node_type2->mClass->mUndefinedStructType) {
+        }
+
+        Type* llvm_type;
+        if(!create_llvm_type_from_node_type(&llvm_type, node_type2, node_type2, info))
+        {
+            return FALSE;
+        }
+
+        DataLayout data_layout(TheModule);
+
+        if(node_type->mPointerNum == 0 && (node_type->mClass->mFlags & CLASS_FLAGS_STRUCT)) {
+            *result = get_struct_size(node_type->mClass, generics_type, info);
+
+            if(node_type->mArrayNum > 0) {
+                *result *= node_type->mArrayNum;
+            }
+        }
+        else if(node_type->mPointerNum == 0 && (node_type->mClass->mFlags & CLASS_FLAGS_UNION)) {
+            *result = get_union_size(node_type->mClass, generics_type, info);
+
+            if(node_type->mArrayNum > 0) {
+                *result *= node_type->mArrayNum;
+            }
+        }
+        else {
+            *result = data_layout.getTypeAllocSize(llvm_type);
+        }
+    }
+
+    return TRUE;
+#endif
 }
 
 Value* llvm_create_string(char* str)

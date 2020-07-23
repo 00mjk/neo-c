@@ -223,6 +223,9 @@ struct Vi version 6
 impl Vi version 6
 {
     initialize();
+    void saveLastOpenFile(Vi* self, char* file_name);
+    string readLastOpenFile(Vi* self);
+    void repositionWindows(Vi* self);
     void openFile(Vi* self, char* file_name, int line_num);
     void openNewFile(Vi* self, char* file_name);
     void closeActiveWin(Vi* self);

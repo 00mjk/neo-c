@@ -3193,6 +3193,13 @@ unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params
 {
     unsigned int node = alloc_node();
 
+/*
+    if(strcmp(fun_name, "memset") == 0) {
+        params[num_params] = sNodeTree_create_false(info);
+        num_params++;
+    }
+*/
+
     xstrncpy(gNodes[node].uValue.sFunctionCall.mName, fun_name, VAR_NAME_MAX);
     gNodes[node].uValue.sFunctionCall.mNumParams = num_params;
 
@@ -3254,6 +3261,15 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     else if(strcmp(fun_name, "__builtin_va_copy") == 0) {
         xstrncpy(fun_name, "llvm.va_copy", VAR_NAME_MAX);
     }
+/*
+    else if(strcmp(fun_name, "memset") == 0) {
+#ifdef __32BIT_CPU__
+        xstrncpy(fun_name, "llvm.memset.p0i8.i32", VAR_NAME_MAX);
+#else
+        xstrncpy(fun_name, "llvm.memset.p0i8.i64", VAR_NAME_MAX);
+#endif
+    }
+*/
 
     /// go ///
     sNodeType* param_types[PARAMS_MAX];
@@ -5673,13 +5689,12 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     Value* object_num;
     if(left_node == 0) {
 /*
-        if(sizeof(size_t) == 4) {
-            object_num = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)1);
-        }
-        else {
+#ifdef __32BIT_CPU__
+        object_num = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)1);
+#else
 */
-            object_num = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)1);
-//        }
+        object_num = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)1);
+//#endif
     }
     else {
         if(!compile(left_node, info)) {
@@ -5697,13 +5712,12 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
         sNodeType* left_type;
 /*
-        if(sizeof(size_t) == 4) {
-            left_type = create_node_type_with_class_name("int");
-        }
-        else {
+#ifdef __32BIT_CPU__
+        left_type = create_node_type_with_class_name("int");
+#else
 */
-            left_type = create_node_type_with_class_name("long");
-//        }
+        left_type = create_node_type_with_class_name("long");
+//#endif
 
         LVALUE llvm_value = *get_value_from_stack(-1);
         dec_stack_ptr(1, info);
@@ -5728,7 +5742,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
     /// calloc ///
     uint64_t size;
-    if(!get_size_from_node_type(&size, node_type2, info->pinfo->mGenericsType, info))
+    if(!get_size_from_node_type(&size, node_type2, node_type2, info))
     {
         compile_err_msg(info, "Getting allocate size error(8)");
         show_node_type(node_type2);
@@ -9179,6 +9193,19 @@ static BOOL compile_sizeof(unsigned int node, sCompileInfo* info)
     }
 
     /// result ///
+#ifdef __32BIT_CPU__
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, alloc_size, false)); 
+    llvm_value.type = create_node_type_with_class_name("int");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
+    llvm_value.load_field = FALSE;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("int");
+#else
     LVALUE llvm_value;
     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, alloc_size, false)); 
     llvm_value.type = create_node_type_with_class_name("long");
@@ -9190,6 +9217,7 @@ static BOOL compile_sizeof(unsigned int node, sCompileInfo* info)
     push_value_to_stack_ptr(&llvm_value, info);
 
     info->type = create_node_type_with_class_name("long");
+#endif
 
     return TRUE;
 }
@@ -9234,8 +9262,21 @@ BOOL compile_sizeof_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
+#ifdef __32BIT_CPU__
     LVALUE llvm_value;
-    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, alloc_size, true)); 
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, alloc_size, false)); 
+    llvm_value.type = create_node_type_with_class_name("int");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
+    llvm_value.load_field = FALSE;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = create_node_type_with_class_name("int");
+#else
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, alloc_size, false)); 
     llvm_value.type = create_node_type_with_class_name("long");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
@@ -9245,6 +9286,7 @@ BOOL compile_sizeof_expression(unsigned int node, sCompileInfo* info)
     push_value_to_stack_ptr(&llvm_value, info);
 
     info->type = create_node_type_with_class_name("long");
+#endif
 
     return TRUE;
 }

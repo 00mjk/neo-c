@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.2.9
+version 1.3.0
 
 ```
 #include <stdio.h>
@@ -62,6 +62,8 @@ This program is tested in LLVM-3.8 and LLVM-7, and x86_64 on Debian, Raspberry P
 x86_64のDebianとRaspberry PI 3B+でテストしています。
 
 # CHANGELOG
+
+1.3.0 Raspberry PI 4 2G has been corresponded(32 bit armhf is OK). Generics bug has been fixed. 
 
 1.2.9 Now, a static function is internal linckage.
 

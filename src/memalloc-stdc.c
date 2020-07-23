@@ -15,7 +15,7 @@ struct sHeapDebug {
     char type_name[128];
     char sname[128];
     int sline;
-    size_t calloc_size;
+    long long calloc_size;
     int calloc_num;
     char fun_name[128];
     char real_fun_name[128];
@@ -25,7 +25,7 @@ struct sHeapDebug* gHeapDebugs = NULL;
 int gNumHeapDebugs = 0;
 int gSizeHeapDebugs = 0;
 
-static void append_debug_heap_memory(void* mem, char* type_name, char* sname, int sline, int calloc_num, size_t calloc_size, char* fun_name, char* real_fun_name)
+static void append_debug_heap_memory(void* mem, char* type_name, char* sname, int sline, int calloc_num, long long calloc_size, char* fun_name, char* real_fun_name)
 {
     if(gHeapDebugs == NULL) {
         gNumHeapDebugs = 0;
@@ -66,7 +66,7 @@ static void delete_debug_heap_memory(void* mem)
     }
 }
 
-void *xxxmalloc(size_t size)
+void *xxxmalloc(long long size)
 {
     void* result = malloc(size);
 
@@ -154,7 +154,7 @@ void debug_show_none_freed_heap_memory()
     }
 }
 
-void *xxxcalloc(size_t num, size_t nsize)
+void *xxxcalloc(long long num, long long nsize)
 {
     void* result = calloc(num, nsize);
 
@@ -177,7 +177,7 @@ void *xxxcalloc(size_t num, size_t nsize)
     return result;
 }
 
-void *xxxrealloc(void *block, size_t size)
+void *xxxrealloc(void *block, long long size)
 {
     void* result = realloc(block, size);
 
@@ -240,14 +240,19 @@ void *xsprintf(char* msg, ...)
 }
 
 
-void* xxxmemcpy(void* mem, void* mem2, size_t size)
+void* xxxmemcpy(void* mem, void* mem2, long long size)
 {
     return memcpy(mem, mem2, size);
 }
 
+long long xxxmalloc_usable_size(void* block)
+{
+    return malloc_usable_size(block);
+}
+
 void *xxxmemdup(void *block)
 {
-    size_t size = malloc_usable_size(block);
+    long long size = malloc_usable_size(block);
 
     if (!block) return (void*)0;
 

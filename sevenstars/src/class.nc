@@ -134,6 +134,7 @@ sCLMethod* append_method(sCLClass* klass, char* method_name, sCLType* method_typ
     }
 
     method.mName = string(method_name);
+
     method.mResultType = method_type;
 
     method.mByteCodes = null;

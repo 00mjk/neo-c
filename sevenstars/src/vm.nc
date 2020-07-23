@@ -735,7 +735,7 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
 
     CLVALUE stack[VM_STACK_MAX];
     sCLStackFrame stack_frame;
-    
+
     memset(stack, 0, sizeof(CLVALUE) * VM_STACK_MAX);
     
     CLVALUE* stack_ptr = (CLVALUE*)stack + var_num;
@@ -1301,6 +1301,7 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 *stack_ptr = stack[var_index];
                 stack_ptr++;
                 }
+                break;
 
             case OP_COND_JUMP: {
                 int jump_size = *p;

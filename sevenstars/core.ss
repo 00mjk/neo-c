@@ -1,3 +1,4 @@
+
 class int {
     def set_value(value:int):void;
     def plus(right:int):int {

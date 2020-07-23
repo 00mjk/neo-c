@@ -1,6 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H 1
 
+#include "config.h"
 #include "buffer.h"
 #include "xfunc.h"
 #include "alignment.h"

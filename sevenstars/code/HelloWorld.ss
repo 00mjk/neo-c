@@ -4,6 +4,8 @@ var xassert = lambda(str:string, exp:bool):void
     exp.xassert(str);
 }
 
+xassert("int test", 2 == 2);
+
 xassert("normal block", { var xxx = 333; xxx+222+111 } == 666 && { var xxx = 555; xxx + 222 } == 777);
 
 var afun = lambda(x:int, y:int):int {
