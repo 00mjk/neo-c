@@ -11,11 +11,9 @@
 
 int main()
 {
-    var li2 = ["AAA", "BBB", "CCC"];
-    
-    li2.each {
-        printf("%s\n", it);
-    }
+    int* a = null;
+
+    *a = 0;
 
     return 0;
 }
