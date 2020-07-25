@@ -185,7 +185,6 @@ TRUE	src/xfunc.h	8;"	d
 TVALUE	tiny/common.h	/^struct TVALUE {$/;"	s
 TYPEDEF_MAX	src/common.h	39;"	d
 TheCU	src/llvm.cpp	/^    DICompileUnit* TheCU;$/;"	m	struct:DebugInfo	file:
-TheContext	src/llvm.cpp	/^LLVMContext TheContext;$/;"	v
 TheFPM	src/llvm.cpp	/^std::unique_ptr<FunctionPassManager> TheFPM;$/;"	v
 TheLabels	src/llvm.cpp	/^std::map<std::string, BasicBlock*> TheLabels;$/;"	v
 TheModule	src/llvm.cpp	/^Module* TheModule;$/;"	v
