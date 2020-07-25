@@ -74,7 +74,7 @@ then
 else
     echo other
 
-    AC_DEFINE(__32BIT_CPU__, 1)
+    AC_DEFINE(__64BIT_CPU__, 1)
 fi
 
 ##################################################

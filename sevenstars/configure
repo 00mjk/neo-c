@@ -3744,7 +3744,7 @@ then
 else
     echo other
 
-    $as_echo "#define __32BIT_CPU__ 1" >>confdefs.h
+    $as_echo "#define __64BIT_CPU__ 1" >>confdefs.h
 
 fi
 
