@@ -3,6 +3,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+using namespace std;
+
 LLVMContext TheContext;
 IRBuilder<> Builder(TheContext);
 Module* TheModule;
@@ -733,7 +735,7 @@ void start_to_make_native_code(char* sname)
         dwarf::DW_LANG_C, sname, cwd, "neo-c", false, "", 0);
 #endif
 
-    TheFPM = std::make_unique<FunctionPassManager>(TheModule);
+    TheFPM = make_unique<FunctionPassManager>(TheModule);
 
     create_internal_functions();
     TheLabels.clear();
