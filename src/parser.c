@@ -3442,6 +3442,10 @@ static BOOL parse_inline_function(unsigned int* node, char* struct_name, sParser
         }
     }
 
+    if(!parse_attribute(info)) {
+        return FALSE;
+    }
+
     sNodeType* result_type = NULL;
     BOOL define_struct_only = FALSE;
     if(!parse_type(&result_type, info, NULL, TRUE, FALSE, FALSE, &define_struct_only))
