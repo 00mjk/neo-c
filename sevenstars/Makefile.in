@@ -36,14 +36,17 @@ all: sevenstars core
 core: core.ss
 	./sevenstars -core core.ss
 
-sevenstars: config.h src/*.h Makefile configure src/main.nc src/compiler.o src/parser.o src/node.o src/type.o src/class.o src/native.o src/native2.o src/native3.o src/native4.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
-	$(CC) -o sevenstars src/main.nc src/compiler.o src/parser.o src/node.o src/type.o src/class.o src/native.o src/native2.o src/native3.o src/native4.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
+sevenstars: config.h src/*.h Makefile configure src/main.nc src/compiler.o src/interpreter.o src/parser.o src/node.o src/type.o src/class.o src/native.o src/native2.o src/native3.o src/native4.o src/native5.o src/native6.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o
+	$(CC) -o sevenstars src/main.nc src/compiler.o src/interpreter.o src/parser.o src/node.o src/type.o src/class.o src/native.o src/native2.o src/native3.o src/native4.o src/native5.o src/native6.o src/vm.o src/vtable.o src/heap.o src/object.o src/block.o src/macro.o $(CFLAGS) $(NCFLAGS) $(LIBS)
 
 ##########################################################
 # objects
 ##########################################################
 src/compiler.o: config.h src/*.h Makefile configure src/compiler.nc
 	$(CC) -c src/compiler.nc $(CFLAGS) $(NCFLAGS)
+
+src/interpreter.o: config.h src/*.h Makefile configure src/interpreter.nc
+	$(CC) -c src/interpreter.nc $(CFLAGS) $(NCFLAGS)
 
 src/parser.o: config.h src/*.h Makefile configure src/parser.nc
 	$(CC) -c src/parser.nc $(CFLAGS) $(NCFLAGS)
@@ -68,6 +71,12 @@ src/native3.o: config.h src/*.h Makefile configure src/native3.nc
 
 src/native4.o: config.h src/*.h Makefile configure src/native4.nc
 	$(CC) -c src/native4.nc $(CFLAGS) $(NCFLAGS)
+
+src/native5.o: config.h src/*.h Makefile configure src/native5.nc
+	$(CC) -c src/native5.nc $(CFLAGS) $(NCFLAGS)
+
+src/native6.o: config.h src/*.h Makefile configure src/native6.nc
+	$(CC) -c src/native6.nc $(CFLAGS) $(NCFLAGS)
 
 src/vm.o: config.h src/*.h Makefile configure src/vm.nc
 	$(CC) -c src/vm.nc $(CFLAGS) $(NCFLAGS)

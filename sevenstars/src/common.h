@@ -135,6 +135,8 @@ void native_init();
 void native_init2();
 void native_init3();
 void native_init4();
+void native_init5();
+void native_init6();
 
 void native_final();
 
@@ -649,6 +651,9 @@ bool compile_block(sCLNodeBlock* node_block, sCompileInfo* info);
 bool load_class(char* name, sParserInfo* info);
 bool save_class(sCLClass* klass);
 
+extern int match_index;
+extern list<string>*% matches;
+
 void compiler_init(bool no_load_fudamental_classes);
 void compiler_final();
 bool compiler(char* fname);
@@ -658,6 +663,7 @@ void set_signal_shell();
 void shell(vector<sCLType*%>* types);
 void clover3_init();
 void clover3_final();
+bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* types, CLVALUE* result);
 
 bool forground_job(int job_num);
 void shell_run_command(char* line, vector<sCLType*%>* types, CLVALUE* result);
