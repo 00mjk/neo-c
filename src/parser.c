@@ -599,13 +599,18 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
         node_type->mPointerNum = num_pointers;
     }
 
-    if(!parse_word(buf, buf_size, info, TRUE, FALSE)) {
-        return FALSE;
+    if(*info->p == '[') {
+        buf[0] = '\0';
     }
-
-    if(strcmp(buf, "const") == 0) {
+    else {
         if(!parse_word(buf, buf_size, info, TRUE, FALSE)) {
             return FALSE;
+        }
+
+        if(strcmp(buf, "const") == 0) {
+            if(!parse_word(buf, buf_size, info, TRUE, FALSE)) {
+                return FALSE;
+            }
         }
     }
 
