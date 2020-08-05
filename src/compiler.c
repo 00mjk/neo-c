@@ -304,10 +304,10 @@ int main(int argc, char** argv)
         char command[4096*2];
 
         if(gNCDebug) {
-            snprintf(command, 4096*2, "clang -g -o %s %s.o -lpcre $CFLAGS", program_name, main_module_name);
+            snprintf(command, 4096*2, "clang -g -o %s %s.o $CFLAGS ", program_name, main_module_name);
         }
         else {
-            snprintf(command, 4096*2, "clang -o %s %s.o -lpcre $CFLAGS", program_name, main_module_name);
+            snprintf(command, 4096*2, "clang -o %s %s.o $CFLAGS ", program_name, main_module_name);
         }
 
         char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s/lib/neo-c.o", PREFIX);
@@ -338,6 +338,7 @@ int main(int argc, char** argv)
             xstrncat(command, external_objects[i], 4096*2);
             xstrncat(command, " ", 4096*2);
         }
+        xstrncat(command, " -lpcre", 4096*2);
 
         int rc = system(command);
         if(rc != 0) {

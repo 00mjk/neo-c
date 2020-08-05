@@ -188,6 +188,11 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_
                 return FALSE;
             }
         }
+        else if(parse_cmp(info.p, "__extension__") == 0)
+        {
+            info.p += 13;
+            skip_spaces_and_lf(&info);
+        }
         else {
             unsigned int node = 0;
             if(!expression(&node, &info)) {
@@ -270,6 +275,11 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_
             if(!parse_sharp(&info)) {
                 return FALSE;
             }
+        }
+        else if(parse_cmp(info.p, "__extension__") == 0)
+        {
+            info.p += 13;
+            skip_spaces_and_lf(&info);
         }
         else {
             unsigned int node = 0;

@@ -12863,6 +12863,39 @@ static BOOL compile_comma(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_func_name(sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeFunName;
+
+    xstrncpy(gNodes[node].mSName, info->sname, PATH_MAX);
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    return node;
+}
+
+static BOOL compile_func_name(unsigned int node, sCompileInfo* info)
+{
+    LVALUE llvm_value;
+    llvm_value.value = llvm_create_string(info->fun_name);
+    llvm_value.type = create_node_type_with_class_name("char*");
+    llvm_value.address = nullptr;
+    llvm_value.var = nullptr;
+    llvm_value.binded_value = FALSE;
+    llvm_value.load_field = FALSE;
+
+    push_value_to_stack_ptr(&llvm_value, info);
+
+    info->type = clone_node_type(llvm_value.type);
+
+    return TRUE;
+}
+
 BOOL compile(unsigned int node, sCompileInfo* info)
 {
     if(node == 0) {
@@ -13509,6 +13542,13 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeComma:
             if(!compile_comma(node, info))
+            {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeFunName:
+            if(!compile_func_name(node, info))
             {
                 return FALSE;
             }

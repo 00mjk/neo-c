@@ -2,6 +2,7 @@
 
 extern "C"
 {
+extern int parse_cmp(char* p, char* str);
 
 BOOL parse_block_easy(ALLOC sNodeBlock** node_block, BOOL extern_c_lang, sParserInfo* info)
 {
@@ -55,9 +56,21 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, BOOL single_express
     BOOL has_result = FALSE;
 
     if(single_expression) {
-        if(!parse_sharp(info)) {
-            info->parse_block = parse_block;
-            return FALSE;
+        while(TRUE) {
+            if(parse_cmp(info->p, "__extension__") == 0)
+            {
+                info->p += 13;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '#') {
+                if(!parse_sharp(info)) {
+                    info->parse_block = parse_block;
+                    return FALSE;
+                }
+            }
+            else {
+                break;
+            }
         }
 
         if(*info->p == '\0') {
@@ -81,9 +94,21 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, BOOL single_express
 
         info->sline_top = sline;
 
-        if(!parse_sharp(info)) {
-            info->parse_block = parse_block;
-            return FALSE;
+        while(TRUE) {
+            if(parse_cmp(info->p, "__extension__") == 0)
+            {
+                info->p += 13;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '#') {
+                if(!parse_sharp(info)) {
+                    info->parse_block = parse_block;
+                    return FALSE;
+                }
+            }
+            else {
+                break;
+            }
         }
 
         if(*info->p == ';') {
@@ -120,9 +145,21 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, BOOL single_express
             }
         }
 
-        if(!parse_sharp(info)) {
-            info->parse_block = parse_block;
-            return FALSE;
+        while(TRUE) {
+            if(parse_cmp(info->p, "__extension__") == 0)
+            {
+                info->p += 13;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '#') {
+                if(!parse_sharp(info)) {
+                    info->parse_block = parse_block;
+                    return FALSE;
+                }
+            }
+            else {
+                break;
+            }
         }
 
         if(*info->p == ';') 
@@ -142,9 +179,21 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, BOOL single_express
     }
     else {
         while(1) {
-            if(!parse_sharp(info)) {
-                info->parse_block = parse_block;
-                return FALSE;
+            while(TRUE) {
+                if(parse_cmp(info->p, "__extension__") == 0)
+                {
+                    info->p += 13;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == '#') {
+                    if(!parse_sharp(info)) {
+                        info->parse_block = parse_block;
+                        return FALSE;
+                    }
+                }
+                else {
+                    break;
+                }
             }
 
             if(*info->p == '}') {
@@ -171,9 +220,21 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, BOOL single_express
 
             info->sline_top = sline;
 
-            if(!parse_sharp(info)) {
-                info->parse_block = parse_block;
-                return FALSE;
+            while(TRUE) {
+                if(parse_cmp(info->p, "__extension__") == 0)
+                {
+                    info->p += 13;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == '#') {
+                    if(!parse_sharp(info)) {
+                        info->parse_block = parse_block;
+                        return FALSE;
+                    }
+                }
+                else {
+                    break;
+                }
             }
 
             if(!expression(&node, info)) {
@@ -193,9 +254,21 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, BOOL single_express
                 append_node_to_node_block(node_block, node);
             }
 
-            if(!parse_sharp(info)) {
-                info->parse_block = parse_block;
-                return FALSE;
+            while(TRUE) {
+                if(parse_cmp(info->p, "__extension__") == 0)
+                {
+                    info->p += 13;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == '#') {
+                    if(!parse_sharp(info)) {
+                        info->parse_block = parse_block;
+                        return FALSE;
+                    }
+                }
+                else {
+                    break;
+                }
             }
 
             if(info->change_sline) {
