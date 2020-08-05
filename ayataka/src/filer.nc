@@ -256,6 +256,13 @@ void input(Filer* self)
                 }
                 }
                 break;
+                
+            case '~': {
+                string path = string(getenv("HOME"));
+
+                self.chage_directory(path, null);
+                }
+                break;
 
             case KEY_BACKSPACE:
             case 8:
