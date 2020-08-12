@@ -12,7 +12,7 @@ void clover3_init()
     native_init4();
     native_init5();
     native_init6();
-    gSigInt = false;
+    gSigInt = 0;
 }
 
 void clover3_final()
@@ -24,12 +24,300 @@ void clover3_final()
 
 void sig_int(int signal)
 {
-    gSigInt = true;
+    gSigInt = 1;
+}
+
+void sig_tstp(int signal)
+{
+    gSigInt = 1; 
+}
+
+void sigchld_block(int block)
+{
+    sigset_t sigset;
+
+    sigemptyset(&sigset);
+    sigaddset(&sigset, SIGCHLD);
+
+    if(sigprocmask(block?SIG_BLOCK:SIG_UNBLOCK, &sigset, NULL) != 0)
+    {
+        fprintf(stderr, "error\n");
+        exit(1);
+    }
+}
+
+void sigttou_block(int block)
+{
+    sigset_t sigset;
+
+    sigemptyset(&sigset);
+    sigaddset(&sigset, SIGTTOU);
+
+    if(sigprocmask(block?SIG_BLOCK:SIG_UNBLOCK, &sigset, NULL) != 0)
+    {
+        fprintf(stderr, "error\n");
+        exit(1);
+    }
+}
+
+void sig_tstp_optc(int signum, siginfo_t* info, void* ctx)
+{
+    sigchld_block(1);
+    killpg(0, SIGSTOP);
+    sigchld_block(0);
+}
+
+void sig_cont_optc(int signal, siginfo_t* info, void* data)
+{
+    sigchld_block(1);
+    sigchld_block(0);
+}
+
+void sig_int_optc(int signal)
+{
+    sigchld_block(1);
+    gSigInt = true; 
+    sigchld_block(0);
+}
+
+void sigchld_action(int sig, siginfo_t *info, void *ctx)
+{
 }
 
 void set_signal()
 {
     struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_sigaction = sigchld_action;
+    sa.sa_flags = SA_RESTART|SA_SIGINFO;
+    if(sigaction(SIGCHLD, &sa, NULL) < 0) {
+        perror("sigaction1");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_flags = SA_SIGINFO;
+    sa.sa_handler = sig_int;
+    if(sigaction(SIGINT, &sa, NULL) < 0) {
+        perror("sigaction2");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    if(sigaction(SIGCONT, &sa, NULL) < 0) {
+        perror("sigaction3");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_DFL;
+    if(sigaction(SIGWINCH, &sa, NULL) < 0) {
+        perror("sigaction4");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if(sigaction(SIGTTOU, &sa, NULL) < 0) {
+        perror("sigaction5");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if(sigaction(SIGTTIN, &sa, NULL) < 0) {
+        perror("sigaction6");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = sig_tstp;
+    sa.sa_flags = 0;
+    if(sigaction(SIGTSTP, &sa, NULL) < 0) {
+        perror("sigaction7");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if(sigaction(SIGQUIT, &sa, NULL) < 0) {
+        perror("sigaction8");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if(sigaction(SIGPIPE, &sa, NULL) < 0) {
+        perror("sigaction10");
+        exit(1);
+    }
+}
+
+void set_signal_optc()
+{
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_sigaction = sigchld_action;
+    sa.sa_flags = SA_SIGINFO|SA_RESTART;
+    if(sigaction(SIGCHLD, &sa, NULL) < 0) {
+        perror("sigaction1");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = sig_int_optc;
+    if(sigaction(SIGINT, &sa, NULL) < 0) {
+        perror("sigaction2");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_sigaction = sig_tstp_optc;
+    sa.sa_flags = SA_RESTART;
+    if(sigaction(SIGTSTP, &sa, NULL) < 0) {
+        perror("sigaction7");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_sigaction = sig_cont_optc;
+    sa.sa_flags = SA_RESTART;
+    if(sigaction(SIGCONT, &sa, NULL) < 0) {
+        perror("sigaction3");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_DFL;
+    if(sigaction(SIGWINCH, &sa, NULL) < 0) {
+        perror("sigaction4");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if(sigaction(SIGTTOU, &sa, NULL) < 0) {
+        perror("sigaction5");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if(sigaction(SIGTTIN, &sa, NULL) < 0) {
+        perror("sigaction6");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if(sigaction(SIGQUIT, &sa, NULL) < 0) {
+        perror("sigaction8");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if(sigaction(SIGPIPE, &sa, NULL) < 0) {
+        perror("sigaction10");
+        exit(1);
+    }
+}
+
+void set_signal_shell()
+{
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_sigaction = sigchld_action;
+    sa.sa_flags = SA_RESTART|SA_SIGINFO;
+    if(sigaction(SIGCHLD, &sa, NULL) < 0) {
+        perror("sigaction1");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_flags = SA_SIGINFO;
+    sa.sa_handler = (sig_t)sig_int_for_shell;
+    if(sigaction(SIGINT, &sa, NULL) < 0) {
+        perror("sigaction2");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    if(sigaction(SIGCONT, &sa, NULL) < 0) {
+        perror("sigaction3");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_DFL;
+    if(sigaction(SIGWINCH, &sa, NULL) < 0) {
+        perror("sigaction4");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if(sigaction(SIGTTOU, &sa, NULL) < 0) {
+        perror("sigaction5");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if(sigaction(SIGTTIN, &sa, NULL) < 0) {
+        perror("sigaction6");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = sig_tstp;
+    sa.sa_flags = 0;
+    if(sigaction(SIGTSTP, &sa, NULL) < 0) {
+        perror("sigaction7");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if(sigaction(SIGQUIT, &sa, NULL) < 0) {
+        perror("sigaction8");
+        exit(1);
+    }
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if(sigaction(SIGPIPE, &sa, NULL) < 0) {
+        perror("sigaction10");
+        exit(1);
+    }
+
+/*
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_DFL;
+    sa.sa_flags = SA_RESTART;
+    if(sigaction(SIGSTOP, &sa, NULL) < 0) {
+        perror("sigaction11");
+        exit(1);
+    }
+*/
+}
+
+
+/*
+void set_signal_shell()
+{
     sigset_t signal_set;
 
     sigemptyset(&signal_set);
@@ -39,14 +327,17 @@ void set_signal()
 
     sigprocmask(SIG_BLOCK, &signal_set, NULL);
 
+    sigaction sa;
+
     memset(&sa, 0, sizeof(sa));
     sa.sa_flags = SA_SIGINFO;
-    sa.sa_handler = (sig_t)sig_int;
+    sa.sa_handler = (sig_t)sig_int_for_shell;
     if(sigaction(SIGINT, &sa, null) < 0) {
         perror("sigaction2");
         exit(1);
     }
 }
+*/
 
 bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* types, CLVALUE* result)
 {

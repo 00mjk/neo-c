@@ -47,12 +47,21 @@ static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BO
         xstrncat(fname2, ".out", PATH_MAX);
 
         char cmd[1024];
+#ifdef __DARWIN__
+        if(cflags) {
+            snprintf(cmd, 1024, "clang -E %s -I/opt/local/include %s > %s", cflags, fname, fname2);
+        }
+        else {
+            snprintf(cmd, 1024, "clang -E %s -I/opt/local/include > %s", fname, fname2);
+        }
+#else
         if(cflags) {
             snprintf(cmd, 1024, "cpp %s -C %s > %s", cflags, fname, fname2);
         }
         else {
             snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
         }
+#endif
 
         int rc = system(cmd);
 
@@ -66,12 +75,21 @@ static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BO
         xstrncat(fname2, ".out", PATH_MAX);
 
         char cmd[1024];
+#ifdef __DARWIN__
+        if(cflags) {
+            snprintf(cmd, 1024, "cp %s %s.c; clang -E %s -U__GNUC__ -I/opt/local/include %s.c > %s; rm -f %s.c", fname, fname, cflags, fname, fname2, fname);
+        }
+        else {
+            snprintf(cmd, 1024, "cp %s %s.c; clang -U__GNUC__ -I/opt/local/include -E %s.c > %s; rm -f %s.c", fname, fname, fname, fname2, fname);
+        }
+#else
         if(cflags) {
             snprintf(cmd, 1024, "cpp %s -C %s > %s", cflags, fname, fname2);
         }
         else {
             snprintf(cmd, 1024, "cpp -C %s > %s", fname, fname2);
         }
+#endif
 
         int rc = system(cmd);
         if(rc != 0) {
@@ -125,7 +143,7 @@ static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BO
 
 int gARGC;
 char** gARGV;
-char* gVersion = "1.3.3";
+char* gVersion = "1.3.5";
 
 char gMainModulePath[PATH_MAX];
 

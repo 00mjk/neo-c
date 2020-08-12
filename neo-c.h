@@ -17,7 +17,9 @@
 #undef __GNUC__
 #undef __clang__
 
+#ifndef __DARWIN__
 #include <wchar.h>
+#endif
 
 #include <unistd.h>
 

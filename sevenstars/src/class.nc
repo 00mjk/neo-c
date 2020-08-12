@@ -43,6 +43,7 @@ void class_init()
     append_class("tuple2");
     append_class("tuple3");
     append_class("tuple4");
+    append_class("system");
     append_class("generics_type0");
     append_class("generics_type1");
     append_class("generics_type2");

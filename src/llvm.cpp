@@ -519,7 +519,7 @@ void declare_builtin_functions()
 
         Function* llvm_fun;
         sFunction* neo_c_fun = NULL;
-        add_function("llvm.va_start", "llvm.va_start", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_start", &neo_c_fun);
+        add_function("llvm.va_start", "llvm.va_start", "", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_start", &neo_c_fun);
     }
 
     /// va_end ///
@@ -553,7 +553,7 @@ void declare_builtin_functions()
 
         Function* llvm_fun;
         sFunction* neo_c_fun = NULL;
-        add_function("llvm.va_end", "llvm.va_end", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_end", &neo_c_fun);
+        add_function("llvm.va_end", "llvm.va_end", "", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_end", &neo_c_fun);
     }
 
     /// va_copy ///
@@ -591,7 +591,7 @@ void declare_builtin_functions()
 
         Function* llvm_fun;
         sFunction* neo_c_fun = NULL;
-        add_function("llvm.va_copy", "llvm.va_copy", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_copy", &neo_c_fun);
+        add_function("llvm.va_copy", "llvm.va_copy", "", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_copy", &neo_c_fun);
     }
 
     /// llvm.memset ///
@@ -638,7 +638,7 @@ void declare_builtin_functions()
 
         Function* llvm_fun;
         sFunction* neo_c_fun = NULL;
-        add_function("llvm.memset.p0i8.i32", "llvm.memset.p0i8.i32", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_copy", &neo_c_fun);
+        add_function("llvm.memset.p0i8.i32", "llvm.memset.p0i8.i32", "", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_copy", &neo_c_fun);
     }
 #else
     params.clear();
@@ -683,7 +683,7 @@ void declare_builtin_functions()
 
         Function* llvm_fun;
         sFunction* neo_c_fun = NULL;
-        add_function("llvm.memset.p0i8.i64", "llvm.memset.p0i8.i64", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_copy", &neo_c_fun);
+        add_function("llvm.memset.p0i8.i64", "llvm.memset.p0i8.i64", "", param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, TRUE, TRUE, 0, &llvm_fun, NULL, FALSE, NULL, -1, "llvm.va_copy", &neo_c_fun);
     }
 
 #endif
@@ -1927,8 +1927,15 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
                 }
 
                 if(!info->no_output) {
+#if __DARWIN__
+                    Value* index = ConstantInt::get(TheContext, llvm::APInt(32, 0));
+                    rvalue->value = Builder.CreateGEP(rvalue->address, index);
+                    rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->value, llvm_type);
+                    rvalue->type = clone_node_type(left_type);
+#else
                     rvalue->value = Builder.CreateCast(Instruction::BitCast, rvalue->address, llvm_type);
                     rvalue->type = clone_node_type(left_type);
+#endif
                 }
             }
 

@@ -13,34 +13,12 @@
 
 void sig_int_for_shell(int signal)
 {
-    gSigInt = true;
+    gSigInt = 1;
     rl_reset_line_state();
     rl_replace_line("", 0);
     rl_point = 0;
     puts("");
     rl_redisplay();
-}
-
-void set_signal_shell()
-{
-    sigset_t signal_set;
-
-    sigemptyset(&signal_set);
-    sigaddset(&signal_set, SIGTTOU);
-    sigaddset(&signal_set, SIGTTIN);
-    sigaddset(&signal_set, SIGPIPE);
-
-    sigprocmask(SIG_BLOCK, &signal_set, NULL);
-
-    sigaction sa;
-
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_flags = SA_SIGINFO;
-    sa.sa_handler = (sig_t)sig_int_for_shell;
-    if(sigaction(SIGINT, &sa, null) < 0) {
-        perror("sigaction2");
-        exit(1);
-    }
 }
 
 int match_index;

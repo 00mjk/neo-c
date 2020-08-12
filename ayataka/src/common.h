@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include "config.h"
 #include "../sevenstars/src/common.h"
 
 struct Filer;

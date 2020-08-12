@@ -272,7 +272,7 @@ bool vm_invoke_method(CLObject obj, char* method_name, int num_params, CLVALUE**
 
     sCLClass* klass = object_data->mType->mClass;
     if(klass == null) {
-        vm_err_msg(stack_ptr, info, xsprintf("class not found(%s)\n", klass->mName));
+        vm_err_msg(stack_ptr, info, xsprintf("class not found(%s) on vm_invoke_method\n", klass->mName));
         return false;
     }
 

@@ -1353,6 +1353,27 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 //puts("ok");
             }
         }
+/*
+        else if(strcmp(word, "exit") == 0) {
+            sCLNode* params[PARAMS_MAX];
+            if(*node == 0) {
+                params[0] = sNodeTree_create_system_value(info);
+            }
+            else {
+                params[0] = *node;
+            }
+
+            int num_params = 1;
+
+            bool param_closed = false;
+            if(!parse_calling_params(&num_params, params, &param_closed, info)) 
+            {
+                return false;
+            };
+
+            *node = sNodeTree_create_method_call(word, num_params, params, param_closed, info);
+        }
+*/
         else if(*info->p == '!' && *(info->p+1) == '(') {
             info->p+=2;
 

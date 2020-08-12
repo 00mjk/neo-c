@@ -45,6 +45,11 @@ class int {
     }
 };
 
+class system
+{
+    def exit(exit_code:int):void;
+}
+
 class bool {
     def set_value(value:bool):void;
     def to_int():int;
@@ -521,7 +526,6 @@ class system
     def eval(cmd:string):any;
     def jobs():void;
     def fg(job_num:string):void;
-    def exit(exit_code:string):void;
 }
 
 save_class object;

@@ -33,6 +33,17 @@ bool free_object(CLObject self)
 
             delete dummy_heap list_data->mList;
         }
+        else if(type->mClass == gClasses.at("job", null)) {
+            sCLJob* job_data = CLJOB(self);
+
+            delete dummy_heap job_data->mTermInfo;
+        }
+        else if(type->mClass == gClasses.at("command", null)) {
+            sCLCommand* command_data = CLCOMMAND(self);
+
+            delete dummy_heap command_data->mOutput;
+            delete dummy_heap command_data->mErrOutput;
+        }
     }
 /*
     if(!call_finalize_method_on_free_object(klass, self)) {
@@ -304,9 +315,7 @@ CLObject create_command_object(char* output, int output_len, char* err_output, i
 {
     sCLType* command_type = create_type("command", info.cinfo.pinfo.types);
     
-    int size = sizeof(sCLCommand) - sizeof(char) * DUMMY_ARRAY_SIZE;
-    size += output_len + 1 + err_output_len + 1;
-
+    int size = sizeof(sCLCommand);
     alignment(&size);
 
     CLObject obj = alloc_heap_mem(size, command_type, -1, info);
@@ -314,14 +323,16 @@ CLObject create_command_object(char* output, int output_len, char* err_output, i
     sCLCommand* object_data = CLCOMMAND(obj);
 
     object_data.mRCode = rcode;
+
+    object_data.mOutput = borrow new char[output_len+1];
     object_data.mOutputLen = output_len;
-    object_data.mErrOutputLen = err_output;
     memcpy(object_data.mOutput, output, output_len+1);
-    memcpy(object_data.mOutput + output_len + 1, err_output, err_output_len+1);
+
+    object_data.mErrOutput = borrow new char[err_output_len+1];
+    object_data.mErrOutputLen = err_output_len;
+    memcpy(object_data.mErrOutput, err_output, err_output_len+1);
+
     object_data.mFirstCommand = first_command;
-
-
-    object_data.mErrData = object_data.mOutput + output_len + 1;
 
     return obj;
 }
@@ -343,14 +354,13 @@ CLObject create_job_object(char* title, termios* tinfo, pid_t pgrp, sVMInfo* inf
     
     int size = sizeof(sCLJob);
 
-    alignment(&size);
-
     CLObject obj = alloc_heap_mem(size, job_type, -1, info);
 
     sCLJob* object_data = CLJOB(obj);
 
     xstrncpy(object_data.mTitle, title, JOB_TITLE_MAX);
-    object_data.mTermInfo = *tinfo
+    object_data.mTermInfo = borrow new termios;
+    *object_data.mTermInfo = *tinfo
     object_data.mPGrp = pgrp;
 
     return obj;

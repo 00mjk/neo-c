@@ -1,6 +1,7 @@
 #include "common.h"
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 bool system_getenv(CLVALUE** stack_ptr, sVMInfo* info)
 {
@@ -335,7 +336,7 @@ bool forground_job(int job_num)
         char title[JOB_TITLE_MAX];
         xstrncpy(title, job_data.mTitle, JOB_TITLE_MAX);
 
-        termios tinfo = job_data.mTermInfo;
+        termios* tinfo = job_data.mTermInfo;
         pid_t pgrp = job_data.mPGrp;
 
         termios tinfo2;
@@ -343,10 +344,14 @@ bool forground_job(int job_num)
             return false;
         }
 
-        tcsetattr(0, TCSANOW, &tinfo);
-        tcsetpgrp(0, pgrp);
+        tcsetattr(0, TCSANOW, tinfo);
+        if(tcsetpgrp(0, pgrp) < 0) {
+            return false;
+        }
 
-        kill(pgrp, SIGCONT);
+        if(kill(pgrp, SIGCONT) < 0) {
+            return false;
+        }
 
         int status = 0;
         pid_t pid2 = waitpid(pgrp, &status, WUNTRACED);
@@ -408,15 +413,15 @@ bool system_exit(CLVALUE** stack_ptr, sVMInfo* info)
         vm_err_msg(stack_ptr, info, "type error on system.exit");
         return false;
     }
-    if(!check_type(exit_code, "string", info)) {
+    if(!check_type(exit_code, "int", info)) {
         vm_err_msg(stack_ptr, info, "type error on system.exit");
         return false;
     }
 
     /// sevenstars to neo-c ///
-    char* exit_code_value = get_string_mem(exit_code);
+    int exit_code_value = get_int_value(exit_code);
 
-    exit(atoi(exit_code_value));
+    exit(exit_code_value);
     
     return true;
 }
@@ -463,6 +468,6 @@ void native_init4()
     gNativeMethods.insert(string("system.eval"), system_eval);
     gNativeMethods.insert(string("system.jobs"), system_jobs);
     gNativeMethods.insert(string("system.fg"), system_fg);
-    gNativeMethods.insert(string("system.exit"), system_fg);
+    gNativeMethods.insert(string("system.exit"), system_exit);
     gNativeMethods.insert(string("system.save_class"), system_save_class);
 }

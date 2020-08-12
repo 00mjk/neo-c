@@ -25,7 +25,7 @@ int xgetmaxy(){
 Raspberry PI return -1
 */
     if(result == -1) {
-        return getmaxx(stdscr);
+        return getmaxy(stdscr);
     }
     else {
         return result;

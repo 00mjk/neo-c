@@ -129,12 +129,13 @@ static BOOL check_same_params(int num_params, sNodeType** param_types, int num_p
     return TRUE;
 }
 
-BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param, char* struct_name, int generics_fun_num, char* simple_fun_name, sFunction** neo_c_fun)
+BOOL add_function(char* name, char* real_fun_name, char* asm_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param, char* struct_name, int generics_fun_num, char* simple_fun_name, sFunction** neo_c_fun)
 {
     sFunction* fun = (sFunction*)calloc(1, sizeof(sFunction));
     *neo_c_fun = fun;
 
     xstrncpy(fun->mName, name, VAR_NAME_MAX);
+    xstrncpy(fun->mAsmFunName, asm_fun_name, VAR_NAME_MAX);
     xstrncpy(fun->mSimpleName, simple_fun_name, VAR_NAME_MAX);
     xstrncpy(fun->mRealName, real_fun_name, REAL_FUN_NAME_MAX);
 
@@ -314,7 +315,11 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
             }
 
             char real_fun_name2[REAL_FUN_NAME_MAX];
-            if(fun->mVersion == 0) {
+
+            if(strcmp(asm_fun_name, "") != 0) {
+                xstrncpy(real_fun_name2, asm_fun_name, REAL_FUN_NAME_MAX);
+            }
+            else if(fun->mVersion == 0) {
                 snprintf(real_fun_name2, REAL_FUN_NAME_MAX, "%s", real_fun_name);
             }
             else {
@@ -366,7 +371,7 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
             {
                 sFunction* it = funcs[i];
 
-                if(it->mVersion == version) {
+                if(it->mVersion == version && !(it->mInlineFunction && !inline_function)) {
                     *llvm_fun = it->mLLVMFunction;
 
                     function_found =TRUE;
@@ -429,7 +434,10 @@ BOOL add_function(char* name, char* real_fun_name, char param_names[PARAMS_MAX][
                 }
 
                 char real_fun_name2[REAL_FUN_NAME_MAX];
-                if(fun->mVersion == 0) 
+                if(strcmp(asm_fun_name, "") != 0) {
+                    xstrncpy(real_fun_name2, asm_fun_name, REAL_FUN_NAME_MAX);
+                }
+                else if(fun->mVersion == 0) 
                 {
                     snprintf(real_fun_name2, REAL_FUN_NAME_MAX, "%s", real_fun_name);
                 }
@@ -822,7 +830,7 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
     BOOL constructor_fun = FALSE;
     BOOL operator_fun = FALSE;
 
-    *node = sNodeTree_create_function(real_fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, constructor_fun, simple_lambda_param, &info2, TRUE, var_arg, version, finalize, generics_fun_num, fun->mName);
+    *node = sNodeTree_create_function(real_fun_name, real_fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, constructor_fun, simple_lambda_param, &info2, TRUE, var_arg, version, finalize, generics_fun_num, fun->mName);
 
     //info->sline = sline_before;
 
@@ -2755,7 +2763,7 @@ BOOL compile_c_string_value(unsigned int node, sCompileInfo* info)
 }
 
 
-unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, char* struct_name, BOOL operator_fun, int version, sParserInfo* info)
+unsigned int sNodeTree_create_external_function(char* fun_name, char* asm_fname, sParserParam* params, int num_params, BOOL var_arg, sNodeType* result_type, char* struct_name, BOOL operator_fun, int version, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -2769,6 +2777,7 @@ unsigned int sNodeTree_create_external_function(char* fun_name, sParserParam* pa
     gNodes[node].mMiddle = 0;
 
     xstrncpy(gNodes[node].uValue.sFunction.mName, fun_name, VAR_NAME_MAX);
+    xstrncpy(gNodes[node].uValue.sFunction.mAsmName, asm_fname, VAR_NAME_MAX);
 
     int i;
     for(i=0; i<num_params; i++) {
@@ -2806,6 +2815,9 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
         /// rename variables ///
         char fun_name[VAR_NAME_MAX];
         xstrncpy(fun_name, gNodes[node].uValue.sFunction.mName, VAR_NAME_MAX);
+
+        char asm_fun_name[VAR_NAME_MAX];
+        xstrncpy(asm_fun_name, gNodes[node].uValue.sFunction.mAsmName, VAR_NAME_MAX);
 
         int num_params = gNodes[node].uValue.sFunction.mNumParams;
         sParserParam params[PARAMS_MAX];
@@ -2850,7 +2862,7 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
 
         Function* fun;
         sFunction* neo_c_fun = NULL;
-        if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, TRUE, version, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
+        if(!add_function(fun_name, real_fun_name, asm_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, TRUE, version, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
         {
             return TRUE;
         }
@@ -2995,7 +3007,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     BOOL simple_lambda_param = TRUE;
     BOOL constructor_fun = FALSE;
     BOOL operator_fun = FALSE;
-    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, constructor_fun, simple_lambda_param, &info2, FALSE, FALSE, 0, FALSE, -1, fun_name);
+    *node = sNodeTree_create_function(fun_name, fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, constructor_fun, simple_lambda_param, &info2, FALSE, FALSE, 0, FALSE, -1, fun_name);
 
 
     return TRUE;
@@ -3199,6 +3211,10 @@ unsigned int sNodeTree_create_function_call(char* fun_name, unsigned int* params
         num_params++;
     }
 */
+    if(strcmp(fun_name, "__builtin___strcpy_chk") == 0) {
+        xstrncpy(fun_name, "strcpy", VAR_NAME_MAX);
+        num_params--;
+    }
 
     xstrncpy(gNodes[node].uValue.sFunctionCall.mName, fun_name, VAR_NAME_MAX);
     gNodes[node].uValue.sFunctionCall.mNumParams = num_params;
@@ -4361,7 +4377,7 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg, int version, BOOL finalize, int generics_fun_num, char* simple_fun_name)
+unsigned int sNodeTree_create_function(char* fun_name, char* asm_fname, sParserParam* params, int num_params, sNodeType* result_type, MANAGED struct sNodeBlockStruct* node_block, BOOL lambda, sVarTable* block_var_table, char* struct_name, BOOL operator_fun, BOOL constructor_fun, BOOL simple_lambda_param, sParserInfo* info, BOOL generics_function, BOOL var_arg, int version, BOOL finalize, int generics_fun_num, char* simple_fun_name)
 {
     unsigned int node = alloc_node();
 
@@ -4375,6 +4391,7 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
     gNodes[node].mMiddle = 0;
 
     xstrncpy(gNodes[node].uValue.sFunction.mName, fun_name, VAR_NAME_MAX);
+    xstrncpy(gNodes[node].uValue.sFunction.mAsmName, asm_fname, VAR_NAME_MAX);
     xstrncpy(gNodes[node].uValue.sFunction.mSimpleName, simple_fun_name, VAR_NAME_MAX);
 
     int i;
@@ -4422,6 +4439,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     BOOL generics_function = gNodes[node].uValue.sFunction.mGenericsFunction;
     char fun_name[VAR_NAME_MAX];
     xstrncpy(fun_name, gNodes[node].uValue.sFunction.mName, VAR_NAME_MAX);
+    char asm_fun_name[VAR_NAME_MAX];
+    xstrncpy(asm_fun_name, gNodes[node].uValue.sFunction.mAsmName, VAR_NAME_MAX);
     char simple_fun_name[VAR_NAME_MAX];
     xstrncpy(simple_fun_name, gNodes[node].uValue.sFunction.mSimpleName, VAR_NAME_MAX);
 
@@ -4521,7 +4540,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     Function* fun;
 
     sFunction* neo_c_fun = NULL;
-    if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, FALSE, version, &fun, info, FALSE, struct_name, generics_fun_num, simple_fun_name, &neo_c_fun))
+    if(!add_function(fun_name, real_fun_name, asm_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, FALSE, version, &fun, info, FALSE, struct_name, generics_fun_num, simple_fun_name, &neo_c_fun))
     {
         xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
         info->function_node_block = function_node_block;
@@ -4766,7 +4785,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         Function* fun;
         BOOL var_arg = FALSE;
         sFunction* neo_c_fun = NULL;
-        if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, info->pinfo->in_clang, FALSE, version, &fun, info, TRUE, NULL, -1, simple_fun_name, &neo_c_fun))
+        if(!add_function(fun_name, real_fun_name, asm_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, info->pinfo->in_clang, FALSE, version, &fun, info, TRUE, NULL, -1, simple_fun_name, &neo_c_fun))
         {
             xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
             info->function_node_block = function_node_block;
@@ -5083,7 +5102,7 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
     /// go ///
     Function* fun;
     sFunction* neo_c_fun = NULL;
-    if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, var_arg, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline, in_clang, FALSE, version, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
+    if(!add_function(fun_name, real_fun_name, "", param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, var_arg, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline, in_clang, FALSE, version, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
     {
         return TRUE;
     }
@@ -5201,7 +5220,7 @@ BOOL compile_inline_function(unsigned int node, sCompileInfo* info)
     /// go ///
     Function* fun;
     sFunction* neo_c_fun = NULL;
-    if(!add_function(fun_name, real_fun_name, param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, var_arg, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline, in_clang, FALSE, 0, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
+    if(!add_function(fun_name, real_fun_name, "", param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, var_arg, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline, in_clang, FALSE, 0, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
     {
         return TRUE;
     }
@@ -6747,14 +6766,18 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
             }
             else {
                 if(left_type->mPointerNum == 0) {
-#if LLVM_VERSION_MAJOR >= 7
+#ifdef __DARWIN__
+                    field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, parent_field_index);
+#elif LLVM_VERSION_MAJOR >= 7
                     field_address = Builder.CreateStructGEP(lvalue.address, parent_field_index);
 #else
                     field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.address, parent_field_index);
 #endif
                 }
                 else {
-#if LLVM_VERSION_MAJOR >= 7
+#ifdef __DARWIN__
+                    field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, parent_field_index);
+#elif LLVM_VERSION_MAJOR >= 7
                     field_address = Builder.CreateStructGEP(lvalue.value, parent_field_index);
 #else
                     field_address = Builder.CreateStructGEP(llvm_struct_type, lvalue.value, parent_field_index);
@@ -6782,6 +6805,11 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
             llvm_value.load_field = FALSE;
 
             if(field_type->mArrayNum > 0) {
+#ifdef __DARWIN__
+                Value* index = ConstantInt::get(TheContext, llvm::APInt(64, 0));
+                //Value* index2 = ConstantInt::get(TheContext, llvm::APInt(64, 0));
+                llvm_value.value = Builder.CreateGEP(llvm_value.value, index);
+#else
                 sNodeType* field_type2 = clone_node_type(field_type);
 
                 field_type2->mArrayNum = 0;
@@ -6791,6 +6819,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
                 {
                     return FALSE;
                 }
+#endif
             }
 
             dec_stack_ptr(1, info);
@@ -7919,7 +7948,7 @@ static BOOL compile_dereffernce(unsigned int node, sCompileInfo* info)
     sNodeType* derefference_type = clone_node_type(left_type);
 
     if(derefference_type->mPointerNum == 0) {
-        compile_err_msg(info, "This is not pointer type");
+        compile_err_msg(info, "This is not pointer type1(%s)", CLASS_NAME(derefference_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -11388,7 +11417,7 @@ static BOOL compile_store_address(unsigned int node, sCompileInfo* info)
     sNodeType* left_type = clone_node_type(info->type);
 
     if(left_type->mPointerNum == 0) {
-        compile_err_msg(info, "This is not pointer type");
+        compile_err_msg(info, "This is not pointer type2(%s)", CLASS_NAME(left_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -11460,7 +11489,7 @@ static BOOL compile_load_address_value(unsigned int node, sCompileInfo* info)
     sNodeType* left_type = clone_node_type(info->type);
 
     if(left_type->mPointerNum == 0) {
-        compile_err_msg(info, "This is not pointer type");
+        compile_err_msg(info, "This is not pointer type3(%s)", CLASS_NAME(left_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy

@@ -3829,16 +3829,6 @@ then
     CFLAGS="$CFLAGS -L /usr/local/lib"
 fi
 
-if test -d /opt/local/include
-then
-    CFLAGS="$CFLAGS -I/opt/local/include"
-fi
-
-if test -d /opt/local/lib
-then
-    CFLAGS="$CFLAGS -L /opt/local/lib"
-fi
-
 if test -d /usr/include/i386-linux-gnu/
 then
     CFLAGS="$CFLAGS -I /usr/include/i386-linux-gnu//"

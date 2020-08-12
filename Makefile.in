@@ -39,7 +39,7 @@ neo-c: config.h src/compiler.o $(COMMON_OBJS) $(OBJS) memalloc.o memalloc-stdc.o
 	$(CXX) -o neo-c src/compiler.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS)
 
 neo-c.o: neo-c.nc
-	PWD=`pwd` ./neo-c -c neo-c.nc
+	PWD=`pwd` ./neo-c -c neo-c.nc 
 
 memalloc.o: src/memalloc.c
 	$(CC) -c -o memalloc.o src/memalloc.c $(CFLAGS)
@@ -66,6 +66,7 @@ install:
 
 	mkdir -p $(DESTDIR)/include
 	$(INSTALL) -m 644 ./neo-c.h $(DESTDIR)/include
+	$(INSTALL) -m 644 ./pre-neo-c.h $(DESTDIR)/include
 
 #	mkdir -p $(DESTDIR)/share/man/man1
 #	$(INSTALL) ./man/neo-c.1.gz $(DESTDIR)/share/man/man1
@@ -107,7 +108,7 @@ test:
 	PWD=`pwd` ./neo-c -c code/External.nc
 	PWD=`pwd` ./neo-c code/HelloWorld.nc code/External.o
 	./code/HelloWorld
-	PWD=`pwd` ./neo-c code/HelloWorld2.nc -lncursesw
+	if test `uname -s` = "Darwin"; then PWD=`pwd` ./neo-c code/HelloWorld2.nc -lncurses; else PWD=`pwd` ./neo-c code/HelloWorld2.nc -lncursesw; fi
 	./code/HelloWorld2
 	PWD=`pwd` ./neo-c code/HelloWorld3.nc
 	./code/HelloWorld3
@@ -159,6 +160,7 @@ uninstall:
 	rm -f "$(DESTDIR)"/bin/neo-c
 	rm -rf "$(DESTDIR)"/share/doc/neo-c/
 	rm -f "$(DESTDIR)"/include/neo-c.h
+	rm -f "$(DESTDIR)"/include/pre-neo-c.h
 	rm -f "$(DESTDIR)"/share/man/man1/neo-c.1.gz
 	rm -f "$(DESTDIR)/lib/memalloc-stdc.o"
 	rm -f "$(DESTDIR)/lib/neo-c.o"

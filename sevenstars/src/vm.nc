@@ -3,6 +3,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+int gSigInt;
+
 void vm_err_msg(CLVALUE** stack_ptr, sVMInfo* info, char* msg)
 {
     char buf[128];
@@ -323,7 +325,7 @@ bool invoke_command_with_control_terminal(char* name, char** argv, int num_param
         (*stack_ptr)++;
     }
     else if(WIFSIGNALED(status)) {
-        gSigInt = true;
+        gSigInt = 1;
 
         setpgid(getpid(), getpid());
         tcsetpgrp(0, getpid());
@@ -436,7 +438,7 @@ bool invoke_command(char* name, char** argv, CLVALUE** stack_ptr, int num_params
     (*stack_ptr)++;
 
     if(WIFSIGNALED(status)) {
-        gSigInt = true;
+        gSigInt = 1;
     }
 
     return true;
@@ -537,7 +539,7 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
         (*stack_ptr)++;
     }
     else if(WIFSIGNALED(status)) {
-        gSigInt = true;
+        gSigInt = 1;
 
         setpgid(getpid(), getpid());
         tcsetpgrp(0, getpid());
@@ -656,7 +658,7 @@ bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVA
     (*stack_ptr)++;
 
     if(WIFSIGNALED(status)) {
-        gSigInt = true;
+        gSigInt = 1;
     }
 
     return true;
@@ -726,8 +728,6 @@ bool invoke_block(int block_object, int result_existance, int num_params, CLVALU
     return true;
 }
 
-bool gSigInt;
-
 bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, CLVALUE* result, sVMInfo* info)
 {
     sCLStackFrame null_parent_stack_frame;
@@ -757,7 +757,7 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
         p++;
         
         if(gSigInt) {
-            gSigInt = false;
+            gSigInt = 0;
             vm_err_msg(&stack_ptr, info, "signal interrupt\n");
             info.stack_frames.pop_back(null_parent_stack_frame);
             return false;
@@ -910,7 +910,7 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                 sCLType* type = parse_type_runtime(type_name, info.cinfo.pinfo, info.cinfo.pinfo.types);
 
                 if(type == null) {
-                    vm_err_msg(&stack_ptr, info, xsprintf("class not found(%s)\n", type_name));
+                    vm_err_msg(&stack_ptr, info, xsprintf("class not found on OP_CREATE_OBJECT (%s)\n", type_name));
                     info.stack_frames.pop_back(null_parent_stack_frame);
                     return false;
                 }
@@ -1346,6 +1346,8 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
 
             case OP_INVOKE_METHOD: { 
                 char* method_name = (char*)p;
+//puts(method_name);
+//print_stack(stack, stack_ptr, var_num);
 
                 int len = strlen(method_name) + 1;
 
@@ -1374,7 +1376,7 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
 
                 sCLClass* klass = object_data->mType->mClass;
                 if(klass == null) {
-                    vm_err_msg(&stack_ptr, info, xsprintf("class not found(%s)\n", klass->mName));
+                    vm_err_msg(&stack_ptr, info, xsprintf("class not found on OP_INVOKE_METHOD(%s)\n", klass->mName));
                     info.stack_frames.pop_back(null_parent_stack_frame);
                     return false;
                 }
@@ -1412,7 +1414,7 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
                         sCLType* string_type = create_type("string", info.cinfo.pinfo.types);
                         if(!substitution_posibility(string_type, object_data->mType))
                         {
-                            vm_err_msg(&stack_ptr, info, "type error command parametor");
+                            vm_err_msg(&stack_ptr, info, xsprintf("type error command parametor. invalid class(%s). method name (%s)\n", object_data->mType->mClass->mName, method_name));
                             info.stack_frames.pop_back(null_parent_stack_frame);
                             return false;
                         }

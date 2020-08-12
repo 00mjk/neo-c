@@ -132,8 +132,14 @@ fi
 
 AC_CHECK_HEADER(pcre.h, [AC_DEFINE(HAVE_PCRE_H,1)], [])
 AC_HAVE_LIBRARY(pcre, [ LIBS="$LIBS -lpcre"; ], [ eixt ])
-AC_CHECK_HEADER(ncurses.h, [AC_DEFINE(HAVE_NCURSESW_H, 1)], [])
-AC_HAVE_LIBRARY(ncursesw, [ LIBS="$LIBS -lncursesw"; ], [])
+
+if test `uname -s` = "Darwin"; then
+    AC_CHECK_HEADER(ncurses.h, [AC_DEFINE(HAVE_NCURSESW_H, 1)], [])
+    AC_HAVE_LIBRARY(ncurses, [ LIBS="$LIBS -lncurses"; ], [])
+else
+    AC_CHECK_HEADER(ncurses.h, [AC_DEFINE(HAVE_NCURSESW_H, 1)], [])
+    AC_HAVE_LIBRARY(ncursesw, [ LIBS="$LIBS -lncursesw"; ], [])
+fi
 AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [])
 AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [])
 

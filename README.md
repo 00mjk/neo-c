@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.3.3
+version 1.3.5
 
 ```
 #include <stdio.h>
@@ -62,6 +62,8 @@ This program is tested in LLVM-3.8 and LLVM-7, and x86_64 on Debian, Raspberry P
 x86_64のDebianとRaspberry PI 3B+でテストしています。
 
 # CHANGELOG
+
+1.3.5 Mac OS has been corresponded. More gets compatibility for C-Language.
 
 1.3.2 Raspberry PI 3 1G has been corresponded(32 bit armhf is OK). 
 

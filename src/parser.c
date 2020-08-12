@@ -486,8 +486,10 @@ static void create_anoymous_struct_name(char* struct_name, int size_struct_name)
 
 static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_pointer_name, BOOL definition_llvm_type, BOOL definition_typedef, BOOL parse_only, BOOL* define_struct_only);
 
-static BOOL parse_attribute(sParserInfo* info)
+static BOOL parse_attribute(sParserInfo* info, char* asm_fname)
 {
+    asm_fname[0] = '\0';
+
     while(TRUE) {
         if(parse_cmp(info->p, "__attribute_pure__") == 0) {
             info->p += 18;
@@ -506,41 +508,125 @@ static BOOL parse_attribute(sParserInfo* info)
             skip_spaces_and_lf(info);
 
             int brace_num = 0;
-            while(*info->p == '(') {
-                info->p ++;
-                skip_spaces_and_lf(info);
-                brace_num++;
+            while(*info->p) {
+                if(*info->p == '(') {
+                    info->p++;
+                    brace_num++;
+                }
+                else if(*info->p == ')') {
+                    info->p++;
+                    brace_num--;
+
+                    if(brace_num == 0) {
+                        break;
+                    }
+                }
+                else {
+                    info->p++;
+                }
             }
 
-            while(*info->p != ')') {
-                info->p++;
-            }
-
-            while(*info->p == ')') {
-                info->p ++;
-                skip_spaces_and_lf(info);
-            }
+            skip_spaces_and_lf(info);
         }
         else if(parse_cmp(info->p, "__asm__") == 0) {
             info->p += 7;
             skip_spaces_and_lf(info);
 
             int brace_num = 0;
-            while(*info->p == '(') {
-                info->p ++;
-                skip_spaces_and_lf(info);
-                brace_num++;
+            while(*info->p) {
+                if(*info->p == '(') {
+                    info->p++;
+                    brace_num++;
+                }
+                else if(*info->p == ')') {
+                    info->p++;
+                    brace_num--;
+
+                    if(brace_num == 0) {
+                        break;
+                    }
+                }
+                else {
+                    info->p++;
+                }
             }
 
-            while(*info->p != ')') {
+            skip_spaces_and_lf(info);
+        }
+#ifdef __DARWIN__
+        else if(parse_cmp(info->p, "__asm") == 0) {
+            info->p += 5;
+            skip_spaces_and_lf(info);
+            int len = 0;
+            asm_fname[len] = '\0';
+
+            if(*info->p == '(') {
                 info->p++;
+                skip_spaces_and_lf(info);
             }
 
-            while(*info->p == ')') {
-                info->p ++;
-                skip_spaces_and_lf(info);
+            BOOL in_dquort = FALSE;
+            BOOL first_underbar = TRUE;
+            while(*info->p) {
+                if(*info->p == '"') {
+                    info->p++;
+
+                    in_dquort = !in_dquort;
+                }
+                else if(in_dquort) {
+                    if(first_underbar) {
+                        info->p++;
+/*
+                        asm_fname[len++] = '\\';
+                        asm_fname[len++] = '0';
+                        asm_fname[len++] = '1';
+                        asm_fname[len++] = '_';
+                        asm_fname[len] = '\0';
+*/
+                        first_underbar = FALSE;
+                    }
+                    else {
+                        asm_fname[len++] = *info->p++;
+                        asm_fname[len] = '\0';
+                    }
+                }
+                else if(*info->p == ')') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+                else {
+                    info->p++;
+                }
             }
         }
+#else
+        else if(parse_cmp(info->p, "__asm") == 0) {
+            info->p += 5;
+            skip_spaces_and_lf(info);
+
+            int brace_num = 0;
+            while(*info->p) {
+                if(*info->p == '(') {
+                    info->p++;
+                    brace_num++;
+                }
+                else if(*info->p == ')') {
+                    info->p++;
+                    brace_num--;
+
+                    if(brace_num == 0) {
+                        break;
+                    }
+                }
+                else {
+                    info->p++;
+                }
+            }
+
+            skip_spaces_and_lf(info);
+        }
+#endif
         else {
             break;
         }
@@ -600,6 +686,9 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
     }
 
     if(*info->p == '[') {
+        buf[0] = '\0';
+    }
+    else if(*info->p == ':') {
         buf[0] = '\0';
     }
     else {
@@ -726,7 +815,8 @@ static BOOL parse_variable_name(char* buf, int buf_size, sParserInfo* info, sNod
         node_type->mSizeNum = n;
     }
 
-    if(!parse_attribute(info)) {
+    char asm_fname[VAR_NAME_MAX];
+    if(!parse_attribute(info, asm_fname)) {
         return FALSE;
     }
 
@@ -939,11 +1029,19 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
                     return FALSE;
                 }
             }
+            char asm_fname[VAR_NAME_MAX];
+            if(!parse_attribute(info, asm_fname)) {
+                return FALSE;
+            }
 
             sNodeType* field = NULL;
             char buf[VAR_NAME_MAX];
             BOOL define_struct_only = FALSE;
             if(!parse_type(&field, info, buf, FALSE, FALSE, FALSE, &define_struct_only)) {
+                return FALSE;
+            }
+
+            if(!parse_attribute(info, asm_fname)) {
                 return FALSE;
             }
 
@@ -963,6 +1061,10 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
                 {
                     return FALSE;
                 }
+            }
+
+            if(!parse_attribute(info, asm_fname)) {
+                return FALSE;
             }
 
             xstrncpy(field_names[num_fields], buf, VAR_NAME_MAX);
@@ -1005,6 +1107,10 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
                         return FALSE;
                     }
                 }
+            }
+
+            if(!parse_attribute(info, asm_fname)) {
+                return FALSE;
             }
 
             if(*info->p == ';') {
@@ -1162,6 +1268,10 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
                     return FALSE;
                 }
             }
+            char asm_fname[VAR_NAME_MAX];
+            if(!parse_attribute(info, asm_fname)) {
+                return FALSE;
+            }
 
             sNodeType* field = NULL;
             char buf[VAR_NAME_MAX];
@@ -1171,6 +1281,10 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
             }
 
             fields[num_fields] = field;
+
+            if(!parse_attribute(info, asm_fname)) {
+                return FALSE;
+            }
 
             if(field->mClass->mFlags & CLASS_FLAGS_ANONYMOUS_VAR_NAME)
             {
@@ -1186,6 +1300,10 @@ static BOOL parse_union(unsigned int* node, char* union_name, int size_union_nam
             xstrncpy(field_names[num_fields], buf, VAR_NAME_MAX);
 
             num_fields++;
+
+            if(!parse_attribute(info, asm_fname)) {
+                return FALSE;
+            }
 
             if(num_fields >= STRUCT_FIELD_MAX) {
                 parser_err_msg(info, "overflow struct field");
@@ -1258,11 +1376,21 @@ static BOOL parse_anonymous_enum(unsigned int* node, sParserInfo* info)
     int value = 0;
 
     while(TRUE) {
+        char asm_fname[VAR_NAME_MAX];
+        if(!parse_attribute(info, asm_fname)) {
+            return FALSE;
+        }
+
         char var_name[VAR_NAME_MAX];
         if(!parse_word(var_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
         {
             return FALSE;
         }
+
+        if(!parse_attribute(info, asm_fname)) {
+            return FALSE;
+        }
+
 
         if(*info->p == '=') {
             info->p++;
@@ -1344,11 +1472,20 @@ BOOL parse_enum(unsigned int* node, char* name, sParserInfo* info)
     int value = 0;
 
     while(TRUE) {
+        char asm_fname[VAR_NAME_MAX];
+        if(!parse_attribute(info, asm_fname)) {
+            return FALSE;
+        }
+
         char var_name[VAR_NAME_MAX];
         if(!parse_word(var_name, VAR_NAME_MAX, info, TRUE, FALSE)) 
         {
             return FALSE;
         }
+        if(!parse_attribute(info, asm_fname)) {
+            return FALSE;
+        }
+
 
         if(*info->p == '=') {
             info->p++;
@@ -1460,7 +1597,7 @@ static BOOL is_type_name(char* buf, sParserInfo* info)
         return FALSE;
     }
 
-    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "signed") == 0) ||(strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0 || (strcmp(buf, "__extension__") == 0 && *info->p != '(')|| strcmp(buf, "typeof") == 0|| strcmp(buf, "_Noreturn") == 0 || strcmp(buf, "_Alignas") == 0;
+    return klass || node_type || generics_type_name || method_type_name || strcmp(buf, "const") == 0 || strcmp(buf, "static") == 0|| (strcmp(buf, "struct") == 0 && *info->p == '{') || (strcmp(buf, "struct") == 0) || (strcmp(buf, "union") == 0) || (strcmp(buf, "union") == 0 && *info->p == '{') || (strcmp(buf, "unsigned") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "__signed") == 0) ||(strcmp(buf, "shrot") == 0) || (strcmp(buf, "long") == 0) || (strcmp(buf, "signed") == 0) || (strcmp(buf, "register") == 0) || (strcmp(buf, "volatile") == 0) || strcmp(buf, "enum") == 0 || strcmp(buf, "__signed__") == 0 || (strcmp(buf, "__extension__") == 0 && *info->p != '(')|| strcmp(buf, "typeof") == 0|| strcmp(buf, "_Noreturn") == 0 || strcmp(buf, "_Alignas") == 0;
 }
 
 static BOOL is_premitive_type(char* buf, sParserInfo* info)
@@ -1541,7 +1678,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         else if(strcmp(type_name, "unsigned") == 0) {
             unsigned_ = TRUE;
         }
-        else if(strcmp(type_name, "signed") == 0 || strcmp(type_name, "__signed__") == 0) {
+        else if(strcmp(type_name, "signed") == 0 || strcmp(type_name, "__signed__") == 0 || strcmp(type_name, "__signed") == 0) {
             unsigned_ = FALSE;
             signed_ = TRUE;
         }
@@ -1983,6 +2120,26 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                 skip_spaces_and_lf(info);
             }
 
+            if(*info->p == '^') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+
+            if(parse_cmp(info->p, "_Nullable") == 0) {
+                char buf[VAR_NAME_MAX];
+                if(!parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE))
+                {
+                    return FALSE;
+                }
+            }
+            if(parse_cmp(info->p, "_Nonnull") == 0) {
+                char buf[VAR_NAME_MAX];
+                if(!parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE))
+                {
+                    return FALSE;
+                }
+            }
+
             if(*info->p == ')') {
                 xstrncpy(func_pointer_name, "fun", VAR_NAME_MAX);
             }
@@ -2077,6 +2234,115 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             }
         }
     }
+    else {
+        char* p = info->p;
+        int sline = info->sline;
+
+        if(*info->p == '(') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(*info->p == '*') {
+                info->p++;
+                skip_spaces_and_lf(info);
+
+                if(*info->p == ')') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+
+                    if(*info->p == '(') {
+                        sNodeType* node_type = clone_node_type(*result_type);
+
+                        *result_type = create_node_type_with_class_name("lambda");
+                        (*result_type)->mResultType = node_type;
+                        pointer_num++;
+
+                        if(*info->p == '(') {
+                            info->p++;
+                            skip_spaces_and_lf(info);
+
+                            if(parse_cmp(info->p, "void") == 0) {
+                                char* p_before = info->p;
+                                int sline_before = info->sline;
+
+                                char buf[VAR_NAME_MAX];
+                                if(!parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE))
+                                {
+                                    return FALSE;
+                                }
+
+                                if(*info->p == ')') {
+                                }
+                                else {
+                                    info->p = p_before;
+                                    info->sline = sline_before;
+                                }
+                            }
+
+                            if(*info->p == ')') {
+                                info->p++;
+                                skip_spaces_and_lf(info);
+                            }
+                            else {
+                                while(1) {
+                                    sNodeType* node_type = NULL;
+                                    BOOL define_struct_only = FALSE;
+                                    if(!parse_type(&node_type, info, NULL, FALSE, FALSE, parse_only, &define_struct_only)) {
+                                        return FALSE;
+                                    }
+
+                                    (*result_type)->mParamTypes[(*result_type)->mNumParams] = node_type;
+
+                                    (*result_type)->mNumParams++;
+
+                                    if((*result_type)->mNumParams >= PARAMS_MAX) {
+                                        parser_err_msg(info, "oveflow type params");
+                                        return FALSE;
+                                    }
+
+                                    if(isalpha(*info->p) || *info->p == '_') {
+                                        char buf[VAR_NAME_MAX];
+
+                                        (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
+                                    }
+
+                                    if(*info->p == ')') {
+                                        info->p++;
+                                        skip_spaces_and_lf(info);
+                                        break;
+                                    }
+                                    else if(*info->p == ',') {
+                                        info->p++;
+                                        skip_spaces_and_lf(info);
+                                    }
+                                    else {
+                                        parser_err_msg(info, "invalid character in lambda type name(%c)", *info->p);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        info->p = p;
+                        info->sline = sline;
+                    }
+                }
+                else {
+                    info->p = p;
+                    info->sline = sline;
+                }
+            }
+            else {
+                info->p = p;
+                info->sline = sline;
+            }
+        }
+        else {
+            info->p = p;
+            info->sline = sline;
+        }
+    }
 
     /// generics ///
     if(*info->p == '<' && *(info->p+1) != '<' && *(info->p+1) != '=') 
@@ -2128,7 +2394,7 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
 
         char buf[VAR_NAME_MAX];
         (void)parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
-        if(strcmp(buf, "__restrict") == 0)
+        if(strcmp(buf, "__restrict") == 0 || strcmp(buf, "restrict") == 0)
         {
         }
         else if(strcmp(buf, "const") == 0)
@@ -2214,9 +2480,24 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
         (*result_type)->mTypePointerNum = parser_pointer_num;
     }
 
-    if(*info->p == '(' && *(info->p+1) == '*' && func_pointer_name) {
+    if(((*info->p == '(' && *(info->p+1) == '*') || (*info->p == '(' && *(info->p+1) == '^')) && func_pointer_name) {
         info->p += 2;
         skip_spaces_and_lf(info);
+
+        if(parse_cmp(info->p, "_Nullable") == 0) {
+            char buf[VAR_NAME_MAX];
+            if(!parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE))
+            {
+                return FALSE;
+            }
+        }
+        if(parse_cmp(info->p, "_Nonnull") == 0) {
+            char buf[VAR_NAME_MAX];
+            if(!parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE))
+            {
+                return FALSE;
+            }
+        }
         char* before_fun = info->p;
         int before_fun_sline = info->sline;
 
@@ -2919,7 +3200,7 @@ static BOOL parse_variable(unsigned int* node, sNodeType* result_type, char* nam
     else {
         if(*info->p != ',' && *info->p != ';' && isascii(*info->p)) 
         {
-            parser_err_msg(info, "Require right value for , or ;");
+            parser_err_msg(info, "Require right value for , or ;. This is %c", *info->p);
             info->err_num++;
 
             *node = 0;
@@ -3207,7 +3488,8 @@ static BOOL parse_generics_function(unsigned int* node, sNodeType* result_type, 
         }
     }
 
-    if(!parse_attribute(info)) {
+    char asm_fname[VAR_NAME_MAX];
+    if(!parse_attribute(info, asm_fname)) {
         return FALSE;
     }
 
@@ -3341,7 +3623,8 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
         }
     }
 
-    if(!parse_attribute(info)) {
+    char asm_fname[VAR_NAME_MAX];
+    if(!parse_attribute(info, asm_fname)) {
         return FALSE;
     }
 
@@ -3432,8 +3715,6 @@ BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun_name, 
         }
     }
 
-    xstrncpy(info->fun_name, fun_name, VAR_NAME_MAX);
-
     expect_next_character_with_one_forward("(", info);
 
     /// params ///
@@ -3448,9 +3729,12 @@ BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun_name, 
         return FALSE;
     }
 
-    if(!parse_attribute(info)) {
+    char asm_fname[VAR_NAME_MAX];
+    if(!parse_attribute(info, asm_fname)) {
         return FALSE;
     }
+
+    xstrncpy(info->fun_name, fun_name, VAR_NAME_MAX);
 
     int version = info->mImplVersion;
     parse_version(&version, info);
@@ -3488,7 +3772,7 @@ BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun_name, 
         info->p++;
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, version, info);
+        *node = sNodeTree_create_external_function(fun_name, asm_fname, params, num_params, var_arg, result_type, struct_name, operator_fun, version, info);
     }
     else {
         if(info->parse_struct_phase) {
@@ -3540,7 +3824,7 @@ BOOL parse_function(unsigned int* node, sNodeType* result_type, char* fun_name, 
             BOOL simple_lambda_param = FALSE;
             BOOL construct_fun = FALSE;
 
-            *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, FALSE, var_arg, version, FALSE, -1, fun_name);
+            *node = sNodeTree_create_function(fun_name, asm_fname, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, FALSE, var_arg, version, FALSE, -1, fun_name);
         }
     }
 
@@ -3597,7 +3881,8 @@ static BOOL parse_inline_function(unsigned int* node, char* struct_name, sParser
         }
     }
 
-    if(!parse_attribute(info)) {
+    char asm_fname[VAR_NAME_MAX];
+    if(!parse_attribute(info, asm_fname)) {
         return FALSE;
     }
 
@@ -3648,7 +3933,7 @@ static BOOL parse_inline_function(unsigned int* node, char* struct_name, sParser
         }
     }
 
-    if(!parse_attribute(info)) {
+    if(!parse_attribute(info, asm_fname)) {
         return FALSE;
     }
 
@@ -3748,7 +4033,8 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
         }
     }
 
-    if(!parse_attribute(info)) {
+    char asm_fname[VAR_NAME_MAX];
+    if(!parse_attribute(info, asm_fname)) {
         return FALSE;
     }
 
@@ -3792,7 +4078,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
             info->p++;
             skip_spaces_and_lf(info);
 
-            *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, version, info);
+            *node = sNodeTree_create_external_function(fun_name, "", params, num_params, var_arg, result_type, struct_name, operator_fun, version, info);
         }
         else {
             if(info->parse_struct_phase) {
@@ -3855,7 +4141,7 @@ static BOOL parse_constructor(unsigned int* node, char* struct_name, sParserInfo
 
                 BOOL generics_function = info->mNumGenerics > 0;
 
-                *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE, version, FALSE, -1, fun_name);
+                *node = sNodeTree_create_function(fun_name, "", params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE, version, FALSE, -1, fun_name);
             }
         }
     }
@@ -3935,7 +4221,8 @@ BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info, 
         }
     }
 
-    if(!parse_attribute(info)) {
+    char asm_fname[VAR_NAME_MAX];
+    if(!parse_attribute(info, asm_fname)) {
         return FALSE;
     }
 
@@ -3985,7 +4272,7 @@ BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info, 
             info->p++;
             skip_spaces_and_lf(info);
 
-            *node = sNodeTree_create_external_function(fun_name, params, num_params, var_arg, result_type, struct_name, operator_fun, version, info);
+            *node = sNodeTree_create_external_function(fun_name, "", params, num_params, var_arg, result_type, struct_name, operator_fun, version, info);
         }
         else {
             if(info->parse_struct_phase) {
@@ -4054,7 +4341,7 @@ BOOL parse_destructor(unsigned int* node, char* struct_name, sParserInfo* info, 
 
                 BOOL generics_function = info->mNumGenerics > 0;
 
-                *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE, version, TRUE, -1, fun_name);
+                *node = sNodeTree_create_function(fun_name, "", params, num_params, result_type, MANAGED node_block, lambda, block_var_table, struct_name, operator_fun, construct_fun, simple_lambda_param, info, generics_function, FALSE, version, TRUE, -1, fun_name);
             }
         }
     }
@@ -4398,7 +4685,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                             *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
                             *node = sNodeTree_create_add(*node, right_node, 0, info);
                         }
-                        else if(*info->p == '+' && *(info->p+1) == '=')
+                        else if(enable_assginment && *info->p == '+' && *(info->p+1) == '=')
                         {
                             info->p+=2;
                             skip_spaces_and_lf(info);
@@ -4418,7 +4705,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                             *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
                             *node = sNodeTree_create_sub(*node, right_node, 0, info);
                         }
-                        else if(*info->p == '-' && *(info->p+1) == '=')
+                        else if(enable_assginment && *info->p == '-' && *(info->p+1) == '=')
                         {
                             info->p+=2;
                             skip_spaces_and_lf(info);
@@ -4438,7 +4725,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                             *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
                             *node = sNodeTree_create_add(*node, right_node, 0, info);
                         }
-                        else if(*info->p == '*' && *(info->p+1) == '=')
+                        else if(enable_assginment && *info->p == '*' && *(info->p+1) == '=')
                         {
                             info->p+=2;
                             skip_spaces_and_lf(info);
@@ -4457,7 +4744,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                             *node = sNodeTree_create_mult(field_node, right_node, 0, info);
                             *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
                         }
-                        else if(*info->p == '/' && *(info->p+1) == '=')
+                        else if(enable_assginment && *info->p == '/' && *(info->p+1) == '=')
                         {
                             info->p+=2;
                             skip_spaces_and_lf(info);
@@ -4476,7 +4763,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                             *node = sNodeTree_create_div(field_node, right_node, 0, info);
                             *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
                         }
-                        else if(*info->p == '%' && *(info->p+1) == '=')
+                        else if(enable_assginment && *info->p == '%' && *(info->p+1) == '=')
                         {
                             info->p+=2;
                             skip_spaces_and_lf(info);
@@ -4495,7 +4782,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                             *node = sNodeTree_create_mod(field_node, right_node, 0, info);
                             *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
                         }
-                        else if(*info->p == '<' && *(info->p+1) == '<' && *(info->p+2) == '=')
+                        else if(enable_assginment && *info->p == '<' && *(info->p+1) == '<' && *(info->p+2) == '=')
                         {
                             info->p+=3;
                             skip_spaces_and_lf(info);
@@ -4514,7 +4801,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                             *node = sNodeTree_create_left_shift(field_node, right_node, 0, info);
                             *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
                         }
-                        else if(*info->p == '>' && *(info->p+1) == '>' && *(info->p+2) == '=')
+                        else if(enable_assginment && *info->p == '>' && *(info->p+1) == '>' && *(info->p+2) == '=')
                         {
                             info->p+=3;
                             skip_spaces_and_lf(info);
@@ -4533,7 +4820,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                             *node = sNodeTree_create_right_shift(field_node, right_node, 0, info);
                             *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
                         }
-                        else if(*info->p == '&' && *(info->p+1) == '=')
+                        else if(enable_assginment && *info->p == '&' && *(info->p+1) == '=')
                         {
                             info->p+=2;
                             skip_spaces_and_lf(info);
@@ -4552,7 +4839,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                             *node = sNodeTree_create_and(field_node, right_node, 0, info);
                             *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
                         }
-                        else if(*info->p == '^' && *(info->p+1) == '=')
+                        else if(enable_assginment && *info->p == '^' && *(info->p+1) == '=')
                         {
                             info->p+=2;
                             skip_spaces_and_lf(info);
@@ -4571,7 +4858,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
                             *node = sNodeTree_create_xor(field_node, right_node, 0, info);
                             *node = sNodeTree_create_store_field(var_name, obj_node, *node, info);
                         }
-                        else if(*info->p == '|' && *(info->p+1) == '=')
+                        else if(enable_assginment && *info->p == '|' && *(info->p+1) == '=')
                         {
                             info->p+=2;
                             skip_spaces_and_lf(info);
@@ -4640,7 +4927,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
             else {
                 expect_next_character_with_one_forward("]", info);
 
-                if(*info->p == '=' && *(info->p+1) != '=') {
+                if(enable_assginment && *info->p == '=' && *(info->p+1) != '=') {
                     info->p++;
                     skip_spaces_and_lf(info);
 
@@ -4679,7 +4966,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
 
             *node = sNodeTree_create_minus_minus(*node, info);
         }
-        else if(*info->p == '+' && *(info->p+1) == '=')
+        else if(enable_assginment && *info->p == '+' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
@@ -4691,7 +4978,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
 
             *node  = sNodeTree_create_equal_plus(*node, right_node, info);
         }
-        else if(*info->p == '-' && *(info->p+1) == '=')
+        else if(enable_assginment && *info->p == '-' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
@@ -4703,7 +4990,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
 
             *node = sNodeTree_create_equal_minus(*node, right_node, info);
         }
-        else if(*info->p == '*' && *(info->p+1) == '=')
+        else if(enable_assginment && *info->p == '*' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
@@ -4715,7 +5002,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
 
             *node  = sNodeTree_create_equal_mult(*node, right_node, info);
         }
-        else if(*info->p == '/' && *(info->p+1) == '=')
+        else if(enable_assginment && *info->p == '/' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
@@ -4727,7 +5014,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
 
             *node  = sNodeTree_create_equal_div(*node, right_node, info);
         }
-        else if(*info->p == '%' && *(info->p+1) == '=')
+        else if(enable_assginment && *info->p == '%' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
@@ -4739,7 +5026,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
 
             *node  = sNodeTree_create_equal_mod(*node, right_node, info);
         }
-        else if(*info->p == '<' && *(info->p+1) == '<' && *(info->p+2) == '=')
+        else if(enable_assginment && *info->p == '<' && *(info->p+1) == '<' && *(info->p+2) == '=')
         {
             info->p+=3;
             skip_spaces_and_lf(info);
@@ -4751,7 +5038,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
 
             *node  = sNodeTree_create_equal_lshift(*node, right_node, info);
         }
-        else if(*info->p == '>' && *(info->p+1) == '>' && *(info->p+2) == '=')
+        else if(enable_assginment && *info->p == '>' && *(info->p+1) == '>' && *(info->p+2) == '=')
         {
             info->p+=3;
             skip_spaces_and_lf(info);
@@ -4763,7 +5050,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
 
             *node = sNodeTree_create_equal_rshift(*node, right_node, info);
         }
-        else if(*info->p == '&' && *(info->p+1) == '=')
+        else if(enable_assginment && *info->p == '&' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
@@ -4775,7 +5062,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
 
             *node = sNodeTree_create_equal_and(*node, right_node, info);
         }
-        else if(*info->p == '^' && *(info->p+1) == '=')
+        else if(enable_assginment && *info->p == '^' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
@@ -4787,7 +5074,7 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
 
             *node = sNodeTree_create_equal_xor(*node, right_node, info);
         }
-        else if(*info->p == '|' && *(info->p+1) == '=')
+        else if(enable_assginment && *info->p == '|' && *(info->p+1) == '=')
         {
             info->p+=2;
             skip_spaces_and_lf(info);
@@ -4802,6 +5089,10 @@ static BOOL postposition_operator(unsigned int* node, BOOL enable_assginment, sP
         else {
             break;
         }
+    }
+
+    if(!parse_sharp(info)) {
+        return FALSE;
     }
 
     return TRUE;
@@ -5049,7 +5340,7 @@ static BOOL parse_lambda(unsigned int* node, sParserInfo* info)
         BOOL construct_fun = FALSE;
         BOOL operator_fun = FALSE;
 
-        *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, construct_fun, simple_lambda_param, info, FALSE, FALSE, 0, FALSE, -1, fun_name);
+        *node = sNodeTree_create_function(fun_name, "", params, num_params, result_type, MANAGED node_block, lambda, block_var_table, NULL, operator_fun, construct_fun, simple_lambda_param, info, FALSE, FALSE, 0, FALSE, -1, fun_name);
     }
 
     return TRUE;
@@ -8022,6 +8313,10 @@ BOOL expression(unsigned int* node, sParserInfo* info)
         else {
             break;
         }
+    }
+    char asm_fname[VAR_NAME_MAX];
+    if(!parse_attribute(info, asm_fname)) {
+        return FALSE;
     }
     
     if(!expression_comma_operator(node, info)) {

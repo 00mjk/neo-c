@@ -356,9 +356,13 @@ catch {
     echo(it);
 }
 
-var li9 = "aaa,bbb,ccc,ddd".to_command().sed("-e", "s/,/\\n/g").to_list().map() { it.to_command().perl("-pe", "$_ = uc($_)").to_string() }
-
-xassert("command to_list", li9.item(0, null) == "AAA" && li9.item(1, null) == "BBB" && li9.item(2,null) == "CCC" && li9.item(3, null) == "DDD");
+#var li9 = "aaa,bbb,ccc,ddd".to_command().sed("-e", "s/,/\\n/g").to_list().map() { it.to_command().perl("-pe", "$_ = uc($_)").to_string() }
+#
+#li9.each() {
+#    echo(it);
+#}
+#
+#xassert("command to_list", li9.item(0, null) == "AAA" && li9.item(1, null) == "BBB" && li9.item(2,null) == "CCC" && li9.item(3, null) == "DDD");
 
 
 class TestObject {

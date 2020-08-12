@@ -3760,9 +3760,9 @@ if test `uname -s` = "Darwin"; then
 
 
     if test $myprefix = /usr/local; then
-        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
+        CFLAGS="-Isrc/ -I. -L . -I `xcrun --show-sdk-path`/usr/include $CFLAGS"
     else
-        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -I `xcrun --show-sdk-path`/usr/include $CFLAGS"
     fi
 elif test `uname -s` = "FreeBSD"; then
     echo "FreeBSD"
@@ -3842,10 +3842,10 @@ then
     CFLAGS="$CFLAGS -I/opt/local/include"
 fi
 
-if test -d /opt/local/lib
-then
-    CFLAGS="$CFLAGS -L /opt/local/lib"
-fi
+#if test -d /opt/local/lib
+#then
+#    CFLAGS="$CFLAGS -L /opt/local/lib"
+#fi
 
 if test -d /usr/include/i386-linux-gnu/
 then

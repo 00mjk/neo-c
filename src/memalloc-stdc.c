@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include "config.h"
 
 int gNCDebugHeap = 0;
 
@@ -25,6 +26,18 @@ struct sHeapDebug* gHeapDebugs = NULL;
 int gNumHeapDebugs = 0;
 int gSizeHeapDebugs = 0;
 
+char* mystrncpy(char* des, char* src, int size)
+{
+    char* result;
+
+    result = strncpy(des, src, size-1);
+    des[size-1] = 0;
+
+    return result;
+}
+
+extern void *xxxrealloc(void *block, long long size);
+
 static void append_debug_heap_memory(void* mem, char* type_name, char* sname, int sline, int calloc_num, long long calloc_size, char* fun_name, char* real_fun_name)
 {
     if(gHeapDebugs == NULL) {
@@ -37,21 +50,21 @@ static void append_debug_heap_memory(void* mem, char* type_name, char* sname, in
     if(gNumHeapDebugs >= gSizeHeapDebugs) {
         gSizeHeapDebugs *= 2;
 
-        gHeapDebugs = realloc(gHeapDebugs, sizeof(struct sHeapDebug)*gSizeHeapDebugs);
+        gHeapDebugs = xxxrealloc(gHeapDebugs, sizeof(struct sHeapDebug)*gSizeHeapDebugs);
     }
 
     gHeapDebugs[gNumHeapDebugs].freed = 0;
     gHeapDebugs[gNumHeapDebugs].mem = mem;
-    xstrncpy(gHeapDebugs[gNumHeapDebugs].type_name, type_name, 128);
+    mystrncpy(gHeapDebugs[gNumHeapDebugs].type_name, type_name, 128);
 
-    xstrncpy(gHeapDebugs[gNumHeapDebugs].sname, sname, 128);
+    mystrncpy(gHeapDebugs[gNumHeapDebugs].sname, sname, 128);
 
     gHeapDebugs[gNumHeapDebugs].sline = sline;
     gHeapDebugs[gNumHeapDebugs].calloc_num = calloc_num;
     gHeapDebugs[gNumHeapDebugs].calloc_size = calloc_size;
 
-    xstrncpy(gHeapDebugs[gNumHeapDebugs].fun_name, fun_name, 128);
-    xstrncpy(gHeapDebugs[gNumHeapDebugs].real_fun_name, real_fun_name, 128);
+    mystrncpy(gHeapDebugs[gNumHeapDebugs].fun_name, fun_name, 128);
+    mystrncpy(gHeapDebugs[gNumHeapDebugs].real_fun_name, real_fun_name, 128);
 
     gNumHeapDebugs++;
 }
@@ -179,6 +192,18 @@ void *xxxcalloc(long long num, long long nsize)
 
 void *xxxrealloc(void *block, long long size)
 {
+#ifdef __DARWIN__
+    void* result = calloc(1, size);
+    memcpy(result, block, size);
+    free(block);
+
+    if(result == NULL) {
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d.realloc size %d. realloc memory %p\n", gNumMemAlloc, size, block);
+        exit(2);
+    }
+
+    return result;
+#else
     void* result = realloc(block, size);
 
     if(result == NULL) {
@@ -187,6 +212,7 @@ void *xxxrealloc(void *block, long long size)
     }
 
     return result;
+#endif
 }
 
 void *xasprintf(char* msg, ...)
@@ -247,12 +273,20 @@ void* xxxmemcpy(void* mem, void* mem2, long long size)
 
 long long xxxmalloc_usable_size(void* block)
 {
+#ifdef __DARWIN__
+    return malloc_size(block);
+#else
     return malloc_usable_size(block);
+#endif
 }
 
 void *xxxmemdup(void *block)
 {
+#ifdef __DARWIN__
+    long long size = malloc_size(block);
+#else
     long long size = malloc_usable_size(block);
+#endif
 
     if (!block) return (void*)0;
 

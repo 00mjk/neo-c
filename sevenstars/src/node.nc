@@ -2391,7 +2391,7 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
     }
     else {
         if(klass == null) {
-            compile_err_msg(info, "class not found\n");
+            compile_err_msg(info, xsprintf("class not found(%s)\n", klass_name));
             return true;
         }
         if(method == null) {

@@ -476,11 +476,13 @@ struct sCLCommand {
     int mNumFields;
     
     int mRCode;
+
+    char* mOutput;
     int mOutputLen;
+    char* mErrOutput;
     int mErrOutputLen;
+    
     bool mFirstCommand;
-    char* mErrData;
-    char mOutput[DUMMY_ARRAY_SIZE];
 };
 
 struct sCLJob {
@@ -490,8 +492,8 @@ struct sCLJob {
     int mNumFields;
     
     char mTitle[JOB_TITLE_MAX];
-    termios mTermInfo;
     pid_t mPGrp;
+    termios* mTermInfo;
 };
 
 struct sCLInt {
@@ -659,7 +661,9 @@ void compiler_final();
 bool compiler(char* fname);
 bool compiler2(buffer* source);
 void set_signal();
+void set_signal_optc();
 void set_signal_shell();
+void sig_int_for_shell(int signal);
 void shell(vector<sCLType*%>* types);
 void clover3_init();
 void clover3_final();
@@ -670,7 +674,7 @@ void shell_run_command(char* line, vector<sCLType*%>* types, CLVALUE* result);
 void shell_commandline(char* line, int cursor_point, vector<sCLType*%>* types, CLVALUE* result);
 void shell_commandline_without_to_string(char* line, int cursor_point, vector<sCLType*%>* types, CLVALUE* result);
 
-extern bool gSigInt;
+extern int gSigInt;
 
 #endif
 

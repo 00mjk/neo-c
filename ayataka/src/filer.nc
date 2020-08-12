@@ -1,19 +1,43 @@
 #include "common.h"
-
-int xgetmaxx()
-{
-    struct winsize ws;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
-
-    return ws.ws_col;
+#
+int xgetmaxx(){
+#ifdef __DARWIN__
+    return getmaxx(stdscr);
+#else
+    var ws = new winsize;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
+    
+    int result = ws.ws_col;
+/*
+Raspberry PI return -1
+*/
+    if(result == -1) {
+        return getmaxx(stdscr);
+    }
+    else {
+        return result;
+    }
+#endif
 }
 
-int xgetmaxy()
-{
-    struct winsize ws;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
-
-    return ws.ws_row;
+int xgetmaxy(){
+#ifdef __DARWIN__
+    return getmaxy(stdscr);
+#else
+    var ws = new winsize;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, ws);
+    
+    int result = ws.ws_row;
+/*
+Raspberry PI return -1
+*/
+    if(result == -1) {
+        return getmaxy(stdscr);
+    }
+    else {
+        return result;
+    }
+#endif
 }
 
 impl Ayataka 
@@ -106,6 +130,7 @@ bool read_dir(Filer* self)
     self.files.reset();
 
     DIR* dir = opendir(self.path);
+
     if(dir == null) {
         return false;
     }
