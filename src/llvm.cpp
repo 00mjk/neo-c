@@ -735,7 +735,7 @@ void start_to_make_native_code(char* sname)
         dwarf::DW_LANG_C, sname, cwd, "neo-c", false, "", 0);
 #endif
 
-#if LLVM_VERSION_MAJOR <= 7
+#if LLVM_VERSION_MAJOR <= 9
     TheFPM = llvm::make_unique<FunctionPassManager>(TheModule);
 #else
     TheFPM = make_unique<FunctionPassManager>(TheModule);

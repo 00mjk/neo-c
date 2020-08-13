@@ -3853,6 +3853,11 @@ then
     CFLAGS="$CFLAGS -I/usr/local/include"
 fi
 
+if test -d /usr/lib
+then
+    CFLAGS="$CFLAGS -L/usr/lib"
+fi
+
 if test -d /usr/local/lib
 then
     CFLAGS="$CFLAGS -L /usr/local/lib"
@@ -3888,6 +3893,10 @@ fi
 if test $ENABLE_MLDEBUG = 1
 then
     NCFLAGS="-gm"
+fi
+
+if test `uname -s` = "Darwin"; then
+    CFLAGS="-L/opt/local/lib $CFLAGS"
 fi
 
 
@@ -4213,11 +4222,6 @@ fi
 ac_cv_lib_pthread=ac_cv_lib_pthread_main
 
 
-
-if test "$OS" = CYGWIN || test "$OS" = DARWIN || test "$OS" = FREEBSD
-then
-    LIBS="$LIBS -liconv"
-fi
 
 ac_fn_c_check_header_mongrel "$LINENO" "pcre.h" "ac_cv_header_pcre_h" "$ac_includes_default"
 if test "x$ac_cv_header_pcre_h" = xyes; then :

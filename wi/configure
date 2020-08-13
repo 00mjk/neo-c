@@ -3875,11 +3875,6 @@ fi
 
 
 
-if test "$OS" = CYGWIN || test "$OS" = DARWIN || test "$OS" = FREEBSD
-then
-    LIBS="$LIBS -liconv"
-fi
-
 ac_fn_c_check_header_mongrel "$LINENO" "pcre.h" "ac_cv_header_pcre_h" "$ac_includes_default"
 if test "x$ac_cv_header_pcre_h" = xyes; then :
   $as_echo "#define HAVE_PCRE_H 1" >>confdefs.h

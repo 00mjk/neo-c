@@ -125,11 +125,6 @@ AC_CHECK_HEADER(math.h, [AC_DEFINE(HAVE_MATH_H,1)], [])
 AC_HAVE_LIBRARY(m, [ LIBS="$LIBS -lm"; ], [])
 AC_CHECK_HEADER(iconv.h, [AC_DEFINE(HAVE_ICONV_H, 1)], [])
 
-if test "$OS" = CYGWIN || test "$OS" = DARWIN || test "$OS" = FREEBSD
-then
-    LIBS="$LIBS -liconv"
-fi
-
 AC_CHECK_HEADER(pcre.h, [AC_DEFINE(HAVE_PCRE_H,1)], [])
 AC_HAVE_LIBRARY(pcre, [ LIBS="$LIBS -lpcre"; ], [ eixt ])
 
