@@ -1,5 +1,4 @@
 #include "common.h"
-#include <assert.h>
 
 void compile_err_msg(sCompileInfo* info, char* msg)
 {
@@ -183,8 +182,6 @@ static bool compile_list_value(sCLNode* node, sCompileInfo* info)
 
 static bool invoke_method(char* method_name, int num_params, sCLNode** params, sCompileInfo* info)
 {
-    assert(num_params > 0);
-
     sCLNode* first_node = params[0];
 
     if(!compile(first_node, info)) {
@@ -2214,8 +2211,6 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
     for(int i=0; i<num_params; i++) {
         params[i] = node.uValue.uMethodCall.mParams[i];
     }
-
-    assert(num_params > 0);
 
     sCLNode* first_node = params[0];
 

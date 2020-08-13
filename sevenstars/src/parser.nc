@@ -9,6 +9,10 @@ void parser_err_msg(sParserInfo* info, char* msg)
     info->err_num++;
 }
 
+bool xisdigit(char c) {
+    return c >= '0' && c <= '9';
+}
+
 void parse_comment(sParserInfo* info)
 {
     while(*info->p == '#') {
@@ -84,8 +88,8 @@ static bool get_number(bool minus, sCLNode** node, sParserInfo* info)
         p2++;
     }
 
-    if(isdigit(*info->p)) {
-        while(isdigit(*info->p) || *info->p == '_') {
+    if(xisdigit(*info->p)) {
+        while(xisdigit(*info->p) || *info->p == '_') {
             if(*info->p ==  '_') {
                 info->p++;
             }
@@ -95,7 +99,7 @@ static bool get_number(bool minus, sCLNode** node, sParserInfo* info)
             }
 
             if(p2 - (char*)buf >= buf_size) {
-                parser_err_msg(info, "overflow node of number");
+                parser_err_msg(info, xsprintf("overflow node of number %d", *info->p));
                 return false;
             }
         };
@@ -1160,7 +1164,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             info->p++;
             skip_spaces_and_lf(info);
 
-            if(isdigit(*info->p)) {
+            if(xisdigit(*info->p)) {
                 if(!get_number(true, node, info)) {
                     return false;
                 }
@@ -1181,7 +1185,7 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             info->p++;
             skip_spaces_and_lf(info);
 
-            if(isdigit(*info->p)) {
+            if(xisdigit(*info->p)) {
                 if(!get_number(false, node, info)) {
                     return false;
                 }
@@ -1197,14 +1201,148 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             }
         }
     }
-    /// number ///
-    else if(isdigit(*info->p)) {
-        if(!get_number(false, node, info)) {
+    /// string ///
+    else if(*info->p == '"') {
+        info->p++;
+        
+        buffer*% buf = new buffer.initialize();
+
+        if(!parse_string(buf, info)) {
+            return false;
+        }
+        
+        var str = buf.to_string();
+        
+        *node = sNodeTree_create_string_value(str, info);
+    }
+    /// regex ///
+    else if(*info->p == '/') {
+        info->p++;
+        
+        buffer*% buf = new buffer.initialize();
+
+        bool ignore_case = false;
+        bool global = false;
+        if(!parse_regex(buf, &ignore_case, &global, info)) {
+            return false;
+        }
+        
+        var str = buf.to_string();
+        
+        *node = sNodeTree_create_regex_value(str, ignore_case, global, info);
+    }
+    /// list ///
+    else if(*info->p == '[') {
+        info->p++;
+
+        sCLNode* elements[LIST_ELEMENT_MAX];
+        int num_elements = 0;
+        
+        if(!parse_list(elements, &num_elements, info)) {
+            return false;
+        };
+        
+        *node = sNodeTree_create_list_value(num_elements, elements, info);
+    }
+    /// comment ///
+    else if(*info->p == '#') {
+        parse_comment(info);
+
+        sCLNode* node2 = null;
+        if(!expression(&node2, info)) {
+            return false;
+        };
+
+        *node = node2;
+    }
+    else if(*info->p == '(') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!expression(node, info)) {
+            return false;
+        }
+        skip_spaces_and_lf(info);
+
+        if(*node == null) {
+            parser_err_msg(info, "require expression as ( operand");
+        }
+
+        expected_next_character(')', info);
+    }
+    else if(*info->p == '!') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!expression_node(node, info)) {
+            return false;
+        }
+
+        if(*node == null) {
+            parser_err_msg(info, "require value for !");
+        };
+
+        *node = sNodeTree_create_logical_denial(*node, info);
+    }
+    else if(*info->p == '{') {
+        expected_next_character('{', info);
+
+        var vtables_before = info->vtables;
+        info.vtables = borrow new vector<sVarTable*%>.initialize();
+        int max_var_num = info.max_var_num;
+        sCLNodeBlock* node_block = null;
+        if(!parse_block(&node_block, 0, NULL, info)) {
+            info.max_var_num = max_var_num;
+            delete info.vtables;
+            info.vtables = vtables_before;
+            return false;
+        }
+        info.max_var_num = max_var_num;
+        delete info.vtables;
+        info.vtables = vtables_before;
+
+        expected_next_character('}', info);
+
+        *node = sNodeTree_create_normal_block(node_block, info);
+    }
+    /// stdin ///
+    else if(isatty(0) == 0 && *info->p == '.') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        var word = parse_word(info);
+
+        if(*info->p == '(' || *info->p == '{') {
+            sCLNode* params[PARAMS_MAX];
+
+            buffer*% buf = new buffer.initialize();
+
+            if(!read_stdin(buf))  {
+                return false;
+            }
+
+            string str = buf.to_string();
+
+            params[0] = sNodeTree_create_command_value(str, info);
+
+            int num_params = 1;
+
+            bool param_closed = false;
+            if(!parse_calling_params(&num_params, params, &param_closed, info)) 
+            {
+                return false;
+            };
+
+            *node = sNodeTree_create_method_call(word, num_params, params, param_closed, info);
+        }
+        else {
+            parser_err_msg(info, "require method call after . (reading stdin)");
             return false;
         }
     }
     /// alnum ///
-    else if(isalpha(*info->p) || *info->p == '_') {
+    else if((*info->p >= 'a' && *info->p <= 'z') || (*info->p >= 'A' && *info->p <= 'Z') || *info->p == '_')
+    {
         char* p = info->p;
         int sline = info->sline;
 
@@ -1353,7 +1491,6 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
                 //puts("ok");
             }
         }
-/*
         else if(strcmp(word, "exit") == 0) {
             sCLNode* params[PARAMS_MAX];
             if(*node == 0) {
@@ -1373,7 +1510,6 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
 
             *node = sNodeTree_create_method_call(word, num_params, params, param_closed, info);
         }
-*/
         else if(*info->p == '!' && *(info->p+1) == '(') {
             info->p+=2;
 
@@ -1520,142 +1656,9 @@ static bool expression_node(sCLNode** node, sParserInfo* info)
             }
         }
     }
-    /// string ///
-    else if(*info->p == '"') {
-        info->p++;
-        
-        buffer*% buf = new buffer.initialize();
-
-        if(!parse_string(buf, info)) {
-            return false;
-        }
-        
-        var str = buf.to_string();
-        
-        *node = sNodeTree_create_string_value(str, info);
-    }
-    /// regex ///
-    else if(*info->p == '/') {
-        info->p++;
-        
-        buffer*% buf = new buffer.initialize();
-
-        bool ignore_case = false;
-        bool global = false;
-        if(!parse_regex(buf, &ignore_case, &global, info)) {
-            return false;
-        }
-        
-        var str = buf.to_string();
-        
-        *node = sNodeTree_create_regex_value(str, ignore_case, global, info);
-    }
-    /// list ///
-    else if(*info->p == '[') {
-        info->p++;
-
-        sCLNode* elements[LIST_ELEMENT_MAX];
-        int num_elements = 0;
-        
-        if(!parse_list(elements, &num_elements, info)) {
-            return false;
-        };
-        
-        *node = sNodeTree_create_list_value(num_elements, elements, info);
-    }
-    /// comment ///
-    else if(*info->p == '#') {
-        parse_comment(info);
-
-        sCLNode* node2 = null;
-        if(!expression(&node2, info)) {
-            return false;
-        };
-
-        *node = node2;
-    }
-    else if(*info->p == '(') {
-        info->p++;
-        skip_spaces_and_lf(info);
-
-        if(!expression(node, info)) {
-            return false;
-        }
-        skip_spaces_and_lf(info);
-
-        if(*node == null) {
-            parser_err_msg(info, "require expression as ( operand");
-        }
-
-        expected_next_character(')', info);
-    }
-    else if(*info->p == '!') {
-        info->p++;
-        skip_spaces_and_lf(info);
-
-        if(!expression_node(node, info)) {
-            return false;
-        }
-
-        if(*node == null) {
-            parser_err_msg(info, "require value for !");
-        };
-
-        *node = sNodeTree_create_logical_denial(*node, info);
-    }
-    else if(*info->p == '{') {
-        expected_next_character('{', info);
-
-        var vtables_before = info->vtables;
-        info.vtables = borrow new vector<sVarTable*%>.initialize();
-        int max_var_num = info.max_var_num;
-        sCLNodeBlock* node_block = null;
-        if(!parse_block(&node_block, 0, NULL, info)) {
-            info.max_var_num = max_var_num;
-            delete info.vtables;
-            info.vtables = vtables_before;
-            return false;
-        }
-        info.max_var_num = max_var_num;
-        delete info.vtables;
-        info.vtables = vtables_before;
-
-        expected_next_character('}', info);
-
-        *node = sNodeTree_create_normal_block(node_block, info);
-    }
-    /// stdin ///
-    else if(isatty(0) == 0 && *info->p == '.') {
-        info->p++;
-        skip_spaces_and_lf(info);
-
-        var word = parse_word(info);
-
-        if(*info->p == '(' || *info->p == '{') {
-            sCLNode* params[PARAMS_MAX];
-
-            buffer*% buf = new buffer.initialize();
-
-            if(!read_stdin(buf))  {
-                return false;
-            }
-
-            string str = buf.to_string();
-
-            params[0] = sNodeTree_create_command_value(str, info);
-
-            int num_params = 1;
-
-            bool param_closed = false;
-            if(!parse_calling_params(&num_params, params, &param_closed, info)) 
-            {
-                return false;
-            };
-
-            *node = sNodeTree_create_method_call(word, num_params, params, param_closed, info);
-        }
-        else {
-            parser_err_msg(info, "require method call after . (reading stdin)");
+    /// number ///
+    else if(xisdigit(*info->p)) {
+        if(!get_number(false, node, info)) {
             return false;
         }
     }
@@ -2091,6 +2094,7 @@ static bool expression_and_and_or_or(sCLNode** node, sParserInfo* info)
     if(!expression_comparison_equal_operator(node, info)) {
         return false;
     }
+
     if(*node == null) {
         return true;
     }

@@ -76,7 +76,7 @@ bool parse_block(sCLNodeBlock** node_block, int num_params, sCLParam* params, sP
     }
 
     info.vtables = vtables_before;
-    
+
     return true;
 }
 

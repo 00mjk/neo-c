@@ -1852,6 +1852,8 @@ label1:
 
     xassert("sized structure test2", data_sized.d == 12);
 
+    xassert("unsigned test", !((0&0xffff)-1U < 0xffu));
+
     return 0
 }
 

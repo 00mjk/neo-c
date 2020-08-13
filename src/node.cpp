@@ -1945,7 +1945,12 @@ static BOOL compile_gteq(unsigned int node, sCompileInfo* info)
     }
 
     LVALUE llvm_value;
-    llvm_value.value = Builder.CreateICmpSGE(lvalue.value, rvalue.value, "getmp");
+    if(left_type->mUnsigned || right_type->mUnsigned) {
+        llvm_value.value = Builder.CreateICmpUGE(lvalue.value, rvalue.value, "getmp");
+    }
+    else {
+        llvm_value.value = Builder.CreateICmpSGE(lvalue.value, rvalue.value, "getmp");
+    }
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
@@ -2017,7 +2022,12 @@ static BOOL compile_leeq(unsigned int node, sCompileInfo* info)
     }
 
     LVALUE llvm_value;
-    llvm_value.value = Builder.CreateICmpSLE(lvalue.value, rvalue.value, "leeqtmp");
+    if(left_type->mUnsigned || right_type->mUnsigned) {
+        llvm_value.value = Builder.CreateICmpULE(lvalue.value, rvalue.value, "leeqtmp");
+    }
+    else {
+        llvm_value.value = Builder.CreateICmpSLE(lvalue.value, rvalue.value, "leeqtmp");
+    }
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
@@ -2089,7 +2099,12 @@ static BOOL compile_gt(unsigned int node, sCompileInfo* info)
     }
 
     LVALUE llvm_value;
-    llvm_value.value = Builder.CreateICmpSGT(lvalue.value, rvalue.value, "gttmp");
+    if(left_type->mUnsigned || right_type->mUnsigned) {
+        llvm_value.value = Builder.CreateICmpUGT(lvalue.value, rvalue.value, "getmp");
+    }
+    else {
+        llvm_value.value = Builder.CreateICmpSGT(lvalue.value, rvalue.value, "gttmp");
+    }
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;
@@ -2161,7 +2176,12 @@ static BOOL compile_le(unsigned int node, sCompileInfo* info)
     }
 
     LVALUE llvm_value;
-    llvm_value.value = Builder.CreateICmpSLT(lvalue.value, rvalue.value, "letmp");
+    if(left_type->mUnsigned || right_type->mUnsigned) {
+        llvm_value.value = Builder.CreateICmpULT(lvalue.value, rvalue.value, "letmp");
+    }
+    else {
+        llvm_value.value = Builder.CreateICmpSLT(lvalue.value, rvalue.value, "letmp");
+    }
     llvm_value.type = create_node_type_with_class_name("bool");
     llvm_value.address = nullptr;
     llvm_value.var = nullptr;

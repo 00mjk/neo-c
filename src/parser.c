@@ -6046,7 +6046,40 @@ BOOL get_hex_number(unsigned int* node, sParserInfo* info)
 
     unsigned clint64 value = strtoll(buf, NULL, 0);
 
-    *node = sNodeTree_create_int_value((int)value, info);
+    if(*info->p == 'u' || *info->p == 'U')
+    {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(*info->p == 'L' || *info->p == 'l')
+        {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_ulong_value(value, info);
+        }
+        else {
+            *node = sNodeTree_create_uint_value(value, info);
+        }
+    }
+    else if(*info->p == 'L' || *info->p == 'l') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(*info->p == 'U' || *info->p == 'u')
+        {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_ulong_value(value, info);
+        }
+        else {
+            *node = sNodeTree_create_long_value(value, info);
+        }
+    }
+    else {
+        *node = sNodeTree_create_int_value(value, info);
+    }
 
     return TRUE;
 }
@@ -6077,7 +6110,40 @@ BOOL get_oct_number(unsigned int* node, sParserInfo* info)
 
     unsigned clint64 value = strtoul(buf, NULL, 0);
 
-    *node = sNodeTree_create_int_value((int)value, info);
+    if(*info->p == 'u' || *info->p == 'U')
+    {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(*info->p == 'L' || *info->p == 'l')
+        {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_ulong_value(value, info);
+        }
+        else {
+            *node = sNodeTree_create_uint_value(value, info);
+        }
+    }
+    else if(*info->p == 'L' || *info->p == 'l') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(*info->p == 'U' || *info->p == 'u')
+        {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_ulong_value(value, info);
+        }
+        else {
+            *node = sNodeTree_create_long_value(value, info);
+        }
+    }
+    else {
+        *node = sNodeTree_create_int_value(value, info);
+    }
 
     return TRUE;
 }

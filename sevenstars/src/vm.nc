@@ -325,6 +325,8 @@ bool invoke_command_with_control_terminal(char* name, char** argv, int num_param
         (*stack_ptr)++;
     }
     else if(WIFSIGNALED(status)) {
+puts("WIFSIGNALED1");
+printf("%u\n", status);
         gSigInt = 1;
 
         setpgid(getpid(), getpid());
@@ -438,6 +440,7 @@ bool invoke_command(char* name, char** argv, CLVALUE** stack_ptr, int num_params
     (*stack_ptr)++;
 
     if(WIFSIGNALED(status)) {
+puts("WIFSIGNALED2");
         gSigInt = 1;
     }
 
@@ -539,6 +542,7 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
         (*stack_ptr)++;
     }
     else if(WIFSIGNALED(status)) {
+puts("WIFSIGNALED3");
         gSigInt = 1;
 
         setpgid(getpid(), getpid());
@@ -658,6 +662,7 @@ bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVA
     (*stack_ptr)++;
 
     if(WIFSIGNALED(status)) {
+puts("WIFSIGNALED4");
         gSigInt = 1;
     }
 
