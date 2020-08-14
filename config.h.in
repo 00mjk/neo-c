@@ -13,6 +13,7 @@
 #undef __SUNOS__
 #undef __DARWIN__
 #undef __LINUX__
+#undef __ISH__
 #undef __FREEBSD__
 #undef __64BIT_CPU__
 #undef __32BIT_CPU__

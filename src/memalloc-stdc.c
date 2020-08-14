@@ -190,7 +190,7 @@ void *xxxcalloc(long long num, long long nsize)
     return result;
 }
 
-void *xxxrealloc(void *block, long long size)
+void *xxxrealloc(void *block, long long int size)
 {
 #ifdef __DARWIN__
     void* result = calloc(1, size);
@@ -266,7 +266,7 @@ void *xsprintf(char* msg, ...)
 }
 
 
-void* xxxmemcpy(void* mem, void* mem2, long long size)
+void* xxxmemcpy(void* mem, void* mem2, long long int size)
 {
     return memcpy(mem, mem2, size);
 }

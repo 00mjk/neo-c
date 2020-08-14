@@ -3751,7 +3751,56 @@ CFLAGS='-DPREFIX="\"${DESTDIR}/\"" -fPIC'
 
 AR_LIB=
 
-if test `uname -s` = "Darwin"; then
+if uname -v|grep iSH > /dev/null; then
+    echo "iSH"
+
+    OS=iSH
+
+    $as_echo "#define __ISH__ 1" >>confdefs.h
+
+
+    if test $myprefix = /usr/local; then
+        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
+    else
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
+    fi
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lutil" >&5
+$as_echo_n "checking for main in -lutil... " >&6; }
+if ${ac_cv_lib_util_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lutil  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_util_main=yes
+else
+  ac_cv_lib_util_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_util_main" >&5
+$as_echo "$ac_cv_lib_util_main" >&6; }
+if test "x$ac_cv_lib_util_main" = xyes; then :
+   LIBS="$LIBS -lutil"
+fi
+ac_cv_lib_util=ac_cv_lib_util_main
+
+elif test `uname -s` = "Darwin"; then
     echo "Darwin"
 
     OS=DARWIN

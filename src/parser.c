@@ -1782,6 +1782,8 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                         return FALSE;
                     }
 
+                    long_long = TRUE;
+
                     if(strcmp(type_name, "int") == 0)
                     {
                         long_long = TRUE;
@@ -1796,6 +1798,10 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
                         long_long = TRUE;
                     }
                     else {
+                        long_long = TRUE;
+                        
+                        *result_type = create_node_type_with_class_name("int");
+
                         info->p = p;
                         info->sline = sline;
                     }
@@ -2006,6 +2012,11 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             *result_type = get_typedef(type_name);
 
             if(*result_type != NULL) {
+                if(strcmp(CLASS_NAME((*result_type)->mClass), "long") == 0)
+                {
+                    long_long = TRUE;
+                }
+
                 BOOL remove_heap_mark = FALSE;
                 if(*info->p == '&') {
                     info->p++;
@@ -2067,6 +2078,13 @@ static BOOL parse_type(sNodeType** result_type, sParserInfo* info, char* func_po
             *result_type = create_node_type_with_class_name("int");
         }
     }
+
+#ifdef __ISH__
+    if(!long_long && type_identify_with_class_name((*result_type), "long"))
+    {
+        *result_type = create_node_type_with_class_name("int");
+    }
+#endif
 
     if(long_long && type_identify_with_class_name((*result_type), "int"))
     {
@@ -5693,7 +5711,7 @@ BOOL parse_typedef(unsigned int* node, sParserInfo* info)
     if(!parse_type(&node_type, info, buf, TRUE, TRUE, FALSE, &define_struct_only)) {
         return FALSE;
     }
-    
+
     while(TRUE) {
         sNodeType* node_type2 = clone_node_type(node_type);
 

@@ -325,8 +325,6 @@ bool invoke_command_with_control_terminal(char* name, char** argv, int num_param
         (*stack_ptr)++;
     }
     else if(WIFSIGNALED(status)) {
-puts("WIFSIGNALED1");
-printf("%u\n", status);
         gSigInt = 1;
 
         setpgid(getpid(), getpid());
@@ -412,12 +410,16 @@ bool invoke_command(char* name, char** argv, CLVALUE** stack_ptr, int num_params
         char pipe_data_err[128];
         int readed_byte_err = read(child2parent_read_fd_err, pipe_data_err, 128);
 
-        if(readed_byte == 0 && readed_byte_err == 0) {
+        if(readed_byte <= 0 && readed_byte_err <= 0) {
             break;
         }
 
-        child_output.append(pipe_data, readed_byte);
-        child_output_error.append(pipe_data_err, readed_byte_err);
+        if(readed_byte >= 0) {
+            child_output.append(pipe_data, readed_byte);
+        }
+        if(readed_byte_err >= 0) {
+            child_output_error.append(pipe_data_err, readed_byte_err);
+        }
     }
 
     close(child2parent_read_fd);
@@ -440,7 +442,6 @@ bool invoke_command(char* name, char** argv, CLVALUE** stack_ptr, int num_params
     (*stack_ptr)++;
 
     if(WIFSIGNALED(status)) {
-puts("WIFSIGNALED2");
         gSigInt = 1;
     }
 
@@ -542,7 +543,6 @@ bool invoke_command_with_control_terminal_and_pipe(CLObject parent_obj, char* na
         (*stack_ptr)++;
     }
     else if(WIFSIGNALED(status)) {
-puts("WIFSIGNALED3");
         gSigInt = 1;
 
         setpgid(getpid(), getpid());
@@ -635,12 +635,16 @@ bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVA
         char pipe_data_err[128];
         int readed_byte_err = read(child2parent_read_fd_err, pipe_data_err, 128);
 
-        if(readed_byte == 0 && readed_byte_err == 0) {
+        if(readed_byte <= 0 && readed_byte_err <= 0) {
             break;
         }
 
-        child_output.append(pipe_data, readed_byte);
-        child_output_error.append(pipe_data_err, readed_byte_err);
+        if(readed_byte >= 0) {
+            child_output.append(pipe_data, readed_byte);
+        }
+        if(readed_byte_err >= 0) {
+            child_output_error.append(pipe_data_err, readed_byte_err);
+        }
     }
 
     close(child2parent_read_fd);
@@ -662,7 +666,6 @@ bool invoke_command_with_pipe(CLObject parent_obj, char* name, char** argv, CLVA
     (*stack_ptr)++;
 
     if(WIFSIGNALED(status)) {
-puts("WIFSIGNALED4");
         gSigInt = 1;
     }
 
@@ -1351,8 +1354,6 @@ bool vm(buffer* codes, CLVALUE* parent_stack_ptr, int num_params, int var_num, C
 
             case OP_INVOKE_METHOD: { 
                 char* method_name = (char*)p;
-//puts(method_name);
-//print_stack(stack, stack_ptr, var_num);
 
                 int len = strlen(method_name) + 1;
 

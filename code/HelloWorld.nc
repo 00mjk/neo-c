@@ -1337,7 +1337,7 @@ int main()
 
     xassert("alloca array test", intarray2[0] == 123 && intarray2[1] == 234 && intarray2[2] == 345);
 
-    xassert("sizeof test", sizeof(int) == 4 && sizeof(char) == 1 && sizeof(long) == 8);
+    xassert("sizeof test", sizeof(int) == 4 && sizeof(char) == 1 && sizeof(long long) == 8);
 
     int avalue, bvalue, cvalue;
 

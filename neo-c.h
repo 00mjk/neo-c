@@ -33,16 +33,16 @@
 
 #include <stdint.h>
 
-void*% xxxcalloc(long num, long size);
-void*% xxxmalloc(long size);
+void*% xxxcalloc(long long int num, long long int size);
+void*% xxxmalloc(long long int size);
 void*% xxxmemdup(void* mem);
-void*% xxxrealloc(void* mem, long size);
+void*% xxxrealloc(void* mem, long long int size);
 void xxxfree(void*% mem);
 size_t xxxmalloc_usable_size(void* block);
 
 char* xstrncpy(char* des, char* src, int size);
 char* xstrncat(char* des, char* str, int size);
-char* xxxmemcpy(void* mem, void* mem2, long size);
+char* xxxmemcpy(void* mem, void* mem2, long long int size);
 
 typedef char*% string;
 typedef wchar_t*% wstring;
@@ -249,8 +249,8 @@ impl buffer
     inline void append_int(buffer* self, int value) {
         self.append((char*)&value, sizeof(int));
     }
-    inline void append_long(buffer* self, long value) {
-        self.append((char*)&value, sizeof(long));
+    inline void append_long(buffer* self, long long int value) {
+        self.append((char*)&value, sizeof(long long int));
     }
     inline void append_short(buffer* self, short value) {
         self.append((char*)&value, sizeof(short));
