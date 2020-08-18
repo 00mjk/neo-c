@@ -38,6 +38,7 @@
 #define LOOP_NEST_MAX 1024
 #define TYPEDEF_MAX 4096
 #define MACRO_MAX 1024
+#define ARRAY_DIMENTION_MAX 5
 
 #define clint64 long long      // for 32 bit cpu
 
@@ -148,7 +149,8 @@ struct sNodeTypeStruct {
     struct sNodeTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];
     int mNumGenericsTypes;
 
-    int mArrayNum;
+    int mArrayNum[ARRAY_DIMENTION_MAX];
+    int mArrayDimentionNum;
     BOOL mNullable;
     BOOL mUnsigned;
     int mPointerNum;
@@ -646,6 +648,16 @@ struct sNodeTreeStruct
         struct {
             char mName[VAR_NAME_MAX];
         } sGoto;
+
+        struct {
+            unsigned int mIndex[ARRAY_DIMENTION_MAX];
+            int mArrayDimentionNum;
+        } sStoreElement;
+
+        struct {
+            unsigned int mIndex[ARRAY_DIMENTION_MAX];
+            int mArrayDimentionNum;
+        } sLoadElement;
     } uValue;
 };
 
@@ -709,8 +721,8 @@ unsigned int sNodeTree_create_reffernce(unsigned int left_node, sParserInfo* inf
 unsigned int sNodeTree_create_null(sParserInfo* info);
 unsigned int sNodeTree_create_clone(unsigned int left, sParserInfo* info);
 unsigned int sNodeTree_create_borrow(unsigned int left, sParserInfo* info);
-unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned int index_node, sParserInfo* info);
-unsigned int sNodeTree_create_store_element(unsigned int array, unsigned int index_node, unsigned int right_node, sParserInfo* info);
+unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned int index_node[], int num_dimetion, sParserInfo* info);
+unsigned int sNodeTree_create_store_element(unsigned int array, unsigned int index_node[], int num_dimetion, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_character_value(char c, sParserInfo* info);
 unsigned int sNodeTree_create_mult(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_div(unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);

@@ -75,7 +75,10 @@ sNodeType* clone_node_type(sNodeType* node_type)
         node_type2->mGenericsTypes[i] = ALLOC clone_node_type(node_type->mGenericsTypes[i]);
     }
 
-    node_type2->mArrayNum = node_type->mArrayNum;
+    node_type2->mArrayDimentionNum = node_type->mArrayDimentionNum;
+    for(i=0; i<node_type->mArrayDimentionNum; i++) {
+        node_type2->mArrayNum[i] = node_type->mArrayNum[i];
+    }
     node_type2->mSizeNum = node_type->mSizeNum;
     node_type2->mNullable = node_type->mNullable;
     node_type2->mPointerNum = node_type->mPointerNum;
@@ -116,6 +119,9 @@ void show_type_core(sNodeType* type)
     int i;
     for(i=0; i<type->mPointerNum; i++) {
         printf("*");
+    }
+    for(i=0; i<type->mArrayDimentionNum; i++) {
+        printf("[%d]", type->mArrayNum[i]);
     }
     if(type->mHeap) {
         printf("%");
@@ -164,7 +170,7 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf)
 
     node_type->mClass = NULL;
     node_type->mNumGenericsTypes = 0;
-    node_type->mArrayNum = 0;
+    node_type->mArrayDimentionNum = 0;
     node_type->mNullable = FALSE;
 
     *p2 = buf;
@@ -206,21 +212,24 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf)
             }
         }
         else if(**p == '[') {
-            (*p)++;
-
-            int n = 0;
-            while(isdigit(**p)) {
-                n = n * 10 + (**p - '0');
+            node_type->mArrayDimentionNum = 0;
+            while(**p == '[') {
                 (*p)++;
-            }
 
-            node_type->mArrayNum = n;
+                int n = 0;
+                while(isdigit(**p)) {
+                    n = n * 10 + (**p - '0');
+                    (*p)++;
+                }
 
-            if(**p == ']') {
-                (*p)++;
-            }
-            else {
-                return NULL;
+                node_type->mArrayNum[node_type->mArrayDimentionNum++] = n;
+
+                if(**p == ']') {
+                    (*p)++;
+                }
+                else {
+                    return NULL;
+                }
             }
         }
         else if(**p == '?') {
@@ -374,7 +383,7 @@ BOOL auto_cast_posibility(sNodeType* left_type, sNodeType* right_type)
     {
         return TRUE;
     }
-    else if((left_type->mPointerNum-1 == right_type->mPointerNum) && right_type->mArrayNum > 0)
+    else if((left_type->mPointerNum-1 == right_type->mPointerNum) && right_type->mArrayDimentionNum == 1)
     {
         return TRUE;
     }
@@ -445,7 +454,7 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
         return TRUE;
     }
     else if(type_identify(left_type, right_type)) {
-        if((left_type->mPointerNum-1 == right_type->mPointerNum) && right_type->mArrayNum > 0)
+        if((left_type->mPointerNum-1 == right_type->mPointerNum) && right_type->mArrayDimentionNum == 1)
         {
             if(left_type->mHeap) 
             {
@@ -477,7 +486,7 @@ BOOL substitution_posibility(sNodeType* left_type, sNodeType* right_type, sCompi
                 return TRUE;
             }
         }
-        else if(left_type->mPointerNum == right_type->mPointerNum+1 && right_type->mArrayNum == -1)
+        else if(left_type->mPointerNum == right_type->mPointerNum+1 && right_type->mArrayDimentionNum == -1)
         {
             if(left_type->mHeap) {
                 if(right_type->mHeap)
@@ -549,7 +558,12 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type, BOOL* succe
 
         if(generics_number != generics_number2) 
         {
-            int array_num = (*node_type)->mArrayNum;
+            int array_dimetion_num = (*node_type)->mArrayDimentionNum;
+            int array_num[ARRAY_DIMENTION_MAX];
+            int i;
+            for(i=0; i<array_dimetion_num; i++) {
+                array_num[i] = (*node_type)->mArrayNum[i];
+            }
             BOOL nullable = (*node_type)->mNullable;
             int pointer_num = (*node_type)->mPointerNum;
             BOOL heap = (*node_type)->mHeap;
@@ -567,8 +581,12 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type, BOOL* succe
             if(nullable) {
                 (*node_type)->mNullable = nullable;
             }
-            if(array_num > 0) {
-                (*node_type)->mArrayNum = array_num;
+            if(array_dimetion_num > 0) {
+                (*node_type)->mArrayDimentionNum = array_dimetion_num;
+                int i;
+                for(i=0; i<array_dimetion_num; i++) {
+                    (*node_type)->mArrayNum[i] = array_num[i];
+                }
             }
             if(pointer_num > 0) {
                 (*node_type)->mPointerNum += pointer_num;
@@ -636,7 +654,12 @@ BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types,
 
         if(method_generics_types[method_generics_number])
         {
-            int array_num = (*node_type)->mArrayNum;
+            int array_dimetion_num = (*node_type)->mArrayDimentionNum;
+            int array_num[ARRAY_DIMENTION_MAX];
+            int i;
+            for(i=0; i<array_dimetion_num; i++) {
+                array_num[i] = (*node_type)->mArrayNum[i];
+            }
             BOOL nullable = (*node_type)->mNullable;
             int pointer_num = (*node_type)->mPointerNum;
             BOOL heap = (*node_type)->mHeap;
@@ -654,8 +677,12 @@ BOOL solve_method_generics(sNodeType** node_type, int num_method_generics_types,
             if(nullable) {
                 (*node_type)->mNullable = nullable;
             }
-            if(array_num > 0) {
-                (*node_type)->mArrayNum = array_num;
+            if(array_dimetion_num > 0) {
+                (*node_type)->mArrayDimentionNum = array_dimetion_num;
+                int i;
+                for(i=0; i<array_dimetion_num; i++) {
+                    (*node_type)->mArrayNum[i] = array_num[i];
+                }
             }
             if(pointer_num > 0) {
                 (*node_type)->mPointerNum += pointer_num;

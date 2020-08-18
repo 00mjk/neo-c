@@ -65,7 +65,7 @@ static DIType* create_debug_type(sNodeType* node_type)
     if(node_type->mPointerNum > 0) {
         result = DBuilder->createBasicType("pointer", 64, dwarf::DW_ATE_address);
     }
-    else if(node_type->mArrayNum > 0) {
+    else if(node_type->mArrayDimentionNum > 0) {
         result = DBuilder->createBasicType("pointer", 64, dwarf::DW_ATE_address);
     }
     else if(type_identify_with_class_name(node_type, "int")) {
@@ -110,7 +110,7 @@ result = DBuilder->createBasicType("int", 32, dwarf::DW_ATE_lo_user);
     if(node_type->mPointerNum > 0) {
         result = DBuilder->createBasicType("pointer", 64, 8, dwarf::DW_ATE_address);
     }
-    else if(node_type->mArrayNum > 0) {
+    else if(node_type->mArrayDimentionNum > 0) {
         result = DBuilder->createBasicType("pointer", 64, 8, dwarf::DW_ATE_address);
     }
     else if(type_identify_with_class_name(node_type, "int")) {
@@ -1554,12 +1554,12 @@ BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, s
         *result_type = PointerType::get(*result_type, 0);
     }
 
-    if(node_type->mArrayNum == -1) {
+    if(node_type->mArrayDimentionNum == -1) {
         *result_type = PointerType::get(*result_type, 0);
     }
-    
-    if(node_type->mArrayNum > 0) {
-        *result_type = ArrayType::get(*result_type, node_type->mArrayNum);
+
+    for(i=0; i<node_type->mArrayDimentionNum; i++) {
+        *result_type = ArrayType::get(*result_type, node_type->mArrayNum[i]);
     }
 
     return TRUE;
@@ -1692,7 +1692,8 @@ BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sNodeType* 
 
     if(node_type2->mArrayInitializeNum > 0){
         node_type2->mPointerNum--;
-        node_type2->mArrayNum = node_type2->mArrayInitializeNum;
+        node_type2->mArrayNum[0] = node_type2->mArrayInitializeNum;
+        node_type2->mArrayDimentionNum = 1;
     }
 
     sCLClass* klass = node_type->mClass;
@@ -1735,7 +1736,8 @@ BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sNodeType* 
 
     if(node_type2->mArrayInitializeNum > 0){
         node_type2->mPointerNum--;
-        node_type2->mArrayNum = node_type2->mArrayInitializeNum;
+        node_type2->mArrayNum[0] = node_type2->mArrayInitializeNum;
+        node_type2->mArrayDimentionNum = 1;
     }
 
     sCLClass* klass = node_type->mClass;
@@ -1751,15 +1753,15 @@ BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sNodeType* 
     if(node_type2->mSizeNum > 0) {
         *result = node_type2->mSizeNum;
 
-        if(node_type2->mArrayNum > 0) {
-            *result *= node_type2->mArrayNum;
+        if(node_type2->mArrayDimentionNum == 1) {
+            *result *= node_type2->mArrayNum[0];
         }
     }
     else if(node_type2->mPointerNum > 0) {
         *result = 4;
 
-        if(node_type2->mArrayNum > 0) {
-            *result *= node_type2->mArrayNum;
+        if(node_type2->mArrayDimentionNum == 1) {
+            *result *= node_type2->mArrayNum[0];
         }
     }
     else {
@@ -1781,15 +1783,15 @@ BOOL get_size_from_node_type(uint64_t* result, sNodeType* node_type, sNodeType* 
         if(node_type->mPointerNum == 0 && (node_type->mClass->mFlags & CLASS_FLAGS_STRUCT)) {
             *result = get_struct_size(node_type->mClass, generics_type, info);
 
-            if(node_type->mArrayNum > 0) {
-                *result *= node_type->mArrayNum;
+            if(node_type->mArrayDimentionNum == 1) {
+                *result *= node_type->mArrayNum[0];
             }
         }
         else if(node_type->mPointerNum == 0 && (node_type->mClass->mFlags & CLASS_FLAGS_UNION)) {
             *result = get_union_size(node_type->mClass, generics_type, info);
 
-            if(node_type->mArrayNum > 0) {
-                *result *= node_type->mArrayNum;
+            if(node_type->mArrayDimentionNum == 1) {
+                *result *= node_type->mArrayNum[0];
             }
         }
         else {
@@ -1917,7 +1919,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
             *right_type = clone_node_type(left_type);
         }
-        else if((left_type->mPointerNum-1 == (*right_type)->mPointerNum) && (*right_type)->mArrayNum > 0) 
+        else if((left_type->mPointerNum-1 == (*right_type)->mPointerNum) && (*right_type)->mArrayDimentionNum == 1) 
         {
             if(rvalue) {
                 Type* llvm_type;
@@ -1981,7 +1983,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
             *right_type = clone_node_type(left_type);
         }
     }
-    else if(left_type->mArrayNum > 0 && (*right_type)->mPointerNum == left_type->mPointerNum+1) 
+    else if(left_type->mArrayDimentionNum == 1 && (*right_type)->mPointerNum == left_type->mPointerNum+1) 
     {
         if(rvalue) {
             Type* llvm_type;
