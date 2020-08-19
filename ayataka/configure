@@ -3729,6 +3729,14 @@ then
 
     $as_echo "#define __BIG_ENDIAN__ 1" >>confdefs.h
 
+elif test `uname -m` = ppc64le
+then
+    echo ppc64le
+
+    $as_echo "#define __64BIT_CPU__ 1" >>confdefs.h
+
+    $as_echo "#define __PPC64LE__ 1" >>confdefs.h
+
 elif test `uname -m` = armv6l
 then
     echo armv6l

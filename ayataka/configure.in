@@ -62,6 +62,12 @@ then
 
     AC_DEFINE(__64BIT_CPU__, 1)
     AC_DEFINE(__BIG_ENDIAN__, 1)
+elif test `uname -m` = ppc64le
+then
+    echo ppc64le
+
+    AC_DEFINE(__64BIT_CPU__, 1)
+    AC_DEFINE(__PPC64LE__, 1)
 elif test `uname -m` = armv6l
 then
     echo armv6l

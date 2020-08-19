@@ -1,7 +1,9 @@
 #include "common.h"
-#
+
 int xgetmaxx(){
-#ifdef __DARWIN__
+#ifdef __DARWIN__ 
+    return getmaxx(stdscr);
+#elif __PPC64LE__
     return getmaxx(stdscr);
 #else
     var ws = new winsize;
@@ -22,6 +24,8 @@ Raspberry PI return -1
 
 int xgetmaxy(){
 #ifdef __DARWIN__
+    return getmaxy(stdscr);
+#elif __PPC64LE__
     return getmaxy(stdscr);
 #else
     var ws = new winsize;
