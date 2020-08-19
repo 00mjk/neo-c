@@ -1259,6 +1259,11 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
         }
     }
 
+    char asm_fname[VAR_NAME_MAX];
+    if(!parse_attribute(info, asm_fname)) {
+        return FALSE;
+    }
+
     info->mNumGenerics = 0;
 
     return TRUE;
@@ -5787,6 +5792,11 @@ BOOL parse_typedef(unsigned int* node, sParserInfo* info)
     sNodeType* node_type = NULL;
     BOOL define_struct_only = FALSE;
     if(!parse_type(&node_type, info, buf, TRUE, TRUE, FALSE, &define_struct_only)) {
+        return FALSE;
+    }
+
+    char asm_fname[VAR_NAME_MAX];
+    if(!parse_attribute(info, asm_fname)) {
         return FALSE;
     }
 
