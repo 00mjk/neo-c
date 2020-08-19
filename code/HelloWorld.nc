@@ -740,6 +740,12 @@ struct Info {
     char *p;
 };
 
+struct sData {
+    int* a;
+    int b[10];
+    int c[10][10][10];
+};
+
 int main()
 {
     Info info;
@@ -1853,6 +1859,22 @@ label1:
     xassert("sized structure test2", data_sized.d == 12);
 
     xassert("unsigned test", !((0&0xffff)-1U < 0xffu));
+
+    int aggg[20][20][20];
+
+    aggg[0][0][0] = 123;
+
+    xassert("array test", aggg[0][0][0] == 123);
+
+    int bggg = 123;
+
+    sData dataagg;
+
+    dataagg.a = &bggg;
+    dataagg.b[0] = 123;
+    dataagg.c[0][0][0] = 234;
+
+    xassert("array test2", *dataagg.a == 123 && dataagg.b[0] == 123 && dataagg.c[0][0][0] == 234);
 
     return 0
 }

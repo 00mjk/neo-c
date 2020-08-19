@@ -63,6 +63,8 @@ x86_64のDebianとRaspberry PI 3B+でテストしています。
 
 # CHANGELOG
 
+1.3.8 Multiple dimention array has been corresponded.
+
 1.3.7 iPhone(iSH) has been corresponeded. More gets compatiblity for C-language.
 
 1.3.6 Unsigned value comparison has been corresponded.
