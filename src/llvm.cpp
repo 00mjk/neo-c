@@ -59,7 +59,7 @@ static void emitLocaltion(DebugInfo* info, int sline)
 static DIType* create_debug_type(sNodeType* node_type) 
 {
 
-#if LLVM_VERSION_MAJOR >= 7
+#if LLVM_VERSION_MAJOR >= 5
     DIType* result = nullptr;
     
     if(node_type->mPointerNum > 0) {
@@ -727,7 +727,7 @@ void start_to_make_native_code(char* sname)
         cwd = ".";
     }
 
-#if LLVM_VERSION_MAJOR >= 7
+#if LLVM_VERSION_MAJOR >= 5
     KSDbgInfo.TheCU = DBuilder->createCompileUnit(
         dwarf::DW_LANG_C, DBuilder->createFile(sname, cwd), "neo-c", 0, "", 0);
 #else
