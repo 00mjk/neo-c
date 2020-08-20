@@ -56,7 +56,7 @@ make
 sudo make install
 ```
 
-This program is tested in LLVM-3.8, LLVM-7 and LLVM-10, and x86_64 on Debian, Raspberry PI 3B+(ARM64), iPhone(iSH, Alpline Linux), Android(termux).
+This program is tested in LLVM-3.8, LLVM-7 and LLVM-10, and x86_64, aarch64 on Debian, Raspberry PI 3B+(ARM64), iPhone(iSH, Apline Linux), Android(termux), ppc64le(Debian).
 
 # CHANGELOG
 
