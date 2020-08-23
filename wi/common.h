@@ -9,6 +9,11 @@
 #define SAVE_INPUT_KEY_MAX 256
 
 // 1init.h
+bool xiswalpha(wchar_t* c);
+bool xiswalnum(wchar_t* c);
+bool xiswdigit(wchar_t* c);
+bool xiswblank(wchar_t* c);
+
 int xgetmaxx();
 int xgetmaxy();
 

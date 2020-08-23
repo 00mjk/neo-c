@@ -239,7 +239,7 @@ void inputSearchlMode(ViWin* self, Vi* nvi)
                 if(c == null) {
                     break;
                 }
-                else if(iswalnum(c)) {
+                else if(xiswalnum(c)) {
                     nvi.searchString.delete(-1);
                 }
                 else {

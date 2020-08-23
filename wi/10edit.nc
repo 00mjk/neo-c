@@ -137,8 +137,8 @@ void deleteWord(ViWin* self, Vi* nvi) {
                         }
                     }
                 }
-                else if(iswalpha(*p)) {
-                    while(iswalpha(*p)) {
+                else if(xiswalpha(*p)) {
+                    while(xiswalpha(*p)) {
                         p++;
                         x++;
         
@@ -148,8 +148,8 @@ void deleteWord(ViWin* self, Vi* nvi) {
                         }
                     }
                 }
-                else if(iswblank(*p)) {
-                    while(iswblank(*p)) {
+                else if(xiswblank(*p)) {
+                    while(xiswblank(*p)) {
                         p++;
                         x++;
         
@@ -159,8 +159,8 @@ void deleteWord(ViWin* self, Vi* nvi) {
                         }
                     }
                 }
-                else if(iswdigit(*p)) {
-                    while(iswdigit(*p)) {
+                else if(xiswdigit(*p)) {
+                    while(xiswdigit(*p)) {
                         p++;
                         x++;
         
@@ -220,8 +220,8 @@ void deleteWord(ViWin* self, Vi* nvi) {
                     }
                 }
             }
-            else if(iswalpha(*p)) {
-                while(iswalpha(*p)) {
+            else if(xiswalpha(*p)) {
+                while(xiswalpha(*p)) {
                     p++;
                     x++;
     
@@ -231,8 +231,8 @@ void deleteWord(ViWin* self, Vi* nvi) {
                     }
                 }
             }
-            else if(iswblank(*p)) {
-                while(iswblank(*p)) {
+            else if(xiswblank(*p)) {
+                while(xiswblank(*p)) {
                     p++;
                     x++;
     
@@ -242,8 +242,8 @@ void deleteWord(ViWin* self, Vi* nvi) {
                     }
                 }
             }
-            else if(iswdigit(*p)) {
-                while(iswdigit(*p)) {
+            else if(xiswdigit(*p)) {
+                while(xiswdigit(*p)) {
                     p++;
                     x++;
     
@@ -459,14 +459,14 @@ void getCursorNumber(ViWin* self, int* head, int* tail) {
     
     var c = line.item(self.cursorX, null); 
     
-    if(iswdigit(c)) {
+    if(xiswdigit(c)) {
         /// back ///
         *head = self.cursorX;
         
         while(true) {
             var c = line.item(*head, null);
             
-            if(iswdigit(c)) {
+            if(xiswdigit(c)) {
                 (*head)--;
             }
             else {
@@ -480,7 +480,7 @@ void getCursorNumber(ViWin* self, int* head, int* tail) {
         while(true) {
             var c = line.item(*tail, null);
             
-            if(iswdigit(c)) {
+            if(xiswdigit(c)) {
                 (*tail)++;
             }
             else {
