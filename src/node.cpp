@@ -5792,7 +5792,7 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-//#ifdef MDEBUG
+#ifdef MDEBUG
     Function* fun = TheModule->getFunction("debug_xcalloc");
 
     if(fun == nullptr) {
@@ -5834,12 +5834,11 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
     params2.push_back(param7);
 
     Value* address = Builder.CreateCall(fun, params2);
-/*
 #else
-    Function* fun = TheModule->getFunction("xxxcalloc");
+    Function* fun = TheModule->getFunction("nccalloc");
 
     if(fun == nullptr) {
-        fprintf(stderr, "require xxxcalloc\n");
+        fprintf(stderr, "require nccalloc\n");
         exit(2);
     }
 
@@ -5853,7 +5852,6 @@ static BOOL compile_object(unsigned int node, sCompileInfo* info)
 
     Value* address = Builder.CreateCall(fun, params2);
 #endif
-*/
 
     node_type2->mPointerNum++;
 
@@ -10003,10 +10001,10 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
 
             LVALUE rvalue = *get_value_from_stack(-1);
 
-            Function* fun = TheModule->getFunction("xxxmemcpy");
+            Function* fun = TheModule->getFunction("ncmemcpy");
 
             if(fun == nullptr) {
-                fprintf(stderr, "require xxxmemcpy\n");
+                fprintf(stderr, "require ncmemcpy\n");
                 exit(2);
             }
 

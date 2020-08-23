@@ -33,16 +33,16 @@
 
 #include <stdint.h>
 
-void*% xxxcalloc(long long int num, long long int size);
-void*% xxxmalloc(long long int size);
-void*% xxxmemdup(void* mem);
-void*% xxxrealloc(void* mem, long long int size);
-void xxxfree(void*% mem);
-size_t xxxmalloc_usable_size(void* block);
+void*% nccalloc(long long int num, long long int size);
+void*% ncmalloc(long long int size);
+void*% ncmemdup(void* mem);
+void*% ncrealloc(void* mem, long long int size);
+void ncfree(void*% mem);
+size_t ncmalloc_usable_size(void* block);
 
 char* xstrncpy(char* des, char* src, int size);
 char* xstrncat(char* des, char* str, int size);
-char* xxxmemcpy(void* mem, void* mem2, long long int size);
+char* ncmemcpy(void* mem, void* mem2, long long int size);
 
 typedef char*% string;
 typedef wchar_t*% wstring;
@@ -286,6 +286,8 @@ struct regex_struct {
     bool anchored;
     bool dollar_endonly;
     bool ungreedy;
+
+    int options;
 };
 
 typedef regex_struct*% nregex;

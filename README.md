@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.3.8
+version 1.3.9
 
 ```
 #include <stdio.h>
@@ -56,9 +56,11 @@ make
 sudo make install
 ```
 
-This program is tested in LLVM-3.8, LLVM-7 and LLVM-10, and x86_64, aarch64 on Debian, Raspberry PI 3B+(ARM64), iPhone(iSH, Apline Linux), Android(termux), ppc64le(Debian).
+This program is tested in LLVM-3.8, LLVM-7 and LLVM-10, and x86_64, aarch64 on Debian, Raspberry PI 3B+(ARM64), iPhone(iSH, Apline Linux), Android(termux), ppc64le(Debian), s390x(Alpline Linux)
 
 # CHANGELOG
+
+1.3.9 Corresponed s390 alpline linux.
 
 1.3.8 Multiple dimention array has been corresponded.
 
@@ -84,7 +86,7 @@ This program is tested in LLVM-3.8, LLVM-7 and LLVM-10, and x86_64, aarch64 on D
 
 1.2.4 map collection heap bug was fixed
 
-1.2.3 typedef bug was fixed. rename xfunction_name to xxxfunction_name like xcalloc to xxxcalloc because readline uses xmalloc and conflicts the names.
+1.2.3 typedef bug was fixed. rename xfunction_name to ncfunction_name like xcalloc to nccalloc because readline uses xmalloc and conflicts the names.
 
 1.2.1 rename apend_bytes --> append_nullteminated_str
 1.2.0 some changes to buffer.append_str. Append buffer.append_bytes.

@@ -82,7 +82,7 @@ impl buffer
             self.size = new_size;
         }
 
-        xxxmemcpy(self.buf + self.len, mem, size);
+        ncmemcpy(self.buf + self.len, mem, size);
         self.len += size;
 
         self.buf[self.len] = '\0';
@@ -274,7 +274,7 @@ impl string
 
         string result = new char[tail-head+1];
 
-        xxxmemcpy(result, str + head, tail-head);
+        ncmemcpy(result, str + head, tail-head);
         result[tail-head] = '\0';
 
         return result;
@@ -315,10 +315,18 @@ impl string
         
         int offset = 0;
 
+        const char* err;
+        int erro_ofs;
+
+        int options = reg.options;
+        char* str = reg.str;
+
+        pcre* re = pcre_compile(str, options, &err, &erro_ofs, NULL);
+
         while(true) {
             int options = PCRE_NEWLINE_LF;
             int len = strlen(self);
-            int regex_result = pcre_exec(reg.regex, 0, self, len, offset, options, ovec_value, ovec_max*3);
+            int regex_result = pcre_exec(re, 0, self, len, offset, options, ovec_value, ovec_max*3);
 
             for(int i=0; i<ovec_max; i++) {
                 start[i] = ovec_value[i*2];
@@ -343,6 +351,14 @@ impl string
     }
     int rindex_regex(string& self, nregex reg, int default_value)
     {
+        const char* err;
+        int erro_ofs;
+
+        int options = reg.options;
+        char* str = reg.str;
+
+        pcre* re = pcre_compile(str, options, &err, &erro_ofs, NULL);
+
         string self2 = self.reverse();
         
         int ovec_max = 16;
@@ -357,7 +373,7 @@ impl string
         while(true) {
             int options = PCRE_NEWLINE_LF;
             int len = strlen(self2);
-            int regex_result = pcre_exec(reg.regex, 0, self2, len, offset, options, ovec_value, ovec_max*3);
+            int regex_result = pcre_exec(re, 0, self2, len, offset, options, ovec_value, ovec_max*3);
 
             for(int i=0; i<ovec_max; i++) {
                 start[i] = ovec_value[i*2];
@@ -401,7 +417,7 @@ impl string
         
         string sub_str = str.substring(position+1, -1);
 
-        xxxmemcpy(str + position, sub_str, sub_str.length()+1);
+        ncmemcpy(str + position, sub_str, sub_str.length()+1);
 
         return str;
     }
@@ -434,7 +450,7 @@ impl string
         
         string sub_str = str.substring(tail, -1);
 
-        xxxmemcpy(str + head, sub_str, sub_str.length()+1);
+        ncmemcpy(str + head, sub_str, sub_str.length()+1);
 
         return str;
     }
@@ -472,12 +488,20 @@ impl string
         int end[ovec_max];
         int ovec_value[ovec_max * 3];
 
+        const char* err;
+        int erro_ofs;
+
+        int options = reg.options;
+        char* str = reg.str;
+
+        pcre* re = pcre_compile(str, options, &err, &erro_ofs, NULL);
+
         var result = new buffer.initialize();
 
         while(true) {
             int options = PCRE_NEWLINE_LF;
             int len = strlen(self);
-            int regex_result = pcre_exec(reg.regex, 0, self, len, offset, options, ovec_value, ovec_max*3);
+            int regex_result = pcre_exec(re, 0, self, len, offset, options, ovec_value, ovec_max*3);
 
             for(int i=0; i<ovec_max; i++) {
                 start[i] = ovec_value[i*2];
@@ -555,10 +579,18 @@ impl string
         int end[ovec_max];
         int ovec_value[ovec_max * 3];
 
+        const char* err;
+        int erro_ofs;
+
+        int options = reg.options;
+        char* str = reg.str;
+
+        pcre* re = pcre_compile(str, options, &err, &erro_ofs, NULL);
+
         while(true) {
             int options = PCRE_NEWLINE_LF;
             int len = strlen(self);
-            int regex_result = pcre_exec(reg.regex, 0, self, len, offset, options, ovec_value, ovec_max*3);
+            int regex_result = pcre_exec(re, 0, self, len, offset, options, ovec_value, ovec_max*3);
 
             for(int i=0; i<ovec_max; i++) {
                 start[i] = ovec_value[i*2];
@@ -604,10 +636,18 @@ impl string
         int end[ovec_max];
         int ovec_value[ovec_max * 3];
 
+        const char* err;
+        int erro_ofs;
+
+        int options = reg.options;
+        char* str = reg.str;
+
+        pcre* re = pcre_compile(str, options, &err, &erro_ofs, NULL);
+
         while(true) {
             int options = PCRE_NEWLINE_LF;
             int len = strlen(self);
-            int regex_result = pcre_exec(reg.regex, 0, self, len, offset, options, ovec_value, ovec_max*3);
+            int regex_result = pcre_exec(re, 0, self, len, offset, options, ovec_value, ovec_max*3);
 
             for(int i=0; i<ovec_max; i++) {
                 start[i] = ovec_value[i*2];
@@ -657,6 +697,14 @@ impl string
     }
     list<string>*% split(string& self, nregex reg)
     {
+        const char* err;
+        int erro_ofs;
+
+        int options = reg.options;
+        char* str = reg.str;
+
+        pcre* re = pcre_compile(str, options, &err, &erro_ofs, NULL);
+
         var result = new list<string>.initialize();
 
         int offset = 0;
@@ -669,7 +717,8 @@ impl string
         while(true) {
             int options = PCRE_NEWLINE_LF;
             int len = strlen(self);
-            int regex_result = pcre_exec(reg.regex, 0, self, len, offset, options, ovec_value, ovec_max*3);
+
+            int regex_result = pcre_exec(re, 0, self, len, offset, options, ovec_value, ovec_max*3);
 
             for(int i=0; i<ovec_max; i++) {
                 start[i] = ovec_value[i*2];
@@ -807,7 +856,10 @@ wstring wstring(char* str)
 {
     int len = strlen(str);
 
-    wstring wstr = new wchar_t[len + 1];
+wstring a = new wchar_t[1];
+// I can't understand. this requires for s309x apline linux,... hmm is it my mistake?
+
+    wstring wstr = new wchar_t[len+1];
 
     int ret = mbstowcs(wstr, str, len+1);
     wstr[ret] = '\0';
@@ -925,7 +977,7 @@ impl wchar_t
 
         wstring result = new wchar_t[tail-head+1];
 
-        xxxmemcpy(result, str + head, sizeof(wchar_t)*(tail-head));
+        ncmemcpy(result, str + head, sizeof(wchar_t)*(tail-head));
         result[tail-head] = '\0';
 
         return result;
@@ -1020,7 +1072,7 @@ impl wstring
 
         wstring result = new wchar_t[tail-head+1];
 
-        xxxmemcpy(result, str + head, sizeof(wchar_t)*(tail-head));
+        ncmemcpy(result, str + head, sizeof(wchar_t)*(tail-head));
         result[tail-head] = '\0';
 
         return result;
@@ -1073,7 +1125,7 @@ impl wstring
 
         wstring sub_str = str.substring(position+1, -1);
 
-        xxxmemcpy(str + position, sub_str, sizeof(wchar_t)*(sub_str.length()+1));
+        ncmemcpy(str + position, sub_str, sizeof(wchar_t)*(sub_str.length()+1));
         
         return str;
     }
@@ -1106,7 +1158,7 @@ impl wstring
         
         wstring sub_str = str.substring(tail, -1);
 
-        xxxmemcpy(str + head, sub_str, sizeof(wchar_t)*(sub_str.length()+1));
+        ncmemcpy(str + head, sub_str, sizeof(wchar_t)*(sub_str.length()+1));
 
         return str;
     }
@@ -1207,7 +1259,7 @@ nregex regex(char* str, bool ignore_case, bool multiline, bool global, bool exte
 
     int options = PCRE_UTF8 | (ignore_case ? PCRE_CASELESS:0) | (multiline ? PCRE_MULTILINE : 0) | (extended ? PCRE_EXTENDED :0) | (dotall ? PCRE_DOTALL :0) | (dollar_endonly ? PCRE_DOLLAR_ENDONLY:0) | (ungreedy ? PCRE_UNGREEDY:0);
 
-    result.regex = pcre_compile(str, options, &err, &erro_ofs, NULL);
+    //result.regex = pcre_compile(str, options, &err, &erro_ofs, NULL);
 
     result.str = string(str);
     result.ignore_case = ignore_case;
@@ -1218,6 +1270,7 @@ nregex regex(char* str, bool ignore_case, bool multiline, bool global, bool exte
     result.anchored = anchored;
     result.dollar_endonly = dollar_endonly;
     result.ungreedy;
+    result.options = options;
 
     return result;
 }

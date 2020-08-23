@@ -24,13 +24,11 @@ void clover3_final()
 
 void sig_int(int signal)
 {
-puts("SIGINT");
     gSigInt = 1;
 }
 
 void sig_tstp(int signal)
 {
-puts("SIGTSTP");
     gSigInt = 1; 
 }
 
@@ -77,7 +75,6 @@ void sig_cont_optc(int signal, siginfo_t* info, void* data)
 
 void sig_int_optc(int signal)
 {
-puts("SIGINT OPTC");
     sigchld_block(1);
     gSigInt = 1; 
     sigchld_block(0);

@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include "config.h"
 
-int gNCDebugHeap = 0;
+int gNCDebugHeap = 1;
 
 int gNumMemAlloc = 0;
 
@@ -36,7 +36,7 @@ char* mystrncpy(char* des, char* src, int size)
     return result;
 }
 
-extern void *xxxrealloc(void *block, long long size);
+extern void *ncrealloc(void *block, long long size);
 
 static void append_debug_heap_memory(void* mem, char* type_name, char* sname, int sline, int calloc_num, long long calloc_size, char* fun_name, char* real_fun_name)
 {
@@ -50,7 +50,7 @@ static void append_debug_heap_memory(void* mem, char* type_name, char* sname, in
     if(gNumHeapDebugs >= gSizeHeapDebugs) {
         gSizeHeapDebugs *= 2;
 
-        gHeapDebugs = xxxrealloc(gHeapDebugs, sizeof(struct sHeapDebug)*gSizeHeapDebugs);
+        gHeapDebugs = ncrealloc(gHeapDebugs, sizeof(struct sHeapDebug)*gSizeHeapDebugs);
     }
 
     gHeapDebugs[gNumHeapDebugs].freed = 0;
@@ -79,12 +79,12 @@ static void delete_debug_heap_memory(void* mem)
     }
 }
 
-void *xxxmalloc(long long size)
+void *ncmalloc(long long size)
 {
     void* result = malloc(size);
 
     if(result == NULL) {
-        fprintf(stderr, "can't get heap memory. Heap memory number is %d size %d. xxxmalloc\n", gNumMemAlloc, size);
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d size %d. ncmalloc\n", gNumMemAlloc, size);
         exit(2);
     }
 
@@ -108,7 +108,7 @@ void *debug_xcalloc(long long int num, long long int nsize, char* type_name, cha
     }
 
     if(result == NULL) {
-        fprintf(stderr, "can't get heap memory. Heap memory number is %d xxxcalloc num %d nsize %d type_name %s sname %s sline %d fun_name %s real_fun_name %s\n", gNumMemAlloc, num, nsize, type_name, sname, sline, fun_name, real_fun_name);
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d nccalloc num %d nsize %d type_name %s sname %s sline %d fun_name %s real_fun_name %s\n", gNumMemAlloc, num, nsize, type_name, sname, sline, fun_name, real_fun_name);
 
         exit(2);
     }
@@ -126,7 +126,7 @@ void *debug_xcalloc(long long int num, long long int nsize, char* type_name, cha
     return result;
 }
 
-void xxxfree(void *block)
+void ncfree(void *block)
 {
     if(gNCDebugHeap) {
         if(block) gNumMemAlloc--;
@@ -137,7 +137,7 @@ void xxxfree(void *block)
         if(block) gNumMemAlloc--;
     }
 
-    free(block);
+    if(block) free(block);
 }
 
 void debug_show_none_freed_heap_memory() 
@@ -167,12 +167,12 @@ void debug_show_none_freed_heap_memory()
     }
 }
 
-void *xxxcalloc(long long num, long long nsize)
+void *nccalloc(long long num, long long nsize)
 {
     void* result = calloc(num, nsize);
 
     if(result == NULL) {
-        fprintf(stderr, "can't get heap memory. Heap memory number is %d. xxxcalloc num %d nsize %d\n", gNumMemAlloc, num, nsize);
+        fprintf(stderr, "can't get heap memory. Heap memory number is %d. nccalloc num %d nsize %d\n", gNumMemAlloc, num, nsize);
 
         exit(2);
     }
@@ -190,7 +190,7 @@ void *xxxcalloc(long long num, long long nsize)
     return result;
 }
 
-void *xxxrealloc(void *block, long long int size)
+void *ncrealloc(void *block, long long int size)
 {
 #ifdef __DARWIN__
     void* result = calloc(1, size);
@@ -266,12 +266,12 @@ void *xsprintf(char* msg, ...)
 }
 
 
-void* xxxmemcpy(void* mem, void* mem2, long long int size)
+void* ncmemcpy(void* mem, void* mem2, long long int size)
 {
     return memcpy(mem, mem2, size);
 }
 
-long long xxxmalloc_usable_size(void* block)
+long long ncmalloc_usable_size(void* block)
 {
 #ifdef __DARWIN__
     return malloc_size(block);
@@ -280,7 +280,7 @@ long long xxxmalloc_usable_size(void* block)
 #endif
 }
 
-void *xxxmemdup(void *block)
+void *ncmemdup(void *block)
 {
 #ifdef __DARWIN__
     long long size = malloc_size(block);
@@ -290,7 +290,7 @@ void *xxxmemdup(void *block)
 
     if (!block) return (void*)0;
 
-    char* ret = xxxmalloc(size);
+    char* ret = ncmalloc(size);
 
     if (ret) {
         char* p = ret;

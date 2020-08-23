@@ -26,6 +26,11 @@ int parse_cmp(char* p, char* str)
         str++;
     }
 
+    if((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9') || *p == '_')
+    {
+        return 1;
+    }
+
     return 0;
 }
 
