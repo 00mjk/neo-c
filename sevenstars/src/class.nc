@@ -272,6 +272,10 @@ bool eval_class(char* source, vector<sCLType*%>* types, char* sname, int sline)
     expected_next_character('{', &info);
 
     while(*info.p) {
+        if(*info.p == '}') {
+            break;
+        }
+
         var word = parse_word(&info);
 
         if(strcmp(word, "var") == 0) {
@@ -354,6 +358,9 @@ bool eval_class(char* source, vector<sCLType*%>* types, char* sname, int sline)
                     delete cinfo.codes;
                     return false;
                 }
+
+                expected_next_character('}', &info);
+
                 int method_max_var_num = info.max_var_num;
                 info.max_var_num = max_var_num;
 
@@ -399,9 +406,6 @@ bool eval_class(char* source, vector<sCLType*%>* types, char* sname, int sline)
                     delete cinfo.codes;
                     return false;
                 }
-
-                expected_next_character('}', &info);
-
 
                 method.mByteCodes = dummy_heap borrow cinfo2.codes;
                 method.mNodeBlock = node_block;

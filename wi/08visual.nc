@@ -353,14 +353,13 @@ void runShell(ViWin* self, Vi* nvi) {
 
     var types = new vector<sCLType*%>.initialize();
 
-    clover3_init();
-    compiler_init(no_load_fudamental_classes);
+    clover3_init(no_load_fudamental_classes);
     clover3_init_for_wi(types);
 
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     
     CLVALUE result;
-    shell_commandline_without_to_string("texts().", -1, types, &result);
+    shell_commandline_without_to_string("texts()..to_string()", 8, types, &result);
     
     if(result.mObjectValue != 0) {
         CLObject obj = result.mObjectValue;
@@ -409,7 +408,6 @@ void runShell(ViWin* self, Vi* nvi) {
     heap_final();
 
     clover3_final();
-    compiler_final();
     
     nvi.init_curses();
 }

@@ -406,6 +406,12 @@ void input(Filer* self)
 
                 break;
 
+            case 'L'-'A'+1:
+                clear();
+                self.view();
+                refresh();
+                break;
+
             case ':': {
                 endwin();
                 CLVALUE result;

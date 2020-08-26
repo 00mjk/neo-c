@@ -96,6 +96,8 @@ bool call_macro(sCLNode** node, char* name, char* params, sParserInfo* info)
         return false;
     };
 
+    expected_next_character('}', info);
+
     info.p = p_before;
     xstrncpy(info.sname, sname_before, PATH_MAX);
     info.sline = sline_before;

@@ -23,11 +23,11 @@ bool parse_block(sCLNodeBlock** node_block, int num_params, sCLParam* params, sP
     }
     
     while(*info->p) {
+        parse_comment(info);
+
         if(*info->p == '}') {
             break;
         }
-
-        parse_comment(info);
 
         int sline = info.sline;
 

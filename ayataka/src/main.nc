@@ -10,8 +10,7 @@ int main(int argc, char* argv[])
 
     var types = new vector<sCLType*%>.initialize();
 
-    clover3_init();
-    compiler_init(no_load_fudamental_classes);
+    clover3_init(no_load_fudamental_classes);
 
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
 
@@ -26,7 +25,6 @@ int main(int argc, char* argv[])
     heap_final();
 
     clover3_final();
-    compiler_final();
 
     return 0;
 }

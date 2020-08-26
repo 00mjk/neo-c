@@ -656,8 +656,6 @@ bool save_class(sCLClass* klass);
 extern int match_index;
 extern list<string>*% matches;
 
-void compiler_init(bool no_load_fudamental_classes);
-void compiler_final();
 bool compiler(char* fname);
 bool compiler2(buffer* source);
 void set_signal();
@@ -665,7 +663,7 @@ void set_signal_optc();
 void set_signal_shell();
 void sig_int_for_shell(int signal);
 void shell(vector<sCLType*%>* types);
-void clover3_init();
+void clover3_init(bool no_load_fundamental_classes);
 void clover3_final();
 bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* types, CLVALUE* result);
 

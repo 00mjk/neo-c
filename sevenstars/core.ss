@@ -137,9 +137,7 @@ class object {
         var i = 0;
         while(i < self.num_fields()) {
             buf.append_str(self.field(i, null).to_string());
-            if(i != self.num_fields()-1) {
-                buf.append_str(",");
-            }
+            buf.append_str("\n");
             i++;
         }
 
@@ -182,18 +180,12 @@ class list<T>
     def to_string():string {
         var buf = new buffer();
 
-        buf.append_str("list(");
-
         var i = 0;
         while(i < self.length()) {
             buf.append_str(self.item(i, null).to_string());
             i++;
-            if(i != self.length()) {
-                buf.append_str(",");
-            }
+            buf.append_str("\n");
         }
-
-        buf.append_str(")");
 
         buf.to_string()
     }
@@ -342,7 +334,7 @@ class tuple1<T>
     }
 
     def to_string() : string {
-        "tuple(" + self.value1.to_string() + ")"
+        self.value1.to_string()
     }
 }
 
@@ -371,7 +363,7 @@ class tuple2<T, T2>
     }
 
     def to_string() : string {
-        "tuple(" + self.value1.to_string() + "," + self.value2.to_string() + ")"
+        self.value1.to_string() + "\n" + self.value2.to_string()
     }
 }
 
@@ -402,7 +394,7 @@ class tuple3<T, T2, T3>
         !self.equal(right)
     }
     def to_string() : string {
-        "tuple(" + self.value1.to_string() + "," + self.value2.to_string() + "," + self.value3.to_string() + ")"
+        self.value1.to_string() + "\n" + self.value2.to_string() + "\n" + self.value3.to_string()
     }
 }
 
@@ -436,7 +428,7 @@ class tuple4<T, T2, T3, T4>
         !self.equal(right)
     }
     def to_string() : string {
-        "tuple(" + self.value1.to_string() + "," + self.value2.to_string() + "," + self.value3.to_string() + "," + self.value4.to_string() + ")"
+        self.value1.to_string() + "\n" + self.value2.to_string() + "\n" + self.value3.to_string() + "\n" + self.value4.to_string()
     }
 }
 
@@ -503,6 +495,40 @@ class string
 
     def scan(reg:regex):list<string>;
     def split(reg:regex):list<string>;
+}
+
+class list<T>
+{
+    def scan(reg:regex):string {
+        var buf = new buffer();
+        var i=0;
+        while(i < self.length()) {
+            var it = self.item(i, null);
+
+            var str = it.scan(reg).join("\n");
+
+            buf.append_str(str);
+            buf.append_str("\n");
+
+            i++;
+        }
+
+        buf.to_string()
+    }
+    def sub(reg:regex, replace:string):string {
+        var buf = new buffer();
+        var i=0;
+        while(i < self.length()) {
+            var it = self.item(i, null);
+
+            buf.append_str(it.sub(reg, replace));
+            buf.append_str("\n");
+
+            i++;
+        }
+
+        buf.to_string()
+    }
 }
 
 class regex 

@@ -71,18 +71,15 @@ int main(int argc, char** argv)
 
         char* ext_sname = p;
 
-        clover3_init();
-        compiler_init(no_load_fudamental_classes);
+        clover3_init(no_load_fudamental_classes);
 
         if(!compiler(sname)) {
             fprintf(stderr, "sevenstars can't compile %s\n", argv[i]);
             clover3_final();
-            compiler_final();
             return 1;
         }
 
         clover3_final();
-        compiler_final();
     }
     else if(opt_c) {
         set_signal();
@@ -104,33 +101,28 @@ int main(int argc, char** argv)
 
         char* ext_sname = p;
 
-        clover3_init();
-        compiler_init(no_load_fudamental_classes);
+        clover3_init(no_load_fudamental_classes);
 
         if(!compiler2(string(source).to_buffer())) {
             fprintf(stderr, "sevenstars can't compile %s\n", argv[i]);
             clover3_final();
-            compiler_final();
             return 1;
         }
 
         clover3_final();
-        compiler_final();
     }
     else {
         set_signal_shell();
 
         var types = new vector<sCLType*%>.initialize();
 
-        clover3_init();
-        compiler_init(no_load_fudamental_classes);
+        clover3_init(no_load_fudamental_classes);
 
         heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
         shell(types);
         heap_final();
 
         clover3_final();
-        compiler_final();
     }
 
     return 0;

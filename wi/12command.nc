@@ -40,8 +40,7 @@ void enterComandMode(Vi* self)
 
     var types = new vector<sCLType*%>.initialize();
 
-    clover3_init();
-    compiler_init(no_load_fudamental_classes);
+    clover3_init(no_load_fudamental_classes);
 
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
 
@@ -94,7 +93,6 @@ void enterComandMode(Vi* self)
     heap_final();
 
     clover3_final();
-    compiler_final();
     
     self.init_curses();
 }

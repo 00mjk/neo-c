@@ -2,7 +2,65 @@
 #include <signal.h>
 #include <dirent.h>
 
-void clover3_init()
+void compiler_init(bool no_load_fudamental_classes)
+{
+    match_index = 0;
+    matches = borrow new list<string>.initialize();
+
+    if(!no_load_fudamental_classes) {
+        char path[PATH_MAX];
+
+        char* system_path = PREFIX;
+        snprintf(path, PATH_MAX, "%s/share/sevenstars/sevenstars.ss", system_path);
+
+        if(access(path, R_OK) != 0) {
+            char* home_path = getenv("HOME");
+
+            snprintf(path, PATH_MAX, "%s/.sevenstars/sevenstars.ss", home_path);
+
+            if(access(path, R_OK) != 0) {
+                snprintf(path, PATH_MAX, "sevenstars.ss");
+            }
+        }
+
+        FILE* f = fopen(path, "r");
+
+        if(f) {
+            buffer*% buf = new buffer.initialize();
+
+            char buf2[BUFSIZ];
+
+            while(true) {
+                int n = fread(buf2, 1, BUFSIZ, f);
+
+                if(n <= 0) {
+                    break;
+                }
+
+                buf.append(buf2, n);
+            }
+
+            fclose(f);
+
+            string source = buf.to_string();
+
+            heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
+            var types = new vector<sCLType*%>.initialize();
+            CLVALUE result;
+            if(!shell_eval_str(source, "load fundamental class", false, types, &result)) {
+                fprintf(stderr, "no load fundamental class\n");
+            }
+            heap_final();
+        }
+    }
+}
+
+void compiler_final()
+{
+    delete dummy_heap matches;
+}
+
+void clover3_init(bool no_load_fudamental_classes)
 {
     class_init();
     macro_init();
@@ -12,11 +70,13 @@ void clover3_init()
     native_init4();
     native_init5();
     native_init6();
+    compiler_init(no_load_fudamental_classes);
     gSigInt = 0;
 }
 
 void clover3_final()
 {
+    compiler_final();
     native_final();
     class_final();
     macro_final();
@@ -516,63 +576,6 @@ bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* type
     return true;
 }
 
-void compiler_init(bool no_load_fudamental_classes)
-{
-    match_index = 0;
-    matches = borrow new list<string>.initialize();
-
-    if(!no_load_fudamental_classes) {
-        char path[PATH_MAX];
-
-        char* system_path = PREFIX;
-        snprintf(path, PATH_MAX, "%s/share/sevenstars/sevenstars.ss", system_path);
-
-        if(access(path, R_OK) != 0) {
-            char* home_path = getenv("HOME");
-
-            snprintf(path, PATH_MAX, "%s/.sevenstars/sevenstars.ss", home_path);
-
-            if(access(path, R_OK) != 0) {
-                snprintf(path, PATH_MAX, "sevenstars.ss");
-            }
-        }
-
-        FILE* f = fopen(path, "r");
-
-        if(f) {
-            buffer*% buf = new buffer.initialize();
-
-            char buf2[BUFSIZ];
-
-            while(true) {
-                int n = fread(buf2, 1, BUFSIZ, f);
-
-                if(n <= 0) {
-                    break;
-                }
-
-                buf.append(buf2, n);
-            }
-
-            fclose(f);
-
-            string source = buf.to_string();
-
-            heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
-            var types = new vector<sCLType*%>.initialize();
-            CLVALUE result;
-            if(!shell_eval_str(source, "load fundamental class", false, types, &result)) {
-                fprintf(stderr, "no load fundamental class\n");
-            }
-            heap_final();
-        }
-    }
-}
-
-void compiler_final()
-{
-    delete dummy_heap matches;
-}
 
 bool read_source(char* fname, buffer* source)
 {

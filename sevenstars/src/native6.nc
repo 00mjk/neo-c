@@ -367,8 +367,6 @@ bool sevenstars_map_to_string(CLVALUE** stack_ptr, sVMInfo* info)
     /// go ///
     buffer*% buf = new buffer.initialize();
 
-    buf.append_str("map(");
-
     bool return_false = false;
     
     int n = 0;
@@ -394,12 +392,10 @@ bool sevenstars_map_to_string(CLVALUE** stack_ptr, sVMInfo* info)
         char* string_data = get_string_mem(to_string_result);
 
         buf.append_str(it);
-        buf.append_str(",");
+        buf.append_str("\n");
         buf.append_str(string_data);
 
-        if(n != self_value.length() -1) {
-            buf.append_str(",");
-        }
+        buf.append_str("\n");
 
         n++;
     }

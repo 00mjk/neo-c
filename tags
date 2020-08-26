@@ -86,7 +86,7 @@ LexicalBlock	src/llvm.cpp	/^    std::vector<DIScope*> LexicalBlock;$/;"	m	struct
 MACRO_MAX	src/common.h	40;"	d
 MANAGED	src/xfunc.h	5;"	d
 MAP_TABLE_DEFAULT_SIZE	code/neo-c.h	1317;"	d
-MAP_TABLE_DEFAULT_SIZE	neo-c.h	2009;"	d
+MAP_TABLE_DEFAULT_SIZE	neo-c.h	2011;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	29;"	d
 MyModulePass	src/llvm.cpp	/^    MyModulePass(char id) : ModulePass(id) {$/;"	f	struct:MyModulePass
 MyModulePass	src/llvm.cpp	/^struct MyModulePass : ModulePass {$/;"	s	file:
@@ -685,7 +685,7 @@ gMainModulePath	src/compiler.c	/^char gMainModulePath[PATH_MAX];$/;"	v
 gMaxMemAlloc	src/memalloc-stdc.c	/^int gMaxMemAlloc = 0;$/;"	v
 gNCDebug	src/compiler.c	/^BOOL gNCDebug = FALSE;$/;"	v
 gNCDebugHeap	src/compiler.c	/^BOOL gNCDebugHeap = FALSE;$/;"	v
-gNCDebugHeap	src/memalloc-stdc.c	/^int gNCDebugHeap = 0;$/;"	v
+gNCDebugHeap	src/memalloc-stdc.c	/^int gNCDebugHeap = 1;$/;"	v
 gNCDebugHeapValue	src/llvm.cpp	/^GlobalVariable* gNCDebugHeapValue;$/;"	v
 gNodeTypes	src/node_type.c	/^static sNodeType** gNodeTypes = NULL;$/;"	v	file:
 gNodes	src/node_alloc.c	/^sNodeTree* gNodes;$/;"	v
@@ -700,7 +700,7 @@ gTypeDefTable	src/typedef.c	/^static struct sTypeDefTable gTypeDefTable[TYPEDEF_
 gUsedNodeTypes	src/node_type.c	/^static int gUsedNodeTypes = 0;$/;"	v	file:
 gUsedNodes	src/node_alloc.c	/^int gUsedNodes = 0;$/;"	v
 gUsedPageNodeTypes	src/node_type.c	/^static int gUsedPageNodeTypes = 0;$/;"	v	file:
-gVersion	src/compiler.c	/^char* gVersion = "1.3.8";$/;"	v
+gVersion	src/compiler.c	/^char* gVersion = "1.3.9";$/;"	v
 generics_type	src/common.h	/^    sNodeType* generics_type;$/;"	m	struct:sCompileInfoStruct
 generics_type_names	sevenstars/src/common.h	/^    vector<string>* generics_type_names;$/;"	m	struct:sParserInfo
 get_block_text	src/parser.c	/^static BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly_brace, BOOL last_expresssion_is_self)$/;"	f	file:
@@ -1376,11 +1376,8 @@ mVersion	src/llvm_common.hpp	/^    int mVersion;$/;"	m	struct:sFunctionStruct
 mVolatile	src/common.h	/^    BOOL mVolatile;$/;"	m	struct:sNodeTypeStruct
 mWhileNodeBlock	src/common.h	/^            MANAGED struct sNodeBlockStruct* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon18::__anon31	typeref:struct:sNodeTreeStruct::__anon18::__anon31::sNodeBlockStruct
 macro	wi/common.h	/^    map<int, vector<vector<int>*%>*%>*% macro;$/;"	m	struct:version
-main	ayataka/a.c	/^int main()$/;"	f
-main	sevenstars/a.c	/^int main() {$/;"	f
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
 main	src/preprocessor.c	/^int main(int argc, char* argv[])$/;"	f
-main	wi/a.c	/^int main()$/;"	f
 make_clone_for_recursive_field_type	src/llvm.cpp	/^BOOL make_clone_for_recursive_field_type(sNodeType* node_type, sCompileInfo* info) $/;"	f
 make_finalize_for_recursive_field_type	src/llvm.cpp	/^BOOL make_finalize_for_recursive_field_type(sNodeType* node_type, sCompileInfo* info) $/;"	f
 mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
@@ -1412,6 +1409,13 @@ n	neo-c.h	/^        n = n + 1;$/;"	m	struct:map
 n	neo-c.h	/^        n = n + 1;$/;"	m	struct:tuple
 n	neo-c.h	/^    n = 0;$/;"	m	struct:map
 n	neo-c.h	/^    n = 0;$/;"	m	struct:tuple
+nccalloc	src/memalloc-stdc.c	/^void *nccalloc(long long num, long long nsize)$/;"	f
+ncfree	src/memalloc-stdc.c	/^void ncfree(void *block)$/;"	f
+ncmalloc	src/memalloc-stdc.c	/^void *ncmalloc(long long size)$/;"	f
+ncmalloc_usable_size	src/memalloc-stdc.c	/^long long ncmalloc_usable_size(void* block)$/;"	f
+ncmemcpy	src/memalloc-stdc.c	/^void* ncmemcpy(void* mem, void* mem2, long long int size)$/;"	f
+ncmemdup	src/memalloc-stdc.c	/^void *ncmemdup(void *block)$/;"	f
+ncrealloc	src/memalloc-stdc.c	/^void *ncrealloc(void *block, long long int size)$/;"	f
 new_right_value_objects_container	src/llvm.cpp	/^void* new_right_value_objects_container(sCompileInfo* info)$/;"	f
 next	code/neo-c.h	/^    struct list_item<T>*? next;$/;"	m	struct:list_item	typeref:struct:list_item::list_item
 next	neo-c.h	/^    struct list_item<T>*? next;$/;"	m	struct:list_item	typeref:struct:list_item::list_item
@@ -1426,6 +1430,7 @@ nodes	tiny/common.h	/^    vector<TinyNode*%>*% nodes;$/;"	m	struct:TinyBlock
 nregex	neo-c.h	/^typedef regex_struct*% nregex;$/;"	t
 num_loop	src/common.h	/^    int num_loop;$/;"	m	struct:sCompileInfoStruct
 num_loop2	src/common.h	/^    int num_loop2;$/;"	m	struct:sCompileInfoStruct
+options	neo-c.h	/^    int options;$/;"	m	struct:regex_struct
 output_native_code	src/llvm.cpp	/^void output_native_code(char* sname, BOOL optimize)$/;"	f
 p	sevenstars/src/common.h	/^    char* p;$/;"	m	struct:sParserInfo
 p	src/common.h	/^    char* p;$/;"	m	struct:sParserInfoStruct
@@ -2020,13 +2025,6 @@ xsprintf	src/memalloc-stdc.c	/^void *xsprintf(char* msg, ...)$/;"	f
 xstrdup	src/xfunc.c	/^ALLOC char* xstrdup(char* str)$/;"	f
 xstrncat	src/xfunc.c	/^char* xstrncat(char* des, char* str, int size)$/;"	f
 xstrncpy	src/xfunc.c	/^char* xstrncpy(char* des, char* src, int size)$/;"	f
-xxxcalloc	src/memalloc-stdc.c	/^void *xxxcalloc(long long num, long long nsize)$/;"	f
-xxxfree	src/memalloc-stdc.c	/^void xxxfree(void *block)$/;"	f
-xxxmalloc	src/memalloc-stdc.c	/^void *xxxmalloc(long long size)$/;"	f
-xxxmalloc_usable_size	src/memalloc-stdc.c	/^long long xxxmalloc_usable_size(void* block)$/;"	f
-xxxmemcpy	src/memalloc-stdc.c	/^void* xxxmemcpy(void* mem, void* mem2, long long int size)$/;"	f
-xxxmemdup	src/memalloc-stdc.c	/^void *xxxmemdup(void *block)$/;"	f
-xxxrealloc	src/memalloc-stdc.c	/^void *xxxrealloc(void *block, long long int size)$/;"	f
 y	wi/common.h	/^    int y;$/;"	m	struct:ViWin
 yank	wi/common.h	/^    list<wstring>*% yank;$/;"	m	struct:version
 yankKind	wi/common.h	/^    int yankKind;$/;"	m	struct:version

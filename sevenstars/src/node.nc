@@ -2334,6 +2334,8 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
                         return false;
                     }
 
+                    expected_next_character('}', info->pinfo);
+
                     delete info.pinfo.vtables;
                     info.pinfo.vtables = vtables_before;
                     info->pinfo.max_var_num = max_var_num;
@@ -2433,6 +2435,8 @@ bool compile_method_call(sCLNode* node, sCompileInfo* info)
                     info.pinfo.vtables = vtables_before;
                     return false;
                 }
+
+                expected_next_character('}', info->pinfo);
 
                 delete info.pinfo.vtables;
                 info.pinfo.vtables = vtables_before;
