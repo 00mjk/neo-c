@@ -468,10 +468,10 @@ void declare_builtin_functions()
     sCLClass* va_list_struct = alloc_struct("__builtin_va_list", FALSE);
 
     int num_fields = 1;
-    char field_names[STRUCT_FIELD_MAX][VAR_NAME_MAX];
+    char* field_names[STRUCT_FIELD_MAX];
     sNodeType* fields2[STRUCT_FIELD_MAX];
 
-    xstrncpy(field_names[0], "field", VAR_NAME_MAX);
+    field_names[0] = "field";
     fields2[0] = create_node_type_with_class_name("char*");
 
     add_fields_to_struct(va_list_struct, num_fields, field_names, fields2);
@@ -934,7 +934,7 @@ void output_native_code(char* sname, BOOL optimize, char* throw_to_cflag)
 
     if(rc != 0) {
         fprintf(stderr, "failed to compile(6) %d %s\n", rc, command);
-        //exit(2);
+        exit(2);
     }
 
     delete TheModule;
@@ -1966,7 +1966,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
                     }
                     else {
                         rvalue->value = Builder.CreateCast(Instruction::SExt, rvalue->value, IntegerType::get(TheContext, 64), "sext10");
-                        rvalue->value = Builder.CreateCast(Instruction::IntToPtr, rvalue->value, IntegerType::get(TheContext, 64));
+                        rvalue->value = Builder.CreateCast(Instruction::IntToPtr, rvalue->value, IntegerType::get(TheContext, 64), "IntToPtr9");
                     }
                 }
 
@@ -1976,7 +1976,7 @@ BOOL cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
                     return FALSE;
                 }
 
-                rvalue->value = Builder.CreateCast(Instruction::IntToPtr, rvalue->value, llvm_type);
+                rvalue->value = Builder.CreateCast(Instruction::IntToPtr, rvalue->value, llvm_type, "IntToPtr10");
                 rvalue->type = clone_node_type(left_type);
             }
 

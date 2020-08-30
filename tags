@@ -556,10 +556,10 @@ active	self-host/wi/common.h	/^    bool active;$/;"	m	struct:ViFiler
 active	wi/common.h	/^    bool active;$/;"	m	struct:ViFiler
 activeWin	self-host/wi/common.h	/^    ViWin* activeWin;$/;"	m	struct:Vi
 activeWin	wi/common.h	/^    ViWin* activeWin;$/;"	m	struct:Vi
-add_fields_to_struct	self-host/src/klass.c	/^void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
-add_fields_to_struct	src/klass.c	/^void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
-add_fields_to_union	self-host/src/klass.c	/^void add_fields_to_union(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
-add_fields_to_union	src/klass.c	/^void add_fields_to_union(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
+add_fields_to_struct	self-host/src/klass.c	/^void add_fields_to_struct(sCLClass* klass, int num_fields, char** field_name, struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
+add_fields_to_struct	src/klass.c	/^void add_fields_to_struct(sCLClass* klass, int num_fields, char** field_name, struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
+add_fields_to_union	self-host/src/klass.c	/^void add_fields_to_union(sCLClass* klass, int num_fields, char** field_name, struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
+add_fields_to_union	src/klass.c	/^void add_fields_to_union(sCLClass* klass, int num_fields, char** field_name, struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX])$/;"	f
 add_function	self-host/src/node.cpp	/^BOOL add_function(char* name, char* real_fun_name, char* asm_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param, char* struct_name, int generics_fun_num, char* simple_fun_name, sFunction** neo_c_fun)$/;"	f
 add_function	src/node.cpp	/^BOOL add_function(char* name, char* real_fun_name, char* asm_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param, char* struct_name, int generics_fun_num, char* simple_fun_name, sFunction** neo_c_fun)$/;"	f
 add_preprocessor	self-host/src/preprocessor.c	/^static BOOL add_preprocessor(char* name, MANAGED sBuf* fun_source)$/;"	f	file:
@@ -574,18 +574,18 @@ alignment	self-host/src/alignment.c	/^void alignment(unsigned int* size)$/;"	f
 alignment	src/alignment.c	/^void alignment(unsigned int* size)$/;"	f
 alignment_pointer	self-host/src/alignment.c	/^void alignment_pointer(char** p, char* head)$/;"	f
 alignment_pointer	src/alignment.c	/^void alignment_pointer(char** p, char* head)$/;"	f
-alloc_class	self-host/src/klass.c	/^static sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_, BOOL number_type, BOOL unsigned_number, int generics_number, int method_generics_number, BOOL union_, BOOL anonymous, BOOL enum_, BOOL anonymous_var_name)$/;"	f	file:
-alloc_class	src/klass.c	/^static sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL struct_, BOOL number_type, BOOL unsigned_number, int generics_number, int method_generics_number, BOOL union_, BOOL anonymous, BOOL enum_, BOOL anonymous_var_name)$/;"	f	file:
-alloc_enum	self-host/src/klass.c	/^sCLClass* alloc_enum(char* class_name)$/;"	f
-alloc_enum	src/klass.c	/^sCLClass* alloc_enum(char* class_name)$/;"	f
+alloc_class	self-host/src/klass.c	/^static sCLClass* alloc_class(char* class_name_, BOOL primitive_, BOOL struct_, BOOL number_type, BOOL unsigned_number, int generics_number, int method_generics_number, BOOL union_, BOOL anonymous, BOOL enum_, BOOL anonymous_var_name)$/;"	f	file:
+alloc_class	src/klass.c	/^static sCLClass* alloc_class(char* class_name_, BOOL primitive_, BOOL struct_, BOOL number_type, BOOL unsigned_number, int generics_number, int method_generics_number, BOOL union_, BOOL anonymous, BOOL enum_, BOOL anonymous_var_name)$/;"	f	file:
+alloc_enum	self-host/src/klass.c	/^sCLClass* alloc_enum(char* class_name_)$/;"	f
+alloc_enum	src/klass.c	/^sCLClass* alloc_enum(char* class_name_)$/;"	f
 alloc_node	self-host/src/node_alloc.c	/^unsigned int alloc_node()$/;"	f
 alloc_node	src/node_alloc.c	/^unsigned int alloc_node()$/;"	f
 alloc_node_type	self-host/src/node_type.c	/^static sNodeType* alloc_node_type()$/;"	f	file:
 alloc_node_type	src/node_type.c	/^static sNodeType* alloc_node_type()$/;"	f	file:
-alloc_struct	self-host/src/klass.c	/^sCLClass* alloc_struct(char* class_name, BOOL anonymous)$/;"	f
-alloc_struct	src/klass.c	/^sCLClass* alloc_struct(char* class_name, BOOL anonymous)$/;"	f
-alloc_union	self-host/src/klass.c	/^sCLClass* alloc_union(char* class_name, BOOL anonymous, BOOL anonymous_var_name)$/;"	f
-alloc_union	src/klass.c	/^sCLClass* alloc_union(char* class_name, BOOL anonymous, BOOL anonymous_var_name)$/;"	f
+alloc_struct	self-host/src/klass.c	/^sCLClass* alloc_struct(char* class_name_, BOOL anonymous)$/;"	f
+alloc_struct	src/klass.c	/^sCLClass* alloc_struct(char* class_name_, BOOL anonymous)$/;"	f
+alloc_union	self-host/src/klass.c	/^sCLClass* alloc_union(char* class_name_, BOOL anonymous, BOOL anonymous_var_name)$/;"	f
+alloc_union	src/klass.c	/^sCLClass* alloc_union(char* class_name_, BOOL anonymous, BOOL anonymous_var_name)$/;"	f
 anchored	code/neo-c.h	/^    bool anchored;$/;"	m	struct:regex_struct
 anchored	neo-c.h	/^    bool anchored;$/;"	m	struct:regex_struct
 anchored	self-host/code/neo-c.h	/^    bool anchored;$/;"	m	struct:regex_struct
@@ -1138,8 +1138,8 @@ create_llvm_type_from_node_type	self-host/src/llvm.cpp	/^BOOL create_llvm_type_f
 create_llvm_type_from_node_type	src/llvm.cpp	/^BOOL create_llvm_type_from_node_type(Type** result_type, sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info)$/;"	f
 create_llvm_union_type	self-host/src/llvm.cpp	/^BOOL create_llvm_union_type(sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info)$/;"	f
 create_llvm_union_type	src/llvm.cpp	/^BOOL create_llvm_union_type(sNodeType* node_type, sNodeType* generics_type, sCompileInfo* info)$/;"	f
-create_node_type_with_class_name	self-host/src/node_type.c	/^sNodeType* create_node_type_with_class_name(char* class_name)$/;"	f
-create_node_type_with_class_name	src/node_type.c	/^sNodeType* create_node_type_with_class_name(char* class_name)$/;"	f
+create_node_type_with_class_name	self-host/src/node_type.c	/^sNodeType* create_node_type_with_class_name(char* class_name_)$/;"	f
+create_node_type_with_class_name	src/node_type.c	/^sNodeType* create_node_type_with_class_name(char* class_name_)$/;"	f
 create_node_type_with_class_pointer	self-host/src/node_type.c	/^sNodeType* create_node_type_with_class_pointer(sCLClass* klass)$/;"	f
 create_node_type_with_class_pointer	src/node_type.c	/^sNodeType* create_node_type_with_class_pointer(sCLClass* klass)$/;"	f
 create_operator_fun_name	self-host/src/node.cpp	/^static void create_operator_fun_name(char* real_fun_name, size_t size_real_fun_name, char* fun_name, sNodeType** param_types, int num_params)$/;"	f	file:
@@ -1426,10 +1426,10 @@ gMaxMemAlloc	self-host/src/memalloc-stdc.c	/^int gMaxMemAlloc = 0;$/;"	v
 gMaxMemAlloc	src/memalloc-stdc.c	/^int gMaxMemAlloc = 0;$/;"	v
 gNCDebug	self-host/src/compiler.c	/^BOOL gNCDebug = FALSE;$/;"	v
 gNCDebug	src/compiler.c	/^BOOL gNCDebug = FALSE;$/;"	v
-gNCDebugHeap	self-host/src/compiler.c	/^BOOL gNCDebugHeap = FALSE;$/;"	v
 gNCDebugHeap	self-host/src/memalloc-stdc.c	/^int gNCDebugHeap = 1;$/;"	v
-gNCDebugHeap	src/compiler.c	/^BOOL gNCDebugHeap = FALSE;$/;"	v
 gNCDebugHeap	src/memalloc-stdc.c	/^int gNCDebugHeap = 1;$/;"	v
+gNCDebugHeapCompiler	self-host/src/compiler.c	/^BOOL gNCDebugHeapCompiler = FALSE;$/;"	v
+gNCDebugHeapCompiler	src/compiler.c	/^BOOL gNCDebugHeapCompiler = FALSE;$/;"	v
 gNCDebugHeapValue	self-host/src/llvm.cpp	/^GlobalVariable* gNCDebugHeapValue;$/;"	v
 gNCDebugHeapValue	src/llvm.cpp	/^GlobalVariable* gNCDebugHeapValue;$/;"	v
 gNodeTypes	self-host/src/node_type.c	/^static sNodeType** gNodeTypes = NULL;$/;"	v	file:
@@ -1466,8 +1466,8 @@ generics_type_names	self-host/sevenstars/src/common.h	/^    vector<string>* gene
 generics_type_names	sevenstars/src/common.h	/^    vector<string>* generics_type_names;$/;"	m	struct:sParserInfo
 get_block_text	self-host/src/parser.c	/^static BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly_brace, BOOL last_expresssion_is_self)$/;"	f	file:
 get_block_text	src/parser.c	/^static BOOL get_block_text(sBuf* buf, sParserInfo* info, BOOL append_head_currly_brace, BOOL last_expresssion_is_self)$/;"	f	file:
-get_class	self-host/src/klass.c	/^sCLClass* get_class(char* class_name)$/;"	f
-get_class	src/klass.c	/^sCLClass* get_class(char* class_name)$/;"	f
+get_class	self-host/src/klass.c	/^sCLClass* get_class(char* class_name_)$/;"	f
+get_class	src/klass.c	/^sCLClass* get_class(char* class_name_)$/;"	f
 get_command_result	self-host/src/macro.c	/^static BOOL get_command_result(sBuf* command_result, char* macro_name, char* cmdline, char* params)$/;"	f	file:
 get_command_result	src/macro.c	/^static BOOL get_command_result(sBuf* command_result, char* macro_name, char* cmdline, char* params)$/;"	f	file:
 get_const_value_from_node	self-host/src/llvm.cpp	/^BOOL get_const_value_from_node(int* array_size, unsigned int array_size_node, sParserInfo* info)$/;"	f
@@ -1618,8 +1618,8 @@ is_function_name	self-host/src/node.cpp	/^BOOL is_function_name(char* name)$/;"	
 is_function_name	src/node.cpp	/^BOOL is_function_name(char* name)$/;"	f
 is_generics_type	self-host/src/llvm.cpp	/^static BOOL is_generics_type(sNodeType* node_type)$/;"	f	file:
 is_generics_type	src/llvm.cpp	/^static BOOL is_generics_type(sNodeType* node_type)$/;"	f	file:
-is_included_var_from_this_table_only	self-host/src/vtable.c	/^BOOL is_included_var_from_this_table_only(sVarTable* table, sVar* var)$/;"	f
-is_included_var_from_this_table_only	src/vtable.c	/^BOOL is_included_var_from_this_table_only(sVarTable* table, sVar* var)$/;"	f
+is_included_var_from_this_table_only	self-host/src/vtable.c	/^BOOL is_included_var_from_this_table_only(sVarTable* table, sVar* var_)$/;"	f
+is_included_var_from_this_table_only	src/vtable.c	/^BOOL is_included_var_from_this_table_only(sVarTable* table, sVar* var_)$/;"	f
 is_number_type	self-host/src/node_type.c	/^BOOL is_number_type(sNodeType* node_type)$/;"	f
 is_number_type	src/node_type.c	/^BOOL is_number_type(sNodeType* node_type)$/;"	f
 is_premitive_type	self-host/src/parser.c	/^static BOOL is_premitive_type(char* buf, sParserInfo* info)$/;"	f	file:
@@ -2050,10 +2050,10 @@ llvm_init	self-host/src/llvm.cpp	/^void llvm_init()$/;"	f
 llvm_init	src/llvm.cpp	/^void llvm_init()$/;"	f
 load_address_to_lvtable	self-host/src/llvm.cpp	/^Value* load_address_to_lvtable(int index, sNodeType* var_type, sCompileInfo* info)$/;"	f
 load_address_to_lvtable	src/llvm.cpp	/^Value* load_address_to_lvtable(int index, sNodeType* var_type, sCompileInfo* info)$/;"	f
-load_class	self-host/src/klass.c	/^static sCLClass* load_class(char* class_name, int version)$/;"	f	file:
-load_class	src/klass.c	/^static sCLClass* load_class(char* class_name, int version)$/;"	f	file:
-load_class_from_class_file	self-host/src/klass.c	/^static sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)$/;"	f	file:
-load_class_from_class_file	src/klass.c	/^static sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)$/;"	f	file:
+load_class	self-host/src/klass.c	/^static sCLClass* load_class(char* class_name_, int version)$/;"	f	file:
+load_class	src/klass.c	/^static sCLClass* load_class(char* class_name_, int version)$/;"	f	file:
+load_class_from_class_file	self-host/src/klass.c	/^static sCLClass* load_class_from_class_file(char* class_name_, char* class_file_name)$/;"	f	file:
+load_class_from_class_file	src/klass.c	/^static sCLClass* load_class_from_class_file(char* class_name_, char* class_file_name)$/;"	f	file:
 load_field	self-host/src/llvm_common.hpp	/^    BOOL load_field;$/;"	m	struct:LVALUEStruct
 load_field	src/llvm_common.hpp	/^    BOOL load_field;$/;"	m	struct:LVALUEStruct
 loop_begin_block	self-host/src/common.h	/^    void* loop_begin_block[LOOP_NEST_MAX];$/;"	m	struct:sCompileInfoStruct
@@ -3092,8 +3092,8 @@ parse_while	self-host/src/parser.c	/^static BOOL parse_while(unsigned int* node,
 parse_while	src/parser.c	/^static BOOL parse_while(unsigned int* node, sParserInfo* info)$/;"	f	file:
 parse_word	self-host/src/parser.c	/^BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf)$/;"	f
 parse_word	src/parser.c	/^BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf)$/;"	f
-parser_err_msg	self-host/src/parser.c	/^void parser_err_msg(sParserInfo* info, const char* msg, ...)$/;"	f
-parser_err_msg	src/parser.c	/^void parser_err_msg(sParserInfo* info, const char* msg, ...)$/;"	f
+parser_err_msg	self-host/src/parser.c	/^void parser_err_msg(sParserInfo* info, const char* msg)$/;"	f
+parser_err_msg	src/parser.c	/^void parser_err_msg(sParserInfo* info, const char* msg)$/;"	f
 parser_final	self-host/src/parser.c	/^void parser_final()$/;"	f
 parser_final	src/parser.c	/^void parser_final()$/;"	f
 parser_init	self-host/src/parser.c	/^void parser_init()$/;"	f
@@ -3146,12 +3146,12 @@ prototypes	sevenstars/configure	/^   function prototypes and stuff, but not '\\x
 prototypes	wi/configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
 push_value_to_stack_ptr	self-host/src/llvm.cpp	/^void push_value_to_stack_ptr(LVALUE* value, sCompileInfo* info)$/;"	f
 push_value_to_stack_ptr	src/llvm.cpp	/^void push_value_to_stack_ptr(LVALUE* value, sCompileInfo* info)$/;"	f
-put_class_to_table	self-host/src/klass.c	/^static BOOL put_class_to_table(char* class_name, sCLClass* klass)$/;"	f	file:
-put_class_to_table	src/klass.c	/^static BOOL put_class_to_table(char* class_name, sCLClass* klass)$/;"	f	file:
+put_class_to_table	self-host/src/klass.c	/^static BOOL put_class_to_table(char* class_name_, sCLClass* klass)$/;"	f	file:
+put_class_to_table	src/klass.c	/^static BOOL put_class_to_table(char* class_name_, sCLClass* klass)$/;"	f	file:
 read_char_from_file	self-host/src/klass.c	/^void read_char_from_file(char** p, char* c)$/;"	f
 read_char_from_file	src/klass.c	/^void read_char_from_file(char** p, char* c)$/;"	f
-read_class_from_file	self-host/src/klass.c	/^static sCLClass* read_class_from_file(char* class_name, char** p, char* head)$/;"	f	file:
-read_class_from_file	src/klass.c	/^static sCLClass* read_class_from_file(char* class_name, char** p, char* head)$/;"	f	file:
+read_class_from_file	self-host/src/klass.c	/^static sCLClass* read_class_from_file(char* class_name_, char** p, char* head)$/;"	f	file:
+read_class_from_file	src/klass.c	/^static sCLClass* read_class_from_file(char* class_name_, char** p, char* head)$/;"	f	file:
 read_const_from_file	self-host/src/klass.c	/^void read_const_from_file(char** p, sConst* constant, char* head)$/;"	f
 read_const_from_file	src/klass.c	/^void read_const_from_file(char** p, sConst* constant, char* head)$/;"	f
 read_from_file	self-host/src/klass.c	/^void read_from_file(char** p, void* buf, size_t size, char* head)$/;"	f
@@ -3186,8 +3186,8 @@ rehash	code/neo-c.h	/^    void rehash(map<T,T2>* self) {$/;"	f	struct:map
 rehash	neo-c.h	/^    void rehash(map<T,T2>* self) {$/;"	f	struct:map
 rehash	self-host/code/neo-c.h	/^    void rehash(map<T,T2>* self) {$/;"	f	struct:map
 rehash	self-host/neo-c.h	/^    void rehash(map<T,T2>* self) {$/;"	f	struct:map
-remove_class	self-host/src/klass.c	/^static void remove_class(char* class_name)$/;"	f	file:
-remove_class	src/klass.c	/^static void remove_class(char* class_name)$/;"	f	file:
+remove_class	self-host/src/klass.c	/^static void remove_class(char* class_name_)$/;"	f	file:
+remove_class	src/klass.c	/^static void remove_class(char* class_name_)$/;"	f	file:
 remove_from_right_value_object	self-host/src/llvm.cpp	/^void remove_from_right_value_object(Value* value, sCompileInfo* info)$/;"	f
 remove_from_right_value_object	src/llvm.cpp	/^void remove_from_right_value_object(Value* value, sCompileInfo* info)$/;"	f
 restore_lvtable	self-host/src/llvm.cpp	/^void restore_lvtable(Value* lvtable)$/;"	f
@@ -3640,8 +3640,8 @@ searchString	self-host/wi/common.h	/^    string searchString;$/;"	m	struct:ViFil
 searchString	self-host/wi/common.h	/^    wstring searchString;$/;"	m	struct:version
 searchString	wi/common.h	/^    string searchString;$/;"	m	struct:ViFiler
 searchString	wi/common.h	/^    wstring searchString;$/;"	m	struct:version
-search_for_class_file	self-host/src/klass.c	/^static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size, int version)$/;"	f	file:
-search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size, int version)$/;"	f	file:
+search_for_class_file	self-host/src/klass.c	/^static BOOL search_for_class_file(char* class_name_, char* class_file_name, size_t class_file_name_size, int version)$/;"	f	file:
+search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* class_name_, char* class_file_name, size_t class_file_name_size, int version)$/;"	f	file:
 setCurrentDebugLocation	self-host/src/llvm.cpp	/^void setCurrentDebugLocation(int sline)$/;"	f
 setCurrentDebugLocation	src/llvm.cpp	/^void setCurrentDebugLocation(int sline)$/;"	f
 set_max_block_var_num	self-host/src/vtable.c	/^void set_max_block_var_num(sVarTable* lv_table, sVarTable* old_table)$/;"	f

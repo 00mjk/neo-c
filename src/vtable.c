@@ -156,6 +156,8 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL 
         else {
             if(strcmp(p->mName, name) == 0) {
                 return TRUE;
+
+/*
                 if(p->mBlockLevel < table->mBlockLevel) {
                     xstrncpy(p->mName, name, VAR_NAME_MAX);
                     p->mIndex = table->mVarNum++;
@@ -179,6 +181,7 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL 
                 else {
                     return FALSE;
                 }
+*/
             }
             else {
                 p++;
@@ -192,6 +195,8 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL 
             }
         }
     }
+
+    return TRUE;
 }
 
 sVar* get_variable_from_index(sVarTable* table, int index)
@@ -245,14 +250,14 @@ sVar* get_variable_from_this_table_only(sVarTable* table, char* name)
     }
 }
 
-BOOL is_included_var_from_this_table_only(sVarTable* table, sVar* var)
+BOOL is_included_var_from_this_table_only(sVarTable* table, sVar* var_)
 {
     int hash_value = 0;
 
     sVar* p = table->mLocalVariables + hash_value;
 
     while(1) {
-        if(p == var) {
+        if(p == var_) {
             return TRUE;
         }
 
@@ -268,10 +273,12 @@ BOOL is_included_var_from_this_table_only(sVarTable* table, sVar* var)
 
 void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info)
 {
-    sVar* var = get_variable_from_this_table_only(table, name);
+    sVar* var_ = get_variable_from_this_table_only(table, name);
     
-    if(var != NULL && !var->mGlobal) {
-        parser_err_msg(info, "Variable (%s) has already_added in this variable table", name);
+    if(var_ != NULL && !var_->mGlobal) {
+        char msg[1024];
+        snprintf(msg, 1024, "Variable (%s) has already_added in this variable table", name);
+        parser_err_msg(info, msg);
         info->err_num++;
     }
 }
@@ -280,15 +287,15 @@ void check_already_added_variable(sVarTable* table, char* name, struct sParserIn
 sVar* get_variable_from_table(sVarTable* table, char* name)
 {
     sVarTable* it;
-    sVar* var;
+    sVar* var_;
 
     it = table;
 
     while(it) {
-        var = get_variable_from_this_table_only(it, name);
+        var_ = get_variable_from_this_table_only(it, name);
 
-        if(var) {
-            return var;
+        if(var_) {
+            return var_;
         }
 
         it = it->mParent;
@@ -315,10 +322,10 @@ int get_variable_index(sVarTable* table, char* name, BOOL* parent)
     sVarTable* it = table;
 
     while(it) {
-        sVar* var = get_variable_from_this_table_only(it, name);
+        sVar* var_ = get_variable_from_this_table_only(it, name);
 
-        if(var) {
-            return var->mIndex + get_sum_of_parent_var_num(it);
+        if(var_) {
+            return var_->mIndex + get_sum_of_parent_var_num(it);
         }
 
         it = it->mParent;

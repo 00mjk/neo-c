@@ -40,8 +40,8 @@ void append_macro(char* name, char* body)
     while(1) {
         if(strcmp(it->mName, "") == 0) {
             xstrncpy(it->mName, name, VAR_NAME_MAX);
-            sBuf_init(&it->mBody.mBuf);
-            sBuf_append_str(&it->mBody.mBuf, body);
+            sBuf_init(&it->mBody);
+            sBuf_append_str(&it->mBody, body);
             break;
         }
         else {
@@ -160,7 +160,7 @@ BOOL call_macro(unsigned * node, char* name, char* params, sParserInfo* info)
     if(!parse_block_easy(&node_block, FALSE, &info2))
     {
         return FALSE;
-    }
+    };
 
     *node = sNodeTree_create_normal_block(node_block, &info2);
     

@@ -1057,7 +1057,12 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
             right_value = rvalue.value;
         }
         else {
-            right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext1");
+            if(right_type->mPointerNum > 0 || right_type->mArrayDimentionNum > 0) {
+                right_value = Builder.CreateCast(Instruction::PtrToInt, rvalue.value, IntegerType::get(TheContext, 64), "sext1-p");
+            }
+            else {
+                right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext1");
+            }
         }
 
         Type* llvm_var_type;
@@ -1090,7 +1095,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
 
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateAdd(left_value2, right_value, "addtmp", false, true);
-        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type);
+        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type, "intToPtr1");
         llvm_value.type = clone_node_type(left_type2);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
@@ -1111,7 +1116,12 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
             right_value = rvalue.value;
         }
         else {
-            right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext1");
+            if(right_type->mPointerNum > 0 || right_type->mArrayDimentionNum > 0) {
+                right_value = Builder.CreateCast(Instruction::PtrToInt, rvalue.value, IntegerType::get(TheContext, 64), "sextXYZ-p");
+            }
+            else {
+                right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sextXYZ");
+            }
         }
 
         Type* llvm_var_type;
@@ -1144,7 +1154,7 @@ static BOOL compile_add(unsigned int node, sCompileInfo* info)
 
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateAdd(left_value, right_value, "addtmp", false, true);
-        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type);
+        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type, "intToPtr2");
         llvm_value.type = clone_node_type(left_type2);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
@@ -1279,7 +1289,12 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
             right_value = rvalue.value;
         }
         else {
-            right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext2");
+            if(right_type->mPointerNum > 0 || right_type->mArrayDimentionNum > 0) {
+                right_value = Builder.CreateCast(Instruction::PtrToInt, rvalue.value, IntegerType::get(TheContext, 64), "sextX-p");
+            }
+            else {
+                right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sextX");
+            }
         }
 
         Type* llvm_var_type;
@@ -1312,7 +1327,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
 
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateSub(left_value, right_value, "subtmp", false, true);
-        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type);
+        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type, "IntTOPtr3");
         llvm_value.type = clone_node_type(left_type2);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
@@ -1333,7 +1348,12 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
             right_value = rvalue.value;
         }
         else {
-            right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext2");
+            if(right_type->mPointerNum > 0 || right_type->mArrayDimentionNum > 0) {
+                right_value = Builder.CreateCast(Instruction::PtrToInt, rvalue.value, IntegerType::get(TheContext, 64), "sextY-p");
+            }
+            else {
+                right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sextY");
+            }
         }
 
         Type* llvm_var_type;
@@ -1366,7 +1386,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
 
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateSub(left_value, right_value, "subtmp", false, true);
-        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type);
+        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type, "IntTOPtr4");
         llvm_value.type = clone_node_type(left_type2);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
@@ -2598,6 +2618,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         int alignment = get_llvm_alignment_from_node_type(left_type);
 
         BOOL constant = var->mConstant;
+        BOOL static_ = var->mType->mStatic;
 
         if(alloc) {
             if(constant) {
@@ -2622,9 +2643,50 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
                 }
             }
             else {
-                if(global) {
-                    if(var->mLLVMValue == NULL && TheModule->getNamedGlobal(var_name) == nullptr)
+                if(static_) {
+                    char static_var_name[VAR_NAME_MAX*2];
+                    snprintf(static_var_name, VAR_NAME_MAX*2, "%s_%s", info->fun_name, var_name);
+
+                    if(var->mLLVMValue == NULL && TheModule->getNamedGlobal(static_var_name) == nullptr)
                     {
+                        GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant, GlobalValue::ExternalLinkage, 0, static_var_name);
+                        address->setAlignment(alignment);
+
+                        Value* rvalue2 = rvalue.value;
+
+                        if(dyn_cast<Constant>(rvalue2)) {
+                            Constant* rvalue3 = dyn_cast<Constant>(rvalue2);
+                            address->setInitializer(rvalue3);
+                        }
+                        else {
+                            compile_err_msg(info, "Invalid Global Variable Initializer. Require Constant Value");
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            return TRUE;
+                        }
+
+                        if(!info->no_output) {
+                            var->mLLVMValue = address;
+                        }
+
+                        BOOL parent = FALSE;
+                        int index = get_variable_index(info->pinfo->lv_table, var_name, &parent);
+
+                        store_address_to_lvtable(index, address);
+                    }
+                }
+                else if(global) {
+                    var->mLLVMValue = NULL;
+
+                    if(var->mLLVMValue == NULL)
+                    {
+                        if(TheModule->getNamedGlobal(var_name) != nullptr)
+                        {
+                            TheModule->getNamedGlobal(var_name)->eraseFromParent();
+                        }
+            
                         GlobalVariable* address = new GlobalVariable(*TheModule, llvm_var_type, var->mConstant, GlobalValue::ExternalLinkage, 0, var_name);
                         address->setAlignment(alignment);
 
@@ -2670,7 +2732,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
                 sNodeType* var_type = left_type;
 
-                if(!info->no_output) {
+                if(!info->no_output && !global && !static_) {
                     Value* var_address;
                     if(parent && !var->mGlobal) {
                         var_address = load_address_to_lvtable(index, var_type, info);
@@ -2714,7 +2776,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
             sNodeType* var_type = left_type;
 
             Value* var_address;
-            if(parent && !var->mGlobal) {
+            if(parent && !var->mGlobal && !static_) {
                 var_address = load_address_to_lvtable(index, var_type, info);
             }
             else {
@@ -4594,8 +4656,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     llvm_change_block(current_block, &current_block_before, info, FALSE);
 
     if(strcmp(real_fun_name, "main") == 0) {
-        if(gNCDebugHeap) {
-            Value* value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)gNCDebugHeap);
+        if(gNCDebugHeapCompiler) {
+            Value* value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)gNCDebugHeapCompiler);
 
             Builder.CreateAlignedStore(value, gNCDebugHeapValue, 4);
         }
@@ -11722,7 +11784,12 @@ static BOOL compile_plus_plus(unsigned int node, sCompileInfo* info)
                 right_value = rvalue.value;
             }
             else {
-                right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext2");
+                if(right_type->mPointerNum > 0 || right_type->mArrayDimentionNum > 0) {
+                    right_value = Builder.CreateCast(Instruction::PtrToInt, rvalue.value, IntegerType::get(TheContext, 64), "sextZ-p");
+                }
+                else {
+                    right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sextZ");
+                }
             }
 
             uint64_t alloc_size = 0;
@@ -11736,7 +11803,7 @@ static BOOL compile_plus_plus(unsigned int node, sCompileInfo* info)
             right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
 
             Value* value = Builder.CreateAdd(left_value2, right_value, "adddtmp", false, true);
-            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0));
+            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0), "IntTOPtr5");
             Builder.CreateAlignedStore(value, lvalue.address, alignment);
         }
         else {
@@ -11864,7 +11931,12 @@ static BOOL compile_minus_minus(unsigned int node, sCompileInfo* info)
                 right_value = rvalue.value;
             }
             else {
-                right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext2");
+                if(right_type->mPointerNum > 0 || right_type->mArrayDimentionNum > 0) {
+                    right_value = Builder.CreateCast(Instruction::PtrToInt, rvalue.value, IntegerType::get(TheContext, 64), "sext3-p");
+                }
+                else {
+                    right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext3");
+                }
             }
 
             uint64_t alloc_size = 0;
@@ -11878,7 +11950,7 @@ static BOOL compile_minus_minus(unsigned int node, sCompileInfo* info)
             right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
 
             Value* value = Builder.CreateSub(left_value2, right_value, "subtmp", false, true);
-            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0));
+            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0), "IntTOPtr6");
             Builder.CreateAlignedStore(value, lvalue.address, alignment);
         }
         else {
@@ -12006,7 +12078,12 @@ static BOOL compile_equal_plus(unsigned int node, sCompileInfo* info)
                 right_value = rvalue.value;
             }
             else {
-                right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext2");
+                if(right_type->mPointerNum > 0 || right_type->mArrayDimentionNum > 0) {
+                    right_value = Builder.CreateCast(Instruction::PtrToInt, rvalue.value, IntegerType::get(TheContext, 64), "sext4-p");
+                }
+                else {
+                    right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext4");
+                }
             }
 
             uint64_t alloc_size = 0;
@@ -12020,7 +12097,7 @@ static BOOL compile_equal_plus(unsigned int node, sCompileInfo* info)
             right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
 
             Value* value = Builder.CreateAdd(left_value2, right_value, "adddtmp", false, true);
-            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0));
+            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0), "IntTOPtr7");
             Builder.CreateAlignedStore(value, lvalue.address, alignment);
         }
         else {
@@ -12147,7 +12224,12 @@ static BOOL compile_equal_minus(unsigned int node, sCompileInfo* info)
                 right_value = rvalue.value;
             }
             else {
-                right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext2");
+                if(right_type->mPointerNum > 0 || right_type->mArrayDimentionNum > 0) {
+                    right_value = Builder.CreateCast(Instruction::PtrToInt, rvalue.value, IntegerType::get(TheContext, 64), "sext5-p");
+                }
+                else {
+                    right_value = Builder.CreateCast(Instruction::SExt, rvalue.value, IntegerType::get(TheContext, 64), "sext5");
+                }
             }
 
             uint64_t alloc_size = 0;
@@ -12161,7 +12243,8 @@ static BOOL compile_equal_minus(unsigned int node, sCompileInfo* info)
             right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
 
             Value* value = Builder.CreateSub(left_value2, right_value, "subtmp", false, true);
-            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0));
+            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0), "IntToPtr8");
+puts("sub plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, lvalue.address, alignment);
         }
         else {
@@ -12186,6 +12269,7 @@ static BOOL compile_equal_minus(unsigned int node, sCompileInfo* info)
 
             Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "subtmp", false, true);
 
+puts("sub plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, alignment);
         }
     }
@@ -12212,6 +12296,7 @@ static BOOL compile_equal_minus(unsigned int node, sCompileInfo* info)
 
             Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "subtmp", false, true);
 
+puts("sub plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12283,6 +12368,7 @@ static BOOL compile_equal_mult(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateMul(add_lvalue, add_rvalue, "multmp", false, true);
 
+puts("mul plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12308,6 +12394,7 @@ static BOOL compile_equal_mult(unsigned int node, sCompileInfo* info)
 
             Value* value = Builder.CreateMul(add_lvalue, add_rvalue, "multmp", false, true);
 
+puts("mul plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12378,6 +12465,7 @@ static BOOL compile_equal_div(unsigned int node, sCompileInfo* info)
         Value* add_rvalue = rvalue.value;
 
         Value* value = Builder.CreateSDiv(add_lvalue, add_rvalue, "divtmp");
+puts("div plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12403,6 +12491,7 @@ static BOOL compile_equal_div(unsigned int node, sCompileInfo* info)
 
             Value* value = Builder.CreateSDiv(add_lvalue, add_rvalue, "divtmp");
 
+puts("div plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12474,6 +12563,7 @@ static BOOL compile_equal_mod(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateSRem(add_lvalue, add_rvalue, "remtmp");
 
+puts("rem plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12499,6 +12589,7 @@ static BOOL compile_equal_mod(unsigned int node, sCompileInfo* info)
 
             Value* value = Builder.CreateSRem(add_lvalue, add_rvalue, "remtmp");
 
+puts("rem plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12570,6 +12661,7 @@ static BOOL compile_equal_lshift(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateShl(add_lvalue, add_rvalue, "lshifttmp");
 
+puts("lshift plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12595,6 +12687,7 @@ static BOOL compile_equal_lshift(unsigned int node, sCompileInfo* info)
 
             Value* value = Builder.CreateShl(add_lvalue, add_rvalue, "lshifttmp");
 
+puts("lshif plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12666,6 +12759,7 @@ static BOOL compile_equal_rshift(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateAShr(add_lvalue, add_rvalue, "rshifttmp");
 
+puts("rshift plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12691,6 +12785,7 @@ static BOOL compile_equal_rshift(unsigned int node, sCompileInfo* info)
 
             Value* value = Builder.CreateAShr(add_lvalue, add_rvalue, "rshifttmp");
 
+puts("rshift plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12762,6 +12857,7 @@ static BOOL compile_equal_and(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateAnd(add_lvalue, add_rvalue, "andtmp");
 
+puts("and plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12787,6 +12883,7 @@ static BOOL compile_equal_and(unsigned int node, sCompileInfo* info)
 
             Value* value = Builder.CreateAnd(add_lvalue, add_rvalue, "andtmp");
 
+puts("and plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12858,6 +12955,7 @@ static BOOL compile_equal_xor(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateXor(add_lvalue, add_rvalue, "xor");
 
+puts("xor plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12883,6 +12981,7 @@ static BOOL compile_equal_xor(unsigned int node, sCompileInfo* info)
 
             Value* value = Builder.CreateXor(add_lvalue, add_rvalue, "xor");
 
+puts("xor plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12954,6 +13053,7 @@ static BOOL compile_equal_or(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateOr(add_lvalue, add_rvalue, "ortmp");
 
+puts("or plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12979,6 +13079,7 @@ static BOOL compile_equal_or(unsigned int node, sCompileInfo* info)
 
             Value* value = Builder.CreateOr(add_lvalue, add_rvalue, "or");
 
+puts("or plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }

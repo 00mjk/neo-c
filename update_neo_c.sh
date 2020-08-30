@@ -21,6 +21,11 @@ then
     (cd ayataka; make distclean)
 fi
 
+if [ -e self-host/Makefile ]
+then
+    (cd self-host; make distclean)
+fi
+
 if [ ! -e Makefile ]
 then
     git add .

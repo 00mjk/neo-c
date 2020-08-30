@@ -60,7 +60,7 @@ static sNodeType* alloc_node_type()
         }
     }
 
-    return &gNodeTypes[gUsedPageNodeTypes][gUsedNodeTypes++];
+    return gNodeTypes[gUsedPageNodeTypes] + gUsedNodeTypes++;
 }
 
 sNodeType* clone_node_type(sNodeType* node_type)
@@ -180,7 +180,9 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf)
             (*p)++;
             skip_spaces_for_parse_class_name(p);
 
-            **p2 = 0;
+            char* pp = *p2;
+
+            *pp = '\0';
 
             node_type->mClass = get_class(buf);
 
@@ -245,7 +247,8 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf)
             node_type->mPointerNum++;
         }
         else if(**p == '>') {
-            **p2 = 0;
+            char* pp = *p2;
+            *pp = '\0';
 
             node_type->mClass = get_class(buf);
 
@@ -256,7 +259,8 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf)
             return node_type;
         }
         else {
-            **p2 = **p;
+            char* pp = *p2;
+            *pp = **p;
 
             (*p)++;
             (*p2)++;
@@ -264,7 +268,8 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf)
     }
 
     if(*p2 - buf > 0) {
-        **p2 = 0;
+        char* pp = *p2;
+        *pp = '\0';
 
         node_type->mClass = get_class(buf);
 
@@ -276,16 +281,16 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf)
     return node_type;
 }
 
-sNodeType* create_node_type_with_class_name(char* class_name)
+sNodeType* create_node_type_with_class_name(char* class_name_)
 {
     char buf[VAR_NAME_MAX+1];
 
-    char* p = class_name;
+    char* p = class_name_;
     char* p2 = buf;
 
     sNodeType* result = parse_class_name(&p, &p2, buf);
 
-    if(strcmp(class_name, "lambda") == 0) {
+    if(strcmp(class_name_, "lambda") == 0) {
         result->mPointerNum++;
     }
     
@@ -301,7 +306,8 @@ sNodeType* create_node_type_with_class_pointer(sCLClass* klass)
 
 BOOL is_number_type(sNodeType* node_type)
 {
-    return (node_type->mClass->mFlags & CLASS_FLAGS_NUMBER) && node_type->mPointerNum == 0;
+    int n = (node_type->mClass->mFlags & CLASS_FLAGS_NUMBER) == CLASS_FLAGS_NUMBER;
+    return n && node_type->mPointerNum == 0;
 }
 
 BOOL check_the_same_fields(sNodeType* left_node, sNodeType* right_node)
@@ -570,7 +576,7 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type, BOOL* succe
 
             BOOL no_heap = (*node_type)->mNoHeap;
 
-            (*node_type) = clone_node_type(generics_type->mGenericsTypes[generics_number]);
+            *node_type = clone_node_type(generics_type->mGenericsTypes[generics_number]);
 
             if(heap) {
                 (*node_type)->mHeap = heap;
@@ -589,8 +595,9 @@ BOOL solve_generics(sNodeType** node_type, sNodeType* generics_type, BOOL* succe
                 }
             }
             if(pointer_num > 0) {
-                (*node_type)->mPointerNum += pointer_num;
-            }
+                sNodeType* ppp = *node_type;
+                ppp->mPointerNum += pointer_num;
+            };
 
             *success_volve = TRUE;
         }

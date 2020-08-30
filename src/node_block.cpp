@@ -615,7 +615,9 @@ BOOL skip_block(sParserInfo* info)
         }
     }
     else {
-        parser_err_msg(info, "Require block. This is %c", *info->p);
+        char msg[1024];
+        snprintf(msg, 1024, "Require block. This is %c", *info->p);
+        parser_err_msg(info, msg);
         info->err_num++;
     }
 

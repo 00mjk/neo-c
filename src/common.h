@@ -28,7 +28,7 @@
 #define PARAMS_MAX 32
 #define METHOD_DEFAULT_PARAM_MAX 128
 #define SOURCE_EXPRESSION_MAX 4096*2
-#define ELIF_NUM_MAX 32
+#define ELIF_NUM_MAX 128
 #define STRUCT_FIELD_MAX 256
 #define REAL_FUN_NAME_MAX (VAR_NAME_MAX*PARAMS_MAX+32)
 #define REAL_STRUCT_NAME_MAX (VAR_NAME_MAX*PARAMS_MAX+32)
@@ -133,9 +133,9 @@ void class_final();
 sCLClass* get_class(char* class_name);
 sCLClass* alloc_struct(char* class_name, BOOL anonymous);
 sCLClass* alloc_enum(char* class_name);
-void add_fields_to_struct(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
+void add_fields_to_struct(sCLClass* klass, int num_fields, char** field_name, struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
 sCLClass* alloc_union(char* class_name, BOOL anonymous, BOOL anonymous_var_name);
-void add_fields_to_union(sCLClass* klass, int num_fields, char field_name[STRUCT_FIELD_MAX][VAR_NAME_MAX], struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
+void add_fields_to_union(sCLClass* klass, int num_fields, char** field_name, struct sNodeTypeStruct* fields[STRUCT_FIELD_MAX]);
 unsigned int get_hash_key(char* name, unsigned int max);
 int get_field_index(sCLClass* klass, char* var_name, int* parent_field_index);
 sCLClass* clone_class(sCLClass* klass);
@@ -342,11 +342,13 @@ struct sParserParamStruct
     char mDefaultValue[METHOD_DEFAULT_PARAM_MAX];
 };
 
+int parse_cmp(char* p, char* str);
+
 typedef struct sParserParamStruct sParserParam;
 
 void parser_init();
 void parser_final();
-void parser_err_msg(sParserInfo* info, const char* msg, ...);
+void parser_err_msg(sParserInfo* info, const char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
 BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf);
 void expect_next_character_with_one_forward(char* characters, sParserInfo* info);
@@ -870,7 +872,7 @@ unsigned int sNodeTree_create_equal_or(unsigned int left_node, unsigned int righ
 unsigned int sNodeTree_create_comma(unsigned int left_node, unsigned int right_node, sParserInfo* info);
 
 extern BOOL gNCDebug;
-extern BOOL gNCDebugHeap;
+extern BOOL gNCDebugHeapCompiler;
 
 unsigned int sNodeTree_create_func_name(sParserInfo* info);
 

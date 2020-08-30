@@ -2,7 +2,7 @@
 #include <libgen.h>
 
 BOOL gNCDebug = FALSE;
-BOOL gNCDebugHeap = FALSE;
+BOOL gNCDebugHeapCompiler = FALSE;
 
 static void compiler_init()
 {
@@ -211,7 +211,7 @@ int main(int argc, char** argv)
         }
         else if(strcmp(argv[i], "-gm") == 0)
         {
-            gNCDebugHeap = TRUE;
+            gNCDebugHeapCompiler = TRUE;
         }
         else if(strstr(argv[i], "-I") == argv[i])
         {
