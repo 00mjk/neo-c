@@ -1,0 +1,166 @@
+#########################################
+# installed directories
+#########################################
+prefix=/usr/local
+exec_prefix=${prefix}
+bindir=${exec_prefix}/bin
+datadir=${datarootdir}
+mandir=${datarootdir}/man
+sharedstatedir=${prefix}/com
+sysconfdir=${prefix}/etc/neo-c
+includedir=${prefix}/include/neo-c
+datarootdir=${prefix}/share/neo-c
+docdir=${datarootdir}/doc
+libdir=${exec_prefix}/lib
+
+
+#########################################
+# environmnet variables
+#########################################
+CC=neo-c
+CXX=g++
+INSTALL=/usr/bin/install -c
+CFLAGS=-Isrc/ -I. -L . -DPREFIX="\"${DESTDIR}/\"" -fPIC -I/usr/local/include -L /usr/local/lib -O3
+CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all`  -O3 -I . -I src -DPREFIX="\"${DESTDIR}/\""
+LIBS= -lutil -ldl -lm -lpcre -lpthread -lrt
+OS=LINUX
+DESTDIR=/usr/local
+OBJS=src/source_compiler.o src/parser.o src/node.o src/klass.o src/node_type.o src/typedef.o src/constant.o src/llvm.o src/vtable.o src/node_block.o src/node_alloc.o src/macro.o
+RUNTIME_OBJS=
+COMMON_OBJS=src/buffer.o src/xfunc.o src/alignment.o
+
+#########################################
+# main
+#########################################
+all: neo-c neo-c.o
+	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
+
+neo-c: config.h src/compiler.o $(COMMON_OBJS) $(OBJS) memalloc.o memalloc-stdc.o
+	$(CXX) -o neo-c src/compiler.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS)
+
+neo-c.o: neo-c.nc
+	PWD=`pwd` ./neo-c -c neo-c.nc 
+
+memalloc.o: src/memalloc.c
+	$(CC) -c -o memalloc.o src/memalloc.c $(CFLAGS)
+
+memalloc-stdc.o: src/memalloc-stdc.c
+	$(CC) -c -o memalloc-stdc.o src/memalloc-stdc.c $(CFLAGS)
+
+#########################################
+# Object files
+#########################################
+$(OBJS): src/*.h Makefile configure
+
+$(COMMON_OBJS): src/*.h Makefile configure
+
+$(RUNTIME_OBJS): src/*.h Makefile configure
+
+#########################################
+# install
+#########################################
+install:
+	mkdir -p $(DESTDIR)/lib
+	$(INSTALL) -m 644 ./memalloc-stdc.o $(DESTDIR)/lib
+	$(INSTALL) -m 644 ./neo-c.o $(DESTDIR)/lib
+
+	mkdir -p $(DESTDIR)/include
+	$(INSTALL) -m 644 ./neo-c.h $(DESTDIR)/include
+	$(INSTALL) -m 644 ./pre-neo-c.h $(DESTDIR)/include
+
+#	mkdir -p $(DESTDIR)/share/man/man1
+#	$(INSTALL) ./man/neo-c.1.gz $(DESTDIR)/share/man/man1
+
+	mkdir -p "$(DESTDIR)/bin"
+	$(INSTALL) -m 755 ./neo-c "$(DESTDIR)/bin"
+
+#	mkdir -p $(DESTDIR)/share/doc/neo-c
+#	$(INSTALL) -m 644 ./manual/*.md "$(DESTDIR)/share/doc/neo-c"
+
+#########################################
+# permission
+#########################################
+permission:
+	chmod 644 *
+	chmod 755 .git man src configure
+	chmod 644 src/*.c src/*.cpp
+	chmod 644 src/*.h
+	chmod 755 update_neo-c.sh
+
+#########################################
+# clean
+#########################################
+clean:
+	rm -fR memleak_debug.txt code/HelloWorld code/HelloWorld2 code/HelloWorld3 code/HelloWorld4 code/HelloWorld7 code/HelloWorld8 code/HelloWorld9 code/HelloWorld10 code/HelloWorld6 code/HelloWorld10-5 code/HelloWorld10-6 code/HelloWorld10-6-2 code/HelloWorld10-7 code/HelloWorld9-5 neo-c neo-c.dSYM src/*.o config.log config.status *.stackdump autom3te.cache .DS_Store core.* core a.out *.bc *.s *.o code/*.o *.ll *.so.1.0.0 *.so src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls *.so.1 src/*.dwo code/*.out code/*.nc.tmp *.nc.tmp *.out memalloc-stdc.o memalloc.o src/*.out
+	rm -fR code/*.ll code/*.bc code/*.s
+	(if test -e neo-vi/Makefile; then cd neo-vi && make distclean; fi)
+
+distclean: clean
+	rm -fR  config.h Makefile autom4te.cache 
+	(cd tiny; if test -e Makefile; then make distclean; fi)
+	(cd wi; if test -e Makefile; then make distclean; fi)
+
+#########################################
+# test
+#########################################
+test: 
+	@echo "Compile to test code..."
+	PWD=`pwd` ./neo-c -c code/External.nc
+	PWD=`pwd` ./neo-c code/HelloWorld.nc code/External.o
+	./code/HelloWorld
+	if test `uname -s` = "Darwin"; then PWD=`pwd` ./neo-c code/HelloWorld2.nc -lncurses; else PWD=`pwd` ./neo-c code/HelloWorld2.nc -lncursesw; fi
+	./code/HelloWorld2
+	PWD=`pwd` ./neo-c code/HelloWorld3.nc
+	./code/HelloWorld3
+	PWD=`pwd` ./neo-c code/HelloWorld4.nc
+	./code/HelloWorld4
+	PWD=`pwd` ./neo-c -c code/HelloWorld5.nc
+	PWD=`pwd` ./neo-c -c code/HelloWorld6.nc
+	PWD=`pwd` ./neo-c code/HelloWorld7.nc code/HelloWorld5.o code/HelloWorld6.o
+	./code/HelloWorld7
+	PWD=`pwd` ./neo-c code/HelloWorld8.nc
+	./code/HelloWorld8
+	PWD=`pwd` ./neo-c code/HelloWorld9.nc
+	./code/HelloWorld9
+	PWD=`pwd` ./neo-c code/HelloWorld9-5.nc
+	./code/HelloWorld9-5
+	PWD=`pwd` ./neo-c code/HelloWorld10.nc
+	./code/HelloWorld10
+	PWD=`pwd` ./neo-c code/HelloWorld10-5.nc
+	./code/HelloWorld10-5
+	PWD=`pwd` ./neo-c code/HelloWorld10-6.nc
+	./code/HelloWorld10-6
+	PWD=`pwd` ./neo-c code/HelloWorld10-6-2.nc
+	./code/HelloWorld10-6-2
+	PWD=`pwd` ./neo-c code/HelloWorld10-7.nc
+	./code/HelloWorld10-7
+
+neo-vi: neo-vi/neo-vi
+
+neo-vi/neo-vi: neo-vi/configure neo-vi/Makefile
+	(cd neo-vi; make)
+
+neo-vi-clean: neo-vi/Makefile
+	(cd neo-vi; make clean)
+
+neo-vi-test: neo-vi/Makefile
+	(cd neo-vi; make test)
+
+neo-vi-install: neo-vi/Makefile
+	(cd neo-vi; make install)
+
+neo-vi/Makefile: neo-vi/Makefile.in
+	(cd neo-vi; ./configure --prefix=$(HOME))
+
+#########################################
+# uninstall
+#########################################
+uninstall:
+	rm -f "$(DESTDIR)"/bin/neo-c
+	rm -f "$(DESTDIR)"/bin/neo-c
+	rm -rf "$(DESTDIR)"/share/doc/neo-c/
+	rm -f "$(DESTDIR)"/include/neo-c.h
+	rm -f "$(DESTDIR)"/include/pre-neo-c.h
+	rm -f "$(DESTDIR)"/share/man/man1/neo-c.1.gz
+	rm -f "$(DESTDIR)/lib/memalloc-stdc.o"
+	rm -f "$(DESTDIR)/lib/neo-c.o"

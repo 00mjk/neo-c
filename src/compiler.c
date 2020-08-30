@@ -157,10 +157,9 @@ int main(int argc, char** argv)
 
     BOOL output_object_file = FALSE;
     BOOL optimize = FALSE;
-    char* external_objects[EXTERNAL_OBJECT_MAX];
-    int num_external_object = 0;
-    
-    memset(external_objects, 0, sizeof(char*)*EXTERNAL_OBJECT_MAX);
+
+    char throw_to_cflags[1024*2*2];
+    throw_to_cflags[0] = '\0';
 
     const int max_c_include_path = 1024*2*2*2;
     char c_include_path[max_c_include_path];
@@ -227,6 +226,17 @@ int main(int argc, char** argv)
                 i++;
             }
         }
+        else if(strcmp(argv[i], "-L") == 0) {
+            if(i+1 < argc) {
+                xstrncat(throw_to_cflags, "-L ", 1024*2*2);
+                xstrncat(throw_to_cflags, argv[i+1], 1024*2*2);
+                xstrncat(throw_to_cflags, " ", 1024*2*2);
+                i++;
+            }
+            else {
+                xstrncat(throw_to_cflags, "-L ", 1024*2*2);
+            }
+        }
         else if(strcmp(argv[i], "-o") == 0)
         {
             if(i + 1 < argc) {
@@ -234,16 +244,12 @@ int main(int argc, char** argv)
                 i++;
             }
         }
-        else if(sname[0] == '\0') {
+        else if(*argv[i] != '-' && sname[0] == '\0') {
             xstrncpy(sname, argv[i], PATH_MAX);
         }
         else {
-            external_objects[num_external_object++] = argv[i];
-
-            if(num_external_object >= EXTERNAL_OBJECT_MAX) {
-                fprintf(stderr, "overflow object file number\n");
-                exit(2);
-            }
+            xstrncat(throw_to_cflags, argv[i], 1024*2*2);
+            xstrncat(throw_to_cflags, " ", 1024*2*2);
         }
     }
     
@@ -312,7 +318,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    output_native_code(sname, optimize);
+    output_native_code(sname, optimize, throw_to_cflags);
 
     compiler_final();
 
@@ -351,11 +357,7 @@ int main(int argc, char** argv)
             xstrncat(command, path, 4096*2);
         }
 
-        int i;
-        for(i=0; i<num_external_object; i++) {
-            xstrncat(command, external_objects[i], 4096*2);
-            xstrncat(command, " ", 4096*2);
-        }
+        xstrncat(command, throw_to_cflags, 4096*2);
         xstrncat(command, " -lpcre", 4096*2);
 
         int rc = system(command);

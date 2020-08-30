@@ -815,7 +815,7 @@ void llvm_init();
 void llvm_final();
 
 void start_to_make_native_code(char* sname);
-void output_native_code(char* sname, BOOL optimize);
+void output_native_code(char* sname, BOOL optimize, char* throw_to_cflag);
 extern int gResultCode;
 
 void arrange_stack(sCompileInfo* info, int top);

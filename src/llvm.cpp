@@ -760,7 +760,7 @@ struct MyModulePass : ModulePass {
 };
 #endif
 
-void output_native_code(char* sname, BOOL optimize)
+void output_native_code(char* sname, BOOL optimize, char* throw_to_cflag)
 {
     DBuilder->finalize();
     free(gLLVMStack);
@@ -924,10 +924,10 @@ void output_native_code(char* sname, BOOL optimize)
     }
 
     if(gNCDebug) {
-        snprintf(command, PATH_MAX+128, "clang -g -c -o %s.o %s.ll", sname2, sname2);
+        snprintf(command, PATH_MAX+128, "clang -g -c -o %s.o %s.ll %s", sname2, sname2, throw_to_cflag);
     }
     else {
-        snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.ll", sname2, sname2);
+        snprintf(command, PATH_MAX+128, "clang -c -o %s.o %s.ll %s", sname2, sname2, throw_to_cflag);
     }
 
     rc = system(command);
