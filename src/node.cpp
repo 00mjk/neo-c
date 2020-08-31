@@ -12244,7 +12244,6 @@ static BOOL compile_equal_minus(unsigned int node, sCompileInfo* info)
 
             Value* value = Builder.CreateSub(left_value2, right_value, "subtmp", false, true);
             value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0), "IntToPtr8");
-puts("sub plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, lvalue.address, alignment);
         }
         else {
@@ -12269,7 +12268,6 @@ puts("sub plus address CreateAlignedStore");
 
             Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "subtmp", false, true);
 
-puts("sub plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, alignment);
         }
     }
@@ -12296,7 +12294,6 @@ puts("sub plus address CreateAlignedStore");
 
             Value* value = Builder.CreateSub(add_lvalue, add_rvalue, "subtmp", false, true);
 
-puts("sub plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12368,7 +12365,6 @@ static BOOL compile_equal_mult(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateMul(add_lvalue, add_rvalue, "multmp", false, true);
 
-puts("mul plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12394,7 +12390,6 @@ puts("mul plus address CreateAlignedStore");
 
             Value* value = Builder.CreateMul(add_lvalue, add_rvalue, "multmp", false, true);
 
-puts("mul plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12465,7 +12460,6 @@ static BOOL compile_equal_div(unsigned int node, sCompileInfo* info)
         Value* add_rvalue = rvalue.value;
 
         Value* value = Builder.CreateSDiv(add_lvalue, add_rvalue, "divtmp");
-puts("div plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12491,7 +12485,6 @@ puts("div plus address CreateAlignedStore");
 
             Value* value = Builder.CreateSDiv(add_lvalue, add_rvalue, "divtmp");
 
-puts("div plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12563,7 +12556,6 @@ static BOOL compile_equal_mod(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateSRem(add_lvalue, add_rvalue, "remtmp");
 
-puts("rem plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12589,7 +12581,6 @@ puts("rem plus address CreateAlignedStore");
 
             Value* value = Builder.CreateSRem(add_lvalue, add_rvalue, "remtmp");
 
-puts("rem plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12661,7 +12652,6 @@ static BOOL compile_equal_lshift(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateShl(add_lvalue, add_rvalue, "lshifttmp");
 
-puts("lshift plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12687,7 +12677,6 @@ puts("lshift plus address CreateAlignedStore");
 
             Value* value = Builder.CreateShl(add_lvalue, add_rvalue, "lshifttmp");
 
-puts("lshif plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12759,7 +12748,6 @@ static BOOL compile_equal_rshift(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateAShr(add_lvalue, add_rvalue, "rshifttmp");
 
-puts("rshift plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12785,7 +12773,6 @@ puts("rshift plus address CreateAlignedStore");
 
             Value* value = Builder.CreateAShr(add_lvalue, add_rvalue, "rshifttmp");
 
-puts("rshift plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12857,7 +12844,6 @@ static BOOL compile_equal_and(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateAnd(add_lvalue, add_rvalue, "andtmp");
 
-puts("and plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12883,7 +12869,6 @@ puts("and plus address CreateAlignedStore");
 
             Value* value = Builder.CreateAnd(add_lvalue, add_rvalue, "andtmp");
 
-puts("and plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -12955,7 +12940,6 @@ static BOOL compile_equal_xor(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateXor(add_lvalue, add_rvalue, "xor");
 
-puts("xor plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -12981,7 +12965,6 @@ puts("xor plus address CreateAlignedStore");
 
             Value* value = Builder.CreateXor(add_lvalue, add_rvalue, "xor");
 
-puts("xor plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
@@ -13053,7 +13036,6 @@ static BOOL compile_equal_or(unsigned int node, sCompileInfo* info)
 
         Value* value = Builder.CreateOr(add_lvalue, add_rvalue, "ortmp");
 
-puts("or plus address CreateAlignedStore");
         Builder.CreateAlignedStore(value, address, alignment);
     }
     else {
@@ -13079,7 +13061,6 @@ puts("or plus address CreateAlignedStore");
 
             Value* value = Builder.CreateOr(add_lvalue, add_rvalue, "or");
 
-puts("or plus address CreateAlignedStore");
             Builder.CreateAlignedStore(value, address, 8);
         }
     }
