@@ -545,9 +545,22 @@ static BOOL parse_attribute(sParserInfo* info, char* asm_fname)
             info->p += 7;
             skip_spaces_and_lf(info);
 
+            int len = 0;
+            asm_fname[len] = '\0';
+
+            BOOL in_dquort = FALSE;
             int brace_num = 0;
             while(*info->p) {
-                if(*info->p == '(') {
+                if(*info->p == '"') {
+                    info->p++;
+
+                    in_dquort = !in_dquort;
+                }
+                else if(in_dquort) {
+                    asm_fname[len++] = *info->p++;
+                    asm_fname[len] = '\0';
+                }
+                else if(*info->p == '(') {
                     info->p++;
                     brace_num++;
                 }

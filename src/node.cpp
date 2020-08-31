@@ -1327,7 +1327,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
 
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateSub(left_value, right_value, "subtmp", false, true);
-        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type, "IntTOPtr3");
+        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type, "IntTOPtr3a");
         llvm_value.type = clone_node_type(left_type2);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
@@ -1338,6 +1338,38 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
         push_value_to_stack_ptr(&llvm_value, info);
 
         info->type = clone_node_type(left_type2);
+    }
+    else if((left_type->mPointerNum > 0 || left_type->mArrayDimentionNum == 1) && (right_type->mPointerNum > 0 || right_type->mArrayDimentionNum == 1))
+    {
+        Value* left_value = Builder.CreateCast(Instruction::PtrToInt, lvalue.value, IntegerType::get(TheContext, 64));
+        Value* right_value = Builder.CreateCast(Instruction::PtrToInt, rvalue.value, IntegerType::get(TheContext, 64));
+
+        sNodeType* node_type = create_node_type_with_class_name("long");
+
+        Type* llvm_var_type;
+        if(!create_llvm_type_from_node_type(&llvm_var_type, node_type, node_type, info))
+        {
+            compile_err_msg(info, "Getting llvm type failed(10)");
+            show_node_type(left_type);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+        LVALUE llvm_value;
+        llvm_value.value = Builder.CreateSub(left_value, right_value, "subtmp", false, true);
+        llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, llvm_var_type);
+        llvm_value.type = clone_node_type(node_type);
+        llvm_value.address = nullptr;
+        llvm_value.var = nullptr;
+        llvm_value.binded_value = FALSE;
+        llvm_value.load_field = FALSE;
+
+        dec_stack_ptr(2, info);
+        push_value_to_stack_ptr(&llvm_value, info);
+
+        info->type = clone_node_type(node_type);
     }
     else if(left_type->mPointerNum > 0 && is_number_type(right_type))
     {
@@ -1386,7 +1418,7 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
 
         LVALUE llvm_value;
         llvm_value.value = Builder.CreateSub(left_value, right_value, "subtmp", false, true);
-        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type, "IntTOPtr4");
+        llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, llvm_var_type, "IntTOPtr4b");
         llvm_value.type = clone_node_type(left_type2);
         llvm_value.address = nullptr;
         llvm_value.var = nullptr;
@@ -1397,38 +1429,6 @@ static BOOL compile_sub(unsigned int node, sCompileInfo* info)
         push_value_to_stack_ptr(&llvm_value, info);
 
         info->type = clone_node_type(left_type2);
-    }
-    else if(left_type->mPointerNum > 0 && right_type->mPointerNum > 0)
-    {
-        Value* left_value = Builder.CreateCast(Instruction::PtrToInt, lvalue.value, IntegerType::get(TheContext, 64));
-        Value* right_value = Builder.CreateCast(Instruction::PtrToInt, rvalue.value, IntegerType::get(TheContext, 64));
-
-        sNodeType* node_type = create_node_type_with_class_name("long");
-
-        Type* llvm_var_type;
-        if(!create_llvm_type_from_node_type(&llvm_var_type, node_type, node_type, info))
-        {
-            compile_err_msg(info, "Getting llvm type failed(10)");
-            show_node_type(left_type);
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-        LVALUE llvm_value;
-        llvm_value.value = Builder.CreateSub(left_value, right_value, "subtmp", false, true);
-        llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, llvm_var_type);
-        llvm_value.type = clone_node_type(node_type);
-        llvm_value.address = nullptr;
-        llvm_value.var = nullptr;
-        llvm_value.binded_value = FALSE;
-        llvm_value.load_field = FALSE;
-
-        dec_stack_ptr(2, info);
-        push_value_to_stack_ptr(&llvm_value, info);
-
-        info->type = clone_node_type(node_type);
     }
     else if(is_number_type(left_type) && is_number_type(right_type))
     {
@@ -8311,7 +8311,7 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
             }
 
             Value* lvalue2 = Builder.CreateCast(Instruction::BitCast, lvalue.address, llvm_var_type);
-            load_element_addresss = Builder.CreateGEP(lvalue2, rvalue[0].value, "element_address");
+            load_element_addresss = Builder.CreateGEP(lvalue2, rvalue[0].value, "element_addressA");
 
             int alignment = get_llvm_alignment_from_node_type(var_type);
 
@@ -8362,7 +8362,7 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
             load_element_addresss = lvalue2;
 
             for(i=0; i<num_dimention; i++) {
-                load_element_addresss = Builder.CreateGEP(load_element_addresss, rvalue[i].value, "element_address");
+                load_element_addresss = Builder.CreateGEP(load_element_addresss, rvalue[i].value, "element_addressB");
             }
 
             int alignment = get_llvm_alignment_from_node_type(var_type);
@@ -8545,7 +8545,7 @@ BOOL compile_store_element(unsigned int node, sCompileInfo* info)
             }
 
             Value* lvalue2 = Builder.CreateCast(Instruction::BitCast, lvalue.address, llvm_var_type);
-            Value* load_element_addresss = Builder.CreateGEP(lvalue2, mvalue[0].value, "element_address");
+            Value* load_element_addresss = Builder.CreateGEP(lvalue2, mvalue[0].value, "element_addressC");
 
             int alignment = get_llvm_alignment_from_node_type(var_type);
 
@@ -8591,7 +8591,7 @@ BOOL compile_store_element(unsigned int node, sCompileInfo* info)
 
             Value* element_address = lvalue2;
             for(i=0; i<num_dimention; i++) {
-                element_address = Builder.CreateGEP(element_address, mvalue[i].value, "element_address");
+                element_address = Builder.CreateGEP(element_address, mvalue[i].value, "element_addressD");
             }
 
             int alignment = get_llvm_alignment_from_node_type(var_type);
@@ -9977,7 +9977,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
 
             Value* index_value = ConstantInt::get(TheContext, llvm::APInt(32, i, true)); 
 
-            Value* element_address = Builder.CreateGEP(var_address, index_value, "element_address");
+            Value* element_address = Builder.CreateGEP(var_address, index_value, "element_addressE");
 
             int alignment = get_llvm_alignment_from_node_type(var_element_type);
 
@@ -10147,7 +10147,7 @@ BOOL compile_array_with_initialization(unsigned int node, sCompileInfo* info)
 
                 Value* index_value = ConstantInt::get(TheContext, llvm::APInt(32, i, true)); 
 
-                Value* element_address = Builder.CreateGEP(var_address, index_value, "element_address");
+                Value* element_address = Builder.CreateGEP(var_address, index_value, "element_addressF");
 
                 int alignment = get_llvm_alignment_from_node_type(var_element_type);
 
@@ -11803,7 +11803,7 @@ static BOOL compile_plus_plus(unsigned int node, sCompileInfo* info)
             right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
 
             Value* value = Builder.CreateAdd(left_value2, right_value, "adddtmp", false, true);
-            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0), "IntTOPtr5");
+            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0), "IntTOPtr5c");
             Builder.CreateAlignedStore(value, lvalue.address, alignment);
         }
         else {
@@ -11950,7 +11950,7 @@ static BOOL compile_minus_minus(unsigned int node, sCompileInfo* info)
             right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
 
             Value* value = Builder.CreateSub(left_value2, right_value, "subtmp", false, true);
-            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0), "IntTOPtr6");
+            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0), "IntTOPtr6d");
             Builder.CreateAlignedStore(value, lvalue.address, alignment);
         }
         else {
@@ -12097,7 +12097,7 @@ static BOOL compile_equal_plus(unsigned int node, sCompileInfo* info)
             right_value = Builder.CreateMul(right_value, alloc_size_value, "multtmp", false, true);
 
             Value* value = Builder.CreateAdd(left_value2, right_value, "adddtmp", false, true);
-            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0), "IntTOPtr7");
+            value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(llvm_left_type,0), "IntTOPtr7e");
             Builder.CreateAlignedStore(value, lvalue.address, alignment);
         }
         else {
