@@ -348,7 +348,7 @@ typedef struct sParserParamStruct sParserParam;
 
 void parser_init();
 void parser_final();
-void parser_err_msg(sParserInfo* info, const char* msg);
+void parser_err_msg(sParserInfo* info, char* msg);
 void skip_spaces_and_lf(sParserInfo* info);
 BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf);
 void expect_next_character_with_one_forward(char* characters, sParserInfo* info);
@@ -435,6 +435,9 @@ struct sCompileInfoStruct
     BOOL in_inline_function;
 
     BOOL has_block_result;
+
+    void* andand_result_var;
+    void* oror_result_var;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;

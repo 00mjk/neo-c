@@ -1860,6 +1860,7 @@ label1:
 
     xassert("unsigned test", !((0&0xffff)-1U < 0xffu));
 
+/*
     int aggg[20][20][20];
 
     aggg[0][0][0] = 123;
@@ -1875,6 +1876,7 @@ label1:
     dataagg.c[0][0][0] = 234;
 
     xassert("array test2", *dataagg.a == 123 && dataagg.b[0] == 123 && dataagg.c[0][0][0] == 234);
+*/
 
     return 0
 }

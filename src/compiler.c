@@ -140,7 +140,6 @@ static BOOL compiler(char* fname, BOOL optimize, sVarTable* module_var_table, BO
     return TRUE;
 }
 
-
 int gARGC;
 char** gARGV;
 char* gVersion = "1.3.9";
@@ -305,7 +304,7 @@ int main(int argc, char** argv)
 
     if(!compiler(neo_c_header_path, optimize, module_var_table, TRUE)) 
     {
-        fprintf(stderr, "neo-c can't compile %s\n", neo_c_header_path);
+        fprintf(stderr, "neo-c can't compile(1) %s\n", neo_c_header_path);
 
         compiler_final();
         return 1;
@@ -313,7 +312,7 @@ int main(int argc, char** argv)
 
     if(!compiler(sname, optimize, module_var_table, FALSE))
     {
-        fprintf(stderr, "neo-c can't compile %s\n", sname);
+        fprintf(stderr, "neo-c can't compile(2) %s\n", sname);
         compiler_final();
         return 1;
     }
@@ -334,7 +333,7 @@ int main(int argc, char** argv)
             snprintf(command, 4096*2, "clang -o %s %s.o $CFLAGS ", program_name, main_module_name);
         }
 
-        char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s/lib/neo-c.o", PREFIX);
+        char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s/lib/neo-c.a", PREFIX);
 
 
         if(access(path, R_OK) == 0) {
@@ -342,7 +341,7 @@ int main(int argc, char** argv)
             xstrncat(command, " ", 4096*2);
         }
         else {
-            snprintf(path, PATH_MAX, "./neo-c.o ");
+            snprintf(path, PATH_MAX, "./neo-c.a ");
             xstrncat(command, path, 4096*2);
         }
 

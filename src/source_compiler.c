@@ -59,7 +59,7 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
             int nest = 0;
             while(1) {
                 if(*p == 0) {
-                    fprintf(stderr, "there is not a comment end until source end with /* in string %d in char %d\n", in_string, in_char);
+                    fprintf(stderr, "there is not a comment end until source end with the comment begin in string %d in char %d\n", in_string, in_char);
                     return FALSE;
                 }
                 else if(*p == '/' && *(p+1) == '*') {

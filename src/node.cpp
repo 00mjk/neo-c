@@ -4663,6 +4663,9 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         }
     }
 
+    info->andand_result_var = (void*)Builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "andand_result_var");
+    info->oror_result_var = (void*)Builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "andand_result_var");
+
     /// copy lvtable for other function ///
     Value* lvtable;
     void* function_lvtable_before;
@@ -4894,6 +4897,9 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         BasicBlock* current_block_before;
         BasicBlock* current_block = BasicBlock::Create(TheContext, "entry", fun);
         llvm_change_block(current_block, &current_block_before, info, FALSE);
+
+        info->andand_result_var = (void*)Builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "andand_result_var");
+        info->oror_result_var = (void*)Builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "andand_result_var");
 
         /// copy lvtable for other function ///
         Value* lvtable;
@@ -5412,7 +5418,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
         LVALUE llvm_value;
 
         if(!info->no_output) {
-            if(var_type->mArrayDimentionNum == 1) {
+            if(var_type->mArrayDimentionNum >= 1) {
                 llvm_value.value = var_address;
             }
             else {
@@ -7423,7 +7429,7 @@ unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right
 
 static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 {
-    Value* result_var = Builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "andand_result_var");
+    Value* result_var = (Value*)info->andand_result_var;
 
     /// compile expression ///
     unsigned int left_node = gNodes[node].mLeft;
@@ -7547,7 +7553,7 @@ unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_n
 
 static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
 {
-    Value* result_var = Builder.CreateAlloca(IntegerType::get(TheContext, 1), 0, "oror_result_var");
+    Value* result_var = (Value*)info->oror_result_var;
 
     /// compile expression ///
     unsigned int left_node = gNodes[node].mLeft;
@@ -8280,7 +8286,7 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
     sNodeType* var_type = clone_node_type(left_type);
 
     if(var_type->mArrayDimentionNum > 0) {
-        var_type->mArrayDimentionNum--;
+        var_type->mArrayDimentionNum-=num_dimention;
     }
     else {
         var_type->mPointerNum--;
@@ -8311,12 +8317,13 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
             }
 
             Value* lvalue2 = Builder.CreateCast(Instruction::BitCast, lvalue.address, llvm_var_type);
-            load_element_addresss = Builder.CreateGEP(lvalue2, rvalue[0].value, "element_addressA");
+            load_element_addresss = Builder.CreateGEP(lvalue2, rvalue[0].value, "element_address");
 
             int alignment = get_llvm_alignment_from_node_type(var_type);
 
             element_value = Builder.CreateAlignedLoad(load_element_addresss, alignment, "element");
         }
+/*
         else if(left_type->mArrayDimentionNum > 1) {
             Value* lvalue2 = lvalue.address;
 
@@ -8355,6 +8362,57 @@ static BOOL compile_load_element(unsigned int node, sCompileInfo* info)
 
             element_value = Builder.CreateAlignedLoad(load_element_addresss, alignment, "element");
 
+        }
+*/
+        else if(left_type->mArrayDimentionNum > 1) {
+            int i;
+            Value* lvalue2 = lvalue.address;
+
+            load_element_addresss = lvalue2;
+
+            Value* indices[left_type->mArrayDimentionNum+1];
+
+            int j;
+            for(j=0; j<left_type->mArrayDimentionNum-num_dimention; j++) {
+                indices[j] = ConstantInt::get(TheContext, llvm::APInt(32, 0, false)); 
+            }
+            int k=0;
+            for(; j<left_type->mArrayDimentionNum; j++, k++) {
+                indices[j] = rvalue[k].value;
+            }
+            load_element_addresss = Builder.CreateInBoundsGEP(load_element_addresss, ArrayRef<Value*>(indices, left_type->mArrayDimentionNum));
+
+            for(j=0; j<left_type->mArrayDimentionNum; j++) {
+                indices[j] = ConstantInt::get(TheContext, llvm::APInt(32, 0, false)); 
+            }
+            load_element_addresss = Builder.CreateInBoundsGEP(load_element_addresss, ArrayRef<Value*>(indices, left_type->mArrayDimentionNum));
+
+            sNodeType* var_type3 = clone_node_type(var_type);
+            var_type3->mPointerNum -= num_dimention;
+            var_type3->mPointerNum+=2;
+            var_type3->mArrayDimentionNum = 0;
+
+            Type* llvm_var_type2;
+            if(!create_llvm_type_from_node_type(&llvm_var_type2, var_type3, var_type3, info))
+            {
+                compile_err_msg(info, "Getting llvm type failed(10)");
+                show_node_type(var_type3);
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            int alignment = get_llvm_alignment_from_node_type(var_type);
+
+            if(var_type3->mPointerNum == 0) {
+                element_value = Builder.CreateAlignedLoad(load_element_addresss, alignment, "element");
+            }
+            else {
+                load_element_addresss = Builder.CreateCast(Instruction::BitCast, load_element_addresss, llvm_var_type2);
+                element_value = load_element_addresss;
+            }
         }
         else {
             Value* lvalue2 = lvalue.value;

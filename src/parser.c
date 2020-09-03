@@ -34,11 +34,12 @@ int parse_cmp(char* p, char* str)
     return 0;
 }
 
-void parser_err_msg(sParserInfo* info, const char* msg)
+void parser_err_msg(sParserInfo* info, char* msg)
 {
     static int output_num = 0;
 
     if(output_num < PARSER_ERR_MSG_MAX) {
+        puts(msg);
         fprintf(stderr, "%s:%d: %s\n", info->sname, info->sline, msg);
     }
 
@@ -6759,6 +6760,7 @@ static BOOL expression_node(unsigned int* node, BOOL enable_assginment, sParserI
             }
             else if(*info->p == '\\') {
                 info->p++;
+
                 switch(*info->p) {
                     case '0':
                         sBuf_append_char(&value, '\0');
@@ -8413,7 +8415,7 @@ static BOOL expression_or(unsigned int* node, sParserInfo* info)
 
     while(*info->p) {
         if(*info->p == '|' && *(info->p+1) != '=' && *(info->p+1) != '|') {
-            (info->p)++;
+            info->p++;
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
@@ -8444,6 +8446,18 @@ static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)
     if(*node == 0) {
         return TRUE;
     }
+
+    while(TRUE) {
+        if(*info->p == '#') {
+            if(!parse_sharp(info)) {
+                return FALSE;
+            }
+        }
+        else {
+            break;
+        }
+    }
+
 
     while(*info->p) {
         if(*info->p == '&' && *(info->p+1) == '&') {
@@ -8500,9 +8514,31 @@ static BOOL expression_conditional_operator(unsigned int* node, sParserInfo* inf
             info->p++;
             skip_spaces_and_lf(info);
 
+            while(TRUE) {
+                if(*info->p == '#') {
+                    if(!parse_sharp(info)) {
+                        return FALSE;
+                    }
+                }
+                else {
+                    break;
+                }
+            }
+
             unsigned int value1 = 0;
             if(!expression_and_and_or_or(&value1, info)) {
                 return FALSE;
+            }
+
+            while(TRUE) {
+                if(*info->p == '#') {
+                    if(!parse_sharp(info)) {
+                        return FALSE;
+                    }
+                }
+                else {
+                    break;
+                }
             }
 
             if(value1 == 0) {
@@ -8515,6 +8551,17 @@ static BOOL expression_conditional_operator(unsigned int* node, sParserInfo* inf
             unsigned int value2 = 0;
             if(!expression_and_and_or_or(&value2, info)) {
                 return FALSE;
+            }
+
+            while(TRUE) {
+                if(*info->p == '#') {
+                    if(!parse_sharp(info)) {
+                        return FALSE;
+                    }
+                }
+                else {
+                    break;
+                }
             }
 
             if(value2 == 0) {
