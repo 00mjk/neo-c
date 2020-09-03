@@ -114,7 +114,6 @@ BOOL parse_block(sNodeBlock* node_block, BOOL extern_c_lang, BOOL single_express
         if(*info->p == ';') {
         }
         else {
-puts("AAA");
             if(!expression(&node, info)) {
                 if(!extern_c_lang) {
                     info->mBlockLevel--;
@@ -238,7 +237,6 @@ puts("AAA");
                 }
             }
 
-puts("BBB");
             if(!expression(&node, info)) {
                 if(!extern_c_lang) {
                     info->mBlockLevel--;
