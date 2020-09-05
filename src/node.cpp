@@ -129,7 +129,7 @@ static BOOL check_same_params(int num_params, sNodeType** param_types, int num_p
     return TRUE;
 }
 
-BOOL add_function(char* name, char* real_fun_name, char* asm_fun_name, char param_names[PARAMS_MAX][VAR_NAME_MAX], sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param, char* struct_name, int generics_fun_num, char* simple_fun_name, sFunction** neo_c_fun)
+BOOL add_function(char* name, char* real_fun_name, char* asm_fun_name, char** param_names, sNodeType** param_types, int num_params, sNodeType* result_type, int num_method_generics, char** method_generics_type_names, BOOL c_ffi_function, BOOL var_arg, char* block_text, int num_generics, char** generics_type_names, BOOL generics_function, BOOL inline_function, char* sname, int sline, BOOL in_clang, BOOL external, int version, Function** llvm_fun, sCompileInfo* info, BOOL simple_lambda_param, char* struct_name, int generics_fun_num, char* simple_fun_name, sFunction** neo_c_fun)
 {
     sFunction* fun = (sFunction*)calloc(1, sizeof(sFunction));
     *neo_c_fun = fun;
@@ -666,7 +666,7 @@ static void create_operator_fun_name(char* real_fun_name, size_t size_real_fun_n
     }
 }
 
-static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, char* struct_name, sNodeType* generics_type, int num_method_generics_types, sNodeType* method_generics_types[GENERICS_TYPES_MAX],  int num_generics, char generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], int num_method_generics, char method_generics_type_names[GENERICS_TYPES_MAX][VAR_NAME_MAX], sParserInfo* info, sCompileInfo* cinfo, int generics_fun_num, BOOL in_clang, int version, BOOL var_arg, BOOL finalize)
+static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, char* sname, int sline, char* struct_name, sNodeType* generics_type, int num_method_generics_types, sNodeType** method_generics_types,  int num_generics, char** generics_type_names, int num_method_generics, char** method_generics_type_names, sParserInfo* info, sCompileInfo* cinfo, int generics_fun_num, BOOL in_clang, int version, BOOL var_arg, BOOL finalize)
 {
     /// params ///
     sParserParam params[PARAMS_MAX];
@@ -720,6 +720,8 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
 
     memset(&info2, 0, sizeof(sParserInfo));
 
+    sBuf_init(&info2.mConst);
+
     info2.p = buf;
     xstrncpy(info2.sname, sname, PATH_MAX);
     info2.source = buf;
@@ -745,12 +747,12 @@ static BOOL parse_generics_fun(unsigned int* node, char* buf, sFunction* fun, ch
 
     info2.mNumGenerics = num_generics;
     for(i=0; i<num_generics; i++) {
-        xstrncpy(info2.mGenericsTypeNames[i], generics_type_names[i], VAR_NAME_MAX);
+        info2.mGenericsTypeNames[i] = strdup(generics_type_names[i]);
     }
 
     info2.mNumMethodGenerics = num_method_generics;
     for(i=0; i<num_method_generics; i++) {
-        xstrncpy(info2.mMethodGenericsTypeNames[i], method_generics_type_names[i], VAR_NAME_MAX);
+        info2.mMethodGenericsTypeNames[i] = strdup(method_generics_type_names[i]);
     }
 
     sNodeType* result_type = clone_node_type(fun->mResultType);
@@ -901,7 +903,20 @@ BOOL call_function(char* fun_name, Value** params, int num_params, char* struct_
 
                 unsigned int node = 0;
 
-                if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, 0, NULL, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg, FALSE))
+                char* generics_type_names[GENERICS_TYPES_MAX];
+
+                int j;
+                for(j=0; j<fun->mNumGenerics; j++) {
+                    generics_type_names[j] = fun->mGenericsTypeNames[j];
+                }
+
+                char* method_generics_type_names[GENERICS_TYPES_MAX];
+
+                for(j=0; j<fun->mNumMethodGenerics; j++) {
+                    method_generics_type_names[j] = fun->mMethodGenericsTypeNames[j];
+                }
+
+                if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, 0, NULL, fun->mNumGenerics, generics_type_names, fun->mNumMethodGenerics, method_generics_type_names, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg, FALSE))
                 {
                     gLLVMStack = llvm_stack;
                     info->stack_num = stack_num;
@@ -2942,9 +2957,25 @@ static BOOL compile_external_function(unsigned int node, sCompileInfo* info)
 
         memset(method_generics_type_names, 0, sizeof(char)*GENERICS_TYPES_MAX*VAR_NAME_MAX);
 
+        char* param_names2[PARAMS_MAX];
+        for(i=0; i<num_params; i++) {
+            param_names2[i] = param_names[i];
+        }
+
+        int num_method_generics = 0;
+        char* method_generics_type_names2[GENERICS_TYPES_MAX];
+        for(i=0; i<num_method_generics; i++) {
+            method_generics_type_names2[i] = method_generics_type_names[i];
+        }
+        char* generics_type_names2[GENERICS_TYPES_MAX];
+        int num_generics = 0;
+        for(i=0; i<num_generics; i++) {
+            generics_type_names2[i] = generics_type_names[i];
+        }
+
         Function* fun;
         sFunction* neo_c_fun = NULL;
-        if(!add_function(fun_name, real_fun_name, asm_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, TRUE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, TRUE, version, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
+        if(!add_function(fun_name, real_fun_name, asm_fun_name, param_names2, param_types, num_params, result_type, 0, method_generics_type_names2, TRUE, var_arg, NULL, 0, generics_type_names2, FALSE, FALSE, NULL, 0, in_clang, TRUE, version, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
         {
             return TRUE;
         }
@@ -3006,6 +3037,8 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
 
     memset(&info2, 0, sizeof(sParserInfo));
 
+    sBuf_init(&info2.mConst);
+
     info2.p = buf;
     xstrncpy(info2.sname, sname, PATH_MAX);
     info2.source = buf;
@@ -3018,7 +3051,7 @@ static BOOL parse_simple_lambda_param(unsigned int* node, char* buf, sFunction* 
     info2.mNumGenerics = num_generics;
     for(i=0; i<num_generics; i++)
     {
-        xstrncpy(info2.mGenericsTypeNames[i], generics_type_names[i], VAR_NAME_MAX);
+        info2.mGenericsTypeNames[i] = strdup(generics_type_names[i]);
     }
 
     if(generics_type) {
@@ -3217,6 +3250,8 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
 
     memset(&info2, 0, sizeof(sParserInfo));
 
+    sBuf_init(&info2.mConst);
+
     info2.p = buf;
     xstrncpy(info2.sname, sname, PATH_MAX);
     info2.source = buf;
@@ -3240,12 +3275,12 @@ static BOOL parse_inline_function(sNodeBlock** node_block, char* buf, sFunction*
 
     info2.mNumGenerics = num_generics;
     for(i=0; i<num_generics; i++) {
-        xstrncpy(info2.mGenericsTypeNames[i], generics_type_names[i], VAR_NAME_MAX);
+        info2.mGenericsTypeNames[i] = strdup(generics_type_names[i]);
     }
 
     info2.mNumMethodGenerics = num_method_generics;
     for(i=0; i<num_method_generics; i++) {
-        xstrncpy(info2.mMethodGenericsTypeNames[i], method_generics_type_names[i], VAR_NAME_MAX);
+        info2.mMethodGenericsTypeNames[i] = strdup(method_generics_type_names[i]);
     }
 
     sNodeType* result_type = clone_node_type(fun->mResultType);
@@ -3739,7 +3774,21 @@ BOOL compile_function_call(unsigned int node, sCompileInfo* info)
                 BOOL var_arg = fun->mVarArg;
 
                 unsigned int node = 0;
-                if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg, FALSE))
+
+                char* generics_type_names[GENERICS_TYPES_MAX];
+
+                int j;
+                for(j=0; j<fun->mNumGenerics; j++) {
+                    generics_type_names[j] = fun->mGenericsTypeNames[j];
+                }
+
+                char* method_generics_type_names[GENERICS_TYPES_MAX];
+
+                for(j=0; j<fun->mNumMethodGenerics; j++) {
+                    method_generics_type_names[j] = fun->mMethodGenericsTypeNames[j];
+                }
+
+                if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun->mNumGenerics, generics_type_names, fun->mNumMethodGenerics, method_generics_type_names, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg, FALSE))
                 {
                     info->generics_type = generics_type_before;
                     gLLVMStack = llvm_stack;
@@ -4621,8 +4670,23 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     Function* fun;
 
+    char* param_names2[PARAMS_MAX];
+    for(i=0; i<num_params; i++) {
+        param_names2[i] = param_names[i];
+    }
+    char* method_generics_type_names2[GENERICS_TYPES_MAX];
+    int num_method_generics = 0;
+    for(i=0; i<num_method_generics; i++) {
+        method_generics_type_names2[i] = method_generics_type_names[i];
+    }
+    int num_generics = 0;
+    char* generics_type_names2[GENERICS_TYPES_MAX];
+    for(i=0; i<num_generics; i++) {
+        generics_type_names2[i] = generics_type_names[i];
+    }
+
     sFunction* neo_c_fun = NULL;
-    if(!add_function(fun_name, real_fun_name, asm_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, in_clang, FALSE, version, &fun, info, FALSE, struct_name, generics_fun_num, simple_fun_name, &neo_c_fun))
+    if(!add_function(fun_name, real_fun_name, asm_fun_name, param_names2, param_types, num_params, result_type, 0, method_generics_type_names2, FALSE, var_arg, NULL, 0, generics_type_names2, FALSE, FALSE, NULL, 0, in_clang, FALSE, version, &fun, info, FALSE, struct_name, generics_fun_num, simple_fun_name, &neo_c_fun))
     {
         xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
         info->function_node_block = function_node_block;
@@ -4870,7 +4934,23 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         Function* fun;
         BOOL var_arg = FALSE;
         sFunction* neo_c_fun = NULL;
-        if(!add_function(fun_name, real_fun_name, asm_fun_name, param_names, param_types, num_params, result_type, 0, method_generics_type_names, FALSE, var_arg, NULL, 0, generics_type_names, FALSE, FALSE, NULL, 0, info->pinfo->in_clang, FALSE, version, &fun, info, TRUE, NULL, -1, simple_fun_name, &neo_c_fun))
+
+        char* param_names2[PARAMS_MAX];
+        int i;
+        for(i=0; i<num_params; i++) {
+            param_names2[i] = param_names[i];
+        }
+        char* method_generics_type_names2[GENERICS_TYPES_MAX];
+        int num_method_generics = 0;
+        for(i=0; i<num_method_generics; i++) {
+            method_generics_type_names2[i] = method_generics_type_names[i];
+        }
+        char* generics_type_names2[GENERICS_TYPES_MAX];
+        int num_generics = 0;
+        for(i=0; i<num_generics; i++) {
+            generics_type_names2[i] = generics_type_names[i];
+        }
+        if(!add_function(fun_name, real_fun_name, asm_fun_name, param_names2, param_types, num_params, result_type, 0, method_generics_type_names2, FALSE, var_arg, NULL, 0, generics_type_names2, FALSE, FALSE, NULL, 0, info->pinfo->in_clang, FALSE, version, &fun, info, TRUE, NULL, -1, simple_fun_name, &neo_c_fun))
         {
             xstrncpy(info->real_fun_name, real_fun_name_before, VAR_NAME_MAX);
             info->function_node_block = function_node_block;
@@ -5188,9 +5268,22 @@ BOOL compile_generics_function(unsigned int node, sCompileInfo* info)
     create_real_fun_name(real_fun_name, REAL_FUN_NAME_MAX, fun_name, struct_name);
 
     /// go ///
+    char* param_names2[PARAMS_MAX];
+    for(i=0; i<num_params; i++) {
+        param_names2[i] = param_names[i];
+    }
+    char* method_generics_type_names2[GENERICS_TYPES_MAX];
+    for(i=0; i<num_method_generics; i++) {
+        method_generics_type_names2[i] = method_generics_type_names[i];
+    }
+    char* generics_type_names2[GENERICS_TYPES_MAX];
+    for(i=0; i<num_generics; i++) {
+        generics_type_names2[i] = generics_type_names[i];
+    }
+
     Function* fun;
     sFunction* neo_c_fun = NULL;
-    if(!add_function(fun_name, real_fun_name, "", param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, var_arg, block_text, num_generics, generics_type_names, TRUE, FALSE, sname, sline, in_clang, FALSE, version, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
+    if(!add_function(fun_name, real_fun_name, "", param_names2, param_types, num_params, result_type, num_method_generics, method_generics_type_names2, FALSE, var_arg, block_text, num_generics, generics_type_names2, TRUE, FALSE, sname, sline, in_clang, FALSE, version, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
     {
         return TRUE;
     }
@@ -5308,7 +5401,21 @@ BOOL compile_inline_function(unsigned int node, sCompileInfo* info)
     /// go ///
     Function* fun;
     sFunction* neo_c_fun = NULL;
-    if(!add_function(fun_name, real_fun_name, "", param_names, param_types, num_params, result_type, num_method_generics, method_generics_type_names, FALSE, var_arg, block_text, num_generics, generics_type_names, FALSE, TRUE, sname, sline, in_clang, FALSE, 0, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
+
+    char* param_names2[PARAMS_MAX];
+    for(i=0; i<num_params; i++) {
+        param_names2[i] = param_names[i];
+    }
+    char* method_generics_type_names2[GENERICS_TYPES_MAX];
+    for(i=0; i<num_method_generics; i++) {
+        method_generics_type_names2[i] = method_generics_type_names[i];
+    }
+    char* generics_type_names2[GENERICS_TYPES_MAX];
+    for(i=0; i<num_generics; i++) {
+        generics_type_names2[i] = generics_type_names[i];
+    }
+
+    if(!add_function(fun_name, real_fun_name, "", param_names2, param_types, num_params, result_type, num_method_generics, method_generics_type_names2, FALSE, var_arg, block_text, num_generics, generics_type_names2, FALSE, TRUE, sname, sline, in_clang, FALSE, 0, &fun, info, FALSE, struct_name, -1, fun_name, &neo_c_fun))
     {
         return TRUE;
     }
@@ -13909,8 +14016,21 @@ int create_generics_finalize_method(sNodeType* node_type2, Function** llvm_fun, 
         BOOL in_clang = fun->mInCLang;
         BOOL var_arg = fun->mVarArg;
 
+        char* generics_type_names[GENERICS_TYPES_MAX];
+
+        int j;
+        for(j=0; j<fun->mNumGenerics; j++) {
+            generics_type_names[j] = fun->mGenericsTypeNames[j];
+        }
+
+        char* method_generics_type_names[GENERICS_TYPES_MAX];
+
+        for(j=0; j<fun->mNumMethodGenerics; j++) {
+            method_generics_type_names[j] = fun->mMethodGenericsTypeNames[j];
+        }
+
         unsigned int node = 0;
-        if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun->mNumGenerics, fun->mGenericsTypeNames, fun->mNumMethodGenerics, fun->mMethodGenericsTypeNames, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg, TRUE))
+        if(!parse_generics_fun(&node, buf, fun, sname, sline, struct_name, generics_type, num_method_generics_types, method_generics_types, fun->mNumGenerics, generics_type_names, fun->mNumMethodGenerics, method_generics_type_names, info->pinfo, info, generics_fun_num, in_clang, fun->mVersion, var_arg, TRUE))
         {
             gLLVMStack = llvm_stack;
             info->stack_num = stack_num;

@@ -1,6 +1,6 @@
 # neo-c compiler language
 
-version 1.3.9
+version 1.4.0
 
 ```
 #include <stdio.h>
@@ -22,6 +22,8 @@ int main()
 
 4. Mixin-layers system. You can create apllication with overlaying layers. See wi or tiny application sample included in this source code. 
 
+5. Can be self-hosted. Try ulimit -s 132656; bash; cd self-host; bash all_build.sh. Home directory> ulimit -s 132656; bash; cd self-host; bash home_all_build.sh to install in the directory.
+
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,6 +44,8 @@ int main()
 
 4. Mixin-layersシステムを備えます。アプリケーションを実装する場合レイヤーを重ねるように簡単なアプリケーションから実装し始めて、レイヤーを重ねてアプリケーションを拡張していけます。wiとtinyというアプリケーションがソースコードに含まれているので、見てみてください。
 
+5. セルフホストできます。ulimit -s 132656; bash; cd self-host; bash all_build.shしてみてください。ホームディレクトリにインストールする場合はulimit -s 132656; bash; cd self-host; bash home_all_build.shです。
+
 # INSTALL
 
 ```
@@ -56,9 +60,13 @@ make
 sudo make install
 ```
 
-This program is tested in LLVM-3.8, LLVM-7 and LLVM-10, and x86_64, aarch64 on Debian, Raspberry PI 3B+(ARM64), iPhone(iSH, Apline Linux), Android(termux), ppc64le(Debian), s390x(Alpline Linux)
+This program is tested in LLVM-3.8, LLVM-7 and LLVM-10, and x86_64, aarch64 on Debian, Raspberry PI 3B+(ARM64), iPhone(iSH, Apline Linux), Android(termux), ppc64le(Debian), s390x(Alpline Linux). 
+
+From version 1.4.0 I success to self-host compile.$ ulimit -s 132656; bash; cd self-host; bash all_build.sh;
 
 # CHANGELOG
+
+1.4.0 Success to compile with self-host.
 
 1.3.9 Corresponed s390 alpline linux.
 

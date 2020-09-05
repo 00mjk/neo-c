@@ -285,6 +285,8 @@ void free_block_variables_on_break(struct sNodeBlockStruct* current_node_block, 
 //////////////////////////////
 struct sParserInfoStruct
 {
+    sBuf mConst;
+
     char* p;
     char sname[PATH_MAX];
     char* source;
@@ -295,10 +297,10 @@ struct sParserInfoStruct
     int sline_top;
     sVarTable* lv_table;
     int mNumGenerics;
-    char mGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+    char* mGenericsTypeNames[GENERICS_TYPES_MAX];
 
     int mNumMethodGenerics;
-    char mMethodGenericsTypeNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+    char* mMethodGenericsTypeNames[GENERICS_TYPES_MAX];
 
     sNodeType* mMethodGenericsTypes[GENERICS_TYPES_MAX];
     int mNumMethodGenericsTypes;

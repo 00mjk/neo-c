@@ -1043,8 +1043,7 @@ static BOOL parse_struct(unsigned int* node, char* struct_name, int size_struct_
                     return FALSE;
                 }
 
-                xstrncpy(info->mGenericsTypeNames[num_generics], buf, VAR_NAME_MAX);
-
+                info->mGenericsTypeNames[num_generics] = strdup(buf);
                 num_generics++;
 
                 if(num_generics >= GENERICS_TYPES_MAX)
@@ -3731,8 +3730,7 @@ static BOOL parse_method_generics_function(unsigned int* node, char* struct_name
                 return FALSE;
             }
 
-            xstrncpy(info->mMethodGenericsTypeNames[num_generics], buf, VAR_NAME_MAX);
-
+            info->mMethodGenericsTypeNames[num_generics] = strdup(buf);
             num_generics++;
 
             if(num_generics >= GENERICS_TYPES_MAX)
@@ -4030,8 +4028,7 @@ static BOOL parse_inline_function(unsigned int* node, char* struct_name, sParser
                 return FALSE;
             }
 
-            xstrncpy(info->mMethodGenericsTypeNames[num_generics], buf, VAR_NAME_MAX);
-
+            info->mMethodGenericsTypeNames[num_generics] = strdup(buf);
             num_generics++;
 
             if(num_generics >= GENERICS_TYPES_MAX)
@@ -5965,8 +5962,7 @@ static BOOL parse_impl(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
 
-            xstrncpy(info->mGenericsTypeNames[num_generics], buf, VAR_NAME_MAX);
-
+            info->mGenericsTypeNames[num_generics] = strdup(buf);
             num_generics++;
 
             if(num_generics >= GENERICS_TYPES_MAX)

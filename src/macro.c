@@ -148,6 +148,8 @@ BOOL call_macro(unsigned * node, char* name, char* params, sParserInfo* info)
     sParserInfo info2;
     memset(&info2, 0, sizeof(sParserInfo));
 
+    sBuf_init(&info2.mConst);
+
     info2.p = command_result.mBuf;
     info2.source = command_result.mBuf;
     xstrncpy(info2.sname, name, PATH_MAX);
@@ -159,6 +161,7 @@ BOOL call_macro(unsigned * node, char* name, char* params, sParserInfo* info)
     sNodeBlock* node_block = NULL;
     if(!parse_block_easy(&node_block, FALSE, &info2))
     {
+        free(info2.mConst.mBuf);
         return FALSE;
     };
 
@@ -167,6 +170,7 @@ BOOL call_macro(unsigned * node, char* name, char* params, sParserInfo* info)
     free(command_result.mBuf);
 
     info->err_num += info2.err_num;
+    free(info2.mConst.mBuf);
 
     return TRUE;
 }

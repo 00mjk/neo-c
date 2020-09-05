@@ -137,6 +137,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_
 {
     sParserInfo info;
     memset(&info, 0, sizeof(sParserInfo));
+    sBuf_init(&info.mConst);
     info.p = source;
     info.source = source;
     xstrncpy(info.sname, fname, PATH_MAX);
@@ -185,6 +186,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_
 
         if(*info.p == '#') {
             if(!parse_sharp(&info)) {
+                free(info.mConst.mBuf);
                 return FALSE;
             }
         }
@@ -196,6 +198,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_
         else {
             unsigned int node = 0;
             if(!expression(&node, &info)) {
+                free(info.mConst.mBuf);
                 return FALSE;
             }
 
@@ -225,6 +228,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_
                 xstrncpy(cinfo.sname, gNodes[node].mSName, PATH_MAX);
 
                 if(!compile(node, &cinfo)) {
+                    free(info.mConst.mBuf);
                     return FALSE;
                 }
 
@@ -242,6 +246,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_
 
     if(info.err_num > 0 || cinfo.err_num > 0) {
         fprintf(stderr, "Parser error number is %d. Compile error number is %d\n", info.err_num, cinfo.err_num);
+        free(info.mConst.mBuf);
         return FALSE;
     }
 
@@ -273,6 +278,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_
 
         if(*info.p == '#') {
             if(!parse_sharp(&info)) {
+                free(info.mConst.mBuf);
                 return FALSE;
             }
         }
@@ -284,6 +290,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_
         else {
             unsigned int node = 0;
             if(!expression(&node, &info)) {
+                free(info.mConst.mBuf);
                 return FALSE;
             }
 
@@ -314,6 +321,7 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_
 
 
                 if(!compile(node, &cinfo)) {
+                    free(info.mConst.mBuf);
                     return FALSE;
                 }
 
@@ -330,8 +338,11 @@ BOOL compile_source(char* fname, char* source, BOOL optimize, sVarTable* module_
 
     if(info.err_num > 0 || cinfo.err_num > 0) {
         fprintf(stderr, "Parser error number is %d. Compile error number is %d\n", info.err_num, cinfo.err_num);
+        free(info.mConst.mBuf);
         return FALSE;
     }
+
+    free(info.mConst.mBuf);
 
     return TRUE;
 }
