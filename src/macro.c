@@ -105,7 +105,8 @@ static BOOL get_command_result(sBuf* command_result, char* macro_name, char* cmd
 
     f = popen(cmdline, "r");
     if(f == NULL) {
-        fprintf(stderr, "popen(2) is failed at %s\n", macro_name);
+        perror("popen");
+        fprintf(stderr, "popen(2) is failed at %s(%s)\n", macro_name, cmdline);
         return FALSE;
     }
     while(1) {

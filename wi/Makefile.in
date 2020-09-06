@@ -55,10 +55,10 @@ wi: configure Makefile config.h main.nc 01init.o 02base.o 03insert_mode.o 04word
 	neo-c -c 06-2file.nc $(CFLAGS) $(NCFLAGS)
 
 06-3file.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 06-2file.nc 06-3file.nc
-	neo-c -c 06-3file.nc $(CFLAGS) $(NCFLAGS)
+	neo-c -c 06-3file.nc $(CFLAGS) $(NCFLAGS) || clang -c -o 06-3file.o 06-3file.ll
 
 07yank.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc
-	neo-c -c 07yank.nc $(CFLAGS) $(NCFLAGS)
+	neo-c -c 07yank.nc $(CFLAGS) $(NCFLAGS) || clang -c -o 07yank.o 07yank.ll
 
 08visual.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 
 	neo-c -c 08visual.nc $(CFLAGS) $(NCFLAGS)

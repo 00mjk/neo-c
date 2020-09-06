@@ -58,28 +58,28 @@ src/type.o: config.h src/*.h Makefile configure src/type.nc
 	$(CC) -c src/type.nc $(CFLAGS) $(NCFLAGS)
 
 src/class.o: config.h src/*.h Makefile configure src/class.nc
-	$(CC) -c src/class.nc $(CFLAGS) $(NCFLAGS)
+	$(CC) -c src/class.nc $(CFLAGS) $(NCFLAGS)  || clang -c -o src/class.o src/class.ll
 
 src/native.o: config.h src/*.h Makefile configure src/native.nc
-	$(CC) -c src/native.nc $(CFLAGS) $(NCFLAGS)
+	$(CC) -c src/native.nc $(CFLAGS) $(NCFLAGS) || clang -c -o src/native.o src/native.ll
 
 src/native2.o: config.h src/*.h Makefile configure src/native2.nc
-	$(CC) -c src/native2.nc $(CFLAGS) $(NCFLAGS)
+	$(CC) -c src/native2.nc $(CFLAGS) $(NCFLAGS) || clang -c -o src/native2.o src/native2.ll
 
 src/native3.o: config.h src/*.h Makefile configure src/native3.nc
-	$(CC) -c src/native3.nc $(CFLAGS) $(NCFLAGS)
+	$(CC) -c src/native3.nc $(CFLAGS) $(NCFLAGS) || clang -c -o src/native3.o src/native3.ll
 
 src/native4.o: config.h src/*.h Makefile configure src/native4.nc
-	$(CC) -c src/native4.nc $(CFLAGS) $(NCFLAGS)
+	$(CC) -c src/native4.nc $(CFLAGS) $(NCFLAGS) || clang -c -o src/native4.o src/native4.ll
 
 src/native5.o: config.h src/*.h Makefile configure src/native5.nc
-	$(CC) -c src/native5.nc $(CFLAGS) $(NCFLAGS)
+	$(CC) -c src/native5.nc $(CFLAGS) $(NCFLAGS) || clang -c -o src/native5.o src/native5.ll
 
 src/native6.o: config.h src/*.h Makefile configure src/native6.nc
-	$(CC) -c src/native6.nc $(CFLAGS) $(NCFLAGS)
+	$(CC) -c src/native6.nc $(CFLAGS) $(NCFLAGS) || clang -c -o src/native6.o src/native6.ll
 
 src/vm.o: config.h src/*.h Makefile configure src/vm.nc
-	$(CC) -c src/vm.nc $(CFLAGS) $(NCFLAGS)
+	$(CC) -c src/vm.nc $(CFLAGS) $(NCFLAGS) || clang -c -o src/vm.o src/vm.ll
 
 src/vtable.o: config.h src/*.h Makefile configure src/vtable.nc
 	$(CC) -c src/vtable.nc $(CFLAGS) $(NCFLAGS)

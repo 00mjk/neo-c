@@ -688,6 +688,7 @@ void declare_builtin_functions()
         sFunction* neo_c_fun = NULL;
 
         char* param_names2[PARAMS_MAX];
+        int i;
         for(i=0; i<num_params; i++) {
             param_names2[i] = param_names[i];
         }

@@ -138,7 +138,7 @@ test:
 	./code/HelloWorld10-6
 	PWD=`pwd` ./neo-c code/HelloWorld10-6-2.nc
 	./code/HelloWorld10-6-2
-	PWD=`pwd` ./neo-c code/HelloWorld10-7.nc
+	PWD=`pwd` ./neo-c code/HelloWorld10-7.nc || clang -o code/HelloWorld10-7 code/HelloWorld10-7.ll ./neo-c.a -lpcre ./memalloc-stdc.o
 	./code/HelloWorld10-7
 
 neo-vi: neo-vi/neo-vi
