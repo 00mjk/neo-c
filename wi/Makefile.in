@@ -30,8 +30,8 @@ DESTDIR=@DESTDIR@
 ##########################################
 all: wi
 
-wi: configure Makefile config.h main.nc 01init.o 02base.o 03insert_mode.o 04word.o 05undo.o 06file.o 06-2file.o 06-3file.o 07yank.o 08visual.o 09search.o 10edit.o 11move.o 12command.o 13completion.o 14dot.o 15filer.o 16mark.o 17hvisual.o 18vvisual.o 19rewrite_mode.o 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 06-2file.o 06-3file.o 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc 12command.nc 13completion.nc 14dot.nc 15filer.nc 16mark.nc 17hvisual.nc 18vvisual.nc 19rewrite_mode.nc
-	neo-c -o wi main.nc 01init.o 02base.o 03insert_mode.o 04word.o 05undo.o 06file.o 06-2file.o 06-3file.o 07yank.o 08visual.o 09search.o 10edit.o 11move.o 12command.o 13completion.o 14dot.o 15filer.o 16mark.o 17hvisual.o 18vvisual.o 19rewrite_mode.o -L/opt/local/lib $(CFLAGS) $(LIBS) $(NCFLAGS) ../sevenstars/src/interpreter.o ../sevenstars/src/compiler.o ../sevenstars/src/parser.o ../sevenstars/src/node.o ../sevenstars/src/type.o ../sevenstars/src/class.o ../sevenstars/src/native.o ../sevenstars/src/native2.o ../sevenstars/src/native3.o ../sevenstars/src/native4.o ../sevenstars/src/native5.o  ../sevenstars/src/native6.o ../sevenstars/src/vm.o ../sevenstars/src/vtable.o ../sevenstars/src/heap.o ../sevenstars/src/object.o ../sevenstars/src/block.o ../sevenstars/src/macro.o
+wi: configure Makefile config.h main.nc 01init.o 02base.o 03insert_mode.o 04word.o 05undo.o 06file.o 06-2file.o 06-3file.o 07yank.o 08visual.o 09search.o 10edit.o 10edit-2.o 11move.o 12command.o 13completion.o 14dot.o 15filer.o 16mark.o 17hvisual.o 18vvisual.o 19rewrite_mode.o 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 06-2file.o 06-3file.o 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc 12command.nc 13completion.nc 14dot.nc 15filer.nc 16mark.nc 17hvisual.nc 18vvisual.nc 19rewrite_mode.nc
+	neo-c -o wi main.nc 01init.o 02base.o 03insert_mode.o 04word.o 05undo.o 06file.o 06-2file.o 06-3file.o 07yank.o 08visual.o 09search.o 10edit.o 10edit-2.o 11move.o 12command.o 13completion.o 14dot.o 15filer.o 16mark.o 17hvisual.o 18vvisual.o 19rewrite_mode.o -L/opt/local/lib $(CFLAGS) $(LIBS) $(NCFLAGS) ../sevenstars/src/interpreter.o ../sevenstars/src/compiler.o ../sevenstars/src/parser.o ../sevenstars/src/node.o ../sevenstars/src/type.o ../sevenstars/src/class.o ../sevenstars/src/native.o ../sevenstars/src/native2.o ../sevenstars/src/native3.o ../sevenstars/src/native4.o ../sevenstars/src/native5.o  ../sevenstars/src/native6.o ../sevenstars/src/vm.o ../sevenstars/src/vtable.o ../sevenstars/src/heap.o ../sevenstars/src/object.o ../sevenstars/src/block.o ../sevenstars/src/macro.o
 
 01init.o: configure Makefile config.h 01init.nc common.h
 	neo-c -c 01init.nc $(CFLAGS) $(NCFLAGS)
@@ -69,7 +69,10 @@ wi: configure Makefile config.h main.nc 01init.o 02base.o 03insert_mode.o 04word
 10edit.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc
 	neo-c -c 10edit.nc $(CFLAGS) $(NCFLAGS)
 
-11move.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc
+10edit-2.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 10edit-2.nc
+	neo-c -c 10edit-2.nc $(CFLAGS) $(NCFLAGS)
+
+11move.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 10edit-2.nc 11move.nc
 	neo-c -c 11move.nc $(CFLAGS) $(NCFLAGS)
 
 12command.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc 12command.nc
@@ -82,7 +85,7 @@ wi: configure Makefile config.h main.nc 01init.o 02base.o 03insert_mode.o 04word
 	neo-c -c 14dot.nc $(CFLAGS) $(NCFLAGS)
 
 15filer.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc 12command.nc 13completion.nc 14dot.nc 15filer.nc
-	neo-c -c 15filer.nc $(CFLAGS) $(NCFLAGS)
+	neo-c -c 15filer.nc $(CFLAGS) $(NCFLAGS) || clang -c -o 15filer.o 15filer.ll
 
 16mark.o: configure config.h 01init.nc 02base.nc 03insert_mode.nc 04word.nc 05undo.nc 06file.nc 07yank.nc 08visual.nc 09search.nc 10edit.nc 11move.nc 12command.nc 13completion.nc 14dot.nc 15filer.nc 16mark.nc
 	neo-c -c 16mark.nc $(CFLAGS) $(NCFLAGS)
