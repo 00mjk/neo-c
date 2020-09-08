@@ -324,40 +324,43 @@ int main(int argc, char** argv)
     int result = 0;
 
     if(!output_object_file) {
-        char command[4096*2];
+        char command[4096*2*2*2];
 
         if(gNCDebug) {
-            snprintf(command, 4096*2, "clang -g -o %s %s.o $CFLAGS ", program_name, main_module_name);
+            snprintf(command, 4096*2*2*2, "clang -g -o %s %s.o $CFLAGS ", program_name, main_module_name);
         }
         else {
-            snprintf(command, 4096*2, "clang -o %s %s.o $CFLAGS ", program_name, main_module_name);
+            snprintf(command, 4096*2*2*2, "clang -o %s %s.o $CFLAGS ", program_name, main_module_name);
         }
 
-        char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s/lib/neo-c.a", PREFIX);
+        xstrncat(command, throw_to_cflags, 4096*2*2*2);
+
+        char path[PATH_MAX]; 
+
+        snprintf(path, PATH_MAX, "%s/lib/neo-c.a", PREFIX);
 
 
         if(access(path, R_OK) == 0) {
-            xstrncat(command, path, 4096*2);
-            xstrncat(command, " ", 4096*2);
+            xstrncat(command, path, 4096*2*2*2);
+            xstrncat(command, " ", 4096*2*2*2);
         }
         else {
             snprintf(path, PATH_MAX, "./neo-c.a ");
-            xstrncat(command, path, 4096*2);
+            xstrncat(command, path, 4096*2*2*2);
         }
 
         snprintf(path, PATH_MAX, "%s/lib/memalloc-stdc.o", PREFIX);
 
         if(access(path, R_OK) == 0) {
-            xstrncat(command, path, 4096*2);
-            xstrncat(command, " ", 4096*2);
+            xstrncat(command, path, 4096*2*2*2);
+            xstrncat(command, " ", 4096*2*2*2);
         }
         else {
             snprintf(path, PATH_MAX, "./memalloc-stdc.o ");
-            xstrncat(command, path, 4096*2);
+            xstrncat(command, path, 4096*2*2*2);
         }
 
-        xstrncat(command, throw_to_cflags, 4096*2);
-        xstrncat(command, " -lpcre", 4096*2);
+        xstrncat(command, " -lpcre", 4096*2*2*2);
 
         int rc = system(command);
         if(rc != 0) {
