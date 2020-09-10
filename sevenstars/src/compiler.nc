@@ -401,6 +401,7 @@ void set_signal_shell()
 
 bool shell_eval_str(char* str, char* fname, bool output, vector<sCLType*%>* types, CLVALUE* result)
 {
+    gSigInt = false;
     result->mObjectValue = 0;
 
     sParserInfo info;
